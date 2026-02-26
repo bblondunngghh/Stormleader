@@ -28,29 +28,35 @@ async function seedWaterloo() {
     );
     logger.info(`User: ${user.id}`);
 
-    // Seed pipeline stages for this tenant
-    const stages = [
-      { key: 'new',           label: 'New',            position: 0, is_won: false, is_lost: false, is_default: true },
-      { key: 'contacted',     label: 'Contacted',      position: 1, is_won: false, is_lost: false, is_default: false },
-      { key: 'appt_set',      label: 'Appt Set',       position: 2, is_won: false, is_lost: false, is_default: false },
-      { key: 'inspected',     label: 'Inspected',      position: 3, is_won: false, is_lost: false, is_default: false },
-      { key: 'estimate_sent', label: 'Estimate Sent',  position: 4, is_won: false, is_lost: false, is_default: false },
-      { key: 'negotiating',   label: 'Negotiating',    position: 5, is_won: false, is_lost: false, is_default: false },
-      { key: 'sold',          label: 'Sold',           position: 6, is_won: true,  is_lost: false, is_default: false },
-      { key: 'in_production', label: 'In Production',  position: 7, is_won: false, is_lost: false, is_default: false },
-      { key: 'on_hold',       label: 'On Hold',        position: 8, is_won: false, is_lost: false, is_default: false },
-      { key: 'lost',          label: 'Lost',           position: 9, is_won: false, is_lost: true,  is_default: false },
-    ];
-
-    for (const s of stages) {
-      await client.query(
-        `INSERT INTO pipeline_stages (tenant_id, key, label, color, position, is_won, is_lost, is_default, is_active)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true)
-         ON CONFLICT DO NOTHING`,
-        [tenant.id, s.key, s.label, 'oklch(0.72 0.19 250)', s.position, s.is_won, s.is_lost, s.is_default]
-      );
+    // Seed pipeline stages if table exists
+    const { rows: tableCheck } = await client.query(
+      `SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'pipeline_stages') AS exists`
+    );
+    if (tableCheck[0].exists) {
+      const stages = [
+        { key: 'new',           label: 'New',            position: 0, is_won: false, is_lost: false, is_default: true },
+        { key: 'contacted',     label: 'Contacted',      position: 1, is_won: false, is_lost: false, is_default: false },
+        { key: 'appt_set',      label: 'Appt Set',       position: 2, is_won: false, is_lost: false, is_default: false },
+        { key: 'inspected',     label: 'Inspected',      position: 3, is_won: false, is_lost: false, is_default: false },
+        { key: 'estimate_sent', label: 'Estimate Sent',  position: 4, is_won: false, is_lost: false, is_default: false },
+        { key: 'negotiating',   label: 'Negotiating',    position: 5, is_won: false, is_lost: false, is_default: false },
+        { key: 'sold',          label: 'Sold',           position: 6, is_won: true,  is_lost: false, is_default: false },
+        { key: 'in_production', label: 'In Production',  position: 7, is_won: false, is_lost: false, is_default: false },
+        { key: 'on_hold',       label: 'On Hold',        position: 8, is_won: false, is_lost: false, is_default: false },
+        { key: 'lost',          label: 'Lost',           position: 9, is_won: false, is_lost: true,  is_default: false },
+      ];
+      for (const s of stages) {
+        await client.query(
+          `INSERT INTO pipeline_stages (tenant_id, key, label, color, position, is_won, is_lost, is_default, is_active)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true)
+           ON CONFLICT DO NOTHING`,
+          [tenant.id, s.key, s.label, 'oklch(0.72 0.19 250)', s.position, s.is_won, s.is_lost, s.is_default]
+        );
+      }
+      logger.info('Pipeline stages seeded');
+    } else {
+      logger.info('pipeline_stages table not found — skipping');
     }
-    logger.info('Pipeline stages seeded');
 
     await client.query('COMMIT');
     logger.info('=== Waterloo seed complete ===');
