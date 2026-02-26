@@ -1,13 +1,23 @@
 import pool from '../db/pool.js';
 
-export async function listEvents({ source, limit = 50, offset = 0 }) {
+export async function listEvents({ source, limit = 50, offset = 0, timeRange }) {
   const params = [];
-  let where = '';
+  const conditions = [];
 
   if (source) {
     params.push(source);
-    where = `WHERE source = $${params.length}`;
+    conditions.push(`source = $${params.length}`);
   }
+
+  if (timeRange) {
+    const intervals = { '24h': '24 hours', '7d': '7 days', '30d': '30 days' };
+    const interval = intervals[timeRange];
+    if (interval) {
+      conditions.push(`event_start >= NOW() - INTERVAL '${interval}'`);
+    }
+  }
+
+  const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
   params.push(limit, offset);
   const limitIdx = params.length - 1;

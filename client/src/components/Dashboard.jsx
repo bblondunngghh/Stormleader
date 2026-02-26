@@ -1,13 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IconMapPin, IconCheckSquare } from './Icons';
 import * as dashboardApi from '../api/dashboard';
+import * as stormsApi from '../api/storms';
 import { updateTask } from '../api/crm';
 
 import iconDollar from '../assets/icons/Tag-Dollar--Streamline-Ultimate.svg';
 import iconLeads from '../assets/icons/Add-Circle-Bold--Streamline-Ultimate.svg';
 import iconTarget from '../assets/icons/Check-Badge--Streamline-Ultimate.svg';
 import iconClock from '../assets/icons/Cash-Payment-Bills-1--Streamline-Ultimate.svg';
+import iconHomePin from '../assets/icons/Style-Three-Pin-Home--Streamline-Ultimate.svg';
 
 const statIcons = {
   dollar: <img src={iconDollar} alt="" width="28" height="28" />,
@@ -17,10 +19,10 @@ const statIcons = {
 };
 
 const emptyStats = [
-  { label: 'Pipeline Value', value: '$0', change: '—', icon: 'dollar', color: 'oklch(0.75 0.18 155)' },
-  { label: 'New Leads', value: '0', change: '—', icon: 'leads', color: 'oklch(0.72 0.19 250)' },
-  { label: 'Close Rate', value: '0%', change: '—', icon: 'target', color: 'oklch(0.78 0.17 85)' },
-  { label: 'Avg Days to Close', value: '0', change: '—', icon: 'clock', color: 'oklch(0.70 0.18 330)' },
+  { label: 'Pipeline Value', value: '$0', change: '—', icon: 'dollar', color: 'oklch(0.75 0.18 155)', link: '/pipeline' },
+  { label: 'New Leads', value: '0', change: '—', icon: 'leads', color: 'oklch(0.72 0.19 250)', link: '/leads' },
+  { label: 'Close Rate', value: '0%', change: '—', icon: 'target', color: 'oklch(0.78 0.17 85)', link: '/leads?stage=closed_won' },
+  { label: 'Avg Days to Close', value: '0', change: '—', icon: 'clock', color: 'oklch(0.70 0.18 330)', link: '/leads?stage=closed_won' },
 ];
 
 function getGreeting() {
@@ -43,6 +45,57 @@ const priorityColors = {
   low: 'var(--text-muted)',
 };
 
+function useCountUp(target, duration = 800, delay = 0) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!target) return;
+    const timeout = setTimeout(() => {
+      const start = performance.now();
+      const tick = (now) => {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        setValue(eased * target);
+        if (progress < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }, delay);
+    return () => clearTimeout(timeout);
+  }, [target, duration, delay]);
+  return value;
+}
+
+function AnimatedFunnelRow({ row, max, delay, onClick }) {
+  const [animated, setAnimated] = useState(false);
+  const ref = useRef(null);
+  const animatedValue = useCountUp(animated ? row.value : 0, 800, 0);
+  const animatedCount = useCountUp(animated ? row.count : 0, 800, 0);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setAnimated(true), delay);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  const pct = animated ? (row.value / max) * 100 : 0;
+
+  return (
+    <div ref={ref} className="funnel__row" style={{ cursor: 'pointer' }} onClick={onClick}>
+      <span className="funnel__label">{row.stage}</span>
+      <div className="funnel__bar-track">
+        <div className="funnel__bar-fill"
+          style={{
+            width: `${pct}%`,
+            background: row.color,
+            transition: `width 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
+          }}>
+          {Math.round(animatedCount)}
+        </div>
+      </div>
+      <span className="funnel__value">${(animatedValue / 1000).toFixed(1)}K</span>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState(emptyStats);
@@ -50,7 +103,17 @@ export default function Dashboard() {
   const [activity, setActivity] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
   const [tasksToday, setTasksToday] = useState([]);
+  const [storms, setStorms] = useState([]);
+  const [stormRange, setStormRange] = useState('30d');
   const [loading, setLoading] = useState(true);
+
+  const fetchStorms = useCallback(async (range) => {
+    try {
+      // Texas-wide bounding box
+      const res = await stormsApi.getSwaths({ west: -106.65, south: 25.84, east: -93.51, north: 36.5, timeRange: range });
+      setStorms(res.data?.features || []);
+    } catch { setStorms([]); }
+  }, []);
 
   const fetchAll = useCallback(async () => {
     try {
@@ -62,7 +125,10 @@ export default function Dashboard() {
         dashboardApi.getTasksToday(),
       ]);
 
-      if (statsRes.status === 'fulfilled' && statsRes.value.data?.stats) setStats(statsRes.value.data.stats);
+      if (statsRes.status === 'fulfilled' && statsRes.value.data?.stats) {
+        const apiStats = statsRes.value.data.stats;
+        setStats(apiStats.map((s, i) => ({ ...s, link: emptyStats[i]?.link || '/leads' })));
+      }
       if (funnelRes.status === 'fulfilled' && funnelRes.value.data?.funnel) setFunnel(funnelRes.value.data.funnel);
       if (activityRes.status === 'fulfilled' && activityRes.value.data?.activity) setActivity(activityRes.value.data.activity);
       if (leaderRes.status === 'fulfilled' && leaderRes.value.data?.leaderboard) setLeaderboard(leaderRes.value.data.leaderboard);
@@ -72,7 +138,12 @@ export default function Dashboard() {
     }
   }, []);
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  useEffect(() => { fetchAll(); fetchStorms(stormRange); }, [fetchAll, fetchStorms, stormRange]);
+
+  const handleStormRange = (range) => {
+    setStormRange(range);
+    fetchStorms(range);
+  };
 
   const maxFunnelValue = Math.max(...funnel.map(d => d.value), 1);
 
@@ -98,7 +169,8 @@ export default function Dashboard() {
       {/* Stat Cards */}
       <div className="stats-grid">
         {stats.map((stat) => (
-          <div key={stat.label} className="stat-card glass">
+          <div key={stat.label} className="stat-card glass" style={{ cursor: 'pointer' }}
+            onClick={() => navigate(stat.link)}>
             <div className="stat-card__header">
               <div className="stat-card__icon">
                 {statIcons[stat.icon]}
@@ -120,18 +192,8 @@ export default function Dashboard() {
             <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: 'var(--space-xl) 0' }}>No pipeline data yet</div>
           ) : (
             <div className="funnel">
-              {funnel.map((row) => (
-                <div key={row.stage} className="funnel__row" style={{ cursor: 'pointer' }}
-                  onClick={() => navigate('/pipeline')}>
-                  <span className="funnel__label">{row.stage}</span>
-                  <div className="funnel__bar-track">
-                    <div className="funnel__bar-fill"
-                      style={{ width: `${(row.value / maxFunnelValue) * 100}%`, background: row.color }}>
-                      {row.count}
-                    </div>
-                  </div>
-                  <span className="funnel__value">${(row.value / 1000).toFixed(1)}K</span>
-                </div>
+              {funnel.map((row, i) => (
+                <AnimatedFunnelRow key={row.stage} row={row} max={maxFunnelValue} delay={i * 120} onClick={() => navigate('/pipeline')} />
               ))}
             </div>
           )}
@@ -220,15 +282,60 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Storm Map Placeholder */}
-        <div className="dashboard-panel glass" style={{ padding: 'var(--space-xl)' }}>
-          <div className="dashboard-panel__title">Active Storm Zone</div>
-          <div className="storm-map-placeholder">
-            <div className="storm-map-label">
-              <IconMapPin style={{ width: 32, height: 32 }} />
-              Storm map — connect weather API for live data
+        {/* Recent Storms */}
+        <div className="dashboard-panel glass" style={{ padding: 'var(--space-xl)', justifyContent: 'flex-start' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
+            <div className="dashboard-panel__title" style={{ margin: 0 }}>Recent Storm Activity</div>
+            <div style={{ display: 'flex', gap: 4 }}>
+              {['24h', '7d', '30d'].map((r) => (
+                <button key={r} onClick={() => handleStormRange(r)}
+                  style={{
+                    fontSize: 11, fontWeight: 600, padding: '3px 10px',
+                    borderRadius: 'var(--radius-pill)',
+                    background: stormRange === r ? 'oklch(0.50 0.15 250 / 0.2)' : 'transparent',
+                    color: stormRange === r ? 'var(--accent-blue)' : 'var(--text-muted)',
+                    border: stormRange === r ? '1px solid oklch(0.50 0.15 250 / 0.3)' : '1px solid transparent',
+                  }}>
+                  {r}
+                </button>
+              ))}
             </div>
           </div>
+          {storms.length === 0 ? (
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: 'var(--space-xl) 0', textAlign: 'center' }}>
+              No recent storm events
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
+              {storms.slice(0, 5).map((s) => {
+                const p = s.properties || {};
+                return (
+                  <div key={s.id} className="storm-row" style={{ cursor: 'pointer' }}
+                    onClick={() => navigate('/storm-map')}>
+                    <img src={iconHomePin} alt="" width="28" height="28" style={{ flexShrink: 0, display: 'block' }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {p.raw_data?.location || p.raw_data?.headline || p.raw_data?.areaDesc || p.source_id || 'Storm Event'}
+                        {p.raw_data?.county ? `, ${p.raw_data.county}` : ''}
+                        {p.raw_data?.state ? ` ${p.raw_data.state}` : ''}
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                        {p.raw_data?.type || p.raw_data?.severity || p.source || 'NOAA'}
+                        {p.hail_size_max_in ? ` — Max ${p.hail_size_max_in}" hail` : ''}
+                        {p.raw_data?.speed && p.raw_data.speed !== 'UNK' ? ` — ${p.raw_data.speed} mph` : ''}
+                        {p.event_start ? ` — ${new Date(p.event_start).toLocaleDateString()}` : ''}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              <button
+                style={{ fontSize: 12, color: 'var(--accent-blue)', fontWeight: 600, textAlign: 'right', marginTop: 'var(--space-xs)', alignSelf: 'flex-end' }}
+                onClick={() => navigate('/storm-map')}>
+                View Storm Map →
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

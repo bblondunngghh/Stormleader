@@ -372,8 +372,8 @@ export default function LeadList() {
       )}
 
       {/* Table */}
-      <div className="glass" style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
-        <div style={{ overflowX: 'auto' }}>
+      <div className="glass" style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+        <div style={{ overflow: 'auto', flex: 1 }}>
           <table className="lead-table">
             <thead>
               <tr>
