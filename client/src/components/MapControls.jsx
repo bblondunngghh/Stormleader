@@ -6,9 +6,11 @@ const timeRanges = [
 ];
 
 const layerToggles = [
-  { id: 'hail', label: 'Hail Swaths' },
-  { id: 'warnings', label: 'NWS Warnings' },
-  { id: 'spc', label: 'SPC Reports' },
+  { id: 'hail', label: 'Hail Reports' },
+  { id: 'wind', label: 'Wind Reports' },
+  { id: 'tornado', label: 'Tornadoes' },
+  { id: 'drift', label: 'Wind Drift Correction' },
+  { id: 'properties', label: 'Properties' },
 ];
 
 export default function MapControls({ timeRange, onTimeRangeChange, layers, onLayersChange }) {

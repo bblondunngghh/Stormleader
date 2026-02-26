@@ -95,8 +95,10 @@ export async function getSwathsByViewport(bbox, timeRange, startDate, endDate) {
   const { rows } = await pool.query(
     `SELECT id, source, source_id,
             ST_AsGeoJSON(geom)::json AS geometry,
+            ST_AsGeoJSON(drift_corrected_geom)::json AS drift_geometry,
+            drift_vector_m,
             hail_size_max_in, wind_speed_max_mph,
-            event_start, event_end
+            event_start, event_end, raw_data
      FROM storm_events
      WHERE ST_Intersects(geom, ST_MakeEnvelope($1, $2, $3, $4, 4326))
      ${timeFilter}
@@ -117,6 +119,9 @@ export async function getSwathsByViewport(bbox, timeRange, startDate, endDate) {
         wind_speed_max_mph: r.wind_speed_max_mph,
         event_start: r.event_start,
         event_end: r.event_end,
+        raw_data: r.raw_data,
+        drift_geometry: r.drift_geometry,
+        drift_vector_m: r.drift_vector_m,
       },
     })),
   };

@@ -4,6 +4,9 @@ import logger from '../utils/logger.js';
 import { ingestMRMS } from './mrmsIngester.js';
 import { ingestNWS } from './nwsIngester.js';
 import { ingestSPC } from './spcIngester.js';
+import { checkAndAlert } from '../services/alertService.js';
+import { correctAllPending } from '../services/windDriftService.js';
+import { autoImportForStorms } from '../services/countyService.js';
 
 export function startScheduler() {
   if (config.NODE_ENV === 'test') {
@@ -16,6 +19,11 @@ export function startScheduler() {
     logger.info('Scheduler: running MRMS ingestion');
     try {
       await ingestMRMS();
+      await checkAndAlert();
+      // Auto-import county property data for areas with recent storms
+      await autoImportForStorms().catch(err =>
+        logger.error({ err }, 'Scheduler: storm auto-import failed')
+      );
     } catch (err) {
       logger.error({ err }, 'Scheduler: MRMS ingestion failed');
     }
@@ -26,6 +34,10 @@ export function startScheduler() {
     logger.info('Scheduler: running NWS ingestion');
     try {
       await ingestNWS();
+      await checkAndAlert();
+      await autoImportForStorms().catch(err =>
+        logger.error({ err }, 'Scheduler: storm auto-import failed')
+      );
     } catch (err) {
       logger.error({ err }, 'Scheduler: NWS ingestion failed');
     }
@@ -36,6 +48,11 @@ export function startScheduler() {
     logger.info('Scheduler: running SPC ingestion');
     try {
       await ingestSPC();
+      await correctAllPending();
+      await checkAndAlert();
+      await autoImportForStorms().catch(err =>
+        logger.error({ err }, 'Scheduler: storm auto-import failed')
+      );
     } catch (err) {
       logger.error({ err }, 'Scheduler: SPC ingestion failed');
     }

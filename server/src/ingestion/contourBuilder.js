@@ -31,13 +31,15 @@ export function buildContours(grid, thresholds = [1.0, 1.5, 2.0]) {
     if (!mp.coordinates || mp.coordinates.length === 0) continue;
 
     // Transform pixel coordinates to lon/lat
+    // NOAA uses 0-360 longitude; convert to standard -180 to 180
     const transformed = mp.coordinates.map((polygon) =>
       polygon.map((ring) =>
-        ring.map(([px, py]) => [
-          bbox.west + px * xScale,
-          // d3 contour y=0 is top, geo y=0 is south — flip
-          bbox.north - py * yScale,
-        ])
+        ring.map(([px, py]) => {
+          let lon = bbox.west + px * xScale;
+          if (lon > 180) lon -= 360;
+          const lat = bbox.north - py * yScale; // d3 contour y=0 is top
+          return [lon, lat];
+        })
       )
     );
 

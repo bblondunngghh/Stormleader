@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import validate from '../middleware/validate.js';
+import authenticate from '../middleware/authenticate.js';
 import * as authService from '../services/authService.js';
+import pool from '../db/pool.js';
 
 const router = Router();
 
@@ -38,6 +40,20 @@ router.post('/login', validate(loginSchema), async (req, res, next) => {
     const { email, password, tenantSlug } = req.body;
     const result = await authService.login(email, password, tenantSlug);
     res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/me', authenticate, async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT id, tenant_id, email, role, first_name, last_name FROM users WHERE id = $1',
+      [req.user.id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
+    const u = rows[0];
+    res.json({ user: { id: u.id, email: u.email, firstName: u.first_name, lastName: u.last_name, role: u.role, tenantId: u.tenant_id } });
   } catch (err) {
     next(err);
   }

@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from './auth/AuthContext';
+import { Routes, Route, Navigate, useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useMemo, useCallback } from 'react';
 import ProtectedRoute from './auth/ProtectedRoute';
 import LoginPage from './auth/LoginPage';
 import RegisterPage from './auth/RegisterPage';
@@ -8,42 +7,57 @@ import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import Dashboard from './components/Dashboard';
 import Pipeline from './components/Pipeline';
+import LeadList from './components/LeadList';
 import StormMap from './components/StormMap';
+import AlertSettings from './components/AlertSettings';
+import TasksView from './components/TasksView';
+import EstimatesView from './components/EstimatesView';
+import SettingsView from './components/SettingsView';
+import PublicEstimate from './components/PublicEstimate';
+
+const viewRoutes = {
+  dashboard: '/',
+  pipeline: '/pipeline',
+  leads: '/leads',
+  'storm-map': '/storm-map',
+  alerts: '/alerts',
+  tasks: '/tasks',
+  estimates: '/estimates',
+  settings: '/settings',
+};
+
+const routeToView = Object.fromEntries(
+  Object.entries(viewRoutes).map(([view, path]) => [path, view])
+);
 
 function AppShell() {
-  const [activeView, setActiveView] = useState('dashboard');
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const renderView = () => {
-    switch (activeView) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'pipeline':
-        return <Pipeline />;
-      case 'leads':
-        return <Pipeline />;
-      case 'storm-map':
-        return <StormMap />;
-      default:
-        return (
-          <div className="main-content">
-            <div className="dashboard-panel glass" style={{ padding: 'var(--space-3xl)', textAlign: 'center' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '8px' }}>
-                {activeView.charAt(0).toUpperCase() + activeView.slice(1).replace('-', ' ')}
-              </h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
-                This screen is coming soon.
-              </p>
-            </div>
-          </div>
-        );
-    }
-  };
+  const activeView = useMemo(() => {
+    return routeToView[location.pathname] || 'dashboard';
+  }, [location.pathname]);
+
+  const handleNavigate = useCallback((view) => {
+    const path = viewRoutes[view] || '/';
+    navigate(path);
+  }, [navigate]);
 
   return (
     <div className="app">
-      <Sidebar activeView={activeView} onNavigate={setActiveView} />
-      <TopBar activeView={activeView} />
-      {renderView()}
+      <Sidebar activeView={activeView} onNavigate={handleNavigate} />
+      <TopBar activeView={activeView} onNavigate={handleNavigate} />
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/pipeline" element={<Pipeline />} />
+        <Route path="/leads" element={<LeadList />} />
+        <Route path="/storm-map" element={<StormMap />} />
+        <Route path="/alerts" element={<AlertSettings />} />
+        <Route path="/tasks" element={<TasksView />} />
+        <Route path="/estimates" element={<EstimatesView />} />
+        <Route path="/settings" element={<SettingsView />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </div>
   );
 }
@@ -53,6 +67,7 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/estimate/:token" element={<PublicEstimateRoute />} />
       <Route
         path="/*"
         element={
@@ -64,3 +79,9 @@ export default function App() {
     </Routes>
   );
 }
+
+function PublicEstimateRoute() {
+  const { token } = useParams();
+  return <PublicEstimate token={token} />;
+}
+

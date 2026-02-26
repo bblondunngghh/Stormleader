@@ -35,16 +35,30 @@ async function migrate() {
 
     for (const file of pending) {
       const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf-8');
-      await client.query('BEGIN');
-      try {
-        await client.query(sql);
-        await client.query('INSERT INTO _migrations (name) VALUES ($1)', [file]);
-        await client.query('COMMIT');
-        logger.info(`Applied migration: ${file}`);
-      } catch (err) {
-        await client.query('ROLLBACK');
-        logger.error({ err }, `Failed migration: ${file}`);
-        throw err;
+      const noTransaction = sql.includes('@notransaction');
+
+      if (noTransaction) {
+        // Run without transaction wrapper (needed for ALTER TYPE ADD VALUE)
+        try {
+          await client.query(sql);
+          await client.query('INSERT INTO _migrations (name) VALUES ($1)', [file]);
+          logger.info(`Applied migration (no-tx): ${file}`);
+        } catch (err) {
+          logger.error({ err }, `Failed migration: ${file}`);
+          throw err;
+        }
+      } else {
+        await client.query('BEGIN');
+        try {
+          await client.query(sql);
+          await client.query('INSERT INTO _migrations (name) VALUES ($1)', [file]);
+          await client.query('COMMIT');
+          logger.info(`Applied migration: ${file}`);
+        } catch (err) {
+          await client.query('ROLLBACK');
+          logger.error({ err }, `Failed migration: ${file}`);
+          throw err;
+        }
       }
     }
 
