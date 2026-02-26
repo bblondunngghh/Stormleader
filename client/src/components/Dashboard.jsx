@@ -4,7 +4,17 @@ import { IconMapPin, IconCheckSquare } from './Icons';
 import * as dashboardApi from '../api/dashboard';
 import { updateTask } from '../api/crm';
 
-const statIcons = { dollar: '💰', leads: '📋', target: '🎯', clock: '⏱️' };
+import iconDollar from '../assets/icons/Tag-Dollar--Streamline-Ultimate.svg';
+import iconLeads from '../assets/icons/Add-Circle-Bold--Streamline-Ultimate.svg';
+import iconTarget from '../assets/icons/Check-Badge--Streamline-Ultimate.svg';
+import iconClock from '../assets/icons/Cash-Payment-Bills-1--Streamline-Ultimate.svg';
+
+const statIcons = {
+  dollar: <img src={iconDollar} alt="" width="28" height="28" />,
+  leads: <img src={iconLeads} alt="" width="28" height="28" />,
+  target: <img src={iconTarget} alt="" width="28" height="28" />,
+  clock: <img src={iconClock} alt="" width="28" height="28" />,
+};
 
 const emptyStats = [
   { label: 'Pipeline Value', value: '$0', change: '—', icon: 'dollar', color: 'oklch(0.75 0.18 155)' },
@@ -90,8 +100,7 @@ export default function Dashboard() {
         {stats.map((stat) => (
           <div key={stat.label} className="stat-card glass">
             <div className="stat-card__header">
-              <div className="stat-card__icon"
-                style={{ background: stat.color.replace(')', ' / 0.15)').replace('oklch(', 'oklch(') }}>
+              <div className="stat-card__icon">
                 {statIcons[stat.icon]}
               </div>
               <span className="stat-card__change">{stat.change}</span>

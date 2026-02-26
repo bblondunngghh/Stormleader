@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
+import iconBrand from '../assets/icons/Weather-Cloud-Wind-4--Streamline-Ultimate.svg';
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('brandon');
+  const [password, setPassword] = useState('123');
   const [tenantSlug, setTenantSlug] = useState('creekstone');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -27,7 +28,7 @@ export default function LoginPage() {
     <div className="auth-page">
       <div className="auth-card glass">
         <div className="auth-card__logo">
-          <div className="sidebar__logo" style={{ width: 44, height: 44, fontSize: 22 }}>⛈️</div>
+          <div className="sidebar__logo" style={{ width: 44, height: 44 }}><img src={iconBrand} alt="StormLeads" width="36" height="36" /></div>
           <div>
             <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em' }}>StormLeads</div>
           </div>
@@ -43,8 +44,8 @@ export default function LoginPage() {
             <label>Email</label>
             <input
               className="form-input"
-              type="email"
-              placeholder="you@company.com"
+              type="text"
+              placeholder="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

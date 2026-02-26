@@ -1,16 +1,26 @@
 import { useState } from 'react';
-import { NavIcon, IconLogOut } from './Icons';
+import { IconLogOut } from './Icons';
 import { useAuth } from '../auth/AuthContext';
 
+import iconDashboard from '../assets/icons/App-Window-Pie-Chart--Streamline-Ultimate.svg';
+import iconPipeline from '../assets/icons/Business-Team-Goal--Streamline-Ultimate.svg';
+import iconLeads from '../assets/icons/Style-Three-Pin-Home--Streamline-Ultimate.svg';
+import iconStormMap from '../assets/icons/Rain-Umbrella-1--Streamline-Ultimate.svg';
+import iconAlerts from '../assets/icons/Alarm-Bell-Ring--Streamline-Ultimate.svg';
+import iconTasks from '../assets/icons/Checklist--Streamline-Ultimate.svg';
+import iconEstimates from '../assets/icons/Accounting-Calculator-1--Streamline-Ultimate.svg';
+import iconSettings from '../assets/icons/Settings-Slider-Desktop-Horizontal--Streamline-Ultimate.svg';
+import iconBrand from '../assets/icons/Weather-Cloud-Wind-4--Streamline-Ultimate.svg';
+
 const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: 'grid' },
-  { id: 'pipeline', label: 'Pipeline', icon: 'columns' },
-  { id: 'leads', label: 'Leads', icon: 'users' },
-  { id: 'storm-map', label: 'Storm Map', icon: 'map' },
-  { id: 'alerts', label: 'Alerts', icon: 'bell' },
-  { id: 'tasks', label: 'Tasks', icon: 'check-square' },
-  { id: 'estimates', label: 'Estimates', icon: 'file-text' },
-  { id: 'settings', label: 'Settings', icon: 'settings' },
+  { id: 'dashboard', label: 'Dashboard', icon: iconDashboard },
+  { id: 'storm-map', label: 'Storm Map', icon: iconStormMap },
+  { id: 'pipeline', label: 'Pipeline', icon: iconPipeline },
+  { id: 'leads', label: 'Leads', icon: iconLeads },
+  { id: 'estimates', label: 'Estimates', icon: iconEstimates },
+  { id: 'tasks', label: 'Tasks', icon: iconTasks },
+  { id: 'alerts', label: 'Alerts', icon: iconAlerts },
+  { id: 'settings', label: 'Settings', icon: iconSettings },
 ];
 
 export default function Sidebar({ activeView, onNavigate }) {
@@ -27,7 +37,7 @@ export default function Sidebar({ activeView, onNavigate }) {
   return (
     <aside className={`sidebar glass ${collapsed ? 'sidebar--collapsed' : ''}`}>
       <div className="sidebar__brand" onClick={() => setCollapsed(c => !c)} style={{ cursor: 'pointer' }}>
-        <div className="sidebar__logo">⛈️</div>
+        <div className="sidebar__logo"><img src={iconBrand} alt="StormLeads" width="28" height="28" /></div>
         {!collapsed && (
           <div>
             <div className="sidebar__title">StormLeads</div>
@@ -44,7 +54,7 @@ export default function Sidebar({ activeView, onNavigate }) {
             onClick={() => onNavigate(item.id)}
             title={collapsed ? item.label : undefined}
           >
-            <NavIcon name={item.icon} className="nav-link__icon" />
+            <img src={item.icon} alt="" width="20" height="20" className="nav-link__icon" />
             {!collapsed && item.label}
           </button>
         ))}
