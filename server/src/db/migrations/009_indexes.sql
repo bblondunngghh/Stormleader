@@ -1,12 +1,20 @@
-CREATE INDEX idx_storm_events_geom ON storm_events USING GIST(geom);
-CREATE INDEX idx_storm_events_bbox ON storm_events USING GIST(bbox);
-CREATE INDEX idx_storm_events_start ON storm_events(event_start DESC);
-CREATE INDEX idx_properties_location ON properties USING GIST(location);
-CREATE INDEX idx_leads_tenant_stage ON leads(tenant_id, stage);
-CREATE INDEX idx_leads_tenant_priority ON leads(tenant_id, priority);
-CREATE INDEX idx_leads_tenant_created ON leads(tenant_id, created_at DESC);
-CREATE INDEX idx_outreach_lead ON outreach_log(lead_id, created_at DESC);
-CREATE INDEX idx_users_tenant ON users(tenant_id);
+-- GIST indexes only work with PostGIS geometry columns
+DO $$
+BEGIN
+  IF has_postgis() THEN
+    EXECUTE 'CREATE INDEX IF NOT EXISTS idx_storm_events_geom ON storm_events USING GIST(geom)';
+    EXECUTE 'CREATE INDEX IF NOT EXISTS idx_storm_events_bbox ON storm_events USING GIST(bbox)';
+    EXECUTE 'CREATE INDEX IF NOT EXISTS idx_properties_location ON properties USING GIST(location)';
+  END IF;
+END
+$$;
+
+CREATE INDEX IF NOT EXISTS idx_storm_events_start ON storm_events(event_start DESC);
+CREATE INDEX IF NOT EXISTS idx_leads_tenant_stage ON leads(tenant_id, stage);
+CREATE INDEX IF NOT EXISTS idx_leads_tenant_priority ON leads(tenant_id, priority);
+CREATE INDEX IF NOT EXISTS idx_leads_tenant_created ON leads(tenant_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_outreach_lead ON outreach_log(lead_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_users_tenant ON users(tenant_id);
 
 -- Auto-update updated_at triggers
 CREATE OR REPLACE FUNCTION update_updated_at()

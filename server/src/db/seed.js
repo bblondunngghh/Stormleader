@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import pool from './pool.js';
 import logger from '../utils/logger.js';
 
-const AUSTIN_SERVICE_AREA = `SRID=4326;POLYGON((-98.1 30.6, -97.5 30.6, -97.5 30.1, -98.1 30.1, -98.1 30.6))`;
+const AUSTIN_SERVICE_AREA_EWKT = `SRID=4326;POLYGON((-98.1 30.6, -97.5 30.6, -97.5 30.1, -98.1 30.1, -98.1 30.6))`;
 
 const properties = [
   { address: '4521 Graceland Ln', city: 'Austin', zip: '78731', lat: 30.3521, lng: -97.7567, owner_first: 'Marcus', owner_last: 'Johnson', roof_type: 'composition', roof_sqft: 2800, year_built: 2005, assessed_value: 425000 },
@@ -62,12 +62,24 @@ async function seed() {
     // ============================================================
     // TENANT
     // ============================================================
+    // Check if PostGIS is available
+    const { rows: pgisCheck } = await client.query(
+      `SELECT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'postgis') AS has_postgis`
+    );
+    const hasPostGIS = pgisCheck[0].has_postgis;
+    logger.info(`PostGIS available: ${hasPostGIS}`);
+
     const { rows: [tenant] } = await client.query(
-      `INSERT INTO tenants (name, slug, subscription_tier, service_area)
-       VALUES ($1, $2, $3, ST_GeomFromEWKT($4))
-       ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
-       RETURNING id`,
-      ['Creekstone Roof Co', 'creekstone', 'pro', AUSTIN_SERVICE_AREA]
+      hasPostGIS
+        ? `INSERT INTO tenants (name, slug, subscription_tier, service_area)
+           VALUES ($1, $2, $3, ST_GeomFromEWKT($4))
+           ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
+           RETURNING id`
+        : `INSERT INTO tenants (name, slug, subscription_tier, service_area)
+           VALUES ($1, $2, $3, $4)
+           ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
+           RETURNING id`,
+      ['Creekstone Roof Co', 'creekstone', 'pro', AUSTIN_SERVICE_AREA_EWKT]
     );
     const tenantId = tenant.id;
     logger.info(`Tenant: ${tenantId}`);
@@ -136,9 +148,13 @@ async function seed() {
     const propertyIds = [];
     for (const p of properties) {
       const { rows: [prop] } = await client.query(
-        `INSERT INTO properties (location, address_line1, city, state, zip, owner_first_name, owner_last_name, roof_type, roof_sqft, year_built, assessed_value)
-         VALUES (ST_SetSRID(ST_MakePoint($1, $2), 4326), $3, $4, 'TX', $5, $6, $7, $8, $9, $10, $11)
-         RETURNING id`,
+        hasPostGIS
+          ? `INSERT INTO properties (location, address_line1, city, state, zip, owner_first_name, owner_last_name, roof_type, roof_sqft, year_built, assessed_value)
+             VALUES (ST_SetSRID(ST_MakePoint($1, $2), 4326), $3, $4, 'TX', $5, $6, $7, $8, $9, $10, $11)
+             RETURNING id`
+          : `INSERT INTO properties (location, address_line1, city, state, zip, owner_first_name, owner_last_name, roof_type, roof_sqft, year_built, assessed_value)
+             VALUES ($1 || ',' || $2, $3, $4, 'TX', $5, $6, $7, $8, $9, $10, $11)
+             RETURNING id`,
         [p.lng, p.lat, p.address, p.city, p.zip, p.owner_first, p.owner_last, p.roof_type, p.roof_sqft, p.year_built, p.assessed_value]
       );
       propertyIds.push(prop.id);
