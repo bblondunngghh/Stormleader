@@ -2,7 +2,14 @@ import pg from 'pg';
 import config from '../config/env.js';
 import logger from '../utils/logger.js';
 
-const pool = new pg.Pool({ connectionString: config.DATABASE_URL });
+const poolConfig = { connectionString: config.DATABASE_URL };
+
+// Railway Postgres requires SSL in production
+if (config.NODE_ENV === 'production') {
+  poolConfig.ssl = { rejectUnauthorized: false };
+}
+
+const pool = new pg.Pool(poolConfig);
 
 pool.on('connect', () => {
   logger.info('Database pool connected');
