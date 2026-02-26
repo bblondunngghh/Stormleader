@@ -7,22 +7,27 @@ async function seedWaterloo() {
   try {
     await client.query('BEGIN');
 
-    // Create tenant
+    // Clean up any orphaned duplicates from previous crash loops
+    await client.query(`DELETE FROM users WHERE email = $1`, ['waterlooconstruction1@gmail.com']);
+    await client.query(`DELETE FROM tenants WHERE slug = $1`, ['waterloo']);
+
+    // Create tenant fresh
     const { rows: [tenant] } = await client.query(
       `INSERT INTO tenants (name, slug, subscription_tier)
        VALUES ($1, $2, $3)
-       ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
        RETURNING id`,
       ['Waterloo Construction', 'waterloo', 'pro']
     );
     logger.info(`Tenant: ${tenant.id}`);
 
-    // Create user
-    const hash = await bcrypt.hash('2Wealth&health', 10);
+    // Create user with explicit password
+    const password = '2Wealth&health';
+    const hash = await bcrypt.hash(password, 10);
+    logger.info(`Password hash generated for: ${password.substring(0, 3)}***`);
+
     const { rows: [user] } = await client.query(
       `INSERT INTO users (tenant_id, email, password_hash, first_name, last_name, role)
        VALUES ($1, $2, $3, $4, $5, $6)
-       ON CONFLICT (tenant_id, email) DO UPDATE SET password_hash = EXCLUDED.password_hash
        RETURNING id`,
       [tenant.id, 'waterlooconstruction1@gmail.com', hash, 'Waterloo', 'Admin', 'admin']
     );
