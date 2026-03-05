@@ -80,6 +80,7 @@ export async function getLeadDetail(tenantId, leadId) {
         ST_AsGeoJSON(p.location)::json AS property_geometry,
         se.source AS storm_source, se.hail_size_max_in AS storm_hail_max,
         se.wind_speed_max_mph AS storm_wind_max, se.event_start AS storm_start,
+        se.raw_data->>'type' AS storm_type,
         u.first_name AS rep_first_name, u.last_name AS rep_last_name, u.email AS rep_email
      FROM leads l
      LEFT JOIN properties p ON p.id = l.property_id
@@ -125,6 +126,14 @@ export async function getLeadDetail(tenantId, leadId) {
   };
 }
 
+export async function deleteLead(tenantId, leadId) {
+  const { rowCount } = await pool.query(
+    `UPDATE leads SET deleted_at = NOW() WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL`,
+    [leadId, tenantId]
+  );
+  return rowCount > 0;
+}
+
 export async function updateLead(tenantId, leadId, updates) {
   const allowedFields = [
     'stage', 'priority', 'estimated_value', 'actual_value',
@@ -158,6 +167,61 @@ export async function updateLead(tenantId, leadId, updates) {
 
   if (rows.length === 0) return null;
   return rows[0];
+}
+
+/**
+ * Update the roof_type on the property linked to a lead, then recalculate estimated_value.
+ */
+export async function updateLeadRoofType(tenantId, leadId, roofType) {
+  // Fetch lead + property + storm info
+  const { rows } = await pool.query(
+    `SELECT l.property_id, l.hail_size_in, p.roof_sqft, p.assessed_value,
+            se.wind_speed_max_mph
+     FROM leads l
+     LEFT JOIN properties p ON p.id = l.property_id
+     LEFT JOIN storm_events se ON se.id = l.storm_event_id
+     WHERE l.id = $1 AND l.tenant_id = $2 AND l.deleted_at IS NULL`,
+    [leadId, tenantId]
+  );
+  if (rows.length === 0) return null;
+  const r = rows[0];
+
+  // Update property roof_type
+  if (r.property_id) {
+    await pool.query(
+      `UPDATE properties SET roof_type = $1 WHERE id = $2`,
+      [roofType, r.property_id]
+    );
+  }
+
+  // Recalculate estimate
+  const ratePerSqft = { composition: 5.5, asphalt: 5.5, metal: 8, slate: 12, tile: 9.5, wood: 7, 'built-up': 6 };
+  const hail = r.hail_size_in ? parseFloat(r.hail_size_in) : 0;
+  const wind = r.wind_speed_max_mph ? parseFloat(r.wind_speed_max_mph) : 0;
+  let df = 0.3;
+  if (hail >= 2.5) df = 1.0;
+  else if (hail >= 1.75) df = 0.8;
+  else if (hail >= 1.25) df = 0.6;
+  else if (hail >= 1.0) df = 0.45;
+  else if (hail >= 0.75) df = 0.35;
+  if (wind >= 80) df = Math.min(df + 0.2, 1.0);
+  else if (wind >= 60) df = Math.min(df + 0.1, 1.0);
+
+  const sqft = r.roof_sqft ? parseInt(r.roof_sqft) : 0;
+  const rate = ratePerSqft[roofType.toLowerCase()] || 6;
+  let est;
+  if (sqft > 0) est = sqft * rate * df;
+  else if (r.assessed_value) est = parseFloat(r.assessed_value) * 0.02 * df / 0.6;
+  else est = 8500 * df;
+  est = Math.round(est / 100) * 100;
+
+  // Save new estimate to lead
+  await pool.query(
+    `UPDATE leads SET estimated_value = $1 WHERE id = $2 AND tenant_id = $3`,
+    [est, leadId, tenantId]
+  );
+
+  return getLeadDetail(tenantId, leadId);
 }
 
 // ============================================================

@@ -126,7 +126,7 @@ export default function Pipeline() {
                         {lead.estimated_value ? `$${(Number(lead.estimated_value) / 1000).toFixed(1)}K` : '—'}
                       </span>
                     </div>
-                    <div className="lead-card__address">{lead.address || '—'}</div>
+                    <div className="lead-card__address">{lead.address || '—'}{lead.city && !lead.address?.toUpperCase().includes(lead.city?.toUpperCase()) ? `, ${lead.city}` : ''}{lead.state && !lead.address?.includes(lead.state) ? `, ${lead.state}` : ''}{lead.zip && !lead.address?.includes(lead.zip) ? ` ${lead.zip}` : ''}</div>
                     <div className="lead-card__name">{lead.contact_name || '—'}</div>
                     <div className="lead-card__footer">
                       <span className="lead-card__hail">

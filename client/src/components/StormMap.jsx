@@ -299,7 +299,7 @@ export default function StormMap() {
       if (!e.features?.length) return;
       const feature = e.features[0];
       const p = feature.properties;
-      const propertyId = feature.id;
+      const propertyId = p.id || feature.id;
       if (popupRef.current) popupRef.current.remove();
 
       const value = p.assessed_value ? `$${Number(p.assessed_value).toLocaleString()}` : '';

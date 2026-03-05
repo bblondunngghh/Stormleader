@@ -306,31 +306,83 @@ export default function Dashboard() {
               No recent storm events
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
-              {storms.slice(0, 5).map((s) => {
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {/* Column headers */}
+              <div style={{
+                display: 'grid', gridTemplateColumns: '72px 1fr 80px 64px',
+                gap: 8, padding: '0 4px 6px', borderBottom: '1px solid oklch(0.25 0.02 260 / 0.2)',
+                fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em',
+                color: 'var(--text-muted)',
+              }}>
+                <span>Type</span>
+                <span>Location</span>
+                <span>Severity</span>
+                <span style={{ textAlign: 'right' }}>Date</span>
+              </div>
+              {storms.slice(0, 8).map((s) => {
                 const p = s.properties || {};
+                const rawType = (p.raw_data?.type || '').toLowerCase();
+                const isHail = rawType === 'hail' || !!p.hail_size_max_in;
+                const isTornado = rawType === 'tornado';
+                const typeLabel = isTornado ? 'Tornado' : isHail ? 'Hail' : 'Wind';
+                const typeColor = isTornado ? '#ff2d55' : isHail ? '#dcb428' : '#6c5ce7';
+
+                const location = p.raw_data?.location || p.raw_data?.county || p.raw_data?.areaDesc || 'Unknown';
+                const severity = isHail && p.hail_size_max_in
+                  ? `${p.hail_size_max_in}"`
+                  : p.raw_data?.speed && p.raw_data.speed !== 'UNK'
+                    ? `${p.raw_data.speed} mph`
+                    : p.wind_speed_max_mph
+                      ? `${p.wind_speed_max_mph} mph`
+                      : '—';
+                const date = p.event_start
+                  ? new Date(p.event_start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                  : '';
+
                 return (
-                  <div key={s.id} className="storm-row" style={{ cursor: 'pointer' }}
+                  <div key={s.id} style={{
+                    display: 'grid', gridTemplateColumns: '72px 1fr 80px 64px',
+                    gap: 8, alignItems: 'center', padding: '7px 4px',
+                    borderRadius: 6, cursor: 'pointer',
+                    transition: 'background 0.15s',
+                  }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'oklch(0.25 0.02 260 / 0.15)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     onClick={() => navigate('/storm-map')}>
-                    <img src={iconHomePin} alt="" width="28" height="28" style={{ flexShrink: 0, display: 'block' }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {p.raw_data?.location || p.raw_data?.headline || p.raw_data?.areaDesc || p.source_id || 'Storm Event'}
-                        {p.raw_data?.county ? `, ${p.raw_data.county}` : ''}
-                        {p.raw_data?.state ? ` ${p.raw_data.state}` : ''}
-                      </div>
-                      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                        {p.raw_data?.type || p.raw_data?.severity || p.source || 'NOAA'}
-                        {p.hail_size_max_in ? ` — Max ${p.hail_size_max_in}" hail` : ''}
-                        {p.raw_data?.speed && p.raw_data.speed !== 'UNK' ? ` — ${p.raw_data.speed} mph` : ''}
-                        {p.event_start ? ` — ${new Date(p.event_start).toLocaleDateString()}` : ''}
-                      </div>
-                    </div>
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+                      color: typeColor, background: `${typeColor}18`,
+                      padding: '3px 8px', borderRadius: 4, textAlign: 'center',
+                      border: `1px solid ${typeColor}30`,
+                    }}>
+                      {typeLabel}
+                    </span>
+                    <span style={{
+                      fontSize: 13, fontWeight: 500, color: 'var(--text-primary)',
+                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                    }}>
+                      {location}
+                    </span>
+                    <span style={{
+                      fontSize: 12, fontWeight: 600, color: typeColor,
+                    }}>
+                      {severity}
+                    </span>
+                    <span style={{
+                      fontSize: 11, color: 'var(--text-muted)', textAlign: 'right',
+                    }}>
+                      {date}
+                    </span>
                   </div>
                 );
               })}
+              {storms.length > 8 && (
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', padding: '4px 0' }}>
+                  +{storms.length - 8} more events
+                </div>
+              )}
               <button
-                style={{ fontSize: 12, color: 'var(--accent-blue)', fontWeight: 600, textAlign: 'right', marginTop: 'var(--space-xs)', alignSelf: 'flex-end' }}
+                style={{ fontSize: 12, color: 'var(--accent-blue)', fontWeight: 600, textAlign: 'right', marginTop: 2, alignSelf: 'flex-end' }}
                 onClick={() => navigate('/storm-map')}>
                 View Storm Map →
               </button>

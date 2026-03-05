@@ -54,6 +54,30 @@ router.patch('/leads/:id', async (req, res, next) => {
   }
 });
 
+// DELETE /api/crm/leads/:id — Soft-delete a lead
+router.delete('/leads/:id', async (req, res, next) => {
+  try {
+    const result = await crmService.deleteLead(req.tenantId, req.params.id);
+    if (!result) return res.status(404).json({ error: 'Lead not found' });
+    res.json({ success: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PATCH /api/crm/leads/:id/roof-type — Update property roof type & recalculate estimate
+router.patch('/leads/:id/roof-type', async (req, res, next) => {
+  try {
+    const { roof_type } = req.body;
+    if (!roof_type) return res.status(400).json({ error: 'roof_type required' });
+    const lead = await crmService.updateLeadRoofType(req.tenantId, req.params.id, roof_type);
+    if (!lead) return res.status(404).json({ error: 'Lead not found' });
+    res.json(lead);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // POST /api/crm/leads/bulk-assign
 router.post('/leads/bulk-assign', async (req, res, next) => {
   try {

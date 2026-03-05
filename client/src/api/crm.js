@@ -10,6 +10,11 @@ export const getLeadDetail = (id) => client.get(`/crm/leads/${id}`);
 
 export const updateLead = (id, data) => client.patch(`/crm/leads/${id}`, data);
 
+export const deleteLead = (id) => client.delete(`/crm/leads/${id}`);
+
+export const updateLeadRoofType = (id, roofType) =>
+  client.patch(`/crm/leads/${id}/roof-type`, { roof_type: roofType });
+
 export const bulkAssign = (leadIds, assignedRepId) =>
   client.post('/crm/leads/bulk-assign', { leadIds, assignedRepId });
 

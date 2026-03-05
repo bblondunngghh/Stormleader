@@ -125,6 +125,7 @@ export async function getPropertiesInStormZones(bbox, timeRange, limit = 5000) {
       id: r.id,
       geometry: r.geometry,
       properties: {
+        id: r.id,
         address_line1: r.address_line1,
         address_line2: r.address_line2,
         city: r.city,
@@ -157,6 +158,7 @@ function formatPropertyCollection(rows) {
       id: r.id,
       geometry: r.geometry,
       properties: {
+        id: r.id,
         address_line1: r.address_line1,
         address_line2: r.address_line2,
         city: r.city,
