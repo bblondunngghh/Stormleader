@@ -105,6 +105,7 @@ export async function getPropertiesInStormZones(bbox, timeRange, limit = 5000) {
         p.roof_type, p.roof_sqft, p.year_built, p.assessed_value,
         p.homestead_exempt, p.county_parcel_id, p.property_sqft, p.data_source,
         ST_AsGeoJSON(p.location)::json AS geometry,
+        se.id AS storm_event_id,
         se.hail_size_max_in AS storm_hail_size,
         se.wind_speed_max_mph AS storm_wind_speed,
         se.raw_data->>'type' AS storm_type
@@ -139,6 +140,7 @@ export async function getPropertiesInStormZones(bbox, timeRange, limit = 5000) {
         county_parcel_id: r.county_parcel_id,
         property_sqft: r.property_sqft,
         data_source: r.data_source,
+        storm_event_id: r.storm_event_id,
         storm_hail_size: r.storm_hail_size,
         storm_wind_speed: r.storm_wind_speed,
         storm_type: r.storm_type,

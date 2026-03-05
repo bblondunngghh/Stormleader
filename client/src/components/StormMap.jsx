@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { getSwaths, getAffectedProperties, getMapProperties } from '../api/storms';
+import { addPropertyToPipeline } from '../api/crm';
 import MapControls from './MapControls';
 import SwathPopup from './SwathPopup';
 
@@ -296,7 +297,9 @@ export default function StormMap() {
     // Click handler for properties
     map.on('click', 'properties-circles', (e) => {
       if (!e.features?.length) return;
-      const p = e.features[0].properties;
+      const feature = e.features[0];
+      const p = feature.properties;
+      const propertyId = feature.id;
       if (popupRef.current) popupRef.current.remove();
 
       const value = p.assessed_value ? `$${Number(p.assessed_value).toLocaleString()}` : '';
@@ -306,6 +309,7 @@ export default function StormMap() {
         : p.storm_wind_speed
           ? `${p.storm_wind_speed} mph wind`
           : p.storm_type || '';
+      const hasStorm = !!(p.storm_event_id);
       const html = `
         <div class="swath-popup">
           <div class="swath-popup__title" style="color:#00d4aa">Affected Property</div>
@@ -337,10 +341,39 @@ export default function StormMap() {
             <span class="swath-popup__label">Parcel ID</span>
             <span class="swath-popup__value">${p.county_parcel_id}</span>
           </div>` : ''}
+          ${hasStorm ? `<button class="add-to-pipeline-btn" data-property-id="${propertyId}" data-storm-id="${p.storm_event_id}" style="
+            width:100%;margin-top:8px;padding:8px 12px;
+            background:#0ea5e9;color:#fff;border:none;border-radius:6px;
+            font-size:13px;font-weight:600;cursor:pointer;
+          ">Add to Pipeline</button>` : ''}
         </div>
       `;
       const container = document.createElement('div');
       container.innerHTML = html;
+
+      // Attach click handler for Add to Pipeline button
+      const btn = container.querySelector('.add-to-pipeline-btn');
+      if (btn) {
+        btn.addEventListener('click', async () => {
+          btn.disabled = true;
+          btn.textContent = 'Adding...';
+          try {
+            await addPropertyToPipeline(btn.dataset.stormId, btn.dataset.propertyId);
+            btn.textContent = 'Added to Pipeline ✓';
+            btn.style.background = '#22c55e';
+          } catch (err) {
+            const msg = err.response?.data?.error || 'Failed to add';
+            btn.textContent = msg;
+            btn.style.background = '#ef4444';
+            setTimeout(() => {
+              btn.textContent = 'Add to Pipeline';
+              btn.style.background = '#0ea5e9';
+              btn.disabled = false;
+            }, 2000);
+          }
+        });
+      }
+
       popupRef.current = new mapboxgl.Popup({ closeButton: true, maxWidth: '280px' })
         .setLngLat(e.lngLat)
         .setDOMContent(container)

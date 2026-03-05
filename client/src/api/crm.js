@@ -51,6 +51,9 @@ export const updateTask = (id, data) => client.patch(`/crm/tasks/${id}`, data);
 
 export const getPipelineStages = () => client.get('/crm/pipeline/stages');
 
+export const addPropertyToPipeline = (stormEventId, propertyId) =>
+  client.post('/properties/generate-leads', { stormEventId, propertyIds: [propertyId] });
+
 export const getPipelineMetrics = () => client.get('/crm/pipeline/metrics');
 
 // ============================================================
