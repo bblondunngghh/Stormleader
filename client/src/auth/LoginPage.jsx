@@ -5,9 +5,9 @@ import iconBrand from '../assets/icons/Weather-Cloud-Wind-4--Streamline-Ultimate
 
 export default function LoginPage() {
   const { login } = useAuth();
-  const [email, setEmail] = useState('brandon');
-  const [password, setPassword] = useState('123');
-  const [tenantSlug, setTenantSlug] = useState('creekstone');
+  const [email, setEmail] = useState('waterlooconstruction1@gmail.com');
+  const [password, setPassword] = useState('2Wealth&health');
+  const [tenantSlug, setTenantSlug] = useState('waterloo');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 

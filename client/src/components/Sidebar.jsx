@@ -20,8 +20,9 @@ const navItems = [
   { id: 'estimates', label: 'Estimates', icon: iconEstimates },
   { id: 'tasks', label: 'Tasks', icon: iconTasks },
   { id: 'alerts', label: 'Alerts', icon: iconAlerts },
-  { id: 'settings', label: 'Settings', icon: iconSettings },
 ];
+
+const settingsItem = { id: 'settings', label: 'Settings', icon: iconSettings };
 
 export default function Sidebar({ activeView, onNavigate }) {
   const { user, logout } = useAuth();
@@ -61,6 +62,15 @@ export default function Sidebar({ activeView, onNavigate }) {
       </nav>
 
       <div className="sidebar__spacer" />
+
+      <button
+        className={`nav-link${activeView === settingsItem.id ? ' is-active' : ''}`}
+        onClick={() => onNavigate(settingsItem.id)}
+        title={collapsed ? settingsItem.label : undefined}
+      >
+        <img src={settingsItem.icon} alt="" width="20" height="20" className="nav-link__icon" />
+        {!collapsed && settingsItem.label}
+      </button>
 
       <div className="sidebar__user">
         <div className="sidebar__avatar">{initials}</div>
