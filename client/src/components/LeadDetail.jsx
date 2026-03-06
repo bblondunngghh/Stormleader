@@ -32,6 +32,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   const [showEstimateInfo, setShowEstimateInfo] = useState(false);
   const [openRoofType, setOpenRoofType] = useState(false);
   const [showStreetView, setShowStreetView] = useState(false);
+  const [mapMode, setMapMode] = useState('street'); // 'street' | 'satellite'
   const fileInputRef = useRef(null);
 
   // Fetch full lead detail from API
@@ -78,7 +79,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   // Normalize field names (API uses underscores, mock uses camelCase)
   const name = lead.contact_name || lead.name || '—';
   const address = lead.address || lead.address_line1 || '—';
-  const city = lead.city || '';
+  const city = lead.city || lead.property_city || '';
   const state = lead.state || '';
   const zip = lead.zip || '';
   const phone = lead.contact_phone || lead.phone || '—';
@@ -759,15 +760,20 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
         const lat = geo?.coordinates?.[1];
         const lng = geo?.coordinates?.[0];
         const fullAddr = `${address}${city ? `, ${city}` : ''}${state ? `, ${state}` : ''}${zip ? ` ${zip}` : ''}`;
-        // Use coordinates for Street View when available, address as fallback
+        // Use coordinates for Street View with address fallback
         const embedSrc = lat && lng
-          ? `https://maps.google.com/maps?cbll=${lat},${lng}&cbp=12,0,,0,0&layer=c&source=embed&output=svembed`
-          : `https://maps.google.com/maps?q=${encodeURIComponent(fullAddr)}&cbp=12,0,,0,0&layer=c&output=svembed`;
-        const mapsLink = `https://www.google.com/maps/search/${encodeURIComponent(fullAddr)}`;
+          ? `https://maps.google.com/maps?cbll=${lat},${lng}&cbp=12,0,,0,0&layer=c&output=svembed`
+          : `https://maps.google.com/maps?q=${encodeURIComponent(fullAddr)}&layer=c&output=svembed`;
+        const satelliteSrc = lat && lng
+          ? `https://maps.google.com/maps?q=${lat},${lng}&t=k&z=19&output=embed`
+          : `https://maps.google.com/maps?q=${encodeURIComponent(fullAddr)}&t=k&z=19&output=embed`;
+        const mapsLink = lat && lng
+          ? `https://www.google.com/maps/@${lat},${lng},3a,75y,0h,90t`
+          : `https://www.google.com/maps/search/${encodeURIComponent(fullAddr)}`;
 
         return (
           <>
-            <div onClick={() => setShowStreetView(false)} style={{
+            <div onClick={() => { setShowStreetView(false); setMapMode('street'); }} style={{
               position: 'fixed', inset: 0, zIndex: 200,
               background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
             }} />
@@ -781,16 +787,31 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '12px 16px', borderBottom: '1px solid oklch(0.25 0.02 260)',
               }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
-                  Street View — {address}
-                </span>
-                <button onClick={() => setShowStreetView(false)} style={{
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
+                    {mapMode === 'street' ? 'Street View' : 'Satellite'} — {address}
+                  </span>
+                  <div style={{ display: 'flex', gap: 2, background: 'oklch(0.20 0.02 260)', borderRadius: 6, padding: 2 }}>
+                    <button onClick={() => setMapMode('street')} style={{
+                      padding: '3px 8px', fontSize: 11, fontWeight: 600, border: 'none', borderRadius: 4, cursor: 'pointer',
+                      background: mapMode === 'street' ? 'var(--accent-blue)' : 'transparent',
+                      color: mapMode === 'street' ? '#fff' : 'var(--text-muted)',
+                    }}>Street</button>
+                    <button onClick={() => setMapMode('satellite')} style={{
+                      padding: '3px 8px', fontSize: 11, fontWeight: 600, border: 'none', borderRadius: 4, cursor: 'pointer',
+                      background: mapMode === 'satellite' ? 'var(--accent-blue)' : 'transparent',
+                      color: mapMode === 'satellite' ? '#fff' : 'var(--text-muted)',
+                    }}>Satellite</button>
+                  </div>
+                </div>
+                <button onClick={() => { setShowStreetView(false); setMapMode('street'); }} style={{
                   background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)',
                   fontSize: 18, lineHeight: 1, padding: '0 4px',
                 }}>✕</button>
               </div>
               <iframe
-                src={embedSrc}
+                key={mapMode}
+                src={mapMode === 'street' ? embedSrc : satelliteSrc}
                 style={{ width: '100%', height: '55vh', border: 'none', display: 'block' }}
                 allowFullScreen
                 loading="lazy"

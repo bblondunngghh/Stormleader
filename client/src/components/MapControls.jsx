@@ -6,11 +6,11 @@ const timeRanges = [
 ];
 
 const layerToggles = [
-  { id: 'hail', label: 'Hail Reports' },
-  { id: 'wind', label: 'Wind Reports' },
-  { id: 'tornado', label: 'Tornadoes' },
-  { id: 'drift', label: 'Wind Drift Correction' },
-  { id: 'properties', label: 'Properties' },
+  { id: 'hail', label: 'Hail Reports', color: '#dcb428' },
+  { id: 'wind', label: 'Wind Reports', color: '#6c5ce7' },
+  { id: 'tornado', label: 'Tornadoes', color: '#ff2d55' },
+  { id: 'drift', label: 'Wind Drift Correction', color: '#00e5ff' },
+  { id: 'properties', label: 'Properties', color: '#00d4aa' },
 ];
 
 export default function MapControls({ timeRange, onTimeRangeChange, layers, onLayersChange }) {
@@ -38,8 +38,9 @@ export default function MapControls({ timeRange, onTimeRangeChange, layers, onLa
               type="checkbox"
               checked={layers[layer.id] || false}
               onChange={() => handleLayerToggle(layer.id)}
+              style={{ accentColor: layer.color }}
             />
-            {layer.label}
+            <span style={{ color: layers[layer.id] ? layer.color : undefined }}>{layer.label}</span>
           </label>
         ))}
       </div>

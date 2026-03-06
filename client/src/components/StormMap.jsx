@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { getSwaths, getAffectedProperties, getMapProperties } from '../api/storms';
@@ -9,6 +10,7 @@ import SwathPopup from './SwathPopup';
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN || '';
 
 export default function StormMap() {
+  const [searchParams] = useSearchParams();
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
   const popupRef = useRef(null);
@@ -109,11 +111,31 @@ export default function StormMap() {
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
 
+    const urlLat = parseFloat(searchParams.get('lat'));
+    const urlLng = parseFloat(searchParams.get('lng'));
+    const urlZoom = parseFloat(searchParams.get('zoom'));
+
+    // Restore saved viewport if no URL params
+    let center = [-97.74, 30.27];
+    let zoom = 7;
+    if (urlLat && urlLng) {
+      center = [urlLng, urlLat];
+      zoom = urlZoom || 11;
+    } else {
+      try {
+        const saved = JSON.parse(sessionStorage.getItem('stormMapViewport'));
+        if (saved) {
+          center = [saved.lng, saved.lat];
+          zoom = saved.zoom;
+        }
+      } catch {}
+    }
+
     const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/dark-v11',
-      center: [-97.74, 30.27],
-      zoom: 7,
+      center,
+      zoom,
     });
 
     mapRef.current = map;
@@ -265,18 +287,69 @@ export default function StormMap() {
         },
       });
 
-      loadData(map);
+      // --- STORM REPORT POINT MARKERS (on top of all other layers) ---
+      map.addLayer({
+        id: 'wind-points',
+        type: 'circle',
+        source: 'wind-zones',
+        filter: ['==', ['geometry-type'], 'Point'],
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 7, 4, 10, 7, 13, 10],
+          'circle-color': '#6c5ce7',
+          'circle-opacity': 0.8,
+          'circle-stroke-color': '#fff',
+          'circle-stroke-width': 1.5,
+        },
+      });
+      map.addLayer({
+        id: 'hail-points',
+        type: 'circle',
+        source: 'hail-zones',
+        filter: ['==', ['geometry-type'], 'Point'],
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 7, 5, 10, 9, 13, 12],
+          'circle-color': '#dcb428',
+          'circle-opacity': 0.9,
+          'circle-stroke-color': '#fff',
+          'circle-stroke-width': 2,
+        },
+      });
+      map.addLayer({
+        id: 'tornado-points',
+        type: 'circle',
+        source: 'tornado-zones',
+        filter: ['==', ['geometry-type'], 'Point'],
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 7, 5, 10, 9, 13, 12],
+          'circle-color': '#ff2d55',
+          'circle-opacity': 0.9,
+          'circle-stroke-color': '#fff',
+          'circle-stroke-width': 2,
+        },
+      });
+
+      loadData(map).then(() => {
+        // Restore saved popup after data loads
+        try {
+          const saved = JSON.parse(sessionStorage.getItem('stormMapPopup'));
+          if (saved) {
+            showPropertyPopup(map, saved.lngLat, saved.properties, saved.propertyId);
+          }
+        } catch {}
+      });
     });
 
-    // Debounced moveend handler
+    // Debounced moveend handler — also persist viewport
     let moveTimeout;
     map.on('moveend', () => {
       clearTimeout(moveTimeout);
+      const c = map.getCenter();
+      sessionStorage.setItem('stormMapViewport', JSON.stringify({ lat: c.lat, lng: c.lng, zoom: map.getZoom() }));
       moveTimeout = setTimeout(() => loadData(map), 500);
     });
 
     // Click handlers for storm zones
-    const stormLayers = ['hail-fill', 'wind-fill', 'tornado-fill', 'drift-fill'];
+    const stormLayers = ['hail-fill', 'hail-points', 'wind-fill', 'wind-points', 'tornado-fill', 'tornado-points', 'drift-fill'];
     for (const layerId of stormLayers) {
       map.on('click', layerId, (e) => {
         if (!e.features?.length) return;
@@ -294,12 +367,8 @@ export default function StormMap() {
       map.on('mouseleave', layerId, () => { map.getCanvas().style.cursor = ''; });
     }
 
-    // Click handler for properties
-    map.on('click', 'properties-circles', (e) => {
-      if (!e.features?.length) return;
-      const feature = e.features[0];
-      const p = feature.properties;
-      const propertyId = p.id || feature.id;
+    // Shared function to show a property popup
+    const showPropertyPopup = (map, lngLat, p, propertyId) => {
       if (popupRef.current) popupRef.current.remove();
 
       const value = p.assessed_value ? `$${Number(p.assessed_value).toLocaleString()}` : '';
@@ -309,7 +378,9 @@ export default function StormMap() {
         : p.storm_wind_speed
           ? `${p.storm_wind_speed} mph wind`
           : p.storm_type || '';
-      const hasStorm = !!(p.storm_event_id);
+      const urlStormId = searchParams.get('stormId');
+      const stormId = p.storm_event_id || urlStormId;
+      const hasStorm = !!stormId;
       const html = `
         <div class="swath-popup">
           <div class="swath-popup__title" style="color:#00d4aa">Affected Property</div>
@@ -341,7 +412,7 @@ export default function StormMap() {
             <span class="swath-popup__label">Parcel ID</span>
             <span class="swath-popup__value">${p.county_parcel_id}</span>
           </div>` : ''}
-          ${hasStorm ? `<button class="add-to-pipeline-btn" data-property-id="${propertyId}" data-storm-id="${p.storm_event_id}" style="
+          ${hasStorm ? `<button class="add-to-pipeline-btn" data-property-id="${propertyId}" data-storm-id="${stormId}" style="
             width:100%;margin-top:8px;padding:8px 12px;
             background:#0ea5e9;color:#fff;border:none;border-radius:6px;
             font-size:13px;font-weight:600;cursor:pointer;
@@ -351,7 +422,6 @@ export default function StormMap() {
       const container = document.createElement('div');
       container.innerHTML = html;
 
-      // Attach click handler for Add to Pipeline button
       const btn = container.querySelector('.add-to-pipeline-btn');
       if (btn) {
         btn.addEventListener('click', async () => {
@@ -375,9 +445,30 @@ export default function StormMap() {
       }
 
       popupRef.current = new mapboxgl.Popup({ closeButton: true, maxWidth: '280px' })
-        .setLngLat(e.lngLat)
+        .setLngLat(lngLat)
         .setDOMContent(container)
         .addTo(map);
+
+      popupRef.current.on('close', () => {
+        sessionStorage.removeItem('stormMapPopup');
+      });
+    };
+
+    // Click handler for properties
+    map.on('click', 'properties-circles', (e) => {
+      if (!e.features?.length) return;
+      const feature = e.features[0];
+      const p = feature.properties;
+      const propertyId = p.id || feature.id;
+
+      // Save popup state for persistence
+      sessionStorage.setItem('stormMapPopup', JSON.stringify({
+        lngLat: [e.lngLat.lng, e.lngLat.lat],
+        properties: p,
+        propertyId,
+      }));
+
+      showPropertyPopup(map, e.lngLat, p, propertyId);
     });
     map.on('mouseenter', 'properties-circles', () => { map.getCanvas().style.cursor = 'pointer'; });
     map.on('mouseleave', 'properties-circles', () => { map.getCanvas().style.cursor = ''; });
@@ -410,10 +501,13 @@ export default function StormMap() {
 
     setVis('hail-fill', layers.hail);
     setVis('hail-outline', layers.hail);
+    setVis('hail-points', layers.hail);
     setVis('wind-fill', layers.wind);
     setVis('wind-outline', layers.wind);
+    setVis('wind-points', layers.wind);
     setVis('tornado-fill', layers.tornado);
     setVis('tornado-outline', layers.tornado);
+    setVis('tornado-points', layers.tornado);
     setVis('drift-fill', layers.drift);
     setVis('drift-outline', layers.drift);
     setVis('properties-circles', layers.properties);

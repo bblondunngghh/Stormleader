@@ -73,7 +73,7 @@ export async function getLeadDetail(tenantId, leadId) {
   const { rows } = await pool.query(
     `SELECT
         l.*,
-        p.address_line1, p.address_line2, p.state, p.zip,
+        p.address_line1, p.address_line2, p.city AS property_city, p.state, p.zip,
         p.owner_first_name, p.owner_last_name, p.owner_phone, p.owner_email,
         p.roof_type, p.roof_sqft, p.year_built, p.assessed_value,
         p.homestead_exempt, p.county_parcel_id, p.property_sqft,

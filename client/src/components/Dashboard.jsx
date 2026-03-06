@@ -142,7 +142,6 @@ export default function Dashboard() {
 
   const handleStormRange = (range) => {
     setStormRange(range);
-    fetchStorms(range);
   };
 
   const maxFunnelValue = Math.max(...funnel.map(d => d.value), 1);
@@ -309,8 +308,8 @@ export default function Dashboard() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {/* Column headers */}
               <div style={{
-                display: 'grid', gridTemplateColumns: '72px 1fr 80px 64px',
-                gap: 8, padding: '0 4px 6px', borderBottom: '1px solid oklch(0.25 0.02 260 / 0.2)',
+                display: 'grid', gridTemplateColumns: '64px 1fr 56px 52px',
+                gap: 6, padding: '0 4px 6px', borderBottom: '1px solid oklch(0.25 0.02 260 / 0.2)',
                 fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em',
                 color: 'var(--text-muted)',
               }}>
@@ -341,18 +340,47 @@ export default function Dashboard() {
 
                 return (
                   <div key={s.id} style={{
-                    display: 'grid', gridTemplateColumns: '72px 1fr 80px 64px',
-                    gap: 8, alignItems: 'center', padding: '7px 4px',
+                    display: 'grid', gridTemplateColumns: '64px 1fr 56px 52px',
+                    gap: 6, alignItems: 'center', padding: '7px 4px',
                     borderRadius: 6, cursor: 'pointer',
                     transition: 'background 0.15s',
                   }}
                     onMouseEnter={e => e.currentTarget.style.background = 'oklch(0.25 0.02 260 / 0.15)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                    onClick={() => navigate('/storm-map')}>
+                    onClick={() => {
+                      // Extract center from storm geometry
+                      const geom = s.geometry;
+                      let lat, lng;
+                      if (geom) {
+                        if (geom.type === 'Point') {
+                          [lng, lat] = geom.coordinates;
+                        } else if (geom.type === 'Polygon' || geom.type === 'MultiPolygon') {
+                          // Compute centroid from bounding box of coordinates
+                          const coords = geom.type === 'Polygon'
+                            ? geom.coordinates[0]
+                            : geom.coordinates.flat(2).reduce((acc, _, i, arr) => {
+                                if (i % 2 === 0) acc.push([arr[i], arr[i+1]]);
+                                return acc;
+                              }, []);
+                          const flatCoords = geom.type === 'MultiPolygon'
+                            ? geom.coordinates.flat(2)
+                            : geom.coordinates[0];
+                          const sumLng = flatCoords.reduce((s, c) => s + c[0], 0);
+                          const sumLat = flatCoords.reduce((s, c) => s + c[1], 0);
+                          lng = sumLng / flatCoords.length;
+                          lat = sumLat / flatCoords.length;
+                        } else if (geom.type === 'LineString') {
+                          const mid = Math.floor(geom.coordinates.length / 2);
+                          [lng, lat] = geom.coordinates[mid];
+                        }
+                      }
+                      const params = lat && lng ? `?lat=${lat}&lng=${lng}&zoom=11&stormId=${s.id}` : '';
+                      navigate(`/storm-map${params}`);
+                    }}>
                     <span style={{
-                      fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
+                      fontSize: 9, fontWeight: 700, textTransform: 'uppercase',
                       color: typeColor, background: `${typeColor}18`,
-                      padding: '3px 8px', borderRadius: 4, textAlign: 'center',
+                      padding: '3px 6px', borderRadius: 4, textAlign: 'center',
                       border: `1px solid ${typeColor}30`,
                     }}>
                       {typeLabel}
