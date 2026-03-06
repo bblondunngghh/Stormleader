@@ -174,6 +174,7 @@ export async function getLeads(tenantId, filters = {}) {
         l.created_at, l.updated_at,
         p.state, p.zip,
         p.roof_type, p.roof_sqft, p.year_built, p.assessed_value,
+        p.roof_pitch_degrees, p.roof_segments,
         ST_AsGeoJSON(p.location)::json AS property_geometry
      FROM leads l
      LEFT JOIN properties p ON p.id = l.property_id
@@ -213,6 +214,7 @@ export async function getLead(tenantId, leadId) {
         p.owner_first_name, p.owner_last_name, p.owner_phone, p.owner_email,
         p.roof_type, p.roof_sqft, p.year_built, p.assessed_value,
         p.homestead_exempt, p.county_parcel_id, p.property_sqft,
+        p.roof_pitch_degrees, p.roof_segments,
         ST_AsGeoJSON(p.location)::json AS property_geometry,
         se.source AS storm_source, se.hail_size_max_in AS storm_hail_max,
         se.wind_speed_max_mph AS storm_wind_max, se.event_start AS storm_start,

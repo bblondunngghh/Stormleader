@@ -1,5 +1,8 @@
 import pool from '../db/pool.js';
 import crypto from 'crypto';
+import { sendEstimateEmail } from './emailService.js';
+import config from '../config/env.js';
+import logger from '../utils/logger.js';
 
 // ============================================================
 // ESTIMATES CRUD
@@ -137,13 +140,44 @@ export async function updateEstimate(tenantId, estimateId, updates) {
   return rows[0] || null;
 }
 
+export async function deleteEstimate(tenantId, estimateId) {
+  const { rowCount } = await pool.query(
+    `DELETE FROM estimates WHERE id = $1 AND tenant_id = $2`,
+    [estimateId, tenantId]
+  );
+  return rowCount > 0;
+}
+
 export async function sendEstimate(tenantId, estimateId) {
+  // Get full estimate with company name for email
+  const { rows: detailRows } = await pool.query(
+    `SELECT e.*, t.name AS company_name
+     FROM estimates e
+     JOIN tenants t ON t.id = e.tenant_id
+     WHERE e.id = $1 AND e.tenant_id = $2 AND e.status = 'draft'`,
+    [estimateId, tenantId]
+  );
+  if (!detailRows[0]) return null;
+
+  const estimate = detailRows[0];
+
+  // Update status
   const { rows } = await pool.query(
     `UPDATE estimates SET status = 'sent', sent_at = now()
-     WHERE id = $1 AND tenant_id = $2 AND status = 'draft'
+     WHERE id = $1 AND tenant_id = $2
      RETURNING *`,
     [estimateId, tenantId]
   );
+
+  // Send email if customer has an email address
+  if (estimate.customer_email) {
+    try {
+      await sendEstimateEmail(estimate.customer_email, estimate, config.APP_URL);
+    } catch (err) {
+      logger.error({ err, estimateId, to: estimate.customer_email }, 'Failed to send estimate email');
+    }
+  }
+
   return rows[0] || null;
 }
 

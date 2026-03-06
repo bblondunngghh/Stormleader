@@ -308,6 +308,7 @@ ul, ol { list-style: none; }
   display: flex;
   align-items: center;
   gap: var(--space-xl);
+  z-index: 1000;
   z-index: 5;
   margin-left: -1px;
   border-top: none;
@@ -474,16 +475,18 @@ ul, ol { list-style: none; }
 
 /* ---- Notification Dropdown ---- */
 .notification-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
+  position: fixed;
+  top: 56px;
+  right: 16px;
   width: 360px;
   max-height: 480px;
   border-radius: var(--radius-lg);
-  z-index: 200;
+  z-index: 9999;
   animation: fadeIn 0.15s var(--ease-out);
   display: flex;
   flex-direction: column;
+  background: oklch(0.16 0.015 260);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
 }
 
 .notification-dropdown__header {
@@ -562,16 +565,18 @@ ul, ol { list-style: none; }
 
 /* ---- Help Guide Dropdown ---- */
 .help-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
+  position: fixed;
+  top: 56px;
+  right: 16px;
   width: 380px;
   max-height: 500px;
   display: flex;
   flex-direction: column;
-  z-index: 999;
+  z-index: 9999;
   border-radius: var(--radius-xl);
   border: 1px solid var(--glass-border);
+  background: oklch(0.16 0.015 260);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
 }
 
 .help-dropdown__header {
@@ -653,6 +658,8 @@ ul, ol { list-style: none; }
   flex-direction: column;
   gap: var(--space-2xl);
   background: oklch(0.0 0 0);
+  position: relative;
+  z-index: 0;
 }
 
 /* ============================================================
@@ -1258,16 +1265,18 @@ ul, ol { list-style: none; }
 }
 
 .quick-action-btn {
-  padding: var(--space-md) var(--space-lg);
+  padding: var(--space-sm) var(--space-lg);
   border-radius: var(--radius-md);
   background: oklch(0.22 0.03 260 / 0.5);
   backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
-  font-size: 12px;
+  justify-content: center;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  box-sizing: border-box;
   gap: var(--space-sm);
   transition: all 0.2s var(--ease-out);
 }
@@ -1684,15 +1693,22 @@ ul, ol { list-style: none; }
 }
 
 .form-input {
-  padding: var(--space-md) var(--space-lg);
+  height: 36px;
+  padding: 0 var(--space-lg);
   border-radius: var(--radius-md);
   border: 1px solid var(--glass-border);
   background: oklch(0.14 0.02 260 / 0.6);
   backdrop-filter: blur(12px);
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: 13px;
   outline: none;
   transition: all 0.2s var(--ease-out);
+  box-sizing: border-box;
+}
+
+textarea.form-input {
+  height: auto;
+  padding: var(--space-md) var(--space-lg);
 }
 
 .form-input:focus {
@@ -1704,17 +1720,38 @@ ul, ol { list-style: none; }
   color: var(--text-muted);
 }
 
+select.form-input {
+  appearance: none;
+  -webkit-appearance: none;
+  color-scheme: dark;
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  cursor: pointer;
+}
+
+select.form-input option {
+  background: oklch(0.16 0.02 260);
+  color: var(--text-primary);
+}
+
 .auth-btn {
-  padding: var(--space-md) var(--space-xl);
+  height: 36px;
+  padding: 0 var(--space-xl);
   border-radius: var(--radius-md);
   background: var(--accent-blue);
   color: oklch(0.15 0.02 260);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   text-align: center;
   transition: all 0.2s var(--ease-out);
   border: none;
   cursor: pointer;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .auth-btn:hover {
@@ -2126,4 +2163,43 @@ ul, ol { list-style: none; }
 .mapboxgl-popup-close-button:hover {
   color: var(--text-primary) !important;
   background: transparent !important;
+}
+
+/* Circular checkboxes */
+input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 2px solid var(--glass-border);
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s var(--ease-out);
+}
+
+input[type="checkbox"]:checked {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+}
+
+input[type="checkbox"]:checked::after {
+  content: '\2713';
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* Icon spin on hover for action buttons */
+@keyframes icon-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.icon-spin-btn:hover img {
+  animation: icon-spin 0.4s ease forwards;
 }

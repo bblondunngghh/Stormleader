@@ -74,7 +74,7 @@ export async function submitSkipTrace(tenantId, propertyIds, webhookUrl) {
   await pool.query(
     `INSERT INTO skip_trace_usage (tenant_id, provider, records_requested, cost_cents)
      VALUES ($1, 'tracerfy', $2, $3)`,
-    [tenantId, properties.length, properties.length * 2] // $0.02 per record = 2 cents
+    [tenantId, properties.length, properties.length * 15] // $0.15 per record = 15 cents
   );
 
   logger.info({ tenantId, jobId, count: properties.length }, 'Skip trace job submitted');

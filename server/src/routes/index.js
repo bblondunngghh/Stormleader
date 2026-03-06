@@ -15,6 +15,7 @@ import estimatesRouter from './estimates.js';
 import notificationsRouter from './notifications.js';
 import searchRouter from './search.js';
 import documentsRouter from './documents.js';
+import roofMeasurementRouter from './roofMeasurement.js';
 
 const router = Router();
 
@@ -34,5 +35,6 @@ router.use('/estimates', estimatesRouter);
 router.use('/notifications', notificationsRouter);
 router.use('/search', searchRouter);
 router.use('/documents', documentsRouter);
+router.use('/roof-measurement', roofMeasurementRouter);
 
 export default router;

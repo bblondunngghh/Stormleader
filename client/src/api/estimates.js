@@ -6,4 +6,5 @@ export const createEstimate = (data) => client.post('/estimates', data);
 export const updateEstimate = (id, data) => client.patch(`/estimates/${id}`, data);
 export const sendEstimate = (id) => client.post(`/estimates/${id}/send`);
 export const duplicateEstimate = (id) => client.post(`/estimates/${id}/duplicate`);
+export const deleteEstimate = (id) => client.delete(`/estimates/${id}`);
 export const getTemplates = () => client.get('/estimates/templates');

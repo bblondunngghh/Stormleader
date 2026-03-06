@@ -1,8 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { getLeadDetail, updateLead, deleteLead, updateLeadRoofType, logActivity, getActivities, addContact } from '../api/crm';
 import { getDocuments, uploadDocument, deleteDocument } from '../api/documents';
+import { submitTrace } from '../api/skipTrace';
+import { measureRoof } from '../api/roofMeasurement';
 import { IconX, IconPhone, IconMail, IconCalendar, IconClipboard, IconDollar, IconCamera, IconSend, IconTrash } from './Icons';
+import streetViewIcon from '../assets/icons/street-view-new.png';
+import runTraceIcon from '../assets/icons/run-trace.png';
+import quickCallIcon from '../assets/icons/quick-call.png';
+import quickEmailIcon from '../assets/icons/Email-Action-Unread--Streamline-Ultimate.png';
+import quickSmsIcon from '../assets/icons/quick-sms.png';
+import quickVisitIcon from '../assets/icons/quick-visit.png';
+import logActivityIcon from '../assets/icons/log-activity.png';
+import removeLeadIcon from '../assets/icons/remove-lead.png';
+import measureRoofIcon from '../assets/icons/Measure-Caliber-1--Streamline-Ultimate.png';
 import ActivityModal from './ActivityModal';
+import EmailModal from './EmailModal';
 
 const stageLabels = {
   new: 'New',
@@ -31,6 +44,10 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   const [openDropdown, setOpenDropdown] = useState(null); // 'priority' | 'stage' | null
   const [showEstimateInfo, setShowEstimateInfo] = useState(false);
   const [openRoofType, setOpenRoofType] = useState(false);
+  const [tracing, setTracing] = useState(false);
+  const [traceError, setTraceError] = useState('');
+  const [measuring, setMeasuring] = useState(false);
+  const [measureError, setMeasureError] = useState('');
   const [showStreetView, setShowStreetView] = useState(false);
   const [mapMode, setMapMode] = useState('street'); // 'street' | 'satellite'
   const fileInputRef = useRef(null);
@@ -399,6 +416,86 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
               ))}
             </div>
           )}
+
+          {/* Run Trace Button */}
+          {leadId && lead.property_id && (
+            <div style={{ marginTop: 'var(--space-sm)' }}>
+              <button
+                onClick={async () => {
+                  setTracing(true);
+                  setTraceError('');
+                  try {
+                    await submitTrace([lead.property_id]);
+                    await refreshLead();
+                  } catch (err) {
+                    setTraceError(err.response?.data?.error || 'Trace failed. Check Settings > Skip Tracing.');
+                  } finally {
+                    setTracing(false);
+                  }
+                }}
+                disabled={tracing}
+                className="icon-spin-btn"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '6px 0', fontSize: 12, fontWeight: 600,
+                  background: 'none', border: 'none',
+                  color: (phone === '—' && email === '—') ? 'var(--accent-blue)' : 'var(--text-muted)',
+                  cursor: tracing ? 'not-allowed' : 'pointer',
+                  opacity: tracing ? 0.5 : 0.85,
+                  transition: 'opacity 0.15s',
+                }}
+                onMouseEnter={e => { if (!tracing) e.currentTarget.style.opacity = '1'; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = tracing ? '0.5' : '0.85'; }}
+              >
+                <img src={runTraceIcon} alt="" style={{ width: 16, height: 16 }} />
+                {tracing ? 'Tracing...' : (phone === '—' && email === '—') ? 'Run Trace' : 'Re-trace'}
+              </button>
+              {traceError && <div style={{ fontSize: 11, color: 'var(--accent-red)', marginTop: 4 }}>{traceError}</div>}
+              <div style={{ fontSize: 10, color: 'var(--accent-red)', marginTop: 4, opacity: 0.5 }}>
+                Each trace will be added to your monthly bill.
+              </div>
+            </div>
+          )}
+
+          {/* Measure Roof Button */}
+          {leadId && lead.property_id && (
+            <div style={{ marginTop: 'var(--space-sm)' }}>
+              <button
+                onClick={async () => {
+                  setMeasuring(true);
+                  setMeasureError('');
+                  try {
+                    await measureRoof(lead.property_id);
+                    await refreshLead();
+                  } catch (err) {
+                    setMeasureError(err.response?.data?.error || 'Measurement failed. Check Settings > Add-Ons.');
+                  } finally {
+                    setMeasuring(false);
+                  }
+                }}
+                disabled={measuring}
+                className="icon-spin-btn"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '6px 0', fontSize: 12, fontWeight: 600,
+                  background: 'none', border: 'none',
+                  color: !lead.roof_pitch_degrees ? 'var(--accent-blue)' : 'var(--text-muted)',
+                  cursor: measuring ? 'not-allowed' : 'pointer',
+                  opacity: measuring ? 0.5 : 0.85,
+                  transition: 'opacity 0.15s',
+                }}
+                onMouseEnter={e => { if (!measuring) e.currentTarget.style.opacity = '1'; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = measuring ? '0.5' : '0.85'; }}
+              >
+                <img src={measureRoofIcon} alt="" style={{ width: 16, height: 16 }} />
+                {measuring ? 'Measuring...' : lead.roof_pitch_degrees ? 'Re-measure' : 'Measure Roof'}
+              </button>
+              {measureError && <div style={{ fontSize: 11, color: 'var(--accent-red)', marginTop: 4 }}>{measureError}</div>}
+              <div style={{ fontSize: 10, color: 'var(--accent-red)', marginTop: 4, opacity: 0.5 }}>
+                Each measurement will be added to your monthly bill.
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="divider" />
@@ -474,6 +571,14 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
               <span className="detail-item__value">{lead.roof_sqft ? `${Number(lead.roof_sqft).toLocaleString()} sq ft` : '—'}</span>
             </div>
             <div className="detail-item">
+              <span className="detail-item__label">Roof Pitch</span>
+              <span className="detail-item__value">{lead.roof_pitch_degrees ? `${Number(lead.roof_pitch_degrees).toFixed(1)}°` : '—'}</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-item__label">Roof Segments</span>
+              <span className="detail-item__value">{lead.roof_segments || '—'}</span>
+            </div>
+            <div className="detail-item">
               <span className="detail-item__label">Property Size</span>
               <span className="detail-item__value">{lead.property_sqft ? `${Number(lead.property_sqft).toLocaleString()} sq ft` : '—'}</span>
             </div>
@@ -489,21 +594,19 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
           {address !== '—' && (
             <button
               onClick={() => setShowStreetView(true)}
+              className="icon-spin-btn"
               style={{
-                marginTop: 'var(--space-md)', width: '100%', padding: '8px 12px',
-                fontSize: 12, fontWeight: 600,
-                background: 'oklch(0.22 0.02 260 / 0.8)',
-                color: 'var(--text-secondary)',
-                border: '1px solid oklch(0.35 0.02 260)',
-                borderRadius: 'var(--radius-sm)', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                display: 'flex', alignItems: 'center', gap: 8, marginTop: 'var(--space-md)',
+                padding: '6px 0', fontSize: 12, fontWeight: 600,
+                background: 'none', border: 'none',
+                color: 'var(--accent-blue)', cursor: 'pointer',
+                opacity: 0.85, transition: 'opacity 0.15s',
               }}
+              onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '0.85'}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-              View Street View
+              <img src={streetViewIcon} alt="" style={{ width: 16, height: 16 }} />
+              Street View
             </button>
           )}
         </div>
@@ -665,19 +768,19 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
           <div className="detail-section__title">Quick Actions</div>
           <div className="quick-actions">
             <button className="quick-action-btn" onClick={() => setActiveModal('activity')} style={{ gridColumn: '1 / -1', color: 'var(--accent-blue)' }}>
-              <IconClipboard /> Log Activity...
+              <img src={logActivityIcon} alt="" style={{ width: 18, height: 18 }} /> Log Activity...
             </button>
             <button className="quick-action-btn" onClick={() => doLogActivity({ type: 'call', subject: 'Outbound call logged' })}>
-              <IconPhone /> Quick Call
+              <img src={quickCallIcon} alt="" style={{ width: 18, height: 18 }} /> Quick Call
             </button>
-            <button className="quick-action-btn" onClick={() => doLogActivity({ type: 'email', subject: 'Email sent' })}>
-              <IconMail /> Quick Email
+            <button className="quick-action-btn" onClick={() => setActiveModal('email')}>
+              <img src={quickEmailIcon} alt="" style={{ width: 18, height: 18 }} /> Quick Email
             </button>
             <button className="quick-action-btn" onClick={() => doLogActivity({ type: 'text', subject: 'SMS sent' })}>
-              <IconSend /> Quick SMS
+              <img src={quickSmsIcon} alt="" style={{ width: 18, height: 18 }} /> Quick SMS
             </button>
             <button className="quick-action-btn" onClick={() => doLogActivity({ type: 'door_knock', subject: 'Door knock visit' })}>
-              <IconCamera /> Quick Visit
+              <img src={quickVisitIcon} alt="" style={{ width: 18, height: 18 }} /> Quick Visit
             </button>
           </div>
         </div>
@@ -692,12 +795,13 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                   onClick={() => setConfirmRemove(true)}
                   style={{
                     width: '100%', padding: '10px 16px', fontSize: 13, fontWeight: 600,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                     background: 'transparent', color: 'var(--accent-red)',
                     border: '1px solid oklch(0.68 0.22 25 / 0.25)', borderRadius: 'var(--radius-sm)',
                     cursor: 'pointer',
                   }}
                 >
-                  Remove Lead
+                  <img src={removeLeadIcon} alt="" style={{ width: 18, height: 18 }} /> Remove Lead
                 </button>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -752,15 +856,28 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
           />
         )}
 
+
       </div>
 
-      {/* Street View Modal — rendered outside slide-over for proper z-index */}
+      {/* Email Modal — rendered outside slide-over for proper z-index */}
+      {activeModal === 'email' && leadId && (
+        <EmailModal
+          leadId={leadId}
+          lead={lead}
+          onSave={() => {
+            setActiveModal(null);
+            refreshLead();
+          }}
+          onClose={() => setActiveModal(null)}
+        />
+      )}
+
+      {/* Street View Modal — portaled to document.body to escape sidebar stacking context */}
       {showStreetView && (() => {
         const geo = lead.property_geometry;
         const lat = geo?.coordinates?.[1];
         const lng = geo?.coordinates?.[0];
         const fullAddr = `${address}${city ? `, ${city}` : ''}${state ? `, ${state}` : ''}${zip ? ` ${zip}` : ''}`;
-        // Use coordinates for Street View with address fallback
         const embedSrc = lat && lng
           ? `https://maps.google.com/maps?cbll=${lat},${lng}&cbp=12,0,,0,0&layer=c&output=svembed`
           : `https://maps.google.com/maps?q=${encodeURIComponent(fullAddr)}&layer=c&output=svembed`;
@@ -771,15 +888,15 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
           ? `https://www.google.com/maps/@${lat},${lng},3a,75y,0h,90t`
           : `https://www.google.com/maps/search/${encodeURIComponent(fullAddr)}`;
 
-        return (
+        return createPortal(
           <>
             <div onClick={() => { setShowStreetView(false); setMapMode('street'); }} style={{
-              position: 'fixed', inset: 0, zIndex: 200,
+              position: 'fixed', inset: 0, zIndex: 99998,
               background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
             }} />
             <div style={{
               position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-              zIndex: 201, width: '90vw', maxWidth: 800, background: 'oklch(0.14 0.02 260)',
+              zIndex: 99999, width: '90vw', maxWidth: 800, background: 'oklch(0.14 0.02 260)',
               border: '1px solid oklch(0.30 0.02 260)', borderRadius: 12,
               boxShadow: '0 20px 60px rgba(0,0,0,0.6)', overflow: 'hidden',
             }}>
@@ -827,7 +944,8 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 </a>
               </div>
             </div>
-          </>
+          </>,
+          document.body
         );
       })()}
     </>

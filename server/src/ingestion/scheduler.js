@@ -58,5 +58,17 @@ export function startScheduler() {
     }
   });
 
+  // Monthly skip trace batch billing — 1st of every month at midnight
+  cron.schedule('0 0 1 * *', async () => {
+    logger.info('Scheduler: running monthly skip trace batch billing');
+    try {
+      const { processBatchBilling } = await import('../services/stripeService.js');
+      const results = await processBatchBilling();
+      logger.info({ results }, 'Scheduler: batch billing complete');
+    } catch (err) {
+      logger.error({ err }, 'Scheduler: batch billing failed');
+    }
+  });
+
   logger.info('Ingestion scheduler started (MRMS: 30m, NWS: 5m, SPC: 15m)');
 }

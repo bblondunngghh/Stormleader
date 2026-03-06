@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getAlertConfig, updateAlertConfig, getAlertHistory, sendTestAlert } from '../api/alerts';
-import { IconBell, IconMail, IconSend } from './Icons';
+import iconSend from '../assets/icons/Send-Email-2--Streamline-Ultimate.png';
+import iconAlarmBell from '../assets/icons/Alarm-Bell-1--Streamline-Ultimate.png';
+import iconEmail from '../assets/icons/Email-Action-Unread--Streamline-Ultimate.png';
 
 export default function AlertSettings() {
   const [config, setConfig] = useState(null);
@@ -10,6 +12,8 @@ export default function AlertSettings() {
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState(null);
   const [newEmail, setNewEmail] = useState('');
+  const [thresholds, setThresholds] = useState({ hail: '', wind: '' });
+  const [thresholdsDirty, setThresholdsDirty] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
@@ -18,6 +22,8 @@ export default function AlertSettings() {
         getAlertHistory({ limit: 20 }),
       ]);
       setConfig(cfg);
+      setThresholds({ hail: cfg?.min_hail_size_in ?? 1.0, wind: cfg?.min_wind_speed_mph ?? 58 });
+      setThresholdsDirty(false);
       setHistory(hist);
     } catch (err) {
       console.error('Failed to load alert config:', err);
@@ -86,7 +92,7 @@ export default function AlertSettings() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h2 style={{ fontSize: '20px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <IconBell /> Storm Alerts
+            <img src={iconAlarmBell} alt="" width="22" height="22" /> Storm Alerts
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '4px' }}>
             Get notified by email when storms are detected in your service area
@@ -108,7 +114,7 @@ export default function AlertSettings() {
             border: '1px solid var(--border-subtle)',
           }}
         >
-          <IconSend /> {testing ? 'Sending...' : 'Send Test Alert'}
+          <img src={iconSend} alt="" width="18" height="18" /> {testing ? 'Sending...' : 'Send Test Alert'}
         </button>
       </div>
 
@@ -148,7 +154,7 @@ export default function AlertSettings() {
           <div className="dashboard-panel glass" style={{ padding: 'var(--space-lg)', opacity: config?.enabled ? 1 : 0.5 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <IconMail style={{ width: 18, height: 18 }} />
+                <img src={iconEmail} alt="" width="20" height="20" />
                 <h3 style={{ fontSize: '15px', fontWeight: 600 }}>Email Recipients</h3>
               </div>
               <ToggleSwitch checked={config?.email_enabled} onChange={() => handleToggle('email_enabled')} />
@@ -166,16 +172,13 @@ export default function AlertSettings() {
               ))}
               <div style={{ display: 'flex', gap: '8px' }}>
                 <input
+                  className="form-input"
                   type="email"
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && addEmail()}
                   placeholder="Add email address"
-                  style={{
-                    flex: 1, padding: '8px 12px', background: 'var(--bg-elevated)',
-                    border: '1px solid var(--border-subtle)', borderRadius: '8px', fontSize: '13px',
-                    color: 'var(--text-primary)',
-                  }}
+                  style={{ flex: 1, fontSize: '13px' }}
                 />
                 <button
                   onClick={addEmail}
@@ -198,39 +201,43 @@ export default function AlertSettings() {
               Only alert when storms meet these minimum criteria
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '13px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '13px' }}>
                 <span>Min Hail Size (inches)</span>
-                <input
-                  type="number"
-                  step="0.25"
-                  min="0.5"
-                  max="5"
-                  value={config?.min_hail_size_in ?? 1.0}
-                  onChange={(e) => save({ min_hail_size_in: parseFloat(e.target.value) })}
-                  style={{
-                    width: '80px', padding: '6px 10px', background: 'var(--bg-elevated)',
-                    border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '13px',
-                    color: 'var(--text-primary)', textAlign: 'center',
-                  }}
+                <StepperInput
+                  value={thresholds.hail}
+                  step={0.25}
+                  min={0.5}
+                  max={5}
+                  onChange={(v) => { setThresholds(t => ({ ...t, hail: v })); setThresholdsDirty(true); }}
                 />
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '13px' }}>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '13px' }}>
                 <span>Min Wind Speed (mph)</span>
-                <input
-                  type="number"
-                  step="5"
-                  min="40"
-                  max="150"
-                  value={config?.min_wind_speed_mph ?? 58}
-                  onChange={(e) => save({ min_wind_speed_mph: parseFloat(e.target.value) })}
-                  style={{
-                    width: '80px', padding: '6px 10px', background: 'var(--bg-elevated)',
-                    border: '1px solid var(--border-subtle)', borderRadius: '6px', fontSize: '13px',
-                    color: 'var(--text-primary)', textAlign: 'center',
-                  }}
+                <StepperInput
+                  value={thresholds.wind}
+                  step={5}
+                  min={40}
+                  max={150}
+                  onChange={(v) => { setThresholds(t => ({ ...t, wind: v })); setThresholdsDirty(true); }}
                 />
-              </label>
+              </div>
             </div>
+            {thresholdsDirty && (
+              <button
+                onClick={async () => {
+                  await save({ min_hail_size_in: parseFloat(thresholds.hail), min_wind_speed_mph: parseFloat(thresholds.wind) });
+                  setThresholdsDirty(false);
+                }}
+                disabled={saving}
+                style={{
+                  marginTop: '12px', width: '100%', padding: '8px 16px',
+                  background: 'var(--accent-blue)', color: '#fff', border: 'none',
+                  borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
+                }}
+              >
+                {saving ? 'Updating...' : 'Update Thresholds'}
+              </button>
+            )}
           </div>
         </div>
 
@@ -282,6 +289,43 @@ export default function AlertSettings() {
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function StepperInput({ value, step, min, max, onChange }) {
+  const numVal = parseFloat(value) || 0;
+  const decrement = () => {
+    const next = Math.max(min, numVal - step);
+    onChange(Math.round(next * 100) / 100);
+  };
+  const increment = () => {
+    const next = Math.min(max, numVal + step);
+    onChange(Math.round(next * 100) / 100);
+  };
+  const btnBase = {
+    width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)',
+    cursor: 'pointer', fontSize: '15px', fontWeight: 600, flexShrink: 0,
+  };
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', borderRadius: '8px', overflow: 'hidden',
+      border: '1px solid var(--border-subtle)',
+    }}>
+      <button type="button" onClick={decrement} style={{ ...btnBase, borderRight: 'none', borderRadius: '8px 0 0 8px', color: 'oklch(0.65 0.20 25)' }}>−</button>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{
+          width: '52px', padding: '4px 0', fontSize: '13px', fontWeight: 600,
+          textAlign: 'center', background: 'var(--bg-elevated)', border: 'none',
+          borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)',
+          color: 'var(--text-primary)', outline: 'none',
+        }}
+      />
+      <button type="button" onClick={increment} style={{ ...btnBase, borderLeft: 'none', borderRadius: '0 8px 8px 0', color: 'oklch(0.65 0.20 155)' }}>+</button>
     </div>
   );
 }

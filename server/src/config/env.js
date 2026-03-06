@@ -29,6 +29,9 @@ const config = {
   SMTP_USER: process.env.SMTP_USER || '',
   SMTP_PASS: process.env.SMTP_PASS || '',
   SMTP_FROM: process.env.SMTP_FROM || '"StormLeads Alerts" <alerts@stormleads.io>',
+  GOOGLE_SOLAR_API_KEY: process.env.GOOGLE_SOLAR_API_KEY || '',
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || '',
+  APP_URL: process.env.APP_URL || 'http://localhost:5173',
 };
 
 export default config;

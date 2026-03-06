@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { getLeads, bulkAssign, bulkStatus } from '../api/crm';
 import LeadDetail from './LeadDetail';
 import { IconSearch, IconDownload, IconFilter, IconX } from './Icons';
+import CustomSelect from './CustomSelect';
 
 const stageLabels = {
   new: 'New', contacted: 'Contacted', appt_set: 'Appt Set',
@@ -34,6 +35,7 @@ const quickFilters = [
 ];
 
 const pageSizes = [25, 50, 100];
+
 
 function relativeTime(dateStr) {
   if (!dateStr) return '—';
@@ -267,6 +269,9 @@ export default function LeadList() {
         alignItems: 'center',
         gap: 'var(--space-md)',
         flexWrap: 'wrap',
+        overflow: 'visible',
+        position: 'relative',
+        zIndex: 20,
       }}>
         {/* Search */}
         <div style={{ position: 'relative', flex: '1 1 220px', maxWidth: 300 }}>
@@ -281,27 +286,34 @@ export default function LeadList() {
         </div>
 
         {/* Filters */}
-        <select className="form-input" value={stageFilter} onChange={(e) => { setStageFilter(e.target.value); setPage(0); }} style={{ flex: '0 0 auto', minWidth: 130, fontSize: 13 }}>
-          <option value="">All Stages</option>
-          {stageKeys.map(k => <option key={k} value={k}>{stageLabels[k]}</option>)}
-        </select>
+        <CustomSelect
+          value={stageFilter}
+          onChange={(v) => { setStageFilter(v); setPage(0); }}
+          placeholder="All Stages"
+          options={[{ value: '', label: 'All Stages' }, ...stageKeys.map(k => ({ value: k, label: stageLabels[k] }))]}
+          style={{ flex: '0 0 auto', minWidth: 130 }}
+        />
 
-        <select className="form-input" value={priorityFilter} onChange={(e) => { setPriorityFilter(e.target.value); setPage(0); }} style={{ flex: '0 0 auto', minWidth: 120, fontSize: 13 }}>
-          <option value="">All Priorities</option>
-          <option value="hot">Hot</option>
-          <option value="warm">Warm</option>
-          <option value="cold">Cold</option>
-        </select>
+        <CustomSelect
+          value={priorityFilter}
+          onChange={(v) => { setPriorityFilter(v); setPage(0); }}
+          placeholder="All Priorities"
+          options={[{ value: '', label: 'All Priorities' }, { value: 'hot', label: 'Hot' }, { value: 'warm', label: 'Warm' }, { value: 'cold', label: 'Cold' }]}
+          style={{ flex: '0 0 auto', minWidth: 120 }}
+        />
 
-        <select className="form-input" value={sourceFilter} onChange={(e) => { setSourceFilter(e.target.value); setPage(0); }} style={{ flex: '0 0 auto', minWidth: 120, fontSize: 13 }}>
-          <option value="">All Sources</option>
-          {Object.entries(sourceLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-        </select>
+        <CustomSelect
+          value={sourceFilter}
+          onChange={(v) => { setSourceFilter(v); setPage(0); }}
+          placeholder="All Sources"
+          options={[{ value: '', label: 'All Sources' }, ...Object.entries(sourceLabels).map(([k, v]) => ({ value: k, label: v }))]}
+          style={{ flex: '0 0 auto', minWidth: 120 }}
+        />
 
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 'var(--space-sm)', alignItems: 'center' }}>
-          <button className="quick-action-btn" onClick={exportCSV} disabled={exporting} title="Export CSV" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button className="quick-action-btn" onClick={exportCSV} disabled={exporting} title="Export CSV" style={{ height: 36, display: 'flex', alignItems: 'center', gap: 6 }}>
             <IconDownload style={{ width: 14, height: 14 }} />
-            <span style={{ fontSize: 12 }}>CSV</span>
+            <span>CSV</span>
           </button>
           <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
             {total} lead{total !== 1 ? 's' : ''}
@@ -336,23 +348,30 @@ export default function LeadList() {
           alignItems: 'center',
           gap: 'var(--space-md)',
           background: 'oklch(0.35 0.08 250 / 0.8)',
+          overflow: 'visible',
+          position: 'relative',
+          zIndex: 15,
         }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent-blue)' }}>
             {selected.size} selected
           </span>
 
-          <select className="form-input" value={bulkAction || ''} onChange={e => { setBulkAction(e.target.value || null); setBulkValue(''); }}
-            style={{ minWidth: 140, fontSize: 12 }}>
-            <option value="">Choose action...</option>
-            <option value="status">Change Stage</option>
-            <option value="assign">Assign Rep</option>
-          </select>
+          <CustomSelect
+            value={bulkAction || ''}
+            onChange={(v) => { setBulkAction(v || null); setBulkValue(''); }}
+            placeholder="Choose action..."
+            options={[{ value: '', label: 'Choose action...' }, { value: 'status', label: 'Change Stage' }, { value: 'assign', label: 'Assign Rep' }]}
+            style={{ minWidth: 140 }}
+          />
 
           {bulkAction === 'status' && (
-            <select className="form-input" value={bulkValue} onChange={e => setBulkValue(e.target.value)} style={{ minWidth: 140, fontSize: 12 }}>
-              <option value="">Select stage...</option>
-              {stageKeys.map(k => <option key={k} value={k}>{stageLabels[k]}</option>)}
-            </select>
+            <CustomSelect
+              value={bulkValue}
+              onChange={(v) => setBulkValue(v)}
+              placeholder="Select stage..."
+              options={[{ value: '', label: 'Select stage...' }, ...stageKeys.map(k => ({ value: k, label: stageLabels[k] }))]}
+              style={{ minWidth: 140 }}
+            />
           )}
 
           {bulkAction === 'assign' && (
@@ -360,7 +379,7 @@ export default function LeadList() {
           )}
 
           {bulkAction && bulkValue && (
-            <button className="auth-btn" onClick={executeBulk} disabled={bulkSaving} style={{ padding: '6px 16px', fontSize: 12 }}>
+            <button className="auth-btn" onClick={executeBulk} disabled={bulkSaving}>
               {bulkSaving ? 'Applying...' : 'Apply'}
             </button>
           )}

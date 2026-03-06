@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { IconSearch, IconBell, IconHelpCircle, IconX } from './Icons';
+import { IconSearch, IconX } from './Icons';
+import iconHelpCircle from '../assets/icons/Question-Circle--Streamline-Ultimate.png';
+import iconAlarmBell from '../assets/icons/Alarm-Bell-1--Streamline-Ultimate.png';
 import * as notificationsApi from '../api/notifications';
 import * as searchApi from '../api/search';
 
@@ -186,11 +188,11 @@ function HelpGuide() {
   return (
     <div ref={dropdownRef} style={{ position: 'relative' }}>
       <button className="topbar__btn" aria-label="Help" onClick={() => setOpen(!open)}>
-        <IconHelpCircle />
+        <img src={iconHelpCircle} alt="Help" width="20" height="20" />
       </button>
 
       {open && (
-        <div className="help-dropdown glass">
+        <div className="help-dropdown">
           <div className="help-dropdown__header">
             <span style={{ fontWeight: 700, fontSize: 14 }}>How StormLeads Works</span>
             <button onClick={() => setOpen(false)} style={{ color: 'var(--text-muted)' }}>
@@ -362,12 +364,12 @@ function NotificationBell() {
   return (
     <div ref={dropdownRef} style={{ position: 'relative' }}>
       <button className="topbar__btn" aria-label="Notifications" onClick={handleOpen}>
-        <IconBell />
+        <img src={iconAlarmBell} alt="Notifications" width="20" height="20" />
         {unreadCount > 0 && <span className="topbar__badge" />}
       </button>
 
       {open && (
-        <div className="notification-dropdown glass">
+        <div className="notification-dropdown">
           <div className="notification-dropdown__header">
             <span style={{ fontWeight: 700, fontSize: 14 }}>Notifications</span>
             {unreadCount > 0 && (

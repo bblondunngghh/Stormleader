@@ -48,6 +48,10 @@ export default function StormMap() {
       const driftFeatures = [];
 
       for (const f of geojson.features) {
+        // Ensure storm_event_id is in properties for popup lookups
+        if (f.id && !f.properties?.storm_event_id) {
+          f.properties = { ...f.properties, storm_event_id: f.id };
+        }
         const rawType = f.properties?.raw_data?.type || '';
         if (rawType === 'hail' || f.properties?.hail_size_max_in) {
           hailFeatures.push(f);
@@ -460,6 +464,15 @@ export default function StormMap() {
       const feature = e.features[0];
       const p = feature.properties;
       const propertyId = p.id || feature.id;
+
+      // If property has no storm_event_id, check if it's inside a visible swath
+      if (!p.storm_event_id) {
+        const swathLayers = ['hail-fill', 'wind-fill', 'tornado-fill', 'drift-fill'].filter(id => map.getLayer(id));
+        const swathFeatures = map.queryRenderedFeatures(e.point, { layers: swathLayers });
+        if (swathFeatures.length > 0) {
+          p.storm_event_id = swathFeatures[0].properties?.storm_event_id;
+        }
+      }
 
       // Save popup state for persistence
       sessionStorage.setItem('stormMapPopup', JSON.stringify({

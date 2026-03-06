@@ -6,7 +6,7 @@ import iconDashboard from '../assets/icons/App-Window-Pie-Chart--Streamline-Ulti
 import iconPipeline from '../assets/icons/Business-Team-Goal--Streamline-Ultimate.svg';
 import iconLeads from '../assets/icons/Style-Three-Pin-Home--Streamline-Ultimate.svg';
 import iconStormMap from '../assets/icons/Rain-Umbrella-1--Streamline-Ultimate.svg';
-import iconAlerts from '../assets/icons/Alarm-Bell-Ring--Streamline-Ultimate.svg';
+import iconAlerts from '../assets/icons/Cog-Double-2--Streamline-Ultimate.png';
 import iconTasks from '../assets/icons/Checklist--Streamline-Ultimate.svg';
 import iconEstimates from '../assets/icons/Accounting-Calculator-1--Streamline-Ultimate.svg';
 import iconSettings from '../assets/icons/Settings-Slider-Desktop-Horizontal--Streamline-Ultimate.svg';

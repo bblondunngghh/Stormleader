@@ -107,7 +107,31 @@ export async function getPreferences(userId) {
     `SELECT * FROM notification_preferences WHERE user_id = $1 ORDER BY notification_type`,
     [userId]
   );
-  return rows;
+
+  if (rows.length > 0) return rows;
+
+  // Auto-seed all notification types for new users
+  const types = [
+    'lead_assigned', 'lead_status_changed', 'task_due_soon',
+    'task_overdue', 'estimate_viewed', 'estimate_accepted',
+    'estimate_declined', 'storm_alert', 'new_storm_leads', 'mention'
+  ];
+
+  const values = types.map((_, i) => `($1, $${i + 2}, true, true)`).join(', ');
+  const params = [userId, ...types];
+
+  const { rows: seeded } = await pool.query(
+    `INSERT INTO notification_preferences (user_id, notification_type, in_app, email)
+     VALUES ${values}
+     ON CONFLICT (user_id, notification_type) DO NOTHING
+     RETURNING *`,
+    params
+  );
+
+  return seeded.length > 0 ? seeded : await pool.query(
+    `SELECT * FROM notification_preferences WHERE user_id = $1 ORDER BY notification_type`,
+    [userId]
+  ).then(r => r.rows);
 }
 
 export async function updatePreference(userId, notificationType, updates) {

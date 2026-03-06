@@ -106,6 +106,17 @@ router.patch('/:id', async (req, res, next) => {
   }
 });
 
+// Delete estimate
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const deleted = await estimateService.deleteEstimate(req.tenantId, req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Estimate not found' });
+    res.json({ success: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Send estimate to customer
 router.post('/:id/send', async (req, res, next) => {
   try {

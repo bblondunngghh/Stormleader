@@ -122,19 +122,35 @@ export default function Pipeline() {
                   >
                     <div className="lead-card__top">
                       <span className={`lead-card__priority lead-card__priority--${lead.priority}`} />
-                      <span className="lead-card__value">
-                        {lead.estimated_value ? `$${(Number(lead.estimated_value) / 1000).toFixed(1)}K` : '—'}
-                      </span>
+                      {lead.estimated_value && (
+                        <span className="lead-card__value">
+                          ${(Number(lead.estimated_value) / 1000).toFixed(1)}K
+                        </span>
+                      )}
                     </div>
-                    <div className="lead-card__address">{lead.address || '—'}{lead.city && !lead.address?.toUpperCase().includes(lead.city?.toUpperCase()) ? `, ${lead.city}` : ''}{lead.state && !lead.address?.includes(lead.state) ? `, ${lead.state}` : ''}{lead.zip && !lead.address?.includes(lead.zip) ? ` ${lead.zip}` : ''}</div>
-                    <div className="lead-card__name">{lead.contact_name || '—'}</div>
+                    {lead.address && (
+                      <div className="lead-card__address">
+                        <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>Address</div>
+                        {lead.address}{lead.city && !lead.address?.toUpperCase().includes(lead.city?.toUpperCase()) ? `, ${lead.city}` : ''}{lead.state && !lead.address?.includes(lead.state) ? `, ${lead.state}` : ''}{lead.zip && !lead.address?.includes(lead.zip) ? ` ${lead.zip}` : ''}
+                      </div>
+                    )}
+                    {lead.contact_name && (
+                      <div className="lead-card__name">
+                        <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>Owner</div>
+                        {lead.contact_name}
+                      </div>
+                    )}
                     <div className="lead-card__footer">
-                      <span className="lead-card__hail">
-                        {lead.hail_size_in ? `\u{1F9CA} ${lead.hail_size_in}"` : '—'}
-                      </span>
-                      <span className="lead-card__rep">
-                        {lead.rep_first_name ? `${lead.rep_first_name[0]}${lead.rep_last_name?.[0] || ''}` : '—'}
-                      </span>
+                      {lead.hail_size_in && (
+                        <span className="lead-card__hail">
+                          {`\u{1F9CA} ${lead.hail_size_in}"`}
+                        </span>
+                      )}
+                      {lead.rep_first_name && (
+                        <span className="lead-card__rep">
+                          {lead.rep_first_name[0]}{lead.rep_last_name?.[0] || ''}
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))}

@@ -3,6 +3,10 @@ import { useAuth } from '../auth/AuthContext';
 import { getAlertConfig, updateAlertConfig } from '../api/alerts';
 import { getTeamMembers, updateUserRole } from '../api/crm';
 import { getPreferences, updatePreference } from '../api/notifications';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import * as skipTraceApi from '../api/skipTrace';
+import * as roofMeasurementApi from '../api/roofMeasurement';
 
 export default function SettingsView() {
   const { user } = useAuth();
@@ -13,6 +17,7 @@ export default function SettingsView() {
     { id: 'team', label: 'Team' },
     { id: 'alerts', label: 'Storm Alerts' },
     { id: 'notifications', label: 'Notifications' },
+    { id: 'skipTrace', label: 'Add-Ons' },
   ];
 
   return (
@@ -36,6 +41,7 @@ export default function SettingsView() {
       {tab === 'team' && <TeamTab currentUserId={user?.id} />}
       {tab === 'alerts' && <AlertsTab />}
       {tab === 'notifications' && <NotificationsTab />}
+      {tab === 'skipTrace' && <AddOnsTab user={user} />}
     </div>
   );
 }
@@ -181,7 +187,7 @@ function AlertsTab() {
 
   useEffect(() => {
     getAlertConfig()
-      .then(res => setAlertConfig(res.data))
+      .then(config => setAlertConfig(config))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -333,6 +339,306 @@ function NotificationsTab() {
         </div>
       )}
     </div>
+  );
+}
+
+// ============================================================
+// ADD-ONS TAB
+// ============================================================
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || '');
+
+function AddOnsTab({ user }) {
+  const [config, setConfig] = useState(null);
+  const [usage, setUsage] = useState(null);
+  const [balance, setBalance] = useState(null);
+  const [invoices, setInvoices] = useState([]);
+  const [roofConfig, setRoofConfig] = useState(null);
+  const [roofUsage, setRoofUsage] = useState(null);
+  const [roofBalance, setRoofBalance] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Load skip trace and roof measurement data independently so one failing doesn't block the other
+    const loadSkipTrace = Promise.all([
+      skipTraceApi.getConfig(),
+      skipTraceApi.getUsage(),
+      skipTraceApi.getBalance(),
+      skipTraceApi.getInvoices(),
+    ])
+      .then(([cfg, usg, bal, inv]) => {
+        setConfig(cfg);
+        setUsage(usg);
+        setBalance(bal);
+        setInvoices(inv);
+      })
+      .catch(() => {});
+
+    const loadRoof = Promise.all([
+      roofMeasurementApi.getConfig(),
+      roofMeasurementApi.getUsage(),
+      roofMeasurementApi.getBalance(),
+    ])
+      .then(([rCfg, rUsg, rBal]) => {
+        setRoofConfig(rCfg);
+        setRoofUsage(rUsg);
+        setRoofBalance(rBal);
+      })
+      .catch(() => {});
+
+    Promise.allSettled([loadSkipTrace, loadRoof])
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSkipTraceToggle = async (enabled) => {
+    setConfig(prev => ({ ...prev, enabled }));
+    try {
+      const updated = await skipTraceApi.updateConfig({ enabled });
+      setConfig(updated);
+    } catch {
+      setConfig(prev => ({ ...prev, enabled: !enabled }));
+    }
+  };
+
+  const handleRoofToggle = async (enabled) => {
+    setRoofConfig(prev => ({ ...prev, roof_measurement_enabled: enabled }));
+    try {
+      const updated = await roofMeasurementApi.updateConfig({ roof_measurement_enabled: enabled });
+      setRoofConfig(updated);
+    } catch {
+      setRoofConfig(prev => ({ ...prev, roof_measurement_enabled: !enabled }));
+    }
+  };
+
+  const handlePaymentSetup = async (pm) => {
+    setConfig(prev => ({ ...prev, stripe_payment_method_id: pm.id, card_last_four: pm.last4, card_brand: pm.brand }));
+  };
+
+  const handleRemoveCard = async () => {
+    try {
+      await skipTraceApi.removePaymentMethod();
+      setConfig(prev => ({ ...prev, stripe_payment_method_id: null, card_last_four: null, card_brand: null }));
+    } catch { /* silent */ }
+  };
+
+  if (loading) return <div style={{ color: 'var(--text-muted)', padding: 'var(--space-xl)' }}>Loading...</div>;
+
+  const skipEnabled = config?.enabled || false;
+  const roofEnabled = roofConfig?.roof_measurement_enabled || false;
+  const hasPaymentMethod = !!config?.card_last_four;
+  const skipUnbilled = Number(balance?.unbilled_records || 0);
+  const roofUnbilled = Number(roofBalance?.unbilled_measurements || 0);
+  const skipUnbilledCents = Number(balance?.unbilled_cents || 0);
+  const roofUnbilledCents = Number(roofBalance?.unbilled_cents || 0);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+      {/* Shared Payment Method */}
+      {(skipEnabled || roofEnabled) && (
+        <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
+          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 'var(--space-lg)' }}>Payment Method</div>
+          {hasPaymentMethod ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
+                <div style={{
+                  padding: '8px 14px', borderRadius: 'var(--radius-md)',
+                  background: 'oklch(0.20 0.02 260 / 0.6)', border: '1px solid var(--glass-border)',
+                  fontSize: 13, fontWeight: 600,
+                }}>
+                  {(config.card_brand || 'Card').toUpperCase()} **** {config.card_last_four}
+                </div>
+              </div>
+              <button onClick={handleRemoveCard} style={{
+                padding: '6px 14px', borderRadius: 'var(--radius-sm)', fontSize: 12, fontWeight: 600,
+                background: 'oklch(0.30 0.10 25 / 0.3)', color: 'var(--accent-red)',
+                border: '1px solid oklch(0.50 0.15 25 / 0.3)', cursor: 'pointer',
+              }}>Remove</button>
+            </div>
+          ) : (
+            <Elements stripe={stripePromise}>
+              <AddCardForm email={user?.email} onSuccess={handlePaymentSetup} />
+            </Elements>
+          )}
+        </div>
+      )}
+
+      {/* Skip Tracing */}
+      <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
+        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 'var(--space-lg)' }}>Skip Tracing</div>
+        <ToggleRow
+          label="Enable Skip Tracing"
+          description="Allow skip trace jobs to be submitted and billed to your card"
+          checked={skipEnabled}
+          onChange={handleSkipTraceToggle}
+        />
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8 }}>$0.15/record &middot; billed monthly</div>
+        {skipEnabled && usage && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-md)', marginTop: 'var(--space-lg)' }}>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent-blue)' }}>{usage.total_jobs || 0}</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Jobs</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent-green)' }}>{Number(usage.total_requested || 0).toLocaleString()}</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Records</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent-amber)' }}>${((Number(usage.total_cost_cents) || 0) / 100).toFixed(2)}</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Total Cost</div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Roof Measurement */}
+      <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
+        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 'var(--space-lg)' }}>Roof Measurement</div>
+        <ToggleRow
+          label="Enable Roof Measurement"
+          description="Measure roof area using Google Solar API and bill to your card"
+          checked={roofEnabled}
+          onChange={handleRoofToggle}
+        />
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8 }}>$0.10/measurement &middot; billed monthly</div>
+        {roofEnabled && roofUsage && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-md)', marginTop: 'var(--space-lg)' }}>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent-blue)' }}>{roofUsage.total_measurements || 0}</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Measurements</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent-amber)' }}>${((Number(roofUsage.total_cost_cents) || 0) / 100).toFixed(2)}</div>
+              <div style={{ fontSize: 10, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Total Cost</div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Current Balance (combined) */}
+      {(skipUnbilled > 0 || roofUnbilled > 0) && (
+        <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
+          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 'var(--space-lg)' }}>Current Balance</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)', fontSize: 13 }}>
+            {skipUnbilled > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Skip trace: {skipUnbilled.toLocaleString()} records</span>
+                <span style={{ fontWeight: 700 }}>${(skipUnbilledCents / 100).toFixed(2)}</span>
+              </div>
+            )}
+            {roofUnbilled > 0 && (
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-secondary)' }}>Roof measurement: {roofUnbilled.toLocaleString()} measurements</span>
+                <span style={{ fontWeight: 700 }}>${(roofUnbilledCents / 100).toFixed(2)}</span>
+              </div>
+            )}
+            <div className="divider" />
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}>
+              <span>Total due</span>
+              <span style={{ color: 'var(--accent-amber)', fontSize: 16 }}>${((skipUnbilledCents + roofUnbilledCents) / 100).toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Billing History */}
+      {invoices.length > 0 && (
+        <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
+          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 'var(--space-lg)' }}>Billing History</div>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="lead-table" style={{ fontSize: 12 }}>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Period</th>
+                  <th>Records</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoices.map((inv, i) => (
+                  <tr key={inv.id || i}>
+                    <td>{new Date(inv.created_at).toLocaleDateString()}</td>
+                    <td>{new Date(inv.period_start).toLocaleDateString()} – {new Date(inv.period_end).toLocaleDateString()}</td>
+                    <td>{inv.total_records}</td>
+                    <td>${(inv.total_cents / 100).toFixed(2)}</td>
+                    <td>
+                      <span style={{
+                        fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px',
+                        color: inv.status === 'paid' ? 'var(--accent-green)' : inv.status === 'failed' ? 'var(--accent-red)' : 'var(--accent-amber)',
+                      }}>
+                        {inv.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AddCardForm({ email, onSuccess }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [error, setError] = useState('');
+  const [processing, setProcessing] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!stripe || !elements) return;
+
+    setProcessing(true);
+    setError('');
+
+    const cardElement = elements.getElement(CardElement);
+    const { error: stripeError, paymentMethod } = await stripe.createPaymentMethod({
+      type: 'card',
+      card: cardElement,
+    });
+
+    if (stripeError) {
+      setError(stripeError.message);
+      setProcessing(false);
+      return;
+    }
+
+    try {
+      const result = await skipTraceApi.setupPayment(paymentMethod.id, email);
+      onSuccess(result);
+    } catch (err) {
+      setError('Failed to save payment method. Please try again.');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div style={{
+        padding: 'var(--space-md)', borderRadius: 'var(--radius-md)',
+        background: 'oklch(0.14 0.01 260 / 0.8)', border: '1px solid var(--glass-border)',
+        marginBottom: 'var(--space-md)',
+      }}>
+        <CardElement options={{
+          style: {
+            base: { fontSize: '14px', color: '#e0e0e0', '::placeholder': { color: '#666' } },
+            invalid: { color: '#ef4444' },
+          },
+        }} />
+      </div>
+      {error && <div style={{ fontSize: 12, color: 'var(--accent-red)', marginBottom: 'var(--space-md)' }}>{error}</div>}
+      <button type="submit" disabled={!stripe || processing} style={{
+        padding: '10px 24px', borderRadius: 'var(--radius-md)', fontSize: 13, fontWeight: 700,
+        background: 'var(--accent-blue)', color: 'white', border: 'none', cursor: 'pointer',
+        opacity: processing ? 0.6 : 1,
+      }}>
+        {processing ? 'Saving...' : 'Add Payment Method'}
+      </button>
+    </form>
   );
 }
 

@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getTasks, createTask, updateTask } from '../api/crm';
 import { IconCheckSquare, IconX } from './Icons';
+import CustomSelect from './CustomSelect';
+import DatePicker from './DatePicker';
 
 const priorityColors = {
   hot: 'var(--accent-red)',
@@ -93,7 +95,6 @@ export default function TasksView() {
         <button
           className="auth-btn"
           onClick={() => setShowCreate(true)}
-          style={{ padding: '8px 20px', fontSize: 13 }}
         >
           + New Task
         </button>
@@ -264,37 +265,31 @@ function CreateTaskModal({ onSave, onClose }) {
             />
           </div>
 
-          <div style={{ display: 'flex', gap: 'var(--space-lg)' }}>
-            <div className="form-group" style={{ flex: 1 }}>
+          <div style={{ display: 'flex', gap: 'var(--space-lg)', overflow: 'visible', position: 'relative', zIndex: 10 }}>
+            <div className="form-group" style={{ flex: 1, overflow: 'visible' }}>
               <label>Due Date</label>
-              <input
-                className="form-input"
-                type="datetime-local"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-              />
+              <DatePicker value={dueDate} onChange={v => setDueDate(v)} placeholder="Select date" />
             </div>
-            <div className="form-group" style={{ flex: 1 }}>
+            <div className="form-group" style={{ flex: 1, overflow: 'visible' }}>
               <label>Priority</label>
-              <select
-                className="form-input"
+              <CustomSelect
                 value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-              >
-                <option value="hot">Hot</option>
-                <option value="warm">Warm</option>
-                <option value="cold">Cold</option>
-              </select>
+                onChange={v => setPriority(v)}
+                options={[
+                  { value: 'hot', label: 'High' },
+                  { value: 'warm', label: 'Medium' },
+                  { value: 'cold', label: 'Low' },
+                ]}
+              />
             </div>
           </div>
 
           <div style={{ display: 'flex', gap: 'var(--space-sm)', justifyContent: 'flex-end', marginTop: 'var(--space-md)' }}>
-            <button type="button" className="quick-action-btn" onClick={onClose}>Cancel</button>
+            <button type="button" className="quick-action-btn" onClick={onClose} style={{ height: 36 }}>Cancel</button>
             <button
               type="submit"
               className="auth-btn"
               disabled={!title.trim() || saving}
-              style={{ padding: '8px 24px', fontSize: 13 }}
             >
               {saving ? 'Creating...' : 'Create Task'}
             </button>
