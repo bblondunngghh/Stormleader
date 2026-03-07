@@ -1,7 +1,9 @@
 import { Router } from 'express';
+import bcrypt from 'bcryptjs';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
 import * as crmService from '../services/crmService.js';
+import pool from '../db/pool.js';
 
 const router = Router();
 router.use(authenticate);
@@ -275,6 +277,105 @@ router.patch('/team/:userId/role', async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+// POST /api/crm/team/invite — Admin adds a new team member
+router.post('/team/invite', async (req, res, next) => {
+  try {
+    const { email, firstName, lastName, role, password } = req.body;
+
+    // Only admins can invite
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Only admins can add team members' });
+    }
+    if (!email || !firstName || !lastName || !password) {
+      return res.status(400).json({ error: 'Email, first name, last name, and password are required' });
+    }
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    }
+    const userRole = ['admin', 'manager', 'sales_rep'].includes(role) ? role : 'sales_rep';
+
+    // Check user limit
+    const { rows: limitRows } = await pool.query(
+      `SELECT sp.max_users, COUNT(u.id)::int AS current_users
+       FROM tenants t
+       LEFT JOIN subscription_plans sp ON sp.key = t.subscription_tier
+       LEFT JOIN users u ON u.tenant_id = t.id
+       WHERE t.id = $1
+       GROUP BY sp.max_users`,
+      [req.tenantId]
+    );
+    if (limitRows.length > 0 && limitRows[0].max_users != null && limitRows[0].current_users >= limitRows[0].max_users) {
+      return res.status(403).json({ error: `User limit reached (${limitRows[0].max_users}). Upgrade your plan to add more users.` });
+    }
+
+    // Check duplicate email within tenant
+    const { rows: existing } = await pool.query(
+      'SELECT id FROM users WHERE tenant_id = $1 AND email = $2',
+      [req.tenantId, email]
+    );
+    if (existing.length > 0) {
+      return res.status(409).json({ error: 'A user with this email already exists on your team' });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const { rows } = await pool.query(
+      `INSERT INTO users (tenant_id, email, password_hash, first_name, last_name, role)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id, email, first_name, last_name, role, created_at`,
+      [req.tenantId, email, passwordHash, firstName, lastName, userRole]
+    );
+
+    res.status(201).json({ member: rows[0] });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/crm/tenant-settings
+router.get('/tenant-settings', async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT name, slug, company_phone, company_website, company_address, sender_email,
+              subscription_tier, subscription_status, onboarding_completed, plan_changed_at
+       FROM tenants WHERE id = $1`,
+      [req.tenantId],
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Tenant not found' });
+    const t = rows[0];
+    res.json({
+      name: t.name, slug: t.slug, companyPhone: t.company_phone,
+      companyWebsite: t.company_website, companyAddress: t.company_address,
+      senderEmail: t.sender_email, subscriptionTier: t.subscription_tier,
+      subscriptionStatus: t.subscription_status, onboardingCompleted: t.onboarding_completed,
+      planChangedAt: t.plan_changed_at,
+    });
+  } catch (err) { next(err); }
+});
+
+// PUT /api/crm/tenant-settings
+router.put('/tenant-settings', async (req, res, next) => {
+  try {
+    const { senderEmail, companyPhone, companyWebsite, companyAddress } = req.body;
+    const { rows } = await pool.query(
+      `UPDATE tenants SET
+         sender_email    = COALESCE($1, sender_email),
+         company_phone   = COALESCE($2, company_phone),
+         company_website = COALESCE($3, company_website),
+         company_address = COALESCE($4, company_address),
+         updated_at = NOW()
+       WHERE id = $5
+       RETURNING name, slug, sender_email, company_phone, company_website, company_address`,
+      [senderEmail ?? null, companyPhone ?? null, companyWebsite ?? null, companyAddress ?? null, req.tenantId],
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Tenant not found' });
+    const t = rows[0];
+    res.json({
+      name: t.name, slug: t.slug, senderEmail: t.sender_email,
+      companyPhone: t.company_phone, companyWebsite: t.company_website, companyAddress: t.company_address,
+    });
+  } catch (err) { next(err); }
 });
 
 // GET /api/crm/dashboard/leaderboard

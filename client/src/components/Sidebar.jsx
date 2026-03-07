@@ -11,6 +11,7 @@ import iconTasks from '../assets/icons/Checklist--Streamline-Ultimate.svg';
 import iconEstimates from '../assets/icons/Accounting-Calculator-1--Streamline-Ultimate.svg';
 import iconSettings from '../assets/icons/Settings-Slider-Desktop-Horizontal--Streamline-Ultimate.svg';
 import iconBrand from '../assets/icons/Weather-Cloud-Wind-4--Streamline-Ultimate.svg';
+import iconAdmin from '../assets/icons/Monitor-Graph-Line--Streamline-Ultimate.svg';
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: iconDashboard },
@@ -71,6 +72,20 @@ export default function Sidebar({ activeView, onNavigate }) {
         <img src={settingsItem.icon} alt="" width="20" height="20" className="nav-link__icon" />
         {!collapsed && settingsItem.label}
       </button>
+
+      {user?.role === 'super_admin' && (
+        <button
+          className={`nav-link${activeView === 'admin' ? ' is-active' : ''}`}
+          onClick={() => onNavigate('admin')}
+          title={collapsed ? 'Admin' : undefined}
+          style={{
+            color: activeView === 'admin' ? 'oklch(0.72 0.18 250)' : 'var(--text-muted)',
+          }}
+        >
+          <img src={iconAdmin} alt="" width="20" height="20" className="nav-link__icon" />
+          {!collapsed && 'Admin'}
+        </button>
+      )}
 
       <div className="sidebar__user">
         <div className="sidebar__avatar">{initials}</div>

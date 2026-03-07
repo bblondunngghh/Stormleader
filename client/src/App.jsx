@@ -3,6 +3,7 @@ import { useMemo, useCallback } from 'react';
 import ProtectedRoute from './auth/ProtectedRoute';
 import LoginPage from './auth/LoginPage';
 import RegisterPage from './auth/RegisterPage';
+import OnboardingPage from './auth/OnboardingPage';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import Dashboard from './components/Dashboard';
@@ -13,6 +14,7 @@ import AlertSettings from './components/AlertSettings';
 import TasksView from './components/TasksView';
 import EstimatesView from './components/EstimatesView';
 import SettingsView from './components/SettingsView';
+import AdminDashboard from './components/AdminDashboard';
 import PublicEstimate from './components/PublicEstimate';
 
 const viewRoutes = {
@@ -24,6 +26,7 @@ const viewRoutes = {
   tasks: '/tasks',
   estimates: '/estimates',
   settings: '/settings',
+  admin: '/admin',
 };
 
 const routeToView = Object.fromEntries(
@@ -38,9 +41,9 @@ function AppShell() {
     return routeToView[location.pathname] || 'dashboard';
   }, [location.pathname]);
 
-  const handleNavigate = useCallback((view) => {
+  const handleNavigate = useCallback((view, search) => {
     const path = viewRoutes[view] || '/';
-    navigate(path);
+    navigate(search ? `${path}?${search}` : path);
   }, [navigate]);
 
   return (
@@ -56,6 +59,7 @@ function AppShell() {
         <Route path="/tasks" element={<TasksView />} />
         <Route path="/estimates" element={<EstimatesView />} />
         <Route path="/settings" element={<SettingsView />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
@@ -67,6 +71,7 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/onboarding" element={<OnboardingPage />} />
       <Route path="/estimate/:token" element={<PublicEstimateRoute />} />
       <Route
         path="/*"

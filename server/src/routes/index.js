@@ -16,6 +16,8 @@ import notificationsRouter from './notifications.js';
 import searchRouter from './search.js';
 import documentsRouter from './documents.js';
 import roofMeasurementRouter from './roofMeasurement.js';
+import onboardingRouter from './onboarding.js';
+import adminRouter from './admin.js';
 
 const router = Router();
 
@@ -36,5 +38,7 @@ router.use('/notifications', notificationsRouter);
 router.use('/search', searchRouter);
 router.use('/documents', documentsRouter);
 router.use('/roof-measurement', roofMeasurementRouter);
+router.use('/onboarding', onboardingRouter);
+router.use('/admin', adminRouter);
 
 export default router;

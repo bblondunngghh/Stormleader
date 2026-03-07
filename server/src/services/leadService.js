@@ -60,6 +60,29 @@ export async function generateLeadsFromStorm(tenantId, stormEventId, propertyIds
   try {
     await client.query('BEGIN');
 
+    // Check lead limit for tenant's subscription plan
+    const { rows: limitRows } = await client.query(
+      `SELECT sp.max_leads, COUNT(l.id)::int AS current_leads
+       FROM tenants t
+       LEFT JOIN subscription_plans sp ON sp.key = t.subscription_tier
+       LEFT JOIN leads l ON l.tenant_id = t.id AND l.deleted_at IS NULL
+       WHERE t.id = $1
+       GROUP BY sp.max_leads`,
+      [tenantId]
+    );
+    if (limitRows.length > 0 && limitRows[0].max_leads != null) {
+      const remaining = limitRows[0].max_leads - limitRows[0].current_leads;
+      if (remaining <= 0) {
+        const err = new Error(`Lead limit reached (${limitRows[0].max_leads}). Upgrade your plan to add more leads.`);
+        err.status = 403;
+        throw err;
+      }
+      // Cap the number of properties we'll process to the remaining allowance
+      if (propertyIds.length > remaining) {
+        propertyIds = propertyIds.slice(0, remaining);
+      }
+    }
+
     // Fetch the storm event for hail size + wind speed info
     const { rows: stormRows } = await client.query(
       `SELECT hail_size_max_in, wind_speed_max_mph FROM storm_events WHERE id = $1`,

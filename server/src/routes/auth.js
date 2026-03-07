@@ -48,12 +48,44 @@ router.post('/login', validate(loginSchema), async (req, res, next) => {
 router.get('/me', authenticate, async (req, res, next) => {
   try {
     const { rows } = await pool.query(
-      'SELECT id, tenant_id, email, role, first_name, last_name FROM users WHERE id = $1',
-      [req.user.id]
+      `SELECT
+         u.id,
+         u.tenant_id,
+         u.email,
+         u.role,
+         u.first_name,
+         u.last_name,
+         t.name                  AS tenant_name,
+         t.slug                  AS tenant_slug,
+         t.subscription_tier,
+         t.subscription_status,
+         t.onboarding_completed,
+         t.trial_ends_at
+       FROM users u
+       JOIN tenants t ON t.id = u.tenant_id
+       WHERE u.id = $1`,
+      [req.user.id],
     );
     if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
     const u = rows[0];
-    res.json({ user: { id: u.id, email: u.email, firstName: u.first_name, lastName: u.last_name, role: u.role, tenantId: u.tenant_id } });
+    res.json({
+      user: {
+        id: u.id,
+        email: u.email,
+        firstName: u.first_name,
+        lastName: u.last_name,
+        role: u.role,
+        tenantId: u.tenant_id,
+      },
+      tenant: {
+        tenantName: u.tenant_name,
+        tenantSlug: u.tenant_slug,
+        subscriptionTier: u.subscription_tier,
+        subscriptionStatus: u.subscription_status,
+        onboardingCompleted: u.onboarding_completed,
+        trialEndsAt: u.trial_ends_at,
+      },
+    });
   } catch (err) {
     next(err);
   }

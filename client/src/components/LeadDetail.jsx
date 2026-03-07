@@ -1,16 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { getLeadDetail, updateLead, deleteLead, updateLeadRoofType, logActivity, getActivities, addContact } from '../api/crm';
+import client from '../api/client';
+import { useAuth } from '../auth/AuthContext';
 import { getDocuments, uploadDocument, deleteDocument } from '../api/documents';
 import { submitTrace } from '../api/skipTrace';
 import { measureRoof } from '../api/roofMeasurement';
 import { IconX, IconPhone, IconMail, IconCalendar, IconClipboard, IconDollar, IconCamera, IconSend, IconTrash } from './Icons';
 import streetViewIcon from '../assets/icons/street-view-new.png';
 import runTraceIcon from '../assets/icons/run-trace.png';
-import quickCallIcon from '../assets/icons/quick-call.png';
+import quickCallIcon from '../assets/icons/Phone-Actions-Add--Streamline-Ultimate.png';
 import quickEmailIcon from '../assets/icons/Email-Action-Unread--Streamline-Ultimate.png';
-import quickSmsIcon from '../assets/icons/quick-sms.png';
-import quickVisitIcon from '../assets/icons/quick-visit.png';
+import quickSmsIcon from '../assets/icons/Messages-Logo--Streamline-Ultimate.png';
+import quickVisitIcon from '../assets/icons/Architecture-Door--Streamline-Ultimate.png';
 import logActivityIcon from '../assets/icons/log-activity.png';
 import removeLeadIcon from '../assets/icons/remove-lead.png';
 import measureRoofIcon from '../assets/icons/Measure-Caliber-1--Streamline-Ultimate.png';
@@ -168,7 +170,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
     }
   };
 
-  const doLogActivity = async (data) => {
+  const doLogActivity = async (data, { keepModal } = {}) => {
     if (!leadId) return;
     setSaving(true);
     try {
@@ -181,7 +183,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
       // silent
     } finally {
       setSaving(false);
-      setActiveModal(null);
+      if (!keepModal) setActiveModal(null);
     }
   };
 
@@ -770,16 +772,16 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
             <button className="quick-action-btn" onClick={() => setActiveModal('activity')} style={{ gridColumn: '1 / -1', color: 'var(--accent-blue)' }}>
               <img src={logActivityIcon} alt="" style={{ width: 18, height: 18 }} /> Log Activity...
             </button>
-            <button className="quick-action-btn" onClick={() => doLogActivity({ type: 'call', subject: 'Outbound call logged' })}>
+            <button className="quick-action-btn" onClick={() => setActiveModal('call')}>
               <img src={quickCallIcon} alt="" style={{ width: 18, height: 18 }} /> Quick Call
             </button>
             <button className="quick-action-btn" onClick={() => setActiveModal('email')}>
               <img src={quickEmailIcon} alt="" style={{ width: 18, height: 18 }} /> Quick Email
             </button>
-            <button className="quick-action-btn" onClick={() => doLogActivity({ type: 'text', subject: 'SMS sent' })}>
+            <button className="quick-action-btn" onClick={() => setActiveModal('sms')}>
               <img src={quickSmsIcon} alt="" style={{ width: 18, height: 18 }} /> Quick SMS
             </button>
-            <button className="quick-action-btn" onClick={() => doLogActivity({ type: 'door_knock', subject: 'Door knock visit' })}>
+            <button className="quick-action-btn" onClick={() => setActiveModal('visit')}>
               <img src={quickVisitIcon} alt="" style={{ width: 18, height: 18 }} /> Quick Visit
             </button>
           </div>
@@ -872,6 +874,328 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
         />
       )}
 
+      {/* Quick Call Modal */}
+      {activeModal === 'call' && lead && createPortal(
+        <>
+          <div className="slide-over-backdrop" onClick={() => setActiveModal(null)} style={{ zIndex: 200 }} />
+          <div className="slide-over glass" style={{ width: 400, zIndex: 201 }}>
+            <button className="slide-over__close" onClick={() => setActiveModal(null)}><IconX /></button>
+
+            <div className="slide-over__header" style={{ paddingRight: 40 }}>
+              <div className="slide-over__name">Quick Call</div>
+            </div>
+
+            <div className="divider" />
+
+            {/* Contact Info */}
+            <div className="detail-section">
+              <div className="detail-section__title">Customer Name</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-lg)' }}>{name}</div>
+
+              {phone && phone !== '—' ? (
+                <a
+                  href={`tel:${phone.replace(/[^\d+]/g, '')}`}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-sm)',
+                    width: '100%', height: 48, borderRadius: 'var(--radius-md)', fontSize: 16, fontWeight: 700,
+                    background: 'var(--accent-green)', color: 'oklch(0.12 0.02 260)',
+                    textDecoration: 'none', cursor: 'pointer',
+                  }}
+                  onClick={() => {
+                    doLogActivity({ type: 'call', subject: `Called ${name}`, notes: `Dialed ${phone}` }, { keepModal: true });
+                  }}
+                >
+                  <img src={quickCallIcon} alt="" width="20" height="20" />
+                  {phone}
+                </a>
+              ) : (
+                <div style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: '100%', height: 48, borderRadius: 'var(--radius-md)', fontSize: 13, fontWeight: 600,
+                  background: 'oklch(0.18 0.02 260 / 0.6)', color: 'var(--text-muted)',
+                  border: '1px solid var(--glass-border)',
+                }}>
+                  No phone number on file
+                </div>
+              )}
+            </div>
+
+            <div className="detail-section">
+              <div className="detail-section__title">Address</div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                {address}{city && !address?.toUpperCase().includes(city?.toUpperCase()) ? `, ${city}` : ''}{state ? `, ${state}` : ''}
+              </div>
+            </div>
+
+            {/* Property & Storm Details */}
+            <div className="detail-section">
+              <div className="detail-section__title">Property Details</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-sm) var(--space-lg)' }}>
+                {lead.roof_sqft && (
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Roof Size</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>{Number(lead.roof_sqft).toLocaleString()} sq ft</div>
+                  </div>
+                )}
+                {lead.roof_type && lead.roof_type !== '—' && (
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Material</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'capitalize' }}>{lead.roof_type}</div>
+                  </div>
+                )}
+                {lead.year_built && (
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Year Built</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>{lead.year_built}</div>
+                  </div>
+                )}
+                {lead.assessed_value && (
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Assessed Value</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>${Number(lead.assessed_value).toLocaleString()}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="detail-section">
+              <div className="detail-section__title">Storm & Estimate</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-sm) var(--space-lg)' }}>
+                {lead.hail_size_in && (
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Hail Size</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>{lead.hail_size_in}"</div>
+                  </div>
+                )}
+                {lead.storm_wind_max && (
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Wind Speed</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>{lead.storm_wind_max} mph</div>
+                  </div>
+                )}
+                {lead.estimated_value && (
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Est. Repair</div>
+                    <div style={{ fontSize: 13, color: 'var(--accent-green)', fontWeight: 700 }}>${Number(lead.estimated_value).toLocaleString()}</div>
+                  </div>
+                )}
+                {lead.priority && (
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Priority</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, textTransform: 'capitalize', color: lead.priority === 'hot' ? 'var(--accent-red)' : lead.priority === 'warm' ? 'var(--accent-amber)' : 'var(--accent-blue)' }}>{lead.priority}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {email && email !== '—' && (
+              <div className="detail-section">
+                <div className="detail-section__title">Email</div>
+                <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{email}</div>
+              </div>
+            )}
+
+            <div className="divider" />
+
+            <button
+              className="quick-action-btn"
+              onClick={() => setActiveModal(null)}
+              style={{ alignSelf: 'flex-end', padding: '8px 20px' }}
+            >
+              Close
+            </button>
+          </div>
+        </>,
+        document.body
+      )}
+
+      {/* Quick SMS Modal */}
+      {activeModal === 'sms' && lead && createPortal(
+        <>
+          <div className="slide-over-backdrop" onClick={() => setActiveModal(null)} style={{ zIndex: 200 }} />
+          <div className="slide-over glass" style={{ width: 420, zIndex: 201 }}>
+            <button className="slide-over__close" onClick={() => setActiveModal(null)}><IconX /></button>
+
+            <div className="slide-over__header" style={{ paddingRight: 40 }}>
+              <div className="slide-over__name">Quick SMS</div>
+            </div>
+
+            <div className="divider" />
+
+            <div className="detail-section">
+              <div className="detail-section__title">Customer Name</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)' }}>{name}</div>
+            </div>
+
+            <div className="detail-section">
+              <div className="detail-section__title">Phone Number</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)' }}>{phone !== '—' ? phone : 'No phone number on file'}</div>
+            </div>
+
+            <div className="detail-section">
+              <div className="detail-section__title">Message</div>
+              <SmsComposer name={name} phone={phone} lead={lead} address={address} city={city} state={state} />
+            </div>
+
+            <div className="divider" />
+
+            <div style={{ display: 'flex', gap: 'var(--space-sm)', justifyContent: 'flex-end' }}>
+              <button className="quick-action-btn" onClick={() => setActiveModal(null)} style={{ padding: '8px 20px' }}>
+                Close
+              </button>
+              {phone && phone !== '—' && (
+                <a
+                  id="sms-send-link"
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const msgEl = document.getElementById('sms-message-input');
+                    const msg = msgEl ? msgEl.value : '';
+                    const cleanPhone = phone.replace(/[^\d+]/g, '');
+                    window.open(`sms:${cleanPhone}${msg ? `?body=${encodeURIComponent(msg)}` : ''}`, '_self');
+                    doLogActivity({ type: 'text', subject: `SMS to ${name}`, notes: msg || 'SMS sent' }, { keepModal: true });
+                  }}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-xs)',
+                    height: 36, padding: '0 20px', borderRadius: 'var(--radius-md)', fontSize: 13, fontWeight: 700,
+                    background: 'var(--accent-blue)', color: 'oklch(0.12 0.02 260)',
+                    textDecoration: 'none', cursor: 'pointer', border: 'none',
+                  }}
+                >
+                  <img src={quickSmsIcon} alt="" width="16" height="16" /> Send SMS
+                </a>
+              )}
+            </div>
+          </div>
+        </>,
+        document.body
+      )}
+
+      {/* Quick Visit Modal */}
+      {activeModal === 'visit' && lead && createPortal(
+        <>
+          <div className="slide-over-backdrop" onClick={() => setActiveModal(null)} style={{ zIndex: 200 }} />
+          <div className="slide-over glass" style={{ width: 420, zIndex: 201 }}>
+            <button className="slide-over__close" onClick={() => setActiveModal(null)}><IconX /></button>
+
+            <div className="slide-over__header" style={{ paddingRight: 40 }}>
+              <div className="slide-over__name">Quick Visit</div>
+            </div>
+
+            <div className="divider" />
+
+            <div className="detail-section">
+              <div className="detail-section__title">Customer Name</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)' }}>{name}</div>
+            </div>
+
+            <div className="detail-section">
+              <div className="detail-section__title">Address</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 'var(--space-sm)' }}>
+                {address}{city && !address?.toUpperCase().includes(city?.toUpperCase()) ? `, ${city}` : ''}{state ? `, ${state}` : ''}{zip ? ` ${zip}` : ''}
+              </div>
+              {lead.property_geometry?.coordinates && (
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${lead.property_geometry.coordinates[1]},${lead.property_geometry.coordinates[0]}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-sm)',
+                    width: '100%', height: 40, borderRadius: 'var(--radius-md)', fontSize: 13, fontWeight: 700,
+                    background: 'var(--accent-blue)', color: 'oklch(0.12 0.02 260)',
+                    textDecoration: 'none', cursor: 'pointer',
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="3 11 22 2 13 21 11 13 3 11" />
+                  </svg>
+                  Get Directions
+                </a>
+              )}
+            </div>
+
+            {(lead.roof_sqft || lead.roof_type || lead.year_built) && (
+              <div className="detail-section">
+                <div className="detail-section__title">Property Details</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-sm) var(--space-lg)' }}>
+                  {lead.roof_sqft && (
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Roof Size</div>
+                      <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>{Number(lead.roof_sqft).toLocaleString()} sq ft</div>
+                    </div>
+                  )}
+                  {lead.roof_type && lead.roof_type !== '—' && (
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Material</div>
+                      <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'capitalize' }}>{lead.roof_type}</div>
+                    </div>
+                  )}
+                  {lead.year_built && (
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Year Built</div>
+                      <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>{lead.year_built}</div>
+                    </div>
+                  )}
+                  {lead.assessed_value && (
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Assessed Value</div>
+                      <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>${Number(lead.assessed_value).toLocaleString()}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="detail-section">
+              <div className="detail-section__title">Storm & Estimate</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-sm) var(--space-lg)' }}>
+                {lead.hail_size_in && (
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Hail Size</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>{lead.hail_size_in}"</div>
+                  </div>
+                )}
+                {lead.estimated_value && (
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Est. Repair</div>
+                    <div style={{ fontSize: 13, color: 'var(--accent-green)', fontWeight: 700 }}>${Number(lead.estimated_value).toLocaleString()}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {phone && phone !== '—' && (
+              <div className="detail-section">
+                <div className="detail-section__title">Phone</div>
+                <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{phone}</div>
+              </div>
+            )}
+
+            <div className="divider" />
+
+            <div style={{ display: 'flex', gap: 'var(--space-sm)', justifyContent: 'flex-end' }}>
+              <button className="quick-action-btn" onClick={() => setActiveModal(null)} style={{ padding: '8px 20px' }}>
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  doLogActivity({ type: 'door_knock', subject: `Door knock at ${address}` }, { keepModal: true });
+                }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 'var(--space-xs)',
+                  height: 36, padding: '0 20px', borderRadius: 'var(--radius-md)', fontSize: 13, fontWeight: 700,
+                  background: 'var(--accent-blue)', color: 'oklch(0.12 0.02 260)',
+                  border: 'none', cursor: 'pointer',
+                }}
+              >
+                <img src={quickVisitIcon} alt="" width="16" height="16" /> Log Visit
+              </button>
+            </div>
+          </div>
+        </>,
+        document.body
+      )}
+
       {/* Street View Modal — portaled to document.body to escape sidebar stacking context */}
       {showStreetView && (() => {
         const geo = lead.property_geometry;
@@ -949,6 +1273,54 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
         );
       })()}
     </>
+  );
+}
+
+const smsTemplates = [
+  { label: 'Introduction', text: (name, rep, co) => `Hi ${name}, this is ${rep} from ${co} — we noticed recent storm activity in your area and wanted to check if your roof sustained any damage. Would you be open to a free inspection?` },
+  { label: 'Follow-up', text: (name, rep, co) => `Hi ${name}, this is ${rep} from ${co} just following up on the storm damage in your neighborhood. We have availability this week for a free roof inspection. Let me know if you're interested!` },
+  { label: 'Appointment', text: (name, rep, co) => `Hi ${name}, this is ${rep} from ${co} confirming your roof inspection appointment. Please let us know if you need to reschedule. Thanks!` },
+];
+
+function SmsComposer({ name }) {
+  const { user } = useAuth();
+  const [message, setMessage] = useState('');
+  const [companyName, setCompanyName] = useState('our company');
+  const customerName = name !== '—' ? name.split(' ')[0] : 'there';
+  const repName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'your rep' : 'your rep';
+
+  useEffect(() => {
+    client.get('/crm/tenant-settings')
+      .then(res => { if (res.data.name) setCompanyName(res.data.name); })
+      .catch(() => {});
+  }, []);
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-xs)', flexWrap: 'wrap' }}>
+        {smsTemplates.map((t, i) => (
+          <button
+            key={i}
+            type="button"
+            className="activity-type-btn"
+            onClick={() => setMessage(t.text(customerName, repName, companyName))}
+            style={{ fontSize: 11 }}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+      <textarea
+        id="sms-message-input"
+        className="form-input"
+        rows={4}
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder="Type your message..."
+        style={{ resize: 'vertical', fontSize: 13 }}
+      />
+      <div style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'right' }}>{message.length} / 160 characters</div>
+    </div>
   );
 }
 

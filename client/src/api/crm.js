@@ -77,3 +77,6 @@ export const getTeamMembers = () => client.get('/crm/team');
 
 export const updateUserRole = (userId, role) =>
   client.patch(`/crm/team/${userId}/role`, { role });
+
+export const inviteTeamMember = (data) =>
+  client.post('/crm/team/invite', data);

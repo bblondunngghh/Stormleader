@@ -29,16 +29,17 @@ function getTransporter() {
  * Send a storm alert email.
  * Falls back to console logging if SMTP is not configured.
  */
-export async function sendStormEmail(to, alertData) {
+export async function sendStormEmail(to, alertData, { senderEmail } = {}) {
   const transport = getTransporter();
+  const from = senderEmail || config.SMTP_FROM || '"StormLeads Alerts" <alerts@stormleads.io>';
 
   if (!transport) {
-    logger.info({ to, subject: alertData.subject }, 'Email alert (SMTP not configured, logging only)');
+    logger.info({ to, from, subject: alertData.subject }, 'Email alert (SMTP not configured, logging only)');
     return { messageId: `log-${Date.now()}`, logged: true };
   }
 
   const result = await transport.sendMail({
-    from: config.SMTP_FROM || '"StormLeads Alerts" <alerts@stormleads.io>',
+    from,
     to,
     subject: alertData.subject,
     html: alertData.emailHtml,
@@ -52,7 +53,7 @@ export async function sendStormEmail(to, alertData) {
 /**
  * Send an estimate email to a customer with a link to view/accept/decline.
  */
-export async function sendEstimateEmail(to, estimate, appUrl) {
+export async function sendEstimateEmail(to, estimate, appUrl, { senderEmail } = {}) {
   const transport = getTransporter();
   const viewUrl = `${appUrl}/estimate/${estimate.public_token}`;
   const subject = `Your Estimate ${estimate.estimate_number} from ${estimate.company_name || 'StormLeads Roofing'}`;
@@ -84,13 +85,15 @@ export async function sendEstimateEmail(to, estimate, appUrl) {
 
   const text = `Estimate ${estimate.estimate_number} - $${Number(estimate.total).toFixed(2)}\n\nView your estimate: ${viewUrl}`;
 
+  const from = senderEmail || config.SMTP_FROM || '"StormLeads" <estimates@stormleads.io>';
+
   if (!transport) {
-    logger.info({ to, subject, viewUrl }, 'Estimate email (SMTP not configured, logging only)');
+    logger.info({ to, from, subject, viewUrl }, 'Estimate email (SMTP not configured, logging only)');
     return { messageId: `log-${Date.now()}`, logged: true };
   }
 
   const result = await transport.sendMail({
-    from: config.SMTP_FROM || '"StormLeads" <estimates@stormleads.io>',
+    from,
     to,
     subject,
     html,

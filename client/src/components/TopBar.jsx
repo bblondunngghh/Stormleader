@@ -2,8 +2,10 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { IconSearch, IconX } from './Icons';
 import iconHelpCircle from '../assets/icons/Question-Circle--Streamline-Ultimate.png';
 import iconAlarmBell from '../assets/icons/Alarm-Bell-1--Streamline-Ultimate.png';
+import iconBadge from '../assets/icons/Check-Badge--Streamline-Ultimate.svg';
 import * as notificationsApi from '../api/notifications';
 import * as searchApi from '../api/search';
+import client from '../api/client';
 
 const viewTitles = {
   dashboard: 'Dashboard',
@@ -28,6 +30,7 @@ export default function TopBar({ activeView, onNavigate }) {
       <div className="topbar__actions">
         <HelpGuide />
         <NotificationBell />
+        <PlanBadge onNavigate={onNavigate} />
       </div>
     </header>
   );
@@ -162,6 +165,49 @@ function SearchGroup({ title, items, onSelect }) {
         </div>
       ))}
     </div>
+  );
+}
+
+// ============================================================
+// PLAN BADGE
+// ============================================================
+
+const planColors = {
+  starter: 'oklch(0.72 0.15 200)',
+  pro: 'oklch(0.72 0.18 250)',
+  business: 'oklch(0.75 0.18 145)',
+  enterprise: 'oklch(0.75 0.15 60)',
+};
+
+function PlanBadge({ onNavigate }) {
+  const [tier, setTier] = useState(null);
+
+  const fetchTier = useCallback(() => {
+    client.get('/crm/tenant-settings')
+      .then(res => setTier(res.data.subscriptionTier))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetchTier();
+    const handler = () => fetchTier();
+    window.addEventListener('plan-changed', handler);
+    return () => window.removeEventListener('plan-changed', handler);
+  }, [fetchTier]);
+
+  if (!tier) return null;
+
+  const color = planColors[tier] || 'var(--accent-blue)';
+
+  return (
+    <button
+      title={`Current plan: ${tier}`}
+      onClick={() => onNavigate('settings', 'tab=billing')}
+      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 'var(--radius-pill)', background: `color-mix(in oklch, ${color} 12%, transparent)`, border: `1px solid color-mix(in oklch, ${color} 25%, transparent)`, cursor: 'pointer' }}
+    >
+      <img src={iconBadge} alt="" width="16" height="16" style={{ filter: 'brightness(0.9)' }} />
+      <span style={{ fontSize: 11, fontWeight: 700, color, textTransform: 'capitalize', letterSpacing: '0.03em' }}>{tier}</span>
+    </button>
   );
 }
 

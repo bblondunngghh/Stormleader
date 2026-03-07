@@ -1,13 +1,20 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { logActivity } from '../api/crm';
 import { IconX } from './Icons';
+import DatePicker from './DatePicker';
+import iconCall from '../assets/icons/Phone-Actions-Add--Streamline-Ultimate.png';
+import iconEmail from '../assets/icons/Email-Action-Unread--Streamline-Ultimate.png';
+import iconText from '../assets/icons/Messages-Logo--Streamline-Ultimate.png';
+import iconDoorKnock from '../assets/icons/Architecture-Door--Streamline-Ultimate.png';
+import iconNote from '../assets/icons/Content-Paper-Edit--Streamline-Ultimate.png';
 
 const activityTypes = [
-  { key: 'call', label: 'Call', icon: '📞' },
-  { key: 'email', label: 'Email', icon: '📧' },
-  { key: 'text', label: 'Text', icon: '💬' },
-  { key: 'door_knock', label: 'Door Knock', icon: '🚪' },
-  { key: 'note', label: 'Note', icon: '📝' },
+  { key: 'call', label: 'Call', icon: iconCall },
+  { key: 'email', label: 'Email', icon: iconEmail },
+  { key: 'text', label: 'Text', icon: iconText },
+  { key: 'door_knock', label: 'Door Knock', icon: iconDoorKnock },
+  { key: 'note', label: 'Note', icon: iconNote },
 ];
 
 const directionOptions = [
@@ -31,6 +38,7 @@ export default function ActivityModal({ leadId, onSave, onClose }) {
   const [outcome, setOutcome] = useState('');
   const [duration, setDuration] = useState('');
   const [followUpDate, setFollowUpDate] = useState('');
+  const [followUpTime, setFollowUpTime] = useState('09:00');
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
@@ -44,7 +52,7 @@ export default function ActivityModal({ leadId, onSave, onClose }) {
         notes: notes.trim() || undefined,
         outcome: outcome || undefined,
         duration_seconds: duration ? parseInt(duration, 10) * 60 : undefined,
-        next_follow_up: followUpDate || undefined,
+        next_follow_up: followUpDate ? `${followUpDate}T${followUpTime || '09:00'}` : undefined,
         metadata: { direction },
       });
       onSave?.();
@@ -57,10 +65,10 @@ export default function ActivityModal({ leadId, onSave, onClose }) {
 
   const outcomes = outcomeOptions[type] || [];
 
-  return (
+  return createPortal(
     <>
-      <div className="slide-over-backdrop" onClick={onClose} />
-      <div className="slide-over glass" style={{ width: 440 }}>
+      <div className="slide-over-backdrop" onClick={onClose} style={{ zIndex: 200 }} />
+      <div className="slide-over glass" style={{ width: 440, zIndex: 201 }}>
         <button className="slide-over__close" onClick={onClose}><IconX /></button>
 
         <div className="slide-over__header" style={{ paddingRight: 40 }}>
@@ -79,7 +87,7 @@ export default function ActivityModal({ leadId, onSave, onClose }) {
                 className={`activity-type-btn ${type === at.key ? 'activity-type-btn--active' : ''}`}
                 onClick={() => { setType(at.key); setOutcome(''); }}
               >
-                <span>{at.icon}</span> {at.label}
+                <img src={at.icon} alt="" width="18" height="18" /> {at.label}
               </button>
             ))}
           </div>
@@ -166,12 +174,20 @@ export default function ActivityModal({ leadId, onSave, onClose }) {
         {/* Follow-up */}
         <div className="detail-section">
           <div className="detail-section__title">Schedule Follow-up</div>
-          <input
-            className="form-input"
-            type="datetime-local"
-            value={followUpDate}
-            onChange={(e) => setFollowUpDate(e.target.value)}
-          />
+          <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'flex-start' }}>
+            <div style={{ flex: 1 }}>
+              <DatePicker value={followUpDate} onChange={setFollowUpDate} placeholder="Select date" />
+            </div>
+            {followUpDate && (
+              <input
+                className="form-input"
+                type="time"
+                value={followUpTime}
+                onChange={(e) => setFollowUpTime(e.target.value)}
+                style={{ width: 110, flexShrink: 0 }}
+              />
+            )}
+          </div>
         </div>
 
         <div className="divider" />
@@ -189,6 +205,7 @@ export default function ActivityModal({ leadId, onSave, onClose }) {
           </button>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 }
