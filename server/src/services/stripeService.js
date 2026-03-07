@@ -3,10 +3,19 @@ import pool from '../db/pool.js';
 import env from '../config/env.js';
 import logger from '../utils/logger.js';
 
-const stripe = new Stripe(env.STRIPE_SECRET_KEY);
+const stripe = env.STRIPE_SECRET_KEY ? new Stripe(env.STRIPE_SECRET_KEY) : null;
+
+function requireStripe() {
+  if (!stripe) {
+    const err = new Error('Stripe is not configured. Set STRIPE_SECRET_KEY to enable payments.');
+    err.status = 503;
+    throw err;
+  }
+  return stripe;
+}
 
 export async function createCustomer(tenantId, email) {
-  const customer = await stripe.customers.create({ email, metadata: { tenantId } });
+  const customer = await requireStripe().customers.create({ email, metadata: { tenantId } });
   await pool.query('UPDATE tenants SET stripe_customer_id = $1 WHERE id = $2', [customer.id, tenantId]);
   return customer;
 }
@@ -14,7 +23,7 @@ export async function createCustomer(tenantId, email) {
 export async function getOrCreateCustomer(tenantId, email) {
   const { rows } = await pool.query('SELECT stripe_customer_id FROM tenants WHERE id = $1', [tenantId]);
   if (rows[0]?.stripe_customer_id) {
-    return await stripe.customers.retrieve(rows[0].stripe_customer_id);
+    return await requireStripe().customers.retrieve(rows[0].stripe_customer_id);
   }
   return createCustomer(tenantId, email);
 }
@@ -24,8 +33,8 @@ export async function attachPaymentMethod(tenantId, paymentMethodId) {
   if (!rows[0]?.stripe_customer_id) throw new Error('No Stripe customer for tenant');
 
   const customerId = rows[0].stripe_customer_id;
-  const pm = await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId });
-  await stripe.customers.update(customerId, { invoice_settings: { default_payment_method: pm.id } });
+  const pm = await requireStripe().paymentMethods.attach(paymentMethodId, { customer: customerId });
+  await requireStripe().customers.update(customerId, { invoice_settings: { default_payment_method: pm.id } });
 
   await pool.query(
     `INSERT INTO tenant_skip_trace_config (tenant_id, stripe_payment_method_id, card_last_four, card_brand)
@@ -50,7 +59,7 @@ export async function chargeForSkipTrace(tenantId, recordCount, costCentsPerReco
 
   const totalCents = recordCount * (costCentsPerRecord + markupCents);
 
-  const paymentIntent = await stripe.paymentIntents.create({
+  const paymentIntent = await requireStripe().paymentIntents.create({
     amount: totalCents,
     currency: 'usd',
     customer: rows[0].stripe_customer_id,
@@ -150,7 +159,7 @@ export async function processBatchBilling() {
         continue;
       }
 
-      const payment = await stripe.paymentIntents.create({
+      const payment = await requireStripe().paymentIntents.create({
         amount: totalCents,
         currency: 'usd',
         customer: custRows[0].stripe_customer_id,
@@ -208,7 +217,7 @@ export async function processBatchBilling() {
 }
 
 export async function removePaymentMethod(tenantId, paymentMethodId) {
-  await stripe.paymentMethods.detach(paymentMethodId);
+  await requireStripe().paymentMethods.detach(paymentMethodId);
   await pool.query(
     `UPDATE tenant_skip_trace_config
      SET stripe_payment_method_id = NULL, card_last_four = NULL, card_brand = NULL, updated_at = NOW()
