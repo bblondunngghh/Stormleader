@@ -81,6 +81,7 @@ export default function StormMap() {
   layersRef.current = layers;
   const [improvedOnly, setImprovedOnly] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [mapLoading, setMapLoading] = useState(false);
   const searchMarkerRef = useRef(null);
   const dataLayersRef = useRef({});
   const propLabelsRef = useRef([]);
@@ -95,24 +96,32 @@ export default function StormMap() {
     const sw = bounds.getSouthWest();
     const viewport = { west: sw.lng(), south: sw.lat(), east: ne.lng(), north: ne.lat() };
 
+    // Skip degenerate bbox (exact same point for all corners)
+    if (ne.lng() === sw.lng() && ne.lat() === sw.lat()) {
+      return;
+    }
+
     const zoom = map.getZoom();
 
     // Skip heavy data loads at low zoom to prevent freezing
     if (zoom < 5) return;
 
+    setMapLoading(true);
+    const loadStart = Date.now();
+
     const fetches = [
       getSwaths({ timeRange, ...viewport }),
     ];
     if (zoom >= 6) {
-      fetches.push(getAffectedProperties({ timeRange, ...viewport, improvedOnly }));
+      fetches.push(getAffectedProperties({ timeRange, ...viewport }));
     }
-    if (zoom >= 10) {
+    if (zoom >= 10 && improvedOnly) {
       fetches.push(getMapProperties({ ...viewport, improvedOnly }));
     }
     const results = await Promise.allSettled(fetches);
     const swathRes = results[0];
     const affectedRes = zoom >= 6 ? results[1] : null;
-    const allPropRes = zoom >= 10 ? results[results.length - 1] : null;
+    const allPropRes = zoom >= 10 && improvedOnly ? results[results.length - 1] : null;
 
 
     const dl = dataLayersRef.current;
@@ -187,6 +196,13 @@ export default function StormMap() {
 
     propFeaturesRef.current = cappedFeatures;
     updatePropertyMarkersRef.current(map, cappedFeatures);
+    // Keep loading visible for at least 400ms so it doesn't just flash
+    const elapsed = Date.now() - loadStart;
+    if (elapsed < 400) {
+      setTimeout(() => setMapLoading(false), 400 - elapsed);
+    } else {
+      setMapLoading(false);
+    }
   }, [timeRange, improvedOnly]);
 
   // Manage property circle overlays (using google.maps.Circle for performance)
@@ -494,13 +510,10 @@ export default function StormMap() {
 
       // Debounced idle handler (replaces moveend)
       let idleTimeout;
-      let initialLoadDone = false;
       map.addListener('idle', () => {
         clearTimeout(idleTimeout);
         const c = map.getCenter();
         sessionStorage.setItem('stormMapViewport', JSON.stringify({ lat: c.lat(), lng: c.lng(), zoom: map.getZoom() }));
-        // Skip debounced reload until initial load completes to avoid duplicate fetches
-        if (!initialLoadDone) return;
         idleTimeout = setTimeout(() => loadData(map), 500);
       });
 
@@ -604,7 +617,6 @@ export default function StormMap() {
       // Initial data load
       maps.event.addListenerOnce(map, 'idle', () => {
         loadData(map).then(() => {
-          initialLoadDone = true;
           try {
             const saved = JSON.parse(sessionStorage.getItem('stormMapPopup'));
             if (saved) {
@@ -801,6 +813,12 @@ export default function StormMap() {
         />
         <div className="storm-map-wrapper">
           <div ref={mapContainer} style={{ position: 'absolute', inset: 0 }} />
+          {mapLoading && (
+            <div className="storm-map-loading">
+              <div className="storm-map-loading__spinner" />
+              <span>Loading storm data…</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

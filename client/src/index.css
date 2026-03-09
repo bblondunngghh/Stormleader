@@ -1802,9 +1802,45 @@ select.form-input option {
   position: relative;
 }
 
-.storm-map-wrapper > div {
+.storm-map-wrapper > div:first-child {
   position: absolute;
   inset: 0;
+}
+
+.storm-map-loading {
+  position: absolute;
+  bottom: var(--space-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-pill);
+  background: oklch(0.15 0.01 260 / 0.85);
+  backdrop-filter: blur(12px);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  pointer-events: none;
+  animation: fadeInUp 0.2s ease-out;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.storm-map-loading__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid oklch(0.6 0.15 250 / 0.3);
+  border-top-color: oklch(0.7 0.18 250);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .map-top-bar {
