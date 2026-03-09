@@ -45,25 +45,6 @@ function haversineDistanceFt(c1, c2) {
   return haversineFt(c1, c2);
 }
 
-/** Convert a solar segment (center + dims + azimuth) to polygon vertices [lng,lat][] */
-function solarSegmentToVertices(seg) {
-  if (!seg.center) return null;
-  const { lat: cLat, lng: cLng } = seg.center;
-  const halfW = (seg.width_m || 5) / 2;
-  const halfD = (seg.depth_m || 5) / 2;
-  const azRad = ((seg.azimuth || 0) * Math.PI) / 180;
-  const offsetLatLng = (dxM, dyM) => {
-    const latOff = dyM / 111320;
-    const lngOff = dxM / (111320 * Math.cos((cLat * Math.PI) / 180));
-    return [cLng + lngOff, cLat + latOff];
-  };
-  return [[-halfW, -halfD], [halfW, -halfD], [halfW, halfD], [-halfW, halfD]].map(([lx, ly]) => {
-    const dx = lx * Math.cos(azRad) + ly * Math.sin(azRad);
-    const dy = -lx * Math.sin(azRad) + ly * Math.cos(azRad);
-    return offsetLatLng(dx, dy);
-  });
-}
-
 let lineIdCounter = 0;
 let facetIdCounter = 0;
 
@@ -92,27 +73,6 @@ export default function RoofDrawingTool({ propertyId, lat, lng, address, roofPit
   const drawModeRef = useRef(drawMode);
   const activeFacetVertsRef = useRef([]);
   const facetsRef = useRef([]);
-
-  // Pre-populate facets from Google Solar segments
-  const [solarLoaded, setSolarLoaded] = useState(false);
-  useEffect(() => {
-    if (solarLoaded || !solarSegments?.length) return;
-    const preloaded = solarSegments.map((seg, i) => {
-      // dataLayers polygons have vertices directly
-      let vertices = seg.polygon?.length > 0 ? [...seg.polygon] : solarSegmentToVertices(seg);
-      if (!vertices || vertices.length < 3) return null;
-      const id = `solar_${++facetIdCounter}`;
-      return {
-        id,
-        vertices,
-        pitchDeg: seg.pitch || parseFloat(roofPitchDegrees) || 0,
-        color: FACET_COLORS[i % FACET_COLORS.length],
-        fromSolar: true,
-      };
-    }).filter(Boolean);
-    if (preloaded.length > 0) setFacets(preloaded);
-    setSolarLoaded(true);
-  }, [solarSegments, solarLoaded, roofPitchDegrees]);
 
   useEffect(() => { activeTypeRef.current = activeType; }, [activeType]);
   useEffect(() => { drawingStartRef.current = drawingStart; }, [drawingStart]);
@@ -172,12 +132,6 @@ export default function RoofDrawingTool({ propertyId, lat, lng, address, roofPit
     mapRef.current = m;
 
     m.on('load', () => {
-      // Solar segments overlay
-      m.addSource('solar-segments', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
-      m.addLayer({ id: 'solar-segments-fill', type: 'fill', source: 'solar-segments', paint: { 'fill-color': ['get', 'color'], 'fill-opacity': 0.25 } });
-      m.addLayer({ id: 'solar-segments-outline', type: 'line', source: 'solar-segments', paint: { 'line-color': ['get', 'color'], 'line-width': 2, 'line-opacity': 0.7, 'line-dasharray': [4, 2] } });
-      m.addLayer({ id: 'solar-segments-labels', type: 'symbol', source: 'solar-segments', layout: { 'text-field': ['get', 'label'], 'text-size': 10, 'text-allow-overlap': true }, paint: { 'text-color': '#fff', 'text-halo-color': 'rgba(0,0,0,0.9)', 'text-halo-width': 1.5 } });
-
       // Roof outline
       m.addSource('roof-outline', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
       m.addLayer({ id: 'roof-outline-layer', type: 'line', source: 'roof-outline', paint: { 'line-color': '#00ffcc', 'line-width': 2.5, 'line-opacity': 0.8 } });
@@ -671,7 +625,7 @@ export default function RoofDrawingTool({ propertyId, lat, lng, address, roofPit
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <span style={{ width: 10, height: 10, borderRadius: '50%', background: f.color, display: 'inline-block' }} />
-                          <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>Facet {i + 1}{f.fromSolar ? ' (Solar)' : ''}</span>
+                          <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>Facet {i + 1}</span>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent-green)' }}>{trueArea} sqft</span>
