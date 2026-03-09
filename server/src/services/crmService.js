@@ -76,12 +76,16 @@ export async function getLeadDetail(tenantId, leadId) {
         p.address_line1, p.address_line2, p.city AS property_city, p.state, p.zip,
         p.owner_first_name, p.owner_last_name, p.owner_phone, p.owner_email,
         p.roof_type, p.roof_sqft, p.roof_pitch_degrees, p.roof_segments,
+        p.roof_ridge_ft, p.roof_valley_ft, p.roof_eave_ft, p.roof_rake_ft,
+        p.roof_hip_ft, p.roof_drip_edge_ft, p.roof_flashing_ft,
         p.year_built, p.assessed_value,
         p.homestead_exempt, p.county_parcel_id, p.property_sqft,
         ST_AsGeoJSON(p.location)::json AS property_geometry,
         se.source AS storm_source, se.hail_size_max_in AS storm_hail_max,
         se.wind_speed_max_mph AS storm_wind_max, se.event_start AS storm_start,
         se.raw_data->>'type' AS storm_type,
+        ST_AsGeoJSON(COALESCE(se.drift_corrected_geom, se.geom))::json AS storm_geometry,
+        p.roof_measurement_source,
         u.first_name AS rep_first_name, u.last_name AS rep_last_name, u.email AS rep_email
      FROM leads l
      LEFT JOIN properties p ON p.id = l.property_id

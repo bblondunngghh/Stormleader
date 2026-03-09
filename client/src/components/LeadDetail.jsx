@@ -5,7 +5,9 @@ import client from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { getDocuments, uploadDocument, deleteDocument } from '../api/documents';
 import { submitTrace } from '../api/skipTrace';
-import { measureRoof } from '../api/roofMeasurement';
+import { measureRoof, manualRoofEntry, getSolarSegments } from '../api/roofMeasurement';
+import { updatePropertyLocation } from '../api/storms';
+import mapboxgl from 'mapbox-gl';
 import { IconX, IconPhone, IconMail, IconCalendar, IconClipboard, IconDollar, IconCamera, IconSend, IconTrash } from './Icons';
 import streetViewIcon from '../assets/icons/street-view-new.png';
 import runTraceIcon from '../assets/icons/run-trace.png';
@@ -16,6 +18,8 @@ import quickVisitIcon from '../assets/icons/Architecture-Door--Streamline-Ultima
 import logActivityIcon from '../assets/icons/log-activity.png';
 import removeLeadIcon from '../assets/icons/remove-lead.png';
 import measureRoofIcon from '../assets/icons/Measure-Caliber-1--Streamline-Ultimate.png';
+import insuranceReportIcon from '../assets/icons/Check-Badge--Streamline-Ultimate.svg';
+import RoofDrawingTool from './RoofDrawingTool';
 import ActivityModal from './ActivityModal';
 import EmailModal from './EmailModal';
 
@@ -50,8 +54,18 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   const [traceError, setTraceError] = useState('');
   const [measuring, setMeasuring] = useState(false);
   const [measureError, setMeasureError] = useState('');
+  const [showManualRoof, setShowManualRoof] = useState(false);
+  const [manualRoofSqft, setManualRoofSqft] = useState('');
+  const [manualRoofPitch, setManualRoofPitch] = useState('');
+  const [savingManualRoof, setSavingManualRoof] = useState(false);
+  const [showRoofDrawing, setShowRoofDrawing] = useState(false);
+  const [solarSegments, setSolarSegments] = useState([]);
+  const [roofOutline, setRoofOutline] = useState([]);
   const [showStreetView, setShowStreetView] = useState(false);
-  const [mapMode, setMapMode] = useState('street'); // 'street' | 'satellite'
+  const [mapMode, setMapMode] = useState('street'); // 'street' | 'satellite' | 'adjust'
+  const [savingPin, setSavingPin] = useState(false);
+  const adjustMapRef = useRef(null);
+  const adjustMarkerRef = useRef(null);
   const fileInputRef = useRef(null);
 
   // Fetch full lead detail from API
@@ -81,6 +95,17 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
       .then(res => setDocuments(res.data.documents || []))
       .catch(() => {});
   }, [leadId]);
+
+  // Fetch solar segments when drawing tool opens
+  useEffect(() => {
+    if (!showRoofDrawing || !lead?.property_id || !lead?.roof_sqft) return;
+    getSolarSegments(lead.property_id)
+      .then(data => {
+        setSolarSegments(data.segments || []);
+        setRoofOutline(data.outline || []);
+      })
+      .catch(() => {});
+  }, [showRoofDrawing, lead?.property_id, lead?.roof_sqft]);
 
   if (loading) {
     return (
@@ -492,10 +517,35 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 <img src={measureRoofIcon} alt="" style={{ width: 16, height: 16 }} />
                 {measuring ? 'Measuring...' : lead.roof_pitch_degrees ? 'Re-measure' : 'Measure Roof'}
               </button>
-              {measureError && <div style={{ fontSize: 11, color: 'var(--accent-red)', marginTop: 4 }}>{measureError}</div>}
-              <div style={{ fontSize: 10, color: 'var(--accent-red)', marginTop: 4, opacity: 0.5 }}>
-                Each measurement will be added to your monthly bill.
-              </div>
+              {measureError && (
+                <div style={{ marginTop: 4 }}>
+                  <div style={{ fontSize: 11, color: 'var(--accent-red)' }}>{measureError}</div>
+                  <button
+                    onClick={() => setShowRoofDrawing(true)}
+                    style={{
+                      background: 'none', border: 'none', color: 'var(--accent-blue)',
+                      fontSize: 11, fontWeight: 600, cursor: 'pointer', padding: '4px 0', textDecoration: 'underline',
+                    }}
+                  >
+                    Draw roof measurements on map
+                  </button>
+                </div>
+              )}
+              {!measureError && (
+                <div style={{ fontSize: 10, color: 'var(--accent-red)', marginTop: 4, opacity: 0.5 }}>
+                  Each measurement will be added to your monthly bill.
+                </div>
+              )}
+              <button
+                onClick={() => setShowRoofDrawing(true)}
+                style={{
+                  background: 'none', border: 'none', color: 'var(--accent-blue)',
+                  fontSize: 11, fontWeight: 600, cursor: 'pointer', padding: '4px 0', textDecoration: 'underline',
+                  marginTop: 2,
+                }}
+              >
+                {lead.roof_sqft ? 'Draw to add missing edges' : 'Draw roof measurements on map'}
+              </button>
             </div>
           )}
         </div>
@@ -580,6 +630,42 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
               <span className="detail-item__label">Roof Segments</span>
               <span className="detail-item__value">{lead.roof_segments || '—'}</span>
             </div>
+            {lead.roof_ridge_ft > 0 && (
+              <>
+                <div className="detail-item">
+                  <span className="detail-item__label">Ridge</span>
+                  <span className="detail-item__value">{Number(lead.roof_ridge_ft).toLocaleString()} ft</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-item__label">Eave</span>
+                  <span className="detail-item__value">{Number(lead.roof_eave_ft).toLocaleString()} ft</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-item__label">Rake</span>
+                  <span className="detail-item__value">{Number(lead.roof_rake_ft).toLocaleString()} ft</span>
+                </div>
+                {lead.roof_valley_ft > 0 && (
+                  <div className="detail-item">
+                    <span className="detail-item__label">Valley</span>
+                    <span className="detail-item__value">{Number(lead.roof_valley_ft).toLocaleString()} ft</span>
+                  </div>
+                )}
+                {lead.roof_hip_ft > 0 && (
+                  <div className="detail-item">
+                    <span className="detail-item__label">Hip</span>
+                    <span className="detail-item__value">{Number(lead.roof_hip_ft).toLocaleString()} ft</span>
+                  </div>
+                )}
+                <div className="detail-item">
+                  <span className="detail-item__label">Drip Edge</span>
+                  <span className="detail-item__value">{Number(lead.roof_drip_edge_ft).toLocaleString()} ft</span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-item__label">Flashing</span>
+                  <span className="detail-item__value">{Number(lead.roof_flashing_ft).toLocaleString()} ft</span>
+                </div>
+              </>
+            )}
             <div className="detail-item">
               <span className="detail-item__label">Property Size</span>
               <span className="detail-item__value">{lead.property_sqft ? `${Number(lead.property_sqft).toLocaleString()} sq ft` : '—'}</span>
@@ -783,6 +869,9 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
             </button>
             <button className="quick-action-btn" onClick={() => setActiveModal('visit')}>
               <img src={quickVisitIcon} alt="" style={{ width: 18, height: 18 }} /> Quick Visit
+            </button>
+            <button className="quick-action-btn" onClick={() => setActiveModal('insurance')}>
+              <img src={insuranceReportIcon} alt="" style={{ width: 18, height: 18 }} /> Insurance Report
             </button>
           </div>
         </div>
@@ -1196,6 +1285,327 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
         document.body
       )}
 
+      {/* Insurance Report Modal — PDF-style preview */}
+      {activeModal === 'insurance' && lead && (() => {
+        const geo = lead.property_geometry;
+        const lat = geo?.coordinates?.[1];
+        const lng = geo?.coordinates?.[0];
+        const fullAddr = `${address}${city ? `, ${city}` : ''}${state ? `, ${state}` : ''}${zip ? ` ${zip}` : ''}`;
+        const h = lead.hail_size_in ? parseFloat(lead.hail_size_in) : 0;
+        const w = lead.storm_wind_max ? parseFloat(lead.storm_wind_max) : 0;
+        let df = 0.3;
+        if (h >= 2.5) df = 1.0; else if (h >= 1.75) df = 0.8; else if (h >= 1.25) df = 0.6; else if (h >= 1.0) df = 0.45; else if (h >= 0.75) df = 0.35;
+        if (w >= 80) df = Math.min(df + 0.2, 1.0); else if (w >= 60) df = Math.min(df + 0.1, 1.0);
+        let severity = 'Assessment pending';
+        if (h >= 2.5) severity = 'Severe — Full replacement likely';
+        else if (h >= 1.75) severity = 'Significant — Major repairs needed';
+        else if (h >= 1.25) severity = 'Moderate — Partial damage expected';
+        else if (h >= 0.75) severity = 'Minor — Inspect for granule loss';
+        const reportDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        const mapToken = import.meta.env.VITE_MAPBOX_TOKEN || '';
+        const roofSquares = lead.roof_sqft ? (lead.roof_sqft / 100).toFixed(1) : null;
+        const measureSrc = lead.roof_measurement_source === 'google_solar' ? 'Google Solar API (satellite)' : lead.roof_measurement_source === 'manual' ? 'Manual measurement' : null;
+
+        // Row helper for PDF table
+        const R = (label, val, highlight) => (
+          <tr>
+            <td style={{ padding: '4px 8px', fontSize: 11, color: '#666', borderBottom: '1px solid #eee', width: '45%' }}>{label}</td>
+            <td style={{ padding: '4px 8px', fontSize: 12, fontWeight: 600, borderBottom: '1px solid #eee', color: highlight ? '#c0392b' : '#1a1a1a' }}>{val}</td>
+          </tr>
+        );
+
+        const handlePrint = () => {
+          // Capture the map as an image
+          const reportMapEl = document.getElementById('insurance-report-map');
+          let mapImgSrc = '';
+          if (reportMapEl) {
+            const canvas = reportMapEl.querySelector('canvas');
+            if (canvas) mapImgSrc = canvas.toDataURL('image/png');
+          }
+
+          const win = window.open('', '_blank');
+          win.document.write(`<!DOCTYPE html><html><head><title>Weather Damage Report - ${fullAddr}</title>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 32px 40px; color: #1a1a1a; font-size: 12px; line-height: 1.5; }
+              h1 { font-size: 18px; margin-bottom: 2px; }
+              h2 { font-size: 12px; font-weight: 700; margin: 16px 0 6px; padding: 4px 8px; background: #f0f0f0; text-transform: uppercase; letter-spacing: 0.5px; }
+              .header { border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end; }
+              .subtitle { font-size: 10px; color: #666; }
+              table { width: 100%; border-collapse: collapse; }
+              td { padding: 3px 8px; font-size: 11px; border-bottom: 1px solid #eee; }
+              .label { color: #666; width: 45%; }
+              .val { font-weight: 600; }
+              .highlight { color: #c0392b; }
+              .map-img { width: 100%; height: auto; border: 1px solid #ccc; border-radius: 4px; margin: 8px 0; }
+              .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; }
+              .disclaimer { margin-top: 24px; padding-top: 10px; border-top: 1px solid #ccc; font-size: 9px; color: #999; line-height: 1.4; }
+              .sig-area { margin-top: 32px; display: flex; justify-content: space-between; }
+              .sig-line { border-top: 1px solid #333; width: 200px; padding-top: 4px; font-size: 10px; color: #666; }
+              @media print { body { padding: 16px 24px; } @page { margin: 0.5in; } }
+            </style>
+          </head><body>
+            <div class="header">
+              <div>
+                <h1>Weather Damage Verification Report</h1>
+                <div class="subtitle">For insurance claim documentation and adjuster review</div>
+              </div>
+              <div style="text-align:right;font-size:10px;color:#666;">
+                <div>Report Date: ${reportDate}</div>
+                <div>Date of Loss: ${stormDate}</div>
+              </div>
+            </div>
+
+            <div class="two-col">
+              <div>
+                <h2>Property Information</h2>
+                <table>
+                  <tr><td class="label">Address</td><td class="val">${fullAddr}</td></tr>
+                  <tr><td class="label">Property Owner</td><td class="val">${name}</td></tr>
+                  <tr><td class="label">Year Built</td><td class="val">${lead.year_built || 'N/A'}</td></tr>
+                  <tr><td class="label">Assessed Value</td><td class="val">${lead.assessed_value ? '$' + Number(lead.assessed_value).toLocaleString() : 'N/A'}</td></tr>
+                  ${lead.county_parcel_id ? `<tr><td class="label">Parcel ID</td><td class="val">${lead.county_parcel_id}</td></tr>` : ''}
+                </table>
+              </div>
+              <div>
+                <h2>Weather Event</h2>
+                <table>
+                  <tr><td class="label">Date of Loss</td><td class="val">${stormDate}</td></tr>
+                  <tr><td class="label">Storm Type</td><td class="val">${stormType ? stormType.charAt(0).toUpperCase() + stormType.slice(1) : 'N/A'}</td></tr>
+                  <tr><td class="label">Max Hail Size</td><td class="val highlight">${hailSize !== '—' ? hailSize + '"' : 'N/A'}</td></tr>
+                  <tr><td class="label">Max Wind Speed</td><td class="val">${windSpeed ? windSpeed + ' mph' : 'N/A'}</td></tr>
+                </table>
+                <div style="font-size:9px;color:#999;margin-top:4px;padding:0 8px;">Source: NOAA/NWS Storm Prediction Center</div>
+              </div>
+            </div>
+
+            <h2>Storm Impact Area — Property Location</h2>
+            ${mapImgSrc ? `<img src="${mapImgSrc}" class="map-img" alt="Storm swath map" />` : '<div style="height:200px;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;color:#999;font-size:11px;">Map not available</div>'}
+
+            <div class="two-col">
+              <div>
+                <h2>Roof Assessment</h2>
+                <table>
+                  <tr><td class="label">Total Roof Area</td><td class="val">${lead.roof_sqft ? Number(lead.roof_sqft).toLocaleString() + ' sq ft (' + roofSquares + ' squares)' : 'Not measured'}</td></tr>
+                  <tr><td class="label">Roofing Material</td><td class="val">${roofType !== '—' ? roofType : 'Not assessed'}</td></tr>
+                  <tr><td class="label">Roof Pitch</td><td class="val">${lead.roof_pitch_degrees ? Number(lead.roof_pitch_degrees).toFixed(1) + '°' : 'N/A'}</td></tr>
+                  <tr><td class="label">Roof Facets</td><td class="val">${lead.roof_segments || 'N/A'}</td></tr>
+                  ${lead.roof_ridge_ft > 0 ? `<tr><td class="label">Ridge</td><td class="val">${Number(lead.roof_ridge_ft).toLocaleString()} ft</td></tr>` : ''}
+                  ${lead.roof_eave_ft > 0 ? `<tr><td class="label">Eave</td><td class="val">${Number(lead.roof_eave_ft).toLocaleString()} ft</td></tr>` : ''}
+                  ${lead.roof_rake_ft > 0 ? `<tr><td class="label">Rake</td><td class="val">${Number(lead.roof_rake_ft).toLocaleString()} ft</td></tr>` : ''}
+                  ${lead.roof_valley_ft > 0 ? `<tr><td class="label">Valley</td><td class="val">${Number(lead.roof_valley_ft).toLocaleString()} ft</td></tr>` : ''}
+                  ${lead.roof_hip_ft > 0 ? `<tr><td class="label">Hip</td><td class="val">${Number(lead.roof_hip_ft).toLocaleString()} ft</td></tr>` : ''}
+                  ${lead.roof_drip_edge_ft > 0 ? `<tr><td class="label">Drip Edge</td><td class="val">${Number(lead.roof_drip_edge_ft).toLocaleString()} ft</td></tr>` : ''}
+                  ${lead.roof_flashing_ft > 0 ? `<tr><td class="label">Flashing</td><td class="val">${Number(lead.roof_flashing_ft).toLocaleString()} ft</td></tr>` : ''}
+                  ${measureSrc ? `<tr><td class="label">Measurement</td><td class="val">${measureSrc}</td></tr>` : ''}
+                </table>
+              </div>
+              <div>
+                <h2>Damage Assessment</h2>
+                <table>
+                  <tr><td class="label">Damage Factor</td><td class="val">${(df * 100).toFixed(0)}%</td></tr>
+                  <tr><td class="label">Severity</td><td class="val highlight">${severity}</td></tr>
+                  <tr><td class="label">Est. Repair Cost</td><td class="val highlight">${value ? '$' + Number(value).toLocaleString() : 'N/A'}</td></tr>
+                </table>
+                ${damageNotes ? `<div style="margin-top:6px;padding:0 8px;font-size:11px;"><strong>Notes:</strong> ${damageNotes}</div>` : ''}
+              </div>
+            </div>
+
+            ${insuranceCo !== '—' || claimNumber ? `
+              <h2>Insurance Information</h2>
+              <table style="width:50%">
+                ${insuranceCo !== '—' ? `<tr><td class="label">Insurance Company</td><td class="val">${insuranceCo}</td></tr>` : ''}
+                ${claimNumber ? `<tr><td class="label">Claim Number</td><td class="val">${claimNumber}</td></tr>` : ''}
+              </table>
+            ` : ''}
+
+            <div class="sig-area">
+              <div><div class="sig-line">Inspector Signature / Date</div></div>
+              <div><div class="sig-line">Homeowner Signature / Date</div></div>
+            </div>
+
+            <div class="disclaimer">
+              <strong>Disclaimer:</strong> This report is generated from publicly available weather data (NOAA/NWS Storm Prediction Center)
+              and county property assessment records. Hail sizes and wind speeds represent maximum reported values for storm events
+              affecting the property location. This report supports insurance claim documentation and does not constitute a professional
+              engineering inspection. A licensed adjuster or inspector should verify all damage on-site. Repair estimates are preliminary,
+              based on roof area, material type, and storm severity; actual costs may vary.
+            </div>
+          </body></html>`);
+          win.document.close();
+          setTimeout(() => win.print(), 500);
+        };
+
+        return createPortal(
+          <>
+            <div onClick={() => setActiveModal(null)} style={{
+              position: 'fixed', inset: 0, zIndex: 99998,
+              background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)',
+            }} />
+            <div style={{
+              position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+              zIndex: 99999, width: '90vw', maxWidth: 700, maxHeight: '90vh',
+              background: '#fff', borderRadius: 8, boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+              overflow: 'auto', color: '#1a1a1a', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+            }}>
+              {/* Paper-style report */}
+              <div style={{ padding: '28px 36px' }}>
+                {/* Header */}
+                <div style={{ borderBottom: '3px solid #000', paddingBottom: 10, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                  <div>
+                    <h1 style={{ fontSize: 18, fontWeight: 800, margin: 0 }}>Weather Damage Verification Report</h1>
+                    <div style={{ fontSize: 10, color: '#666' }}>For insurance claim documentation and adjuster review</div>
+                  </div>
+                  <div style={{ textAlign: 'right', fontSize: 10, color: '#666' }}>
+                    <div>Report Date: {reportDate}</div>
+                    <div>Date of Loss: {stormDate}</div>
+                  </div>
+                </div>
+
+                {/* Two-column: Property + Weather */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 20px' }}>
+                  <div>
+                    <h2 style={{ fontSize: 11, fontWeight: 700, margin: '12px 0 6px', padding: '4px 8px', background: '#f0f0f0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Property Information</h2>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <tbody>
+                        {R('Address', fullAddr)}
+                        {R('Property Owner', name)}
+                        {R('Year Built', lead.year_built || 'N/A')}
+                        {R('Assessed Value', lead.assessed_value ? `$${Number(lead.assessed_value).toLocaleString()}` : 'N/A')}
+                        {lead.county_parcel_id && R('Parcel ID', lead.county_parcel_id)}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div>
+                    <h2 style={{ fontSize: 11, fontWeight: 700, margin: '12px 0 6px', padding: '4px 8px', background: '#f0f0f0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Weather Event</h2>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <tbody>
+                        {R('Date of Loss', stormDate)}
+                        {R('Storm Type', stormType ? stormType.charAt(0).toUpperCase() + stormType.slice(1) : 'N/A')}
+                        {R('Max Hail Size', hailSize !== '—' ? `${hailSize}"` : 'N/A', true)}
+                        {R('Max Wind Speed', windSpeed ? `${windSpeed} mph` : 'N/A')}
+                      </tbody>
+                    </table>
+                    <div style={{ fontSize: 9, color: '#999', marginTop: 4, padding: '0 8px' }}>Source: NOAA/NWS Storm Prediction Center</div>
+                  </div>
+                </div>
+
+                {/* Map */}
+                <h2 style={{ fontSize: 11, fontWeight: 700, margin: '16px 0 6px', padding: '4px 8px', background: '#f0f0f0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Storm Impact Area — Property Location</h2>
+                <div
+                  id="insurance-report-map"
+                  ref={(el) => {
+                    if (!el || el.dataset.init) return;
+                    el.dataset.init = 'true';
+                    const initLat = lat || 30.27;
+                    const initLng = lng || -97.74;
+                    const m = new mapboxgl.Map({
+                      container: el,
+                      style: 'mapbox://styles/mapbox/satellite-streets-v12',
+                      center: [initLng, initLat],
+                      zoom: 14,
+                      preserveDrawingBuffer: true,
+                    });
+                    m.on('load', () => {
+                      // Add storm swath if available
+                      if (lead.storm_geometry) {
+                        m.addSource('swath', { type: 'geojson', data: { type: 'Feature', geometry: lead.storm_geometry, properties: {} } });
+                        m.addLayer({ id: 'swath-fill', type: 'fill', source: 'swath', paint: { 'fill-color': stormType === 'hail' ? '#dcb428' : '#6c5ce7', 'fill-opacity': 0.35 } });
+                        m.addLayer({ id: 'swath-outline', type: 'line', source: 'swath', paint: { 'line-color': stormType === 'hail' ? '#dcb428' : '#6c5ce7', 'line-width': 2 } });
+                      }
+                      // Add property marker
+                      new mapboxgl.Marker({ color: '#ef4444' }).setLngLat([initLng, initLat]).addTo(m);
+                    });
+                  }}
+                  style={{ width: '100%', height: 220, borderRadius: 4, border: '1px solid #ccc' }}
+                />
+
+                {/* Two-column: Roof + Damage */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 20px' }}>
+                  <div>
+                    <h2 style={{ fontSize: 11, fontWeight: 700, margin: '16px 0 6px', padding: '4px 8px', background: '#f0f0f0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Roof Assessment</h2>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <tbody>
+                        {R('Total Roof Area', lead.roof_sqft ? `${Number(lead.roof_sqft).toLocaleString()} sq ft (${roofSquares} sq)` : 'Not measured')}
+                        {R('Roofing Material', roofType !== '—' ? roofType : 'Not assessed')}
+                        {R('Roof Pitch', lead.roof_pitch_degrees ? `${Number(lead.roof_pitch_degrees).toFixed(1)}°` : 'N/A')}
+                        {R('Roof Facets', lead.roof_segments || 'N/A')}
+                        {lead.roof_ridge_ft > 0 && R('Ridge Length', `${Number(lead.roof_ridge_ft).toLocaleString()} ft`)}
+                        {lead.roof_eave_ft > 0 && R('Eave Length', `${Number(lead.roof_eave_ft).toLocaleString()} ft`)}
+                        {lead.roof_rake_ft > 0 && R('Rake Length', `${Number(lead.roof_rake_ft).toLocaleString()} ft`)}
+                        {lead.roof_valley_ft > 0 && R('Valley Length', `${Number(lead.roof_valley_ft).toLocaleString()} ft`)}
+                        {lead.roof_hip_ft > 0 && R('Hip Length', `${Number(lead.roof_hip_ft).toLocaleString()} ft`)}
+                        {lead.roof_drip_edge_ft > 0 && R('Drip Edge', `${Number(lead.roof_drip_edge_ft).toLocaleString()} ft`)}
+                        {lead.roof_flashing_ft > 0 && R('Flashing', `${Number(lead.roof_flashing_ft).toLocaleString()} ft`)}
+                        {measureSrc && R('Measurement', measureSrc)}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div>
+                    <h2 style={{ fontSize: 11, fontWeight: 700, margin: '16px 0 6px', padding: '4px 8px', background: '#f0f0f0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Damage Assessment</h2>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <tbody>
+                        {R('Damage Factor', `${(df * 100).toFixed(0)}%`)}
+                        {R('Severity', severity, true)}
+                        {R('Est. Repair Cost', value ? `$${Number(value).toLocaleString()}` : 'N/A', true)}
+                      </tbody>
+                    </table>
+                    {damageNotes && <div style={{ marginTop: 6, padding: '0 8px', fontSize: 11 }}><strong>Notes:</strong> {damageNotes}</div>}
+                  </div>
+                </div>
+
+                {/* Insurance Info */}
+                {(insuranceCo !== '—' || claimNumber) && (
+                  <>
+                    <h2 style={{ fontSize: 11, fontWeight: 700, margin: '16px 0 6px', padding: '4px 8px', background: '#f0f0f0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Insurance Information</h2>
+                    <table style={{ width: '50%', borderCollapse: 'collapse' }}>
+                      <tbody>
+                        {insuranceCo !== '—' && R('Insurance Company', insuranceCo)}
+                        {claimNumber && R('Claim Number', claimNumber)}
+                      </tbody>
+                    </table>
+                  </>
+                )}
+
+                {/* Signature Lines */}
+                <div style={{ marginTop: 32, display: 'flex', justifyContent: 'space-between' }}>
+                  <div style={{ borderTop: '1px solid #333', width: 200, paddingTop: 4, fontSize: 10, color: '#666' }}>Inspector Signature / Date</div>
+                  <div style={{ borderTop: '1px solid #333', width: 200, paddingTop: 4, fontSize: 10, color: '#666' }}>Homeowner Signature / Date</div>
+                </div>
+
+                {/* Disclaimer */}
+                <div style={{ marginTop: 20, paddingTop: 10, borderTop: '1px solid #ccc', fontSize: 9, color: '#999', lineHeight: 1.4 }}>
+                  <strong>Disclaimer:</strong> This report is generated from publicly available weather data (NOAA/NWS Storm Prediction Center)
+                  and county property assessment records. Hail sizes and wind speeds represent maximum reported values for storm events
+                  affecting the property location. This report supports insurance claim documentation and does not constitute a professional
+                  engineering inspection. A licensed adjuster or inspector should verify all damage on-site. Repair estimates are preliminary.
+                </div>
+              </div>
+
+              {/* Action bar */}
+              <div style={{
+                position: 'sticky', bottom: 0, padding: '10px 36px',
+                background: '#f8f8f8', borderTop: '1px solid #ddd',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              }}>
+                <button onClick={() => setActiveModal(null)} style={{
+                  padding: '8px 20px', fontSize: 12, fontWeight: 600, border: '1px solid #ccc',
+                  borderRadius: 6, background: '#fff', color: '#333', cursor: 'pointer',
+                }}>Close</button>
+                <button onClick={handlePrint} style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  padding: '8px 24px', fontSize: 12, fontWeight: 700, border: 'none',
+                  borderRadius: 6, background: '#0ea5e9', color: '#fff', cursor: 'pointer',
+                }}>
+                  Print / Save as PDF
+                </button>
+              </div>
+            </div>
+          </>,
+          document.body
+        );
+      })()}
+
       {/* Street View Modal — portaled to document.body to escape sidebar stacking context */}
       {showStreetView && (() => {
         const geo = lead.property_geometry;
@@ -1214,7 +1624,10 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
 
         return createPortal(
           <>
-            <div onClick={() => { setShowStreetView(false); setMapMode('street'); }} style={{
+            <div onClick={() => {
+              if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; adjustMarkerRef.current = null; }
+              setShowStreetView(false); setMapMode('street');
+            }} style={{
               position: 'fixed', inset: 0, zIndex: 99998,
               background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
             }} />
@@ -1233,35 +1646,114 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                     {mapMode === 'street' ? 'Street View' : 'Satellite'} — {address}
                   </span>
                   <div style={{ display: 'flex', gap: 2, background: 'oklch(0.20 0.02 260)', borderRadius: 6, padding: 2 }}>
-                    <button onClick={() => setMapMode('street')} style={{
+                    <button onClick={() => {
+                      if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; adjustMarkerRef.current = null; }
+                      setMapMode('street');
+                    }} style={{
                       padding: '3px 8px', fontSize: 11, fontWeight: 600, border: 'none', borderRadius: 4, cursor: 'pointer',
                       background: mapMode === 'street' ? 'var(--accent-blue)' : 'transparent',
                       color: mapMode === 'street' ? '#fff' : 'var(--text-muted)',
                     }}>Street</button>
-                    <button onClick={() => setMapMode('satellite')} style={{
+                    <button onClick={() => {
+                      if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; adjustMarkerRef.current = null; }
+                      setMapMode('satellite');
+                    }} style={{
                       padding: '3px 8px', fontSize: 11, fontWeight: 600, border: 'none', borderRadius: 4, cursor: 'pointer',
                       background: mapMode === 'satellite' ? 'var(--accent-blue)' : 'transparent',
                       color: mapMode === 'satellite' ? '#fff' : 'var(--text-muted)',
                     }}>Satellite</button>
                   </div>
                 </div>
-                <button onClick={() => { setShowStreetView(false); setMapMode('street'); }} style={{
+                <button onClick={() => {
+                  if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; adjustMarkerRef.current = null; }
+                  setShowStreetView(false); setMapMode('street');
+                }} style={{
                   background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)',
                   fontSize: 18, lineHeight: 1, padding: '0 4px',
                 }}>✕</button>
               </div>
-              <iframe
-                key={mapMode}
-                src={mapMode === 'street' ? embedSrc : satelliteSrc}
-                style={{ width: '100%', height: '55vh', border: 'none', display: 'block' }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
+              {mapMode === 'street' ? (
+                <iframe
+                  src={embedSrc}
+                  style={{ width: '100%', height: '55vh', border: 'none', display: 'block' }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              ) : (
+                <div style={{ position: 'relative' }}>
+                  <div
+                    ref={(el) => {
+                      if (!el || adjustMapRef.current) return;
+                      const initLat = lat || 30.27;
+                      const initLng = lng || -97.74;
+                      const map = new mapboxgl.Map({
+                        container: el,
+                        style: 'mapbox://styles/mapbox/satellite-streets-v12',
+                        center: [initLng, initLat],
+                        zoom: 18,
+                      });
+                      adjustMapRef.current = map;
+
+                      const marker = new mapboxgl.Marker({ draggable: true, color: '#ff9500' })
+                        .setLngLat([initLng, initLat])
+                        .addTo(map);
+                      adjustMarkerRef.current = marker;
+                    }}
+                    style={{ width: '100%', height: '55vh' }}
+                  />
+                  <div style={{
+                    position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)',
+                    background: 'rgba(0,0,0,0.75)', color: '#ff9500', padding: '6px 14px',
+                    borderRadius: 8, fontSize: 12, fontWeight: 600, pointerEvents: 'none',
+                  }}>
+                    Drag pin to the roof to fix location
+                  </div>
+                </div>
+              )}
               <div style={{
                 padding: '8px 16px', borderTop: '1px solid oklch(0.25 0.02 260)',
-                display: 'flex', justifyContent: 'flex-end',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               }}>
+                {mapMode === 'satellite' ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <button
+                      disabled={savingPin}
+                      onClick={async () => {
+                        console.log('Save pin clicked', { marker: !!adjustMarkerRef.current, propertyId: lead.property_id });
+                        if (!adjustMarkerRef.current || !lead.property_id) {
+                          console.error('Save pin aborted: marker=', !!adjustMarkerRef.current, 'propertyId=', lead.property_id);
+                          setSavingPin('error');
+                          setTimeout(() => setSavingPin(false), 2000);
+                          return;
+                        }
+                        setSavingPin(true);
+                        try {
+                          const pos = adjustMarkerRef.current.getLngLat();
+                          console.log('Saving pin at', pos.lat, pos.lng);
+                          await updatePropertyLocation(lead.property_id, pos.lat, pos.lng);
+                          await refreshLead();
+                          setSavingPin('done');
+                          setTimeout(() => setSavingPin(false), 2000);
+                        } catch (err) {
+                          console.error('Save pin failed:', err.response?.data || err.message);
+                          setSavingPin('error');
+                          setTimeout(() => setSavingPin(false), 2000);
+                        }
+                      }}
+                      style={{
+                        background: savingPin === 'done' ? '#22c55e' : savingPin === 'error' ? '#ef4444' : '#ff9500',
+                        border: 'none', color: '#fff',
+                        padding: '6px 20px', borderRadius: 6, fontSize: 12, fontWeight: 600,
+                        cursor: savingPin ? 'default' : 'pointer', opacity: savingPin === true ? 0.5 : 1,
+                      }}
+                    >
+                      {savingPin === 'done' ? 'Saved ✓' : savingPin === 'error' ? 'Failed' : savingPin === true ? 'Saving...' : 'Save Pin Location'}
+                    </button>
+                  </div>
+                ) : (
+                  <div />
+                )}
                 <a href={mapsLink} target="_blank" rel="noopener noreferrer"
                   style={{ fontSize: 11, color: 'var(--accent-blue)', textDecoration: 'none' }}>
                   Open in Google Maps ↗
@@ -1270,6 +1762,36 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
             </div>
           </>,
           document.body
+        );
+      })()}
+
+      {/* Roof Drawing Tool Modal */}
+      {showRoofDrawing && (() => {
+        const geo = lead.property_geometry;
+        const drawLat = geo?.coordinates?.[1] || 30.27;
+        const drawLng = geo?.coordinates?.[0] || -97.74;
+        const fullAddr = `${address}${city ? `, ${city}` : ''}${state ? `, ${state}` : ''}${zip ? ` ${zip}` : ''}`;
+        return (
+          <RoofDrawingTool
+            propertyId={lead.property_id}
+            lat={drawLat}
+            lng={drawLng}
+            address={fullAddr}
+            roofPitchDegrees={lead.roof_pitch_degrees}
+            hasExistingData={!!lead.roof_sqft}
+            existingEdges={{
+              ridge: Number(lead.roof_ridge_ft) || 0,
+              eave: Number(lead.roof_eave_ft) || 0,
+              rake: Number(lead.roof_rake_ft) || 0,
+              valley: Number(lead.roof_valley_ft) || 0,
+              hip: Number(lead.roof_hip_ft) || 0,
+              flashing: Number(lead.roof_flashing_ft) || 0,
+            }}
+            solarSegments={solarSegments}
+            roofOutline={roofOutline}
+            onSave={() => { refreshLead(); onUpdated?.(); }}
+            onClose={() => setShowRoofDrawing(false)}
+          />
         );
       })()}
     </>

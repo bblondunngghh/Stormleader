@@ -60,8 +60,10 @@ export async function findPropertiesInSwath(stormEventId, options = {}) {
 /**
  * Get properties within a map viewport bounding box.
  */
-export async function getPropertiesInViewport(bbox, limit = 1000) {
+export async function getPropertiesInViewport(bbox, limit = 1000, { improvedOnly = false } = {}) {
   const [west, south, east, north] = bbox;
+
+  const improvedFilter = improvedOnly ? 'AND year_built IS NOT NULL' : '';
 
   const { rows } = await pool.query(
     `SELECT
@@ -72,6 +74,7 @@ export async function getPropertiesInViewport(bbox, limit = 1000) {
         ST_AsGeoJSON(location)::json AS geometry
      FROM properties
      WHERE ST_Intersects(location, ST_MakeEnvelope($1, $2, $3, $4, 4326))
+     ${improvedFilter}
      LIMIT $5`,
     [west, south, east, north, limit]
   );
@@ -83,7 +86,7 @@ export async function getPropertiesInViewport(bbox, limit = 1000) {
  * Get properties that fall inside any storm event geometry within the viewport + time range.
  * Only returns properties that are actually in a storm-affected area.
  */
-export async function getPropertiesInStormZones(bbox, timeRange, limit = 5000) {
+export async function getPropertiesInStormZones(bbox, timeRange, limit = 5000, { improvedOnly = false } = {}) {
   const [west, south, east, north] = bbox;
   const params = [west, south, east, north];
 
@@ -95,6 +98,8 @@ export async function getPropertiesInStormZones(bbox, timeRange, limit = 5000) {
       timeFilter = `AND se.event_start >= NOW() - INTERVAL '${interval}'`;
     }
   }
+
+  const improvedFilter = improvedOnly ? 'AND p.year_built IS NOT NULL' : '';
 
   params.push(limit);
 
@@ -113,6 +118,7 @@ export async function getPropertiesInStormZones(bbox, timeRange, limit = 5000) {
      JOIN storm_events se ON ST_Intersects(p.location, COALESCE(se.drift_corrected_geom, se.geom))
      WHERE ST_Intersects(se.geom, ST_MakeEnvelope($1, $2, $3, $4, 4326))
      ${timeFilter}
+     ${improvedFilter}
      ORDER BY p.id, se.hail_size_max_in DESC NULLS LAST
      LIMIT $5`,
     params

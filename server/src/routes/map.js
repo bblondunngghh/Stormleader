@@ -42,15 +42,15 @@ router.get('/debug', async (req, res) => {
   }
 });
 
-// GET /api/map/properties?bbox=w,s,e,n
+// GET /api/map/properties?bbox=w,s,e,n&improvedOnly=true
 router.get('/properties', async (req, res, next) => {
   try {
     if (!(await checkPostGIS())) return res.json(emptyFC);
-    const { bbox } = req.query;
+    const { bbox, improvedOnly } = req.query;
     if (!bbox) return res.status(400).json({ error: 'bbox required' });
     const bboxArr = bbox.split(',').map(Number);
     if (bboxArr.length !== 4 || bboxArr.some(isNaN)) return res.status(400).json({ error: 'Invalid bbox' });
-    const result = await propertyService.getPropertiesInViewport(bboxArr);
+    const result = await propertyService.getPropertiesInViewport(bboxArr, 1000, { improvedOnly: improvedOnly === 'true' });
     res.json(result);
   } catch (err) {
     // Return empty collection instead of 500 for geo query failures
@@ -61,15 +61,15 @@ router.get('/properties', async (req, res, next) => {
   }
 });
 
-// GET /api/map/affected-properties?bbox=w,s,e,n&timeRange=30d
+// GET /api/map/affected-properties?bbox=w,s,e,n&timeRange=30d&improvedOnly=true
 router.get('/affected-properties', async (req, res, next) => {
   try {
     if (!(await checkPostGIS())) return res.json(emptyFC);
-    const { bbox, timeRange } = req.query;
+    const { bbox, timeRange, improvedOnly } = req.query;
     if (!bbox) return res.status(400).json({ error: 'bbox required' });
     const bboxArr = bbox.split(',').map(Number);
     if (bboxArr.length !== 4 || bboxArr.some(isNaN)) return res.status(400).json({ error: 'Invalid bbox' });
-    const result = await propertyService.getPropertiesInStormZones(bboxArr, timeRange || '30d');
+    const result = await propertyService.getPropertiesInStormZones(bboxArr, timeRange || '30d', 5000, { improvedOnly: improvedOnly === 'true' });
     res.json(result);
   } catch (err) {
     if (err.code && err.code.startsWith('XX') || err.message?.includes('ST_')) {

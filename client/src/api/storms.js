@@ -11,14 +11,14 @@ export const getStorms = (params) =>
 export const getStorm = (id) =>
   client.get(`/storms/${id}`);
 
-export const getMapProperties = ({ west, south, east, north }) =>
+export const getMapProperties = ({ west, south, east, north, improvedOnly }) =>
   client.get('/map/properties', {
-    params: { bbox: `${west},${south},${east},${north}` },
+    params: { bbox: `${west},${south},${east},${north}`, ...(improvedOnly ? { improvedOnly: 'true' } : {}) },
   });
 
-export const getAffectedProperties = ({ west, south, east, north, timeRange }) =>
+export const getAffectedProperties = ({ west, south, east, north, timeRange, improvedOnly }) =>
   client.get('/map/affected-properties', {
-    params: { bbox: `${west},${south},${east},${north}`, timeRange },
+    params: { bbox: `${west},${south},${east},${north}`, timeRange, ...(improvedOnly ? { improvedOnly: 'true' } : {}) },
   });
 
 export const getPropertiesInSwath = (stormEventId) =>
@@ -35,3 +35,6 @@ export const applyDriftCorrection = (stormEventId, detectionAltM) =>
 
 export const correctAllDrift = () =>
   client.post('/drift/correct-all');
+
+export const updatePropertyLocation = (propertyId, lat, lng) =>
+  client.put(`/properties/${propertyId}/location`, { lat, lng });

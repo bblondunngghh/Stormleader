@@ -2,6 +2,9 @@ import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import * as propertyService from '../services/propertyService.js';
 import * as leadService from '../services/leadService.js';
+import env from '../config/env.js';
+import pool from '../db/pool.js';
+import logger from '../utils/logger.js';
 
 const router = Router();
 router.use(authenticate);
@@ -71,6 +74,25 @@ router.post('/generate-leads', async (req, res, next) => {
       tenantId, stormEventId, propertyIds, assignedRepId
     );
     res.status(201).json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// PUT /api/properties/:id/location — Update property coordinates (e.g. drag pin to correct spot)
+router.put('/:id/location', async (req, res, next) => {
+  try {
+    const { lat, lng } = req.body;
+    if (lat == null || lng == null) return res.status(400).json({ error: 'lat and lng are required' });
+
+    const { rowCount } = await pool.query(
+      `UPDATE properties SET location = ST_SetSRID(ST_MakePoint($1, $2), 4326), updated_at = NOW() WHERE id = $3`,
+      [lng, lat, req.params.id]
+    );
+    if (rowCount === 0) return res.status(404).json({ error: 'Property not found' });
+
+    logger.info({ propertyId: req.params.id, lat, lng }, 'Property location updated manually');
+    res.json({ lat, lng });
   } catch (err) {
     next(err);
   }

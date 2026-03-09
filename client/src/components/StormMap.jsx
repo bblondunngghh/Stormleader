@@ -16,6 +16,7 @@ export default function StormMap() {
   const popupRef = useRef(null);
   const [timeRange, setTimeRange] = useState('30d');
   const [layers, setLayers] = useState({ hail: true, wind: true, tornado: true, drift: false, properties: true });
+  const [improvedOnly, setImprovedOnly] = useState(true);
 
   const loadData = useCallback(async (map) => {
     if (!map) return;
@@ -31,11 +32,11 @@ export default function StormMap() {
     const zoom = map.getZoom();
     const fetches = [
       getSwaths({ timeRange, ...viewport }),
-      getAffectedProperties({ timeRange, ...viewport }),
+      getAffectedProperties({ timeRange, ...viewport, improvedOnly }),
     ];
     // At zoom 8+, also load all properties in viewport so you can browse outside storm zones
     if (zoom >= 8) {
-      fetches.push(getMapProperties(viewport));
+      fetches.push(getMapProperties({ ...viewport, improvedOnly }));
     }
     const [swathRes, affectedRes, allPropRes] = await Promise.allSettled(fetches);
 
@@ -110,7 +111,7 @@ export default function StormMap() {
 
       propSrc.setData({ type: 'FeatureCollection', features: allFeatures });
     }
-  }, [timeRange]);
+  }, [timeRange, improvedOnly]);
 
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
@@ -137,7 +138,7 @@ export default function StormMap() {
 
     const map = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/dark-v11',
+      style: 'mapbox://styles/mapbox/satellite-streets-v12',
       center,
       zoom,
     });
@@ -496,12 +497,12 @@ export default function StormMap() {
     };
   }, []);
 
-  // Reload when timeRange changes
+  // Reload when timeRange or improvedOnly changes
   useEffect(() => {
     if (mapRef.current?.isStyleLoaded()) {
       loadData(mapRef.current);
     }
-  }, [timeRange, loadData]);
+  }, [timeRange, improvedOnly, loadData]);
 
   // Toggle layer visibility
   useEffect(() => {
@@ -535,6 +536,8 @@ export default function StormMap() {
           onTimeRangeChange={setTimeRange}
           layers={layers}
           onLayersChange={setLayers}
+          improvedOnly={improvedOnly}
+          onImprovedOnlyChange={setImprovedOnly}
         />
         <div className="storm-map-wrapper">
           <div ref={mapContainer} style={{ position: 'absolute', inset: 0 }} />

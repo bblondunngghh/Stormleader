@@ -13,7 +13,7 @@ const layerToggles = [
   { id: 'properties', label: 'Properties', color: '#00d4aa' },
 ];
 
-export default function MapControls({ timeRange, onTimeRangeChange, layers, onLayersChange }) {
+export default function MapControls({ timeRange, onTimeRangeChange, layers, onLayersChange, improvedOnly, onImprovedOnlyChange }) {
   const handleLayerToggle = (layerId) => {
     onLayersChange((prev) => ({ ...prev, [layerId]: !prev[layerId] }));
   };
@@ -43,6 +43,17 @@ export default function MapControls({ timeRange, onTimeRangeChange, layers, onLa
             <span style={{ color: layers[layer.id] ? layer.color : undefined }}>{layer.label}</span>
           </label>
         ))}
+        <div style={{ borderTop: '1px solid oklch(1 0 0 / 0.08)', margin: '4px 0', paddingTop: 4 }}>
+          <label className="map-controls__toggle">
+            <input
+              type="checkbox"
+              checked={improvedOnly || false}
+              onChange={() => onImprovedOnlyChange?.(!improvedOnly)}
+              style={{ accentColor: '#ff9500' }}
+            />
+            <span style={{ color: improvedOnly ? '#ff9500' : undefined }}>Houses Only</span>
+          </label>
+        </div>
       </div>
     </div>
   );
