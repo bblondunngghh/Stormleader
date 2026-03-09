@@ -80,19 +80,48 @@ router.post('/generate-leads', async (req, res, next) => {
 });
 
 // PUT /api/properties/:id/location — Update property coordinates (e.g. drag pin to correct spot)
+// Also re-lookups nearest parcel to correct assessed_value and other county data
 router.put('/:id/location', async (req, res, next) => {
   try {
     const { lat, lng } = req.body;
     if (lat == null || lng == null) return res.status(400).json({ error: 'lat and lng are required' });
 
+    const propertyId = req.params.id;
+
+    // Update the location
     const { rowCount } = await pool.query(
       `UPDATE properties SET location = ST_SetSRID(ST_MakePoint($1, $2), 4326), updated_at = NOW() WHERE id = $3`,
-      [lng, lat, req.params.id]
+      [lng, lat, propertyId]
     );
     if (rowCount === 0) return res.status(404).json({ error: 'Property not found' });
 
-    logger.info({ propertyId: req.params.id, lat, lng }, 'Property location updated manually');
-    res.json({ lat, lng });
+    // Find nearest OTHER property at the new coordinates to get correct parcel data
+    // This handles cases where the original geocoding landed on the wrong parcel
+    const { rows: nearest } = await pool.query(`
+      SELECT county_parcel_id, assessed_value, year_built, owner_last_name
+      FROM properties
+      WHERE id != $1
+        AND location IS NOT NULL
+        AND ST_DWithin(location, ST_SetSRID(ST_MakePoint($2, $3), 4326)::geography, 50)
+      ORDER BY location <-> ST_SetSRID(ST_MakePoint($2, $3), 4326)
+      LIMIT 1
+    `, [propertyId, lng, lat]);
+
+    let parcelUpdated = false;
+    if (nearest.length > 0 && nearest[0].assessed_value) {
+      await pool.query(`
+        UPDATE properties SET
+          assessed_value = COALESCE($2, assessed_value),
+          year_built = COALESCE($3, year_built),
+          updated_at = NOW()
+        WHERE id = $1
+      `, [propertyId, nearest[0].assessed_value, nearest[0].year_built]);
+      parcelUpdated = true;
+      logger.info({ propertyId, nearestParcel: nearest[0].county_parcel_id, assessed_value: nearest[0].assessed_value }, 'Updated parcel data from nearest property');
+    }
+
+    logger.info({ propertyId, lat, lng, parcelUpdated }, 'Property location updated manually');
+    res.json({ lat, lng, parcelUpdated });
   } catch (err) {
     next(err);
   }
