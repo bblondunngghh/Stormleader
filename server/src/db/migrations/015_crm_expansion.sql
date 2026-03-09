@@ -151,6 +151,8 @@ SELECT
   p.year_built,
   p.assessed_value AS property_value,
   p.address_line1 AS property_address,
+  p.state AS property_state,
+  p.zip AS property_zip,
   -- Storm
   se.hail_size_max_in AS storm_hail_max,
   se.wind_speed_max_mph AS storm_wind_max,

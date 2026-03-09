@@ -37,6 +37,7 @@ router.put('/config', async (req, res, next) => {
 // POST /api/roof-measurement/measure
 router.post('/measure', async (req, res, next) => {
   try {
+    console.log('[MEASURE] Request received:', req.body);
     const { propertyId } = req.body;
     if (!propertyId) {
       return res.status(400).json({ error: 'propertyId is required' });

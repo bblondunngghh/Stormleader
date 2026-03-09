@@ -38,3 +38,6 @@ export const correctAllDrift = () =>
 
 export const updatePropertyLocation = (propertyId, lat, lng) =>
   client.put(`/properties/${propertyId}/location`, { lat, lng });
+
+export const createProperty = (data) =>
+  client.post('/properties', data);

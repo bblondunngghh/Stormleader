@@ -113,7 +113,8 @@ export async function getPropertiesInStormZones(bbox, timeRange, limit = 5000, {
         se.id AS storm_event_id,
         se.hail_size_max_in AS storm_hail_size,
         se.wind_speed_max_mph AS storm_wind_speed,
-        se.raw_data->>'type' AS storm_type
+        se.raw_data->>'type' AS storm_type,
+        se.event_start AS storm_date
      FROM properties p
      JOIN storm_events se ON ST_Intersects(p.location, COALESCE(se.drift_corrected_geom, se.geom))
      WHERE ST_Intersects(se.geom, ST_MakeEnvelope($1, $2, $3, $4, 4326))
@@ -151,6 +152,7 @@ export async function getPropertiesInStormZones(bbox, timeRange, limit = 5000, {
         storm_hail_size: r.storm_hail_size,
         storm_wind_speed: r.storm_wind_speed,
         storm_type: r.storm_type,
+        storm_date: r.storm_date,
       },
     })),
   };

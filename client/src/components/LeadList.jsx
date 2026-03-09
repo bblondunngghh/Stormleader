@@ -5,6 +5,28 @@ import LeadDetail from './LeadDetail';
 import { IconSearch, IconDownload, IconFilter, IconX } from './Icons';
 import CustomSelect from './CustomSelect';
 
+function cleanAddr(str) {
+  if (!str) return '';
+  return str.replace(/[\s,]+$/, '').replace(/,\s*,/g, ',').replace(/\s{2,}/g, ' ').trim();
+}
+function titleCase(str) {
+  if (!str) return '';
+  return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+}
+function formatOwner(raw) {
+  if (!raw?.trim()) return '';
+  const upper = raw.toUpperCase();
+  const bizWords = ['LLC', 'INC', 'CORP', 'TRUST', 'ESTATE', 'LTD', 'PARTNERSHIP', 'LP', 'LLP', 'CHURCH', 'ASSOCIATION'];
+  if (bizWords.some(w => upper.includes(w))) return titleCase(raw);
+  const parts = raw.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    const lastName = parts[0];
+    const rest = parts.slice(1).join(' ');
+    return titleCase(rest + ' ' + lastName);
+  }
+  return titleCase(raw);
+}
+
 const stageLabels = {
   new: 'New', contacted: 'Contacted', appt_set: 'Appt Set',
   inspected: 'Inspected', estimate_sent: 'Estimate Sent',
@@ -445,11 +467,11 @@ export default function LeadList() {
                     </td>
                     <td style={{ maxWidth: 200 }}>
                       <div style={{ fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {lead.address || '—'}
+                        {titleCase(cleanAddr(lead.address)) || '—'}
                       </div>
-                      {lead.city && <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{lead.city}</div>}
+                      {lead.city?.trim() && <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{titleCase(lead.city.trim())}</div>}
                     </td>
-                    <td style={{ fontWeight: 600 }}>{lead.contact_name || '—'}</td>
+                    <td style={{ fontWeight: 600 }}>{formatOwner(lead.contact_name) || '—'}</td>
                     <td>
                       {lead.contact_phone ? (
                         <a href={`tel:${lead.contact_phone}`} onClick={e => e.stopPropagation()}

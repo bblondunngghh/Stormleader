@@ -212,9 +212,9 @@ export async function measureRoof(tenantId, propertyId) {
     throw new Error('GOOGLE_SOLAR_API_KEY is not configured');
   }
 
-  // Get property lat/lng from PostGIS geometry
+  // Get property address and stored coordinates
   const { rows: propRows } = await pool.query(
-    `SELECT ST_AsGeoJSON(location)::json AS geojson FROM properties WHERE id = $1`,
+    `SELECT address_line1, city, state, zip, ST_AsGeoJSON(location)::json AS geojson FROM properties WHERE id = $1`,
     [propertyId]
   );
 
@@ -222,16 +222,72 @@ export async function measureRoof(tenantId, propertyId) {
     throw new Error('Property not found');
   }
 
-  const geojson = propRows[0].geojson;
+  const prop = propRows[0];
+  const geojson = prop.geojson;
   if (!geojson || geojson.type !== 'Point') {
     throw new Error('Property has no valid location geometry');
   }
 
-  const [lng, lat] = geojson.coordinates;
+  let [lng, lat] = geojson.coordinates;
 
-  // Call Google Solar API
-  const url = `https://solar.googleapis.com/v1/buildingInsights:findClosest?location.latitude=${lat}&location.longitude=${lng}&key=${GOOGLE_SOLAR_KEY}`;
-  const response = await fetch(url);
+  // Re-geocode via Google Geocoding API to get coordinates aligned with Google's building database
+  let geocodeSource = 'stored';
+  if (prop.address_line1) {
+    try {
+      const addr = [prop.address_line1, prop.city, prop.state, prop.zip].filter(Boolean).join(', ');
+      const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(addr)}&key=${GOOGLE_SOLAR_KEY}`;
+      const geoRes = await fetch(geocodeUrl);
+      const geoData = await geoRes.json();
+      logger.info({ propertyId, geocodeStatus: geoData.status, numResults: geoData.results?.length, locationType: geoData.results?.[0]?.geometry?.location_type }, 'Google Geocoding response');
+      if (geoData.status === 'OK' && geoData.results?.[0]?.geometry?.location) {
+        const loc = geoData.results[0].geometry.location;
+        const oldLat = lat, oldLng = lng;
+        lat = loc.lat;
+        lng = loc.lng;
+        geocodeSource = 'google_geocode';
+        // Update stored coordinates if they differ significantly (>10m)
+        const dist = Math.sqrt((lat - oldLat) ** 2 + (lng - oldLng) ** 2) * 111000;
+        if (dist > 10) {
+          await pool.query(
+            `UPDATE properties SET location = ST_SetSRID(ST_MakePoint($1, $2), 4326) WHERE id = $3`,
+            [lng, lat, propertyId]
+          );
+          logger.info({ propertyId, oldLat, oldLng, newLat: lat, newLng: lng, distMeters: Math.round(dist) }, 'Re-geocoded property coordinates via Google');
+        }
+      }
+    } catch (e) {
+      logger.warn({ propertyId, error: e.message }, 'Google Geocoding fallback failed, using stored coordinates');
+    }
+  }
+
+  logger.info({ propertyId, lat, lng, geocodeSource }, 'Calling Solar API with coordinates');
+
+  // Call Google Solar API — try HIGH quality first, fall back to LOW
+  const baseParams = `location.latitude=${lat}&location.longitude=${lng}&key=${GOOGLE_SOLAR_KEY}`;
+  let url = `https://solar.googleapis.com/v1/buildingInsights:findClosest?${baseParams}`;
+  let response = await fetch(url);
+
+  // If HIGH quality not available, try LOW quality
+  if (!response.ok && response.status === 404) {
+    logger.info({ propertyId }, 'HIGH quality not available, trying LOW quality');
+    url = `https://solar.googleapis.com/v1/buildingInsights:findClosest?${baseParams}&requiredQuality=LOW`;
+    response = await fetch(url);
+  }
+
+  // If re-geocoded coordinates returned 404 but we had different stored coordinates, try those
+  if (!response.ok && response.status === 404 && geocodeSource === 'google_geocode') {
+    const [origLng, origLat] = geojson.coordinates;
+    if (Math.abs(origLat - lat) > 0.00001 || Math.abs(origLng - lng) > 0.00001) {
+      logger.info({ propertyId, origLat, origLng }, 'Re-geocoded coords got 404, trying original stored coordinates');
+      const origParams = `location.latitude=${origLat}&location.longitude=${origLng}&key=${GOOGLE_SOLAR_KEY}`;
+      url = `https://solar.googleapis.com/v1/buildingInsights:findClosest?${origParams}`;
+      response = await fetch(url);
+      if (!response.ok && response.status === 404) {
+        url = `https://solar.googleapis.com/v1/buildingInsights:findClosest?${origParams}&requiredQuality=LOW`;
+        response = await fetch(url);
+      }
+    }
+  }
 
   if (!response.ok) {
     const errorText = await response.text();

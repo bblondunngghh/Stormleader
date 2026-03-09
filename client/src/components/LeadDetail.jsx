@@ -18,6 +18,47 @@ import logActivityIcon from '../assets/icons/log-activity.png';
 import removeLeadIcon from '../assets/icons/remove-lead.png';
 import measureRoofIcon from '../assets/icons/Measure-Caliber-1--Streamline-Ultimate.png';
 import insuranceReportIcon from '../assets/icons/Check-Badge--Streamline-Ultimate.svg';
+
+function cleanAddr(str) {
+  if (!str) return '';
+  return str.replace(/[\s,]+$/, '').replace(/,\s*,/g, ',').replace(/\s{2,}/g, ' ').trim();
+}
+function titleCase(str) {
+  if (!str) return '';
+  return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+}
+function formatOwner(raw) {
+  if (!raw?.trim()) return '';
+  const upper = raw.toUpperCase();
+  const bizWords = ['LLC', 'INC', 'CORP', 'TRUST', 'ESTATE', 'LTD', 'PARTNERSHIP', 'LP', 'LLP', 'CHURCH', 'ASSOCIATION'];
+  if (bizWords.some(w => upper.includes(w))) return titleCase(raw);
+  const parts = raw.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    const lastName = parts[0];
+    const rest = parts.slice(1).join(' ');
+    return titleCase(rest + ' ' + lastName);
+  }
+  return titleCase(raw);
+}
+
+const SEVERITY_COLORS = {
+  extreme: '#ff2d55',
+  severe: '#ff6b35',
+  moderate: '#dcb428',
+  minor: '#00d4aa',
+};
+function severityColor(rating) {
+  if (!rating) return '#888';
+  return SEVERITY_COLORS[rating.toLowerCase()] || '#888';
+}
+
+// Convert roof pitch degrees to standard X/12 format (always rounds up)
+function formatPitch(degrees) {
+  if (!degrees) return '—';
+  const rise = Math.ceil(12 * Math.tan((Number(degrees) * Math.PI) / 180));
+  const roundedDeg = Math.round(Math.atan(rise / 12) * (180 / Math.PI));
+  return `${roundedDeg}°\u00a0\u00a0\u00a0·\u00a0\u00a0\u00a0${rise}/12`;
+}
 import RoofDrawingTool from './RoofDrawingTool';
 import ActivityModal from './ActivityModal';
 import EmailModal from './EmailModal';
@@ -118,11 +159,13 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   if (!lead) return null;
 
   // Normalize field names (API uses underscores, mock uses camelCase)
-  const name = lead.contact_name || lead.name || '—';
-  const address = lead.address || lead.address_line1 || '—';
-  const city = lead.city || lead.property_city || '';
-  const state = lead.state || '';
-  const zip = lead.zip || '';
+  const rawName = lead.contact_name || lead.name || '';
+  const name = formatOwner(rawName) || '—';
+  const rawAddress = lead.address || lead.address_line1 || '';
+  const address = titleCase(cleanAddr(rawAddress)) || '—';
+  const city = lead.city?.trim() || lead.property_city?.trim() || '';
+  const state = lead.state?.trim() || '';
+  const zip = (lead.zip?.trim() && lead.zip.trim() !== '0') ? lead.zip.trim() : '';
   const phone = lead.contact_phone || lead.phone || '—';
   const email = lead.contact_email || lead.email || '—';
   const value = lead.estimated_value || lead.value || 0;
@@ -130,8 +173,12 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   const stage = lead.stage || 'new';
   const roofType = lead.roof_type || lead.roofType || '—';
   const sqft = lead.roof_sqft || lead.property_sqft || lead.sqft || 0;
-  const hailSize = lead.hail_size_in || lead.storm_hail_max || lead.hailSize || '—';
-  const windSpeed = lead.storm_wind_max || null;
+  const rawMaxHail = lead.storm_raw_data?.maxHailSize ? parseFloat(lead.storm_raw_data.maxHailSize) : null;
+  const rawMaxWind = lead.storm_raw_data?.maxWindGust
+    ? parseFloat(lead.storm_raw_data.maxWindGust.replace(/[^0-9.]/g, ' ').trim().split(/\s+/).pop())
+    : null;
+  const hailSize = lead.hail_size_in || lead.storm_hail_max || rawMaxHail || lead.hailSize || '—';
+  const windSpeed = lead.storm_wind_max || rawMaxWind || null;
   const stormType = (lead.storm_type || '').toLowerCase() || null;
   const stormDate = lead.storm_start ? new Date(lead.storm_start).toLocaleDateString() : (lead.stormDate || '—');
   const insuranceCo = lead.insurance_company || lead.insuranceCo || '—';
@@ -310,7 +357,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
             </div>
           </div>
           <div className="slide-over__name">{name}</div>
-          <div className="slide-over__address">{address}{city && !address?.toUpperCase().includes(city?.toUpperCase()) ? `, ${city}` : ''}{state && !address?.includes(state) ? `, ${state}` : ''}{zip && !address?.includes(zip) ? ` ${zip}` : ''}</div>
+          <div className="slide-over__address">{address}{city && !address?.toUpperCase().includes(city?.toUpperCase()) ? `, ${titleCase(city)}` : ''}{state && !address?.includes(state) ? `, ${state}` : ''}{zip && !address?.includes(zip) ? ` ${zip}` : ''}</div>
           <div className="slide-over__value" style={{ position: 'relative' }}>
             ${Number(value).toLocaleString()}
             {value > 0 && (
@@ -441,6 +488,97 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
             </div>
           )}
 
+          {/* Street View Button */}
+          {address !== '—' && (
+            <button
+              onClick={() => setShowStreetView(true)}
+              className="icon-spin-btn"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8, marginTop: 'var(--space-sm)',
+                padding: '6px 0', fontSize: 12, fontWeight: 600,
+                background: 'none', border: 'none',
+                color: 'var(--accent-blue)', cursor: 'pointer',
+                opacity: 0.85, transition: 'opacity 0.15s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.opacity = '1'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '0.85'}
+            >
+              <img src={streetViewIcon} alt="" style={{ width: 16, height: 16 }} />
+              View House
+            </button>
+          )}
+
+          {/* Measure Roof Button */}
+          {leadId && lead.property_id && (
+            <div style={{ marginTop: 'var(--space-sm)' }}>
+              <button
+                onClick={async () => {
+                  setMeasuring(true);
+                  setMeasureError('');
+                  try {
+                    await measureRoof(lead.property_id);
+                    await refreshLead();
+                  } catch (err) {
+                    setMeasureError(err.response?.data?.error || 'Measurement failed. Check Settings > Add-Ons.');
+                  } finally {
+                    setMeasuring(false);
+                  }
+                }}
+                disabled={measuring}
+                className="icon-spin-btn"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '6px 0', fontSize: 12, fontWeight: 600,
+                  background: 'none', border: 'none',
+                  color: !lead.roof_pitch_degrees ? 'var(--accent-blue)' : 'var(--text-muted)',
+                  cursor: measuring ? 'not-allowed' : 'pointer',
+                  opacity: measuring ? 0.5 : 0.85,
+                  transition: 'opacity 0.15s',
+                }}
+                onMouseEnter={e => { if (!measuring) e.currentTarget.style.opacity = '1'; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = measuring ? '0.5' : '0.85'; }}
+              >
+                <img src={measureRoofIcon} alt="" style={{ width: 16, height: 16 }} />
+                {measuring ? 'Measuring...' : lead.roof_pitch_degrees ? 'Re-measure Roof' : 'Measure Roof'}
+              </button>
+              {measureError && (
+                <div style={{ marginTop: 4 }}>
+                  <div style={{ fontSize: 11, color: 'var(--accent-red)' }}>{measureError}</div>
+                  <button
+                    onClick={() => setShowRoofDrawing(true)}
+                    style={{
+                      background: 'none', border: 'none', color: 'var(--accent-blue)',
+                      fontSize: 11, fontWeight: 600, cursor: 'pointer', padding: '4px 0', textDecoration: 'underline',
+                    }}
+                  >
+                    Draw roof measurements on map
+                  </button>
+                </div>
+              )}
+              {!measureError && (
+                <div style={{ fontSize: 10, color: 'var(--accent-red)', marginTop: 4, opacity: 0.5 }}>
+                  Each measurement will be added to your monthly bill.
+                </div>
+              )}
+              {lead.roof_sqft && (() => {
+                const hasAllEdges = lead.roof_ridge_ft > 0 && lead.roof_eave_ft > 0 && lead.roof_rake_ft > 0
+                  && lead.roof_valley_ft > 0 && lead.roof_drip_edge_ft > 0 && lead.roof_flashing_ft > 0;
+                return (
+                  <button
+                    onClick={() => setShowRoofDrawing(true)}
+                    style={{
+                      background: 'none', border: 'none', color: 'var(--accent-blue)',
+                      fontSize: 11, fontWeight: 600, cursor: 'pointer', padding: '4px 0', textDecoration: 'underline',
+                      marginTop: 2,
+                    }}
+                  >
+                    {hasAllEdges ? 'Edit Roof Measurement' : 'Draw to add missing edges'}
+                  </button>
+                );
+              })()}
+            </div>
+          )}
+
           {/* Run Trace Button */}
           {leadId && lead.property_id && (
             <div style={{ marginTop: 'var(--space-sm)' }}>
@@ -478,71 +616,6 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
               <div style={{ fontSize: 10, color: 'var(--accent-red)', marginTop: 4, opacity: 0.5 }}>
                 Each trace will be added to your monthly bill.
               </div>
-            </div>
-          )}
-
-          {/* Measure Roof Button */}
-          {leadId && lead.property_id && (
-            <div style={{ marginTop: 'var(--space-sm)' }}>
-              <button
-                onClick={async () => {
-                  setMeasuring(true);
-                  setMeasureError('');
-                  try {
-                    await measureRoof(lead.property_id);
-                    await refreshLead();
-                  } catch (err) {
-                    setMeasureError(err.response?.data?.error || 'Measurement failed. Check Settings > Add-Ons.');
-                  } finally {
-                    setMeasuring(false);
-                  }
-                }}
-                disabled={measuring}
-                className="icon-spin-btn"
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 8,
-                  padding: '6px 0', fontSize: 12, fontWeight: 600,
-                  background: 'none', border: 'none',
-                  color: !lead.roof_pitch_degrees ? 'var(--accent-blue)' : 'var(--text-muted)',
-                  cursor: measuring ? 'not-allowed' : 'pointer',
-                  opacity: measuring ? 0.5 : 0.85,
-                  transition: 'opacity 0.15s',
-                }}
-                onMouseEnter={e => { if (!measuring) e.currentTarget.style.opacity = '1'; }}
-                onMouseLeave={e => { e.currentTarget.style.opacity = measuring ? '0.5' : '0.85'; }}
-              >
-                <img src={measureRoofIcon} alt="" style={{ width: 16, height: 16 }} />
-                {measuring ? 'Measuring...' : lead.roof_pitch_degrees ? 'Re-measure' : 'Measure Roof'}
-              </button>
-              {measureError && (
-                <div style={{ marginTop: 4 }}>
-                  <div style={{ fontSize: 11, color: 'var(--accent-red)' }}>{measureError}</div>
-                  <button
-                    onClick={() => setShowRoofDrawing(true)}
-                    style={{
-                      background: 'none', border: 'none', color: 'var(--accent-blue)',
-                      fontSize: 11, fontWeight: 600, cursor: 'pointer', padding: '4px 0', textDecoration: 'underline',
-                    }}
-                  >
-                    Draw roof measurements on map
-                  </button>
-                </div>
-              )}
-              {!measureError && (
-                <div style={{ fontSize: 10, color: 'var(--accent-red)', marginTop: 4, opacity: 0.5 }}>
-                  Each measurement will be added to your monthly bill.
-                </div>
-              )}
-              <button
-                onClick={() => setShowRoofDrawing(true)}
-                style={{
-                  background: 'none', border: 'none', color: 'var(--accent-blue)',
-                  fontSize: 11, fontWeight: 600, cursor: 'pointer', padding: '4px 0', textDecoration: 'underline',
-                  marginTop: 2,
-                }}
-              >
-                {lead.roof_sqft ? 'Draw to add missing edges' : 'Draw roof measurements on map'}
-              </button>
             </div>
           )}
         </div>
@@ -621,7 +694,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
             </div>
             <div className="detail-item">
               <span className="detail-item__label">Roof Pitch</span>
-              <span className="detail-item__value">{lead.roof_pitch_degrees ? `${Number(lead.roof_pitch_degrees).toFixed(1)}°` : '—'}</span>
+              <span className="detail-item__value">{formatPitch(lead.roof_pitch_degrees)}</span>
             </div>
             <div className="detail-item">
               <span className="detail-item__label">Roof Segments</span>
@@ -676,59 +749,71 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
               <span className="detail-item__value">{repName}</span>
             </div>
           </div>
-          {address !== '—' && (
-            <button
-              onClick={() => setShowStreetView(true)}
-              className="icon-spin-btn"
-              style={{
-                display: 'flex', alignItems: 'center', gap: 8, marginTop: 'var(--space-md)',
-                padding: '6px 0', fontSize: 12, fontWeight: 600,
-                background: 'none', border: 'none',
-                color: 'var(--accent-blue)', cursor: 'pointer',
-                opacity: 0.85, transition: 'opacity 0.15s',
-              }}
-              onMouseEnter={e => e.currentTarget.style.opacity = '1'}
-              onMouseLeave={e => e.currentTarget.style.opacity = '0.85'}
-            >
-              <img src={streetViewIcon} alt="" style={{ width: 16, height: 16 }} />
-              Street View
-            </button>
-          )}
         </div>
 
         <div className="divider" />
 
         {/* Storm Context */}
         <div className="detail-section">
-          <div className="detail-section__title">Storm & Insurance</div>
+          <div className="detail-section__title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>Weather Event</span>
+            {(stormType || windSpeed || hailSize !== '—') && (() => {
+              const label = (windSpeed && hailSize !== '—') ? 'Wind / Hail'
+                : stormType || (windSpeed ? 'Wind' : hailSize !== '—' ? 'Hail' : null);
+              const color = stormType === 'tornado' ? '#ff2d55' : stormType === 'hail' ? '#dcb428' : '#6c5ce7';
+              return label ? (
+                <span style={{ color, fontWeight: 600, textTransform: 'capitalize', fontSize: 12 }}>
+                  {label}
+                </span>
+              ) : null;
+            })()}
+          </div>
           <div className="detail-grid">
-            <div className="detail-item">
-              <span className="detail-item__label">Storm Type</span>
-              <span className="detail-item__value" style={{
-                color: stormType === 'tornado' ? '#ff2d55' : stormType === 'hail' ? '#dcb428' : '#6c5ce7',
-                fontWeight: 600, textTransform: 'capitalize',
-              }}>
-                {stormType || '—'}
-              </span>
-            </div>
             <div className="detail-item">
               <span className="detail-item__label">Storm Date</span>
               <span className="detail-item__value">{stormDate}</span>
             </div>
-            {(stormType === 'hail' || hailSize !== '—') && (
-              <div className="detail-item">
-                <span className="detail-item__label">Hail Size</span>
-                <span className="detail-item__value">{typeof hailSize === 'number' ? `${hailSize}"` : hailSize}</span>
-              </div>
-            )}
-            {windSpeed && (
-              <div className="detail-item">
-                <span className="detail-item__label">Wind Speed</span>
-                <span className="detail-item__value">{windSpeed} mph</span>
-              </div>
-            )}
             <div className="detail-item">
-              <span className="detail-item__label">Insurance</span>
+              <span className="detail-item__label">Hail Size</span>
+              <span className="detail-item__value" style={{ color: hailSize !== '—' && typeof hailSize === 'number' ? '#dcb428' : undefined }}>
+                {typeof hailSize === 'number' ? `${hailSize}"` : hailSize}
+              </span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-item__label">Wind Speed</span>
+              <span className="detail-item__value" style={{ color: windSpeed ? '#6c5ce7' : undefined }}>
+                {windSpeed ? `${windSpeed} mph` : '—'}
+              </span>
+            </div>
+            {lead.storm_raw_data?.severity && (
+              <div className="detail-item">
+                <span className="detail-item__label">Rating</span>
+                <span className="detail-item__value" style={{ color: severityColor(lead.storm_raw_data.severity) }}>{lead.storm_raw_data.severity}</span>
+              </div>
+            )}
+            {lead.storm_raw_data?.certainty && (
+              <div className="detail-item">
+                <span className="detail-item__label">Certainty</span>
+                <span className="detail-item__value">{lead.storm_raw_data.certainty}</span>
+              </div>
+            )}
+            {lead.storm_raw_data?.areaDesc && (
+              <div className="detail-item" style={{ gridColumn: '1 / -1' }}>
+                <span className="detail-item__label">Area</span>
+                <span className="detail-item__value">{lead.storm_raw_data.areaDesc}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="divider" />
+
+        {/* Insurance */}
+        <div className="detail-section">
+          <div className="detail-section__title">Insurance</div>
+          <div className="detail-grid">
+            <div className="detail-item">
+              <span className="detail-item__label">Company</span>
               <span className="detail-item__value">{insuranceCo}</span>
             </div>
             <div className="detail-item">
@@ -1385,7 +1470,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 <table>
                   <tr><td class="label">Total Roof Area</td><td class="val">${lead.roof_sqft ? Number(lead.roof_sqft).toLocaleString() + ' sq ft (' + roofSquares + ' squares)' : 'Not measured'}</td></tr>
                   <tr><td class="label">Roofing Material</td><td class="val">${roofType !== '—' ? roofType : 'Not assessed'}</td></tr>
-                  <tr><td class="label">Roof Pitch</td><td class="val">${lead.roof_pitch_degrees ? Number(lead.roof_pitch_degrees).toFixed(1) + '°' : 'N/A'}</td></tr>
+                  <tr><td class="label">Roof Pitch</td><td class="val">${lead.roof_pitch_degrees ? (() => { const r = Math.ceil(12 * Math.tan(Number(lead.roof_pitch_degrees) * Math.PI / 180)); return Math.round(Math.atan(r/12)*180/Math.PI) + '°\u00a0\u00a0\u00a0·\u00a0\u00a0\u00a0' + r + '/12'; })() : 'N/A'}</td></tr>
                   <tr><td class="label">Roof Facets</td><td class="val">${lead.roof_segments || 'N/A'}</td></tr>
                   ${lead.roof_ridge_ft > 0 ? `<tr><td class="label">Ridge</td><td class="val">${Number(lead.roof_ridge_ft).toLocaleString()} ft</td></tr>` : ''}
                   ${lead.roof_eave_ft > 0 ? `<tr><td class="label">Eave</td><td class="val">${Number(lead.roof_eave_ft).toLocaleString()} ft</td></tr>` : ''}
@@ -1525,7 +1610,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                       <tbody>
                         {R('Total Roof Area', lead.roof_sqft ? `${Number(lead.roof_sqft).toLocaleString()} sq ft (${roofSquares} sq)` : 'Not measured')}
                         {R('Roofing Material', roofType !== '—' ? roofType : 'Not assessed')}
-                        {R('Roof Pitch', lead.roof_pitch_degrees ? `${Number(lead.roof_pitch_degrees).toFixed(1)}°` : 'N/A')}
+                        {R('Roof Pitch', lead.roof_pitch_degrees ? (() => { const r = Math.ceil(12 * Math.tan(Number(lead.roof_pitch_degrees) * Math.PI / 180)); return `${r}/12 (${Math.round(Math.atan(r/12)*180/Math.PI)}°)`; })() : 'N/A')}
                         {R('Roof Facets', lead.roof_segments || 'N/A')}
                         {lead.roof_ridge_ft > 0 && R('Ridge Length', `${Number(lead.roof_ridge_ft).toLocaleString()} ft`)}
                         {lead.roof_eave_ft > 0 && R('Eave Length', `${Number(lead.roof_eave_ft).toLocaleString()} ft`)}
@@ -1638,16 +1723,21 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '12px 16px', borderBottom: '1px solid oklch(0.25 0.02 260)',
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
-                    {mapMode === 'street' ? 'Street View' : 'Satellite'} — {address}
+                    {address}
                   </span>
-                  <div style={{ display: 'flex', gap: 2, background: 'oklch(0.20 0.02 260)', borderRadius: 6, padding: 2 }}>
+                  <span style={{ fontSize: 11, color: 'oklch(0.60 0.01 260)' }}>
+                    {city}{state ? `, ${state}` : ''}{zip ? ` ${zip}` : ''}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ display: 'flex', gap: 2, background: 'oklch(0.20 0.02 260)', borderRadius: 8, padding: 3 }}>
                     <button onClick={() => {
                       if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; }
                       setMapMode('street');
                     }} style={{
-                      padding: '3px 8px', fontSize: 11, fontWeight: 600, border: 'none', borderRadius: 4, cursor: 'pointer',
+                      padding: '6px 12px', fontSize: 12, fontWeight: 600, border: 'none', borderRadius: 6, cursor: 'pointer',
                       background: mapMode === 'street' ? 'var(--accent-blue)' : 'transparent',
                       color: mapMode === 'street' ? '#fff' : 'var(--text-muted)',
                     }}>Street</button>
@@ -1655,19 +1745,19 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                       if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; }
                       setMapMode('satellite');
                     }} style={{
-                      padding: '3px 8px', fontSize: 11, fontWeight: 600, border: 'none', borderRadius: 4, cursor: 'pointer',
+                      padding: '6px 12px', fontSize: 12, fontWeight: 600, border: 'none', borderRadius: 6, cursor: 'pointer',
                       background: mapMode === 'satellite' ? 'var(--accent-blue)' : 'transparent',
                       color: mapMode === 'satellite' ? '#fff' : 'var(--text-muted)',
                     }}>Satellite</button>
                   </div>
+                  <button onClick={() => {
+                    if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; }
+                    setShowStreetView(false); setMapMode('street');
+                  }} style={{
+                    background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)',
+                    fontSize: 18, lineHeight: 1, padding: '0 4px',
+                  }}>✕</button>
                 </div>
-                <button onClick={() => {
-                  if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; }
-                  setShowStreetView(false); setMapMode('street');
-                }} style={{
-                  background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)',
-                  fontSize: 18, lineHeight: 1, padding: '0 4px',
-                }}>✕</button>
               </div>
               {mapMode === 'street' ? (
                 <iframe
@@ -1692,7 +1782,16 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                       });
                       adjustMapRef.current = map;
 
-                      new mapboxgl.Marker({ color: '#ff9500' })
+                      const markerEl = document.createElement('div');
+                      markerEl.style.cssText = 'display:flex;flex-direction:column;align-items:center;pointer-events:none;';
+                      const dot = document.createElement('div');
+                      dot.style.cssText = 'width:20px;height:20px;border-radius:50%;background:oklch(0.78 0.12 200);border:2.5px solid rgba(255,255,255,0.9);box-shadow:0 0 8px oklch(0.78 0.12 200 / 0.6), 0 2px 6px rgba(0,0,0,0.3);';
+                      const addrLabel = document.createElement('div');
+                      addrLabel.textContent = address;
+                      addrLabel.style.cssText = 'margin-top:4px;padding:2px 6px;border-radius:4px;background:rgba(0,0,0,0.7);color:#fff;font-size:11px;font-weight:600;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,0.5);';
+                      markerEl.appendChild(dot);
+                      markerEl.appendChild(addrLabel);
+                      new mapboxgl.Marker({ element: markerEl, anchor: 'top' })
                         .setLngLat([initLng, initLat])
                         .addTo(map);
                     }}

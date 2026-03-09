@@ -34,15 +34,30 @@ export async function submitSkipTrace(tenantId, propertyIds, webhookUrl) {
 
   // Build CSV payload for Tracerfy
   const csvHeader = 'first_name,last_name,address,city,state,zip,property_id';
-  const csvRows = properties.map(p => [
-    p.owner_first_name || '',
-    p.owner_last_name || '',
-    p.address_line1 || '',
-    p.city || '',
-    p.state || 'TX',
-    p.zip || '',
-    p.id,
-  ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
+  const csvRows = properties.map(p => {
+    let firstName = (p.owner_first_name || '').trim();
+    let lastName = (p.owner_last_name || '').trim();
+
+    // If first_name is empty but last_name has multiple words (e.g. "DENTON EDWARD"),
+    // split into last name + first name(s) for better Tracerfy matching
+    if (!firstName && lastName) {
+      const parts = lastName.split(/\s+/);
+      if (parts.length >= 2) {
+        lastName = parts[0];
+        firstName = parts.slice(1).join(' ');
+      }
+    }
+
+    return [
+      firstName,
+      lastName,
+      p.address_line1 || '',
+      p.city || '',
+      p.state || 'TX',
+      p.zip || '',
+      p.id,
+    ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
+  });
 
   const csvPayload = [csvHeader, ...csvRows].join('\n');
 

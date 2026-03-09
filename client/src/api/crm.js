@@ -59,6 +59,9 @@ export const getPipelineStages = () => client.get('/crm/pipeline/stages');
 export const addPropertyToPipeline = (stormEventId, propertyId) =>
   client.post('/properties/generate-leads', { stormEventId, propertyIds: [propertyId] });
 
+export const createManualLead = (propertyId, source = 'address_search') =>
+  client.post('/crm/leads', { propertyId, source });
+
 export const getPipelineMetrics = () => client.get('/crm/pipeline/metrics');
 
 // ============================================================

@@ -34,6 +34,63 @@ router.get('/leads', async (req, res, next) => {
   }
 });
 
+// POST /api/crm/leads — Create a lead manually (without a storm event)
+router.post('/leads', async (req, res, next) => {
+  try {
+    const { propertyId, source = 'manual' } = req.body;
+    if (!propertyId) return res.status(400).json({ error: 'propertyId is required' });
+
+    // Check if lead already exists for this tenant + property
+    const { rows: existing } = await pool.query(
+      `SELECT id FROM leads WHERE tenant_id = $1 AND property_id = $2 AND deleted_at IS NULL LIMIT 1`,
+      [req.tenantId, propertyId]
+    );
+    if (existing.length > 0) {
+      return res.json({ id: existing[0].id, alreadyExists: true });
+    }
+
+    // Fetch property details
+    const { rows: propRows } = await pool.query(
+      `SELECT address_line1, city, owner_first_name, owner_last_name,
+              owner_phone, owner_email, roof_type, roof_sqft, assessed_value
+       FROM properties WHERE id = $1`,
+      [propertyId]
+    );
+    if (propRows.length === 0) return res.status(404).json({ error: 'Property not found' });
+    const prop = propRows[0];
+
+    const contactName = [prop.owner_first_name, prop.owner_last_name].filter(Boolean).join(' ') || null;
+
+    // Estimate value from property data (no storm damage factor — use 30% baseline)
+    let estimatedValue = null;
+    const roofSqft = prop.roof_sqft ? parseInt(prop.roof_sqft) : 0;
+    if (roofSqft > 0) {
+      estimatedValue = Math.round(roofSqft * 6.0 * 0.3 / 100) * 100;
+    } else if (prop.assessed_value) {
+      estimatedValue = Math.round(parseFloat(prop.assessed_value) * 0.01 / 100) * 100;
+    }
+
+    const { rows } = await pool.query(
+      `INSERT INTO leads (
+        tenant_id, property_id, assigned_rep_id,
+        stage, priority, estimated_value, source,
+        contact_name, contact_phone, contact_email,
+        address, city
+      ) VALUES ($1, $2, $3, 'new', 'warm', $4, $5, $6, $7, $8, $9, $10)
+      RETURNING id, stage, priority, estimated_value, created_at`,
+      [
+        req.tenantId, propertyId, req.body.assignedRepId || null,
+        estimatedValue, source,
+        contactName, prop.owner_phone || null, prop.owner_email || null,
+        prop.address_line1 || null, prop.city || null,
+      ]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /api/crm/leads/:id — Full detail with contacts, activities, tasks
 router.get('/leads/:id', async (req, res, next) => {
   try {

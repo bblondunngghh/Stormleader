@@ -83,7 +83,7 @@ export async function getLeadDetail(tenantId, leadId) {
         ST_AsGeoJSON(p.location)::json AS property_geometry,
         se.source AS storm_source, se.hail_size_max_in AS storm_hail_max,
         se.wind_speed_max_mph AS storm_wind_max, se.event_start AS storm_start,
-        se.raw_data->>'type' AS storm_type,
+        se.raw_data->>'type' AS storm_type, se.raw_data AS storm_raw_data,
         ST_AsGeoJSON(COALESCE(se.drift_corrected_geom, se.geom))::json AS storm_geometry,
         p.roof_measurement_source,
         u.first_name AS rep_first_name, u.last_name AS rep_last_name, u.email AS rep_email

@@ -34,16 +34,20 @@ export async function ingestNWS() {
     if (!geometry) continue;
 
     const geojson = JSON.stringify(geometry);
-    const hailMatch = (props.parameters?.hailSize || [])[0];
-    const windMatch = (props.parameters?.windSpeed || [])[0];
+    const hailMatch = (props.parameters?.maxHailSize || props.parameters?.hailSize || [])[0];
+    const windMatch = (props.parameters?.maxWindGust || props.parameters?.windSpeed || [])[0];
 
     const hailSize = hailMatch ? parseFloat(hailMatch) : null;
-    const windSpeed = windMatch ? parseFloat(windMatch) : null;
+    // maxWindGust comes as "60 MPH" or "Up to 50 MPH" — extract the number
+    const windSpeed = windMatch ? parseFloat(windMatch.replace(/[^0-9.]/g, ' ').trim().split(/\s+/).pop()) : null;
 
     const { rowCount } = await pool.query(
       `INSERT INTO storm_events (source, source_id, geom, hail_size_max_in, wind_speed_max_mph, event_start, event_end, raw_data)
        VALUES ('nws_alert', $1, ST_SetSRID(ST_GeomFromGeoJSON($2), 4326), $3, $4, $5, $6, $7)
-       ON CONFLICT (source, source_id) DO NOTHING`,
+       ON CONFLICT (source, source_id) DO UPDATE SET
+         hail_size_max_in = COALESCE(EXCLUDED.hail_size_max_in, storm_events.hail_size_max_in),
+         wind_speed_max_mph = COALESCE(EXCLUDED.wind_speed_max_mph, storm_events.wind_speed_max_mph),
+         raw_data = EXCLUDED.raw_data`,
       [
         alertId,
         geojson,
@@ -56,6 +60,10 @@ export async function ingestNWS() {
           severity: props.severity,
           certainty: props.certainty,
           areaDesc: props.areaDesc,
+          maxWindGust: (props.parameters?.maxWindGust || [])[0] || null,
+          maxHailSize: (props.parameters?.maxHailSize || [])[0] || null,
+          windThreat: (props.parameters?.windThreat || [])[0] || null,
+          hailThreat: (props.parameters?.hailThreat || [])[0] || null,
         }),
       ]
     );

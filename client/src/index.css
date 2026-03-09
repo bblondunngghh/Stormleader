@@ -1802,19 +1802,40 @@ select.form-input option {
   position: relative;
 }
 
-.storm-map-wrapper .mapboxgl-map {
+.storm-map-wrapper > div {
   position: absolute;
   inset: 0;
 }
 
-.map-controls {
+.map-top-bar {
   position: absolute;
   top: var(--space-lg);
   left: var(--space-lg);
+  right: var(--space-lg);
   display: flex;
-  flex-direction: column;
+  align-items: stretch;
   gap: var(--space-sm);
   z-index: 10;
+}
+
+.map-controls__layers {
+  position: absolute;
+  top: calc(var(--space-lg) + 52px);
+  left: var(--space-lg);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.map-controls__group {
+  flex-shrink: 0;
+}
+
+.map-controls__group,
+.map-controls__layers {
+  width: 210px;
 }
 
 .map-controls__group {
@@ -1859,14 +1880,137 @@ select.form-input option {
   accent-color: var(--accent-blue);
 }
 
+.map-controls__toggle--sub {
+  padding-left: calc(var(--space-md) + 23px);
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+/* --- Address Search (Storm Map) --- */
+.address-search {
+  flex: 1;
+  min-width: 0;
+}
+
+.address-search__input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.address-search__input-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, var(--glass-highlight) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+.address-search__icon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.address-search__input {
+  width: 100%;
+  padding: 10px 36px 10px 36px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: var(--font);
+  outline: none;
+  position: relative;
+  z-index: 1;
+}
+
+.address-search__input::placeholder {
+  color: var(--text-muted);
+}
+
+.address-search__input:focus {
+  box-shadow: none;
+}
+
+.address-search__input-wrap:focus-within {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 2px oklch(0.65 0.20 250 / 0.15);
+}
+
+.address-search__spinner {
+  position: absolute;
+  right: 12px;
+  width: 16px;
+  height: 16px;
+  border: 2px solid oklch(1 0 0 / 0.15);
+  border-top-color: var(--accent-blue);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  z-index: 1;
+}
+
+.address-search__dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  list-style: none;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 8px 32px oklch(0 0 0 / 0.4);
+}
+
+.address-search__item {
+  padding: 10px 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: background 0.1s;
+}
+
+.address-search__item:hover,
+.address-search__item.is-active {
+  background: var(--glass-hover);
+}
+
+.address-search__item-main {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.address-search__item-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
 .swath-popup {
   font-family: var(--font);
+  width: 320px;
 }
 
 .swath-popup__title {
   font-size: 14px;
   font-weight: 700;
-  margin-bottom: var(--space-sm);
+  margin: 0 0 var(--space-sm) 0;
+  padding-top: 0;
+  line-height: 1.4;
 }
 
 .swath-popup__row {
@@ -1883,6 +2027,14 @@ select.form-input option {
 
 .swath-popup__value {
   font-weight: 600;
+  text-align: right;
+}
+
+.swath-popup__sv .gmnoprint,
+.swath-popup__sv .gm-style-cc,
+.swath-popup__sv [class*="google-maps-link"],
+.swath-popup__sv a[href*="maps.google.com"] {
+  display: none !important;
 }
 
 /* ============================================================
@@ -2138,31 +2290,54 @@ select.form-input option {
   border: 1px solid #e2e8f0;
 }
 
-/* Mapbox overrides for dark theme */
-.mapboxgl-popup-content {
+/* Google Maps InfoWindow overrides for dark theme */
+.gm-style-iw-d {
+  overflow: visible !important;
+  padding: 0 !important;
+}
+
+/* Collapse the header row so close button overlaps content */
+.gm-style .gm-style-iw-chr {
+  position: absolute !important;
+  top: 6px !important;
+  right: 4px !important;
+  z-index: 10 !important;
+  height: 0 !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+
+.gm-style .gm-style-iw-c {
   background: oklch(0.18 0.025 260 / 0.95) !important;
   backdrop-filter: blur(24px) !important;
   border: 1px solid oklch(0.45 0.02 260 / 0.18) !important;
   border-radius: var(--radius-md) !important;
   color: var(--text-primary) !important;
-  padding: var(--space-lg) !important;
+  padding: 8px 12px 12px !important;
   box-shadow: 0 8px 32px oklch(0 0 0 / 0.4) !important;
 }
 
-.mapboxgl-popup-tip {
-  border-top-color: oklch(0.18 0.025 260 / 0.95) !important;
+.gm-style .gm-style-iw-tc::after {
+  background: oklch(0.18 0.025 260 / 0.95) !important;
 }
 
-.mapboxgl-popup-close-button {
-  color: var(--text-muted) !important;
-  font-size: 18px !important;
-  right: 12px !important;
-  top: 4px !important;
+.gm-style .gm-ui-hover-effect {
+  opacity: 0.7 !important;
+  filter: invert(1) !important;
+  top: 0 !important;
+  right: 0 !important;
+  width: 28px !important;
+  height: 28px !important;
 }
 
-.mapboxgl-popup-close-button:hover {
-  color: var(--text-primary) !important;
-  background: transparent !important;
+.gm-style .gm-ui-hover-effect > span {
+  margin: 4px !important;
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.gm-style .gm-ui-hover-effect:hover {
+  opacity: 1 !important;
 }
 
 /* Circular checkboxes */

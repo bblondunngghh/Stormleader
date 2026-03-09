@@ -2,6 +2,28 @@ import { useState, useEffect, useCallback } from 'react';
 import { getLeads, getPipelineStages, updateLead } from '../api/crm';
 import LeadDetail from './LeadDetail';
 
+function cleanAddr(str) {
+  if (!str) return '';
+  return str.replace(/[\s,]+$/, '').replace(/,\s*,/g, ',').replace(/\s{2,}/g, ' ').trim();
+}
+function titleCase(str) {
+  if (!str) return '';
+  return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+}
+function formatOwner(raw) {
+  if (!raw?.trim()) return '';
+  const upper = raw.toUpperCase();
+  const bizWords = ['LLC', 'INC', 'CORP', 'TRUST', 'ESTATE', 'LTD', 'PARTNERSHIP', 'LP', 'LLP', 'CHURCH', 'ASSOCIATION'];
+  if (bizWords.some(w => upper.includes(w))) return titleCase(raw);
+  const parts = raw.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    const lastName = parts[0];
+    const rest = parts.slice(1).join(' ');
+    return titleCase(rest + ' ' + lastName);
+  }
+  return titleCase(raw);
+}
+
 const fallbackColumns = [
   { key: 'new', label: 'New', color: 'oklch(0.72 0.19 250)', position: 0 },
   { key: 'contacted', label: 'Contacted', color: 'oklch(0.75 0.15 200)', position: 1 },
@@ -128,16 +150,23 @@ export default function Pipeline() {
                         </span>
                       )}
                     </div>
-                    {lead.address && (
-                      <div className="lead-card__address">
-                        <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>Address</div>
-                        {lead.address}{lead.city && !lead.address?.toUpperCase().includes(lead.city?.toUpperCase()) ? `, ${lead.city}` : ''}{lead.state && !lead.address?.includes(lead.state) ? `, ${lead.state}` : ''}{lead.zip && !lead.address?.includes(lead.zip) ? ` ${lead.zip}` : ''}
-                      </div>
-                    )}
+                    {lead.address && (() => {
+                      const city = lead.city?.trim() || '';
+                      const st = (lead.property_state || lead.state || '').trim();
+                      const zip = (lead.property_zip || lead.zip || '').trim();
+                      const cityLine = [city ? titleCase(city) : '', st, zip && zip !== '0' ? zip : ''].filter(Boolean).join(', ').replace(/, (\d)/, ' $1');
+                      return (
+                        <div className="lead-card__address">
+                          <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>Address</div>
+                          <div>{titleCase(cleanAddr(lead.address))}</div>
+                          {cityLine && <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{cityLine}</div>}
+                        </div>
+                      );
+                    })()}
                     {lead.contact_name && (
                       <div className="lead-card__name">
                         <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>Owner</div>
-                        {lead.contact_name}
+                        {formatOwner(lead.contact_name)}
                       </div>
                     )}
                     <div className="lead-card__footer">
