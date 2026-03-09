@@ -6,7 +6,6 @@ import { useAuth } from '../auth/AuthContext';
 import { getDocuments, uploadDocument, deleteDocument } from '../api/documents';
 import { submitTrace } from '../api/skipTrace';
 import { measureRoof, manualRoofEntry, getSolarSegments } from '../api/roofMeasurement';
-import { updatePropertyLocation } from '../api/storms';
 import mapboxgl from 'mapbox-gl';
 import { IconX, IconPhone, IconMail, IconCalendar, IconClipboard, IconDollar, IconCamera, IconSend, IconTrash } from './Icons';
 import streetViewIcon from '../assets/icons/street-view-new.png';
@@ -63,9 +62,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   const [roofOutline, setRoofOutline] = useState([]);
   const [showStreetView, setShowStreetView] = useState(false);
   const [mapMode, setMapMode] = useState('street'); // 'street' | 'satellite' | 'adjust'
-  const [savingPin, setSavingPin] = useState(false);
   const adjustMapRef = useRef(null);
-  const adjustMarkerRef = useRef(null);
   const fileInputRef = useRef(null);
 
   // Fetch full lead detail from API
@@ -1625,7 +1622,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
         return createPortal(
           <>
             <div onClick={() => {
-              if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; adjustMarkerRef.current = null; }
+              if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; }
               setShowStreetView(false); setMapMode('street');
             }} style={{
               position: 'fixed', inset: 0, zIndex: 99998,
@@ -1647,7 +1644,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                   </span>
                   <div style={{ display: 'flex', gap: 2, background: 'oklch(0.20 0.02 260)', borderRadius: 6, padding: 2 }}>
                     <button onClick={() => {
-                      if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; adjustMarkerRef.current = null; }
+                      if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; }
                       setMapMode('street');
                     }} style={{
                       padding: '3px 8px', fontSize: 11, fontWeight: 600, border: 'none', borderRadius: 4, cursor: 'pointer',
@@ -1655,7 +1652,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                       color: mapMode === 'street' ? '#fff' : 'var(--text-muted)',
                     }}>Street</button>
                     <button onClick={() => {
-                      if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; adjustMarkerRef.current = null; }
+                      if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; }
                       setMapMode('satellite');
                     }} style={{
                       padding: '3px 8px', fontSize: 11, fontWeight: 600, border: 'none', borderRadius: 4, cursor: 'pointer',
@@ -1665,7 +1662,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                   </div>
                 </div>
                 <button onClick={() => {
-                  if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; adjustMarkerRef.current = null; }
+                  if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; }
                   setShowStreetView(false); setMapMode('street');
                 }} style={{
                   background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)',
@@ -1695,65 +1692,19 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                       });
                       adjustMapRef.current = map;
 
-                      const marker = new mapboxgl.Marker({ draggable: true, color: '#ff9500' })
+                      new mapboxgl.Marker({ color: '#ff9500' })
                         .setLngLat([initLng, initLat])
                         .addTo(map);
-                      adjustMarkerRef.current = marker;
                     }}
                     style={{ width: '100%', height: '55vh' }}
                   />
-                  <div style={{
-                    position: 'absolute', top: 12, left: '50%', transform: 'translateX(-50%)',
-                    background: 'rgba(0,0,0,0.75)', color: '#ff9500', padding: '6px 14px',
-                    borderRadius: 8, fontSize: 12, fontWeight: 600, pointerEvents: 'none',
-                  }}>
-                    Drag pin to the roof to fix location
-                  </div>
                 </div>
               )}
               <div style={{
                 padding: '8px 16px', borderTop: '1px solid oklch(0.25 0.02 260)',
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               }}>
-                {mapMode === 'satellite' ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <button
-                      disabled={savingPin}
-                      onClick={async () => {
-                        console.log('Save pin clicked', { marker: !!adjustMarkerRef.current, propertyId: lead.property_id });
-                        if (!adjustMarkerRef.current || !lead.property_id) {
-                          console.error('Save pin aborted: marker=', !!adjustMarkerRef.current, 'propertyId=', lead.property_id);
-                          setSavingPin('error');
-                          setTimeout(() => setSavingPin(false), 2000);
-                          return;
-                        }
-                        setSavingPin(true);
-                        try {
-                          const pos = adjustMarkerRef.current.getLngLat();
-                          console.log('Saving pin at', pos.lat, pos.lng);
-                          await updatePropertyLocation(lead.property_id, pos.lat, pos.lng);
-                          await refreshLead();
-                          setSavingPin('done');
-                          setTimeout(() => setSavingPin(false), 2000);
-                        } catch (err) {
-                          console.error('Save pin failed:', err.response?.data || err.message);
-                          setSavingPin('error');
-                          setTimeout(() => setSavingPin(false), 2000);
-                        }
-                      }}
-                      style={{
-                        background: savingPin === 'done' ? '#22c55e' : savingPin === 'error' ? '#ef4444' : '#ff9500',
-                        border: 'none', color: '#fff',
-                        padding: '6px 20px', borderRadius: 6, fontSize: 12, fontWeight: 600,
-                        cursor: savingPin ? 'default' : 'pointer', opacity: savingPin === true ? 0.5 : 1,
-                      }}
-                    >
-                      {savingPin === 'done' ? 'Saved ✓' : savingPin === 'error' ? 'Failed' : savingPin === true ? 'Saving...' : 'Save Pin Location'}
-                    </button>
-                  </div>
-                ) : (
-                  <div />
-                )}
+                <div />
                 <a href={mapsLink} target="_blank" rel="noopener noreferrer"
                   style={{ fontSize: 11, color: 'var(--accent-blue)', textDecoration: 'none' }}>
                   Open in Google Maps ↗
