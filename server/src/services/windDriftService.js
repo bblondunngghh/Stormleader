@@ -266,7 +266,7 @@ export async function applyDriftCorrection(stormEventId, options = {}) {
   // Apply the translation to the geometry using ST_Translate
   await pool.query(`
     UPDATE storm_events
-    SET drift_corrected_geom = ST_Translate(geom, $2, $3),
+    SET drift_corrected_geom = ST_Simplify(ST_Translate(geom, $2, $3), 0.0001),
         drift_vector_m = $4
     WHERE id = $1
   `, [stormEventId, dLng, dLat, JSON.stringify(drift)]);
@@ -319,7 +319,7 @@ export async function getDriftInfo(stormEventId) {
     SELECT id, hail_size_max_in,
            drift_vector_m,
            drift_corrected_geom IS NOT NULL as has_correction,
-           ST_AsGeoJSON(drift_corrected_geom)::json as corrected_geometry
+           ST_AsGeoJSON(ST_Simplify(drift_corrected_geom, 0.0001))::json as corrected_geometry
     FROM storm_events WHERE id = $1
   `, [stormEventId]);
   return event || null;

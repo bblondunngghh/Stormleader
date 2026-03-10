@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { getLeads, bulkAssign, bulkStatus } from '../api/crm';
-import LeadDetail from './LeadDetail';
+const LeadDetail = lazy(() => import('./LeadDetail'));
 import { IconSearch, IconDownload, IconFilter, IconX } from './Icons';
 import CustomSelect from './CustomSelect';
 
@@ -589,11 +589,13 @@ export default function LeadList() {
       </div>
 
       {selectedLead && (
-        <LeadDetail
-          leadId={selectedLead.id}
-          onClose={() => setSelectedLead(null)}
-          onUpdated={() => fetchLeads()}
-        />
+        <Suspense fallback={null}>
+          <LeadDetail
+            leadId={selectedLead.id}
+            onClose={() => setSelectedLead(null)}
+            onUpdated={() => fetchLeads()}
+          />
+        </Suspense>
       )}
     </div>
   );

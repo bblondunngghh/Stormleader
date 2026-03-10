@@ -1,8 +1,11 @@
 import pool from '../db/pool.js';
 import logger from '../utils/logger.js';
 
-const NWS_URL = 'https://api.weather.gov/alerts/active?event=Severe%20Thunderstorm%20Warning';
+const NWS_URL = 'https://api.weather.gov/alerts/active?event=Severe%20Thunderstorm%20Warning&area=TX';
 const USER_AGENT = 'StormLeads/1.0 (contact: support@stormleads.io)';
+
+// Texas bounding box for clipping
+const TX_CLIP = `ST_MakeEnvelope(-106.65, 25.84, -93.51, 36.50, 4326)`;
 
 export async function ingestNWS() {
   logger.info('Starting NWS alert ingestion');
@@ -43,7 +46,7 @@ export async function ingestNWS() {
 
     const { rowCount } = await pool.query(
       `INSERT INTO storm_events (source, source_id, geom, hail_size_max_in, wind_speed_max_mph, event_start, event_end, raw_data)
-       VALUES ('nws_alert', $1, ST_SetSRID(ST_GeomFromGeoJSON($2), 4326), $3, $4, $5, $6, $7)
+       VALUES ('nws_alert', $1, ST_Simplify(ST_Intersection(ST_SetSRID(ST_GeomFromGeoJSON($2), 4326), ${TX_CLIP}), 0.0001), $3, $4, $5, $6, $7)
        ON CONFLICT (source, source_id) DO UPDATE SET
          hail_size_max_in = COALESCE(EXCLUDED.hail_size_max_in, storm_events.hail_size_max_in),
          wind_speed_max_mph = COALESCE(EXCLUDED.wind_speed_max_mph, storm_events.wind_speed_max_mph),

@@ -54,7 +54,7 @@ export async function ingestSPCDate(date) {
         const { rowCount } = await pool.query(
           `INSERT INTO storm_events (source, source_id, geom, hail_size_max_in, wind_speed_max_mph, event_start, raw_data)
            VALUES ($1, $2,
-             ST_Buffer(ST_SetSRID(ST_GeomFromGeoJSON($3), 4326)::geography, $8)::geometry,
+             ST_Simplify(ST_Buffer(ST_SetSRID(ST_GeomFromGeoJSON($3), 4326)::geography, $8)::geometry, 0.0001),
              $4, $5, $6, $7)
            ON CONFLICT (source, source_id) DO NOTHING`,
           [event.source, event.sourceId, event.geojson, event.hailSize, event.windSpeed, event.eventStart, JSON.stringify(event.rawData), bufferMeters]
@@ -83,6 +83,7 @@ function parseHailRow(line, date) {
   if (isNaN(latitude) || isNaN(longitude)) return null;
 
   const lng = longitude > 0 ? -longitude : longitude;
+  if (!isInTexas(latitude, lng)) return null;
   const hailSize = parseFloat(size) / 100;
 
   return {
@@ -106,6 +107,7 @@ function parseWindRow(line, date) {
   if (isNaN(latitude) || isNaN(longitude)) return null;
 
   const lng = longitude > 0 ? -longitude : longitude;
+  if (!isInTexas(latitude, lng)) return null;
   const windMph = speed === 'UNK' ? null : parseFloat(speed);
 
   return {
@@ -129,6 +131,7 @@ function parseTornadoRow(line, date) {
   if (isNaN(latitude) || isNaN(longitude)) return null;
 
   const lng = longitude > 0 ? -longitude : longitude;
+  if (!isInTexas(latitude, lng)) return null;
 
   return {
     source: 'spc_report',
@@ -139,6 +142,14 @@ function parseTornadoRow(line, date) {
     eventStart: makeTimestamp(date, time),
     rawData: { type: 'tornado', fscale, location, county, state, remarks: remarkParts.join(',').trim() },
   };
+}
+
+// Texas bounding box (with small buffer for border storms)
+const TX_BOUNDS = { west: -107.0, south: 25.5, east: -93.0, north: 37.0 };
+
+function isInTexas(lat, lng) {
+  return lat >= TX_BOUNDS.south && lat <= TX_BOUNDS.north &&
+         lng >= TX_BOUNDS.west && lng <= TX_BOUNDS.east;
 }
 
 function makeSourceId(type, time, lat, lng) {

@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { getLeads, getPipelineStages, updateLead } from '../api/crm';
-import LeadDetail from './LeadDetail';
+const LeadDetail = lazy(() => import('./LeadDetail'));
 
 function cleanAddr(str) {
   if (!str) return '';
@@ -190,11 +190,13 @@ export default function Pipeline() {
       </div>
 
       {selectedLeadId && (
-        <LeadDetail
-          leadId={selectedLeadId}
-          onClose={() => setSelectedLeadId(null)}
-          onUpdated={handleLeadUpdated}
-        />
+        <Suspense fallback={null}>
+          <LeadDetail
+            leadId={selectedLeadId}
+            onClose={() => setSelectedLeadId(null)}
+            onUpdated={handleLeadUpdated}
+          />
+        </Suspense>
       )}
     </div>
   );

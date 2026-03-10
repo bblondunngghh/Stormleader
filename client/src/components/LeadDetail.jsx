@@ -94,6 +94,8 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   const [traceError, setTraceError] = useState('');
   const [measuring, setMeasuring] = useState(false);
   const [measureError, setMeasureError] = useState('');
+  const [billingModal, setBillingModal] = useState(null); // 'measure' | 'trace' | null
+  const [billingDontAsk, setBillingDontAsk] = useState(false);
   const [showManualRoof, setShowManualRoof] = useState(false);
   const [manualRoofSqft, setManualRoofSqft] = useState('');
   const [manualRoofPitch, setManualRoofPitch] = useState('');
@@ -196,6 +198,32 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
       setActivities(res.data.activities || []);
       onUpdated?.();
     } catch { /* silent */ }
+  };
+
+  const doMeasure = async () => {
+    setMeasuring(true);
+    setMeasureError('');
+    try {
+      await measureRoof(lead.property_id);
+      await refreshLead();
+    } catch (err) {
+      setMeasureError(err.response?.data?.error || 'Measurement failed. Check Settings > Add-Ons.');
+    } finally {
+      setMeasuring(false);
+    }
+  };
+
+  const doTrace = async () => {
+    setTracing(true);
+    setTraceError('');
+    try {
+      await submitTrace([lead.property_id]);
+      await refreshLead();
+    } catch (err) {
+      setTraceError(err.response?.data?.error || 'Trace failed. Check Settings > Skip Tracing.');
+    } finally {
+      setTracing(false);
+    }
   };
 
   const handleFileUpload = async (e) => {
@@ -512,16 +540,12 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
           {leadId && lead.property_id && (
             <div style={{ marginTop: 'var(--space-sm)' }}>
               <button
-                onClick={async () => {
-                  setMeasuring(true);
-                  setMeasureError('');
-                  try {
-                    await measureRoof(lead.property_id);
-                    await refreshLead();
-                  } catch (err) {
-                    setMeasureError(err.response?.data?.error || 'Measurement failed. Check Settings > Add-Ons.');
-                  } finally {
-                    setMeasuring(false);
+                onClick={() => {
+                  if (localStorage.getItem('billing_dismiss_measure')) {
+                    doMeasure();
+                  } else {
+                    setBillingModal('measure');
+                    setBillingDontAsk(false);
                   }
                 }}
                 disabled={measuring}
@@ -555,11 +579,6 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                   </button>
                 </div>
               )}
-              {!measureError && (
-                <div style={{ fontSize: 10, color: 'var(--accent-red)', marginTop: 4, opacity: 0.5 }}>
-                  Each measurement will be added to your monthly bill.
-                </div>
-              )}
               {lead.roof_sqft && (() => {
                 const hasAllEdges = lead.roof_ridge_ft > 0 && lead.roof_eave_ft > 0 && lead.roof_rake_ft > 0
                   && lead.roof_valley_ft > 0 && lead.roof_drip_edge_ft > 0 && lead.roof_flashing_ft > 0;
@@ -583,16 +602,12 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
           {leadId && lead.property_id && (
             <div style={{ marginTop: 'var(--space-sm)' }}>
               <button
-                onClick={async () => {
-                  setTracing(true);
-                  setTraceError('');
-                  try {
-                    await submitTrace([lead.property_id]);
-                    await refreshLead();
-                  } catch (err) {
-                    setTraceError(err.response?.data?.error || 'Trace failed. Check Settings > Skip Tracing.');
-                  } finally {
-                    setTracing(false);
+                onClick={() => {
+                  if (localStorage.getItem('billing_dismiss_trace')) {
+                    doTrace();
+                  } else {
+                    setBillingModal('trace');
+                    setBillingDontAsk(false);
                   }
                 }}
                 disabled={tracing}
@@ -613,9 +628,6 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 {tracing ? 'Tracing...' : (phone === '—' && email === '—') ? 'Run Trace' : 'Re-trace'}
               </button>
               {traceError && <div style={{ fontSize: 11, color: 'var(--accent-red)', marginTop: 4 }}>{traceError}</div>}
-              <div style={{ fontSize: 10, color: 'var(--accent-red)', marginTop: 4, opacity: 0.5 }}>
-                Each trace will be added to your monthly bill.
-              </div>
             </div>
           )}
         </div>
@@ -1043,6 +1055,67 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
           }}
           onClose={() => setActiveModal(null)}
         />
+      )}
+
+      {/* Billing Confirmation Modal */}
+      {billingModal && createPortal(
+        <>
+          <div className="slide-over-backdrop" onClick={() => setBillingModal(null)} style={{ zIndex: 200 }} />
+          <div style={{
+            position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            zIndex: 201, width: 360, padding: 24, borderRadius: 16,
+            background: 'oklch(0.18 0.01 260)', border: '1px solid oklch(1 0 0 / 0.1)',
+            boxShadow: '0 24px 48px oklch(0 0 0 / 0.5)',
+          }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>
+              Billing Notice
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 20 }}>
+              {billingModal === 'measure'
+                ? 'Each roof measurement will be charged to your monthly billing plan.'
+                : 'Each skip trace will be charged to your monthly billing plan.'}
+            </div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--text-muted)', marginBottom: 20, cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={billingDontAsk}
+                onChange={e => setBillingDontAsk(e.target.checked)}
+                style={{ accentColor: 'var(--accent-blue)' }}
+              />
+              I understand, do not show me this message again.
+            </label>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setBillingModal(null)}
+                style={{
+                  padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                  background: 'oklch(1 0 0 / 0.08)', border: '1px solid oklch(1 0 0 / 0.1)',
+                  color: 'var(--text-secondary)', cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (billingDontAsk) {
+                    localStorage.setItem(`billing_dismiss_${billingModal}`, '1');
+                  }
+                  const action = billingModal === 'measure' ? doMeasure : doTrace;
+                  setBillingModal(null);
+                  action();
+                }}
+                style={{
+                  padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                  background: 'var(--accent-blue)', border: 'none',
+                  color: '#fff', cursor: 'pointer',
+                }}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </>,
+        document.body
       )}
 
       {/* Quick Call Modal */}

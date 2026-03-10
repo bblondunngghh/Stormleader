@@ -1,6 +1,16 @@
 import pool from '../db/pool.js';
 import logger from '../utils/logger.js';
 
+// Texas bounding box
+const TX_BOUNDS = { west: -106.65, south: 25.84, east: -93.51, north: 36.50 };
+function clampToTexas(bbox) {
+  const [w, s, e, n] = [
+    Math.max(bbox[0], TX_BOUNDS.west), Math.max(bbox[1], TX_BOUNDS.south),
+    Math.min(bbox[2], TX_BOUNDS.east), Math.min(bbox[3], TX_BOUNDS.north),
+  ];
+  return (w >= e || s >= n) ? null : [w, s, e, n];
+}
+
 /**
  * Find all properties that fall within a storm event's swath polygon.
  * Returns properties with distance (meters) from the swath centroid.
@@ -61,7 +71,9 @@ export async function findPropertiesInSwath(stormEventId, options = {}) {
  * Get properties within a map viewport bounding box.
  */
 export async function getPropertiesInViewport(bbox, limit = 1000, { improvedOnly = false } = {}) {
-  const [west, south, east, north] = bbox;
+  const clamped = clampToTexas(bbox);
+  if (!clamped) return { type: 'FeatureCollection', features: [] };
+  const [west, south, east, north] = clamped;
 
   const improvedFilter = improvedOnly ? 'AND year_built IS NOT NULL' : '';
 
@@ -87,7 +99,9 @@ export async function getPropertiesInViewport(bbox, limit = 1000, { improvedOnly
  * Only returns properties that are actually in a storm-affected area.
  */
 export async function getPropertiesInStormZones(bbox, timeRange, limit = 5000, { improvedOnly = false } = {}) {
-  const [west, south, east, north] = bbox;
+  const clamped = clampToTexas(bbox);
+  if (!clamped) return { type: 'FeatureCollection', features: [] };
+  const [west, south, east, north] = clamped;
   const params = [west, south, east, north];
 
   let timeFilter = '';

@@ -7,6 +7,9 @@ import logger from '../utils/logger.js';
 const BUCKET_URL = 'https://noaa-mrms-pds.s3.amazonaws.com';
 const PREFIX = 'CONUS/MESH_Max_1440min_00.50';
 
+// Texas bounding box for clipping
+const TX_CLIP = `ST_MakeEnvelope(-106.65, 25.84, -93.51, 36.50, 4326)`;
+
 /**
  * Ingest the latest MRMS MESH Max 1440min file for today (or a specific date).
  * Downloads GRIB2 from NOAA's public S3 bucket via HTTPS, parses the grid,
@@ -83,7 +86,7 @@ export async function ingestMRMS(dateStr) {
     try {
       const { rowCount } = await pool.query(
         `INSERT INTO storm_events (source, source_id, geom, hail_size_max_in, event_start, raw_data)
-         VALUES ('mrms_mesh', $1, ST_SetSRID(ST_GeomFromGeoJSON($2), 4326), $3, $4, $5)
+         VALUES ('mrms_mesh', $1, ST_Simplify(ST_Intersection(ST_SetSRID(ST_GeomFromGeoJSON($2), 4326), ${TX_CLIP}), 0.0001), $3, $4, $5)
          ON CONFLICT (source, source_id) DO NOTHING`,
         [sourceId, geojson, hailSize, eventStart, JSON.stringify({ file: latestKey, threshold: hailSize })]
       );

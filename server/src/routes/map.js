@@ -50,7 +50,9 @@ router.get('/properties', async (req, res, next) => {
     if (!bbox) return res.status(400).json({ error: 'bbox required' });
     const bboxArr = bbox.split(',').map(Number);
     if (bboxArr.length !== 4 || bboxArr.some(isNaN)) return res.status(400).json({ error: 'Invalid bbox' });
-    const result = await propertyService.getPropertiesInViewport(bboxArr, 1000, { improvedOnly: improvedOnly === 'true' });
+    const viewportArea = Math.abs(bboxArr[2] - bboxArr[0]) * Math.abs(bboxArr[3] - bboxArr[1]);
+    const limit = viewportArea < 0.01 ? 3000 : viewportArea < 0.1 ? 2000 : 1000;
+    const result = await propertyService.getPropertiesInViewport(bboxArr, limit, { improvedOnly: improvedOnly === 'true' });
     res.json(result);
   } catch (err) {
     // Return empty collection instead of 500 for geo query failures
@@ -69,7 +71,10 @@ router.get('/affected-properties', async (req, res, next) => {
     if (!bbox) return res.status(400).json({ error: 'bbox required' });
     const bboxArr = bbox.split(',').map(Number);
     if (bboxArr.length !== 4 || bboxArr.some(isNaN)) return res.status(400).json({ error: 'Invalid bbox' });
-    const result = await propertyService.getPropertiesInStormZones(bboxArr, timeRange || '30d', 5000, { improvedOnly: improvedOnly === 'true' });
+    // Scale limit by viewport size — small viewport = dense results, large = sparse
+    const viewportArea = Math.abs(bboxArr[2] - bboxArr[0]) * Math.abs(bboxArr[3] - bboxArr[1]);
+    const limit = viewportArea < 0.01 ? 5000 : viewportArea < 0.1 ? 3000 : 2000;
+    const result = await propertyService.getPropertiesInStormZones(bboxArr, timeRange || '30d', limit, { improvedOnly: improvedOnly === 'true' });
     res.json(result);
   } catch (err) {
     if (err.code && err.code.startsWith('XX') || err.message?.includes('ST_')) {
@@ -90,6 +95,7 @@ router.get('/swaths', async (req, res, next) => {
     const result = await stormService.getSwathsByViewport(bboxArr, timeRange || '7d', startDate, endDate);
     res.json(result);
   } catch (err) {
+    console.error('Swaths query error:', err.message, err.code, err.stack);
     if (err.code && err.code.startsWith('XX') || err.message?.includes('ST_')) {
       return res.json(emptyFC);
     }

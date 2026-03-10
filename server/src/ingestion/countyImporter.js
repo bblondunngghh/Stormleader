@@ -81,6 +81,7 @@ function extractProperty(feature, fieldMap, countyName, dataSourceTag) {
     ownerName: (fieldMap.owner_name && attrs[fieldMap.owner_name]) ? String(attrs[fieldMap.owner_name]) : null,
     yearBuilt: (fieldMap.year_built && attrs[fieldMap.year_built]) ? Number(attrs[fieldMap.year_built]) || null : null,
     assessedValue: (fieldMap.assessed_value && attrs[fieldMap.assessed_value]) ? Number(attrs[fieldMap.assessed_value]) || null : null,
+    propertySqft: (fieldMap.property_sqft && attrs[fieldMap.property_sqft]) ? Number(attrs[fieldMap.property_sqft]) || null : null,
     county,
     dataSource: dataSourceTag,
     lng,
@@ -106,7 +107,7 @@ async function upsertBatch(batch) {
     INSERT INTO properties (
       county_parcel_id, address_line1, city, state, zip,
       location, data_source, county,
-      owner_last_name, year_built, assessed_value
+      owner_last_name, year_built, assessed_value, property_sqft
     )
     SELECT
       unnest($1::varchar[]),
@@ -119,7 +120,8 @@ async function upsertBatch(batch) {
       unnest($8::varchar[]),
       unnest($9::varchar[]),
       unnest($10::int[]),
-      unnest($11::numeric[])
+      unnest($11::numeric[]),
+      unnest($12::numeric[])
     ON CONFLICT (county_parcel_id) DO UPDATE SET
       address_line1 = EXCLUDED.address_line1,
       city = EXCLUDED.city,
@@ -129,6 +131,7 @@ async function upsertBatch(batch) {
       owner_last_name = COALESCE(EXCLUDED.owner_last_name, properties.owner_last_name),
       year_built = COALESCE(EXCLUDED.year_built, properties.year_built),
       assessed_value = COALESCE(EXCLUDED.assessed_value, properties.assessed_value),
+      property_sqft = COALESCE(EXCLUDED.property_sqft, properties.property_sqft),
       updated_at = NOW()
   `, [
     unique.map(b => b.countyParcelId),
@@ -142,6 +145,7 @@ async function upsertBatch(batch) {
     unique.map(b => b.ownerName),
     unique.map(b => b.yearBuilt),
     unique.map(b => b.assessedValue),
+    unique.map(b => b.propertySqft),
   ]);
 
   return result.rowCount;

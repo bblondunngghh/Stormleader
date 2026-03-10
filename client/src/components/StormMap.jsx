@@ -52,6 +52,22 @@ function severityColor(rating) {
   return SEVERITY_COLORS[rating.toLowerCase()] || '#888';
 }
 
+// Hail severity color scale by size (inches)
+// Avoids red (reserved for tornadoes) — uses green → yellow → orange → hot pink → purple
+function hailSeverityColor(sizeIn) {
+  if (!sizeIn || sizeIn < 0.5) return { fill: '#66d97a', stroke: '#3a9e4e' };      // light green
+  if (sizeIn < 0.75) return { fill: '#8fd94e', stroke: '#5a9e26' };                // yellow-green
+  if (sizeIn < 0.88) return { fill: '#b8d92e', stroke: '#7a9e12' };                // lime
+  if (sizeIn < 1.0) return { fill: '#d4d926', stroke: '#9a9e0e' };                 // yellow-lime
+  if (sizeIn < 1.25) return { fill: '#f5c542', stroke: '#b8941a' };                // yellow
+  if (sizeIn < 1.5) return { fill: '#f5a623', stroke: '#c8841a' };                 // amber
+  if (sizeIn < 1.75) return { fill: '#ff8c00', stroke: '#cc7000' };                // dark orange
+  if (sizeIn < 2.0) return { fill: '#ff6322', stroke: '#cc4e1a' };                 // red-orange
+  if (sizeIn < 2.5) return { fill: '#e84393', stroke: '#b5348a' };                 // hot pink
+  if (sizeIn < 3.0) return { fill: '#c44dcc', stroke: '#9a3da3' };                 // magenta
+  return { fill: '#af52de', stroke: '#8a3db8' };                                   // purple — extreme
+}
+
 // Layer colors
 const COLORS = {
   hail: { fill: '#dcb428', stroke: '#9a7d0e' },
@@ -82,89 +98,87 @@ export default function StormMap() {
   const [improvedOnly, setImprovedOnly] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
   const [mapLoading, setMapLoading] = useState(false);
+  const [propLoading, setPropLoading] = useState(false);
   const searchMarkerRef = useRef(null);
   const dataLayersRef = useRef({});
+  const stormFeaturesRef = useRef([]); // individual storm features for click lookups
   const propLabelsRef = useRef([]);
   const propFeaturesRef = useRef([]);
+  const propCacheRef = useRef(new Map()); // id -> GeoJSON feature
+  const propBboxRef = useRef(null); // { west, south, east, north, zoom } of fetched area
   const showPropertyPopupRef = useRef(null);
 
-  const loadData = useCallback(async (map) => {
+  // Load storms once for all of Texas (only ~389, stays on map permanently)
+  const stormsLoadedRef = useRef(false);
+  const loadStorms = useCallback(async (map) => {
     if (!map) return;
-    const bounds = map.getBounds();
-    if (!bounds) return;
-    const ne = bounds.getNorthEast();
-    const sw = bounds.getSouthWest();
-    const viewport = { west: sw.lng(), south: sw.lat(), east: ne.lng(), north: ne.lat() };
-
-    // Skip degenerate bbox (exact same point for all corners)
-    if (ne.lng() === sw.lng() && ne.lat() === sw.lat()) {
-      return;
-    }
-
-    const zoom = map.getZoom();
-
-    // Skip heavy data loads at low zoom to prevent freezing
-    if (zoom < 5) return;
-
+    const txViewport = { west: -106.65, south: 25.84, east: -93.51, north: 36.50 };
     setMapLoading(true);
-    const loadStart = Date.now();
 
-    const fetches = [
-      getSwaths({ timeRange, ...viewport }),
-    ];
-    if (zoom >= 6) {
-      fetches.push(getAffectedProperties({ timeRange, ...viewport }));
-    }
-    if (zoom >= 10 && improvedOnly) {
-      fetches.push(getMapProperties({ ...viewport, improvedOnly }));
-    }
-    const results = await Promise.allSettled(fetches);
-    const swathRes = results[0];
-    const affectedRes = zoom >= 6 ? results[1] : null;
-    const allPropRes = zoom >= 10 && improvedOnly ? results[results.length - 1] : null;
-
-
-    const dl = dataLayersRef.current;
-
-    // Process storm swaths
-    if (swathRes.status === 'fulfilled') {
-      const geojson = swathRes.value.data || { type: 'FeatureCollection', features: [] };
+    try {
+      const res = await getSwaths({ timeRange, ...txViewport });
+      const geojson = res.data || { type: 'FeatureCollection', features: [] };
       const buckets = { hail: [], wind: [], tornado: [], drift: [] };
+      const individualFeatures = [];
 
       for (const f of geojson.features) {
+        // Wind flow lines and arrows go to wind bucket
+        if (f.properties?._windArrow || f.properties?._windFlow) {
+          buckets.wind.push(f);
+          continue;
+        }
+        // Merged outlines go directly to the right bucket
+        if (f.properties?._merged) {
+          const mType = f.properties._mergedType;
+          if (buckets[mType]) buckets[mType].push(f);
+          if (mType === 'hail' && f.properties.drift_geometry) {
+            buckets.drift.push({ ...f, id: 'merged_drift', geometry: f.properties.drift_geometry });
+          }
+          continue;
+        }
+
         if (f.id && !f.properties?.storm_event_id) {
           f.properties = { ...f.properties, storm_event_id: f.id };
+        }
+        // Store individual polygon features for click popup lookups
+        const geomType = f.geometry?.type;
+        if (geomType === 'Polygon' || geomType === 'MultiPolygon') {
+          individualFeatures.push(f);
         }
         const rawType = f.properties?.raw_data?.type || '';
         const hasHail = f.properties?.hail_size_max_in;
         const hasWind = f.properties?.wind_speed_max_mph;
-        if (rawType === 'hail') {
-          buckets.hail.push(f);
-          if (f.properties?.drift_geometry) {
-            buckets.drift.push({ ...f, geometry: f.properties.drift_geometry });
+        // Points always render individually; polygons only if no merged outlines
+        if (geomType === 'Point' || geomType === 'Polygon' || geomType === 'MultiPolygon') {
+          if (rawType === 'hail' || (hasHail && !hasWind)) {
+            buckets.hail.push(f);
+            if (f.properties?.drift_geometry && (geomType === 'Polygon' || geomType === 'MultiPolygon')) {
+              buckets.drift.push({ ...f, id: `drift_${f.id}`, geometry: f.properties.drift_geometry });
+            }
+          } else if (rawType === 'tornado') {
+            buckets.tornado.push(f);
+          } else {
+            buckets.wind.push(f);
           }
-        } else if (rawType === 'tornado') {
-          buckets.tornado.push(f);
-        } else if (rawType === 'wind') {
-          buckets.wind.push(f);
-        } else if (hasHail && !hasWind) {
-          // NWS alert with only hail data → hail bucket
-          buckets.hail.push(f);
-          if (f.properties?.drift_geometry) {
-            buckets.drift.push({ ...f, geometry: f.properties.drift_geometry });
-          }
-        } else {
-          // NWS alerts with wind data (or both) → wind bucket
-          buckets.wind.push(f);
         }
       }
 
+      // If merged outlines exist, use them instead of individual polygons
+      const hasMerged = geojson.features.some(f => f.properties?._merged);
+      if (hasMerged) {
+        for (const key of ['hail', 'wind', 'tornado', 'drift']) {
+          buckets[key] = buckets[key].filter(f => {
+            const gt = f.geometry?.type;
+            return f.properties?._merged || f.properties?._windArrow || f.properties?._windFlow || gt === 'Point';
+          });
+        }
+      }
+
+      const dl = dataLayersRef.current;
       for (const key of ['hail', 'wind', 'tornado', 'drift']) {
         const layer = dl[key];
         if (!layer) continue;
-        // Clear existing features
         layer.forEach(feat => layer.remove(feat));
-        // Add new ones
         if (buckets[key].length > 0) {
           try {
             layer.addGeoJson({ type: 'FeatureCollection', features: buckets[key] });
@@ -173,186 +187,226 @@ export default function StormMap() {
           }
         }
       }
+      stormFeaturesRef.current = individualFeatures;
+      stormsLoadedRef.current = true;
+    } catch (e) {
+      console.warn('Failed to load storms:', e);
+    }
+    setMapLoading(false);
+  }, [timeRange]);
+
+  // Load properties for the current viewport (debounced on pan/zoom)
+  // Uses client-side cache so panning back doesn't re-fetch
+  const propLoadingRef = useRef(false);
+  const canvasOverlayRef = useRef(null);
+
+  const loadProperties = useCallback(async (map, forceClear) => {
+    if (!map || propLoadingRef.current) return;
+    const zoom = map.getZoom();
+
+    // Too zoomed out — hide properties
+    if (zoom < 8) {
+      propFeaturesRef.current = [];
+      if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
+      for (const lbl of propLabelsRef.current) lbl.map = null;
+      propLabelsRef.current = [];
+      return;
     }
 
-    // Process properties
-    const seenIds = new Set();
-    const allFeatures = [];
+    const bounds = map.getBounds();
+    if (!bounds) return;
+    const ne = bounds.getNorthEast();
+    const sw = bounds.getSouthWest();
+    const viewport = { west: sw.lng(), south: sw.lat(), east: ne.lng(), north: ne.lat() };
 
-    if (affectedRes?.status === 'fulfilled') {
-      for (const f of (affectedRes.value.data?.features || [])) {
-        if (!seenIds.has(f.id)) { seenIds.add(f.id); allFeatures.push(f); }
+    // Skip fetch if current viewport is fully inside the area we already fetched
+    // AND we haven't zoomed in significantly (which means we want denser data)
+    const cached = propBboxRef.current;
+    const zoomedInMore = cached && zoom >= cached.zoom + 2;
+    if (!forceClear && !zoomedInMore && cached &&
+        viewport.west >= cached.west && viewport.south >= cached.south &&
+        viewport.east <= cached.east && viewport.north <= cached.north) {
+      return;
+    }
+
+    // If zooming in significantly, clear cache so we get fresh dense data for this area
+    if (zoomedInMore) {
+      propCacheRef.current.clear();
+      propBboxRef.current = null;
+    }
+
+    propLoadingRef.current = true;
+    setPropLoading(true);
+    try {
+      // Fetch with a 20% buffer so small pans don't trigger new fetches
+      const latBuffer = (viewport.north - viewport.south) * 0.2;
+      const lngBuffer = (viewport.east - viewport.west) * 0.2;
+      const buffered = {
+        west: viewport.west - lngBuffer,
+        south: viewport.south - latBuffer,
+        east: viewport.east + lngBuffer,
+        north: viewport.north + latBuffer,
+      };
+
+      const fetches = [getAffectedProperties({ timeRange, ...buffered })];
+      if (zoom >= 12 && improvedOnly) {
+        fetches.push(getMapProperties({ ...buffered, improvedOnly }));
       }
-    }
-    if (allPropRes?.status === 'fulfilled') {
-      for (const f of (allPropRes.value.data?.features || [])) {
-        if (!seenIds.has(f.id)) { seenIds.add(f.id); allFeatures.push(f); }
+      const results = await Promise.allSettled(fetches);
+
+      // Merge into cache
+      for (const result of results) {
+        if (result.status !== 'fulfilled') continue;
+        for (const f of (result.value.data?.features || [])) {
+          const fid = f.id || f.properties?.id;
+          if (fid && !propCacheRef.current.has(fid)) {
+            propCacheRef.current.set(fid, f);
+          }
+        }
       }
-    }
 
-    // Cap properties to prevent performance issues (Circle objects are lightweight)
-    const MAX_PROPERTIES = 1500;
-    const cappedFeatures = allFeatures.length > MAX_PROPERTIES ? allFeatures.slice(0, MAX_PROPERTIES) : allFeatures;
+      // Expand cached bbox and track zoom level
+      const prevCached = propBboxRef.current;
+      if (prevCached && !zoomedInMore) {
+        propBboxRef.current = {
+          west: Math.min(prevCached.west, buffered.west),
+          south: Math.min(prevCached.south, buffered.south),
+          east: Math.max(prevCached.east, buffered.east),
+          north: Math.max(prevCached.north, buffered.north),
+          zoom,
+        };
+      } else {
+        propBboxRef.current = { ...buffered, zoom };
+      }
 
-    propFeaturesRef.current = cappedFeatures;
-    updatePropertyMarkersRef.current(map, cappedFeatures);
-    // Keep loading visible for at least 400ms so it doesn't just flash
-    const elapsed = Date.now() - loadStart;
-    if (elapsed < 400) {
-      setTimeout(() => setMapLoading(false), 400 - elapsed);
-    } else {
-      setMapLoading(false);
+      propFeaturesRef.current = Array.from(propCacheRef.current.values());
+
+      // Trigger canvas overlay redraw
+      if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
+
+      updatePropertyLabels(map, propFeaturesRef.current);
+    } finally {
+      propLoadingRef.current = false;
+      setPropLoading(false);
     }
   }, [timeRange, improvedOnly]);
 
-  // Manage property circle overlays (using google.maps.Circle for performance)
-  const propCirclesRef = useRef([]);
-  const updatePropertyMarkersRef = useRef(null);
+  // Property click handler — enriches with storm data from swath layers
+  function handlePropertyClick(latLng, feature) {
+    const p = { ...(feature.properties || {}) };
+    const propertyId = feature.id || p.id;
+    const pos = latLng;
 
-  function updatePropertyMarkers(map, features) {
-    // Clear old circles
-    for (const c of propCirclesRef.current) c.setMap(null);
-    propCirclesRef.current = [];
+    // Check storm containment
+    const dl = dataLayersRef.current;
+    const layerMeta = {
+      hail:    { label: 'Hail',    color: '#dcb428' },
+      wind:    { label: 'Wind',    color: '#6c5ce7' },
+      tornado: { label: 'Tornado', color: '#ff2d55' },
+      drift:   { label: 'Hail (Drift Corrected)', color: '#00e5ff' },
+    };
+    let nearestSpcDist = Infinity;
+    let nearestSpcData = null;
 
-    if (!layersRef.current.properties) return;
+    for (const sKey of ['hail', 'wind', 'tornado', 'drift']) {
+      if (!layersRef.current[sKey]) continue;
+      const sLayer = dl[sKey];
+      let found = false;
+      sLayer.forEach((sFeat) => {
+        const geom = sFeat.getGeometry();
+        if (!geom) return;
 
-    const zoom = map.getZoom();
-    // Radius in meters — needs to be large enough to see at each zoom level
-    const radius = zoom <= 7 ? 600 : zoom <= 10 ? 200 : zoom <= 13 ? 60 : zoom <= 15 ? 25 : 15;
-    // More opaque when zoomed out (easier to spot), transparent when zoomed in
-    const opacity = zoom <= 10 ? 0.85 : zoom <= 13 ? 0.6 : 0.35;
-    const strokeW = zoom <= 10 ? 1.5 : zoom <= 13 ? 1 : 0.5;
-
-    for (const f of features) {
-      if (!f.geometry?.coordinates) continue;
-      const [lng, lat] = f.geometry.coordinates;
-      const circle = new google.maps.Circle({
-        map,
-        center: { lat, lng },
-        radius,
-        fillColor: COLORS.property,
-        fillOpacity: opacity,
-        strokeColor: 'rgba(255,255,255,0.5)',
-        strokeWeight: strokeW,
-        clickable: true,
-        zIndex: 2,
-      });
-
-      // Store feature data on circle for click handler
-      circle._featureData = f;
-      circle._featureId = f.id || f.properties?.id;
-
-      circle.addListener('click', () => {
-        const p = { ...(f.properties || {}) };
-        const propertyId = f.id || p.id;
-        const pos = circle.getCenter();
-
-        // Check storm containment — also detect which layer type the property is in
-        const dl = dataLayersRef.current;
-        const layerMeta = {
-          hail:    { label: 'Hail',    color: '#dcb428' },
-          wind:    { label: 'Wind',    color: '#6c5ce7' },
-          tornado: { label: 'Tornado', color: '#ff2d55' },
-          drift:   { label: 'Hail (Drift Corrected)', color: '#00e5ff' },
-        };
-        // Track nearest SPC point report per layer for wind speed / hail size
-        let nearestSpcDist = Infinity;
-        let nearestSpcData = null;
-
-        for (const sKey of ['hail', 'wind', 'tornado', 'drift']) {
-          if (!layersRef.current[sKey]) continue;
-          const sLayer = dl[sKey];
-          let found = false;
-          sLayer.forEach((feat) => {
-            const geom = feat.getGeometry();
-            if (!geom) return;
-
-            if (geom.getType() === 'Polygon') {
-              if (found) return;
-              const path = geom.getAt(0);
-              const poly = new google.maps.Polygon({ paths: path.getArray() });
-              if (google.maps.geometry.poly.containsLocation(pos, poly)) {
-                if (!p.storm_event_id) p.storm_event_id = feat.getProperty('storm_event_id');
-                const hail = feat.getProperty('hail_size_max_in');
-                const wind = feat.getProperty('wind_speed_max_mph');
-                if (hail && !p.storm_hail_size) p.storm_hail_size = hail;
-                if (wind && !p.storm_wind_speed) p.storm_wind_speed = wind;
-                if (!p._swathType) {
-                  p._swathType = layerMeta[sKey].label;
-                  p._swathColor = layerMeta[sKey].color;
-                }
-                // Pull extra info from the feature
-                const rawData = feat.getProperty('raw_data');
-                if (rawData?.headline && !p._stormHeadline) p._stormHeadline = rawData.headline;
-                if (rawData?.severity && !p._stormSeverity) p._stormSeverity = rawData.severity;
-                if (rawData?.areaDesc && !p._stormArea) p._stormArea = rawData.areaDesc;
-                if (rawData?.certainty && !p._stormCertainty) p._stormCertainty = rawData.certainty;
-                if (rawData?.speed && !p.storm_wind_speed) p.storm_wind_speed = rawData.speed !== 'UNK' ? rawData.speed : null;
-                if (rawData?.maxWindGust && !p.storm_wind_speed) {
-                  const parsed = parseFloat(rawData.maxWindGust.replace(/[^0-9.]/g, ' ').trim().split(/\s+/).pop());
-                  if (!isNaN(parsed)) p.storm_wind_speed = parsed;
-                }
-                if (rawData?.maxHailSize && !p.storm_hail_size) p.storm_hail_size = parseFloat(rawData.maxHailSize) || null;
-                if (rawData?.remarks && !p._stormRemarks) p._stormRemarks = rawData.remarks;
-                const eventStart = feat.getProperty('event_start');
-                if (eventStart && !p.storm_date) p.storm_date = eventStart;
-                found = true;
-              }
-            } else if (geom.getType() === 'Point') {
-              // SPC point reports — find nearest one within 30km for wind speed / hail size
-              const ptLatLng = geom.get();
-              const dist = google.maps.geometry.spherical.computeDistanceBetween(pos, ptLatLng);
-              if (dist < 30000 && dist < nearestSpcDist) {
-                nearestSpcDist = dist;
-                const hail = feat.getProperty('hail_size_max_in');
-                const wind = feat.getProperty('wind_speed_max_mph');
-                const rawData = feat.getProperty('raw_data');
-                nearestSpcData = { sKey, hail, wind, rawData };
-              }
+        if (geom.getType() === 'Polygon') {
+          if (found) return;
+          const path = geom.getAt(0);
+          const poly = new google.maps.Polygon({ paths: path.getArray() });
+          if (google.maps.geometry.poly.containsLocation(pos, poly)) {
+            if (!p.storm_event_id) p.storm_event_id = sFeat.getProperty('storm_event_id');
+            const hail = sFeat.getProperty('hail_size_max_in');
+            const wind = sFeat.getProperty('wind_speed_max_mph');
+            if (hail && !p.storm_hail_size) p.storm_hail_size = hail;
+            if (wind && !p.storm_wind_speed) p.storm_wind_speed = wind;
+            if (!p._swathType) {
+              p._swathType = layerMeta[sKey].label;
+              p._swathColor = layerMeta[sKey].color;
             }
-          });
-        }
-
-        // Apply nearest SPC point report data (wind speed / hail size)
-        if (nearestSpcData) {
-          const { sKey, hail, wind, rawData } = nearestSpcData;
-          if (hail && !p.storm_hail_size) p.storm_hail_size = hail;
-          if (wind && !p.storm_wind_speed) p.storm_wind_speed = wind;
-          if (rawData?.speed && !p.storm_wind_speed) {
-            p.storm_wind_speed = rawData.speed !== 'UNK' ? rawData.speed : null;
+            const rawData = sFeat.getProperty('raw_data');
+            if (rawData?.headline && !p._stormHeadline) p._stormHeadline = rawData.headline;
+            if (rawData?.severity && !p._stormSeverity) p._stormSeverity = rawData.severity;
+            if (rawData?.areaDesc && !p._stormArea) p._stormArea = rawData.areaDesc;
+            if (rawData?.certainty && !p._stormCertainty) p._stormCertainty = rawData.certainty;
+            if (rawData?.speed && !p.storm_wind_speed) p.storm_wind_speed = rawData.speed !== 'UNK' ? rawData.speed : null;
+            if (rawData?.maxWindGust && !p.storm_wind_speed) {
+              const parsed = parseFloat(rawData.maxWindGust.replace(/[^0-9.]/g, ' ').trim().split(/\s+/).pop());
+              if (!isNaN(parsed)) p.storm_wind_speed = parsed;
+            }
+            if (rawData?.maxHailSize && !p.storm_hail_size) p.storm_hail_size = parseFloat(rawData.maxHailSize) || null;
+            if (rawData?.remarks && !p._stormRemarks) p._stormRemarks = rawData.remarks;
+            const eventStart = sFeat.getProperty('event_start');
+            if (eventStart && !p.storm_date) p.storm_date = eventStart;
+            found = true;
           }
-          if (rawData?.size && !p.storm_hail_size) {
-            p.storm_hail_size = rawData.size;
+        } else if (geom.getType() === 'Point') {
+          const ptLatLng = geom.get();
+          const dist = google.maps.geometry.spherical.computeDistanceBetween(pos, ptLatLng);
+          if (dist < 30000 && dist < nearestSpcDist) {
+            nearestSpcDist = dist;
+            nearestSpcData = { sKey, hail: sFeat.getProperty('hail_size_max_in'), wind: sFeat.getProperty('wind_speed_max_mph'), rawData: sFeat.getProperty('raw_data') };
           }
         }
-
-        sessionStorage.setItem('stormMapPopup', JSON.stringify({
-          lngLat: [pos.lng(), pos.lat()],
-          properties: p,
-          propertyId,
-        }));
-
-        showPropertyPopupRef.current?.(mapRef.current, pos, p, propertyId);
       });
-
-      propCirclesRef.current.push(circle);
     }
 
-    updatePropertyLabels(map, features);
+    if (nearestSpcData) {
+      const { hail, wind, rawData } = nearestSpcData;
+      if (hail && !p.storm_hail_size) p.storm_hail_size = hail;
+      if (wind && !p.storm_wind_speed) p.storm_wind_speed = wind;
+      if (rawData?.speed && !p.storm_wind_speed) p.storm_wind_speed = rawData.speed !== 'UNK' ? rawData.speed : null;
+      if (rawData?.size && !p.storm_hail_size) p.storm_hail_size = rawData.size;
+    }
+
+    sessionStorage.setItem('stormMapPopup', JSON.stringify({
+      lngLat: [pos.lng(), pos.lat()],
+      properties: p,
+      propertyId,
+    }));
+
+    // Center map on property, offset upward so InfoWindow appears in middle of viewport
+    const map = mapRef.current;
+    if (map) {
+      const proj = map.getProjection();
+      if (proj) {
+        const point = proj.fromLatLngToPoint(pos);
+        // Shift down by ~25% of viewport so the popup (which opens above the pin) is centered
+        const zoom = map.getZoom();
+        const offsetY = 120 / Math.pow(2, zoom); // scale offset by zoom
+        const shifted = new google.maps.Point(point.x, point.y + offsetY);
+        const newCenter = proj.fromPointToLatLng(shifted);
+        map.panTo(newCenter);
+      }
+      // Open popup after pan animation completes
+      google.maps.event.addListenerOnce(map, 'idle', () => {
+        showPropertyPopupRef.current?.(map, pos, p, propertyId);
+      });
+    }
   }
 
   function updatePropertyLabels(map, features) {
-    // Clear old labels
     for (const lbl of propLabelsRef.current) lbl.map = null;
     propLabelsRef.current = [];
 
     const zoom = map.getZoom();
-    if (zoom < 13 || !layersRef.current.properties) return;
+    if (zoom < 15 || !layersRef.current.properties) return;
 
-    const google = window.google;
+    const gm = window.google;
+    // Only label visible features (limit to 200 for performance)
+    const bounds = map.getBounds();
+    let count = 0;
     for (const f of features) {
+      if (count >= 200) break;
       if (!f.geometry?.coordinates) continue;
       const [lng, lat] = f.geometry.coordinates;
+      if (bounds && !bounds.contains({ lat, lng })) continue;
       const addr = f.properties?.address_line1 || '';
       if (!addr) continue;
 
@@ -361,21 +415,19 @@ export default function StormMap() {
       label.textContent = addr;
 
       try {
-        const marker = new google.maps.marker.AdvancedMarkerElement({
+        const marker = new gm.maps.marker.AdvancedMarkerElement({
           map,
           position: { lat, lng },
           content: label,
           zIndex: 1,
         });
         propLabelsRef.current.push(marker);
+        count++;
       } catch {
         // AdvancedMarkerElement may not be available without mapId
       }
     }
   }
-
-  // Keep ref current so loadData's useCallback always calls the latest version
-  updatePropertyMarkersRef.current = updatePropertyMarkers;
 
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
@@ -400,15 +452,37 @@ export default function StormMap() {
       const map = new maps.Map(mapContainer.current, {
         center,
         zoom,
-        mapTypeId: 'hybrid',
+        mapTypeId: zoom >= 8 ? 'hybrid' : 'roadmap',
         gestureHandling: 'greedy',
         disableDefaultUI: false,
         zoomControl: true,
         mapTypeControl: false,
         streetViewControl: false,
         fullscreenControl: false,
+        restriction: {
+          latLngBounds: { north: 37.5, south: 25.0, west: -108.0, east: -92.5 },
+          strictBounds: false,
+        },
+        styles: [
+          { featureType: 'administrative.province', elementType: 'geometry.stroke', stylers: [{ color: '#000000' }, { weight: 3 }, { visibility: 'on' }] },
+        ],
       });
       mapRef.current = map;
+
+      // Switch to satellite only when zoomed in enough to see houses
+      let mapTypeTimer = null;
+      map.addListener('idle', () => {
+        clearTimeout(mapTypeTimer);
+        mapTypeTimer = setTimeout(() => {
+          const z = map.getZoom();
+          const currentType = map.getMapTypeId();
+          if (z >= 8 && currentType !== 'hybrid') {
+            map.setMapTypeId('hybrid');
+          } else if (z < 8 && currentType !== 'roadmap') {
+            map.setMapTypeId('roadmap');
+          }
+        }, 150);
+      });
 
       // Auto-dismiss "Do you own this website?" error modal
       const observer = new MutationObserver((mutations) => {
@@ -438,21 +512,62 @@ export default function StormMap() {
         const c = COLORS[key];
         layer.setStyle((feature) => {
           const geomType = feature.getGeometry()?.getType();
+          // Wind flow lines
+          if (feature.getProperty('_windFlow')) {
+            return {
+              strokeColor: '#6c5ce7',
+              strokeWeight: 1,
+              strokeOpacity: 0.3,
+              clickable: false,
+            };
+          }
           if (geomType === 'Point') {
+            // Wind direction arrows along flow lines
+            if (feature.getProperty('_windArrow')) {
+              const azimuth = feature.getProperty('azimuth') || 0;
+              return {
+                icon: {
+                  path: 'M 0,-6 L 4,3 L 0,0.5 L -4,3 Z',
+                  scale: 2.2,
+                  fillColor: '#6c5ce7',
+                  fillOpacity: 0.45,
+                  strokeColor: '#6c5ce7',
+                  strokeWeight: 0,
+                  rotation: azimuth,
+                  anchor: new maps.Point(0, 0),
+                },
+                clickable: false,
+              };
+            }
+            const hailSize = feature.getProperty('hail_size_max_in');
+            const pointColor = (key === 'hail' && hailSize) ? hailSeverityColor(hailSize).fill : c.fill;
             return {
               icon: {
                 path: maps.SymbolPath.CIRCLE,
                 scale: key === 'hail' || key === 'tornado' ? 8 : 6,
-                fillColor: c.fill,
+                fillColor: pointColor,
                 fillOpacity: 0.7,
                 strokeColor: '#fff',
                 strokeWeight: 1,
               },
             };
           }
+          // Hail severity graduation — merged contours colored by hail size
+          if (key === 'hail') {
+            const hailSize = feature.getProperty('hail_size_max_in');
+            const sc = hailSeverityColor(hailSize);
+            return {
+              fillColor: sc.fill,
+              fillOpacity: 0.35,
+              strokeColor: sc.stroke,
+              strokeWeight: 1.5,
+              strokeOpacity: 0.6,
+            };
+          }
+          const fillOpacity = key === 'tornado' ? 0.15 : key === 'drift' ? 0.08 : 0.10;
           return {
             fillColor: c.fill,
-            fillOpacity: key === 'tornado' ? 0.15 : key === 'drift' ? 0.08 : 0.12,
+            fillOpacity,
             strokeColor: c.stroke,
             strokeWeight: key === 'tornado' ? 3 : key === 'drift' ? 1.5 : 2.5,
             strokeOpacity: key === 'drift' ? 0.6 : 0.85,
@@ -461,11 +576,54 @@ export default function StormMap() {
         layer.setMap(map);
         dl[key] = layer;
 
-        // Click handler for storm features
+        // Click handler for storm features — check for property hit first
         layer.addListener('click', (event) => {
-          const props = {};
+          const clickLatLng = event.latLng;
+          const z = map.getZoom();
+
+          // If properties layer is on, check if click is near a property dot
+          if (layersRef.current.properties && z >= 8) {
+            const hitRadius = z <= 10 ? 500 : z <= 13 ? 100 : z <= 15 ? 30 : 10;
+            let closest = null;
+            let closestDist = hitRadius;
+            for (const f of propFeaturesRef.current) {
+              if (!f.geometry?.coordinates) continue;
+              const [lng, lat] = f.geometry.coordinates;
+              const fLatLng = new maps.LatLng(lat, lng);
+              const dist = maps.geometry.spherical.computeDistanceBetween(clickLatLng, fLatLng);
+              if (dist < closestDist) {
+                closestDist = dist;
+                closest = f;
+              }
+            }
+            if (closest) {
+              const [lng, lat] = closest.geometry.coordinates;
+              handlePropertyClick(new maps.LatLng(lat, lng), closest);
+              return; // Property popup takes priority
+            }
+          }
+
+          let props = {};
           event.feature.forEachProperty((val, key) => { props[key] = val; });
           const pos = event.latLng;
+
+          // For merged outlines, find the nearest individual storm for popup data
+          if (props._merged) {
+            let nearest = null;
+            let nearestDist = Infinity;
+            for (const sf of stormFeaturesRef.current) {
+              if (!sf.geometry?.coordinates) continue;
+              // Approximate centroid from first ring
+              const ring = sf.geometry.type === 'Polygon' ? sf.geometry.coordinates[0] : sf.geometry.coordinates?.[0]?.[0];
+              if (!ring || !ring.length) continue;
+              let cLat = 0, cLng = 0;
+              for (const [lng, lat] of ring) { cLat += lat; cLng += lng; }
+              cLat /= ring.length; cLng /= ring.length;
+              const dist = maps.geometry.spherical.computeDistanceBetween(pos, new maps.LatLng(cLat, cLng));
+              if (dist < nearestDist) { nearestDist = dist; nearest = sf; }
+            }
+            if (nearest) props = { ...nearest.properties, storm_event_id: nearest.id };
+          }
 
           const container = document.createElement('div');
           container.innerHTML = SwathPopup.renderHTML(props);
@@ -477,44 +635,144 @@ export default function StormMap() {
 
       dataLayersRef.current = dl;
 
-      // Update property circles on zoom change + clear data at low zoom
-      let prevZoom = zoom;
-      map.addListener('zoom_changed', () => {
+      // Canvas OverlayView for properties — participates in map transform pipeline
+      // so dots move smoothly with the map during zoom/pan animations
+      class PropertyOverlay extends maps.OverlayView {
+        constructor() {
+          super();
+          this.canvas = document.createElement('canvas');
+          this.canvas.style.position = 'absolute';
+          this.canvas.style.pointerEvents = 'none';
+        }
+        onAdd() {
+          this.getPanes().overlayLayer.appendChild(this.canvas);
+        }
+        draw() {
+          const projection = this.getProjection();
+          if (!projection) return;
+          const map = this.getMap();
+          if (!map) return;
+
+          const center = map.getCenter();
+          if (!center) return;
+          const centerPx = projection.fromLatLngToDivPixel(center);
+          if (!centerPx) return;
+
+          // Size canvas to cover viewport at any rotation/tilt
+          const mapDiv = map.getDiv();
+          const mapW = mapDiv.offsetWidth;
+          const mapH = mapDiv.offsetHeight;
+          const size = Math.ceil(Math.sqrt(mapW * mapW + mapH * mapH) * 1.5);
+          const dpr = window.devicePixelRatio || 1;
+
+          const left = centerPx.x - size / 2;
+          const top = centerPx.y - size / 2;
+          this.canvas.style.left = left + 'px';
+          this.canvas.style.top = top + 'px';
+          this.canvas.width = size * dpr;
+          this.canvas.height = size * dpr;
+          this.canvas.style.width = size + 'px';
+          this.canvas.style.height = size + 'px';
+
+          const ctx = this.canvas.getContext('2d');
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          ctx.clearRect(0, 0, size, size);
+
+          if (!layersRef.current.properties) return;
+          const features = propFeaturesRef.current;
+          if (features.length === 0) return;
+
+          const z = map.getZoom();
+          const radius = z <= 8 ? 2 : z <= 10 ? 3 : z <= 13 ? 5 : z <= 15 ? 7 : 9;
+          const alpha = z <= 10 ? 0.85 : z <= 13 ? 0.7 : 0.5;
+
+          ctx.fillStyle = `rgba(0, 212, 170, ${alpha})`;
+          ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.6})`;
+          ctx.lineWidth = z <= 10 ? 1 : 0.5;
+
+          ctx.beginPath();
+          for (const f of features) {
+            if (!f.geometry?.coordinates) continue;
+            const [lng, lat] = f.geometry.coordinates;
+            const pixel = projection.fromLatLngToDivPixel(new maps.LatLng(lat, lng));
+            if (!pixel) continue;
+            const x = pixel.x - left;
+            const y = pixel.y - top;
+            if (x < -radius || x > size + radius || y < -radius || y > size + radius) continue;
+            ctx.moveTo(x + radius, y);
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+          }
+          ctx.fill();
+          ctx.stroke();
+        }
+        requestDraw() {
+          this.draw();
+        }
+        onRemove() {
+          this.canvas.remove();
+        }
+      }
+
+      const propOverlay = new PropertyOverlay();
+      propOverlay.setMap(map);
+      canvasOverlayRef.current = propOverlay;
+
+      // Click hit-test via map click (canvas has pointer-events:none)
+      map.addListener('click', (e) => {
+        if (!layersRef.current.properties) return;
         const z = map.getZoom();
-        const radius = z <= 7 ? 600 : z <= 10 ? 200 : z <= 13 ? 60 : z <= 15 ? 25 : 15;
-        const opacity = z <= 10 ? 0.85 : z <= 13 ? 0.6 : 0.35;
-        const strokeW = z <= 10 ? 1.5 : z <= 13 ? 1 : 0.5;
+        if (z < 8) return;
 
-        // Update circle radii and opacity
-        for (const c of propCirclesRef.current) {
-          c.setRadius(radius);
-          c.setOptions({ fillOpacity: opacity, strokeWeight: strokeW });
-        }
-        updatePropertyLabels(map, propFeaturesRef.current);
+        const clickLatLng = e.latLng;
+        const hitRadius = z <= 10 ? 500 : z <= 13 ? 100 : z <= 15 ? 30 : 10; // meters
+        let closest = null;
+        let closestDist = hitRadius;
 
-        // Clear features when zooming out past thresholds to prevent sluggishness
-        if (z < 6 && prevZoom >= 6) {
-          for (const c of propCirclesRef.current) c.setMap(null);
-          propCirclesRef.current = [];
-          propFeaturesRef.current = [];
-          for (const lbl of propLabelsRef.current) lbl.map = null;
-          propLabelsRef.current = [];
-        }
-        if (z < 5 && prevZoom >= 5) {
-          for (const key of ['hail', 'wind', 'tornado', 'drift']) {
-            dl[key]?.forEach(f => dl[key].remove(f));
+        for (const f of propFeaturesRef.current) {
+          if (!f.geometry?.coordinates) continue;
+          const [lng, lat] = f.geometry.coordinates;
+          const fLatLng = new maps.LatLng(lat, lng);
+          const dist = maps.geometry.spherical.computeDistanceBetween(clickLatLng, fLatLng);
+          if (dist < closestDist) {
+            closestDist = dist;
+            closest = f;
           }
         }
-        prevZoom = z;
+        if (closest) {
+          const [lng, lat] = closest.geometry.coordinates;
+          handlePropertyClick(new maps.LatLng(lat, lng), closest);
+        }
       });
 
-      // Debounced idle handler (replaces moveend)
-      let idleTimeout;
+      // Pointer cursor when hovering over a property dot
+      map.addListener('mousemove', (e) => {
+        if (!layersRef.current.properties) return;
+        const z = map.getZoom();
+        if (z < 8) { map.setOptions({ draggableCursor: null }); return; }
+        const hitRadius = z <= 10 ? 500 : z <= 13 ? 100 : z <= 15 ? 30 : 10;
+        const cursor = e.latLng;
+        let hit = false;
+        for (const f of propFeaturesRef.current) {
+          if (!f.geometry?.coordinates) continue;
+          const [lng, lat] = f.geometry.coordinates;
+          const dist = maps.geometry.spherical.computeDistanceBetween(cursor, new maps.LatLng(lat, lng));
+          if (dist < hitRadius) { hit = true; break; }
+        }
+        map.setOptions({ draggableCursor: hit ? 'pointer' : null });
+      });
+
+      // Refresh labels on zoom change
+      map.addListener('zoom_changed', () => {
+        updatePropertyLabels(map, propFeaturesRef.current);
+      });
+
+      // Save viewport + reload properties on pan/zoom (storms stay loaded)
+      let propTimeout;
       map.addListener('idle', () => {
-        clearTimeout(idleTimeout);
         const c = map.getCenter();
         sessionStorage.setItem('stormMapViewport', JSON.stringify({ lat: c.lat(), lng: c.lng(), zoom: map.getZoom() }));
-        idleTimeout = setTimeout(() => loadData(map), 500);
+        clearTimeout(propTimeout);
+        propTimeout = setTimeout(() => loadProperties(map), 800);
       });
 
       // Shared property popup function
@@ -541,7 +799,8 @@ export default function StormMap() {
               <span class="swath-popup__label">Address</span>
               <span class="swath-popup__value">${titleCase(cleanAddr(p.address_line1)) || 'N/A'}${p.city?.trim() ? ', ' + titleCase(p.city.trim()) : ''}${p.state?.trim() ? ', ' + p.state.trim() : ''}${p.zip?.trim() && p.zip.trim() !== '0' ? ' ' + p.zip.trim() : ''}</span>
             </div>
-            ${owner ? `<div class="swath-popup__row"><span class="swath-popup__label">Owner</span><span class="swath-popup__value">${owner}</span></div>` : ''}
+            ${owner ? `<div class="swath-popup__row"><span class="swath-popup__label">Owner</span><span class="swath-popup__value">${owner}</span></div>
+            <div style="color:#8a8a9a;font-size:10px;line-height:1.3;margin:-2px 0 4px;padding-left:2px;">Public records — subject to change after skip tracing</div>` : ''}
             ${p.year_built ? `<div class="swath-popup__row"><span class="swath-popup__label">Year Built</span><span class="swath-popup__value">${p.year_built}</span></div>` : ''}
             ${value ? `<div class="swath-popup__row"><span class="swath-popup__label">Value</span><span class="swath-popup__value">${value}</span></div>` : ''}
             ${p.roof_type ? `<div class="swath-popup__row"><span class="swath-popup__label">Roof</span><span class="swath-popup__value">${p.roof_type}${p.roof_sqft ? ' / ' + p.roof_sqft + ' sqft' : ''}</span></div>` : ''}
@@ -614,9 +873,11 @@ export default function StormMap() {
         });
       }
 
-      // Initial data load
+      // Initial data load — storms once, then properties for viewport
       maps.event.addListenerOnce(map, 'idle', () => {
-        loadData(map).then(() => {
+        loadStorms(map).then(() => {
+          loadProperties(map);
+        }).then(() => {
           try {
             const saved = JSON.parse(sessionStorage.getItem('stormMapPopup'));
             if (saved) {
@@ -630,18 +891,25 @@ export default function StormMap() {
     return () => {
       if (observerRef.current) observerRef.current.disconnect();
       if (infoRef.current) infoRef.current.close();
-      for (const c of propCirclesRef.current) c.setMap(null);
-      propCirclesRef.current = [];
+      if (canvasOverlayRef.current) canvasOverlayRef.current.setMap(null);
       for (const lbl of propLabelsRef.current) lbl.map = null;
       propLabelsRef.current = [];
+      propCacheRef.current.clear();
+      propBboxRef.current = null;
       mapRef.current = null;
     };
   }, []);
 
-  // Reload on timeRange / improvedOnly change
+  // Reload storms and clear property cache when time filter changes
   useEffect(() => {
-    if (mapRef.current) loadData(mapRef.current);
-  }, [timeRange, improvedOnly, loadData]);
+    if (mapRef.current) {
+      // Clear property cache so new time range fetches fresh data
+      propCacheRef.current.clear();
+      propBboxRef.current = null;
+      loadStorms(mapRef.current);
+      loadProperties(mapRef.current, true);
+    }
+  }, [timeRange, loadStorms, loadProperties]);
 
   // Toggle layer visibility
   useEffect(() => {
@@ -652,10 +920,9 @@ export default function StormMap() {
     for (const key of ['hail', 'wind', 'tornado', 'drift']) {
       dl[key]?.setMap(layers[key] ? map : null);
     }
-
-    // Toggle property circles
-    for (const c of propCirclesRef.current) {
-      c.setMap(layers.properties ? map : null);
+    // Canvas overlay for properties — show/hide + redraw
+    if (canvasOverlayRef.current) {
+      canvasOverlayRef.current.setMap(layers.properties ? map : null);
     }
 
     // Toggle labels
@@ -708,8 +975,8 @@ export default function StormMap() {
       property = data.property;
       created = data.created;
 
-      // Roof measurement is manual — user clicks "Measure Roof" in lead detail
-      loadData(map);
+      // Refresh properties after creating one
+      loadProperties(map);
     } catch (err) {
       console.error('Address search error:', err);
       error = err.response?.data?.error || err.message;
@@ -731,7 +998,8 @@ export default function StormMap() {
           <span class="swath-popup__label">Address</span>
           <span class="swath-popup__value">${cleanAddr(addr.address_line1)}${addr.city?.trim() ? ', ' + addr.city.trim() : ''}${addr.state?.trim() ? ', ' + addr.state.trim() : ''}${addr.zip?.trim() ? ' ' + addr.zip.trim() : ''}</span>
         </div>
-        ${owner ? `<div class="swath-popup__row"><span class="swath-popup__label">Owner</span><span class="swath-popup__value">${owner}</span></div>` : ''}
+        ${owner ? `<div class="swath-popup__row"><span class="swath-popup__label">Owner</span><span class="swath-popup__value">${owner}</span></div>
+        <div style="color:#8a8a9a;font-size:10px;line-height:1.3;margin:-2px 0 4px;padding-left:2px;">Public records — subject to change after skip tracing</div>` : ''}
         ${value ? `<div class="swath-popup__row"><span class="swath-popup__label">Assessed Value</span><span class="swath-popup__value">${value}</span></div>` : ''}
         ${p.year_built ? `<div class="swath-popup__row"><span class="swath-popup__label">Year Built</span><span class="swath-popup__value">${p.year_built}</span></div>` : ''}
         ${p.roof_sqft ? `<div class="swath-popup__row"><span class="swath-popup__label">Roof</span><span class="swath-popup__value">${p.roof_sqft} sqft / ${p.roof_segments || '?'} segments</span></div>` : ''}
@@ -796,7 +1064,7 @@ export default function StormMap() {
         searchMarkerRef.current = null;
       }
     });
-  }, [loadData]);
+  }, [loadProperties]);
 
   return (
     <div className="main-content" style={{ padding: 0, overflow: 'hidden' }}>
@@ -813,12 +1081,36 @@ export default function StormMap() {
         />
         <div className="storm-map-wrapper">
           <div ref={mapContainer} style={{ position: 'absolute', inset: 0 }} />
-          {mapLoading && (
+          {(mapLoading || propLoading) && (
             <div className="storm-map-loading">
-              <div className="storm-map-loading__spinner" />
-              <span>Loading storm data…</span>
+              <div className="storm-map-loading__spinner">
+                <i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i />
+              </div>
+              <span>{mapLoading ? 'Loading storms…' : 'Loading properties…'}</span>
             </div>
           )}
+          <div className="map-legends">
+            <div className="map-legend glass">
+              <div className="map-legend__title">Hail Severity</div>
+              <div className="map-legend__bar map-legend__bar--hail" />
+              <div className="map-legend__labels">
+                <span>0.5"</span><span>1"</span><span>1.5"</span><span>2"</span><span>3"</span><span>4"+</span>
+              </div>
+              <div className="map-legend__descs">
+                <span>Penny</span><span>Quarter</span><span>Golf Ball</span><span>Baseball</span>
+              </div>
+            </div>
+            <div className="map-legend glass">
+              <div className="map-legend__title">Wind Speed</div>
+              <div className="map-legend__bar map-legend__bar--wind" />
+              <div className="map-legend__labels">
+                <span>40</span><span>58</span><span>70</span><span>80</span><span>100</span><span>130+</span>
+              </div>
+              <div className="map-legend__descs">
+                <span>Strong</span><span>Severe</span><span>Damaging</span><span>Destructive</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -104,7 +104,7 @@ router.post('/', async (req, res, next) => {
       return res.json({ property: existing[0], created: false });
     }
 
-    // Look up county data: first try spatial match within 100m, then fallback to address match
+    // Look up county data: first try spatial match within 20m, then fallback to address match
     const { rows: nearest } = await pool.query(`
       SELECT assessed_value, year_built, owner_first_name, owner_last_name, owner_phone, owner_email,
              county_parcel_id, roof_type, property_sqft, homestead_exempt
@@ -112,7 +112,7 @@ router.post('/', async (req, res, next) => {
       WHERE location IS NOT NULL
         AND assessed_value IS NOT NULL
         AND data_source IS DISTINCT FROM 'address_search'
-        AND ST_DWithin(location, ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography, 100)
+        AND ST_DWithin(location, ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography, 20)
       ORDER BY location <-> ST_SetSRID(ST_MakePoint($1, $2), 4326)
       LIMIT 1
     `, [lng, lat]);
@@ -191,7 +191,8 @@ router.put('/:id/location', async (req, res, next) => {
       FROM properties
       WHERE id != $1
         AND location IS NOT NULL
-        AND ST_DWithin(location, ST_SetSRID(ST_MakePoint($2, $3), 4326)::geography, 50)
+        AND data_source IS DISTINCT FROM 'address_search'
+        AND ST_DWithin(location, ST_SetSRID(ST_MakePoint($2, $3), 4326)::geography, 20)
       ORDER BY location <-> ST_SetSRID(ST_MakePoint($2, $3), 4326)
       LIMIT 1
     `, [propertyId, lng, lat]);

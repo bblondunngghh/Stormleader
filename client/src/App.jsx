@@ -1,21 +1,32 @@
 import { Routes, Route, Navigate, useNavigate, useLocation, useParams } from 'react-router-dom';
-import { useMemo, useCallback } from 'react';
+import { lazy, Suspense, useMemo, useCallback } from 'react';
 import ProtectedRoute from './auth/ProtectedRoute';
-import LoginPage from './auth/LoginPage';
-import RegisterPage from './auth/RegisterPage';
-import OnboardingPage from './auth/OnboardingPage';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
-import Dashboard from './components/Dashboard';
-import Pipeline from './components/Pipeline';
-import LeadList from './components/LeadList';
-import StormMap from './components/StormMap';
-import AlertSettings from './components/AlertSettings';
-import TasksView from './components/TasksView';
-import EstimatesView from './components/EstimatesView';
-import SettingsView from './components/SettingsView';
-import AdminDashboard from './components/AdminDashboard';
-import PublicEstimate from './components/PublicEstimate';
+
+// Lazy-load all pages so only the active route's code is downloaded
+const LoginPage = lazy(() => import('./auth/LoginPage'));
+const RegisterPage = lazy(() => import('./auth/RegisterPage'));
+const OnboardingPage = lazy(() => import('./auth/OnboardingPage'));
+const Dashboard = lazy(() => import('./components/Dashboard'));
+const Pipeline = lazy(() => import('./components/Pipeline'));
+const LeadList = lazy(() => import('./components/LeadList'));
+const StormMap = lazy(() => import('./components/StormMap'));
+const AlertSettings = lazy(() => import('./components/AlertSettings'));
+const TasksView = lazy(() => import('./components/TasksView'));
+const EstimatesView = lazy(() => import('./components/EstimatesView'));
+const SettingsView = lazy(() => import('./components/SettingsView'));
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
+const PublicEstimate = lazy(() => import('./components/PublicEstimate'));
+
+function PageLoader() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: 'var(--text-muted)' }}>
+      <div className="storm-map-loading__spinner" style={{ marginRight: 12 }} />
+      Loading…
+    </div>
+  );
+}
 
 const viewRoutes = {
   dashboard: '/',
@@ -50,38 +61,42 @@ function AppShell() {
     <div className="app">
       <Sidebar activeView={activeView} onNavigate={handleNavigate} />
       <TopBar activeView={activeView} onNavigate={handleNavigate} />
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/pipeline" element={<Pipeline />} />
-        <Route path="/leads" element={<LeadList />} />
-        <Route path="/storm-map" element={<StormMap />} />
-        <Route path="/alerts" element={<AlertSettings />} />
-        <Route path="/tasks" element={<TasksView />} />
-        <Route path="/estimates" element={<EstimatesView />} />
-        <Route path="/settings" element={<SettingsView />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/pipeline" element={<Pipeline />} />
+          <Route path="/leads" element={<LeadList />} />
+          <Route path="/storm-map" element={<StormMap />} />
+          <Route path="/alerts" element={<AlertSettings />} />
+          <Route path="/tasks" element={<TasksView />} />
+          <Route path="/estimates" element={<EstimatesView />} />
+          <Route path="/settings" element={<SettingsView />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </div>
   );
 }
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/onboarding" element={<OnboardingPage />} />
-      <Route path="/estimate/:token" element={<PublicEstimateRoute />} />
-      <Route
-        path="/*"
-        element={
-          <ProtectedRoute>
-            <AppShell />
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/onboarding" element={<OnboardingPage />} />
+        <Route path="/estimate/:token" element={<PublicEstimateRoute />} />
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoute>
+              <AppShell />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </Suspense>
   );
 }
 
@@ -89,4 +104,3 @@ function PublicEstimateRoute() {
   const { token } = useParams();
   return <PublicEstimate token={token} />;
 }
-
