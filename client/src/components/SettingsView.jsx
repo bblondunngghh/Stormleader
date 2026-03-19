@@ -11,19 +11,22 @@ import * as skipTraceApi from '../api/skipTrace';
 import * as roofMeasurementApi from '../api/roofMeasurement';
 import client from '../api/client';
 import * as onboardingApi from '../api/onboarding';
+import * as paymentsApi from '../api/payments';
+import { showToast } from './Toast';
 
 export default function SettingsView() {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState(() => {
     const urlTab = searchParams.get('tab');
-    return ['profile', 'company', 'billing', 'team', 'alerts', 'notifications'].includes(urlTab) ? urlTab : 'profile';
+    return ['profile', 'company', 'billing', 'payments', 'team', 'alerts', 'notifications'].includes(urlTab) ? urlTab : 'profile';
   });
 
   const tabs = [
     { id: 'profile', label: 'Profile' },
     { id: 'company', label: 'Company' },
     { id: 'billing', label: 'Billing' },
+    { id: 'payments', label: 'Payments' },
     { id: 'team', label: 'Team' },
     { id: 'alerts', label: 'Storm Alerts' },
     { id: 'notifications', label: 'Notifications' },
@@ -49,6 +52,7 @@ export default function SettingsView() {
       {tab === 'profile' && <ProfileTab user={user} />}
       {tab === 'company' && <CompanyTab />}
       {tab === 'billing' && <BillingTab />}
+      {tab === 'payments' && <PaymentsTab />}
       {tab === 'team' && <TeamTab currentUserId={user?.id} />}
       {tab === 'alerts' && <AlertsTab />}
       {tab === 'notifications' && <NotificationsTab />}
@@ -84,7 +88,7 @@ function ProfileTab({ user }) {
       </div>
 
       <div style={{ marginTop: 'var(--space-xl)', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-        <strong>StormLeads</strong> — Storm damage lead management platform.<br />
+        <strong>StormPipe</strong> — Storm damage lead management platform.<br />
         NOAA MESH ingestion, property overlay, skip trace integration, and full CRM pipeline.
       </div>
       <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 'var(--space-md)' }}>
@@ -139,7 +143,7 @@ function CompanyTab() {
           {saveMsg && <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent-green)' }}>{saveMsg}</span>}
         </div>
         <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 'var(--space-md)', lineHeight: 1.5 }}>
-          This email address will be used as the "from" address when sending estimates, alerts, and other emails from StormLeads on behalf of your company.
+          This email address will be used as the "from" address when sending estimates, alerts, and other emails from StormPipe on behalf of your company.
         </div>
         <div className="form-group">
           <label>From Email Address</label>
@@ -730,6 +734,277 @@ function BillingTab() {
           document.body
         );
       })()}
+    </div>
+  );
+}
+
+// ============================================================
+// PAYMENTS TAB — Stripe Connect onboarding + payment history
+// ============================================================
+
+function PaymentsTab() {
+  const [connectStatus, setConnectStatus] = useState(null);
+  const [payments, setPayments] = useState([]);
+  const [paymentsTotal, setPaymentsTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [onboarding, setOnboarding] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  // Handle return from Stripe onboarding
+  useEffect(() => {
+    const stripeParam = searchParams.get('stripe');
+    if (stripeParam === 'complete') {
+      loadData();
+      showToast('Checking Stripe connection status...', 'info');
+    } else if (stripeParam === 'refresh') {
+      showToast('Onboarding link expired. Click below to continue.', 'warning');
+    }
+  }, [searchParams]);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [statusRes, historyRes] = await Promise.allSettled([
+        paymentsApi.getConnectStatus(),
+        paymentsApi.getPaymentHistory({ limit: 20 }),
+      ]);
+      if (statusRes.status === 'fulfilled') setConnectStatus(statusRes.value.data);
+      if (historyRes.status === 'fulfilled') {
+        setPayments(historyRes.value.data.payments || []);
+        setPaymentsTotal(historyRes.value.data.total || 0);
+      }
+    } catch { /* silent */ }
+    setLoading(false);
+  };
+
+  const handleOnboard = async () => {
+    setOnboarding(true);
+    try {
+      const res = await paymentsApi.startOnboarding();
+      if (res.data.url) {
+        window.open(res.data.url, '_blank');
+        showToast('Stripe onboarding opened in a new tab', 'success');
+      }
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Failed to start Stripe onboarding', 'error');
+    }
+    setOnboarding(false);
+  };
+
+  const handleRefreshLink = async () => {
+    setOnboarding(true);
+    try {
+      const res = await paymentsApi.refreshOnboarding();
+      if (res.data.url) {
+        window.open(res.data.url, '_blank');
+        showToast('New onboarding link opened', 'success');
+      }
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Failed to refresh link', 'error');
+    }
+    setOnboarding(false);
+  };
+
+  if (loading) return <div style={{ color: 'var(--text-muted)', padding: 'var(--space-xl)' }}>Loading...</div>;
+
+  const isConnected = connectStatus?.onboardingComplete;
+  const isPartial = connectStatus?.connected && !connectStatus?.onboardingComplete;
+
+  const statusColor = isConnected ? 'oklch(0.75 0.18 145)' : isPartial ? 'oklch(0.78 0.15 85)' : 'oklch(0.65 0.15 25)';
+  const statusLabel = isConnected ? 'Connected' : isPartial ? 'Incomplete' : 'Not Connected';
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)' }}>
+      {/* Stripe Connection Status */}
+      <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-lg)' }}>
+          <div style={{ fontSize: 15, fontWeight: 700 }}>Stripe Connect</div>
+          <span style={{
+            fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em',
+            padding: '3px 10px', borderRadius: 'var(--radius-pill)',
+            color: statusColor, background: `${statusColor} / 0.12`.replace(')', ' / 0.12)').replace('oklch', 'oklch'),
+            border: `1px solid ${statusColor}`,
+          }}>
+            {statusLabel}
+          </span>
+        </div>
+
+        {isConnected ? (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)', marginBottom: 'var(--space-lg)' }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: '50%',
+                background: 'oklch(0.75 0.18 145 / 0.15)', border: '1px solid oklch(0.75 0.18 145 / 0.3)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="oklch(0.75 0.18 145)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'oklch(0.75 0.18 145)' }}>Stripe Connected</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                  Charges and payouts are enabled for your account
+                </div>
+              </div>
+            </div>
+            {connectStatus?.accountId && (
+              <div style={{ fontSize: 11, fontFamily: 'monospace', color: 'var(--text-muted)', marginBottom: 'var(--space-md)' }}>
+                Account: {connectStatus.accountId}
+              </div>
+            )}
+          </div>
+        ) : isPartial ? (
+          <div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 'var(--space-lg)', lineHeight: 1.6 }}>
+              Your Stripe account has been created but onboarding is not complete.
+              Please finish the setup to start accepting payments.
+            </div>
+            <button onClick={handleRefreshLink} disabled={onboarding} className="auth-btn"
+              style={{ width: 'auto', padding: '10px 24px', fontSize: 13 }}>
+              {onboarding ? 'Opening...' : 'Continue Stripe Setup'}
+            </button>
+          </div>
+        ) : (
+          <div>
+            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 'var(--space-lg)', lineHeight: 1.6 }}>
+              Connect your Stripe account to accept credit card and ACH payments directly from your estimates.
+              Funds are deposited into your own Stripe account with no delays.
+            </div>
+            <button onClick={handleOnboard} disabled={onboarding} className="auth-btn"
+              style={{
+                width: 'auto', padding: '12px 28px', fontSize: 14, fontWeight: 700,
+                background: 'oklch(0.55 0.15 270)', display: 'flex', alignItems: 'center', gap: 8,
+              }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                <line x1="1" y1="10" x2="23" y2="10" />
+              </svg>
+              {onboarding ? 'Opening Stripe...' : 'Connect with Stripe'}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Fee Structure */}
+      <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
+        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 'var(--space-lg)' }}>Processing Fees</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-lg)' }}>
+          <div style={{
+            padding: 'var(--space-lg)', borderRadius: 'var(--radius-md)',
+            background: 'oklch(0.14 0.02 260 / 0.5)', border: '1px solid var(--glass-border)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 'var(--space-md)' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="oklch(0.70 0.15 250)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                <line x1="1" y1="10" x2="23" y2="10" />
+              </svg>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'oklch(0.70 0.15 250)' }}>Credit Card</div>
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)' }}>2.9% + $0.25</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Per transaction</div>
+          </div>
+          <div style={{
+            padding: 'var(--space-lg)', borderRadius: 'var(--radius-md)',
+            background: 'oklch(0.14 0.02 260 / 0.5)', border: '1px solid var(--glass-border)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 'var(--space-md)' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="oklch(0.75 0.18 145)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+                <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+                <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+              </svg>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'oklch(0.75 0.18 145)' }}>ACH / Bank Transfer</div>
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)' }}>0.8%</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>Capped at $25 per transaction</div>
+          </div>
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 'var(--space-md)', lineHeight: 1.5 }}>
+          Fees are automatically calculated and deducted from each payment. The remaining amount is deposited directly to your Stripe account.
+        </div>
+      </div>
+
+      {/* Payment History */}
+      <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-lg)' }}>
+          <div style={{ fontSize: 15, fontWeight: 700 }}>Payment History</div>
+          {paymentsTotal > 0 && (
+            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+              {paymentsTotal} total payment{paymentsTotal !== 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
+
+        {payments.length === 0 ? (
+          <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: 'var(--space-xl) 0', textAlign: 'center' }}>
+            No payments yet. Payments will appear here once customers pay your estimates.
+          </div>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 4px', fontSize: 13 }}>
+              <thead>
+                <tr style={{ color: 'var(--text-muted)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <th style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 600 }}>Date</th>
+                  <th style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 600 }}>Customer</th>
+                  <th style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 600 }}>Estimate</th>
+                  <th style={{ textAlign: 'right', padding: '8px 12px', fontWeight: 600 }}>Amount</th>
+                  <th style={{ textAlign: 'right', padding: '8px 12px', fontWeight: 600 }}>Fee</th>
+                  <th style={{ textAlign: 'center', padding: '8px 12px', fontWeight: 600 }}>Method</th>
+                  <th style={{ textAlign: 'center', padding: '8px 12px', fontWeight: 600 }}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {payments.map(p => {
+                  const statusColors = {
+                    succeeded: 'oklch(0.75 0.18 145)',
+                    pending: 'oklch(0.78 0.15 85)',
+                    failed: 'oklch(0.65 0.18 25)',
+                    refunded: 'oklch(0.65 0.10 260)',
+                  };
+                  const sc = statusColors[p.status] || 'var(--text-muted)';
+                  return (
+                    <tr key={p.id} style={{ background: 'oklch(0.14 0.02 260 / 0.3)', borderRadius: 'var(--radius-sm)' }}>
+                      <td style={{ padding: '10px 12px', borderRadius: '8px 0 0 8px' }}>
+                        {new Date(p.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </td>
+                      <td style={{ padding: '10px 12px' }}>
+                        {p.customer_name || p.customer_email || '—'}
+                      </td>
+                      <td style={{ padding: '10px 12px', fontFamily: 'monospace', fontSize: 11 }}>
+                        {p.estimate_number || '—'}
+                      </td>
+                      <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 600 }}>
+                        ${(p.amount / 100).toFixed(2)}
+                      </td>
+                      <td style={{ padding: '10px 12px', textAlign: 'right', color: 'var(--text-muted)', fontSize: 11 }}>
+                        ${(p.application_fee / 100).toFixed(2)}
+                      </td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', textTransform: 'uppercase', fontSize: 10, fontWeight: 600 }}>
+                        {p.payment_method}
+                      </td>
+                      <td style={{ padding: '10px 12px', textAlign: 'center', borderRadius: '0 8px 8px 0' }}>
+                        <span style={{
+                          fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em',
+                          padding: '2px 8px', borderRadius: 'var(--radius-pill)',
+                          color: sc, background: `${sc.replace(')', ' / 0.12)')}`,
+                          border: `1px solid ${sc.replace(')', ' / 0.25)')}`,
+                        }}>
+                          {p.status}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import pool from '../db/pool.js';
 import { ingestMRMS } from './mrmsIngester.js';
 import { ingestNWS } from './nwsIngester.js';
 import { ingestSPC } from './spcIngester.js';
+import { backfillSPC } from './spcHistoryIngester.js';
 import { checkAndAlert } from '../services/alertService.js';
 import { correctAllPending } from '../services/windDriftService.js';
 import { autoImportForStorms } from '../services/countyService.js';
@@ -26,8 +27,8 @@ export function startScheduler() {
     }
   });
 
-  // NWS active alerts — every 5 minutes
-  cron.schedule('*/5 * * * *', async () => {
+  // NWS active alerts — every hour
+  cron.schedule('0 * * * *', async () => {
     logger.info('Scheduler: running NWS ingestion');
     try {
       await ingestNWS();
@@ -37,19 +38,25 @@ export function startScheduler() {
     }
   });
 
-  // SPC hail reports — every 15 minutes, then auto-import county data for storm areas
-  cron.schedule('*/15 * * * *', async () => {
+  // SPC hail reports — every 2 hours
+  cron.schedule('0 */2 * * *', async () => {
     logger.info('Scheduler: running SPC ingestion');
     try {
       await ingestSPC();
       await correctAllPending();
       await checkAndAlert();
-      // Auto-import county property data for areas with recent storms
-      await autoImportForStorms().catch(err =>
-        logger.error({ err }, 'Scheduler: storm auto-import failed')
-      );
     } catch (err) {
       logger.error({ err }, 'Scheduler: SPC ingestion failed');
+    }
+  });
+
+  // Auto-import county parcels + FEMA NSI data for storm areas — 3x/day (6am, 2pm, 10pm)
+  cron.schedule('0 6,14,22 * * *', async () => {
+    logger.info('Scheduler: running storm area auto-import (county + FEMA)');
+    try {
+      await autoImportForStorms();
+    } catch (err) {
+      logger.error({ err }, 'Scheduler: storm auto-import failed');
     }
   });
 
@@ -90,5 +97,43 @@ export function startScheduler() {
     }
   });
 
-  logger.info('Ingestion scheduler started (MRMS: 30m, NWS: 5m, SPC: 15m, cleanup: 3am daily)');
+  logger.info('Ingestion scheduler started (MRMS: 30m, NWS: 1h, SPC: 2h, auto-import: 3x/day, cleanup: 3am daily)');
+
+  // Run NWS + SPC ingestion immediately on startup (don't wait for first cron tick)
+  setTimeout(async () => {
+    try {
+      logger.info('Scheduler: running immediate NWS ingestion on startup');
+      await ingestNWS();
+      logger.info('Scheduler: startup NWS ingestion complete');
+    } catch (err) {
+      logger.error({ err }, 'Scheduler: startup NWS ingestion failed');
+    }
+
+    try {
+      logger.info('Scheduler: running immediate SPC ingestion on startup');
+      await ingestSPC();
+      logger.info('Scheduler: startup SPC ingestion complete');
+    } catch (err) {
+      logger.error({ err }, 'Scheduler: startup SPC ingestion failed');
+    }
+
+    // Re-ingest last 7 days of SPC data so historical point reports get buffered into polygons
+    try {
+      logger.info('Scheduler: running startup SPC backfill (7 days)');
+      // Delete old SPC point reports so they get re-ingested as buffered polygons
+      const { rowCount: deleted } = await pool.query(
+        `DELETE FROM storm_events
+         WHERE source = 'spc_report'
+         AND ST_GeometryType(geom) = 'ST_Point'
+         AND event_start >= NOW() - INTERVAL '7 days'`
+      );
+      if (deleted > 0) {
+        logger.info(`Scheduler: deleted ${deleted} SPC point records for re-ingestion as polygons`);
+      }
+      const count = await backfillSPC(7);
+      logger.info(`Scheduler: startup backfill complete — ${count} reports processed`);
+    } catch (err) {
+      logger.error({ err }, 'Scheduler: startup SPC backfill failed');
+    }
+  }, 5000); // delay 5s to let the server finish booting
 }

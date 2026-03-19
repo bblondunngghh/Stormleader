@@ -11,33 +11,31 @@ const priorityColors = {
 };
 
 export default function TasksView() {
-  const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('pending'); // pending | completed | all
   const [showCreate, setShowCreate] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
+
+  const [allTasks, setAllTasks] = useState([]);
 
   const fetchTasks = useCallback(async () => {
     setLoading(true);
     try {
-      const params = { limit: 100 };
-      if (filter === 'pending') params.completed = 'false';
-      else if (filter === 'completed') params.completed = 'true';
-
-      const res = await getTasks(params);
-      setTasks(res.data.tasks || []);
+      const res = await getTasks({ limit: 200 });
+      setAllTasks(res.data.tasks || []);
     } catch {
       // keep existing
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, []);
 
   useEffect(() => { fetchTasks(); }, [fetchTasks]);
 
   const handleToggleComplete = async (task) => {
     const newVal = task.completed_at ? null : new Date().toISOString();
     // Optimistic
-    setTasks(prev => prev.map(t =>
+    setAllTasks(prev => prev.map(t =>
       t.id === task.id ? { ...t, completed_at: newVal } : t
     ));
     try {
@@ -57,6 +55,16 @@ export default function TasksView() {
     }
   };
 
+  const handleEdit = async (id, data) => {
+    try {
+      await updateTask(id, data);
+      setEditingTask(null);
+      fetchTasks();
+    } catch {
+      // silent
+    }
+  };
+
   const overdue = (t) => !t.completed_at && t.due_date && new Date(t.due_date) < new Date();
   const dueToday = (t) => {
     if (!t.due_date || t.completed_at) return false;
@@ -65,10 +73,12 @@ export default function TasksView() {
     return d.toDateString() === now.toDateString();
   };
 
-  const pendingTasks = tasks.filter(t => !t.completed_at);
-  const completedTasks = tasks.filter(t => t.completed_at);
+  const pendingTasks = allTasks.filter(t => !t.completed_at);
+  const completedTasks = allTasks.filter(t => t.completed_at);
   const overdueTasks = pendingTasks.filter(overdue);
   const todayTasks = pendingTasks.filter(dueToday);
+
+  const tasks = filter === 'pending' ? pendingTasks : filter === 'completed' ? completedTasks : allTasks;
 
   return (
     <div className="main-content" style={{ gap: 'var(--space-lg)' }}>
@@ -79,7 +89,6 @@ export default function TasksView() {
             {[
               { key: 'pending', label: 'Pending', count: pendingTasks.length },
               { key: 'completed', label: 'Completed', count: completedTasks.length },
-              { key: 'all', label: 'All', count: tasks.length },
             ].map(tab => (
               <button
                 key={tab.key}
@@ -100,37 +109,30 @@ export default function TasksView() {
         </button>
       </div>
 
-      {/* Summary Cards */}
-      {filter === 'pending' && (overdueTasks.length > 0 || todayTasks.length > 0) && (
-        <div style={{ display: 'flex', gap: 'var(--space-lg)' }}>
-          {overdueTasks.length > 0 && (
-            <div className="glass" style={{
-              borderRadius: 'var(--radius-lg)', padding: 'var(--space-lg) var(--space-xl)',
-              flex: 1, borderLeft: '3px solid var(--accent-red)',
-            }}>
-              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-red)', marginBottom: 4 }}>
-                Overdue
-              </div>
-              <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em' }}>{overdueTasks.length}</div>
-            </div>
-          )}
-          {todayTasks.length > 0 && (
-            <div className="glass" style={{
-              borderRadius: 'var(--radius-lg)', padding: 'var(--space-lg) var(--space-xl)',
-              flex: 1, borderLeft: '3px solid var(--accent-amber)',
-            }}>
-              <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-amber)', marginBottom: 4 }}>
-                Due Today
-              </div>
-              <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em' }}>{todayTasks.length}</div>
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Task List */}
-      <div className="glass" style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
-        {loading && tasks.length === 0 ? (
+      <div className="glass" style={{ borderRadius: '20px / 18px', overflow: 'hidden' }}>
+        {/* Summary header */}
+        {filter === 'pending' && (overdueTasks.length > 0 || todayTasks.length > 0) && (
+          <div style={{ display: 'flex', gap: 'var(--space-3xl)', padding: 'var(--space-lg) var(--space-xl)', borderBottom: '1px solid var(--glass-border)' }}>
+            {overdueTasks.length > 0 && (
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-red)', marginBottom: 2 }}>
+                  Overdue
+                </div>
+                <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em' }}>{overdueTasks.length}</div>
+              </div>
+            )}
+            {todayTasks.length > 0 && (
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-amber)', marginBottom: 2 }}>
+                  Due Today
+                </div>
+                <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em' }}>{todayTasks.length}</div>
+              </div>
+            )}
+          </div>
+        )}
+        {loading && allTasks.length === 0 ? (
           <div style={{ padding: 'var(--space-3xl)', textAlign: 'center', color: 'var(--text-muted)' }}>Loading...</div>
         ) : tasks.length === 0 ? (
           <div style={{ padding: 'var(--space-3xl)', textAlign: 'center', color: 'var(--text-muted)' }}>
@@ -143,6 +145,7 @@ export default function TasksView() {
                 key={task.id}
                 task={task}
                 onToggle={() => handleToggleComplete(task)}
+                onEdit={() => setEditingTask(task)}
                 isOverdue={overdue(task)}
                 isDueToday={dueToday(task)}
               />
@@ -158,11 +161,20 @@ export default function TasksView() {
           onClose={() => setShowCreate(false)}
         />
       )}
+
+      {/* Edit Modal */}
+      {editingTask && (
+        <EditTaskModal
+          task={editingTask}
+          onSave={(data) => handleEdit(editingTask.id, data)}
+          onClose={() => setEditingTask(null)}
+        />
+      )}
     </div>
   );
 }
 
-function TaskRow({ task, onToggle, isOverdue, isDueToday }) {
+function TaskRow({ task, onToggle, onEdit, isOverdue, isDueToday }) {
   const done = !!task.completed_at;
 
   return (
@@ -171,7 +183,7 @@ function TaskRow({ task, onToggle, isOverdue, isDueToday }) {
         {done && <IconCheckSquare style={{ width: 14, height: 14 }} />}
       </button>
 
-      <div className="task-row__body">
+      <div className="task-row__body" onClick={onEdit} style={{ cursor: 'pointer' }}>
         <div className="task-row__title">{task.title}</div>
         {task.description && (
           <div className="task-row__desc">{task.description}</div>
@@ -292,6 +304,97 @@ function CreateTaskModal({ onSave, onClose }) {
               disabled={!title.trim() || saving}
             >
               {saving ? 'Creating...' : 'Create Task'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </>
+  );
+}
+
+function EditTaskModal({ task, onSave, onClose }) {
+  const [title, setTitle] = useState(task.title || '');
+  const [description, setDescription] = useState(task.description || '');
+  const [dueDate, setDueDate] = useState(task.due_date ? task.due_date.slice(0, 10) : '');
+  const [priority, setPriority] = useState(task.priority || 'warm');
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+    setSaving(true);
+    await onSave({
+      title: title.trim(),
+      description: description.trim() || null,
+      due_date: dueDate || null,
+      priority,
+    });
+    setSaving(false);
+  };
+
+  return (
+    <>
+      <div className="slide-over-backdrop" onClick={onClose} />
+      <div className="slide-over glass" style={{ width: 420 }}>
+        <button className="slide-over__close" onClick={onClose}><IconX /></button>
+
+        <div className="slide-over__header" style={{ paddingRight: 40 }}>
+          <div className="slide-over__name">Edit Task</div>
+        </div>
+
+        <div className="divider" />
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)' }}>
+          <div className="form-group">
+            <label>Title</label>
+            <input
+              className="form-input"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="What needs to be done?"
+              autoFocus
+            />
+          </div>
+
+          <div className="form-group" style={{ flex: 1 }}>
+            <label>Description</label>
+            <textarea
+              className="form-input"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Additional details..."
+              rows={8}
+              style={{ resize: 'vertical', flex: 1 }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', gap: 'var(--space-lg)', overflow: 'visible', position: 'relative', zIndex: 10 }}>
+            <div className="form-group" style={{ flex: 1, overflow: 'visible' }}>
+              <label>Due Date</label>
+              <DatePicker value={dueDate} onChange={v => setDueDate(v)} placeholder="Select date" />
+            </div>
+            <div className="form-group" style={{ flex: 1, overflow: 'visible' }}>
+              <label>Priority</label>
+              <CustomSelect
+                value={priority}
+                onChange={v => setPriority(v)}
+                options={[
+                  { value: 'hot', label: 'High' },
+                  { value: 'warm', label: 'Medium' },
+                  { value: 'cold', label: 'Low' },
+                ]}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 'var(--space-sm)', justifyContent: 'flex-end', marginTop: 'var(--space-md)' }}>
+            <button type="button" className="quick-action-btn" onClick={onClose} style={{ height: 36 }}>Cancel</button>
+            <button
+              type="submit"
+              className="auth-btn"
+              disabled={!title.trim() || saving}
+            >
+              {saving ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </form>

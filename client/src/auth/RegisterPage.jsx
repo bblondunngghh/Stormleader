@@ -33,9 +33,9 @@ export default function RegisterPage() {
       <div className="auth-card glass">
         <div className="auth-card__logo">
           <div className="sidebar__logo" style={{ width: 44, height: 44 }}>
-            <img src={iconBrand} alt="StormLeads" width="36" height="36" />
+            <img src={iconBrand} alt="StormPipe" width="36" height="36" />
           </div>
-          <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em' }}>StormLeads</div>
+          <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em' }}>StormPipe</div>
         </div>
 
         <div className="auth-card__title">Create your account</div>

@@ -6,6 +6,7 @@ import iconBadge from '../assets/icons/Check-Badge--Streamline-Ultimate.svg';
 import * as notificationsApi from '../api/notifications';
 import * as searchApi from '../api/search';
 import client from '../api/client';
+import axios from 'axios';
 
 const viewTitles = {
   dashboard: 'Dashboard',
@@ -28,6 +29,7 @@ export default function TopBar({ activeView, onNavigate }) {
       <div className="topbar__spacer" />
 
       <div className="topbar__actions">
+        <ImportProgress />
         <HelpGuide />
         <NotificationBell />
         <PlanBadge onNavigate={onNavigate} />
@@ -203,7 +205,7 @@ function PlanBadge({ onNavigate }) {
     <button
       title={`Current plan: ${tier}`}
       onClick={() => onNavigate('settings', 'tab=billing')}
-      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 'var(--radius-pill)', background: `color-mix(in oklch, ${color} 12%, transparent)`, border: `1px solid color-mix(in oklch, ${color} 25%, transparent)`, cursor: 'pointer' }}
+      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: '10px / 8px', background: `color-mix(in oklch, ${color} 12%, transparent)`, border: `1px solid color-mix(in oklch, ${color} 25%, transparent)`, cursor: 'pointer' }}
     >
       <img src={iconBadge} alt="" width="16" height="16" style={{ filter: 'brightness(0.9)' }} />
       <span style={{ fontSize: 11, fontWeight: 700, color, textTransform: 'capitalize', letterSpacing: '0.03em' }}>{tier}</span>
@@ -240,7 +242,7 @@ function HelpGuide() {
       {open && (
         <div className="help-dropdown">
           <div className="help-dropdown__header">
-            <span style={{ fontWeight: 700, fontSize: 14 }}>How StormLeads Works</span>
+            <span style={{ fontWeight: 700, fontSize: 14 }}>How StormPipe Works</span>
             <button onClick={() => setOpen(false)} style={{ color: 'var(--text-muted)' }}>
               <IconX width={14} height={14} />
             </button>
@@ -336,6 +338,72 @@ function HelpGuide() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ============================================================
+// IMPORT PROGRESS INDICATOR
+// ============================================================
+
+function ImportProgress() {
+  const [progress, setProgress] = useState(null);
+  const [displayCount, setDisplayCount] = useState(0);
+  const targetRef = useRef(0);
+  const animRef = useRef(null);
+
+  useEffect(() => {
+    let active = true;
+    const poll = async () => {
+      try {
+        const { data } = await axios.get('/api/properties/import-progress');
+        if (active) {
+          setProgress(data.active ? data : null);
+          if (data.active) targetRef.current = data.propertiesImported;
+        }
+      } catch { /* silent */ }
+    };
+    poll();
+    const interval = setInterval(poll, 2000);
+    return () => { active = false; clearInterval(interval); };
+  }, []);
+
+  // Smooth count-up animation between poll updates
+  useEffect(() => {
+    if (!progress) return;
+    const animate = () => {
+      setDisplayCount(prev => {
+        const target = targetRef.current;
+        if (prev >= target) return target;
+        const step = Math.max(1, Math.ceil((target - prev) / 20));
+        return Math.min(prev + step, target);
+      });
+      animRef.current = requestAnimationFrame(animate);
+    };
+    animRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animRef.current);
+  }, [progress]);
+
+  if (!progress) return null;
+
+  const pct = progress.current?.percent || 0;
+  const county = progress.current?.county?.replace(/^_TX_/, '') || 'properties';
+
+  const totalStr = progress.propertiesTotal > 0
+    ? ` of ${progress.propertiesTotal.toLocaleString()}`
+    : '';
+  const overallPct = progress.propertiesTotal > 0
+    ? Math.round((displayCount / progress.propertiesTotal) * 100)
+    : pct;
+
+  return (
+    <div className="import-progress" title={`Importing ${county}: ${displayCount.toLocaleString()}${totalStr} properties`}>
+      <div className="import-progress__bar">
+        <div className="import-progress__fill" style={{ width: `${overallPct}%` }} />
+      </div>
+      <span className="import-progress__text">
+        {displayCount.toLocaleString()}{totalStr} properties
+      </span>
     </div>
   );
 }

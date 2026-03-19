@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import Switch from 'react-switch';
 import { getAlertConfig, updateAlertConfig, getAlertHistory, sendTestAlert } from '../api/alerts';
 import iconSend from '../assets/icons/Send-Email-2--Streamline-Ultimate.png';
 import iconAlarmBell from '../assets/icons/Alarm-Bell-1--Streamline-Ultimate.png';
@@ -104,7 +105,7 @@ export default function AlertSettings() {
           disabled={testing}
           style={{
             padding: '8px 16px',
-            borderRadius: '8px',
+            borderRadius: '14px / 12px',
             fontSize: '13px',
             fontWeight: 600,
             cursor: testing ? 'wait' : 'pointer',
@@ -121,7 +122,7 @@ export default function AlertSettings() {
       {testResult && (
         <div className="glass" style={{
           padding: 'var(--space-md)',
-          borderRadius: '10px',
+          borderRadius: '14px / 12px',
           background: testResult.error
             ? 'oklch(0.35 0.12 25 / 0.3)'
             : 'oklch(0.35 0.12 155 / 0.3)',
@@ -164,7 +165,7 @@ export default function AlertSettings() {
               {(config?.email_recipients || []).map((email) => (
                 <div key={email} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '8px 12px', background: 'var(--bg-elevated)', borderRadius: '8px', fontSize: '13px'
+                  padding: '8px 12px', background: 'var(--bg-elevated)', borderRadius: '14px / 12px', fontSize: '13px'
                 }}>
                   <span>{email}</span>
                   <button onClick={() => removeEmail(email)} style={{ color: 'var(--text-muted)', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
@@ -185,7 +186,7 @@ export default function AlertSettings() {
                   disabled={saving}
                   style={{
                     padding: '8px 16px', background: 'oklch(0.55 0.18 250)', color: 'white',
-                    borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none',
+                    borderRadius: '14px / 12px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none',
                   }}
                 >
                   Add
@@ -232,7 +233,7 @@ export default function AlertSettings() {
                 style={{
                   marginTop: '12px', width: '100%', padding: '8px 16px',
                   background: 'var(--accent-blue)', color: '#fff', border: 'none',
-                  borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
+                  borderRadius: '14px / 12px', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
                 }}
               >
                 {saving ? 'Updating...' : 'Update Thresholds'}
@@ -257,7 +258,7 @@ export default function AlertSettings() {
                 <div key={alert.id} style={{
                   padding: '10px 12px',
                   background: 'var(--bg-elevated)',
-                  borderRadius: '8px',
+                  borderRadius: '14px / 12px',
                   fontSize: '13px',
                   borderLeft: `3px solid ${alert.status === 'sent' ? 'oklch(0.75 0.18 155)' : 'oklch(0.65 0.20 25)'}`,
                 }}>
@@ -310,7 +311,7 @@ function StepperInput({ value, step, min, max, onChange }) {
   };
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', borderRadius: '8px', overflow: 'hidden',
+      display: 'flex', alignItems: 'center', borderRadius: '14px / 12px', overflow: 'hidden',
       border: '1px solid var(--border-subtle)',
     }}>
       <button type="button" onClick={decrement} style={{ ...btnBase, borderRight: 'none', borderRadius: '8px 0 0 8px', color: 'oklch(0.65 0.20 25)' }}>−</button>
@@ -332,29 +333,20 @@ function StepperInput({ value, step, min, max, onChange }) {
 
 function ToggleSwitch({ checked, onChange }) {
   return (
-    <button
-      onClick={onChange}
-      style={{
-        width: '44px',
-        height: '24px',
-        borderRadius: '12px',
-        background: checked ? 'oklch(0.55 0.18 250)' : 'var(--bg-elevated)',
-        border: `1px solid ${checked ? 'oklch(0.55 0.18 250)' : 'var(--border-subtle)'}`,
-        position: 'relative',
-        cursor: 'pointer',
-        transition: 'all 0.2s ease',
-      }}
-    >
-      <div style={{
-        width: '18px',
-        height: '18px',
-        borderRadius: '50%',
-        background: 'white',
-        position: 'absolute',
-        top: '2px',
-        left: checked ? '22px' : '2px',
-        transition: 'left 0.2s ease',
-      }} />
-    </button>
+    <Switch
+      checked={!!checked}
+      onChange={onChange}
+      onColor="#0072d5"
+      offColor="#2e3245"
+      onHandleColor="#ffffff"
+      offHandleColor="#ffffff"
+      handleDiameter={18}
+      uncheckedIcon={false}
+      checkedIcon={false}
+      height={24}
+      width={44}
+      borderRadius={12}
+      activeBoxShadow="0 0 2px 3px rgba(74, 125, 255, 0.3)"
+    />
   );
 }

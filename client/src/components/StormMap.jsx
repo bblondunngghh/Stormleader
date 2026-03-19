@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import Supercluster from 'supercluster';
 import { loadGoogleMaps } from '../lib/googleMaps';
-import { getSwaths, getAffectedProperties, getMapProperties, createProperty } from '../api/storms';
+import { cacheProperties, loadCachedProperties, cacheTileKeys, loadCachedTileKeys, clearPropertyCache } from '../lib/propertyCache';
+import { getSwaths, getPropertiesInSwath, getSwathPropertyCount, createProperty, fetchFemaData } from '../api/storms';
 import { addPropertyToPipeline, createManualLead } from '../api/crm';
 import { TimeFilter, LayerPanel } from './MapControls';
 import AddressSearch from './AddressSearch';
@@ -11,6 +13,28 @@ import SwathPopup from './SwathPopup';
 function cleanAddr(str) {
   if (!str) return '';
   return str.replace(/[\s,]+$/, '').replace(/,\s*,/g, ',').replace(/\s{2,}/g, ' ').trim();
+}
+
+// Format full address as two lines, extracting street from city/state/zip
+function formatFullAddr(addr, city, state, zip) {
+  let raw = cleanAddr(addr) || '';
+  const c = city?.trim();
+  const s = state?.trim()?.toUpperCase() || '';
+  const z = zip?.trim() && zip.trim() !== '0' ? zip.trim() : '';
+  // Extract just the street part if address_line1 already contains city/state/zip
+  let street = raw;
+  if (c) {
+    const cityIdx = raw.toUpperCase().indexOf(c.toUpperCase());
+    if (cityIdx > 0) street = raw.substring(0, cityIdx).replace(/[\s,]+$/, '');
+  }
+  street = titleCase(street) || 'N/A';
+  // Build location line
+  let location = '';
+  if (c) location += titleCase(c);
+  if (s) location += (location ? ', ' : '') + s;
+  if (z) location += (location ? ' ' : '') + z;
+  if (!location) return street;
+  return `${street}<br>${location}`;
 }
 
 // Title-case a name string (JOHN DOE → John Doe)
@@ -37,6 +61,14 @@ function formatOwner(first, last) {
     return titleCase(rest + ' ' + lastName);
   }
   return titleCase(raw);
+}
+
+const FEMA_LABELS = {
+  bldg: { W: 'Wood', M: 'Masonry', H: 'Manufactured', S: 'Steel' },
+  found: { S: 'Slab', C: 'Crawlspace', B: 'Basement', P: 'Pier', I: 'Pile', F: 'Fill', W: 'Solid Wall' },
+};
+function femaLabel(type, code) {
+  return FEMA_LABELS[type]?.[code] || code;
 }
 
 // Severity color scale (hot to cold)
@@ -73,6 +105,7 @@ const COLORS = {
   hail: { fill: '#dcb428', stroke: '#9a7d0e' },
   wind: { fill: '#6c5ce7', stroke: '#3d2db0' },
   tornado: { fill: '#ff2d55', stroke: '#b3001e' },
+  thunderstorm: { fill: '#ff9500', stroke: '#cc7700' },
   drift: { fill: '#00e5ff', stroke: '#0097a7' },
   property: '#00d4aa',
 };
@@ -85,6 +118,62 @@ function propScale(zoom) {
   return 11;
 }
 
+/* ── Swath Property Loading Progress ──────────────────────── */
+function SwathPropertyProgress({ state }) {
+  const [displayCount, setDisplayCount] = useState(0);
+  const targetRef = useRef(0);
+  const animRef = useRef(null);
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    if (!state) { setDisplayCount(0); setDone(false); return; }
+    targetRef.current = state.loaded;
+    if (state.finished) {
+      setDisplayCount(state.loaded);
+      const t = setTimeout(() => setDone(true), 2000);
+      return () => clearTimeout(t);
+    }
+    setDone(false);
+  }, [state]);
+
+  // Smooth count-up animation
+  useEffect(() => {
+    if (!state || state.finished) return;
+    const animate = () => {
+      setDisplayCount(prev => {
+        const target = targetRef.current;
+        if (prev >= target) return target;
+        const step = Math.max(1, Math.ceil((target - prev) / 20));
+        return Math.min(prev + step, target);
+      });
+      animRef.current = requestAnimationFrame(animate);
+    };
+    animRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animRef.current);
+  }, [state]);
+
+  if (!state) return null;
+
+  const { total, swathIndex, swathCount, limitReached } = state;
+  const pct = total > 0 ? Math.round((displayCount / (limitReached ? displayCount : total)) * 100) : 0;
+
+  let label = '';
+  if (swathCount > 1) label = `Swath ${swathIndex + 1}/${swathCount}`;
+
+  let text = `${displayCount.toLocaleString()} / ${total.toLocaleString()} properties`;
+  if (limitReached) text += ' (limit reached)';
+
+  return (
+    <div className={`swath-property-progress glass ${done ? 'swath-property-progress--done' : ''}`}>
+      {label && <span className="swath-property-progress__label">{label}</span>}
+      <div className="swath-property-progress__bar">
+        <div className="swath-property-progress__fill" style={{ width: `${Math.min(pct, 100)}%` }} />
+      </div>
+      <span className="swath-property-progress__text">{text}</span>
+    </div>
+  );
+}
+
 export default function StormMap() {
   const [searchParams] = useSearchParams();
   const mapContainer = useRef(null);
@@ -92,21 +181,50 @@ export default function StormMap() {
   const infoRef = useRef(null);
   const observerRef = useRef(null);
   const [timeRange, setTimeRange] = useState('30d');
-  const [layers, setLayers] = useState({ hail: true, wind: true, tornado: true, drift: true, properties: true });
+  const [layers, setLayers] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('stormMapLayers');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return { hail: false, wind: false, tornado: false, thunderstorm: false, drift: false, properties: false };
+  });
   const layersRef = useRef(layers);
   layersRef.current = layers;
-  const [improvedOnly, setImprovedOnly] = useState(true);
+  const [improvedOnly, setImprovedOnly] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('stormMapImprovedOnly');
+      if (saved !== null) return JSON.parse(saved);
+    } catch {}
+    return true;
+  });
+  const improvedOnlyRef = useRef(improvedOnly);
+  improvedOnlyRef.current = improvedOnly;
+  // Persist layer/filter selections in sessionStorage (survives navigation, cleared on new session)
+  useEffect(() => { sessionStorage.setItem('stormMapLayers', JSON.stringify(layers)); }, [layers]);
+  useEffect(() => { sessionStorage.setItem('stormMapImprovedOnly', JSON.stringify(improvedOnly)); }, [improvedOnly]);
+
+  // Rebuild cluster index when Houses Only filter changes
+  useEffect(() => {
+    if (propFeaturesRef.current.length > 0) {
+      rebuildClusterIndex();
+      if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
+    }
+  }, [improvedOnly]);
+
   const [searchLoading, setSearchLoading] = useState(false);
   const [mapLoading, setMapLoading] = useState(false);
-  const [propLoading, setPropLoading] = useState(false);
   const searchMarkerRef = useRef(null);
   const dataLayersRef = useRef({});
   const stormFeaturesRef = useRef([]); // individual storm features for click lookups
   const propLabelsRef = useRef([]);
   const propFeaturesRef = useRef([]);
-  const propCacheRef = useRef(new Map()); // id -> GeoJSON feature
-  const propBboxRef = useRef(null); // { west, south, east, north, zoom } of fetched area
+  const clusterIndexRef = useRef(null);
   const showPropertyPopupRef = useRef(null);
+  const swathPropCacheRef = useRef(new Map()); // stormEventId -> Feature[]
+  const swathLoadedRef = useRef(new Set()); // fully loaded swath IDs
+  const swathAbortRef = useRef(null); // AbortController for current loading session
+  const swathDebounceRef = useRef(null); // debounce timer
+  const [swathProgress, setSwathProgress] = useState(null); // progress bar state
 
   // Load storms once for all of Texas (only ~389, stays on map permanently)
   const stormsLoadedRef = useRef(false);
@@ -118,12 +236,12 @@ export default function StormMap() {
     try {
       const res = await getSwaths({ timeRange, ...txViewport });
       const geojson = res.data || { type: 'FeatureCollection', features: [] };
-      const buckets = { hail: [], wind: [], tornado: [], drift: [] };
+      const buckets = { hail: [], wind: [], tornado: [], thunderstorm: [], drift: [] };
       const individualFeatures = [];
 
       for (const f of geojson.features) {
-        // Wind flow lines and arrows go to wind bucket
-        if (f.properties?._windArrow || f.properties?._windFlow) {
+        // Wind flow lines go to wind bucket
+        if (f.properties?._windFlow) {
           buckets.wind.push(f);
           continue;
         }
@@ -146,19 +264,44 @@ export default function StormMap() {
           individualFeatures.push(f);
         }
         const rawType = f.properties?.raw_data?.type || '';
+        const hazards = f.properties?.raw_data?.hazards || [];
         const hasHail = f.properties?.hail_size_max_in;
         const hasWind = f.properties?.wind_speed_max_mph;
         // Points always render individually; polygons only if no merged outlines
         if (geomType === 'Point' || geomType === 'Polygon' || geomType === 'MultiPolygon') {
-          if (rawType === 'hail' || (hasHail && !hasWind)) {
-            buckets.hail.push(f);
+          // Use hazards array if present, otherwise fall back to type/field detection
+          const isHail = hazards.includes('hail') || rawType === 'hail' || (hasHail && !hasWind);
+          const isWind = hazards.includes('wind') || rawType === 'wind' || (hasWind && !hasHail);
+          const isTornado = hazards.includes('tornado') || rawType === 'tornado';
+
+          if (isTornado) {
+            f._layerType = 'tornado';
+            buckets.tornado.push(f);
+          } else if (rawType === 'severe_thunderstorm' || (isHail && isWind) || (hasHail && hasWind && !rawType)) {
+            // Severe thunderstorm warnings (both hail + wind) get their own layer
+            f._layerType = 'thunderstorm';
+            buckets.thunderstorm.push(f);
             if (f.properties?.drift_geometry && (geomType === 'Polygon' || geomType === 'MultiPolygon')) {
               buckets.drift.push({ ...f, id: `drift_${f.id}`, geometry: f.properties.drift_geometry });
             }
-          } else if (rawType === 'tornado') {
-            buckets.tornado.push(f);
           } else {
-            buckets.wind.push(f);
+            // Pure hail or pure wind events
+            if (isHail || hasHail) {
+              f._layerType = f._layerType || 'hail';
+              buckets.hail.push(f);
+              if (f.properties?.drift_geometry && (geomType === 'Polygon' || geomType === 'MultiPolygon')) {
+                buckets.drift.push({ ...f, id: `drift_${f.id}`, geometry: f.properties.drift_geometry });
+              }
+            }
+            if (isWind || hasWind) {
+              f._layerType = f._layerType || 'wind';
+              buckets.wind.push(f);
+            }
+            // If neither detected, default to wind
+            if (!isHail && !hasHail && !isWind && !hasWind) {
+              f._layerType = 'wind';
+              buckets.wind.push(f);
+            }
           }
         }
       }
@@ -166,16 +309,16 @@ export default function StormMap() {
       // If merged outlines exist, use them instead of individual polygons
       const hasMerged = geojson.features.some(f => f.properties?._merged);
       if (hasMerged) {
-        for (const key of ['hail', 'wind', 'tornado', 'drift']) {
+        for (const key of ['hail', 'wind', 'tornado', 'thunderstorm', 'drift']) {
           buckets[key] = buckets[key].filter(f => {
             const gt = f.geometry?.type;
-            return f.properties?._merged || f.properties?._windArrow || f.properties?._windFlow || gt === 'Point';
+            return f.properties?._merged || f.properties?._windFlow || gt === 'Point';
           });
         }
       }
 
       const dl = dataLayersRef.current;
-      for (const key of ['hail', 'wind', 'tornado', 'drift']) {
+      for (const key of ['hail', 'wind', 'tornado', 'thunderstorm', 'drift']) {
         const layer = dl[key];
         if (!layer) continue;
         layer.forEach(feat => layer.remove(feat));
@@ -195,101 +338,205 @@ export default function StormMap() {
     setMapLoading(false);
   }, [timeRange]);
 
-  // Load properties for the current viewport (debounced on pan/zoom)
-  // Uses client-side cache so panning back doesn't re-fetch
-  const propLoadingRef = useRef(false);
   const canvasOverlayRef = useRef(null);
 
-  const loadProperties = useCallback(async (map, forceClear) => {
-    if (!map || propLoadingRef.current) return;
+  // Check if a storm feature's polygon bbox overlaps the map viewport
+  function featureBboxOverlaps(feature, bounds) {
+    const geom = feature.geometry;
+    if (!geom?.coordinates || (geom.type !== 'Polygon' && geom.type !== 'MultiPolygon')) return false;
+    const coords = geom.type === 'MultiPolygon' ? geom.coordinates.flat(2) : geom.coordinates.flat(1);
+    let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+    for (const [lng, lat] of coords) {
+      if (lat < minLat) minLat = lat;
+      if (lat > maxLat) maxLat = lat;
+      if (lng < minLng) minLng = lng;
+      if (lng > maxLng) maxLng = lng;
+    }
+    const ne = bounds.getNorthEast();
+    const sw = bounds.getSouthWest();
+    return !(maxLat < sw.lat() || minLat > ne.lat() || maxLng < sw.lng() || minLng > ne.lng());
+  }
+
+  const VIEWPORT_BATCH_SIZE = 10000;
+
+  // Rebuild spatial cluster index from current property features
+  function rebuildClusterIndex() {
+    let features = propFeaturesRef.current;
+    if (improvedOnlyRef.current) {
+      features = features.filter(f => f.properties?.year_built);
+    }
+    const index = new Supercluster({ radius: 60, maxZoom: 17, minPoints: 2 });
+    index.load(features);
+    clusterIndexRef.current = index;
+  }
+
+  // Deduplicate properties by id
+  const propIdSetRef = useRef(new Set());
+  // Grid-based region tracking: "swathId:tileX:tileY" -> loaded
+  // Each tile is ~0.05° (~5.5km) so we get good coverage without too many cells
+  const TILE_SIZE = 0.05;
+  const loadedTilesRef = useRef(new Set());
+
+  // Get tile keys that cover a bounding box
+  function getTileKeys(swathId, bbox) {
+    const [w, s, e, n] = bbox;
+    const keys = [];
+    const minX = Math.floor(w / TILE_SIZE);
+    const maxX = Math.floor(e / TILE_SIZE);
+    const minY = Math.floor(s / TILE_SIZE);
+    const maxY = Math.floor(n / TILE_SIZE);
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        keys.push(`${swathId}:${x}:${y}`);
+      }
+    }
+    return keys;
+  }
+
+  // Check if ALL tiles for this swath+bbox are already loaded
+  function isFullyLoaded(swathId, bbox) {
+    const keys = getTileKeys(swathId, bbox);
+    return keys.every(k => loadedTilesRef.current.has(k));
+  }
+
+  // Get bbox covering only the unloaded tiles for this swath
+  function getUnloadedBbox(swathId, bbox) {
+    const [w, s, e, n] = bbox;
+    const minX = Math.floor(w / TILE_SIZE);
+    const maxX = Math.floor(e / TILE_SIZE);
+    const minY = Math.floor(s / TILE_SIZE);
+    const maxY = Math.floor(n / TILE_SIZE);
+    let uMinX = Infinity, uMaxX = -Infinity, uMinY = Infinity, uMaxY = -Infinity;
+    let hasUnloaded = false;
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        if (!loadedTilesRef.current.has(`${swathId}:${x}:${y}`)) {
+          hasUnloaded = true;
+          if (x < uMinX) uMinX = x;
+          if (x > uMaxX) uMaxX = x;
+          if (y < uMinY) uMinY = y;
+          if (y > uMaxY) uMaxY = y;
+        }
+      }
+    }
+    if (!hasUnloaded) return null;
+    return [uMinX * TILE_SIZE, uMinY * TILE_SIZE, (uMaxX + 1) * TILE_SIZE, (uMaxY + 1) * TILE_SIZE];
+  }
+
+  const loadSwathProperties = useCallback(async (map) => {
+    if (!map) return;
     const zoom = map.getZoom();
 
-    // Too zoomed out — hide properties
+    // Too zoomed out — abort loading and hide dots, but keep data cached
     if (zoom < 8) {
-      propFeaturesRef.current = [];
+      if (swathAbortRef.current) swathAbortRef.current.abort();
+      setSwathProgress(null);
       if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
       for (const lbl of propLabelsRef.current) lbl.map = null;
       propLabelsRef.current = [];
       return;
     }
 
+    // Between zoom 8-10 — show cached data but don't start new loads
+    if (zoom < 10) return;
+
     const bounds = map.getBounds();
     if (!bounds) return;
-    const ne = bounds.getNorthEast();
     const sw = bounds.getSouthWest();
-    const viewport = { west: sw.lng(), south: sw.lat(), east: ne.lng(), north: ne.lat() };
+    const ne = bounds.getNorthEast();
+    const viewBbox = [sw.lng(), sw.lat(), ne.lng(), ne.lat()];
 
-    // Skip fetch if current viewport is fully inside the area we already fetched
-    // AND we haven't zoomed in significantly (which means we want denser data)
-    const cached = propBboxRef.current;
-    const zoomedInMore = cached && zoom >= cached.zoom + 2;
-    if (!forceClear && !zoomedInMore && cached &&
-        viewport.west >= cached.west && viewport.south >= cached.south &&
-        viewport.east <= cached.east && viewport.north <= cached.north) {
-      return;
-    }
+    // Find swaths that overlap the viewport and have unloaded tiles
+    const visibleSwaths = stormFeaturesRef.current.filter(f =>
+      f.id && featureBboxOverlaps(f, bounds) && !isFullyLoaded(f.id, viewBbox)
+    );
 
-    // If zooming in significantly, clear cache so we get fresh dense data for this area
-    if (zoomedInMore) {
-      propCacheRef.current.clear();
-      propBboxRef.current = null;
-    }
+    if (visibleSwaths.length === 0) return;
 
-    propLoadingRef.current = true;
-    setPropLoading(true);
-    try {
-      // Fetch with a 20% buffer so small pans don't trigger new fetches
-      const latBuffer = (viewport.north - viewport.south) * 0.2;
-      const lngBuffer = (viewport.east - viewport.west) * 0.2;
-      const buffered = {
-        west: viewport.west - lngBuffer,
-        south: viewport.south - latBuffer,
-        east: viewport.east + lngBuffer,
-        north: viewport.north + latBuffer,
-      };
+    // Abort any previous loading session before starting a new one
+    if (swathAbortRef.current) swathAbortRef.current.abort();
+    const abort = new AbortController();
+    swathAbortRef.current = abort;
 
-      const fetches = [getAffectedProperties({ timeRange, ...buffered })];
-      if (zoom >= 12 && improvedOnly) {
-        fetches.push(getMapProperties({ ...buffered, improvedOnly }));
-      }
-      const results = await Promise.allSettled(fetches);
+    const totalSwaths = visibleSwaths.length;
+    let totalNew = 0;
 
-      // Merge into cache
-      for (const result of results) {
-        if (result.status !== 'fulfilled') continue;
-        for (const f of (result.value.data?.features || [])) {
-          const fid = f.id || f.properties?.id;
-          if (fid && !propCacheRef.current.has(fid)) {
-            propCacheRef.current.set(fid, f);
+    for (let si = 0; si < visibleSwaths.length; si++) {
+      if (abort.signal.aborted) break;
+      const swath = visibleSwaths[si];
+      const swathId = swath.id;
+
+      // Get bbox covering only unloaded tiles
+      const fetchBbox = getUnloadedBbox(swathId, viewBbox);
+      if (!fetchBbox) continue;
+
+      try {
+        let offset = 0;
+
+        while (true) {
+          if (abort.signal.aborted) break;
+
+          const res = await getPropertiesInSwath(swathId, {
+            limit: VIEWPORT_BATCH_SIZE,
+            offset,
+            bbox: fetchBbox,
+            signal: abort.signal,
+          });
+
+          const features = res.data?.features || [];
+          if (features.length === 0) break;
+
+          // Deduplicate — only add properties we haven't seen before
+          const newFeatures = [];
+          for (const f of features) {
+            const pid = f.id || f.properties?.id;
+            if (pid && !propIdSetRef.current.has(pid)) {
+              propIdSetRef.current.add(pid);
+              newFeatures.push(f);
+            }
           }
+
+          if (newFeatures.length > 0) {
+            propFeaturesRef.current = [...propFeaturesRef.current, ...newFeatures];
+            totalNew += newFeatures.length;
+            rebuildClusterIndex();
+            if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
+            updatePropertyLabels(map, propFeaturesRef.current);
+            // Persist to IndexedDB in background
+            cacheProperties(newFeatures);
+          }
+
+          setSwathProgress({
+            loaded: propFeaturesRef.current.length,
+            total: propFeaturesRef.current.length + (features.length === VIEWPORT_BATCH_SIZE ? VIEWPORT_BATCH_SIZE : 0),
+            swathIndex: si, swathCount: totalSwaths,
+            finished: false, limitReached: false,
+          });
+
+          if (features.length < VIEWPORT_BATCH_SIZE) break;
+          offset += VIEWPORT_BATCH_SIZE;
         }
+
+        // Mark all tiles in this viewport as loaded for this swath
+        if (!abort.signal.aborted) {
+          const tileKeys = getTileKeys(swathId, viewBbox);
+          for (const key of tileKeys) {
+            loadedTilesRef.current.add(key);
+          }
+          cacheTileKeys(tileKeys);
+        }
+
+      } catch (err) {
+        if (err.name === 'AbortError' || err.name === 'CanceledError') break;
+        console.warn(`Failed to load properties for swath ${swathId}:`, err.message);
+        continue;
       }
-
-      // Expand cached bbox and track zoom level
-      const prevCached = propBboxRef.current;
-      if (prevCached && !zoomedInMore) {
-        propBboxRef.current = {
-          west: Math.min(prevCached.west, buffered.west),
-          south: Math.min(prevCached.south, buffered.south),
-          east: Math.max(prevCached.east, buffered.east),
-          north: Math.max(prevCached.north, buffered.north),
-          zoom,
-        };
-      } else {
-        propBboxRef.current = { ...buffered, zoom };
-      }
-
-      propFeaturesRef.current = Array.from(propCacheRef.current.values());
-
-      // Trigger canvas overlay redraw
-      if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
-
-      updatePropertyLabels(map, propFeaturesRef.current);
-    } finally {
-      propLoadingRef.current = false;
-      setPropLoading(false);
     }
-  }, [timeRange, improvedOnly]);
+
+    if (!abort.signal.aborted) {
+      setSwathProgress(prev => prev ? { ...prev, finished: true } : null);
+    }
+  }, []);
 
   // Property click handler — enriches with storm data from swath layers
   function handlePropertyClick(latLng, feature) {
@@ -300,15 +547,16 @@ export default function StormMap() {
     // Check storm containment
     const dl = dataLayersRef.current;
     const layerMeta = {
-      hail:    { label: 'Hail',    color: '#dcb428' },
-      wind:    { label: 'Wind',    color: '#6c5ce7' },
-      tornado: { label: 'Tornado', color: '#ff2d55' },
-      drift:   { label: 'Hail (Drift Corrected)', color: '#00e5ff' },
+      hail:         { label: 'Hail',    color: '#dcb428' },
+      wind:         { label: 'Wind',    color: '#6c5ce7' },
+      tornado:      { label: 'Tornado', color: '#ff2d55' },
+      thunderstorm: { label: 'Severe Thunderstorm', color: '#ff9500' },
+      drift:        { label: 'Hail (Drift Corrected)', color: '#00e5ff' },
     };
     let nearestSpcDist = Infinity;
     let nearestSpcData = null;
 
-    for (const sKey of ['hail', 'wind', 'tornado', 'drift']) {
+    for (const sKey of ['hail', 'wind', 'tornado', 'thunderstorm', 'drift']) {
       if (!layersRef.current[sKey]) continue;
       const sLayer = dl[sKey];
       let found = false;
@@ -316,11 +564,22 @@ export default function StormMap() {
         const geom = sFeat.getGeometry();
         if (!geom) return;
 
-        if (geom.getType() === 'Polygon') {
+        const gType = geom.getType();
+        if (gType === 'Polygon' || gType === 'GeometryCollection') {
           if (found) return;
-          const path = geom.getAt(0);
-          const poly = new google.maps.Polygon({ paths: path.getArray() });
-          if (google.maps.geometry.poly.containsLocation(pos, poly)) {
+          // Collect all polygon rings — Polygon has one, GeometryCollection (MultiPolygon) has many
+          const polysToCheck = [];
+          if (gType === 'Polygon') {
+            polysToCheck.push(new google.maps.Polygon({ paths: geom.getAt(0).getArray() }));
+          } else {
+            geom.getArray().forEach((subGeom) => {
+              if (subGeom.getType() === 'Polygon') {
+                polysToCheck.push(new google.maps.Polygon({ paths: subGeom.getAt(0).getArray() }));
+              }
+            });
+          }
+          const inside = polysToCheck.some(poly => google.maps.geometry.poly.containsLocation(pos, poly));
+          if (inside) {
             if (!p.storm_event_id) p.storm_event_id = sFeat.getProperty('storm_event_id');
             const hail = sFeat.getProperty('hail_size_max_in');
             const wind = sFeat.getProperty('wind_speed_max_mph');
@@ -351,18 +610,53 @@ export default function StormMap() {
           const dist = google.maps.geometry.spherical.computeDistanceBetween(pos, ptLatLng);
           if (dist < 30000 && dist < nearestSpcDist) {
             nearestSpcDist = dist;
-            nearestSpcData = { sKey, hail: sFeat.getProperty('hail_size_max_in'), wind: sFeat.getProperty('wind_speed_max_mph'), rawData: sFeat.getProperty('raw_data') };
+            nearestSpcData = { sKey, hail: sFeat.getProperty('hail_size_max_in'), wind: sFeat.getProperty('wind_speed_max_mph'), rawData: sFeat.getProperty('raw_data'), stormEventId: sFeat.getProperty('storm_event_id'), eventStart: sFeat.getProperty('event_start') };
           }
         }
       });
     }
 
     if (nearestSpcData) {
-      const { hail, wind, rawData } = nearestSpcData;
+      const { sKey, hail, wind, rawData, stormEventId, eventStart } = nearestSpcData;
+      if (stormEventId && !p.storm_event_id) p.storm_event_id = stormEventId;
+      if (eventStart && !p.storm_date) p.storm_date = eventStart;
       if (hail && !p.storm_hail_size) p.storm_hail_size = hail;
       if (wind && !p.storm_wind_speed) p.storm_wind_speed = wind;
       if (rawData?.speed && !p.storm_wind_speed) p.storm_wind_speed = rawData.speed !== 'UNK' ? rawData.speed : null;
       if (rawData?.size && !p.storm_hail_size) p.storm_hail_size = rawData.size;
+      if (!p._swathType) {
+        p._swathType = layerMeta[sKey]?.label;
+        p._swathColor = layerMeta[sKey]?.color;
+      }
+    }
+
+    // If inside a merged swath but no real storm_event_id, find the actual storm event
+    if (!p.storm_event_id) {
+      for (const sf of stormFeaturesRef.current) {
+        if (!sf.geometry?.coordinates) continue;
+        const ring = sf.geometry.coordinates[0];
+        if (!ring) continue;
+        const poly = new google.maps.Polygon({ paths: ring.map(c => ({ lat: c[1], lng: c[0] })) });
+        if (google.maps.geometry.poly.containsLocation(pos, poly)) {
+          p.storm_event_id = sf.id || sf.properties?.storm_event_id;
+          if (!p.storm_date && sf.properties?.event_start) p.storm_date = sf.properties.event_start;
+          if (!p.storm_hail_size && sf.properties?.hail_size_max_in) p.storm_hail_size = sf.properties.hail_size_max_in;
+          if (!p.storm_wind_speed && sf.properties?.wind_speed_max_mph) p.storm_wind_speed = sf.properties.wind_speed_max_mph;
+          if (!p._swathType) {
+            const rawType = sf.properties?.raw_data?.type || '';
+            if (rawType === 'hail' || sf.properties?.hail_size_max_in) {
+              p._swathType = 'Hail'; p._swathColor = '#dcb428';
+            } else if (rawType === 'tornado') {
+              p._swathType = 'Tornado'; p._swathColor = '#ff2d55';
+            } else if (rawType === 'severe_thunderstorm') {
+              p._swathType = 'Severe Thunderstorm'; p._swathColor = '#ff9500';
+            } else {
+              p._swathType = 'Wind'; p._swathColor = '#6c5ce7';
+            }
+          }
+          break;
+        }
+      }
     }
 
     sessionStorage.setItem('stormMapPopup', JSON.stringify({
@@ -379,7 +673,7 @@ export default function StormMap() {
         const point = proj.fromLatLngToPoint(pos);
         // Shift down by ~25% of viewport so the popup (which opens above the pin) is centered
         const zoom = map.getZoom();
-        const offsetY = 120 / Math.pow(2, zoom); // scale offset by zoom
+        const offsetY = 180 / Math.pow(2, zoom); // scale offset by zoom
         const shifted = new google.maps.Point(point.x, point.y + offsetY);
         const newCenter = proj.fromPointToLatLng(shifted);
         map.panTo(newCenter);
@@ -502,12 +796,30 @@ export default function StormMap() {
       observer.observe(mapContainer.current, { childList: true, subtree: true });
       observerRef.current = observer;
 
-      const info = new maps.InfoWindow();
+      const info = new maps.InfoWindow({
+        pixelOffset: new maps.Size(0, -8),
+        disableAutoPan: false,
+      });
+      // After auto-pan completes, check if popup is still clipped by the top bar and pan more if needed
+      info.addListener('domready', () => {
+        setTimeout(() => {
+          const topBar = document.querySelector('.map-top-bar');
+          const iwBox = document.querySelector('.gm-style-iw');
+          if (!iwBox || !mapRef.current) return;
+          const topBarBottom = topBar ? topBar.getBoundingClientRect().bottom : 80;
+          const iwTop = iwBox.getBoundingClientRect().top;
+          const padding = 20;
+          const overlap = topBarBottom + padding - iwTop;
+          if (overlap > 0) {
+            mapRef.current.panBy(0, -overlap);
+          }
+        }, 350);
+      });
       infoRef.current = info;
 
       // Create data layers for each storm type
       const dl = {};
-      for (const key of ['hail', 'wind', 'tornado', 'drift']) {
+      for (const key of ['hail', 'wind', 'tornado', 'thunderstorm', 'drift']) {
         const layer = new maps.Data();
         const c = COLORS[key];
         layer.setStyle((feature) => {
@@ -515,30 +827,13 @@ export default function StormMap() {
           // Wind flow lines
           if (feature.getProperty('_windFlow')) {
             return {
-              strokeColor: '#6c5ce7',
-              strokeWeight: 1,
-              strokeOpacity: 0.3,
+              strokeColor: '#ffffff',
+              strokeWeight: 1.2,
+              strokeOpacity: 0.5,
               clickable: false,
             };
           }
           if (geomType === 'Point') {
-            // Wind direction arrows along flow lines
-            if (feature.getProperty('_windArrow')) {
-              const azimuth = feature.getProperty('azimuth') || 0;
-              return {
-                icon: {
-                  path: 'M 0,-6 L 4,3 L 0,0.5 L -4,3 Z',
-                  scale: 2.2,
-                  fillColor: '#6c5ce7',
-                  fillOpacity: 0.45,
-                  strokeColor: '#6c5ce7',
-                  strokeWeight: 0,
-                  rotation: azimuth,
-                  anchor: new maps.Point(0, 0),
-                },
-                clickable: false,
-              };
-            }
             const hailSize = feature.getProperty('hail_size_max_in');
             const pointColor = (key === 'hail' && hailSize) ? hailSeverityColor(hailSize).fill : c.fill;
             return {
@@ -569,11 +864,11 @@ export default function StormMap() {
             fillColor: c.fill,
             fillOpacity,
             strokeColor: c.stroke,
-            strokeWeight: key === 'tornado' ? 3 : key === 'drift' ? 1.5 : 2.5,
+            strokeWeight: key === 'tornado' ? 3 : key === 'drift' ? 1.5 : key === 'wind' ? 1.5 : 2.5,
             strokeOpacity: key === 'drift' ? 0.6 : 0.85,
           };
         });
-        layer.setMap(map);
+        layer.setMap(layersRef.current[key] ? map : null);
         dl[key] = layer;
 
         // Click handler for storm features — check for property hit first
@@ -582,18 +877,23 @@ export default function StormMap() {
           const z = map.getZoom();
 
           // If properties layer is on, check if click is near a property dot
-          if (layersRef.current.properties && z >= 8) {
+          if (layersRef.current.properties && z >= 8 && clusterIndexRef.current) {
             const hitRadius = z <= 10 ? 500 : z <= 13 ? 100 : z <= 15 ? 30 : 10;
+            const degSpan = hitRadius / 111000;
+            const bbox = [
+              clickLatLng.lng() - degSpan, clickLatLng.lat() - degSpan,
+              clickLatLng.lng() + degSpan, clickLatLng.lat() + degSpan,
+            ];
+            const nearby = clusterIndexRef.current.getClusters(bbox, Math.floor(z));
             let closest = null;
             let closestDist = hitRadius;
-            for (const f of propFeaturesRef.current) {
-              if (!f.geometry?.coordinates) continue;
-              const [lng, lat] = f.geometry.coordinates;
-              const fLatLng = new maps.LatLng(lat, lng);
-              const dist = maps.geometry.spherical.computeDistanceBetween(clickLatLng, fLatLng);
+            for (const c of nearby) {
+              if (c.properties.cluster) continue;
+              const [lng, lat] = c.geometry.coordinates;
+              const dist = maps.geometry.spherical.computeDistanceBetween(clickLatLng, new maps.LatLng(lat, lng));
               if (dist < closestDist) {
                 closestDist = dist;
-                closest = f;
+                closest = c;
               }
             }
             if (closest) {
@@ -627,6 +927,24 @@ export default function StormMap() {
 
           const container = document.createElement('div');
           container.innerHTML = SwathPopup.renderHTML(props);
+
+          // Fetch and display property count
+          const countEl = container.querySelector('.swath-popup__count-value');
+          const countRow = container.querySelector('.swath-popup__property-count');
+          if (countRow && countEl) {
+            const stormId = countRow.dataset.stormId;
+            if (stormId) {
+              getSwathPropertyCount(stormId).then(res => {
+                const count = res.data?.count || 0;
+                countEl.textContent = count.toLocaleString();
+                countEl.style.opacity = '1';
+              }).catch(() => {
+                countEl.textContent = '—';
+                countEl.style.opacity = '0.5';
+              });
+            }
+          }
+
           info.setContent(container);
           info.setPosition(pos);
           info.open(map);
@@ -679,34 +997,75 @@ export default function StormMap() {
           ctx.clearRect(0, 0, size, size);
 
           if (!layersRef.current.properties) return;
-          const features = propFeaturesRef.current;
-          if (features.length === 0) return;
+          const index = clusterIndexRef.current;
+          if (!index) return;
+          if (map.getZoom() < 8) return;
 
-          const z = map.getZoom();
-          const radius = z <= 8 ? 2 : z <= 10 ? 3 : z <= 13 ? 5 : z <= 15 ? 7 : 9;
+          const z = Math.floor(map.getZoom());
+          const bounds = map.getBounds();
+          if (!bounds) return;
+          const sw = bounds.getSouthWest();
+          const ne = bounds.getNorthEast();
+
+          // Query cluster index for visible items at current zoom
+          const clusters = index.getClusters([sw.lng(), sw.lat(), ne.lng(), ne.lat()], z);
+
+          // Individual point style
+          const ptRadius = z <= 10 ? 3 : z <= 13 ? 5 : z <= 15 ? 7 : 9;
           const alpha = z <= 10 ? 0.85 : z <= 13 ? 0.7 : 0.5;
 
+          // Draw individual points (non-clusters) first
           ctx.fillStyle = `rgba(0, 212, 170, ${alpha})`;
           ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.6})`;
           ctx.lineWidth = z <= 10 ? 1 : 0.5;
-
           ctx.beginPath();
-          for (const f of features) {
-            if (!f.geometry?.coordinates) continue;
-            const [lng, lat] = f.geometry.coordinates;
+          for (const c of clusters) {
+            if (c.properties.cluster) continue; // skip clusters, draw below
+            const [lng, lat] = c.geometry.coordinates;
             const pixel = projection.fromLatLngToDivPixel(new maps.LatLng(lat, lng));
             if (!pixel) continue;
             const x = pixel.x - left;
             const y = pixel.y - top;
-            if (x < -radius || x > size + radius || y < -radius || y > size + radius) continue;
-            ctx.moveTo(x + radius, y);
-            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.moveTo(x + ptRadius, y);
+            ctx.arc(x, y, ptRadius, 0, Math.PI * 2);
           }
           ctx.fill();
           ctx.stroke();
+
+          // Draw clusters as larger circles with count labels
+          for (const c of clusters) {
+            if (!c.properties.cluster) continue;
+            const count = c.properties.point_count;
+            const [lng, lat] = c.geometry.coordinates;
+            const pixel = projection.fromLatLngToDivPixel(new maps.LatLng(lat, lng));
+            if (!pixel) continue;
+            const x = pixel.x - left;
+            const y = pixel.y - top;
+
+            // Scale cluster radius by count
+            const r = Math.min(30, 12 + Math.log2(count) * 3);
+
+            // Cluster circle
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(0, 212, 170, ${alpha * 0.85})`;
+            ctx.fill();
+            ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.5})`;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // Count label
+            const label = count >= 1000 ? (count / 1000).toFixed(count >= 10000 ? 0 : 1) + 'k' : String(count);
+            ctx.fillStyle = '#fff';
+            ctx.font = `${r < 16 ? 10 : 12}px -apple-system, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(label, x, y);
+          }
         }
         requestDraw() {
-          this.draw();
+          if (this._rafId) cancelAnimationFrame(this._rafId);
+          this._rafId = requestAnimationFrame(() => { this._rafId = null; this.draw(); });
         }
         onRemove() {
           this.canvas.remove();
@@ -720,22 +1079,46 @@ export default function StormMap() {
       // Click hit-test via map click (canvas has pointer-events:none)
       map.addListener('click', (e) => {
         if (!layersRef.current.properties) return;
-        const z = map.getZoom();
+        const z = Math.floor(map.getZoom());
         if (z < 8) return;
+        const index = clusterIndexRef.current;
+        if (!index) return;
 
         const clickLatLng = e.latLng;
-        const hitRadius = z <= 10 ? 500 : z <= 13 ? 100 : z <= 15 ? 30 : 10; // meters
+        const hitRadius = z <= 10 ? 500 : z <= 13 ? 100 : z <= 15 ? 30 : 10;
+
+        // Query a small bbox around click for nearby clusters/points
+        const degSpan = hitRadius / 111000; // rough meters-to-degrees
+        const bbox = [
+          clickLatLng.lng() - degSpan, clickLatLng.lat() - degSpan,
+          clickLatLng.lng() + degSpan, clickLatLng.lat() + degSpan,
+        ];
+        const nearby = index.getClusters(bbox, z);
+
+        // Check for cluster click — zoom in
+        for (const c of nearby) {
+          if (c.properties.cluster) {
+            const [lng, lat] = c.geometry.coordinates;
+            const dist = maps.geometry.spherical.computeDistanceBetween(clickLatLng, new maps.LatLng(lat, lng));
+            if (dist < hitRadius) {
+              const expansionZoom = Math.min(index.getClusterExpansionZoom(c.id), 18);
+              map.setZoom(expansionZoom);
+              map.panTo({ lat, lng });
+              return;
+            }
+          }
+        }
+
+        // Check for individual point click
         let closest = null;
         let closestDist = hitRadius;
-
-        for (const f of propFeaturesRef.current) {
-          if (!f.geometry?.coordinates) continue;
-          const [lng, lat] = f.geometry.coordinates;
-          const fLatLng = new maps.LatLng(lat, lng);
-          const dist = maps.geometry.spherical.computeDistanceBetween(clickLatLng, fLatLng);
+        for (const c of nearby) {
+          if (c.properties.cluster) continue;
+          const [lng, lat] = c.geometry.coordinates;
+          const dist = maps.geometry.spherical.computeDistanceBetween(clickLatLng, new maps.LatLng(lat, lng));
           if (dist < closestDist) {
             closestDist = dist;
-            closest = f;
+            closest = c;
           }
         }
         if (closest) {
@@ -744,21 +1127,33 @@ export default function StormMap() {
         }
       });
 
-      // Pointer cursor when hovering over a property dot
+      // Pointer cursor when hovering over a property dot or cluster
+      let _hoverRaf = null;
       map.addListener('mousemove', (e) => {
-        if (!layersRef.current.properties) return;
-        const z = map.getZoom();
-        if (z < 8) { map.setOptions({ draggableCursor: null }); return; }
-        const hitRadius = z <= 10 ? 500 : z <= 13 ? 100 : z <= 15 ? 30 : 10;
-        const cursor = e.latLng;
-        let hit = false;
-        for (const f of propFeaturesRef.current) {
-          if (!f.geometry?.coordinates) continue;
-          const [lng, lat] = f.geometry.coordinates;
-          const dist = maps.geometry.spherical.computeDistanceBetween(cursor, new maps.LatLng(lat, lng));
-          if (dist < hitRadius) { hit = true; break; }
-        }
-        map.setOptions({ draggableCursor: hit ? 'pointer' : null });
+        if (_hoverRaf) return; // throttle to one check per frame
+        _hoverRaf = requestAnimationFrame(() => {
+          _hoverRaf = null;
+          if (!layersRef.current.properties) return;
+          const z = Math.floor(map.getZoom());
+          if (z < 8) { map.setOptions({ draggableCursor: null }); return; }
+          const index = clusterIndexRef.current;
+          if (!index) { map.setOptions({ draggableCursor: null }); return; }
+          const hitRadius = z <= 10 ? 500 : z <= 13 ? 100 : z <= 15 ? 30 : 10;
+          const degSpan = hitRadius / 111000;
+          const cursor = e.latLng;
+          const bbox = [
+            cursor.lng() - degSpan, cursor.lat() - degSpan,
+            cursor.lng() + degSpan, cursor.lat() + degSpan,
+          ];
+          const nearby = index.getClusters(bbox, z);
+          let hit = false;
+          for (const c of nearby) {
+            const [lng, lat] = c.geometry.coordinates;
+            const dist = maps.geometry.spherical.computeDistanceBetween(cursor, new maps.LatLng(lat, lng));
+            if (dist < hitRadius) { hit = true; break; }
+          }
+          map.setOptions({ draggableCursor: hit ? 'pointer' : null });
+        });
       });
 
       // Refresh labels on zoom change
@@ -766,13 +1161,12 @@ export default function StormMap() {
         updatePropertyLabels(map, propFeaturesRef.current);
       });
 
-      // Save viewport + reload properties on pan/zoom (storms stay loaded)
-      let propTimeout;
+      // Save viewport + load swath properties on pan/zoom (storms stay loaded)
       map.addListener('idle', () => {
         const c = map.getCenter();
         sessionStorage.setItem('stormMapViewport', JSON.stringify({ lat: c.lat(), lng: c.lng(), zoom: map.getZoom() }));
-        clearTimeout(propTimeout);
-        propTimeout = setTimeout(() => loadProperties(map), 800);
+        clearTimeout(swathDebounceRef.current);
+        swathDebounceRef.current = setTimeout(() => loadSwathProperties(map), 500);
       });
 
       // Shared property popup function
@@ -797,13 +1191,16 @@ export default function StormMap() {
             <div class="swath-popup__sv" style="width:100%;height:150px;border-radius:6px;margin-bottom:8px;overflow:hidden;background:#1a1a2e;display:none;"></div>
             <div class="swath-popup__row">
               <span class="swath-popup__label">Address</span>
-              <span class="swath-popup__value">${titleCase(cleanAddr(p.address_line1)) || 'N/A'}${p.city?.trim() ? ', ' + titleCase(p.city.trim()) : ''}${p.state?.trim() ? ', ' + p.state.trim() : ''}${p.zip?.trim() && p.zip.trim() !== '0' ? ' ' + p.zip.trim() : ''}</span>
+              <span class="swath-popup__value">${formatFullAddr(p.address_line1, p.city, p.state, p.zip)}</span>
             </div>
-            ${owner ? `<div class="swath-popup__row"><span class="swath-popup__label">Owner</span><span class="swath-popup__value">${owner}</span></div>
-            <div style="color:#8a8a9a;font-size:10px;line-height:1.3;margin:-2px 0 4px;padding-left:2px;">Public records — subject to change after skip tracing</div>` : ''}
+            ${owner ? `<div class="swath-popup__row"><span class="swath-popup__label">Owner <span style="color:#8a8a9a;font-size:9px;font-weight:400;">· Public records</span></span><span class="swath-popup__value">${owner}</span></div>` : ''}
             ${p.year_built ? `<div class="swath-popup__row"><span class="swath-popup__label">Year Built</span><span class="swath-popup__value">${p.year_built}</span></div>` : ''}
             ${value ? `<div class="swath-popup__row"><span class="swath-popup__label">Value</span><span class="swath-popup__value">${value}</span></div>` : ''}
-            ${p.roof_type ? `<div class="swath-popup__row"><span class="swath-popup__label">Roof</span><span class="swath-popup__value">${p.roof_type}${p.roof_sqft ? ' / ' + p.roof_sqft + ' sqft' : ''}</span></div>` : ''}
+            ${p.property_sqft ? `<div class="swath-popup__row"><span class="swath-popup__label">Building Sqft</span><span class="swath-popup__value">${Number(p.property_sqft).toLocaleString()}</span></div>` : ''}
+            ${p.roof_type ? `<div class="swath-popup__row"><span class="swath-popup__label">Roof Type</span><span class="swath-popup__value">${p.roof_type}</span></div>` : ''}
+            ${p.fema_bldg_type ? `<div class="swath-popup__row"><span class="swath-popup__label">Structure</span><span class="swath-popup__value">${femaLabel('bldg', p.fema_bldg_type)}</span></div>` : ''}
+            ${p.fema_foundation_type ? `<div class="swath-popup__row"><span class="swath-popup__label">Foundation</span><span class="swath-popup__value">${femaLabel('found', p.fema_foundation_type)}</span></div>` : ''}
+            ${!p.fema_bldg_type && !p.fema_foundation_type && !p.fema_num_stories ? `<div class="fema-auto-slot" data-property-id="${propertyId}" style="margin:4px 0;"><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);padding:4px 0;"><div class="storm-map-loading__spinner" style="width:12px;height:12px;border-width:2px;"></div>Loading building details...</div></div>` : ''}
             ${p.county_parcel_id ? `<div class="swath-popup__row"><span class="swath-popup__label">Parcel ID</span><span class="swath-popup__value">${p.county_parcel_id}</span></div>` : ''}
             ${hasStorm ? `<div style="border-top:1px solid rgba(255,255,255,0.08);margin:6px 0;padding-top:6px;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
@@ -817,11 +1214,11 @@ export default function StormMap() {
               ${p._stormCertainty ? `<div class="swath-popup__row"><span class="swath-popup__label">Certainty</span><span class="swath-popup__value">${p._stormCertainty}</span></div>` : ''}
               ${p._stormArea ? `<div class="swath-popup__row"><span class="swath-popup__label">Area</span><span class="swath-popup__value">${p._stormArea}</span></div>` : ''}
             </div>` : ''}
-            ${hasStorm ? `<button class="add-to-pipeline-btn" data-property-id="${propertyId}" data-storm-id="${stormId}" style="
+            <button class="add-to-pipeline-btn" data-property-id="${propertyId}" ${stormId ? `data-storm-id="${stormId}"` : ''} style="
               width:100%;margin-top:8px;padding:8px 12px;
               background:#0ea5e9;color:#fff;border:none;border-radius:6px;
               font-size:13px;font-weight:600;cursor:pointer;
-            ">Add to Pipeline</button>` : ''}
+            ">Add to Pipeline</button>
           </div>
         `;
         const container = document.createElement('div');
@@ -833,7 +1230,11 @@ export default function StormMap() {
             btn.disabled = true;
             btn.textContent = 'Adding...';
             try {
-              await addPropertyToPipeline(btn.dataset.stormId, btn.dataset.propertyId);
+              if (btn.dataset.stormId) {
+                await addPropertyToPipeline(btn.dataset.stormId, btn.dataset.propertyId);
+              } else {
+                await createManualLead(btn.dataset.propertyId, 'storm_map');
+              }
               btn.textContent = 'Added to Pipeline';
               btn.style.background = '#22c55e';
             } catch (err) {
@@ -843,6 +1244,40 @@ export default function StormMap() {
               setTimeout(() => { btn.textContent = 'Add to Pipeline'; btn.style.background = '#0ea5e9'; btn.disabled = false; }, 2000);
             }
           });
+        }
+
+        // Auto-load FEMA data
+        const femaSlot = container.querySelector('.fema-auto-slot');
+        if (femaSlot) {
+          (async () => {
+            try {
+              const res = await fetchFemaData(femaSlot.dataset.propertyId);
+              const d = res.data;
+              if (d.found) {
+                let rows = '';
+                if (d.fema_sqft && !p.property_sqft) rows += `<div class="swath-popup__row"><span class="swath-popup__label">Building Sqft</span><span class="swath-popup__value">${Number(d.fema_sqft).toLocaleString()}</span></div>`;
+                if (d.fema_bldg_type) rows += `<div class="swath-popup__row"><span class="swath-popup__label">Structure</span><span class="swath-popup__value">${femaLabel('bldg', d.fema_bldg_type)}</span></div>`;
+                if (d.fema_foundation_type) rows += `<div class="swath-popup__row"><span class="swath-popup__label">Foundation</span><span class="swath-popup__value">${femaLabel('found', d.fema_foundation_type)}</span></div>`;
+                if (d.fema_ground_elevation) rows += `<div class="swath-popup__row"><span class="swath-popup__label">Elevation</span><span class="swath-popup__value">${Number(d.fema_ground_elevation).toLocaleString()} ft</span></div>`;
+                femaSlot.innerHTML = rows || '';
+              } else {
+                femaSlot.innerHTML = '';
+              }
+              // Re-check overlap after popup resized from FEMA data
+              setTimeout(() => {
+                const topBar = document.querySelector('.map-top-bar');
+                const iwBox = document.querySelector('.gm-style-iw');
+                if (!iwBox || !mapRef.current) return;
+                const topBarBottom = topBar ? topBar.getBoundingClientRect().bottom : 80;
+                const iwTop = iwBox.getBoundingClientRect().top;
+                if (topBarBottom + 20 - iwTop > 0) {
+                  mapRef.current.panBy(0, -(topBarBottom + 20 - iwTop));
+                }
+              }, 100);
+            } catch {
+              femaSlot.innerHTML = '';
+            }
+          })();
         }
 
         info.setContent(container);
@@ -873,18 +1308,70 @@ export default function StormMap() {
         });
       }
 
-      // Initial data load — storms once, then properties for viewport
-      maps.event.addListenerOnce(map, 'idle', () => {
-        loadStorms(map).then(() => {
-          loadProperties(map);
-        }).then(() => {
+      // Initial data load — restore cache, then storms, then new properties
+      maps.event.addListenerOnce(map, 'idle', async () => {
+        // Restore cached properties from IndexedDB (survives page reloads)
+        const [cachedFeatures, cachedTiles] = await Promise.all([
+          loadCachedProperties(),
+          loadCachedTileKeys(),
+        ]);
+        if (cachedFeatures.length > 0) {
+          propFeaturesRef.current = cachedFeatures;
+          for (const f of cachedFeatures) {
+            const pid = f.id || f.properties?.id;
+            if (pid) propIdSetRef.current.add(pid);
+          }
+          for (const key of cachedTiles) {
+            loadedTilesRef.current.add(key);
+          }
+          rebuildClusterIndex();
+          if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
+        }
+
+        await loadStorms(map);
+        loadSwathProperties(map);
+
+        // Restore saved popup from session
+        try {
+          const saved = JSON.parse(sessionStorage.getItem('stormMapPopup'));
+          if (saved) {
+            showPropertyPopup(map, { lat: saved.lngLat[1], lng: saved.lngLat[0] }, saved.properties, saved.propertyId);
+          }
+        } catch {}
+
+        // Auto-open property popup if propertyId is in URL
+        const urlPropertyId = searchParams.get('propertyId');
+        if (urlPropertyId) {
+          // Always fetch property directly to guarantee popup shows
           try {
-            const saved = JSON.parse(sessionStorage.getItem('stormMapPopup'));
-            if (saved) {
-              showPropertyPopup(map, { lat: saved.lngLat[1], lng: saved.lngLat[0] }, saved.properties, saved.propertyId);
+            const res = await fetch(`/api/properties/${urlPropertyId}`, {
+              headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+            });
+            if (res.ok) {
+              const data = await res.json();
+              const props = data.properties || data;
+              let pLat, pLng;
+              if (data.geometry?.coordinates) {
+                [pLng, pLat] = data.geometry.coordinates;
+              } else {
+                pLat = parseFloat(searchParams.get('lat'));
+                pLng = parseFloat(searchParams.get('lng'));
+              }
+              if (pLat && pLng) {
+                const urlStormId = searchParams.get('stormId');
+                const feature = {
+                  id: data.id || urlPropertyId,
+                  properties: { ...props, ...(urlStormId && !props.storm_event_id ? { storm_event_id: urlStormId } : {}) },
+                  geometry: { type: 'Point', coordinates: [pLng, pLat] },
+                };
+                // Small delay to let the map finish rendering tiles
+                setTimeout(() => {
+                  handlePropertyClick(new maps.LatLng(pLat, pLng), feature);
+                }, 500);
+              }
             }
           } catch {}
-        });
+        }
       });
     });
 
@@ -894,8 +1381,11 @@ export default function StormMap() {
       if (canvasOverlayRef.current) canvasOverlayRef.current.setMap(null);
       for (const lbl of propLabelsRef.current) lbl.map = null;
       propLabelsRef.current = [];
-      propCacheRef.current.clear();
-      propBboxRef.current = null;
+      if (swathAbortRef.current) swathAbortRef.current.abort();
+      swathPropCacheRef.current.clear();
+      swathLoadedRef.current.clear();
+      propIdSetRef.current.clear();
+      loadedTilesRef.current.clear();
       mapRef.current = null;
     };
   }, []);
@@ -903,13 +1393,18 @@ export default function StormMap() {
   // Reload storms and clear property cache when time filter changes
   useEffect(() => {
     if (mapRef.current) {
-      // Clear property cache so new time range fetches fresh data
-      propCacheRef.current.clear();
-      propBboxRef.current = null;
+      if (swathAbortRef.current) swathAbortRef.current.abort();
+      swathPropCacheRef.current.clear();
+      swathLoadedRef.current.clear();
+      propIdSetRef.current.clear();
+      loadedTilesRef.current.clear();
+      clearPropertyCache();
+      setSwathProgress(null);
+      propFeaturesRef.current = [];
+      clusterIndexRef.current = null;
       loadStorms(mapRef.current);
-      loadProperties(mapRef.current, true);
     }
-  }, [timeRange, loadStorms, loadProperties]);
+  }, [timeRange, loadStorms]);
 
   // Toggle layer visibility
   useEffect(() => {
@@ -917,7 +1412,7 @@ export default function StormMap() {
     const dl = dataLayersRef.current;
     if (!map || !dl.hail) return;
 
-    for (const key of ['hail', 'wind', 'tornado', 'drift']) {
+    for (const key of ['hail', 'wind', 'tornado', 'thunderstorm', 'drift']) {
       dl[key]?.setMap(layers[key] ? map : null);
     }
     // Canvas overlay for properties — show/hide + redraw
@@ -931,6 +1426,7 @@ export default function StormMap() {
     } else {
       for (const lbl of propLabelsRef.current) lbl.map = map;
     }
+
   }, [layers]);
 
   // Address search handler
@@ -976,7 +1472,7 @@ export default function StormMap() {
       created = data.created;
 
       // Refresh properties after creating one
-      loadProperties(map);
+      loadSwathProperties(map);
     } catch (err) {
       console.error('Address search error:', err);
       error = err.response?.data?.error || err.message;
@@ -996,15 +1492,17 @@ export default function StormMap() {
         <div class="swath-popup__sv" style="width:100%;height:150px;border-radius:6px;margin-bottom:8px;overflow:hidden;background:#1a1a2e;display:none;"></div>
         <div class="swath-popup__row">
           <span class="swath-popup__label">Address</span>
-          <span class="swath-popup__value">${cleanAddr(addr.address_line1)}${addr.city?.trim() ? ', ' + addr.city.trim() : ''}${addr.state?.trim() ? ', ' + addr.state.trim() : ''}${addr.zip?.trim() ? ' ' + addr.zip.trim() : ''}</span>
+          <span class="swath-popup__value">${formatFullAddr(addr.address_line1, addr.city, addr.state, addr.zip)}</span>
         </div>
-        ${owner ? `<div class="swath-popup__row"><span class="swath-popup__label">Owner</span><span class="swath-popup__value">${owner}</span></div>
-        <div style="color:#8a8a9a;font-size:10px;line-height:1.3;margin:-2px 0 4px;padding-left:2px;">Public records — subject to change after skip tracing</div>` : ''}
-        ${value ? `<div class="swath-popup__row"><span class="swath-popup__label">Assessed Value</span><span class="swath-popup__value">${value}</span></div>` : ''}
+        ${owner ? `<div class="swath-popup__row"><span class="swath-popup__label">Owner <span style="color:#8a8a9a;font-size:9px;font-weight:400;">· Public records</span></span><span class="swath-popup__value">${owner}</span></div>` : ''}
+        ${value ? `<div class="swath-popup__row"><span class="swath-popup__label">Value</span><span class="swath-popup__value">${value}</span></div>` : ''}
         ${p.year_built ? `<div class="swath-popup__row"><span class="swath-popup__label">Year Built</span><span class="swath-popup__value">${p.year_built}</span></div>` : ''}
-        ${p.roof_sqft ? `<div class="swath-popup__row"><span class="swath-popup__label">Roof</span><span class="swath-popup__value">${p.roof_sqft} sqft / ${p.roof_segments || '?'} segments</span></div>` : ''}
-        ${p.roof_pitch_degrees ? `<div class="swath-popup__row"><span class="swath-popup__label">Pitch</span><span class="swath-popup__value">${p.roof_pitch_degrees}</span></div>` : ''}
-        ${!p.roof_sqft && !roofData && !error ? `<div class="swath-popup__row"><span class="swath-popup__value" style="color:#f59e0b;font-size:12px">No Google Solar data available for this location</span></div>` : ''}
+        ${p.property_sqft ? `<div class="swath-popup__row"><span class="swath-popup__label">Building Sqft</span><span class="swath-popup__value">${Number(p.property_sqft).toLocaleString()}</span></div>` : ''}
+        ${p.roof_type ? `<div class="swath-popup__row"><span class="swath-popup__label">Roof Type</span><span class="swath-popup__value">${p.roof_type}</span></div>` : ''}
+        ${p.roof_pitch_degrees ? `<div class="swath-popup__row"><span class="swath-popup__label">Pitch</span><span class="swath-popup__value">${p.roof_pitch_degrees}°</span></div>` : ''}
+        ${p.fema_bldg_type ? `<div class="swath-popup__row"><span class="swath-popup__label">Structure</span><span class="swath-popup__value">${femaLabel('bldg', p.fema_bldg_type)}</span></div>` : ''}
+        ${p.fema_foundation_type ? `<div class="swath-popup__row"><span class="swath-popup__label">Foundation</span><span class="swath-popup__value">${femaLabel('found', p.fema_foundation_type)}</span></div>` : ''}
+        ${!p.fema_bldg_type && !p.fema_foundation_type && !p.fema_num_stories && property ? `<div class="fema-auto-slot" data-property-id="${property.id}" style="margin:4px 0;"><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);padding:4px 0;"><div class="storm-map-loading__spinner" style="width:12px;height:12px;border-width:2px;"></div>Loading building details...</div></div>` : ''}
         ${error ? `<div class="swath-popup__row"><span class="swath-popup__value" style="color:#ef4444;font-size:12px">${error}</span></div>` : ''}
         ${property ? `<button class="add-to-pipeline-btn" data-property-id="${property.id}" style="
           width:100%;margin-top:8px;padding:8px 12px;
@@ -1031,6 +1529,40 @@ export default function StormMap() {
           setTimeout(() => { btn.textContent = 'Add to Pipeline'; btn.style.background = '#0ea5e9'; btn.disabled = false; }, 2000);
         }
       });
+    }
+
+    // Auto-load FEMA data (address search popup)
+    const femaSlot2 = container.querySelector('.fema-auto-slot');
+    if (femaSlot2) {
+      (async () => {
+        try {
+          const res = await fetchFemaData(femaSlot2.dataset.propertyId);
+          const d = res.data;
+          if (d.found) {
+            let rows = '';
+            if (d.fema_sqft && !p.property_sqft) rows += `<div class="swath-popup__row"><span class="swath-popup__label">Building Sqft</span><span class="swath-popup__value">${Number(d.fema_sqft).toLocaleString()}</span></div>`;
+            if (d.fema_bldg_type) rows += `<div class="swath-popup__row"><span class="swath-popup__label">Structure</span><span class="swath-popup__value">${femaLabel('bldg', d.fema_bldg_type)}</span></div>`;
+            if (d.fema_foundation_type) rows += `<div class="swath-popup__row"><span class="swath-popup__label">Foundation</span><span class="swath-popup__value">${femaLabel('found', d.fema_foundation_type)}</span></div>`;
+            if (d.fema_ground_elevation) rows += `<div class="swath-popup__row"><span class="swath-popup__label">Elevation</span><span class="swath-popup__value">${Number(d.fema_ground_elevation).toLocaleString()} ft</span></div>`;
+            femaSlot2.innerHTML = rows || '';
+          } else {
+            femaSlot2.innerHTML = '';
+          }
+          // Re-check overlap after popup resized
+          setTimeout(() => {
+            const topBar = document.querySelector('.map-top-bar');
+            const iwBox = document.querySelector('.gm-style-iw');
+            if (!iwBox || !mapRef.current) return;
+            const topBarBottom = topBar ? topBar.getBoundingClientRect().bottom : 80;
+            const iwTop = iwBox.getBoundingClientRect().top;
+            if (topBarBottom + 20 - iwTop > 0) {
+              mapRef.current.panBy(0, -(topBarBottom + 20 - iwTop));
+            }
+          }, 100);
+        } catch {
+          femaSlot2.innerHTML = '';
+        }
+      })();
     }
 
     info.setContent(container);
@@ -1064,10 +1596,10 @@ export default function StormMap() {
         searchMarkerRef.current = null;
       }
     });
-  }, [loadProperties]);
+  }, [loadSwathProperties]);
 
   return (
-    <div className="main-content" style={{ padding: 0, overflow: 'hidden' }}>
+    <div className="main-content storm-map-fullbleed" style={{ padding: 0, overflow: 'hidden' }}>
       <div className="storm-map-container">
         <div className="map-top-bar">
           <TimeFilter timeRange={timeRange} onTimeRangeChange={setTimeRange} />
@@ -1081,14 +1613,15 @@ export default function StormMap() {
         />
         <div className="storm-map-wrapper">
           <div ref={mapContainer} style={{ position: 'absolute', inset: 0 }} />
-          {(mapLoading || propLoading) && (
+          {mapLoading && (
             <div className="storm-map-loading">
               <div className="storm-map-loading__spinner">
                 <i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i />
               </div>
-              <span>{mapLoading ? 'Loading storms…' : 'Loading properties…'}</span>
+              <span>Loading storms…</span>
             </div>
           )}
+          <SwathPropertyProgress state={swathProgress} />
           <div className="map-legends">
             <div className="map-legend glass">
               <div className="map-legend__title">Hail Severity</div>

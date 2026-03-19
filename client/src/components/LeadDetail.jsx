@@ -639,7 +639,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
           <div className="detail-section__title">Property</div>
           <div className="detail-grid">
             <div className="detail-item">
-              <span className="detail-item__label">Assessed Value</span>
+              <span className="detail-item__label">Est. Value</span>
               <span className="detail-item__value" style={{ color: 'var(--accent-green)', fontWeight: 600 }}>
                 {lead.assessed_value ? `$${Number(lead.assessed_value).toLocaleString()}` : '—'}
               </span>
@@ -756,6 +756,18 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
               <span className="detail-item__label">Year Built</span>
               <span className="detail-item__value">{lead.year_built || '—'}</span>
             </div>
+            {lead.fema_bldg_type && (
+              <div className="detail-item">
+                <span className="detail-item__label">Structure</span>
+                <span className="detail-item__value">{{ W: 'Wood', M: 'Masonry', H: 'Manufactured', S: 'Steel' }[lead.fema_bldg_type] || lead.fema_bldg_type}{lead.fema_num_stories ? ` / ${lead.fema_num_stories} story` : ''}</span>
+              </div>
+            )}
+            {lead.fema_foundation_type && (
+              <div className="detail-item">
+                <span className="detail-item__label">Foundation</span>
+                <span className="detail-item__value">{{ S: 'Slab', C: 'Crawlspace', B: 'Basement', P: 'Pier', I: 'Pile', F: 'Fill', W: 'Solid Wall' }[lead.fema_foundation_type] || lead.fema_foundation_type}</span>
+              </div>
+            )}
             <div className="detail-item">
               <span className="detail-item__label">Rep</span>
               <span className="detail-item__value">{repName}</span>
@@ -1195,7 +1207,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 )}
                 {lead.assessed_value && (
                   <div>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Assessed Value</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Est. Value</div>
                     <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>${Number(lead.assessed_value).toLocaleString()}</div>
                   </div>
                 )}
@@ -1382,7 +1394,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                   )}
                   {lead.assessed_value && (
                     <div>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Assessed Value</div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Est. Value</div>
                       <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>${Number(lead.assessed_value).toLocaleString()}</div>
                     </div>
                   )}
@@ -1518,7 +1530,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                   <tr><td class="label">Address</td><td class="val">${fullAddr}</td></tr>
                   <tr><td class="label">Property Owner</td><td class="val">${name}</td></tr>
                   <tr><td class="label">Year Built</td><td class="val">${lead.year_built || 'N/A'}</td></tr>
-                  <tr><td class="label">Assessed Value</td><td class="val">${lead.assessed_value ? '$' + Number(lead.assessed_value).toLocaleString() : 'N/A'}</td></tr>
+                  <tr><td class="label">Est. Value</td><td class="val">${lead.assessed_value ? '$' + Number(lead.assessed_value).toLocaleString() : 'N/A'}</td></tr>
                   ${lead.county_parcel_id ? `<tr><td class="label">Parcel ID</td><td class="val">${lead.county_parcel_id}</td></tr>` : ''}
                 </table>
               </div>
@@ -1626,7 +1638,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                         {R('Address', fullAddr)}
                         {R('Property Owner', name)}
                         {R('Year Built', lead.year_built || 'N/A')}
-                        {R('Assessed Value', lead.assessed_value ? `$${Number(lead.assessed_value).toLocaleString()}` : 'N/A')}
+                        {R('Est. Value', lead.assessed_value ? `$${Number(lead.assessed_value).toLocaleString()}` : 'N/A')}
                         {lead.county_parcel_id && R('Parcel ID', lead.county_parcel_id)}
                       </tbody>
                     </table>

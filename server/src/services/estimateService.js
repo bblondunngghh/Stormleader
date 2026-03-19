@@ -85,10 +85,12 @@ export async function getEstimateDetail(tenantId, estimateId) {
   const { rows } = await pool.query(
     `SELECT e.*, u.first_name AS creator_first_name, u.last_name AS creator_last_name,
             l.contact_name AS lead_name, l.address AS lead_address, l.city AS lead_city,
-            l.contact_phone AS lead_phone, l.contact_email AS lead_email
+            l.contact_phone AS lead_phone, l.contact_email AS lead_email,
+            t.name AS company_name
      FROM estimates e
      LEFT JOIN users u ON u.id = e.created_by
      LEFT JOIN leads l ON l.id = e.lead_id
+     LEFT JOIN tenants t ON t.id = e.tenant_id
      WHERE e.id = $1 AND e.tenant_id = $2`,
     [estimateId, tenantId]
   );
@@ -209,7 +211,8 @@ export async function duplicateEstimate(tenantId, userId, estimateId) {
 
 export async function getEstimateByToken(token) {
   const { rows } = await pool.query(
-    `SELECT e.*, t.name AS company_name
+    `SELECT e.*, t.name AS company_name,
+            (t.stripe_account_id IS NOT NULL AND t.stripe_onboarding_complete = true) AS stripe_connected
      FROM estimates e
      JOIN tenants t ON t.id = e.tenant_id
      WHERE e.public_token = $1`,
@@ -254,10 +257,41 @@ export async function declineEstimate(token) {
 // ============================================================
 
 export async function getTemplates(tenantId) {
-  const { rows } = await pool.query(
+  let { rows } = await pool.query(
     `SELECT * FROM estimate_templates WHERE tenant_id = $1 ORDER BY position, name`,
     [tenantId]
   );
+  // Auto-seed default templates if none exist for this tenant
+  if (rows.length === 0) {
+    const defaults = [
+      ['Tear Off & Replace', 'Remove existing shingles and install new', 'sq', 350.00, 'Roof', 0],
+      ['Architectural Shingles', 'GAF Timberline HDZ or equivalent', 'sq', 125.00, 'Roof', 1],
+      ['Underlayment', 'Synthetic underlayment', 'sq', 45.00, 'Roof', 2],
+      ['Ridge Cap', 'Hip and ridge cap shingles', 'lf', 6.50, 'Roof', 3],
+      ['Drip Edge', 'Aluminum drip edge', 'lf', 4.00, 'Roof', 4],
+      ['Ice & Water Shield', 'Self-adhering membrane at eaves/valleys', 'sq', 95.00, 'Roof', 5],
+      ['Pipe Boot', 'Replace pipe boot flashing', 'each', 45.00, 'Roof', 6],
+      ['Flashing', 'Step/counter flashing replacement', 'lf', 12.00, 'Roof', 7],
+      ['Ventilation', 'Ridge vent or box vent', 'each', 65.00, 'Roof', 8],
+      ['Skylights', 'Re-flash existing skylight', 'each', 250.00, 'Roof', 9],
+      ['Gutter Replacement', 'Seamless aluminum gutters', 'lf', 8.50, 'Gutters', 10],
+      ['Downspout', 'Aluminum downspout', 'lf', 6.00, 'Gutters', 11],
+      ['Fascia Board', 'Replace damaged fascia', 'lf', 10.00, 'Misc', 12],
+      ['Soffit Repair', 'Repair or replace soffit panels', 'lf', 12.00, 'Misc', 13],
+      ['Dumpster / Haul Off', 'Debris removal', 'each', 450.00, 'Misc', 14],
+    ];
+    for (const [name, desc, unit, price, section, pos] of defaults) {
+      await pool.query(
+        `INSERT INTO estimate_templates (tenant_id, name, description, unit, default_unit_price, section, position)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [tenantId, name, desc, unit, price, section, pos]
+      );
+    }
+    ({ rows } = await pool.query(
+      `SELECT * FROM estimate_templates WHERE tenant_id = $1 ORDER BY position, name`,
+      [tenantId]
+    ));
+  }
   return rows;
 }
 

@@ -202,7 +202,34 @@ export async function createTenantWithAdmin(companyName, firstName, lastName, em
       );
     }
 
-    // ---- 6. Generate tokens -----------------------------------------------
+    // ---- 6. Seed default estimate templates --------------------------------
+    const DEFAULT_ESTIMATE_TEMPLATES = [
+      { name: 'Tear Off & Replace', description: 'Remove existing shingles and install new', unit: 'sq', price: 350.00, section: 'Roof', pos: 0 },
+      { name: 'Architectural Shingles', description: 'GAF Timberline HDZ or equivalent', unit: 'sq', price: 125.00, section: 'Roof', pos: 1 },
+      { name: 'Underlayment', description: 'Synthetic underlayment', unit: 'sq', price: 45.00, section: 'Roof', pos: 2 },
+      { name: 'Ridge Cap', description: 'Hip and ridge cap shingles', unit: 'lf', price: 6.50, section: 'Roof', pos: 3 },
+      { name: 'Drip Edge', description: 'Aluminum drip edge', unit: 'lf', price: 4.00, section: 'Roof', pos: 4 },
+      { name: 'Ice & Water Shield', description: 'Self-adhering membrane at eaves/valleys', unit: 'sq', price: 95.00, section: 'Roof', pos: 5 },
+      { name: 'Pipe Boot', description: 'Replace pipe boot flashing', unit: 'each', price: 45.00, section: 'Roof', pos: 6 },
+      { name: 'Flashing', description: 'Step/counter flashing replacement', unit: 'lf', price: 12.00, section: 'Roof', pos: 7 },
+      { name: 'Ventilation', description: 'Ridge vent or box vent', unit: 'each', price: 65.00, section: 'Roof', pos: 8 },
+      { name: 'Skylights', description: 'Re-flash existing skylight', unit: 'each', price: 250.00, section: 'Roof', pos: 9 },
+      { name: 'Gutter Replacement', description: 'Seamless aluminum gutters', unit: 'lf', price: 8.50, section: 'Gutters', pos: 10 },
+      { name: 'Downspout', description: 'Aluminum downspout', unit: 'lf', price: 6.00, section: 'Gutters', pos: 11 },
+      { name: 'Fascia Board', description: 'Replace damaged fascia', unit: 'lf', price: 10.00, section: 'Misc', pos: 12 },
+      { name: 'Soffit Repair', description: 'Repair or replace soffit panels', unit: 'lf', price: 12.00, section: 'Misc', pos: 13 },
+      { name: 'Dumpster / Haul Off', description: 'Debris removal', unit: 'each', price: 450.00, section: 'Misc', pos: 14 },
+    ];
+    for (const t of DEFAULT_ESTIMATE_TEMPLATES) {
+      await client.query(
+        `INSERT INTO estimate_templates (tenant_id, name, description, unit, default_unit_price, section, position)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         ON CONFLICT DO NOTHING`,
+        [tenant.id, t.name, t.description, t.unit, t.price, t.section, t.pos],
+      );
+    }
+
+    // ---- 7. Generate tokens -----------------------------------------------
     const tokens = generateTokens(user);
     await client.query(
       'UPDATE users SET refresh_token = $1 WHERE id = $2',

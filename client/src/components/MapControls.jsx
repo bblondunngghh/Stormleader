@@ -9,6 +9,7 @@ const layerToggles = [
   { id: 'hail', label: 'Hail Reports', color: '#dcb428' },
   { id: 'wind', label: 'Wind Reports', color: '#6c5ce7' },
   { id: 'tornado', label: 'Tornadoes', color: '#ff2d55' },
+  { id: 'thunderstorm', label: 'Thunderstorms', color: '#ff9500' },
   { id: 'properties', label: 'Properties', color: '#00d4aa' },
 ];
 
@@ -42,37 +43,37 @@ export function LayerPanel({ layers, onLayersChange, improvedOnly, onImprovedOnl
               type="checkbox"
               checked={layers[layer.id] || false}
               onChange={() => handleLayerToggle(layer.id)}
-              style={{ accentColor: layer.color }}
+              style={{ '--check-color': layer.color }}
             />
-            <span style={{ color: layers[layer.id] ? layer.color : undefined }}>{layer.label}</span>
+            <span>{layer.label}</span>
           </label>
           {/* Wind Drift nested under Hail */}
           {layer.id === 'hail' && layers.hail && (
             <div className="map-controls__sub-row">
-              <span className="map-controls__bracket" style={{ borderColor: '#dcb428' }} />
+              <span className="map-controls__bracket" />
               <label className="map-controls__toggle map-controls__toggle--sub">
                 <input
                   type="checkbox"
                   checked={layers.drift || false}
                   onChange={() => handleLayerToggle('drift')}
-                  style={{ accentColor: '#00e5ff' }}
+                  style={{ '--check-color': '#00e5ff' }}
                 />
-                <span style={{ color: layers.drift ? '#00e5ff' : undefined }}>Wind Drift Correction</span>
+                <span>Wind Drift Correction</span>
               </label>
             </div>
           )}
           {/* Houses Only nested under Properties */}
           {layer.id === 'properties' && layers.properties && (
             <div className="map-controls__sub-row">
-              <span className="map-controls__bracket" style={{ borderColor: '#00d4aa' }} />
+              <span className="map-controls__bracket" />
               <label className="map-controls__toggle map-controls__toggle--sub">
                 <input
                   type="checkbox"
                   checked={improvedOnly || false}
                   onChange={() => onImprovedOnlyChange?.(!improvedOnly)}
-                  style={{ accentColor: '#ff9500' }}
+                  style={{ '--check-color': '#ff9500' }}
                 />
-                <span style={{ color: improvedOnly ? '#ff9500' : undefined }}>Houses Only</span>
+                <span>Houses Only</span>
               </label>
             </div>
           )}

@@ -254,7 +254,7 @@ export default function LeadList() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `stormleads-export-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `stormpipe-export-${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
     } finally {
@@ -285,7 +285,7 @@ export default function LeadList() {
     <div className="main-content" style={{ gap: 'var(--space-lg)' }}>
       {/* Toolbar */}
       <div className="lead-list-toolbar glass" style={{
-        borderRadius: 'var(--radius-lg)',
+        borderRadius: '20px / 18px',
         padding: 'var(--space-md) var(--space-xl)',
         display: 'flex',
         alignItems: 'center',
@@ -294,6 +294,7 @@ export default function LeadList() {
         overflow: 'visible',
         position: 'relative',
         zIndex: 20,
+        boxShadow: '0 8px 32px oklch(0 0 0 / 0.25), inset 0 1px 0 oklch(1 0 0 / 0.05)',
       }}>
         {/* Search */}
         <div style={{ position: 'relative', flex: '1 1 220px', maxWidth: 300 }}>
@@ -364,7 +365,7 @@ export default function LeadList() {
       {/* Bulk Action Bar */}
       {selected.size > 0 && (
         <div className="bulk-action-bar glass" style={{
-          borderRadius: 'var(--radius-lg)',
+          borderRadius: '20px / 18px',
           padding: 'var(--space-sm) var(--space-xl)',
           display: 'flex',
           alignItems: 'center',
@@ -413,7 +414,7 @@ export default function LeadList() {
       )}
 
       {/* Table */}
-      <div className="glass" style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+      <div className="glass" style={{ borderRadius: '20px / 18px', overflow: 'hidden', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, boxShadow: '0 8px 32px oklch(0 0 0 / 0.25), inset 0 1px 0 oklch(1 0 0 / 0.05)' }}>
         <div style={{ overflow: 'auto', flex: 1 }}>
           <table className="lead-table">
             <thead>

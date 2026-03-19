@@ -21,8 +21,14 @@ export const getAffectedProperties = ({ west, south, east, north, timeRange, imp
     params: { bbox: `${west},${south},${east},${north}`, timeRange, ...(improvedOnly ? { improvedOnly: 'true' } : {}) },
   });
 
-export const getPropertiesInSwath = (stormEventId) =>
-  client.get(`/properties/in-swath/${stormEventId}`);
+export const getPropertiesInSwath = (stormEventId, { limit, offset, bbox, signal } = {}) =>
+  client.get(`/properties/in-swath/${stormEventId}`, {
+    params: { limit, offset, ...(bbox ? { bbox: bbox.join(',') } : {}) },
+    signal,
+  });
+
+export const getSwathPropertyCount = (stormEventId, { signal } = {}) =>
+  client.get(`/properties/in-swath/${stormEventId}/count`, { signal });
 
 export const generateLeadsFromStorm = (data) =>
   client.post('/properties/generate-leads', data);
@@ -41,3 +47,6 @@ export const updatePropertyLocation = (propertyId, lat, lng) =>
 
 export const createProperty = (data) =>
   client.post('/properties', data);
+
+export const fetchFemaData = (propertyId) =>
+  client.post(`/properties/${propertyId}/fema-lookup`);

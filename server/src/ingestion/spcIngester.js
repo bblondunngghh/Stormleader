@@ -53,7 +53,8 @@ async function ingestHail() {
   // CSV columns: Time,Size,Location,County,State,Lat,Lon,Remarks
   const startIdx = lines[0].toLowerCase().includes('time') ? 1 : 0;
 
-  let inserted = 0;
+  // Parse all reports first, then batch-check which already exist
+  const reports = [];
   for (let i = startIdx; i < lines.length; i++) {
     const line = lines[i].trim();
     if (!line) continue;
@@ -66,22 +67,48 @@ async function ingestHail() {
     if (!coords) continue;
     if (!isInTexas(coords.latitude, coords.lng)) continue;
 
-    const hailSize = parseFloat(size) / 100;
+    const hailParsed = parseFloat(size) / 100;
+    const hailSize = Number.isFinite(hailParsed) ? hailParsed : null;
     const sourceId = makeSourceId(time, coords.latitude, coords.lng);
     const remarks = remarkParts.join(',').trim();
     const geojson = JSON.stringify({ type: 'Point', coordinates: [coords.lng, coords.latitude] });
     const eventStart = parseEventStart(time);
+    const bufferMeters = Math.max(800, (hailSize || 1) * 800);
 
+    reports.push({ sourceId, geojson, hailSize, eventStart, rawData: { type: 'hail', location, county, state, remarks }, bufferMeters });
+  }
+
+  if (reports.length === 0) {
+    logger.info('SPC hail ingestion complete: 0 TX reports found');
+    return 0;
+  }
+
+  // Check which source_ids already exist
+  const sourceIds = reports.map(r => r.sourceId);
+  const { rows } = await pool.query(
+    `SELECT source_id FROM storm_events WHERE source = 'spc_report' AND source_id = ANY($1)`,
+    [sourceIds]
+  );
+  const existingIds = new Set(rows.map(r => r.source_id));
+  const newReports = reports.filter(r => !existingIds.has(r.sourceId));
+
+  logger.info(`SPC hail: ${reports.length} TX reports, ${existingIds.size} already exist, ${newReports.length} new`);
+
+  let inserted = 0;
+  for (const r of newReports) {
     const { rowCount } = await pool.query(
       `INSERT INTO storm_events (source, source_id, geom, hail_size_max_in, event_start, raw_data)
-       VALUES ('spc_report', $1, ST_Simplify(ST_SetSRID(ST_GeomFromGeoJSON($2), 4326), 0.0001), $3, $4, $5)
+       VALUES ('spc_report', $1,
+         ST_Simplify(ST_Buffer(ST_SetSRID(ST_GeomFromGeoJSON($2), 4326)::geography, $6)::geometry, 0.0001),
+         $3, $4, $5)
        ON CONFLICT (source, source_id) DO NOTHING`,
       [
-        sourceId,
-        geojson,
-        isNaN(hailSize) ? null : hailSize,
-        eventStart,
-        JSON.stringify({ type: 'hail', location, county, state, remarks }),
+        r.sourceId,
+        r.geojson,
+        isNaN(r.hailSize) ? null : r.hailSize,
+        r.eventStart,
+        JSON.stringify(r.rawData),
+        r.bufferMeters,
       ]
     );
     inserted += rowCount;
@@ -105,7 +132,8 @@ async function ingestWind() {
   // CSV columns: Time,Speed,Location,County,State,Lat,Lon,Remarks
   const startIdx = lines[0].toLowerCase().includes('time') ? 1 : 0;
 
-  let inserted = 0;
+  // Parse all reports first, then batch-check which already exist
+  const reports = [];
   for (let i = startIdx; i < lines.length; i++) {
     const line = lines[i].trim();
     if (!line) continue;
@@ -118,22 +146,48 @@ async function ingestWind() {
     if (!coords) continue;
     if (!isInTexas(coords.latitude, coords.lng)) continue;
 
-    const windSpeed = parseFloat(speed);
+    const windParsed = parseFloat(speed);
+    const windSpeed = Number.isFinite(windParsed) ? windParsed : null;
     const sourceId = makeSourceId(`wind_${time}`, coords.latitude, coords.lng);
     const remarks = remarkParts.join(',').trim();
     const geojson = JSON.stringify({ type: 'Point', coordinates: [coords.lng, coords.latitude] });
     const eventStart = parseEventStart(time);
+    const bufferMeters = 500;
 
+    reports.push({ sourceId, geojson, windSpeed, eventStart, rawData: { type: 'wind', speed: isNaN(windSpeed) ? 'UNK' : windSpeed, location, county, state, remarks }, bufferMeters });
+  }
+
+  if (reports.length === 0) {
+    logger.info('SPC wind ingestion complete: 0 TX reports found');
+    return 0;
+  }
+
+  // Check which source_ids already exist
+  const sourceIds = reports.map(r => r.sourceId);
+  const { rows } = await pool.query(
+    `SELECT source_id FROM storm_events WHERE source = 'spc_report' AND source_id = ANY($1)`,
+    [sourceIds]
+  );
+  const existingIds = new Set(rows.map(r => r.source_id));
+  const newReports = reports.filter(r => !existingIds.has(r.sourceId));
+
+  logger.info(`SPC wind: ${reports.length} TX reports, ${existingIds.size} already exist, ${newReports.length} new`);
+
+  let inserted = 0;
+  for (const r of newReports) {
     const { rowCount } = await pool.query(
       `INSERT INTO storm_events (source, source_id, geom, wind_speed_max_mph, event_start, raw_data)
-       VALUES ('spc_report', $1, ST_Simplify(ST_SetSRID(ST_GeomFromGeoJSON($2), 4326), 0.0001), $3, $4, $5)
+       VALUES ('spc_report', $1,
+         ST_Simplify(ST_Buffer(ST_SetSRID(ST_GeomFromGeoJSON($2), 4326)::geography, $6)::geometry, 0.0001),
+         $3, $4, $5)
        ON CONFLICT (source, source_id) DO NOTHING`,
       [
-        sourceId,
-        geojson,
-        isNaN(windSpeed) || windSpeed <= 0 ? null : windSpeed,
-        eventStart,
-        JSON.stringify({ type: 'wind', speed: isNaN(windSpeed) ? 'UNK' : windSpeed, location, county, state, remarks }),
+        r.sourceId,
+        r.geojson,
+        isNaN(r.windSpeed) || r.windSpeed <= 0 ? null : r.windSpeed,
+        r.eventStart,
+        JSON.stringify(r.rawData),
+        r.bufferMeters,
       ]
     );
     inserted += rowCount;

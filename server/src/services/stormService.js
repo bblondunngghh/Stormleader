@@ -1,13 +1,9 @@
 import pool from '../db/pool.js';
 
-// Add sine wave offset to a LineString to make it wavy
-function makeWavy(geometry, azimuthDeg) {
-  const amp = 0.004;    // wave amplitude in degrees (~0.4km)
-  const freq = 80;      // wave frequency (higher = more waves)
-  const azRad = (azimuthDeg * Math.PI) / 180;
-  // Perpendicular direction (offset axis)
-  const perpX = -Math.cos(azRad); // sin(az - 90)
-  const perpY = Math.sin(azRad);  // cos(az - 90)
+// Add sine wave offset to a LineString, perpendicular to each segment's local direction
+function makeWavy(geometry) {
+  const amp = 0.003;    // wave amplitude in degrees (~0.3km)
+  const freq = 90;      // wave frequency (higher = more waves)
 
   function wavifyCoords(coords) {
     if (coords.length < 2) return coords;
@@ -24,13 +20,21 @@ function makeWavy(geometry, azimuthDeg) {
       }
     }
     resampled.push(coords[coords.length - 1]);
-    // Apply sine wave
+    // Apply sine wave using local perpendicular direction at each point
     let cumDist = 0;
     const result = [resampled[0]];
     for (let j = 1; j < resampled.length; j++) {
       const dx = resampled[j][0] - resampled[j - 1][0];
       const dy = resampled[j][1] - resampled[j - 1][1];
-      cumDist += Math.sqrt(dx * dx + dy * dy);
+      const segLen = Math.sqrt(dx * dx + dy * dy);
+      cumDist += segLen;
+      if (segLen < 1e-12) {
+        result.push(resampled[j]);
+        continue;
+      }
+      // Local perpendicular: rotate segment direction 90 degrees
+      const perpX = -dy / segLen;
+      const perpY = dx / segLen;
       const offset = amp * Math.sin(cumDist * freq);
       result.push([
         resampled[j][0] + offset * perpX,
@@ -51,6 +55,7 @@ function makeWavy(geometry, azimuthDeg) {
   }
   return geometry;
 }
+
 
 export async function listEvents({ source, limit = 50, offset = 0, timeRange }) {
   const params = [];
@@ -211,13 +216,19 @@ export async function getSwathsByViewport(bbox, timeRange, startDate, endDate) {
          SELECT geom,
            CASE
              WHEN raw_data->>'type' = 'tornado' THEN 'tornado'
+             WHEN raw_data->>'type' = 'severe_thunderstorm' THEN 'thunderstorm'
              ELSE 'wind'
            END AS event_type
          FROM storm_events
          WHERE ST_Intersects(geom, ST_MakeEnvelope($1, $2, $3, $4, 4326))
          AND ST_Intersects(geom, ${TX_POLYGON})
          AND ST_GeometryType(geom) != 'ST_Point'
-         AND (raw_data->>'type' IN ('wind', 'tornado') OR (wind_speed_max_mph IS NOT NULL AND hail_size_max_in IS NULL))
+         AND (
+           raw_data->>'type' IN ('wind', 'tornado', 'severe_thunderstorm')
+           OR raw_data->'hazards' @> '"wind"'
+           OR raw_data->'hazards' @> '"tornado"'
+           OR wind_speed_max_mph IS NOT NULL
+         )
          ${timeFilter}
        ) typed
        GROUP BY event_type`,
@@ -264,16 +275,12 @@ export async function getSwathsByViewport(bbox, timeRange, startDate, endDate) {
         },
       });
     }
-    // Wind flow lines — parallel lines within each wind polygon oriented along wind direction
+    // Wind flow lines — offset curves from polygon boundary that follow the swath shape
     const { rows: flowLines } = await pool.query(
       `WITH wind_polys AS (
          SELECT geom,
-                ST_Azimuth(
-                  ST_StartPoint(ST_LongestLine(geom, geom)),
-                  ST_EndPoint(ST_LongestLine(geom, geom))
-                ) AS az_rad,
-                ST_Centroid(geom) AS ctr,
-                ST_Length(ST_LongestLine(geom, geom)) AS diag
+                ST_ExteriorRing(geom) AS ring,
+                greatest(0.0005, sqrt(ST_Area(geom)) / 20) AS spacing
          FROM storm_events
          WHERE ST_Intersects(geom, ST_MakeEnvelope($1, $2, $3, $4, 4326))
          AND ST_Intersects(geom, ${TX_POLYGON})
@@ -281,82 +288,32 @@ export async function getSwathsByViewport(bbox, timeRange, startDate, endDate) {
          AND (raw_data->>'type' = 'wind' OR (wind_speed_max_mph IS NOT NULL AND hail_size_max_in IS NULL))
          ${timeFilter}
        ),
-       flow AS (
+       offsets AS (
          SELECT
            ST_Intersection(
              wp.geom,
-             ST_Rotate(
-               ST_SetSRID(ST_MakeLine(
-                 ST_MakePoint(ST_X(wp.ctr) + i * 0.045, ST_Y(wp.ctr) - wp.diag),
-                 ST_MakePoint(ST_X(wp.ctr) + i * 0.045, ST_Y(wp.ctr) + wp.diag)
-               ), 4326),
-               -wp.az_rad,
-               wp.ctr
-             )
-           ) AS line_geom,
-           degrees(wp.az_rad) AS azimuth
+             ST_OffsetCurve(wp.ring, i * wp.spacing)
+           ) AS line_geom
          FROM wind_polys wp
-         CROSS JOIN generate_series(-12, 12) AS i
+         CROSS JOIN generate_series(-8, -1) AS i
        )
-       SELECT ST_AsGeoJSON(line_geom)::json AS geometry, azimuth
-       FROM flow
-       WHERE NOT ST_IsEmpty(line_geom)
+       SELECT ST_AsGeoJSON(line_geom)::json AS geometry
+       FROM offsets
+       WHERE line_geom IS NOT NULL
+         AND NOT ST_IsEmpty(line_geom)
          AND ST_GeometryType(line_geom) IN ('ST_LineString', 'ST_MultiLineString')`,
       params
     );
-    let arrowIdx = 0;
     for (let i = 0; i < flowLines.length; i++) {
       const fl = flowLines[i];
       if (!fl.geometry) continue;
-      // Make flow lines wavy with sine wave offset perpendicular to line direction
-      const wavyGeom = makeWavy(fl.geometry, fl.azimuth);
+      const wavyGeom = makeWavy(fl.geometry);
       mergedFeatures.push({
         type: 'Feature',
         id: `wind_flow_${i}`,
         geometry: wavyGeom,
         properties: { _windFlow: true },
       });
-      // Place arrowheads at regular intervals along the line
-      const allCoords = fl.geometry.type === 'LineString'
-        ? [fl.geometry.coordinates]
-        : fl.geometry.coordinates || [];
-      for (const coords of allCoords) {
-        if (!coords || coords.length < 2) continue;
-        // Compute total line length in degrees, place arrow every ~0.04 deg (~4km)
-        let totalLen = 0;
-        for (let j = 1; j < coords.length; j++) {
-          const dx = coords[j][0] - coords[j - 1][0];
-          const dy = coords[j][1] - coords[j - 1][1];
-          totalLen += Math.sqrt(dx * dx + dy * dy);
-        }
-        const spacing = 0.12;
-        const numArrows = Math.max(1, Math.floor(totalLen / spacing));
-        for (let a = 0; a < numArrows; a++) {
-          const frac = (a + 0.5) / numArrows;
-          const targetDist = frac * totalLen;
-          let cumDist = 0;
-          for (let j = 1; j < coords.length; j++) {
-            const dx = coords[j][0] - coords[j - 1][0];
-            const dy = coords[j][1] - coords[j - 1][1];
-            const segLen = Math.sqrt(dx * dx + dy * dy);
-            if (cumDist + segLen >= targetDist) {
-              const t = (targetDist - cumDist) / segLen;
-              const pt = [
-                coords[j - 1][0] + t * dx,
-                coords[j - 1][1] + t * dy,
-              ];
-              mergedFeatures.push({
-                type: 'Feature',
-                id: `wind_arrow_${arrowIdx++}`,
-                geometry: { type: 'Point', coordinates: pt },
-                properties: { _windArrow: true, azimuth: fl.azimuth },
-              });
-              break;
-            }
-            cumDist += segLen;
-          }
-        }
-      }
     }
   } catch (mergeErr) {
     console.error('Merged outline query failed, falling back to individual features:', mergeErr.message);

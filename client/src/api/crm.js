@@ -62,6 +62,8 @@ export const addPropertyToPipeline = (stormEventId, propertyId) =>
 export const createManualLead = (propertyId, source = 'address_search') =>
   client.post('/crm/leads', { propertyId, source });
 
+export const createQuickLead = (data) => client.post('/crm/leads/quick', data);
+
 export const getPipelineMetrics = () => client.get('/crm/pipeline/metrics');
 
 // ============================================================
@@ -83,3 +85,22 @@ export const updateUserRole = (userId, role) =>
 
 export const inviteTeamMember = (data) =>
   client.post('/crm/team/invite', data);
+
+// ============================================================
+// PROSPECT LISTS
+// ============================================================
+
+export const createProspectList = (data) =>
+  client.post('/crm/prospect-lists', data);
+
+export const getProspectLists = () =>
+  client.get('/crm/prospect-lists');
+
+export const getProspectListItems = (listId, params) =>
+  client.get(`/crm/prospect-lists/${listId}/items`, { params });
+
+export const deleteProspectList = (listId) =>
+  client.delete(`/crm/prospect-lists/${listId}`);
+
+export const removeProspectListItem = (listId, propertyId) =>
+  client.delete(`/crm/prospect-lists/${listId}/items/${propertyId}`);

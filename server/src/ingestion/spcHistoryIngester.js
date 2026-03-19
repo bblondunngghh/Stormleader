@@ -37,7 +37,8 @@ export async function ingestSPCDate(date) {
       const lines = text.trim().split('\n');
       const startIdx = lines[0]?.toLowerCase().includes('time') ? 1 : 0;
 
-      let inserted = 0;
+      // Parse all reports first
+      const reports = [];
       for (let i = startIdx; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
@@ -45,24 +46,40 @@ export async function ingestSPCDate(date) {
         const event = parseRow(line, date);
         if (!event) continue;
 
-        // Insert as a buffered polygon (estimated damage area) instead of a point
-        // Buffer radius in meters: hail scales by size, wind ~500m, tornado ~600m
         const bufferMeters = event.rawData.type === 'hail'
           ? Math.max(800, (event.hailSize || 1) * 800)
           : event.rawData.type === 'tornado' ? 600 : 500;
 
+        reports.push({ ...event, bufferMeters });
+      }
+
+      if (reports.length === 0) continue;
+
+      // Batch-check which source_ids already exist
+      const sourceIds = reports.map(r => r.sourceId);
+      const { rows } = await pool.query(
+        `SELECT source_id FROM storm_events WHERE source = 'spc_report' AND source_id = ANY($1)`,
+        [sourceIds]
+      );
+      const existingIds = new Set(rows.map(r => r.source_id));
+      const newReports = reports.filter(r => !existingIds.has(r.sourceId));
+
+      if (newReports.length === 0) continue;
+
+      let inserted = 0;
+      for (const event of newReports) {
         const { rowCount } = await pool.query(
           `INSERT INTO storm_events (source, source_id, geom, hail_size_max_in, wind_speed_max_mph, event_start, raw_data)
            VALUES ($1, $2,
              ST_Simplify(ST_Buffer(ST_SetSRID(ST_GeomFromGeoJSON($3), 4326)::geography, $8)::geometry, 0.0001),
              $4, $5, $6, $7)
            ON CONFLICT (source, source_id) DO NOTHING`,
-          [event.source, event.sourceId, event.geojson, event.hailSize, event.windSpeed, event.eventStart, JSON.stringify(event.rawData), bufferMeters]
+          [event.source, event.sourceId, event.geojson, event.hailSize, event.windSpeed, event.eventStart, JSON.stringify(event.rawData), event.bufferMeters]
         );
         inserted += rowCount;
       }
       if (inserted > 0) {
-        logger.info(`Ingested ${inserted} reports from ${file}`);
+        logger.info(`Ingested ${inserted} new reports from ${file} (${existingIds.size} already existed)`);
       }
       totalInserted += inserted;
     } catch (err) {
@@ -84,7 +101,8 @@ function parseHailRow(line, date) {
 
   const lng = longitude > 0 ? -longitude : longitude;
   if (!isInTexas(latitude, lng)) return null;
-  const hailSize = parseFloat(size) / 100;
+  const hailParsed = parseFloat(size) / 100;
+  const hailSize = Number.isFinite(hailParsed) ? hailParsed : null;
 
   return {
     source: 'spc_report',
@@ -108,7 +126,8 @@ function parseWindRow(line, date) {
 
   const lng = longitude > 0 ? -longitude : longitude;
   if (!isInTexas(latitude, lng)) return null;
-  const windMph = speed === 'UNK' ? null : parseFloat(speed);
+  const windParsed = speed === 'UNK' ? NaN : parseFloat(speed);
+  const windMph = Number.isFinite(windParsed) ? windParsed : null;
 
   return {
     source: 'spc_report',

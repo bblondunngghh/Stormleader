@@ -10,17 +10,17 @@ import iconAlerts from '../assets/icons/Cog-Double-2--Streamline-Ultimate.png';
 import iconTasks from '../assets/icons/Checklist--Streamline-Ultimate.svg';
 import iconEstimates from '../assets/icons/Accounting-Calculator-1--Streamline-Ultimate.svg';
 import iconSettings from '../assets/icons/Settings-Slider-Desktop-Horizontal--Streamline-Ultimate.svg';
-import iconBrand from '../assets/icons/Weather-Cloud-Wind-4--Streamline-Ultimate.svg';
+import iconBrand from '../assets/icons/stormpipe-brand.jpg';
 import iconAdmin from '../assets/icons/Monitor-Graph-Line--Streamline-Ultimate.svg';
-
+import iconMaterials from '../assets/icons/Hammer-1--Streamline-Ultimate.png';
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: iconDashboard },
   { id: 'storm-map', label: 'Storm Map', icon: iconStormMap },
   { id: 'pipeline', label: 'Pipeline', icon: iconPipeline },
   { id: 'leads', label: 'Leads', icon: iconLeads },
   { id: 'estimates', label: 'Estimates', icon: iconEstimates },
+  { id: 'materials', label: 'Materials', icon: iconMaterials },
   { id: 'tasks', label: 'Tasks', icon: iconTasks },
-  { id: 'alerts', label: 'Alerts', icon: iconAlerts },
 ];
 
 const settingsItem = { id: 'settings', label: 'Settings', icon: iconSettings };
@@ -39,10 +39,10 @@ export default function Sidebar({ activeView, onNavigate }) {
   return (
     <aside className={`sidebar glass ${collapsed ? 'sidebar--collapsed' : ''}`}>
       <div className="sidebar__brand" onClick={() => setCollapsed(c => !c)} style={{ cursor: 'pointer' }}>
-        <div className="sidebar__logo"><img src={iconBrand} alt="StormLeads" width="28" height="28" /></div>
+        <div className="sidebar__logo"><img src="/bg-wallpaper.jpg" alt="StormPipe" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit', opacity: 0.7 }} /></div>
         {!collapsed && (
           <div>
-            <div className="sidebar__title">StormLeads</div>
+            <div className="sidebar__title">StormPipe</div>
             <div className="sidebar__subtitle">Roofing CRM</div>
           </div>
         )}
@@ -56,7 +56,7 @@ export default function Sidebar({ activeView, onNavigate }) {
             onClick={() => onNavigate(item.id)}
             title={collapsed ? item.label : undefined}
           >
-            <img src={item.icon} alt="" width="20" height="20" className="nav-link__icon" />
+            <img src={item.icon} alt="" width="20" height="20" className="nav-link__icon" style={item.invert ? { filter: 'invert(1)' } : undefined} />
             {!collapsed && item.label}
           </button>
         ))}

@@ -78,8 +78,12 @@ export async function getLeadDetail(tenantId, leadId) {
         p.roof_type, p.roof_sqft, p.roof_pitch_degrees, p.roof_segments,
         p.roof_ridge_ft, p.roof_valley_ft, p.roof_eave_ft, p.roof_rake_ft,
         p.roof_hip_ft, p.roof_drip_edge_ft, p.roof_flashing_ft,
-        p.year_built, p.assessed_value,
-        p.homestead_exempt, p.county_parcel_id, p.property_sqft,
+        COALESCE(p.year_built, p.fema_year_built) AS year_built,
+        COALESCE(p.assessed_value, p.fema_replacement_value) AS assessed_value,
+        p.homestead_exempt, p.county_parcel_id,
+        COALESCE(p.property_sqft, p.fema_sqft) AS property_sqft,
+        p.fema_bldg_type, p.fema_num_stories, p.fema_foundation_type,
+        p.fema_occupancy_type, p.fema_ground_elevation,
         ST_AsGeoJSON(p.location)::json AS property_geometry,
         se.source AS storm_source, se.hail_size_max_in AS storm_hail_max,
         se.wind_speed_max_mph AS storm_wind_max, se.event_start AS storm_start,
@@ -649,15 +653,15 @@ export async function getLeaderboard(tenantId) {
        u.first_name,
        u.last_name,
        COUNT(l.id) FILTER (WHERE l.deleted_at IS NULL) AS leads_assigned,
-       COUNT(l.id) FILTER (WHERE l.stage = 'contacted' AND l.deleted_at IS NULL) AS contacted,
-       COUNT(l.id) FILTER (WHERE l.stage = 'appt_set' AND l.deleted_at IS NULL) AS appointments,
-       COUNT(l.id) FILTER (WHERE l.stage = 'inspected' AND l.deleted_at IS NULL) AS inspections,
-       COUNT(l.id) FILTER (WHERE l.stage = 'estimate_sent' AND l.deleted_at IS NULL) AS estimates_sent,
-       COUNT(l.id) FILTER (WHERE l.stage = 'sold' AND l.deleted_at IS NULL) AS sold,
-       COALESCE(SUM(CASE WHEN l.stage = 'sold' AND l.deleted_at IS NULL THEN COALESCE(l.actual_value, l.estimated_value) ELSE 0 END), 0) AS revenue,
+       COUNT(l.id) FILTER (WHERE l.deleted_at IS NULL AND l.stage IN ('contacted','appt_set','inspected','estimate_sent','negotiating','sold','in_production')) AS contacted,
+       COUNT(l.id) FILTER (WHERE l.deleted_at IS NULL AND l.stage IN ('appt_set','inspected','estimate_sent','negotiating','sold','in_production')) AS appointments,
+       COUNT(l.id) FILTER (WHERE l.deleted_at IS NULL AND l.stage IN ('inspected','estimate_sent','negotiating','sold','in_production')) AS inspections,
+       COUNT(l.id) FILTER (WHERE l.deleted_at IS NULL AND l.stage IN ('estimate_sent','negotiating','sold','in_production')) AS estimates_sent,
+       COUNT(l.id) FILTER (WHERE l.deleted_at IS NULL AND l.stage IN ('sold','in_production')) AS sold,
+       COALESCE(SUM(CASE WHEN l.stage IN ('sold','in_production') AND l.deleted_at IS NULL THEN COALESCE(l.actual_value, l.estimated_value) ELSE 0 END), 0) AS revenue,
        CASE
-         WHEN COUNT(l.id) FILTER (WHERE l.stage IN ('sold','lost') AND l.deleted_at IS NULL) > 0
-         THEN ROUND(100.0 * COUNT(l.id) FILTER (WHERE l.stage = 'sold' AND l.deleted_at IS NULL) / COUNT(l.id) FILTER (WHERE l.stage IN ('sold','lost') AND l.deleted_at IS NULL))
+         WHEN COUNT(l.id) FILTER (WHERE l.stage IN ('sold','in_production','lost') AND l.deleted_at IS NULL) > 0
+         THEN ROUND(100.0 * COUNT(l.id) FILTER (WHERE l.stage IN ('sold','in_production') AND l.deleted_at IS NULL) / COUNT(l.id) FILTER (WHERE l.stage IN ('sold','in_production','lost') AND l.deleted_at IS NULL))
          ELSE 0
        END AS close_rate
      FROM users u
@@ -668,6 +672,200 @@ export async function getLeaderboard(tenantId) {
     [tenantId]
   );
   return rows;
+}
+
+// ============================================================
+// TASKS DUE TODAY
+// ============================================================
+
+// ============================================================
+// DASHBOARD — PROPERTIES AFFECTED
+// ============================================================
+
+export async function getPropertiesAffected(tenantId) {
+  const { rows } = await pool.query(
+    `SELECT COUNT(DISTINCT p.id) as uncontacted,
+            COUNT(DISTINCT CASE WHEN l.id IS NOT NULL THEN p.id END) as contacted
+     FROM storm_events se
+     JOIN properties p ON ST_Intersects(p.location, se.geom)
+     LEFT JOIN leads l ON l.property_id = p.id AND l.tenant_id = $1
+     WHERE se.event_start >= now() - interval '7 days'
+       AND ST_GeometryType(se.geom) != 'ST_Point'
+       AND (p.year_built IS NOT NULL OR p.roof_sqft > 0 OR p.assessed_value > 15000 OR p.homestead_exempt = true)`,
+    [tenantId]
+  );
+
+  const r = rows[0];
+  const contacted = parseInt(r.contacted, 10);
+  const uncontacted = parseInt(r.uncontacted, 10) - contacted;
+  const total = contacted + uncontacted;
+
+  return { uncontacted, contacted, total };
+}
+
+export async function listPropertiesInStormZones(tenantId, { limit = 50, offset = 0, contacted = 'all', housesOnly = true } = {}) {
+  let contactedFilter = '';
+  if (contacted === 'uncontacted') contactedFilter = 'AND l.id IS NULL';
+  else if (contacted === 'contacted') contactedFilter = 'AND l.id IS NOT NULL';
+
+  // Filter to improved properties (actual houses/buildings, not vacant lots)
+  const improvedFilter = housesOnly
+    ? `AND (p.year_built IS NOT NULL OR p.roof_sqft > 0 OR p.assessed_value > 15000 OR p.homestead_exempt = true)`
+    : '';
+
+  // Step 1: Get paginated affected property IDs via the spatial join (fast with index)
+  // Step 2: Enrich with county avg $/sqft for estimated values
+  const [listResult, countResult] = await Promise.all([
+    pool.query(
+      `WITH affected AS (
+         SELECT DISTINCT ON (p.id)
+             p.id AS pid, se.id AS seid, se.event_start,
+             se.hail_size_max_in, se.wind_speed_max_mph,
+             se.source, (se.raw_data->>'type') AS storm_type
+         FROM storm_events se
+         JOIN properties p ON p.location && se.geom AND ST_Intersects(p.location, se.geom)
+         LEFT JOIN leads l ON l.property_id = p.id AND l.tenant_id = $1
+         WHERE se.event_start >= now() - interval '7 days'
+           AND ST_GeometryType(se.geom) != 'ST_Point'
+           ${contactedFilter}
+           ${improvedFilter}
+         ORDER BY p.id, se.event_start DESC
+       ),
+       page AS (
+         SELECT * FROM affected
+         ORDER BY event_start DESC, pid
+         LIMIT $2 OFFSET $3
+       ),
+       county_avg AS (
+         SELECT county,
+                AVG(assessed_value / NULLIF(roof_sqft, 0)) AS avg_price_per_sqft
+         FROM properties
+         WHERE assessed_value > 10000
+           AND roof_sqft > 200
+           AND county IS NOT NULL
+           AND county IN (SELECT DISTINCT p2.county FROM page pg JOIN properties p2 ON p2.id = pg.pid WHERE p2.county IS NOT NULL)
+         GROUP BY county
+         HAVING COUNT(*) >= 10
+       )
+       SELECT
+         p.id, p.address_line1, p.city, p.state, p.zip,
+         p.owner_first_name, p.owner_last_name, p.owner_phone, p.owner_email,
+         p.assessed_value, p.year_built, p.roof_sqft, p.roof_type,
+         p.homestead_exempt, p.county,
+         ST_Y(p.location::geometry) AS lat, ST_X(p.location::geometry) AS lng,
+         pg.seid AS storm_event_id, pg.event_start AS storm_date,
+         pg.hail_size_max_in, pg.wind_speed_max_mph, pg.source AS storm_source,
+         pg.storm_type,
+         l.id AS lead_id, l.stage AS lead_stage,
+         ca.avg_price_per_sqft,
+         CASE
+           WHEN p.assessed_value > 10000 THEN p.assessed_value
+           WHEN p.roof_sqft > 0 AND ca.avg_price_per_sqft IS NOT NULL
+             THEN ROUND(p.roof_sqft * ca.avg_price_per_sqft)
+           ELSE p.assessed_value
+         END AS estimated_value
+       FROM page pg
+       JOIN properties p ON p.id = pg.pid
+       LEFT JOIN leads l ON l.property_id = p.id AND l.tenant_id = $1
+       LEFT JOIN county_avg ca ON ca.county = p.county
+       ORDER BY pg.event_start DESC, pg.pid`,
+      [tenantId, limit, offset]
+    ),
+    getPropertiesAffected(tenantId),
+  ]);
+
+  let total;
+  if (contacted === 'uncontacted') total = countResult.uncontacted;
+  else if (contacted === 'contacted') total = countResult.contacted;
+  else total = countResult.total;
+
+  return { properties: listResult.rows, total };
+}
+
+// ============================================================
+// DASHBOARD — UPCOMING FOLLOW-UPS
+// ============================================================
+
+export async function getUpcomingFollowups(tenantId) {
+  const { rows } = await pool.query(
+    `SELECT l.id, l.contact_name, l.address, l.city, l.next_follow_up, l.stage, l.priority,
+            u.first_name || ' ' || u.last_name as assigned_to
+     FROM leads l
+     LEFT JOIN users u ON u.id = l.assigned_rep_id
+     WHERE l.tenant_id = $1
+       AND l.next_follow_up BETWEEN now() AND now() + interval '48 hours'
+       AND l.deleted_at IS NULL
+     ORDER BY l.next_follow_up ASC
+     LIMIT 10`,
+    [tenantId]
+  );
+
+  return rows;
+}
+
+// ============================================================
+// DASHBOARD — CONVERSION BY STORM
+// ============================================================
+
+export async function getConversionByStorm(tenantId) {
+  const { rows } = await pool.query(
+    `SELECT se.id, se.event_start, se.hail_size_max_in, se.wind_speed_max_mph,
+            se.raw_data->>'type' as storm_type,
+            se.raw_data->>'location' as location,
+            se.raw_data->>'areaDesc' as area_desc,
+            COUNT(DISTINCT l.id) as total_leads,
+            COUNT(CASE WHEN l.stage = 'sold' THEN 1 END) as sold_count,
+            COALESCE(SUM(CASE WHEN l.stage = 'sold' THEN COALESCE(l.actual_value, l.estimated_value) ELSE 0 END), 0) as revenue
+     FROM storm_events se
+     JOIN leads l ON l.storm_event_id = se.id AND l.tenant_id = $1 AND l.deleted_at IS NULL
+     WHERE se.event_start >= now() - interval '90 days'
+     GROUP BY se.id
+     HAVING COUNT(DISTINCT l.id) > 0
+     ORDER BY revenue DESC, total_leads DESC
+     LIMIT 5`,
+    [tenantId]
+  );
+
+  return rows.map(r => ({
+    ...r,
+    total_leads: parseInt(r.total_leads, 10),
+    sold_count: parseInt(r.sold_count, 10),
+    revenue: parseFloat(r.revenue),
+  }));
+}
+
+// ============================================================
+// DASHBOARD — ESTIMATE SUMMARY
+// ============================================================
+
+export async function getEstimateSummary(tenantId) {
+  const { rows } = await pool.query(
+    `SELECT
+       COUNT(CASE WHEN status = 'draft' THEN 1 END) as draft,
+       COUNT(CASE WHEN status = 'sent' THEN 1 END) as sent,
+       COUNT(CASE WHEN status = 'viewed' THEN 1 END) as viewed,
+       COUNT(CASE WHEN status = 'accepted' THEN 1 END) as accepted,
+       COUNT(CASE WHEN status = 'declined' THEN 1 END) as declined,
+       COUNT(CASE WHEN status = 'expired' OR (valid_until < CURRENT_DATE AND status IN ('sent','viewed')) THEN 1 END) as expired,
+       COALESCE(SUM(CASE WHEN status = 'accepted' THEN total ELSE 0 END), 0) as accepted_value,
+       COALESCE(SUM(CASE WHEN status IN ('sent','viewed') THEN total ELSE 0 END), 0) as pending_value
+     FROM estimates
+     WHERE tenant_id = $1
+       AND created_at >= now() - interval '30 days'`,
+    [tenantId]
+  );
+
+  const r = rows[0];
+  return {
+    draft: parseInt(r.draft, 10),
+    sent: parseInt(r.sent, 10),
+    viewed: parseInt(r.viewed, 10),
+    accepted: parseInt(r.accepted, 10),
+    declined: parseInt(r.declined, 10),
+    expired: parseInt(r.expired, 10),
+    accepted_value: parseFloat(r.accepted_value),
+    pending_value: parseFloat(r.pending_value),
+  };
 }
 
 // ============================================================
@@ -691,4 +889,201 @@ export async function getTasksDueToday(tenantId) {
     [tenantId]
   );
   return rows;
+}
+
+// ============================================================
+// PROSPECT LISTS — Curated property collections from storm swaths
+// ============================================================
+
+export async function createProspectListFromSwath(tenantId, userId, stormEventId, name) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    const { rows: [list] } = await client.query(
+      `INSERT INTO prospect_lists (tenant_id, storm_event_id, name, created_by)
+       VALUES ($1, $2, $3, $4)
+       RETURNING *`,
+      [tenantId, stormEventId, name, userId]
+    );
+
+    const { rowCount } = await client.query(
+      `INSERT INTO prospect_list_items (list_id, property_id)
+       SELECT $1, p.id
+       FROM storm_events se
+       JOIN properties p ON p.location && se.geom AND ST_Intersects(p.location, se.geom)
+       WHERE se.id = $2
+         AND (p.year_built IS NOT NULL OR p.roof_sqft > 0 OR p.assessed_value > 15000 OR p.homestead_exempt = true)
+         AND p.address_line1 IS NOT NULL AND TRIM(p.address_line1) != '' AND p.address_line1 != '0'
+       ON CONFLICT (list_id, property_id) DO NOTHING`,
+      [list.id, stormEventId]
+    );
+
+    await client.query(
+      `UPDATE prospect_lists SET property_count = $2 WHERE id = $1`,
+      [list.id, rowCount]
+    );
+
+    await client.query('COMMIT');
+    return { ...list, property_count: rowCount };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+export async function getProspectLists(tenantId) {
+  const { rows } = await pool.query(
+    `SELECT pl.*,
+            u.first_name || ' ' || u.last_name as created_by_name,
+            se.source as storm_source,
+            (se.raw_data->>'type') as storm_type,
+            se.hail_size_max_in, se.wind_speed_max_mph,
+            se.event_start as storm_date
+     FROM prospect_lists pl
+     LEFT JOIN users u ON u.id = pl.created_by
+     LEFT JOIN storm_events se ON se.id = pl.storm_event_id
+     WHERE pl.tenant_id = $1
+     ORDER BY pl.created_at DESC`,
+    [tenantId]
+  );
+  return rows;
+}
+
+export async function getProspectListItems(tenantId, listId, { limit = 50, offset = 0, filters = {} } = {}) {
+  const { rows: [list] } = await pool.query(
+    `SELECT id, name, storm_event_id, property_count FROM prospect_lists WHERE id = $1 AND tenant_id = $2`,
+    [listId, tenantId]
+  );
+  if (!list) return null;
+
+  // Build dynamic WHERE clauses from filters
+  const conditions = ['pli.list_id = $1'];
+  const params = [listId, tenantId];
+  let paramIdx = 3;
+
+  if (filters.value_min) {
+    conditions.push(`p.assessed_value >= $${paramIdx++}`);
+    params.push(Number(filters.value_min));
+  }
+  if (filters.value_max) {
+    conditions.push(`p.assessed_value <= $${paramIdx++}`);
+    params.push(Number(filters.value_max));
+  }
+  if (filters.year_min) {
+    conditions.push(`p.year_built >= $${paramIdx++}`);
+    params.push(Number(filters.year_min));
+  }
+  if (filters.year_max) {
+    conditions.push(`p.year_built <= $${paramIdx++}`);
+    params.push(Number(filters.year_max));
+  }
+  if (filters.roof_min) {
+    conditions.push(`p.roof_sqft >= $${paramIdx++}`);
+    params.push(Number(filters.roof_min));
+  }
+  if (filters.roof_max) {
+    conditions.push(`p.roof_sqft <= $${paramIdx++}`);
+    params.push(Number(filters.roof_max));
+  }
+  if (filters.has_owner === 'true') {
+    conditions.push(`(p.owner_first_name IS NOT NULL OR p.owner_last_name IS NOT NULL)`);
+  }
+  if (filters.has_owner === 'false') {
+    conditions.push(`p.owner_first_name IS NULL AND p.owner_last_name IS NULL`);
+  }
+  if (filters.has_phone === 'true') {
+    conditions.push(`p.owner_phone IS NOT NULL AND p.owner_phone != ''`);
+  }
+  if (filters.has_phone === 'false') {
+    conditions.push(`(p.owner_phone IS NULL OR p.owner_phone = '')`);
+  }
+  if (filters.homestead === 'true') {
+    conditions.push(`p.homestead_exempt = true`);
+  }
+  if (filters.homestead === 'false') {
+    conditions.push(`(p.homestead_exempt IS NULL OR p.homestead_exempt = false)`);
+  }
+  if (filters.status === 'new') {
+    conditions.push(`l.id IS NULL`);
+  }
+  if (filters.status === 'lead') {
+    conditions.push(`l.id IS NOT NULL`);
+  }
+  if (filters.city) {
+    conditions.push(`LOWER(TRIM(p.city)) = LOWER(TRIM($${paramIdx++}))`);
+    params.push(filters.city);
+  }
+  if (filters.roof_type) {
+    conditions.push(`LOWER(TRIM(p.roof_type)) = LOWER(TRIM($${paramIdx++}))`);
+    params.push(filters.roof_type);
+  }
+
+  const whereClause = conditions.join(' AND ');
+
+  const baseQuery = `
+    FROM prospect_list_items pli
+    JOIN properties p ON p.id = pli.property_id
+    LEFT JOIN leads l ON l.property_id = p.id AND l.tenant_id = $2
+    WHERE ${whereClause}`;
+
+  const [itemsResult, countResult] = await Promise.all([
+    pool.query(
+      `SELECT
+         p.id, p.address_line1, p.city, p.state, p.zip,
+         p.owner_first_name, p.owner_last_name, p.owner_phone, p.owner_email,
+         p.assessed_value, p.year_built, p.roof_sqft, p.roof_type,
+         p.homestead_exempt, p.county,
+         ST_Y(p.location::geometry) AS lat, ST_X(p.location::geometry) AS lng,
+         pli.skip_traced, pli.skip_trace_data, pli.added_at,
+         l.id AS lead_id, l.stage AS lead_stage
+       ${baseQuery}
+       ORDER BY p.assessed_value DESC NULLS LAST
+       LIMIT $${paramIdx++} OFFSET $${paramIdx++}`,
+      [...params, limit, offset]
+    ),
+    pool.query(
+      `SELECT COUNT(*) ${baseQuery}`,
+      params
+    ),
+  ]);
+
+  return {
+    list,
+    properties: itemsResult.rows,
+    total: parseInt(countResult.rows[0].count, 10),
+  };
+}
+
+export async function deleteProspectList(tenantId, listId) {
+  const { rowCount } = await pool.query(
+    `DELETE FROM prospect_lists WHERE id = $1 AND tenant_id = $2`,
+    [listId, tenantId]
+  );
+  return rowCount > 0;
+}
+
+export async function removeProspectListItem(tenantId, listId, propertyId) {
+  // Verify tenant owns the list
+  const { rows: [list] } = await pool.query(
+    `SELECT id FROM prospect_lists WHERE id = $1 AND tenant_id = $2`,
+    [listId, tenantId]
+  );
+  if (!list) return null;
+
+  const { rowCount } = await pool.query(
+    `DELETE FROM prospect_list_items WHERE list_id = $1 AND property_id = $2`,
+    [listId, propertyId]
+  );
+
+  if (rowCount > 0) {
+    await pool.query(
+      `UPDATE prospect_lists SET property_count = property_count - 1 WHERE id = $1`,
+      [listId]
+    );
+  }
+
+  return rowCount > 0;
 }

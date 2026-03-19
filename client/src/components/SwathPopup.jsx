@@ -7,29 +7,37 @@ const SwathPopup = {
     }
     rawData = rawData || {};
 
-    // Determine storm type from raw_data.type or by available fields
+    // Determine storm type from hazards array, raw_data.type, or available fields
+    const hazards = rawData.hazards || [];
     const explicitType = rawData.type;
+    const hailVal = Number(properties.hail_size_max_in);
+    const windVal = Number(properties.wind_speed_max_mph);
+    const hasHail = hailVal > 0 && Number.isFinite(hailVal);
+    const hasWind = windVal > 0 && Number.isFinite(windVal);
     let type = 'storm';
-    if (explicitType === 'hail' || explicitType === 'wind' || explicitType === 'tornado') {
-      type = explicitType;
-    } else if (properties.hail_size_max_in && !properties.wind_speed_max_mph) {
+    // Events with both hazards show as severe thunderstorm (displays both hail + wind info)
+    if (hazards.length > 1 || (hasHail && hasWind) || explicitType === 'severe_thunderstorm') {
+      type = 'severe_thunderstorm';
+    } else if (hazards.includes('tornado') || explicitType === 'tornado') {
+      type = 'tornado';
+    } else if (hazards.includes('hail') || explicitType === 'hail' || (hasHail && !hasWind)) {
       type = 'hail';
-    } else if (properties.wind_speed_max_mph && !properties.hail_size_max_in) {
+    } else if (hazards.includes('wind') || explicitType === 'wind' || (hasWind && !hasHail)) {
       type = 'wind';
-    } else if (properties.hail_size_max_in) {
-      type = 'hail';
     }
 
     const titles = {
       hail: 'Hail Report',
       wind: 'Wind Report',
       tornado: 'Tornado Report',
+      severe_thunderstorm: 'Severe Thunderstorm Warning',
       storm: 'Severe Thunderstorm',
     };
     const colors = {
       hail: '#dcb428',
       wind: '#6c5ce7',
       tornado: '#ff2d55',
+      severe_thunderstorm: '#ff9500',
       storm: '#50b450',
     };
 
@@ -45,7 +53,7 @@ const SwathPopup = {
         })
       : null;
 
-    const source = properties.source === 'spc_report' ? 'SPC Report'
+    const source = properties.source === 'spc_report' ? 'SPC Storm Spotter Report'
       : properties.source === 'nws_alert' ? 'NWS Alert'
       : properties.source === 'mrms_mesh' ? 'MRMS Radar'
       : properties.source || 'Unknown';
@@ -58,7 +66,7 @@ const SwathPopup = {
     }
 
     // Hail size with color bar
-    if (properties.hail_size_max_in && properties.hail_size_max_in > 0) {
+    if (hasHail) {
       const size = Number(properties.hail_size_max_in);
       const desc = hailDesc(size);
       rows += row('Hail Size', `${size}" ${desc ? `<span style="opacity:0.6">(${desc})</span>` : ''}`);
@@ -130,13 +138,24 @@ const SwathPopup = {
     }
 
     // Drift correction
-    if (properties.drift_vector_m) {
-      const driftMi = (properties.drift_vector_m / 1609.34).toFixed(1);
-      rows += row('Wind Drift', `${driftMi} mi correction`);
+    let driftData = properties.drift_vector_m;
+    if (typeof driftData === 'string') {
+      try { driftData = JSON.parse(driftData); } catch { driftData = null; }
+    }
+    if (driftData && typeof driftData === 'object') {
+      const dx = Number(driftData.dx_m) || 0;
+      const dy = Number(driftData.dy_m) || 0;
+      const totalM = Math.sqrt(dx * dx + dy * dy);
+      if (totalM > 0) {
+        const driftMi = (totalM / 1609.34).toFixed(1);
+        rows += row('Wind Drift', `${driftMi} mi correction`);
+      }
     }
 
     // Source
     rows += row('Source', source);
+
+    const stormEventId = properties.storm_event_id || properties.id || '';
 
     return `
       <div class="swath-popup">
@@ -144,6 +163,12 @@ const SwathPopup = {
           ${titles[type] || titles.storm}
         </div>
         ${rows}
+        ${stormEventId ? `
+          <div class="swath-popup__row swath-popup__property-count" data-storm-id="${stormEventId}">
+            <span class="swath-popup__label">Affected Properties</span>
+            <span class="swath-popup__value swath-popup__count-value" style="opacity:0.5">loading…</span>
+          </div>
+        ` : ''}
       </div>
     `;
   },
@@ -186,11 +211,15 @@ const HAIL_STOPS = [
 ];
 
 function hailColorBar(currentSize) {
-  const stops = HAIL_STOPS.map(s => s.color).join(', ');
+  const stops = HAIL_STOPS.map(s => {
+    const p = ((s.size - 0.5) / 3.5) * 100;
+    return `${s.color} ${p.toFixed(1)}%`;
+  }).join(', ');
   const pct = Math.max(0, Math.min(100, ((currentSize - 0.5) / 3.5) * 100));
   return `
     <div style="padding:4px 0 2px;margin-top:2px">
-      <div style="position:relative;height:10px;border-radius:5px;background:linear-gradient(to right, ${stops});border:1px solid rgba(255,255,255,0.15)">
+      <div style="position:relative;height:10px;border-radius:5px;background:linear-gradient(to right, ${stops})">
+        <div style="position:absolute;inset:0;border:1px solid rgba(255,255,255,0.15);border-radius:5px;pointer-events:none"></div>
         <div style="position:absolute;top:-2px;left:${pct}%;transform:translateX(-50%);width:14px;height:14px;border-radius:50%;border:2px solid #fff;background:rgba(0,0,0,0.4);box-shadow:0 0 4px rgba(0,0,0,0.5)"></div>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:9px;opacity:0.5;margin-top:2px;padding:0 1px">
@@ -230,7 +259,10 @@ const WIND_STOPS = [
 ];
 
 function windColorBar(currentSpeed) {
-  const stops = WIND_STOPS.map(s => s.color).join(', ');
+  const stops = WIND_STOPS.map(s => {
+    const p = ((s.speed - 40) / 90) * 100;
+    return `${s.color} ${p.toFixed(1)}%`;
+  }).join(', ');
   const hasSpeed = currentSpeed && !isNaN(currentSpeed) && currentSpeed > 0;
   const pct = hasSpeed ? Math.max(0, Math.min(100, ((currentSpeed - 40) / 90) * 100)) : 0;
   const marker = hasSpeed
@@ -238,7 +270,8 @@ function windColorBar(currentSpeed) {
     : '';
   return `
     <div style="padding:4px 0 2px;margin-top:2px">
-      <div style="position:relative;height:10px;border-radius:5px;background:linear-gradient(to right, ${stops});border:1px solid rgba(255,255,255,0.15)">
+      <div style="position:relative;height:10px;border-radius:5px;background:linear-gradient(to right, ${stops})">
+        <div style="position:absolute;inset:0;border:1px solid rgba(255,255,255,0.15);border-radius:5px;pointer-events:none"></div>
         ${marker}
       </div>
       <div style="display:flex;justify-content:space-between;font-size:9px;opacity:0.5;margin-top:2px;padding:0 1px">

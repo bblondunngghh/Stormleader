@@ -18,6 +18,8 @@ import documentsRouter from './documents.js';
 import roofMeasurementRouter from './roofMeasurement.js';
 import onboardingRouter from './onboarding.js';
 import adminRouter from './admin.js';
+import paymentsRouter from './payments.js';
+import materialsRouter from './materials.js';
 
 const router = Router();
 
@@ -40,5 +42,7 @@ router.use('/documents', documentsRouter);
 router.use('/roof-measurement', roofMeasurementRouter);
 router.use('/onboarding', onboardingRouter);
 router.use('/admin', adminRouter);
+router.use('/payments', paymentsRouter);
+router.use('/materials', materialsRouter);
 
 export default router;

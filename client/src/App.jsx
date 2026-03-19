@@ -3,6 +3,7 @@ import { lazy, Suspense, useMemo, useCallback } from 'react';
 import ProtectedRoute from './auth/ProtectedRoute';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
+import ToastContainer from './components/Toast';
 
 // Lazy-load all pages so only the active route's code is downloaded
 const LoginPage = lazy(() => import('./auth/LoginPage'));
@@ -17,6 +18,7 @@ const TasksView = lazy(() => import('./components/TasksView'));
 const EstimatesView = lazy(() => import('./components/EstimatesView'));
 const SettingsView = lazy(() => import('./components/SettingsView'));
 const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
+const MaterialsView = lazy(() => import('./components/MaterialsView'));
 const PublicEstimate = lazy(() => import('./components/PublicEstimate'));
 
 function PageLoader() {
@@ -36,6 +38,7 @@ const viewRoutes = {
   alerts: '/alerts',
   tasks: '/tasks',
   estimates: '/estimates',
+  materials: '/materials',
   settings: '/settings',
   admin: '/admin',
 };
@@ -70,6 +73,7 @@ function AppShell() {
           <Route path="/alerts" element={<AlertSettings />} />
           <Route path="/tasks" element={<TasksView />} />
           <Route path="/estimates" element={<EstimatesView />} />
+          <Route path="/materials" element={<MaterialsView />} />
           <Route path="/settings" element={<SettingsView />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -96,6 +100,7 @@ export default function App() {
           }
         />
       </Routes>
+      <ToastContainer />
     </Suspense>
   );
 }

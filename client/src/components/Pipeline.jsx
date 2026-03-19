@@ -1,6 +1,13 @@
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
-import { getLeads, getPipelineStages, updateLead } from '../api/crm';
+import React, { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from 'react';
+import { getLeads, getPipelineStages, updateLead, getTeamMembers } from '../api/crm';
+import { showToast } from './Toast';
+import { IconRefresh, IconPlusCircle, IconPhone, IconCalendar, IconFilter, IconX, IconChevronDown, IconEyeOff, IconEye } from './Icons';
+import CustomSelect from './CustomSelect';
+import iconHot from '../assets/icons/Safety-Flame-Right--Streamline-Ultimate.svg';
+import iconWarm from '../assets/icons/Temperature-Thermometer-Up--Streamline-Ultimate.svg';
+import iconCold from '../assets/icons/Ice-Water--Streamline-Ultimate.svg';
 const LeadDetail = lazy(() => import('./LeadDetail'));
+const CreateLeadModal = lazy(() => import('./CreateLeadModal'));
 
 function cleanAddr(str) {
   if (!str) return '';
@@ -24,6 +31,65 @@ function formatOwner(raw) {
   return titleCase(raw);
 }
 
+function formatCurrency(val) {
+  const num = Number(val);
+  if (!num) return null;
+  if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `$${(num / 1000).toFixed(1)}K`;
+  return `$${num}`;
+}
+
+function dueDateInfo(dateStr) {
+  if (!dateStr) return null;
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  // Parse as local date to avoid UTC offset causing off-by-one
+  const parts = dateStr.substring(0, 10).split('-');
+  const due = parts.length === 3 ? new Date(+parts[0], +parts[1] - 1, +parts[2]) : new Date(dateStr);
+  due.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((due - now) / 86400000);
+  if (diffDays < 0) return { label: `${Math.abs(diffDays)}d overdue`, color: 'oklch(0.68 0.22 25)', bg: 'oklch(0.68 0.22 25 / 0.12)' };
+  if (diffDays === 0) return { label: 'Due today', color: 'oklch(0.78 0.17 85)', bg: 'oklch(0.78 0.17 85 / 0.12)' };
+  if (diffDays <= 3) return { label: `Due in ${diffDays}d`, color: 'oklch(0.78 0.17 85)', bg: 'oklch(0.78 0.17 85 / 0.12)' };
+  return { label: new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), color: 'oklch(0.55 0.02 260)', bg: 'oklch(0.55 0.02 260 / 0.12)' };
+}
+
+const priorityClasses = {
+  hot: 'bg-[oklch(0.68_0.22_25)] shadow-[0_0_8px_oklch(0.68_0.22_25/0.6)] animate-[pulse-hot_2s_ease-in-out_infinite]',
+  warm: 'bg-[oklch(0.78_0.17_85)] shadow-[0_0_6px_oklch(0.78_0.17_85/0.4)]',
+  cold: 'bg-[oklch(0.72_0.19_250)]',
+};
+
+const priorityTint = {
+  hot: 'oklch(0.68 0.22 25 / 0.07)',
+  warm: 'oklch(0.78 0.17 85 / 0.07)',
+  cold: 'oklch(0.72 0.19 250 / 0.07)',
+};
+
+const priorityIcon = {
+  hot: iconHot,
+  warm: iconWarm,
+  cold: iconCold,
+};
+
+const priorityOptions = [
+  { value: '', label: 'All Priorities' },
+  { value: 'hot', label: 'Hot' },
+  { value: 'warm', label: 'Warm' },
+  { value: 'cold', label: 'Cold' },
+];
+
+const sourceOptions = [
+  { value: '', label: 'All Sources' },
+  { value: 'storm_auto', label: 'Storm' },
+  { value: 'manual', label: 'Manual' },
+  { value: 'referral', label: 'Referral' },
+  { value: 'website', label: 'Website' },
+  { value: 'door_knock', label: 'Door Knock' },
+  { value: 'phone', label: 'Phone' },
+  { value: 'other', label: 'Other' },
+];
+
 const fallbackColumns = [
   { key: 'new', label: 'New', color: 'oklch(0.72 0.19 250)', position: 0 },
   { key: 'contacted', label: 'Contacted', color: 'oklch(0.75 0.15 200)', position: 1 },
@@ -40,12 +106,97 @@ export default function Pipeline() {
   const [loading, setLoading] = useState(true);
   const [selectedLeadId, setSelectedLeadId] = useState(null);
   const [dragState, setDragState] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // Grab-to-pan
+  const panRef = useRef(null);
+  const panState = useRef({ isPanning: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 });
+
+  const handlePanDown = useCallback((e) => {
+    // Only pan on middle-click or left-click on empty space (not on cards/buttons)
+    if (e.button !== 0 && e.button !== 1) return;
+    const tag = e.target.tagName;
+    // Don't start pan if clicking interactive elements or card content
+    if (e.target.closest('[draggable="true"]') || e.target.closest('button') || e.target.closest('a') || tag === 'INPUT' || tag === 'SELECT') return;
+    const el = panRef.current;
+    if (!el) return;
+    panState.current = { isPanning: true, startX: e.clientX, startY: e.clientY, scrollLeft: el.scrollLeft, scrollTop: el.scrollTop };
+    el.style.cursor = 'grabbing';
+    e.preventDefault();
+  }, []);
+
+  const handlePanMove = useCallback((e) => {
+    if (!panState.current.isPanning) return;
+    const el = panRef.current;
+    if (!el) return;
+    const dx = e.clientX - panState.current.startX;
+    const dy = e.clientY - panState.current.startY;
+    el.scrollLeft = panState.current.scrollLeft - dx;
+    el.scrollTop = panState.current.scrollTop - dy;
+  }, []);
+
+  const handlePanUp = useCallback(() => {
+    panState.current.isPanning = false;
+    if (panRef.current) panRef.current.style.cursor = 'grab';
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('mousemove', handlePanMove);
+    document.addEventListener('mouseup', handlePanUp);
+    return () => {
+      document.removeEventListener('mousemove', handlePanMove);
+      document.removeEventListener('mouseup', handlePanUp);
+    };
+  }, [handlePanMove, handlePanUp]);
+
+  // Filters
+  const [filterPriority, setFilterPriority] = useState('');
+  const [filterSource, setFilterSource] = useState('');
+  const [filterRep, setFilterRep] = useState('');
+  const [teamMembers, setTeamMembers] = useState([]);
+
+  // Collapsible columns
+  const [collapsedCols, setCollapsedCols] = useState(() => {
+    try {
+      const saved = localStorage.getItem('pipeline_collapsed');
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch { return new Set(); }
+  });
+
+  const toggleCollapse = (key) => {
+    setCollapsedCols(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      localStorage.setItem('pipeline_collapsed', JSON.stringify([...next]));
+      return next;
+    });
+  };
+
+  // Build rep options from team members
+  const repOptions = useMemo(() => [
+    { value: '', label: 'All Reps' },
+    ...teamMembers.map(m => ({
+      value: String(m.id),
+      label: [m.first_name, m.last_name].filter(Boolean).join(' ') || m.email,
+    })),
+  ], [teamMembers]);
+
+  // Fetch team once
+  useEffect(() => {
+    getTeamMembers().then(res => setTeamMembers(res.data?.members || [])).catch(() => {});
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
+      const params = { limit: 500, sort_by: 'created_at', sort_dir: 'DESC' };
+      if (filterPriority) params.priority = filterPriority;
+      if (filterSource) params.source = filterSource;
+      if (filterRep) params.assigned_rep_id = filterRep;
+
       const [stagesRes, leadsRes] = await Promise.all([
         getPipelineStages().catch(() => null),
-        getLeads({ limit: 200, sort_by: 'created_at', sort_dir: 'DESC' }),
+        getLeads(params),
       ]);
 
       const stageData = stagesRes?.data?.stages || stagesRes?.data;
@@ -59,9 +210,33 @@ export default function Pipeline() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [filterPriority, filterSource, filterRep]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  // Active filters for pills
+  const activeFilters = useMemo(() => {
+    const pills = [];
+    if (filterPriority) pills.push({
+      key: 'priority', label: `Priority: ${priorityOptions.find(o => o.value === filterPriority)?.label}`,
+      clear: () => setFilterPriority(''),
+    });
+    if (filterSource) pills.push({
+      key: 'source', label: `Source: ${sourceOptions.find(o => o.value === filterSource)?.label}`,
+      clear: () => setFilterSource(''),
+    });
+    if (filterRep) pills.push({
+      key: 'rep', label: `Rep: ${repOptions.find(o => o.value === filterRep)?.label}`,
+      clear: () => setFilterRep(''),
+    });
+    return pills;
+  }, [filterPriority, filterSource, filterRep, repOptions]);
+
+  const clearAllFilters = () => {
+    setFilterPriority('');
+    setFilterSource('');
+    setFilterRep('');
+  };
 
   const handleDragStart = (e, lead) => {
     setDragState({ leadId: lead.id, fromStage: lead.stage });
@@ -85,108 +260,305 @@ export default function Pipeline() {
     if (!dragState || dragState.fromStage === toStage) return;
 
     const leadId = dragState.leadId;
+    const lead = leads.find(l => l.id === leadId);
+    const toLabel = columns.find(c => c.key === toStage)?.label || toStage;
 
     // Optimistic update
     setLeads(prev => prev.map(l =>
       l.id === leadId ? { ...l, stage: toStage } : l
     ));
 
+    // Toast
+    const name = lead?.contact_name ? formatOwner(lead.contact_name) : (lead?.address ? titleCase(cleanAddr(lead.address)) : 'Lead');
+    showToast(`${name} moved to ${toLabel}`, 'success');
+
+    const fromStage = dragState.fromStage;
     try {
       await updateLead(leadId, { stage: toStage });
     } catch {
-      // Revert on error
-      fetchData();
+      showToast('Failed to move lead', 'error');
+      // Revert only this lead, don't clobber other concurrent moves
+      setLeads(prev => prev.map(l => l.id === leadId ? { ...l, stage: fromStage } : l));
     }
     setDragState(null);
   };
 
-  const handleLeadUpdated = () => {
-    fetchData();
-  };
+  const handleLeadUpdated = () => { fetchData(); };
 
   if (loading) {
     return (
-      <div className="main-content" style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ color: 'var(--text-muted)' }}>Loading pipeline...</span>
+      <div className="main-content flex items-center justify-center">
+        <span className="text-[oklch(0.55_0.02_260)]">Loading pipeline...</span>
       </div>
     );
   }
 
   return (
-    <div className="main-content" style={{ paddingBottom: 0 }}>
-      <div className="kanban">
-        {columns.map((col) => {
+    <div className="main-content pb-0 !overflow-hidden !gap-0" style={{ display: 'grid', gridTemplateRows: 'auto 1fr', padding: 0 }}>
+      {/* Header: Single-line toolbar */}
+      <div
+        className="glass px-4 py-2.5 mx-[var(--space-2xl)] mt-[var(--space-lg)] flex items-center gap-3 shadow-[0_8px_32px_oklch(0_0_0/0.25),inset_0_1px_0_oklch(1_0_0/0.05)]"
+        style={{ borderRadius: '20px / 18px', whiteSpace: 'nowrap', flexShrink: 0, zIndex: 20, position: 'relative' }}
+      >
+        <h1 className="text-[15px] font-bold text-[var(--text-primary)] shrink-0">Sales Pipeline</h1>
+
+        {/* Separator */}
+        <div className="shrink-0" style={{ width: 1, height: 22, background: 'var(--glass-border)' }} />
+
+        {/* Filters */}
+        <IconFilter width="13" height="13" className="shrink-0" style={{ color: 'var(--text-muted)' }} />
+        <CustomSelect value={filterPriority} onChange={setFilterPriority} options={priorityOptions} placeholder="Priority" style={{ minWidth: 110 }} />
+        <CustomSelect value={filterSource} onChange={setFilterSource} options={sourceOptions} placeholder="Source" style={{ minWidth: 110 }} />
+        <CustomSelect value={filterRep} onChange={setFilterRep} options={repOptions} placeholder="Sales Rep" style={{ minWidth: 120 }} />
+
+        {/* Separator */}
+        <div className="shrink-0" style={{ width: 1, height: 22, background: 'var(--glass-border)' }} />
+
+        {/* Refresh */}
+        <button
+          onClick={() => { setLoading(true); fetchData(); }}
+          title="Refresh"
+          className="shrink-0"
+          style={{
+            background: 'oklch(0.22 0.02 260 / 0.45)', border: '1px solid var(--glass-border)',
+            cursor: 'pointer', color: 'var(--text-muted)',
+            width: 36, height: 36, padding: 0, boxSizing: 'border-box',
+            borderRadius: '14px / 12px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            backdropFilter: 'blur(12px)',
+          }}
+          onMouseEnter={e => e.currentTarget.style.color = 'var(--accent-blue)'}
+          onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
+        >
+          <IconRefresh width="14" height="14" />
+        </button>
+
+        {/* Add Lead */}
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="shrink-0"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 5,
+            height: 36, padding: '0 14px', fontSize: 12, fontWeight: 600, boxSizing: 'border-box',
+            borderRadius: '14px / 12px', border: '1px solid oklch(0.72 0.19 250 / 0.3)',
+            cursor: 'pointer', backdropFilter: 'blur(12px)',
+            background: 'oklch(0.72 0.19 250 / 0.15)', color: 'var(--accent-blue)',
+          }}
+        >
+          <IconPlusCircle width="13" height="13" />
+          Add Lead
+        </button>
+
+        {/* Active filter pills */}
+        {activeFilters.length > 0 && (
+          <>
+            {activeFilters.map(f => (
+              <span key={f.key} className="filter-pill shrink-0">
+                {f.label}
+                <button onClick={f.clear} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 0 0 6px', fontSize: 12, lineHeight: 1 }}>&times;</button>
+              </span>
+            ))}
+            {activeFilters.length > 1 && (
+              <button onClick={clearAllFilters} className="shrink-0" style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: 'var(--accent-blue)', fontSize: 11, fontWeight: 600,
+              }}>
+                Clear All
+              </button>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Scrollable Pipeline Area — grab to pan */}
+      <div
+        ref={panRef}
+        className="overflow-auto px-[var(--space-2xl)] pb-4 pt-2"
+        style={{ gridRow: '2 / 3', cursor: 'grab', userSelect: 'none' }}
+        onMouseDown={handlePanDown}
+      >
+        <div className="flex items-stretch" style={{ minWidth: '100%' }}>
+        {columns.map((col, idx) => {
           const colLeads = leads.filter((l) => l.stage === col.key);
           const isDropTarget = dragState && dragState.fromStage !== col.key;
+          const isCollapsed = collapsedCols.has(col.key);
+          const colTotal = colLeads.reduce((sum, l) => sum + (Number(l.estimated_value) || 0), 0);
 
           return (
-            <div
-              key={col.key}
-              className="kanban-column"
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, col.key)}
-              style={isDropTarget ? { outline: `2px dashed ${col.color}`, outlineOffset: -2, borderRadius: 'var(--radius-md)' } : undefined}
-            >
-              <div className="kanban-column__header">
-                <span className="kanban-column__dot" style={{ background: col.color }} />
-                <span className="kanban-column__title">{col.label}</span>
-                <span className="kanban-column__count">{colLeads.length}</span>
-              </div>
-              <div className="kanban-column__cards">
-                {colLeads.map((lead) => (
-                  <div
-                    key={lead.id}
-                    className="lead-card glass"
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, lead)}
-                    onDragEnd={handleDragEnd}
-                    onClick={() => setSelectedLeadId(lead.id)}
-                  >
-                    <div className="lead-card__top">
-                      <span className={`lead-card__priority lead-card__priority--${lead.priority}`} />
-                      {lead.estimated_value && (
-                        <span className="lead-card__value">
-                          ${(Number(lead.estimated_value) / 1000).toFixed(1)}K
+            <React.Fragment key={col.key}>
+              {/* Column: header + cards */}
+              <div
+                className={`flex flex-col gap-2 ${isCollapsed ? 'min-w-[48px] max-w-[48px]' : 'min-w-[280px] w-[280px]'}`}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, col.key)}
+                style={isDropTarget ? { outline: `2px dashed ${col.color}`, outlineOffset: -2, borderRadius: 12 } : undefined}
+              >
+                {/* Column Header */}
+                <div
+                  className="
+                    glass flex items-center gap-2 px-4 py-3 sticky top-0 z-10
+                    shadow-[0_8px_32px_oklch(0_0_0/0.25),inset_0_1px_0_oklch(1_0_0/0.05)]
+                  "
+                  style={{ borderRadius: '20px / 18px', whiteSpace: 'nowrap', cursor: isCollapsed ? 'pointer' : 'default', justifyContent: isCollapsed ? 'center' : undefined }}
+                  onClick={isCollapsed ? () => toggleCollapse(col.key) : undefined}
+                >
+                  {isCollapsed ? (
+                    <div className="flex flex-col items-center gap-1.5 py-1 w-full">
+                      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: col.color }} />
+                      <span className="text-[11px] font-bold" style={{ color: col.color }}>
+                        {colLeads.length}
+                      </span>
+                      <IconEye width="12" height="12" style={{ color: 'var(--text-muted)' }} />
+                    </div>
+                  ) : (
+                    <>
+                      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: col.color }} />
+                      <span className="text-[13px] font-bold flex-1 truncate" style={{ color: col.color }}>{col.label}</span>
+                      <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ color: col.color, background: `color-mix(in oklch, ${col.color} 12%, transparent)` }}>
+                        {colLeads.length}
+                      </span>
+                      {colTotal > 0 && (
+                        <span className="text-[10px] font-bold" style={{ color: 'oklch(0.75 0.18 155)' }}>
+                          {formatCurrency(colTotal)}
                         </span>
                       )}
-                    </div>
-                    {lead.address && (() => {
-                      const city = lead.city?.trim() || '';
-                      const st = (lead.property_state || lead.state || '').trim();
-                      const zip = (lead.property_zip || lead.zip || '').trim();
-                      const cityLine = [city ? titleCase(city) : '', st, zip && zip !== '0' ? zip : ''].filter(Boolean).join(', ').replace(/, (\d)/, ' $1');
+                      <button
+                        onClick={() => toggleCollapse(col.key)}
+                        title="Collapse column"
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 0, display: 'flex', alignItems: 'center' }}
+                      >
+                        <IconEyeOff width="13" height="13" />
+                      </button>
+                      {idx < columns.length - 1 && (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={col.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 ml-1" style={{ opacity: 0.45, transform: 'scaleX(-1)' }}>
+                          <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
+                        </svg>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* Cards (hidden when collapsed) */}
+                {!isCollapsed && (
+                  <div className="flex flex-col gap-2 pr-1">
+                    {colLeads.map((lead) => {
+                      const dueInfo = dueDateInfo(lead.next_follow_up);
                       return (
-                        <div className="lead-card__address">
-                          <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>Address</div>
-                          <div>{titleCase(cleanAddr(lead.address))}</div>
-                          {cityLine && <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{cityLine}</div>}
+                        <div
+                          key={lead.id}
+                          className="
+                            glass p-4 flex flex-col gap-2 cursor-pointer
+                            shadow-[0_8px_32px_oklch(0_0_0/0.25),inset_0_1px_0_oklch(1_0_0/0.05)]
+                          "
+                          style={{ borderRadius: '20px / 18px', background: priorityTint[lead.priority] || undefined }}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, lead)}
+                          onDragEnd={handleDragEnd}
+                          onClick={() => setSelectedLeadId(lead.id)}
+                        >
+                          {/* Top Row: Priority + Value */}
+                          <div className="flex items-center justify-between">
+                            {priorityIcon[lead.priority] ? (
+                              <img src={priorityIcon[lead.priority]} alt={lead.priority} width="16" height="16" className="shrink-0" />
+                            ) : (
+                              <span className={`w-2 h-2 rounded-full shrink-0 ${priorityClasses[lead.priority] || ''}`} />
+                            )}
+                            {lead.estimated_value && (
+                              <span className="text-[13px] font-bold text-[oklch(0.75_0.18_155)]">
+                                {formatCurrency(lead.estimated_value)}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Address */}
+                          {lead.address && (() => {
+                            const city = lead.city?.trim() || '';
+                            const st = (lead.property_state || lead.state || '').trim();
+                            const zip = (lead.property_zip || lead.zip || '').trim();
+                            const cityLine = [city ? titleCase(city) : '', st, zip && zip !== '0' ? zip : ''].filter(Boolean).join(', ').replace(/, (\d)/, ' $1');
+                            return (
+                              <div className="text-[13px] font-semibold leading-snug">
+                                <div className="text-[10px] font-bold uppercase tracking-[0.06em] text-[oklch(0.55_0.02_260)]">Address</div>
+                                <div>{titleCase(cleanAddr(lead.address))}</div>
+                                {cityLine && <div className="text-[11px] text-[oklch(0.55_0.02_260)]">{cityLine}</div>}
+                              </div>
+                            );
+                          })()}
+
+                          {/* Owner */}
+                          {lead.contact_name && (
+                            <div className="text-[12px] text-[oklch(0.70_0.02_260)]">
+                              <div className="text-[10px] font-bold uppercase tracking-[0.06em] text-[oklch(0.55_0.02_260)]">Owner</div>
+                              {formatOwner(lead.contact_name)}
+                            </div>
+                          )}
+
+                          {/* Phone */}
+                          {lead.contact_phone && (
+                            <a
+                              href={`tel:${lead.contact_phone}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="flex items-center gap-1.5 text-[11px] text-[oklch(0.72_0.19_250)] hover:text-[oklch(0.80_0.19_250)]"
+                              style={{ textDecoration: 'none' }}
+                            >
+                              <IconPhone width="11" height="11" />
+                              {lead.contact_phone}
+                            </a>
+                          )}
+
+                          {/* Footer: Hail + Due date + Rep */}
+                          <div className="flex items-center justify-between mt-1 gap-1 flex-wrap">
+                            <div className="flex items-center gap-1.5">
+                              {lead.hail_size_in && (
+                                <span className="
+                                  text-[11px] font-semibold px-2 py-0.5 rounded-full
+                                  bg-[oklch(0.30_0.04_260/0.5)] text-[oklch(0.70_0.02_260)]
+                                  backdrop-blur-sm border border-[oklch(0.40_0.02_260/0.15)]
+                                ">
+                                  {`\u{1F9CA} ${lead.hail_size_in}"`}
+                                </span>
+                              )}
+                              {dueInfo && (
+                                <span
+                                  className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1"
+                                  style={{ color: dueInfo.color, background: dueInfo.bg }}
+                                >
+                                  <IconCalendar width="9" height="9" />
+                                  {dueInfo.label}
+                                </span>
+                              )}
+                            </div>
+                            {lead.rep_first_name && (
+                              <span className="
+                                w-[26px] h-[26px] rounded-full flex items-center justify-center
+                                text-[10px] font-bold text-[oklch(0.72_0.19_250)]
+                                bg-[oklch(0.35_0.08_250/0.5)] border border-[oklch(0.50_0.10_250/0.2)]
+                              ">
+                                {lead.rep_first_name[0]}{lead.rep_last_name?.[0] || ''}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       );
-                    })()}
-                    {lead.contact_name && (
-                      <div className="lead-card__name">
-                        <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>Owner</div>
-                        {formatOwner(lead.contact_name)}
-                      </div>
-                    )}
-                    <div className="lead-card__footer">
-                      {lead.hail_size_in && (
-                        <span className="lead-card__hail">
-                          {`\u{1F9CA} ${lead.hail_size_in}"`}
-                        </span>
-                      )}
-                      {lead.rep_first_name && (
-                        <span className="lead-card__rep">
-                          {lead.rep_first_name[0]}{lead.rep_last_name?.[0] || ''}
-                        </span>
-                      )}
-                    </div>
+                    })}
                   </div>
-                ))}
+                )}
+
+                {/* Collapsed — header is the expand trigger, no extra button needed */}
               </div>
-            </div>
+
+              {/* Divider line */}
+              {idx < columns.length - 1 && !isCollapsed && (
+                <div className="shrink-0 w-[16px] self-stretch flex justify-center" style={{ marginTop: 52 }}>
+                  <div className="w-[2px] h-full" style={{ background: `linear-gradient(to bottom, color-mix(in oklch, ${col.color} 30%, transparent), color-mix(in oklch, ${col.color} 6%, transparent))` }} />
+                </div>
+              )}
+              {idx < columns.length - 1 && isCollapsed && (
+                <div className="shrink-0 w-[4px]" />
+              )}
+            </React.Fragment>
           );
         })}
+        </div>
       </div>
 
       {selectedLeadId && (
@@ -195,6 +567,15 @@ export default function Pipeline() {
             leadId={selectedLeadId}
             onClose={() => setSelectedLeadId(null)}
             onUpdated={handleLeadUpdated}
+          />
+        </Suspense>
+      )}
+
+      {showCreateModal && (
+        <Suspense fallback={null}>
+          <CreateLeadModal
+            onClose={() => setShowCreateModal(false)}
+            onCreated={() => { fetchData(); }}
           />
         </Suspense>
       )}

@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IconMapPin, IconCheckSquare } from './Icons';
+import { useAuth } from '../auth/AuthContext';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import * as dashboardApi from '../api/dashboard';
 import * as stormsApi from '../api/storms';
 import { updateTask } from '../api/crm';
@@ -9,21 +11,49 @@ import iconDollar from '../assets/icons/Tag-Dollar--Streamline-Ultimate.svg';
 import iconLeads from '../assets/icons/Add-Circle-Bold--Streamline-Ultimate.svg';
 import iconTarget from '../assets/icons/Check-Badge--Streamline-Ultimate.svg';
 import iconClock from '../assets/icons/Cash-Payment-Bills-1--Streamline-Ultimate.svg';
-import iconHomePin from '../assets/icons/Style-Three-Pin-Home--Streamline-Ultimate.svg';
+import iconStormMap from '../assets/icons/Rain-Umbrella-1--Streamline-Ultimate.svg';
+import iconViewLeads from '../assets/icons/Style-Three-Pin-Home--Streamline-Ultimate.svg';
 
-const statIcons = {
-  dollar: <img src={iconDollar} alt="" width="28" height="28" />,
-  leads: <img src={iconLeads} alt="" width="28" height="28" />,
-  target: <img src={iconTarget} alt="" width="28" height="28" />,
-  clock: <img src={iconClock} alt="" width="28" height="28" />,
+/* ── Helpers ──────────────────────────────────────────────── */
+function formatCurrency(value) {
+  if (!value && value !== 0) return '$0';
+  const num = Number(value);
+  if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
+  if (num >= 1000) return `$${(num / 1000).toFixed(1)}K`;
+  return `$${num.toLocaleString()}`;
+}
+
+function timeUntil(dateStr) {
+  const now = new Date();
+  const target = new Date(dateStr);
+  const diffMs = target - now;
+  if (diffMs < 0) return 'Overdue';
+  const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  if (diffHrs > 24) return `${Math.floor(diffHrs / 24)}d ${diffHrs % 24}h`;
+  if (diffHrs > 0) return `${diffHrs}h ${diffMins}m`;
+  return `${diffMins}m`;
+}
+
+const stageLabels = {
+  new_lead: 'New', contacted: 'Contacted', appt_set: 'Appt Set',
+  inspection: 'Inspection', estimate_sent: 'Estimate', negotiation: 'Negotiation',
+  closed_won: 'Won', closed_lost: 'Lost', in_production: 'Production',
+};
+
+const priorityColors = {
+  urgent: 'var(--accent-red)', high: 'var(--accent-amber)',
+  medium: 'var(--accent-blue)', low: 'var(--text-muted)',
 };
 
 const emptyStats = [
-  { label: 'Pipeline Value', value: '$0', change: '—', icon: 'dollar', color: 'oklch(0.75 0.18 155)', link: '/pipeline' },
-  { label: 'New Leads', value: '0', change: '—', icon: 'leads', color: 'oklch(0.72 0.19 250)', link: '/leads' },
-  { label: 'Close Rate', value: '0%', change: '—', icon: 'target', color: 'oklch(0.78 0.17 85)', link: '/leads?stage=closed_won' },
-  { label: 'Avg Days to Close', value: '0', change: '—', icon: 'clock', color: 'oklch(0.70 0.18 330)', link: '/leads?stage=closed_won' },
+  { label: 'Pipeline Value', value: '$0', change: '—', icon: 'dollar', color: 'oklch(0.75 0.18 155)', tint: '155', link: '/pipeline' },
+  { label: 'New Leads', value: '0', change: '—', icon: 'leads', color: 'oklch(0.72 0.19 250)', tint: '250', link: '/leads' },
+  { label: 'Close Rate', value: '0%', change: '—', icon: 'target', color: 'oklch(0.78 0.17 85)', tint: '85', link: '/leads?stage=closed_won' },
+  { label: 'Avg Days to Close', value: '0', change: '—', icon: 'clock', color: 'oklch(0.70 0.18 330)', tint: '330', link: '/leads?stage=closed_won' },
 ];
+
+const statIconMap = { dollar: iconDollar, leads: iconLeads, target: iconTarget, clock: iconClock };
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -32,20 +62,7 @@ function getGreeting() {
   return 'Good evening';
 }
 
-function formatToday() {
-  return new Date().toLocaleDateString('en-US', {
-    weekday: 'long', month: 'long', day: 'numeric',
-  });
-}
-
-const priorityColors = {
-  urgent: 'var(--accent-red)',
-  high: 'var(--accent-amber)',
-  medium: 'var(--accent-blue)',
-  low: 'var(--text-muted)',
-};
-
-function useCountUp(target, duration = 800, delay = 0) {
+function useCountUp(target, duration = 900, delay = 0) {
   const [value, setValue] = useState(0);
   useEffect(() => {
     if (!target) return;
@@ -65,39 +82,250 @@ function useCountUp(target, duration = 800, delay = 0) {
   return value;
 }
 
-function AnimatedFunnelRow({ row, max, delay, onClick }) {
-  const [animated, setAnimated] = useState(false);
-  const ref = useRef(null);
-  const animatedValue = useCountUp(animated ? row.value : 0, 800, 0);
-  const animatedCount = useCountUp(animated ? row.count : 0, 800, 0);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setAnimated(true), delay);
-    return () => clearTimeout(timer);
-  }, [delay]);
-
-  const pct = animated ? (row.value / max) * 100 : 0;
-
+/* ── Glass Card — pure CSS backdrop-filter ───────────────── */
+function GlassCard({ children, className = '', onClick, style }) {
   return (
-    <div ref={ref} className="funnel__row" style={{ cursor: 'pointer' }} onClick={onClick}>
-      <span className="funnel__label">{row.stage}</span>
-      <div className="funnel__bar-track">
-        <div className="funnel__bar-fill"
-          style={{
-            width: `${pct}%`,
-            background: row.color,
-            transition: `width 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${delay}ms`,
-          }}>
-          {Math.round(animatedCount)}
-        </div>
-      </div>
-      <span className="funnel__value">${(animatedValue / 1000).toFixed(1)}K</span>
+    <div
+      onClick={onClick}
+      style={{ borderRadius: '20px / 18px', ...style }}
+      className={`
+        glass
+        shadow-[0_8px_32px_oklch(0_0_0/0.25),inset_0_1px_0_oklch(1_0_0/0.05)]
+        ${className}
+      `}
+    >
+      {children}
     </div>
   );
 }
 
+
+/* ── Pipeline Bars ────────────────────────────────────────── */
+function PipelineBars({ funnel, onClick }) {
+  const [animated, setAnimated] = useState(false);
+  const maxCount = Math.max(...funnel.map(r => r.count), 1);
+
+  useEffect(() => {
+    const t = setTimeout(() => setAnimated(true), 100);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <div className="flex flex-col gap-[6px] flex-1 justify-evenly cursor-pointer" onClick={onClick}>
+      {funnel.map((row, i) => {
+        const pct = (row.count / maxCount) * 100;
+        return (
+          <div key={row.stage} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', width: 90, flexShrink: 0 }}>{row.stage}</span>
+            <div style={{
+              flex: 1, height: 18, borderRadius: 6, overflow: 'hidden',
+              background: 'oklch(0.12 0.015 265 / 0.5)',
+            }}>
+              <div style={{
+                width: animated ? `${pct}%` : '0%',
+                height: '100%', borderRadius: 6, minWidth: row.count > 0 ? 3 : 0,
+                background: row.color,
+                transition: `width 0.8s cubic-bezier(0.16, 1, 0.3, 1) ${i * 80}ms`,
+              }} />
+            </div>
+            <span style={{ fontSize: 10, fontWeight: 700, color: row.color, width: 24, flexShrink: 0, textAlign: 'right' }}>{row.count}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Storm Row ────────────────────────────────────────────── */
+function StormRow({ storm, navigate }) {
+  const p = storm.properties || {};
+  const rawType = (p.raw_data?.type || '').toLowerCase();
+  const isHail = rawType === 'hail' || !!p.hail_size_max_in;
+  const isTornado = rawType === 'tornado';
+  const typeLabel = isTornado ? 'Tornado' : isHail ? 'Hail' : 'Wind';
+  const typeColor = isTornado ? '#ff2d55' : isHail ? '#dcb428' : '#6c5ce7';
+
+  let rawLoc = p.raw_data?.location || '';
+  const cleanLoc = rawLoc.replace(/^\d+\s+[NSEW]{1,3}\s+/i, '').trim();
+  const county = p.raw_data?.county;
+  const state = p.raw_data?.state;
+  const areaDesc = p.raw_data?.areaDesc;
+  let location;
+  if (cleanLoc) location = cleanLoc + (state ? `, ${state}` : '');
+  else if (areaDesc) location = areaDesc;
+  else if (county) location = county + ' Co' + (state ? `, ${state}` : '');
+  else location = 'Unknown';
+
+  const hailSize = isHail && p.hail_size_max_in ? `${p.hail_size_max_in}"` : null;
+  const windSpeed = p.wind_speed_max_mph ? `${p.wind_speed_max_mph} mph`
+    : p.raw_data?.speed && p.raw_data.speed !== 'UNK' ? `${p.raw_data.speed} mph` : null;
+  const date = p.event_start ? new Date(p.event_start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+  const time = p.event_start ? new Date(p.event_start).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+  const source = p.source === 'spc_report' ? 'SPC' : p.source === 'nws_alert' ? 'NWS' : p.source === 'mrms_mesh' ? 'MRMS' : '';
+
+  const geom = storm.geometry;
+  let lat, lng;
+  if (geom?.coordinates) {
+    if (geom.type === 'Point') { [lng, lat] = geom.coordinates; }
+    else if (geom.type === 'Polygon' || geom.type === 'MultiPolygon') {
+      const flat = geom.type === 'MultiPolygon' ? geom.coordinates.flat(2) : geom.coordinates[0];
+      if (flat?.length) {
+        lng = flat.reduce((s, c) => s + c[0], 0) / flat.length;
+        lat = flat.reduce((s, c) => s + c[1], 0) / flat.length;
+      }
+    }
+  }
+
+  return (
+    <div
+      className="flex items-center gap-2.5 px-2 py-2 rounded-[10px] cursor-pointer"
+      onClick={() => navigate(`/storm-map${lat && lng ? `?lat=${lat}&lng=${lng}&zoom=11&stormId=${storm.id}` : ''}`)}
+    >
+      <span
+        className="text-[9px] font-bold uppercase py-1 px-2 rounded-md text-center min-w-[50px] shrink-0 border"
+        style={{
+          color: typeColor,
+          background: `color-mix(in oklch, ${typeColor} 10%, transparent)`,
+          borderColor: `color-mix(in oklch, ${typeColor} 18%, transparent)`,
+          boxShadow: `0 0 8px color-mix(in oklch, ${typeColor} 12%, transparent)`,
+        }}
+      >
+        {typeLabel}
+      </span>
+      <div className="flex-1 min-w-0 flex flex-col gap-px">
+        <span className="text-xs font-[620] text-[var(--text-primary)] truncate">{location}</span>
+        <span className="text-[10px] text-[var(--text-muted)] truncate">
+          {[hailSize, windSpeed, source, p.raw_data?.severity].filter(Boolean).join(' · ')}
+        </span>
+      </div>
+      <div className="flex flex-col items-end shrink-0">
+        <span className="text-[11px] text-[var(--text-secondary)]">{date}</span>
+        <span className="text-[10px] text-[var(--text-muted)]">{time}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ── Panel — glass card with title bar ────────────────────── */
+function Panel({ children, title, action, actionLabel, className = '' }) {
+  return (
+    <GlassCard className={`p-5 flex flex-col h-full ${className}`}>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-sm font-[720] tracking-[-0.01em] text-[oklch(0.88_0.01_260)] flex items-center gap-2">
+          {title}
+        </h2>
+        {action && (
+          <button onClick={action} className="text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors">
+            {actionLabel || 'View All'}
+          </button>
+        )}
+      </div>
+      {children}
+    </GlassCard>
+  );
+}
+
+/* ── Mini Storm Map ────────────────────────────────────────── */
+function MiniStormMap({ storms, navigate }) {
+  const mapContainer = useRef(null);
+  const map = useRef(null);
+
+  useEffect(() => {
+    if (!mapContainer.current || map.current) return;
+    const token = import.meta.env.VITE_MAPBOX_TOKEN;
+    if (!token) return;
+    mapboxgl.accessToken = token;
+
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/light-v11',
+      center: [-99.5, 31.5],
+      zoom: 5,
+      interactive: false,
+    });
+
+    // Fit to Texas bounds once loaded
+    map.current.on('load', () => {
+      map.current.fitBounds(
+        [[-106.65, 25.84], [-93.51, 36.5]], // SW, NE corners of Texas
+        { padding: 10, animate: false }
+      );
+    });
+
+    return () => { map.current?.remove(); map.current = null; };
+  }, []);
+
+  useEffect(() => {
+    if (!map.current || !storms.length) return;
+    const m = map.current;
+    const onLoad = () => {
+      const features = storms.slice(0, 100).map(s => {
+        const g = s.geometry;
+        let coords;
+        if (g?.type === 'Point') coords = g.coordinates;
+        else if (g?.type === 'Polygon' || g?.type === 'MultiPolygon') {
+          const flat = g.type === 'MultiPolygon' ? g.coordinates.flat(2) : g.coordinates[0];
+          if (flat?.length) coords = [flat.reduce((a, c) => a + c[0], 0) / flat.length, flat.reduce((a, c) => a + c[1], 0) / flat.length];
+        }
+        if (!coords) return null;
+        const p = s.properties || {};
+        const rawType = (p.raw_data?.type || '').toLowerCase();
+        const isHail = rawType === 'hail' || !!p.hail_size_max_in;
+        const isTornado = rawType === 'tornado';
+        return {
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: coords },
+          properties: { type: isTornado ? 'tornado' : isHail ? 'hail' : 'wind', id: s.id },
+        };
+      }).filter(Boolean);
+
+      const data = { type: 'FeatureCollection', features };
+
+      if (m.getSource('storm-pts')) {
+        m.getSource('storm-pts').setData(data);
+        return;
+      }
+      m.addSource('storm-pts', { type: 'geojson', data });
+      // oklch-inspired colors: tornado=red(0.68 0.22 25), hail=amber(0.78 0.17 85), wind=purple(0.70 0.18 330)
+      const tornadoColor = '#d93251';
+      const hailColor = '#c49a15';
+      const windColor = '#a94ad6';
+
+      m.addLayer({
+        id: 'storm-glow', type: 'circle', source: 'storm-pts',
+        paint: {
+          'circle-radius': 8, 'circle-blur': 0.8, 'circle-opacity': 0.5,
+          'circle-color': ['match', ['get', 'type'], 'tornado', tornadoColor, 'hail', hailColor, windColor],
+        },
+      });
+      m.addLayer({
+        id: 'storm-dots', type: 'circle', source: 'storm-pts',
+        paint: {
+          'circle-radius': 5,
+          'circle-color': ['match', ['get', 'type'], 'tornado', tornadoColor, 'hail', hailColor, windColor],
+          'circle-stroke-width': 1.5, 'circle-stroke-color': 'rgba(0,0,0,0.3)',
+        },
+      });
+      m.on('click', 'storm-dots', (e) => {
+        const f = e.features?.[0];
+        if (f) navigate(`/storm-map?lat=${f.geometry.coordinates[1]}&lng=${f.geometry.coordinates[0]}&zoom=11&stormId=${f.properties.id}`);
+      });
+      m.on('mouseenter', 'storm-dots', () => { m.getCanvas().style.cursor = 'pointer'; });
+      m.on('mouseleave', 'storm-dots', () => { m.getCanvas().style.cursor = ''; });
+    };
+    if (m.isStyleLoaded()) onLoad();
+    else m.on('load', onLoad);
+  }, [storms, navigate]);
+
+  return <div ref={mapContainer} className="mini-storm-map w-full flex-1 min-h-[180px] max-h-[300px] rounded-xl overflow-hidden" />;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DASHBOARD
+   ══════════════════════════════════════════════════════════════ */
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [stats, setStats] = useState(emptyStats);
   const [funnel, setFunnel] = useState([]);
   const [activity, setActivity] = useState([]);
@@ -105,44 +333,39 @@ export default function Dashboard() {
   const [tasksToday, setTasksToday] = useState([]);
   const [storms, setStorms] = useState([]);
   const [stormRange, setStormRange] = useState('30d');
+  const [followups, setFollowups] = useState([]);
+  const [conversionByStorm, setConversionByStorm] = useState([]);
+  const [estimateSummary, setEstimateSummary] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchStorms = useCallback(async (range) => {
     try {
-      // Texas-wide bounding box
-      const res = await stormsApi.getSwaths({ west: -106.65, south: 25.84, east: -93.51, north: 36.5, timeRange: range });
-      setStorms(res.data?.features || []);
+      const res = await stormsApi.getStorms({ timeRange: range, limit: 50 });
+      const all = res.data?.features || [];
+      setStorms(all.filter(f => f.properties?.raw_data));
     } catch { setStorms([]); }
   }, []);
 
   const fetchAll = useCallback(async () => {
     try {
-      const [statsRes, funnelRes, activityRes, leaderRes, tasksRes] = await Promise.allSettled([
-        dashboardApi.getStats(),
-        dashboardApi.getFunnel(),
-        dashboardApi.getActivity(),
-        dashboardApi.getLeaderboard(),
-        dashboardApi.getTasksToday(),
+      const [statsRes, funnelRes, activityRes, leaderRes, tasksRes, followupsRes, convRes, estRes] = await Promise.allSettled([
+        dashboardApi.getStats(), dashboardApi.getFunnel(), dashboardApi.getActivity(),
+        dashboardApi.getLeaderboard(), dashboardApi.getTasksToday(), dashboardApi.getFollowups(),
+        dashboardApi.getConversionByStorm(), dashboardApi.getEstimateSummary(),
       ]);
-
-      if (statsRes.status === 'fulfilled' && statsRes.value.data?.stats) {
-        const apiStats = statsRes.value.data.stats;
-        setStats(apiStats.map((s, i) => ({ ...s, link: emptyStats[i]?.link || '/leads' })));
-      }
+      if (statsRes.status === 'fulfilled' && statsRes.value.data?.stats)
+        setStats(statsRes.value.data.stats.map((s, i) => ({ ...s, tint: emptyStats[i]?.tint, link: emptyStats[i]?.link || '/leads' })));
       if (funnelRes.status === 'fulfilled' && funnelRes.value.data?.funnel) setFunnel(funnelRes.value.data.funnel);
       if (activityRes.status === 'fulfilled' && activityRes.value.data?.activity) setActivity(activityRes.value.data.activity);
       if (leaderRes.status === 'fulfilled' && leaderRes.value.data?.leaderboard) setLeaderboard(leaderRes.value.data.leaderboard);
       if (tasksRes.status === 'fulfilled' && tasksRes.value.data?.tasks) setTasksToday(tasksRes.value.data.tasks);
-    } finally {
-      setLoading(false);
-    }
+      if (followupsRes.status === 'fulfilled' && followupsRes.value.data?.followups) setFollowups(followupsRes.value.data.followups);
+      if (convRes.status === 'fulfilled' && convRes.value.data?.storms) setConversionByStorm(convRes.value.data.storms);
+      if (estRes.status === 'fulfilled' && estRes.value.data) setEstimateSummary(estRes.value.data);
+    } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { fetchAll(); fetchStorms(stormRange); }, [fetchAll, fetchStorms, stormRange]);
-
-  const handleStormRange = (range) => {
-    setStormRange(range);
-  };
 
   const maxFunnelValue = Math.max(...funnel.map(d => d.value), 1);
 
@@ -150,314 +373,340 @@ export default function Dashboard() {
     try {
       await updateTask(task.id, { status: 'completed' });
       setTasksToday(prev => prev.filter(t => t.id !== task.id));
-    } catch { /* silent */ }
+    } catch {}
   };
 
   const overdueTasks = tasksToday.filter(t => t.due_date && new Date(t.due_date) < new Date());
+  const todayStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  const stormTypeBadge = {
+    hail: { color: '#dcb428', bg: '#dcb42818', border: '#dcb42830' },
+    tornado: { color: '#ff2d55', bg: '#ff2d5518', border: '#ff2d5530' },
+    wind: { color: '#6c5ce7', bg: '#6c5ce718', border: '#6c5ce730' },
+  };
 
   return (
-    <div className="main-content">
-      {/* Greeting */}
-      <div style={{ padding: '0 var(--space-xs)' }}>
-        <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)' }}>
-          {getGreeting()}
+    <div className="main-content lg-dashboard">
+      {/* ── Header ── */}
+      <header className="flex items-end justify-between gap-6 flex-wrap py-1">
+        <div>
+          <h1 className="text-[28px] font-[820] tracking-[-0.035em] leading-tight text-[var(--text-primary)]">
+            {getGreeting()}{user?.firstName ? `, ${user.firstName}` : ''}
+          </h1>
+          <p className="text-[13px] text-[var(--text-muted)] mt-1 font-[450]">{todayStr}</p>
         </div>
-        <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 2 }}>{formatToday()}</div>
-      </div>
+        <div className="flex gap-3">
+          <GlassCard
+            onClick={() => navigate('/storm-map')}
+            className="group cursor-pointer px-6 py-2.5 flex items-center gap-2.5
+              text-sm font-[650] text-[var(--text-primary)]
+              hover:scale-[1.03] hover:shadow-[0_12px_40px_oklch(0_0_0/0.35),inset_0_1px_0_oklch(1_0_0/0.08)]
+              active:scale-[0.97] transition-all duration-200 ease-out"
+          >
+            <img src={iconStormMap} alt="" width="18" height="18"
+              className="opacity-85 transition-transform duration-300 ease-out group-hover:rotate-12" />
+            Storm Map
+          </GlassCard>
+          <GlassCard
+            onClick={() => navigate('/leads')}
+            className="group cursor-pointer px-6 py-2.5 flex items-center gap-2.5
+              text-sm font-[650] text-[var(--text-primary)]
+              hover:scale-[1.03] hover:shadow-[0_12px_40px_oklch(0_0_0/0.35),inset_0_1px_0_oklch(1_0_0/0.08)]
+              active:scale-[0.97] transition-all duration-200 ease-out"
+          >
+            <img src={iconViewLeads} alt="" width="18" height="18"
+              className="opacity-85 transition-transform duration-300 ease-out group-hover:rotate-12" />
+            View Leads
+          </GlassCard>
+        </div>
+      </header>
 
-      {/* Stat Cards */}
-      <div className="stats-grid">
+      {/* ── Stat Cards ── */}
+      <div className="grid grid-cols-4 gap-[var(--space-md)]">
         {stats.map((stat) => (
-          <div key={stat.label} className="stat-card glass" style={{ cursor: 'pointer' }}
-            onClick={() => navigate(stat.link)}>
-            <div className="stat-card__header">
-              <div className="stat-card__icon">
-                {statIcons[stat.icon]}
-              </div>
-              <span className="stat-card__change">{stat.change}</span>
+          <GlassCard key={stat.label} onClick={() => navigate(stat.link)} className="group cursor-pointer p-5 flex flex-col gap-2 items-center text-center relative">
+            <span className="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[oklch(0.75_0.18_155/0.12)] text-[var(--accent-green)]">
+              {stat.change}
+            </span>
+            <img
+              src={statIconMap[stat.icon]} alt="" width="28" height="28"
+              className="opacity-85 transition-transform duration-300 ease-out group-hover:rotate-12"
+              style={{ filter: `drop-shadow(0 0 6px oklch(0.50 0.10 ${stat.tint} / 0.3))` }}
+            />
+            <div className="text-[28px] font-[820] tracking-[-0.04em] leading-none text-[var(--text-primary)]">
+              {stat.value}
             </div>
-            <div className="stat-card__value">{stat.value}</div>
-            <div className="stat-card__label">{stat.label}</div>
-          </div>
+            <div
+              className="text-[10px] font-semibold uppercase tracking-[0.08em]"
+              style={{ color: `oklch(0.55 0.03 ${stat.tint})` }}
+            >
+              {stat.label}
+            </div>
+          </GlassCard>
         ))}
       </div>
 
-      {/* Row 2: Pipeline Funnel + Activity */}
-      <div className="dashboard-grid">
-        {/* Pipeline Funnel */}
-        <div className="dashboard-panel glass">
-          <div className="dashboard-panel__title">Pipeline Funnel</div>
+      {/* ── Row 2: Pipeline + Storm Map + Storm Feed ── */}
+      <div className="grid grid-cols-[3fr_4fr_3fr] gap-[var(--space-md)]" style={{ maxHeight: 420 }}>
+        <Panel title="Pipeline" action={() => navigate('/pipeline')}>
           {funnel.length === 0 ? (
-            <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: 'var(--space-xl) 0' }}>No pipeline data yet</div>
+            <div className="text-xs text-[var(--text-muted)] py-5 text-center">No pipeline data yet</div>
           ) : (
-            <div className="funnel">
-              {funnel.map((row, i) => (
-                <AnimatedFunnelRow key={row.stage} row={row} max={maxFunnelValue} delay={i * 120} onClick={() => navigate('/pipeline')} />
-              ))}
-            </div>
+            <PipelineBars funnel={funnel} onClick={() => navigate('/pipeline')} />
           )}
-        </div>
+        </Panel>
 
-        {/* Recent Activity */}
-        <div className="dashboard-panel glass">
-          <div className="dashboard-panel__title">Recent Activity</div>
-          <div className="activity-feed" style={{ maxHeight: 320, overflowY: 'auto' }}>
-            {activity.length === 0 ? (
-              <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: 'var(--space-xl) 0' }}>No activity yet</div>
-            ) : activity.map((item) => (
-              <div key={item.id} className="activity-item">
-                <span className={`activity-dot activity-dot--${item.type}`} />
-                <span className="activity-text">{item.text}</span>
-                <span className="activity-time">{item.time}</span>
-              </div>
-            ))}
+        {storms.length > 0 && (
+          <Panel title="Storm Map" action={() => navigate('/storm-map')} actionLabel="Full Map">
+            <MiniStormMap storms={storms} navigate={navigate} />
+          </Panel>
+        )}
+
+        <Panel
+          title={
+            <span className="flex items-center gap-2">
+              Storm Activity
+              <span className="flex gap-1">
+                {['24h', '7d', '30d'].map(r => (
+                  <button
+                    key={r}
+                    className={`text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors ${
+                      stormRange === r
+                        ? 'bg-[oklch(0.72_0.19_250/0.15)] text-[oklch(0.82_0.16_250)]'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
+                    }`}
+                    onClick={() => setStormRange(r)}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </span>
+            </span>
+          }
+        >
+          <div className="flex flex-col gap-0.5 max-h-[340px] overflow-y-auto">
+            {storms.length === 0 ? (
+              <div className="text-xs text-[var(--text-muted)] py-5 text-center">No storm events in this range</div>
+            ) : (
+              <>
+                {storms.slice(0, 6).map(s => <StormRow key={s.id} storm={s} navigate={navigate} />)}
+                {storms.length > 6 && (
+                  <button
+                    className="text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] text-center py-2 w-full transition-colors"
+                    onClick={() => navigate('/storm-map')}
+                  >
+                    +{storms.length - 6} more events
+                  </button>
+                )}
+              </>
+            )}
           </div>
-        </div>
+        </Panel>
       </div>
 
-      {/* Row 3: Tasks Due Today + Quick Stats */}
-      <div className="dashboard-grid">
-        {/* Tasks Due Today */}
-        <div className="dashboard-panel glass">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div className="dashboard-panel__title" style={{ margin: 0 }}>
-              Tasks Due Today
-              {overdueTasks.length > 0 && (
-                <span style={{
-                  marginLeft: 8, fontSize: 11, fontWeight: 700,
-                  color: 'var(--accent-red)', background: 'oklch(0.68 0.22 25 / 0.12)',
-                  padding: '2px 8px', borderRadius: 'var(--radius-pill)',
-                }}>
-                  {overdueTasks.length} overdue
+      {/* ── Row 3: Today + Activity ── */}
+      <div className="grid grid-cols-2 gap-[var(--space-md)]">
+        <Panel
+          title={
+            <span className="flex items-center gap-2">
+              Today
+              {(overdueTasks.length > 0 || followups.length > 0) && (
+                <span
+                  className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                  style={{
+                    background: overdueTasks.length > 0 ? 'oklch(0.68 0.22 25 / 0.15)' : 'oklch(0.72 0.16 45 / 0.15)',
+                    color: overdueTasks.length > 0 ? 'var(--accent-red)' : 'oklch(0.72 0.16 45)',
+                  }}
+                >
+                  {overdueTasks.length > 0 ? `${overdueTasks.length} overdue` : `${followups.length} follow-ups`}
                 </span>
               )}
-            </div>
-            <button className="quick-action-btn" onClick={() => navigate('/tasks')}
-              style={{ fontSize: 11, padding: '4px 10px' }}>View All</button>
-          </div>
-          <div style={{ marginTop: 'var(--space-md)', maxHeight: 300, overflowY: 'auto' }}>
-            {tasksToday.length === 0 ? (
-              <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: 'var(--space-xl) 0' }}>No tasks due — enjoy your day!</div>
-            ) : tasksToday.map(task => {
-              const isOverdue = task.due_date && new Date(task.due_date) < new Date();
-              return (
-                <div key={task.id} style={{
-                  display: 'flex', alignItems: 'center', gap: 'var(--space-sm)',
-                  padding: 'var(--space-sm) 0', fontSize: 13,
-                  borderBottom: '1px solid oklch(0.25 0.02 260 / 0.15)',
-                }}>
-                  <button onClick={() => handleToggleTask(task)} style={{
-                    width: 18, height: 18, borderRadius: 4,
-                    border: `2px solid ${isOverdue ? 'var(--accent-red)' : 'var(--glass-border)'}`,
-                    background: 'transparent', cursor: 'pointer', flexShrink: 0,
-                    boxShadow: isOverdue ? '0 0 6px oklch(0.68 0.22 25 / 0.3)' : 'none',
-                  }} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{
-                      color: isOverdue ? 'var(--accent-red)' : 'var(--text-secondary)',
-                      fontWeight: isOverdue ? 600 : 400,
-                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                    }}>
-                      {task.title}
+            </span>
+          }
+          action={() => navigate('/tasks')}
+          actionLabel="All Tasks"
+        >
+          <div className="flex flex-col gap-px max-h-[320px] overflow-y-auto">
+            {tasksToday.length === 0 && followups.length === 0 ? (
+              <div className="text-xs text-[var(--text-muted)] py-5 text-center">Nothing scheduled — you're all clear</div>
+            ) : (
+              <>
+                {tasksToday.map(task => {
+                  const isOverdue = task.due_date && new Date(task.due_date) < new Date();
+                  return (
+                    <div key={task.id} className="flex items-center gap-2.5 py-2 px-1 text-xs border-b border-[oklch(0.22_0.015_265/0.15)] rounded-md">
+                      <button className="w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0" onClick={() => handleToggleTask(task)}
+                        style={{ borderColor: isOverdue ? 'var(--accent-red)' : undefined }} />
+                      <div className="flex-1 min-w-0 flex flex-col">
+                        <span className={`text-[var(--text-secondary)] font-medium truncate${isOverdue ? ' text-[var(--accent-red)] font-[620]' : ''}`}>{task.title}</span>
+                        {task.lead_name && <span className="text-[10px] text-[var(--text-muted)]">{task.lead_name}</span>}
+                      </div>
+                      <span className="text-[9px] font-bold uppercase shrink-0" style={{ color: priorityColors[task.priority] }}>{task.priority}</span>
+                      {task.due_date && (
+                        <span className="text-[10px] shrink-0 font-medium text-[var(--text-muted)]" style={{ color: isOverdue ? 'var(--accent-red)' : undefined }}>
+                          {new Date(task.due_date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                        </span>
+                      )}
                     </div>
-                    {task.lead_name && (
-                      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{task.lead_name}</div>
-                    )}
-                  </div>
-                  <span style={{
-                    fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
-                    color: priorityColors[task.priority] || 'var(--text-muted)',
-                  }}>
-                    {task.priority}
-                  </span>
-                  {task.due_date && (
-                    <span style={{ fontSize: 11, color: isOverdue ? 'var(--accent-red)' : 'var(--text-muted)' }}>
-                      {new Date(task.due_date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
-                    </span>
-                  )}
+                  );
+                })}
+                {followups.length > 0 && tasksToday.length > 0 && (
+                  <div className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-muted)] pt-2.5 pb-1 border-t border-[oklch(0.25_0.02_265/0.12)] mt-1"><span>Follow-ups</span></div>
+                )}
+                {followups.map((fu, idx) => {
+                  const isOverdue = fu.follow_up_at && new Date(fu.follow_up_at) < new Date();
+                  return (
+                    <div key={fu.id || idx} className="flex items-center gap-2.5 py-2 px-1 text-xs border-b border-[oklch(0.22_0.015_265/0.15)] rounded-md">
+                      <div className="w-[7px] h-[7px] rounded-full shrink-0" style={{ background: isOverdue ? 'var(--accent-red)' : 'oklch(0.72 0.16 45)', boxShadow: `0 0 6px ${isOverdue ? 'var(--accent-red)' : 'oklch(0.72 0.16 45 / 0.5)'}` }} />
+                      <div className="flex-1 min-w-0 flex flex-col">
+                        <span className={`text-[var(--text-secondary)] font-medium truncate${isOverdue ? ' text-[var(--accent-red)] font-[620]' : ''}`}>{fu.contact_name || 'Unknown'}</span>
+                        {fu.address && <span className="text-[10px] text-[var(--text-muted)]">{fu.address}</span>}
+                      </div>
+                      {fu.stage && <span className="text-[9px] font-semibold uppercase text-[oklch(0.72_0.19_250)] bg-[oklch(0.72_0.19_250/0.08)] px-1.5 py-0.5 rounded-full shrink-0">{stageLabels[fu.stage] || fu.stage}</span>}
+                      <span className="text-[10px] shrink-0 font-medium text-[var(--text-muted)]" style={{ color: isOverdue ? 'var(--accent-red)' : 'oklch(0.72 0.16 45)' }}>
+                        {fu.follow_up_at ? timeUntil(fu.follow_up_at) : ''}
+                      </span>
+                    </div>
+                  );
+                })}
+              </>
+            )}
+          </div>
+        </Panel>
+
+        <Panel title="Activity Feed">
+          <div className="flex flex-col gap-px max-h-[320px] overflow-y-auto">
+            {activity.length === 0 ? (
+              <div className="text-xs text-[var(--text-muted)] py-5 text-center">No recent activity</div>
+            ) : activity.map(item => {
+              const dotColorMap = { sold: 'var(--accent-green)', estimate: 'var(--accent-purple)', appointment: 'var(--accent-amber)', lead: 'var(--accent-blue)', inspection: 'var(--accent-cyan)', call: 'var(--text-muted)' };
+              const dotColor = dotColorMap[item.type] || 'var(--text-muted)';
+              return (
+                <div key={item.id} className="flex items-start gap-2.5 py-[7px] px-1 rounded-md">
+                  <span className="w-[7px] h-[7px] rounded-full shrink-0 mt-[5px]" style={{ background: dotColor, boxShadow: `0 0 6px ${dotColor}` }} />
+                  <span className="text-xs text-[var(--text-secondary)] leading-[1.4] flex-1">{item.text}</span>
+                  <span className="text-[10px] text-[var(--text-muted)] shrink-0 mt-px">{item.time}</span>
                 </div>
               );
             })}
           </div>
-        </div>
+        </Panel>
+      </div>
 
-        {/* Recent Storms */}
-        <div className="dashboard-panel glass" style={{ padding: 'var(--space-xl)', justifyContent: 'flex-start' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
-            <div className="dashboard-panel__title" style={{ margin: 0 }}>Recent Storm Activity</div>
-            <div style={{ display: 'flex', gap: 4 }}>
-              {['24h', '7d', '30d'].map((r) => (
-                <button key={r} onClick={() => handleStormRange(r)}
-                  style={{
-                    fontSize: 11, fontWeight: 600, padding: '3px 10px',
-                    borderRadius: 'var(--radius-pill)',
-                    background: stormRange === r ? 'oklch(0.50 0.15 250 / 0.2)' : 'transparent',
-                    color: stormRange === r ? 'var(--accent-blue)' : 'var(--text-muted)',
-                    border: stormRange === r ? '1px solid oklch(0.50 0.15 250 / 0.3)' : '1px solid transparent',
-                  }}>
-                  {r}
-                </button>
-              ))}
-            </div>
-          </div>
-          {storms.length === 0 ? (
-            <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: 'var(--space-xl) 0', textAlign: 'center' }}>
-              No recent storm events
-            </div>
+      {/* ── Row 4: Conversion + Estimates ── */}
+      <div className="grid grid-cols-[5fr_7fr] gap-[var(--space-md)]">
+        <Panel title="Storm Conversion">
+          {conversionByStorm.length === 0 ? (
+            <div className="text-xs text-[var(--text-muted)] py-5 text-center">No conversion data yet</div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {/* Column headers */}
-              <div style={{
-                display: 'grid', gridTemplateColumns: '64px 1fr 56px 52px',
-                gap: 6, padding: '0 4px 6px', borderBottom: '1px solid oklch(0.25 0.02 260 / 0.2)',
-                fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em',
-                color: 'var(--text-muted)',
-              }}>
-                <span>Type</span>
-                <span>Location</span>
-                <span>Severity</span>
-                <span style={{ textAlign: 'right' }}>Date</span>
-              </div>
-              {storms.slice(0, 8).map((s) => {
-                const p = s.properties || {};
-                const rawType = (p.raw_data?.type || '').toLowerCase();
-                const isHail = rawType === 'hail' || !!p.hail_size_max_in;
-                const isTornado = rawType === 'tornado';
-                const typeLabel = isTornado ? 'Tornado' : isHail ? 'Hail' : 'Wind';
-                const typeColor = isTornado ? '#ff2d55' : isHail ? '#dcb428' : '#6c5ce7';
-
-                const location = p.raw_data?.location || p.raw_data?.county || p.raw_data?.areaDesc || 'Unknown';
-                const severity = isHail && p.hail_size_max_in
-                  ? `${p.hail_size_max_in}"`
-                  : p.raw_data?.speed && p.raw_data.speed !== 'UNK'
-                    ? `${p.raw_data.speed} mph`
-                    : p.wind_speed_max_mph
-                      ? `${p.wind_speed_max_mph} mph`
-                      : '—';
-                const date = p.event_start
-                  ? new Date(p.event_start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-                  : '';
-
+            <div className="flex flex-col gap-1">
+              {conversionByStorm.slice(0, 5).map((storm, idx) => {
+                const rate = storm.total_leads > 0 ? (storm.sold_count / storm.total_leads) * 100 : 0;
+                const tk = (storm.storm_type || 'wind').toLowerCase();
+                const badge = stormTypeBadge[tk] || stormTypeBadge.wind;
                 return (
-                  <div key={s.id} style={{
-                    display: 'grid', gridTemplateColumns: '64px 1fr 56px 52px',
-                    gap: 6, alignItems: 'center', padding: '7px 4px',
-                    borderRadius: 6, cursor: 'pointer',
-                    transition: 'background 0.15s',
-                  }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'oklch(0.25 0.02 260 / 0.15)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                    onClick={() => {
-                      // Extract center from storm geometry
-                      const geom = s.geometry;
-                      let lat, lng;
-                      if (geom) {
-                        if (geom.type === 'Point') {
-                          [lng, lat] = geom.coordinates;
-                        } else if (geom.type === 'Polygon' || geom.type === 'MultiPolygon') {
-                          // Compute centroid from bounding box of coordinates
-                          const coords = geom.type === 'Polygon'
-                            ? geom.coordinates[0]
-                            : geom.coordinates.flat(2).reduce((acc, _, i, arr) => {
-                                if (i % 2 === 0) acc.push([arr[i], arr[i+1]]);
-                                return acc;
-                              }, []);
-                          const flatCoords = geom.type === 'MultiPolygon'
-                            ? geom.coordinates.flat(2)
-                            : geom.coordinates[0];
-                          const sumLng = flatCoords.reduce((s, c) => s + c[0], 0);
-                          const sumLat = flatCoords.reduce((s, c) => s + c[1], 0);
-                          lng = sumLng / flatCoords.length;
-                          lat = sumLat / flatCoords.length;
-                        } else if (geom.type === 'LineString') {
-                          const mid = Math.floor(geom.coordinates.length / 2);
-                          [lng, lat] = geom.coordinates[mid];
-                        }
-                      }
-                      const params = lat && lng ? `?lat=${lat}&lng=${lng}&zoom=11&stormId=${s.id}` : '';
-                      navigate(`/storm-map${params}`);
-                    }}>
-                    <span style={{
-                      fontSize: 9, fontWeight: 700, textTransform: 'uppercase',
-                      color: typeColor, background: `${typeColor}18`,
-                      padding: '3px 6px', borderRadius: 4, textAlign: 'center',
-                      border: `1px solid ${typeColor}30`,
-                    }}>
-                      {typeLabel}
-                    </span>
-                    <span style={{
-                      fontSize: 13, fontWeight: 500, color: 'var(--text-primary)',
-                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                    }}>
-                      {location}
-                    </span>
-                    <span style={{
-                      fontSize: 12, fontWeight: 600, color: typeColor,
-                    }}>
-                      {severity}
-                    </span>
-                    <span style={{
-                      fontSize: 11, color: 'var(--text-muted)', textAlign: 'right',
-                    }}>
-                      {date}
-                    </span>
+                  <div key={storm.id || idx} className="py-2 border-b border-[oklch(0.22_0.015_265/0.10)] last:border-b-0">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded border shrink-0" style={{ color: badge.color, background: badge.bg, borderColor: badge.border }}>{storm.storm_type || 'Wind'}</span>
+                      <span className="text-xs font-[620] text-[var(--text-primary)] flex-1 truncate">{storm.location || 'Unknown'}</span>
+                      <span className="text-xs font-[750] text-[oklch(0.75_0.18_155)] shrink-0">{formatCurrency(storm.revenue)}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-[var(--text-muted)] min-w-[50px] shrink-0">{storm.sold_count}/{storm.total_leads}</span>
+                      <div className="flex-1 h-[5px] rounded-sm bg-[oklch(0.08_0.01_265/0.4)] overflow-hidden">
+                        <div className="h-full rounded-sm transition-[width] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]" style={{
+                          width: `${Math.min(rate, 100)}%`,
+                          background: rate >= 50 ? 'oklch(0.75 0.18 155)' : rate >= 25 ? 'oklch(0.72 0.16 45)' : 'oklch(0.72 0.19 250)',
+                          boxShadow: `0 0 8px ${rate >= 50 ? 'oklch(0.75 0.18 155 / 0.4)' : 'transparent'}`,
+                        }} />
+                      </div>
+                      <span className="text-[10px] font-bold text-[var(--text-secondary)] min-w-[30px] text-right shrink-0">{rate.toFixed(0)}%</span>
+                    </div>
                   </div>
                 );
               })}
-              {storms.length > 8 && (
-                <div style={{ fontSize: 11, color: 'var(--text-muted)', textAlign: 'center', padding: '4px 0' }}>
-                  +{storms.length - 8} more events
-                </div>
-              )}
-              <button
-                style={{ fontSize: 12, color: 'var(--accent-blue)', fontWeight: 600, textAlign: 'right', marginTop: 2, alignSelf: 'flex-end' }}
-                onClick={() => navigate('/storm-map')}>
-                View Storm Map →
-              </button>
             </div>
           )}
-        </div>
+        </Panel>
+
+        <Panel title="Estimates" action={() => navigate('/estimates')}>
+          {!estimateSummary ? (
+            <div className="text-xs text-[var(--text-muted)] py-5 text-center">No estimate data yet</div>
+          ) : (
+            <div className="flex flex-col flex-1">
+              {/* Spacer */}
+              <div className="flex-1" />
+
+              {/* Status bars — just above bottom stats */}
+              <div className="flex gap-1.5 mb-3">
+                {[
+                  { label: 'Draft', val: estimateSummary.draft || 0, color: 'oklch(0.55 0.05 260)' },
+                  { label: 'Sent', val: estimateSummary.sent || 0, color: 'oklch(0.72 0.19 250)' },
+                  { label: 'Viewed', val: estimateSummary.viewed || 0, color: 'oklch(0.72 0.16 45)' },
+                  { label: 'Accepted', val: estimateSummary.accepted || 0, color: 'oklch(0.75 0.18 155)' },
+                ].map(step => (
+                  <div key={step.label} className="flex-1 text-center">
+                    <div className="h-[5px] rounded-sm mb-2" style={{
+                      background: step.color, opacity: step.val > 0 ? 1 : 0.15,
+                      boxShadow: step.val > 0 ? `0 0 10px ${step.color}` : 'none',
+                      transition: 'opacity 0.3s, box-shadow 0.3s',
+                    }} />
+                    <span className="block text-xl font-[820] tracking-tight" style={{ color: step.color }}>{step.val}</span>
+                    <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">{step.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Bottom stats — centered */}
+              <div className="flex flex-col items-center gap-3 pt-3 border-t border-[oklch(0.22_0.015_265/0.12)]">
+                <div className="flex gap-6 text-center">
+                  <div><span className="block text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Accepted Value</span><span className="text-lg font-[820] tracking-tight" style={{ color: 'oklch(0.75 0.18 155)' }}>{formatCurrency(estimateSummary.accepted_value)}</span></div>
+                  <div><span className="block text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Pending Value</span><span className="text-lg font-[820] tracking-tight" style={{ color: 'oklch(0.72 0.16 45)' }}>{formatCurrency(estimateSummary.pending_value)}</span></div>
+                </div>
+                <div className="flex gap-4 justify-center">
+                  <div className="flex items-center gap-1.5"><span className="text-[10px] text-[var(--text-muted)]">Declined</span><span className="text-[13px] font-bold" style={{ color: 'oklch(0.68 0.22 25)' }}>{estimateSummary.declined || 0}</span></div>
+                  <div className="flex items-center gap-1.5"><span className="text-[10px] text-[var(--text-muted)]">Expired</span><span className="text-[13px] font-bold" style={{ color: 'oklch(0.55 0.05 260)' }}>{estimateSummary.expired || 0}</span></div>
+                </div>
+              </div>
+            </div>
+          )}
+        </Panel>
       </div>
 
-      {/* Row 4: Team Leaderboard */}
+      {/* ── Row 5: Leaderboard ── */}
       {leaderboard.length > 0 && (
-        <div className="dashboard-panel glass" style={{ padding: 'var(--space-xl)' }}>
-          <div className="dashboard-panel__title">Team Leaderboard</div>
+        <Panel title="Team Leaderboard">
           <div style={{ overflowX: 'auto' }}>
-            <table className="lead-table" style={{ fontSize: 12 }}>
-              <thead>
-                <tr>
-                  <th>Rep</th>
-                  <th style={{ textAlign: 'center' }}>Leads</th>
-                  <th style={{ textAlign: 'center' }}>Contacted</th>
-                  <th style={{ textAlign: 'center' }}>Appts</th>
-                  <th style={{ textAlign: 'center' }}>Inspections</th>
-                  <th style={{ textAlign: 'center' }}>Estimates</th>
-                  <th style={{ textAlign: 'center' }}>Sold</th>
-                  <th style={{ textAlign: 'right' }}>Revenue</th>
-                  <th style={{ textAlign: 'center' }}>Close %</th>
-                </tr>
-              </thead>
+            <table className="w-full border-collapse text-xs">
+              <thead><tr>
+                <th className="text-center text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] py-2 px-2.5 border-b border-[oklch(0.25_0.015_265/0.12)]">Rep</th>
+                <th className="text-center text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] py-2 px-2.5 border-b border-[oklch(0.25_0.015_265/0.12)]">Leads</th>
+                <th className="text-center text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] py-2 px-2.5 border-b border-[oklch(0.25_0.015_265/0.12)]">Contacted</th>
+                <th className="text-center text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] py-2 px-2.5 border-b border-[oklch(0.25_0.015_265/0.12)]">Appts</th>
+                <th className="text-center text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] py-2 px-2.5 border-b border-[oklch(0.25_0.015_265/0.12)]">Inspections</th>
+                <th className="text-center text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] py-2 px-2.5 border-b border-[oklch(0.25_0.015_265/0.12)]">Estimates</th>
+                <th className="text-center text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] py-2 px-2.5 border-b border-[oklch(0.25_0.015_265/0.12)]">Sold</th>
+                <th className="text-center text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] py-2 px-2.5 border-b border-[oklch(0.25_0.015_265/0.12)] !text-right">Revenue</th>
+                <th className="text-center text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] py-2 px-2.5 border-b border-[oklch(0.25_0.015_265/0.12)]">Close %</th>
+              </tr></thead>
               <tbody>
-                {leaderboard.map(rep => (
+                {leaderboard.map((rep, idx) => (
                   <tr key={rep.id}>
-                    <td style={{ fontWeight: 600 }}>{rep.first_name} {rep.last_name}</td>
-                    <td style={{ textAlign: 'center' }}>{rep.leads_assigned}</td>
-                    <td style={{ textAlign: 'center' }}>{rep.contacted}</td>
-                    <td style={{ textAlign: 'center' }}>{rep.appointments}</td>
-                    <td style={{ textAlign: 'center' }}>{rep.inspections}</td>
-                    <td style={{ textAlign: 'center' }}>{rep.estimates_sent}</td>
-                    <td style={{ textAlign: 'center', fontWeight: 700, color: 'var(--accent-green)' }}>{rep.sold}</td>
-                    <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--accent-green)' }}>
-                      ${Number(rep.revenue).toLocaleString()}
-                    </td>
-                    <td style={{ textAlign: 'center' }}>{rep.close_rate}%</td>
+                    <td className={`text-center py-2.5 px-2.5 text-[var(--text-secondary)] !text-left font-[620] !text-[var(--text-primary)]${idx < leaderboard.length - 1 ? ' border-b border-[oklch(0.18_0.015_265/0.08)]' : ''}`}>{rep.first_name} {rep.last_name}</td>
+                    <td className={`text-center py-2.5 px-2.5 text-[var(--text-secondary)]${idx < leaderboard.length - 1 ? ' border-b border-[oklch(0.18_0.015_265/0.08)]' : ''}`}>{rep.leads_assigned}</td>
+                    <td className={`text-center py-2.5 px-2.5 text-[var(--text-secondary)]${idx < leaderboard.length - 1 ? ' border-b border-[oklch(0.18_0.015_265/0.08)]' : ''}`}>{rep.contacted}</td>
+                    <td className={`text-center py-2.5 px-2.5 text-[var(--text-secondary)]${idx < leaderboard.length - 1 ? ' border-b border-[oklch(0.18_0.015_265/0.08)]' : ''}`}>{rep.appointments}</td>
+                    <td className={`text-center py-2.5 px-2.5 text-[var(--text-secondary)]${idx < leaderboard.length - 1 ? ' border-b border-[oklch(0.18_0.015_265/0.08)]' : ''}`}>{rep.inspections}</td>
+                    <td className={`text-center py-2.5 px-2.5 text-[var(--text-secondary)]${idx < leaderboard.length - 1 ? ' border-b border-[oklch(0.18_0.015_265/0.08)]' : ''}`}>{rep.estimates_sent}</td>
+                    <td className={`text-center py-2.5 px-2.5 text-[var(--text-secondary)] font-bold !text-[var(--accent-green)]${idx < leaderboard.length - 1 ? ' border-b border-[oklch(0.18_0.015_265/0.08)]' : ''}`}>{rep.sold}</td>
+                    <td className={`text-center py-2.5 px-2.5 text-[var(--text-secondary)] !text-right font-bold !text-[var(--accent-green)]${idx < leaderboard.length - 1 ? ' border-b border-[oklch(0.18_0.015_265/0.08)]' : ''}`}>${Number(rep.revenue).toLocaleString()}</td>
+                    <td className={`text-center py-2.5 px-2.5 text-[var(--text-secondary)]${idx < leaderboard.length - 1 ? ' border-b border-[oklch(0.18_0.015_265/0.08)]' : ''}`}>{rep.close_rate}%</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
+        </Panel>
       )}
     </div>
   );

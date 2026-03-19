@@ -44,6 +44,8 @@ export function AuthProvider({ children }) {
     localStorage.setItem('user', JSON.stringify(data.user));
     setToken(data.accessToken);
     setUser(data.user);
+    // Clear map session state so storm map starts fresh each login
+    ['stormMapLayers', 'stormMapImprovedOnly', 'stormMapViewport', 'stormMapPopup'].forEach(k => sessionStorage.removeItem(k));
     navigate('/');
   };
 

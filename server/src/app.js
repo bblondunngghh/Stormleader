@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import compression from 'compression';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import routes from './routes/index.js';
@@ -15,7 +16,14 @@ const corsOrigin = config.NODE_ENV === 'production'
   : 'http://localhost:5173';
 app.use(cors({ origin: corsOrigin, credentials: true }));
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(express.json());
+app.use(compression());
+app.use((req, res, next) => {
+  // Skip JSON parsing for Stripe webhook — it needs the raw body for signature verification
+  if (req.originalUrl === '/api/payments/webhook') {
+    return next();
+  }
+  express.json()(req, res, next);
+});
 
 app.use('/api', routes);
 

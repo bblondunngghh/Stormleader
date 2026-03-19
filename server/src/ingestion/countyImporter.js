@@ -4,6 +4,36 @@ import logger from '../utils/logger.js';
 const PAGE_SIZE = 2000;
 const RATE_LIMIT_MS = 200;
 
+// Global import progress tracker — polled by the frontend
+export const importProgress = {
+  active: false,
+  clusters: { total: 0, completed: 0 },
+  current: null, // { county, fetched, total, percent }
+  propertiesImported: 0,
+  propertiesTotal: 0, // accumulated total as clusters are discovered
+  startedAt: null,
+};
+
+export function getImportProgress() {
+  return {
+    active: importProgress.active,
+    clusters: { ...importProgress.clusters },
+    current: importProgress.current ? { ...importProgress.current } : null,
+    propertiesImported: importProgress.propertiesImported,
+    propertiesTotal: importProgress.propertiesTotal,
+    startedAt: importProgress.startedAt,
+  };
+}
+
+export function resetImportProgress(clusterCount) {
+  importProgress.active = true;
+  importProgress.clusters = { total: clusterCount, completed: 0 };
+  importProgress.current = null;
+  importProgress.propertiesImported = 0;
+  importProgress.propertiesTotal = 0;
+  importProgress.startedAt = new Date().toISOString();
+}
+
 /**
  * Compute centroid from an ArcGIS polygon ring.
  */
@@ -237,7 +267,11 @@ export async function importCounty(countySourceId, options = {}) {
   logger.info({ county: source.county_name, bbox }, `County import starting: ${source.county_name}`);
 
   const count = await getRecordCount(source.arcgis_url, where, bbox);
-  logger.info(`${source.county_name} import: ${count} parcels match query`);
+  const cappedCount = Math.min(count, maxRecords);
+  logger.info(`${source.county_name} import: ${count} parcels match query (capped to ${cappedCount})`);
+
+  importProgress.propertiesTotal += cappedCount;
+  importProgress.current = { county: source.county_name, fetched: 0, total: cappedCount, percent: 0 };
 
   if (count === 0) {
     return { total: 0, countyName: source.county_name };
@@ -267,9 +301,11 @@ export async function importCounty(countySourceId, options = {}) {
     }
 
     totalUpserted += await upsertBatch(batch);
+    importProgress.propertiesImported += batch.length;
 
     offset += data.features.length;
     const pct = count > 0 ? Math.round((offset / count) * 100) : 0;
+    importProgress.current = { county: source.county_name, fetched: offset, total: count, percent: pct };
     logger.info(`${source.county_name} import: ${offset}/${count} (${pct}%) — ${totalUpserted} upserted`);
 
     // Rate limit
@@ -296,7 +332,8 @@ export async function importCounty(countySourceId, options = {}) {
  * @returns {Array<{ total: number, countyName: string }>}
  */
 export async function importCountiesByBbox(bbox, options = {}) {
-  const bufferKm = options.bufferKm ?? 5;
+  const bufferKm = options.bufferKm ?? 1;
+  const maxRecords = options.maxRecords ?? 10000;
   // ~0.009 degrees per km at TX latitudes
   const bufferDeg = bufferKm * 0.009;
 
@@ -320,6 +357,9 @@ export async function importCountiesByBbox(bbox, options = {}) {
     return [];
   }
 
+  // Track progress at cluster level
+  importProgress.clusters.total += sources.length;
+
   const results = [];
   for (const source of sources) {
     // For per-county sources, skip if imported within 30 days
@@ -333,22 +373,25 @@ export async function importCountiesByBbox(bbox, options = {}) {
       `, [bufferedBbox.xmin, bufferedBbox.ymin, bufferedBbox.xmax, bufferedBbox.ymax]);
       if (parseInt(cnt) > 0) {
         logger.info(`${source.county_name}: properties already exist in bbox, skipping`);
+        importProgress.clusters.completed++;
         continue;
       }
     } else if (source.last_imported_at) {
       const daysSince = (Date.now() - new Date(source.last_imported_at).getTime()) / (1000 * 60 * 60 * 24);
       if (daysSince < 30) {
         logger.info(`${source.county_name} imported ${Math.round(daysSince)} days ago, skipping`);
+        importProgress.clusters.completed++;
         continue;
       }
     }
 
     try {
-      const result = await importCounty(source.id, { bbox: bufferedBbox, maxRecords: 50000 });
+      const result = await importCounty(source.id, { bbox: bufferedBbox, maxRecords });
       results.push(result);
     } catch (err) {
       logger.error({ err, county: source.county_name }, 'Failed to import county by bbox');
     }
+    importProgress.clusters.completed++;
   }
 
   return results;

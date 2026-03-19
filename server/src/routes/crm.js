@@ -91,6 +91,36 @@ router.post('/leads', async (req, res, next) => {
   }
 });
 
+// POST /api/crm/leads/quick — Create a lead directly from contact info (no property required)
+router.post('/leads/quick', async (req, res, next) => {
+  try {
+    const { contact_name, contact_phone, contact_email, address, city, state, zip, stage, priority, source, estimated_value } = req.body;
+    if (!contact_name && !address) return res.status(400).json({ error: 'contact_name or address is required' });
+
+    const ev = estimated_value != null ? parseFloat(estimated_value) : null;
+    if (estimated_value != null && isNaN(ev)) return res.status(400).json({ error: 'estimated_value must be a number' });
+
+    const { rows } = await pool.query(
+      `INSERT INTO leads (
+        tenant_id, assigned_rep_id,
+        stage, priority, estimated_value, source,
+        contact_name, contact_phone, contact_email,
+        address, city, property_state, property_zip
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      RETURNING *`,
+      [
+        req.tenantId, req.body.assigned_rep_id || null,
+        stage || 'new', priority || 'warm', ev, source || 'manual',
+        contact_name || null, contact_phone || null, contact_email || null,
+        address || null, city || null, state || null, zip || null,
+      ]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /api/crm/leads/:id — Full detail with contacts, activities, tasks
 router.get('/leads/:id', async (req, res, next) => {
   try {
@@ -435,6 +465,62 @@ router.put('/tenant-settings', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// GET /api/crm/dashboard/properties-affected
+router.get('/dashboard/properties-affected', async (req, res, next) => {
+  try {
+    const result = await crmService.getPropertiesAffected(req.tenantId);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/crm/dashboard/properties-affected/list
+router.get('/dashboard/properties-affected/list', async (req, res, next) => {
+  try {
+    const { limit = '50', offset = '0', contacted = 'all', housesOnly = 'true' } = req.query;
+    const result = await crmService.listPropertiesInStormZones(req.tenantId, {
+      limit: parseInt(limit, 10),
+      offset: parseInt(offset, 10),
+      contacted,
+      housesOnly: housesOnly !== 'false',
+    });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/crm/dashboard/followups
+router.get('/dashboard/followups', async (req, res, next) => {
+  try {
+    const followups = await crmService.getUpcomingFollowups(req.tenantId);
+    res.json({ followups });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/crm/dashboard/conversion-by-storm
+router.get('/dashboard/conversion-by-storm', async (req, res, next) => {
+  try {
+    const storms = await crmService.getConversionByStorm(req.tenantId);
+    res.json({ storms });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/crm/dashboard/estimate-summary
+router.get('/dashboard/estimate-summary', async (req, res, next) => {
+  try {
+    const summary = await crmService.getEstimateSummary(req.tenantId);
+    res.json(summary);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /api/crm/dashboard/leaderboard
 router.get('/dashboard/leaderboard', async (req, res, next) => {
   try {
@@ -450,6 +536,79 @@ router.get('/dashboard/tasks-today', async (req, res, next) => {
   try {
     const tasks = await crmService.getTasksDueToday(req.tenantId);
     res.json({ tasks });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ============================================================
+// PROSPECT LISTS
+// ============================================================
+
+// POST /api/crm/prospect-lists — Create list from storm swath
+router.post('/prospect-lists', async (req, res, next) => {
+  try {
+    const { stormEventId, name } = req.body;
+    if (!stormEventId) return res.status(400).json({ error: 'stormEventId is required' });
+    const list = await crmService.createProspectListFromSwath(
+      req.tenantId, req.user.id, stormEventId, name || 'Storm List'
+    );
+    res.status(201).json(list);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/crm/prospect-lists — All lists for tenant
+router.get('/prospect-lists', async (req, res, next) => {
+  try {
+    const lists = await crmService.getProspectLists(req.tenantId);
+    res.json({ lists });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/crm/prospect-lists/:id/items — Properties in a list
+router.get('/prospect-lists/:id/items', async (req, res, next) => {
+  try {
+    const { limit = '50', offset = '0', ...filterParams } = req.query;
+    const filters = {};
+    for (const key of ['value_min', 'value_max', 'year_min', 'year_max', 'roof_min', 'roof_max',
+                        'has_owner', 'has_phone', 'homestead', 'status', 'city', 'roof_type']) {
+      if (filterParams[key]) filters[key] = filterParams[key];
+    }
+    const result = await crmService.getProspectListItems(
+      req.tenantId, req.params.id,
+      { limit: parseInt(limit, 10), offset: parseInt(offset, 10), filters }
+    );
+    if (!result) return res.status(404).json({ error: 'List not found' });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// DELETE /api/crm/prospect-lists/:id/items/:propertyId — Remove property from list
+router.delete('/prospect-lists/:id/items/:propertyId', async (req, res, next) => {
+  try {
+    const result = await crmService.removeProspectListItem(
+      req.tenantId, req.params.id, req.params.propertyId
+    );
+    if (result === null) return res.status(404).json({ error: 'List not found' });
+    if (!result) return res.status(404).json({ error: 'Item not found' });
+    res.json({ success: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// DELETE /api/crm/prospect-lists/:id
+router.delete('/prospect-lists/:id', async (req, res, next) => {
+  try {
+    const deleted = await crmService.deleteProspectList(req.tenantId, req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'List not found' });
+    res.json({ success: true });
   } catch (err) {
     next(err);
   }
