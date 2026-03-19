@@ -29,7 +29,7 @@ export function TimeFilter({ timeRange, onTimeRangeChange }) {
   );
 }
 
-export function LayerPanel({ layers, onLayersChange, improvedOnly, onImprovedOnlyChange }) {
+export function LayerPanel({ layers, onLayersChange, improvedOnly, onImprovedOnlyChange, showFema, onShowFemaChange }) {
   const handleLayerToggle = (layerId) => {
     onLayersChange((prev) => ({ ...prev, [layerId]: !prev[layerId] }));
   };
@@ -62,20 +62,34 @@ export function LayerPanel({ layers, onLayersChange, improvedOnly, onImprovedOnl
               </label>
             </div>
           )}
-          {/* Houses Only nested under Properties */}
+          {/* Property sub-filters */}
           {layer.id === 'properties' && layers.properties && (
-            <div className="map-controls__sub-row">
-              <span className="map-controls__bracket" />
-              <label className="map-controls__toggle map-controls__toggle--sub">
-                <input
-                  type="checkbox"
-                  checked={improvedOnly || false}
-                  onChange={() => onImprovedOnlyChange?.(!improvedOnly)}
-                  style={{ '--check-color': '#ff9500' }}
-                />
-                <span>Houses Only</span>
-              </label>
-            </div>
+            <>
+              <div className="map-controls__sub-row">
+                <span className="map-controls__bracket" />
+                <label className="map-controls__toggle map-controls__toggle--sub">
+                  <input
+                    type="checkbox"
+                    checked={improvedOnly || false}
+                    onChange={() => onImprovedOnlyChange?.(!improvedOnly)}
+                    style={{ '--check-color': '#00d4aa' }}
+                  />
+                  <span>Houses Only</span>
+                </label>
+              </div>
+              <div className="map-controls__sub-row">
+                <span className="map-controls__bracket" />
+                <label className="map-controls__toggle map-controls__toggle--sub">
+                  <input
+                    type="checkbox"
+                    checked={showFema || false}
+                    onChange={() => onShowFemaChange?.(!showFema)}
+                    style={{ '--check-color': '#a882ff' }}
+                  />
+                  <span>FEMA Data</span>
+                </label>
+              </div>
+            </>
           )}
         </div>
       ))}

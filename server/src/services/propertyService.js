@@ -1,5 +1,6 @@
 import pool from '../db/pool.js';
 import logger from '../utils/logger.js';
+import cache from '../utils/cache.js';
 
 // Texas bounding box
 const TX_BOUNDS = { west: -106.65, south: 25.84, east: -93.51, north: 36.50 };
@@ -17,6 +18,11 @@ function clampToTexas(bbox) {
  */
 export async function findPropertiesInSwath(stormEventId, options = {}) {
   const { limit = 500, offset = 0, bbox } = options;
+
+  // Check cache — 5-minute TTL
+  const cacheKey = `props-swath:${stormEventId}:${bbox ? bbox.join(',') : ''}:${limit}:${offset}`;
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
 
   // If bbox provided, intersect with viewport for incremental loading
   const bboxFilter = bbox
@@ -55,10 +61,72 @@ export async function findPropertiesInSwath(stormEventId, options = {}) {
     params
   );
 
-  return {
+  const result = {
     type: 'FeatureCollection',
     features: rows.map((r) => mapPropertyFeature(r, { distance_m: parseFloat(r.distance_m) })),
   };
+
+  // Cache for 5 minutes
+  cache.set(cacheKey, result, 5 * 60 * 1000);
+  return result;
+}
+
+/**
+ * Lightweight version of findPropertiesInSwath — returns only the columns needed
+ * for map dots, dramatically reducing data transferred from Neon Postgres.
+ */
+export async function findPropertiesInSwathLight(stormEventId, options = {}) {
+  const { limit = 500, offset = 0, bbox } = options;
+
+  const cacheKey = `props-swath-light:${stormEventId}:${bbox ? bbox.join(',') : ''}:${limit}:${offset}`;
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
+  const bboxFilter = bbox
+    ? `AND p.location && ST_MakeEnvelope($4, $5, $6, $7, 4326)`
+    : '';
+  const params = bbox
+    ? [stormEventId, limit, offset, bbox[0], bbox[1], bbox[2], bbox[3]]
+    : [stormEventId, limit, offset];
+
+  const { rows } = await pool.query(
+    `SELECT
+        p.id,
+        ST_AsGeoJSON(p.location)::json AS geometry,
+        COALESCE(p.year_built, p.fema_year_built) AS year_built,
+        p.data_source,
+        COALESCE(p.assessed_value, p.fema_replacement_value) AS assessed_value,
+        p.fema_bldg_type
+     FROM properties p
+     JOIN storm_events se ON se.id = $1
+     WHERE p.location && se.geom AND ST_Intersects(p.location, se.geom)
+     ${bboxFilter}
+     AND (p.year_built IS NOT NULL OR p.fema_year_built IS NOT NULL OR p.roof_sqft > 0 OR p.fema_sqft > 0 OR COALESCE(p.assessed_value, p.fema_replacement_value) > 15000 OR p.homestead_exempt = true)
+     AND p.address_line1 IS NOT NULL AND TRIM(p.address_line1) != '' AND p.address_line1 != '0'
+     ORDER BY p.id
+     LIMIT $2 OFFSET $3`,
+    params
+  );
+
+  const result = {
+    type: 'FeatureCollection',
+    features: rows.map((r) => ({
+      type: 'Feature',
+      id: r.id,
+      geometry: r.geometry,
+      properties: {
+        id: r.id,
+        year_built: r.year_built,
+        data_source: r.data_source,
+        assessed_value: r.assessed_value,
+        fema_bldg_type: r.fema_bldg_type,
+      },
+    })),
+  };
+
+  // Cache for 5 minutes
+  cache.set(cacheKey, result, 5 * 60 * 1000);
+  return result;
 }
 
 /**

@@ -9,7 +9,7 @@ const RATE_LIMIT_MS = 300;
  * Query FEMA NSI structures by bounding box.
  * bbox param is a closed polygon ring of lng,lat pairs.
  */
-async function fetchByBbox(bbox) {
+export async function fetchByBbox(bbox) {
   const { xmin, ymin, xmax, ymax } = bbox;
   // NSI bbox is a closed polygon ring: sw, nw, ne, se, sw
   const bboxParam = `${xmin},${ymin},${xmin},${ymax},${xmax},${ymax},${xmax},${ymin},${xmin},${ymin}`;
@@ -53,7 +53,7 @@ async function fetchByPolygon(geojson) {
 /**
  * Filter to Texas residential structures only.
  */
-function filterTexasResidential(features) {
+export function filterTexasResidential(features) {
   return features.filter(f => {
     const p = f.properties;
     // Texas FIPS codes start with 48
@@ -69,7 +69,7 @@ function filterTexasResidential(features) {
 /**
  * Extract FEMA fields from an NSI feature.
  */
-function extractFemaData(feature) {
+export function extractFemaData(feature) {
   const p = feature.properties;
   const [lng, lat] = feature.geometry?.coordinates || [null, null];
 

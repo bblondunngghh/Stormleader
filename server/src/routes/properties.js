@@ -3,12 +3,68 @@ import authenticate from '../middleware/authenticate.js';
 import * as propertyService from '../services/propertyService.js';
 import * as leadService from '../services/leadService.js';
 import { getImportProgress } from '../services/countyService.js';
+import { fetchByBbox, filterTexasResidential, extractFemaData } from '../ingestion/femaIngester.js';
 import env from '../config/env.js';
 import pool from '../db/pool.js';
 import logger from '../utils/logger.js';
+import cache from '../utils/cache.js';
 import { autoImportForStorms } from '../services/countyService.js';
 
 const router = Router();
+
+// GET /api/properties/fema-live?bbox=w,s,e,n — Live FEMA NSI property query (no DB writes)
+router.get('/fema-live', authenticate, async (req, res, next) => {
+  try {
+    const { bbox } = req.query;
+    if (!bbox) return res.status(400).json({ error: 'bbox required' });
+
+    const parts = bbox.split(',').map(Number);
+    if (parts.length !== 4 || parts.some(n => isNaN(n))) {
+      return res.status(400).json({ error: 'Invalid bbox format' });
+    }
+    const [west, south, east, north] = parts;
+
+    // Cap bbox size to prevent huge queries (~55km max span)
+    if (Math.abs(east - west) > 0.5 || Math.abs(north - south) > 0.5) {
+      return res.status(400).json({ error: 'Bbox too large, max 0.5 degrees' });
+    }
+
+    const features = await fetchByBbox({ xmin: west, ymin: south, xmax: east, ymax: north });
+    const filtered = filterTexasResidential(features);
+
+    const result = {
+      type: 'FeatureCollection',
+      features: filtered.map(f => {
+        const d = extractFemaData(f);
+        if (!d) return null;
+        return {
+          type: 'Feature',
+          id: `fema_${d.fdId}`,
+          geometry: { type: 'Point', coordinates: [d.lng, d.lat] },
+          properties: {
+            data_source: 'fema_nsi_live',
+            fema_fd_id: d.fdId,
+            year_built: d.yearBuilt,
+            assessed_value: d.replacementValue,
+            property_sqft: d.sqft,
+            fema_occupancy_type: d.occupancyType,
+            fema_bldg_type: d.bldgType,
+            fema_num_stories: d.numStories,
+            fema_foundation_type: d.foundationType,
+            fema_ground_elevation: d.groundElevation,
+          },
+        };
+      }).filter(Boolean),
+    };
+
+    res.json(result);
+  } catch (err) {
+    if (err.message?.includes('FEMA NSI API')) {
+      return res.status(502).json({ error: 'FEMA NSI API unavailable' });
+    }
+    next(err);
+  }
+});
 
 // GET /api/properties/import-progress — no auth needed, lightweight poll
 router.get('/import-progress', (req, res) => {
@@ -52,24 +108,33 @@ router.get('/', async (req, res, next) => {
 // GET /api/properties/in-swath/:stormEventId/count — Fast count of properties in swath
 router.get('/in-swath/:stormEventId/count', async (req, res, next) => {
   try {
+    const stormEventId = req.params.stormEventId;
+    const cacheKey = `swath-count:${stormEventId}`;
+    const cached = cache.get(cacheKey);
+    if (cached !== null) return res.json(cached);
+
     const { rows: [{ count }] } = await pool.query(
       `SELECT COUNT(*) FROM properties p
        JOIN storm_events se ON se.id = $1
        WHERE p.location && se.geom AND ST_Intersects(p.location, se.geom)
          AND (p.year_built IS NOT NULL OR p.fema_year_built IS NOT NULL OR p.roof_sqft > 0 OR p.fema_sqft > 0 OR COALESCE(p.assessed_value, p.fema_replacement_value) > 15000 OR p.homestead_exempt = true)
          AND p.address_line1 IS NOT NULL AND TRIM(p.address_line1) != '' AND p.address_line1 != '0'`,
-      [req.params.stormEventId]
+      [stormEventId]
     );
-    res.json({ count: parseInt(count, 10) });
+    const result = { count: parseInt(count, 10) };
+    // Cache for 10 minutes
+    cache.set(cacheKey, result, 10 * 60 * 1000);
+    res.json(result);
   } catch (err) {
     next(err);
   }
 });
 
 // GET /api/properties/in-swath/:stormEventId — Properties within a storm swath
+// Pass ?light=true for lightweight map-dot payload (fewer columns, less data transfer)
 router.get('/in-swath/:stormEventId', async (req, res, next) => {
   try {
-    const { limit = '500', offset = '0', bbox } = req.query;
+    const { limit = '500', offset = '0', bbox, light } = req.query;
     const opts = { limit: parseInt(limit, 10), offset: parseInt(offset, 10) };
     if (bbox) {
       const parts = bbox.split(',').map(Number);
@@ -77,10 +142,10 @@ router.get('/in-swath/:stormEventId', async (req, res, next) => {
         opts.bbox = parts; // [west, south, east, north]
       }
     }
-    const result = await propertyService.findPropertiesInSwath(
-      req.params.stormEventId,
-      opts
-    );
+    const queryFn = light === 'true'
+      ? propertyService.findPropertiesInSwathLight
+      : propertyService.findPropertiesInSwath;
+    const result = await queryFn(req.params.stormEventId, opts);
     res.json(result);
   } catch (err) {
     next(err);

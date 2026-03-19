@@ -1,4 +1,5 @@
 import pool from '../db/pool.js';
+import cache from '../utils/cache.js';
 
 // Add sine wave offset to a LineString, perpendicular to each segment's local direction
 function makeWavy(geometry) {
@@ -164,6 +165,11 @@ const TX_POLYGON = `ST_GeomFromText('POLYGON((
 ))', 4326)`;
 
 export async function getSwathsByViewport(bbox, timeRange, startDate, endDate) {
+  // Check cache first — storm data rarely changes (only on ingestion runs)
+  const cacheKey = `swaths:${bbox.join(',')}:${timeRange || ''}:${startDate || ''}:${endDate || ''}`;
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
   // Clamp viewport to Texas bounds
   const [west, south, east, north] = [
     Math.max(bbox[0], TX_BOUNDS.west),
@@ -319,7 +325,7 @@ export async function getSwathsByViewport(bbox, timeRange, startDate, endDate) {
     console.error('Merged outline query failed, falling back to individual features:', mergeErr.message);
   }
 
-  return {
+  const result = {
     type: 'FeatureCollection',
     features: [
       ...mergedFeatures,
@@ -341,4 +347,8 @@ export async function getSwathsByViewport(bbox, timeRange, startDate, endDate) {
       })),
     ],
   };
+
+  // Cache for 10 minutes — storm data only changes on ingestion runs
+  cache.set(cacheKey, result, 10 * 60 * 1000);
+  return result;
 }

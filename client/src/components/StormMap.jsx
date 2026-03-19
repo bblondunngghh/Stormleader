@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import Supercluster from 'supercluster';
 import { loadGoogleMaps } from '../lib/googleMaps';
 import { cacheProperties, loadCachedProperties, cacheTileKeys, loadCachedTileKeys, clearPropertyCache } from '../lib/propertyCache';
-import { getSwaths, getPropertiesInSwath, getSwathPropertyCount, createProperty, fetchFemaData } from '../api/storms';
+import { getSwaths, getPropertiesInSwath, getSwathPropertyCount, createProperty, fetchFemaData, getFemaLiveProperties } from '../api/storms';
 import { addPropertyToPipeline, createManualLead } from '../api/crm';
 import { TimeFilter, LayerPanel } from './MapControls';
 import AddressSearch from './AddressSearch';
@@ -174,6 +174,32 @@ function SwathPropertyProgress({ state }) {
   );
 }
 
+function PropertyLegend() {
+  const [showInfo, setShowInfo] = useState(false);
+  return (
+    <div className="map-legend glass">
+      <div className="map-legend__title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        Properties
+        <button
+          className="map-legend__info-btn"
+          onClick={() => setShowInfo(!showInfo)}
+          title="What's the difference?"
+        >i</button>
+      </div>
+      <div className="map-legend__dots">
+        <span><span className="map-legend__dot" style={{ background: '#00d4aa' }} />County Records</span>
+        <span><span className="map-legend__dot" style={{ background: '#a882ff' }} />FEMA Records</span>
+      </div>
+      {showInfo && (
+        <div className="map-legend__info-panel">
+          <p><strong style={{ color: '#00d4aa' }}>County Records</strong> come from county appraisal districts and include owner names, addresses, parcel IDs, and assessed values. These support skip tracing and direct outreach.</p>
+          <p><strong style={{ color: '#a882ff' }}>FEMA Records</strong> come from the National Structure Inventory and provide building characteristics (year built, square footage, replacement value, structure type). They cover areas where county data hasn't been imported but don't include owner information.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function StormMap() {
   const [searchParams] = useSearchParams();
   const mapContainer = useRef(null);
@@ -199,17 +225,27 @@ export default function StormMap() {
   });
   const improvedOnlyRef = useRef(improvedOnly);
   improvedOnlyRef.current = improvedOnly;
+  const [showFema, setShowFema] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('stormMapShowFema');
+      if (saved !== null) return JSON.parse(saved);
+    } catch {}
+    return true;
+  });
+  const showFemaRef = useRef(showFema);
+  showFemaRef.current = showFema;
   // Persist layer/filter selections in sessionStorage (survives navigation, cleared on new session)
   useEffect(() => { sessionStorage.setItem('stormMapLayers', JSON.stringify(layers)); }, [layers]);
   useEffect(() => { sessionStorage.setItem('stormMapImprovedOnly', JSON.stringify(improvedOnly)); }, [improvedOnly]);
+  useEffect(() => { sessionStorage.setItem('stormMapShowFema', JSON.stringify(showFema)); }, [showFema]);
 
-  // Rebuild cluster index when Houses Only filter changes
+  // Rebuild cluster index when Houses Only or FEMA filter changes
   useEffect(() => {
     if (propFeaturesRef.current.length > 0) {
-      rebuildClusterIndex();
+      rebuildClusterIndex(true);
       if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
     }
-  }, [improvedOnly]);
+  }, [improvedOnly, showFema]);
 
   const [searchLoading, setSearchLoading] = useState(false);
   const [mapLoading, setMapLoading] = useState(false);
@@ -223,8 +259,14 @@ export default function StormMap() {
   const swathPropCacheRef = useRef(new Map()); // stormEventId -> Feature[]
   const swathLoadedRef = useRef(new Set()); // fully loaded swath IDs
   const swathAbortRef = useRef(null); // AbortController for current loading session
+  const cacheRestoredRef = useRef(false); // gate property loading until cache is restored
+  const femaLoadedTilesRef = useRef(new Set()); // track FEMA-loaded tiles separately
+  const femaAbortRef = useRef(null); // separate abort controller for FEMA fetches
   const swathDebounceRef = useRef(null); // debounce timer
+  const femaDebounceRef = useRef(null); // separate debounce for FEMA loading
   const [swathProgress, setSwathProgress] = useState(null); // progress bar state
+  const [femaLoading, setFemaLoading] = useState(false);
+  const femaLoadingCountRef = useRef(0);
 
   // Load storms once for all of Texas (only ~389, stays on map permanently)
   const stormsLoadedRef = useRef(false);
@@ -360,14 +402,35 @@ export default function StormMap() {
   const VIEWPORT_BATCH_SIZE = 10000;
 
   // Rebuild spatial cluster index from current property features
-  function rebuildClusterIndex() {
-    let features = propFeaturesRef.current;
-    if (improvedOnlyRef.current) {
-      features = features.filter(f => f.properties?.year_built);
+  const rebuildTimerRef = useRef(null);
+  function rebuildClusterIndex(immediate) {
+    const doRebuild = () => {
+      const improvedOnly = improvedOnlyRef.current;
+      const showFema = showFemaRef.current;
+      const needsFilter = improvedOnly || !showFema;
+      let features = propFeaturesRef.current;
+      if (needsFilter) {
+        features = features.filter(f => {
+          if (improvedOnly && !f.properties?.year_built) return false;
+          if (!showFema && f.properties?.data_source === 'fema_nsi_live') return false;
+          return true;
+        });
+      }
+      const index = new Supercluster({
+        radius: 200, maxZoom: 15, minPoints: 5,
+        map: (props) => ({ femaCount: props.data_source === 'fema_nsi_live' ? 1 : 0, totalCount: 1 }),
+        reduce: (accumulated, props) => { accumulated.femaCount += props.femaCount; accumulated.totalCount += props.totalCount; },
+      });
+      index.load(features);
+      clusterIndexRef.current = index;
+    };
+    if (immediate) {
+      clearTimeout(rebuildTimerRef.current);
+      doRebuild();
+    } else {
+      clearTimeout(rebuildTimerRef.current);
+      rebuildTimerRef.current = setTimeout(doRebuild, 300);
     }
-    const index = new Supercluster({ radius: 60, maxZoom: 17, minPoints: 2 });
-    index.load(features);
-    clusterIndexRef.current = index;
   }
 
   // Deduplicate properties by id
@@ -424,7 +487,7 @@ export default function StormMap() {
   }
 
   const loadSwathProperties = useCallback(async (map) => {
-    if (!map) return;
+    if (!map || !cacheRestoredRef.current) return;
     const zoom = map.getZoom();
 
     // Too zoomed out — abort loading and hide dots, but keep data cached
@@ -446,17 +509,15 @@ export default function StormMap() {
     const ne = bounds.getNorthEast();
     const viewBbox = [sw.lng(), sw.lat(), ne.lng(), ne.lat()];
 
-    // Find swaths that overlap the viewport and have unloaded tiles
-    const visibleSwaths = stormFeaturesRef.current.filter(f =>
-      f.id && featureBboxOverlaps(f, bounds) && !isFullyLoaded(f.id, viewBbox)
-    );
-
-    if (visibleSwaths.length === 0) return;
-
     // Abort any previous loading session before starting a new one
     if (swathAbortRef.current) swathAbortRef.current.abort();
     const abort = new AbortController();
     swathAbortRef.current = abort;
+
+    // Find swaths that overlap the viewport and have unloaded tiles
+    const visibleSwaths = stormFeaturesRef.current.filter(f =>
+      f.id && featureBboxOverlaps(f, bounds) && !isFullyLoaded(f.id, viewBbox)
+    );
 
     const totalSwaths = visibleSwaths.length;
     let totalNew = 0;
@@ -535,6 +596,124 @@ export default function StormMap() {
 
     if (!abort.signal.aborted) {
       setSwathProgress(prev => prev ? { ...prev, finished: true } : null);
+    }
+
+  }, []);
+
+  // Check if a bbox overlaps any storm swath
+  function chunkOverlapsSwath(chunkBbox) {
+    const [cw, cs, ce, cn] = chunkBbox;
+    for (const f of stormFeaturesRef.current) {
+      if (!f.geometry?.coordinates) continue;
+      const coords = f.geometry.type === 'MultiPolygon' ? f.geometry.coordinates.flat(2) : f.geometry.coordinates.flat(1);
+      let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+      for (const [lng, lat] of coords) {
+        if (lat < minLat) minLat = lat;
+        if (lat > maxLat) maxLat = lat;
+        if (lng < minLng) minLng = lng;
+        if (lng > maxLng) maxLng = lng;
+      }
+      // Bbox overlap test
+      if (!(maxLat < cs || minLat > cn || maxLng < cw || minLng > ce)) return true;
+    }
+    return false;
+  }
+
+  // Load FEMA properties independently from DB property loading
+  const loadFemaProperties = useCallback(async (map) => {
+    if (!map || !cacheRestoredRef.current) return;
+    const zoom = map.getZoom();
+    if (zoom < 8) return;
+
+    const bounds = map.getBounds();
+    if (!bounds) return;
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+    const viewBbox = [sw.lng(), sw.lat(), ne.lng(), ne.lat()];
+
+    // Build list of unloaded FEMA tile-sized chunks that overlap storm swaths
+    const CHUNK = 0.45;
+    const chunks = [];
+    for (let w = viewBbox[0]; w < viewBbox[2]; w += CHUNK) {
+      for (let s = viewBbox[1]; s < viewBbox[3]; s += CHUNK) {
+        const cb = [w, s, Math.min(w + CHUNK, viewBbox[2]), Math.min(s + CHUNK, viewBbox[3])];
+        // Only fetch FEMA data for areas that have storm swaths
+        if (!chunkOverlapsSwath(cb)) continue;
+        const cMinX = Math.floor(cb[0] / TILE_SIZE);
+        const cMaxX = Math.floor(cb[2] / TILE_SIZE);
+        const cMinY = Math.floor(cb[1] / TILE_SIZE);
+        const cMaxY = Math.floor(cb[3] / TILE_SIZE);
+        let needed = false;
+        const keys = [];
+        for (let x = cMinX; x <= cMaxX; x++) {
+          for (let y = cMinY; y <= cMaxY; y++) {
+            const key = `fema:${x}:${y}`;
+            keys.push(key);
+            if (!femaLoadedTilesRef.current.has(key)) needed = true;
+          }
+        }
+        if (needed) chunks.push({ bbox: cb, keys });
+      }
+    }
+
+    if (chunks.length === 0) return;
+
+    // Abort previous FEMA session
+    if (femaAbortRef.current) femaAbortRef.current.abort();
+    const femaAbort = new AbortController();
+    femaAbortRef.current = femaAbort;
+
+    setFemaLoading(true);
+
+    // Build spatial grid once for dedup
+    const CELL = 0.0003;
+    const grid = new Set();
+    for (const existing of propFeaturesRef.current) {
+      if (!existing.geometry?.coordinates) continue;
+      const [eLng, eLat] = existing.geometry.coordinates;
+      grid.add(`${Math.round(eLat / CELL)},${Math.round(eLng / CELL)}`);
+    }
+
+    for (const chunk of chunks) {
+      if (femaAbort.signal.aborted) break;
+      try {
+        const femaRes = await getFemaLiveProperties({
+          west: chunk.bbox[0], south: chunk.bbox[1],
+          east: chunk.bbox[2], north: chunk.bbox[3],
+          signal: femaAbort.signal,
+        });
+        const femaFeatures = femaRes.data?.features || [];
+
+        const newFema = [];
+        for (const f of femaFeatures) {
+          const pid = f.id;
+          if (propIdSetRef.current.has(pid)) continue;
+          const [fLng, fLat] = f.geometry.coordinates;
+          if (grid.has(`${Math.round(fLat / CELL)},${Math.round(fLng / CELL)}`)) continue;
+          propIdSetRef.current.add(pid);
+          newFema.push(f);
+          grid.add(`${Math.round(fLat / CELL)},${Math.round(fLng / CELL)}`);
+        }
+
+        if (newFema.length > 0) {
+          propFeaturesRef.current = [...propFeaturesRef.current, ...newFema];
+          rebuildClusterIndex();
+          if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
+          cacheProperties(newFema);
+        }
+
+        for (const key of chunk.keys) {
+          femaLoadedTilesRef.current.add(key);
+        }
+        cacheTileKeys(chunk.keys);
+      } catch (err) {
+        if (err.name === 'AbortError' || err.name === 'CanceledError') break;
+        console.warn('FEMA chunk fetch failed:', err.message);
+      }
+    }
+
+    if (!femaAbort.signal.aborted) {
+      setFemaLoading(false);
     }
   }, []);
 
@@ -1014,13 +1193,30 @@ export default function StormMap() {
           const ptRadius = z <= 10 ? 3 : z <= 13 ? 5 : z <= 15 ? 7 : 9;
           const alpha = z <= 10 ? 0.85 : z <= 13 ? 0.7 : 0.5;
 
-          // Draw individual points (non-clusters) first
+          // Draw individual points — DB properties in teal, FEMA in orange
+          ctx.lineWidth = z <= 10 ? 1 : 0.5;
+          // Pass 1: DB properties (teal)
           ctx.fillStyle = `rgba(0, 212, 170, ${alpha})`;
           ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.6})`;
-          ctx.lineWidth = z <= 10 ? 1 : 0.5;
           ctx.beginPath();
           for (const c of clusters) {
-            if (c.properties.cluster) continue; // skip clusters, draw below
+            if (c.properties.cluster || c.properties.data_source === 'fema_nsi_live') continue;
+            const [lng, lat] = c.geometry.coordinates;
+            const pixel = projection.fromLatLngToDivPixel(new maps.LatLng(lat, lng));
+            if (!pixel) continue;
+            const x = pixel.x - left;
+            const y = pixel.y - top;
+            ctx.moveTo(x + ptRadius, y);
+            ctx.arc(x, y, ptRadius, 0, Math.PI * 2);
+          }
+          ctx.fill();
+          ctx.stroke();
+          // Pass 2: FEMA live properties (orange)
+          ctx.fillStyle = `rgba(168, 130, 255, ${alpha})`;
+          ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.6})`;
+          ctx.beginPath();
+          for (const c of clusters) {
+            if (c.properties.cluster || c.properties.data_source !== 'fema_nsi_live') continue;
             const [lng, lat] = c.geometry.coordinates;
             const pixel = projection.fromLatLngToDivPixel(new maps.LatLng(lat, lng));
             if (!pixel) continue;
@@ -1033,6 +1229,7 @@ export default function StormMap() {
           ctx.stroke();
 
           // Draw clusters as larger circles with count labels
+          // Color based on dominant source: orange if majority FEMA, teal if majority DB
           for (const c of clusters) {
             if (!c.properties.cluster) continue;
             const count = c.properties.point_count;
@@ -1042,19 +1239,20 @@ export default function StormMap() {
             const x = pixel.x - left;
             const y = pixel.y - top;
 
-            // Scale cluster radius by count
             const r = Math.min(30, 12 + Math.log2(count) * 3);
+            const femaRatio = (c.properties.femaCount || 0) / (c.properties.totalCount || 1);
+            const isMostlyFema = femaRatio > 0.5;
 
-            // Cluster circle
             ctx.beginPath();
             ctx.arc(x, y, r, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(0, 212, 170, ${alpha * 0.85})`;
+            ctx.fillStyle = isMostlyFema
+              ? `rgba(168, 130, 255, ${alpha * 0.85})`
+              : `rgba(0, 212, 170, ${alpha * 0.85})`;
             ctx.fill();
             ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.5})`;
             ctx.lineWidth = 1.5;
             ctx.stroke();
 
-            // Count label
             const label = count >= 1000 ? (count / 1000).toFixed(count >= 10000 ? 0 : 1) + 'k' : String(count);
             ctx.fillStyle = '#fff';
             ctx.font = `${r < 16 ? 10 : 12}px -apple-system, sans-serif`;
@@ -1161,18 +1359,22 @@ export default function StormMap() {
         updatePropertyLabels(map, propFeaturesRef.current);
       });
 
-      // Save viewport + load swath properties on pan/zoom (storms stay loaded)
+      // Save viewport + load properties on pan/zoom (storms stay loaded)
       map.addListener('idle', () => {
         const c = map.getCenter();
         sessionStorage.setItem('stormMapViewport', JSON.stringify({ lat: c.lat(), lng: c.lng(), zoom: map.getZoom() }));
         clearTimeout(swathDebounceRef.current);
         swathDebounceRef.current = setTimeout(() => loadSwathProperties(map), 500);
+        // FEMA loading runs independently with its own debounce
+        clearTimeout(femaDebounceRef.current);
+        femaDebounceRef.current = setTimeout(() => loadFemaProperties(map), 600);
       });
 
       // Shared property popup function
       showPropertyPopupRef.current = showPropertyPopup;
       function showPropertyPopup(map, position, p, propertyId) {
-        const value = p.assessed_value ? `$${Number(p.assessed_value).toLocaleString()}` : '';
+        const isFema = p.data_source === 'fema_nsi_live';
+        const value = p.assessed_value ? `$${Math.round(Number(p.assessed_value)).toLocaleString()}` : '';
         const owner = formatOwner(p.owner_first_name, p.owner_last_name);
         const stormDate = p.storm_date ? new Date(p.storm_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
         // Build event type label: "Wind / Hail" if both, otherwise single type
@@ -1187,15 +1389,15 @@ export default function StormMap() {
         const posLng = typeof position.lng === 'function' ? position.lng() : position.lng;
         const html = `
           <div class="swath-popup">
-            <div class="swath-popup__title" style="color:#00d4aa">Affected Property</div>
+            <div class="swath-popup__title" style="color:${isFema ? '#a882ff' : '#00d4aa'}">${isFema ? 'FEMA Property' : 'Affected Property'}</div>
             <div class="swath-popup__sv" style="width:100%;height:150px;border-radius:6px;margin-bottom:8px;overflow:hidden;background:#1a1a2e;display:none;"></div>
             <div class="swath-popup__row">
               <span class="swath-popup__label">Address</span>
-              <span class="swath-popup__value">${formatFullAddr(p.address_line1, p.city, p.state, p.zip)}</span>
+              <span class="swath-popup__value swath-popup__address">${isFema && !p.address_line1 ? '<button class="resolve-addr-btn" style="background:none;border:1px solid rgba(168,130,255,0.4);color:#a882ff;border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;font-weight:600;">Lookup Address</button>' : formatFullAddr(p.address_line1, p.city, p.state, p.zip)}</span>
             </div>
             ${owner ? `<div class="swath-popup__row"><span class="swath-popup__label">Owner <span style="color:#8a8a9a;font-size:9px;font-weight:400;">· Public records</span></span><span class="swath-popup__value">${owner}</span></div>` : ''}
             ${p.year_built ? `<div class="swath-popup__row"><span class="swath-popup__label">Year Built</span><span class="swath-popup__value">${p.year_built}</span></div>` : ''}
-            ${value ? `<div class="swath-popup__row"><span class="swath-popup__label">Value</span><span class="swath-popup__value">${value}</span></div>` : ''}
+            ${value ? `<div class="swath-popup__row"><span class="swath-popup__label">${isFema ? 'Est. Structure Value' : 'Value'}</span><span class="swath-popup__value">${value}</span></div>` : ''}
             ${p.property_sqft ? `<div class="swath-popup__row"><span class="swath-popup__label">Building Sqft</span><span class="swath-popup__value">${Number(p.property_sqft).toLocaleString()}</span></div>` : ''}
             ${p.roof_type ? `<div class="swath-popup__row"><span class="swath-popup__label">Roof Type</span><span class="swath-popup__value">${p.roof_type}</span></div>` : ''}
             ${p.fema_bldg_type ? `<div class="swath-popup__row"><span class="swath-popup__label">Structure</span><span class="swath-popup__value">${femaLabel('bldg', p.fema_bldg_type)}</span></div>` : ''}
@@ -1214,7 +1416,7 @@ export default function StormMap() {
               ${p._stormCertainty ? `<div class="swath-popup__row"><span class="swath-popup__label">Certainty</span><span class="swath-popup__value">${p._stormCertainty}</span></div>` : ''}
               ${p._stormArea ? `<div class="swath-popup__row"><span class="swath-popup__label">Area</span><span class="swath-popup__value">${p._stormArea}</span></div>` : ''}
             </div>` : ''}
-            <button class="add-to-pipeline-btn" data-property-id="${propertyId}" ${stormId ? `data-storm-id="${stormId}"` : ''} style="
+            <button class="add-to-pipeline-btn" data-property-id="${propertyId}" ${stormId ? `data-storm-id="${stormId}"` : ''} ${isFema ? 'data-fema="true"' : ''} data-lat="${posLat}" data-lng="${posLng}" style="
               width:100%;margin-top:8px;padding:8px 12px;
               background:#0ea5e9;color:#fff;border:none;border-radius:6px;
               font-size:13px;font-weight:600;cursor:pointer;
@@ -1230,10 +1432,36 @@ export default function StormMap() {
             btn.disabled = true;
             btn.textContent = 'Adding...';
             try {
-              if (btn.dataset.stormId) {
-                await addPropertyToPipeline(btn.dataset.stormId, btn.dataset.propertyId);
+              let propId = btn.dataset.propertyId;
+
+              // FEMA properties need address resolved first, then create in DB
+              if (btn.dataset.fema) {
+                if (!p.address_line1) {
+                  btn.textContent = 'Lookup address first';
+                  btn.style.background = '#ef4444';
+                  setTimeout(() => { btn.textContent = 'Add to Pipeline'; btn.style.background = '#0ea5e9'; btn.disabled = false; }, 2000);
+                  return;
+                }
+
+                btn.textContent = 'Creating property...';
+                const lat = parseFloat(btn.dataset.lat);
+                const lng = parseFloat(btn.dataset.lng);
+                const res = await createProperty({
+                  address_line1: p.address_line1,
+                  city: p.city || '',
+                  state: p.state || '',
+                  zip: p.zip || '',
+                  lat, lng,
+                });
+                propId = res.data?.id || res.data?.property?.id;
+                if (!propId) throw new Error('Failed to create property');
+                btn.textContent = 'Adding to pipeline...';
+              }
+
+              if (btn.dataset.stormId && !btn.dataset.fema) {
+                await addPropertyToPipeline(btn.dataset.stormId, propId);
               } else {
-                await createManualLead(btn.dataset.propertyId, 'storm_map');
+                await createManualLead(propId, btn.dataset.fema ? 'fema_nsi' : 'storm_map');
               }
               btn.textContent = 'Added to Pipeline';
               btn.style.background = '#22c55e';
@@ -1280,6 +1508,38 @@ export default function StormMap() {
           })();
         }
 
+        // Reverse geocode FEMA properties — only on button click
+        const resolveBtn = container.querySelector('.resolve-addr-btn');
+        if (resolveBtn) {
+          resolveBtn.addEventListener('click', () => {
+            const addrEl = container.querySelector('.swath-popup__address');
+            if (!addrEl) return;
+            resolveBtn.disabled = true;
+            resolveBtn.textContent = 'Resolving…';
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ location: { lat: posLat, lng: posLng } }, (results, status) => {
+              if (status === 'OK' && results[0]) {
+                const components = results[0].address_components || [];
+                const get = (type) => components.find(c => c.types.includes(type))?.long_name || '';
+                const streetNum = get('street_number');
+                const route = get('route');
+                const city = get('locality') || get('sublocality');
+                const state = get('administrative_area_level_1');
+                const zip = get('postal_code');
+                const street = [streetNum, route].filter(Boolean).join(' ');
+                addrEl.innerHTML = formatFullAddr(street, city, state, zip);
+                // Cache the resolved address on the feature
+                p.address_line1 = street;
+                p.city = city;
+                p.state = state;
+                p.zip = zip;
+              } else {
+                addrEl.innerHTML = `<span style="color:var(--text-muted);">${posLat.toFixed(5)}, ${posLng.toFixed(5)}</span>`;
+              }
+            });
+          });
+        }
+
         info.setContent(container);
         info.setPosition(position);
         info.open(map);
@@ -1322,14 +1582,20 @@ export default function StormMap() {
             if (pid) propIdSetRef.current.add(pid);
           }
           for (const key of cachedTiles) {
-            loadedTilesRef.current.add(key);
+            if (key.startsWith('fema:')) {
+              femaLoadedTilesRef.current.add(key);
+            } else {
+              loadedTilesRef.current.add(key);
+            }
           }
-          rebuildClusterIndex();
+          rebuildClusterIndex(true);
           if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
         }
+        cacheRestoredRef.current = true;
 
         await loadStorms(map);
         loadSwathProperties(map);
+        loadFemaProperties(map);
 
         // Restore saved popup from session
         try {
@@ -1386,6 +1652,7 @@ export default function StormMap() {
       swathLoadedRef.current.clear();
       propIdSetRef.current.clear();
       loadedTilesRef.current.clear();
+      femaLoadedTilesRef.current.clear();
       mapRef.current = null;
     };
   }, []);
@@ -1398,6 +1665,7 @@ export default function StormMap() {
       swathLoadedRef.current.clear();
       propIdSetRef.current.clear();
       loadedTilesRef.current.clear();
+      femaLoadedTilesRef.current.clear();
       clearPropertyCache();
       setSwathProgress(null);
       propFeaturesRef.current = [];
@@ -1484,7 +1752,7 @@ export default function StormMap() {
     const info = infoRef.current;
     if (!info) return;
     const p = { ...(property || {}), ...(roofData || {}), address_line1: addr.address_line1, city: addr.city };
-    const value = p.assessed_value ? `$${Number(p.assessed_value).toLocaleString()}` : '';
+    const value = p.assessed_value ? `$${Math.round(Number(p.assessed_value)).toLocaleString()}` : '';
     const owner = formatOwner(p.owner_first_name, p.owner_last_name);
     const html = `
       <div class="swath-popup">
@@ -1610,6 +1878,8 @@ export default function StormMap() {
           onLayersChange={setLayers}
           improvedOnly={improvedOnly}
           onImprovedOnlyChange={setImprovedOnly}
+          showFema={showFema}
+          onShowFemaChange={setShowFema}
         />
         <div className="storm-map-wrapper">
           <div ref={mapContainer} style={{ position: 'absolute', inset: 0 }} />
@@ -1622,6 +1892,11 @@ export default function StormMap() {
             </div>
           )}
           <SwathPropertyProgress state={swathProgress} />
+          {femaLoading && (
+            <div className="fema-loading-bar glass">
+              <span>Fetching FEMA property records<span className="loading-dots"><span>.</span><span>.</span><span>.</span></span></span>
+            </div>
+          )}
           <div className="map-legends">
             <div className="map-legend glass">
               <div className="map-legend__title">Hail Severity</div>
@@ -1643,6 +1918,7 @@ export default function StormMap() {
                 <span>Strong</span><span>Severe</span><span>Damaging</span><span>Destructive</span>
               </div>
             </div>
+            <PropertyLegend />
           </div>
         </div>
       </div>
