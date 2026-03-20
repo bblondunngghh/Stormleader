@@ -17,9 +17,11 @@ const corsOrigin = config.NODE_ENV === 'production'
 app.use(cors({ origin: corsOrigin, credentials: true }));
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(compression());
+// Raw body parser for Hearth webhook (must be before JSON parser)
+app.use('/api/webhooks/hearth', express.raw({ type: 'application/json' }));
 app.use((req, res, next) => {
-  // Skip JSON parsing for Stripe webhook — it needs the raw body for signature verification
-  if (req.originalUrl === '/api/payments/webhook') {
+  // Skip JSON parsing for webhooks that need raw body for signature verification
+  if (req.originalUrl === '/api/payments/webhook' || req.originalUrl === '/api/webhooks/hearth') {
     return next();
   }
   express.json()(req, res, next);

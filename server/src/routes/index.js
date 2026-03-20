@@ -20,6 +20,8 @@ import onboardingRouter from './onboarding.js';
 import adminRouter from './admin.js';
 import paymentsRouter from './payments.js';
 import materialsRouter from './materials.js';
+import financingRouter from './financing.js';
+import hearthWebhookRouter from './hearthWebhook.js';
 
 const router = Router();
 
@@ -44,5 +46,7 @@ router.use('/onboarding', onboardingRouter);
 router.use('/admin', adminRouter);
 router.use('/payments', paymentsRouter);
 router.use('/materials', materialsRouter);
+router.use('/crm/financing', financingRouter);
+router.use('/webhooks/hearth', hearthWebhookRouter);
 
 export default router;
