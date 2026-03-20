@@ -22,6 +22,7 @@ export async function createEstimate(tenantId, userId, data) {
     lead_id, customer_name, customer_address, customer_phone, customer_email,
     line_items = [], tax_rate = 0, discount_type = 'flat', discount_value = 0,
     scope_of_work, terms, warranty_info, notes, valid_until,
+    financing_enabled = false, financing_plan_ids = [],
   } = data;
 
   const { subtotal, tax_amount, total } = calculateTotals(line_items, tax_rate, discount_type, discount_value);
@@ -31,14 +32,16 @@ export async function createEstimate(tenantId, userId, data) {
       tenant_id, created_by, lead_id, estimate_number, public_token,
       customer_name, customer_address, customer_phone, customer_email,
       line_items, subtotal, tax_rate, tax_amount, discount_type, discount_value, total,
-      scope_of_work, terms, warranty_info, notes, valid_until
-    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
+      scope_of_work, terms, warranty_info, notes, valid_until,
+      financing_enabled, financing_plan_ids
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
     RETURNING *`,
     [
       tenantId, userId, lead_id || null, estimate_number, public_token,
       customer_name || null, customer_address || null, customer_phone || null, customer_email || null,
       JSON.stringify(line_items), subtotal, tax_rate, tax_amount, discount_type, discount_value, total,
       scope_of_work || null, terms || null, warranty_info || null, notes || null, valid_until || null,
+      financing_enabled, JSON.stringify(financing_plan_ids),
     ]
   );
 
@@ -102,6 +105,7 @@ export async function updateEstimate(tenantId, estimateId, updates) {
     'lead_id', 'customer_name', 'customer_address', 'customer_phone', 'customer_email',
     'line_items', 'tax_rate', 'discount_type', 'discount_value',
     'scope_of_work', 'terms', 'warranty_info', 'notes', 'valid_until', 'status',
+    'financing_enabled', 'financing_plan_ids',
   ];
 
   const setClauses = [];
@@ -109,7 +113,7 @@ export async function updateEstimate(tenantId, estimateId, updates) {
 
   for (const field of allowedFields) {
     if (updates[field] !== undefined) {
-      const val = field === 'line_items' ? JSON.stringify(updates[field]) : updates[field];
+      const val = (field === 'line_items' || field === 'financing_plan_ids') ? JSON.stringify(updates[field]) : updates[field];
       params.push(val);
       setClauses.push(`${field} = $${params.length}`);
     }

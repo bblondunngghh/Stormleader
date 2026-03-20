@@ -1,16 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import * as estimatesApi from '../api/estimates';
+import client from '../api/client';
+import { calcMonthlyPayment, formatMoney } from '../utils/financing';
 import { IconX, IconFileText, IconDollar, IconSend, IconClipboard, IconTrash, IconPlusCircle, IconArrowLeft, IconEye, IconEyeOff, IconChevronDown, IconRefresh } from './Icons';
 import CustomSelect from './CustomSelect';
 import DatePicker from './DatePicker';
 import { showToast } from './Toast';
 import { SRSCatalogModal } from './MaterialsView';
 import * as materialsApi from '../api/materials';
-import WeatherWindIcon from '../assets/icons/Weather-Wind--Streamline-Ultimate.png';
-import TimeClockIcon from '../assets/icons/Time-Clock-Hand-1--Streamline-Ultimate.png';
-import CheckIcon from '../assets/icons/Check--Streamline-Ultimate.png';
-import SavingBagIcon from '../assets/icons/Saving-Bag-Increase--Streamline-Ultimate.png';
+import { CloudIcon, ClockIcon, CheckCircleIcon, BanknotesIcon, ClipboardDocumentListIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import useIsMobile from '../hooks/useIsMobile';
 
 function formatPhone(value) {
   const digits = value.replace(/\D/g, '').slice(0, 10);
@@ -53,8 +53,13 @@ export default function EstimatesView() {
 
   useEffect(() => { fetchEstimates(); }, [fetchEstimates]);
 
+  const isMobile = useIsMobile();
+
   const totalValue = estimates.reduce((s, e) => s + Number(e.total || 0), 0);
+  const draftCount = estimates.filter(e => e.status === 'draft').length;
+  const draftValue = estimates.filter(e => e.status === 'draft').reduce((s, e) => s + Number(e.total || 0), 0);
   const sentCount = estimates.filter(e => e.status === 'sent' || e.status === 'viewed').length;
+  const sentValue = estimates.filter(e => e.status === 'sent' || e.status === 'viewed').reduce((s, e) => s + Number(e.total || 0), 0);
   const acceptedCount = estimates.filter(e => e.status === 'accepted').length;
   const acceptedValue = estimates.filter(e => e.status === 'accepted').reduce((s, e) => s + Number(e.total || 0), 0);
 
@@ -99,18 +104,392 @@ export default function EstimatesView() {
     return <EstimateBuilder estimate={editingEstimate} onSave={handleSaved} onCancel={() => setShowBuilder(false)} />;
   }
 
+  // ============================================================
+  // MOBILE VIEW — matches Stitch P1_screen_3.html design
+  // ============================================================
+  const formatValue = (v) => {
+    if (v >= 1000000) return `$${(v / 1000000).toFixed(1)}M`;
+    if (v >= 1000) return `$${(v / 1000).toFixed(1)}k`;
+    return `$${v.toFixed(0)}`;
+  };
+
+  const mobileStatusIcon = (status) => {
+    if (status === 'accepted') return 'verified';
+    if (status === 'sent' || status === 'viewed') return 'send';
+    return 'description';
+  };
+
+  const mobileStatusColor = (status) => {
+    if (status === 'accepted') return '#ffc1c0';
+    if (status === 'sent' || status === 'viewed') return '#00e5ff';
+    return '#ffd799';
+  };
+
+  const mobileStatusBadgeBg = (status) => {
+    const c = mobileStatusColor(status);
+    return `${c}1a`; // 10% opacity hex
+  };
+
+  const mobileStatusLabel = (status) => {
+    if (status === 'accepted') return 'APPROVED';
+    if (status === 'sent') return 'SENT';
+    if (status === 'viewed') return 'VIEWED';
+    if (status === 'declined') return 'DECLINED';
+    if (status === 'expired') return 'EXPIRED';
+    return 'DRAFT';
+  };
+
+  const mobileFilterTabs = [
+    { key: '', label: 'ALL PROJECTS' },
+    { key: 'draft', label: 'DRAFTS' },
+    { key: 'sent', label: 'SENT' },
+    { key: 'accepted', label: 'APPROVED' },
+  ];
+
+  if (isMobile) {
+    return (
+      <div style={{
+        background: '#0d1321',
+        minHeight: '100vh',
+        color: '#dde2f6',
+        fontFamily: 'Manrope, sans-serif',
+        paddingBottom: 80,
+      }}>
+        <div style={{ padding: '24px 20px 0' }}>
+          {/* Breadcrumb */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <span style={{
+              width: 8, height: 8, borderRadius: '50%', background: '#00e5ff',
+              boxShadow: '0 0 0 0 rgba(0,229,255,0.7)',
+              animation: 'mobileEstPulse 2s infinite',
+              display: 'inline-block',
+            }} />
+            <span style={{
+              fontFamily: '"Space Grotesk", sans-serif',
+              fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase',
+              color: '#c3f5ff',
+            }}>Mission Control / Estimates</span>
+          </div>
+          <style>{`
+            @keyframes mobileEstPulse {
+              0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0,229,255,0.7); }
+              70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0,229,255,0); }
+              100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0,229,255,0); }
+            }
+          `}</style>
+
+          {/* Heading */}
+          <h2 style={{
+            fontFamily: '"Space Grotesk", sans-serif',
+            fontSize: 36, fontWeight: 700, color: '#dde2f6',
+            letterSpacing: '-0.02em', margin: '0 0 20px',
+          }}>Project Pipeline</h2>
+
+          {/* Create Button */}
+          <button
+            onClick={handleNew}
+            style={{
+              width: '100%',
+              background: 'linear-gradient(135deg, #c3f5ff, #00e5ff)',
+              color: '#00626e',
+              fontFamily: '"Space Grotesk", sans-serif',
+              fontWeight: 700,
+              fontSize: 14,
+              padding: '14px 24px',
+              borderRadius: 10,
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              boxShadow: '0 0 20px rgba(0,229,255,0.2)',
+              marginBottom: 24,
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>add_circle</span>
+            CREATE NEW ESTIMATE
+          </button>
+
+          {/* Stat Cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+            {/* Draft Volume */}
+            <div style={{
+              background: '#161b2a', borderRadius: 12, padding: '20px 24px',
+              position: 'relative', overflow: 'hidden',
+            }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, width: 4, height: '100%', background: '#ffd799' }} />
+              <p style={{
+                fontFamily: '"Space Grotesk", sans-serif', fontSize: 11,
+                letterSpacing: '0.1em', textTransform: 'uppercase',
+                color: '#bac9cc', marginBottom: 6,
+              }}>Draft Volume</p>
+              <h3 style={{
+                fontFamily: '"Space Grotesk", sans-serif', fontSize: 30,
+                fontWeight: 700, color: '#ffd799', margin: 0,
+              }}>{formatValue(draftValue)}</h3>
+              <p style={{ fontSize: 12, color: '#bac9cc', marginTop: 8 }}>
+                {draftCount} Pending Estimate{draftCount !== 1 ? 's' : ''}
+              </p>
+            </div>
+
+            {/* Sent Value */}
+            <div style={{
+              background: '#161b2a', borderRadius: 12, padding: '20px 24px',
+              position: 'relative', overflow: 'hidden',
+            }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, width: 4, height: '100%', background: '#00e5ff' }} />
+              <p style={{
+                fontFamily: '"Space Grotesk", sans-serif', fontSize: 11,
+                letterSpacing: '0.1em', textTransform: 'uppercase',
+                color: '#bac9cc', marginBottom: 6,
+              }}>Sent Value</p>
+              <h3 style={{
+                fontFamily: '"Space Grotesk", sans-serif', fontSize: 30,
+                fontWeight: 700, color: '#00e5ff', margin: 0,
+              }}>{formatValue(sentValue)}</h3>
+              <p style={{ fontSize: 12, color: '#bac9cc', marginTop: 8 }}>
+                {sentCount} Active Proposal{sentCount !== 1 ? 's' : ''}
+              </p>
+            </div>
+
+            {/* Approved Month */}
+            <div style={{
+              background: '#161b2a', borderRadius: 12, padding: '20px 24px',
+              position: 'relative', overflow: 'hidden',
+            }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, width: 4, height: '100%', background: '#ffc1c0' }} />
+              <p style={{
+                fontFamily: '"Space Grotesk", sans-serif', fontSize: 11,
+                letterSpacing: '0.1em', textTransform: 'uppercase',
+                color: '#bac9cc', marginBottom: 6,
+              }}>Approved Month</p>
+              <h3 style={{
+                fontFamily: '"Space Grotesk", sans-serif', fontSize: 30,
+                fontWeight: 700, color: '#ffc1c0', margin: 0,
+              }}>{formatValue(acceptedValue)}</h3>
+              <p style={{ fontSize: 12, color: '#bac9cc', marginTop: 8 }}>
+                {acceptedCount} Approved Estimate{acceptedCount !== 1 ? 's' : ''}
+              </p>
+            </div>
+          </div>
+
+          {/* Filter Tabs */}
+          <div style={{
+            display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8,
+            marginBottom: 16, WebkitOverflowScrolling: 'touch',
+          }}>
+            {mobileFilterTabs.map(tab => {
+              const isActive = statusFilter === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setStatusFilter(tab.key)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: 20,
+                    fontSize: 12,
+                    fontFamily: '"Space Grotesk", sans-serif',
+                    letterSpacing: '0.05em',
+                    whiteSpace: 'nowrap',
+                    border: isActive ? '1px solid rgba(0,229,255,0.3)' : '1px solid transparent',
+                    background: isActive ? '#242a39' : 'transparent',
+                    color: isActive ? '#00e5ff' : '#bac9cc',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s, color 0.2s',
+                    fontWeight: 500,
+                  }}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Estimate Cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {loading && estimates.length === 0 ? (
+              <div style={{
+                background: '#080e1c', borderRadius: 12, padding: 40,
+                textAlign: 'center', color: '#bac9cc', fontSize: 14,
+              }}>Loading...</div>
+            ) : estimates.length === 0 ? (
+              <div style={{
+                background: '#080e1c', borderRadius: 12, padding: 40,
+                textAlign: 'center', color: '#bac9cc', fontSize: 14,
+              }}>No estimates yet — create your first one</div>
+            ) : estimates.map(est => {
+              const sColor = mobileStatusColor(est.status);
+              return (
+                <div key={est.id}
+                  onClick={() => handleEdit(est)}
+                  onMouseEnter={e => e.currentTarget.style.background = '#161b2a'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#080e1c'}
+                  style={{
+                    background: '#080e1c', borderRadius: 12, padding: 20,
+                    borderLeft: `2px solid ${sColor}`,
+                    display: 'flex', flexDirection: 'column', gap: 12,
+                    cursor: 'pointer', transition: 'background 0.2s',
+                  }}>
+                  {/* Top row: icon + name */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div style={{
+                      width: 48, height: 48, borderRadius: 6,
+                      background: '#242a39',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexShrink: 0,
+                    }}>
+                      <ClipboardDocumentListIcon width={20} height={20} style={{ opacity: 0.9 }} />
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <h4 style={{
+                        fontFamily: '"Space Grotesk", sans-serif',
+                        fontWeight: 700, fontSize: 18, color: '#dde2f6',
+                        margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                      }}>{est.customer_name || est.lead_name || '—'}</h4>
+                      <p style={{
+                        fontSize: 14, color: '#bac9cc', margin: 0,
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                      }}>{est.customer_address || est.lead_address || ''}</p>
+                    </div>
+                  </div>
+
+                  {/* Bottom row: value + status + actions */}
+                  <div style={{
+                    display: 'grid', gridTemplateColumns: '1fr auto',
+                    gap: 12, alignItems: 'center',
+                  }}>
+                    <div>
+                      <p style={{
+                        fontFamily: '"Space Grotesk", sans-serif',
+                        fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase',
+                        color: '#bac9cc', margin: '0 0 2px',
+                      }}>Project Value</p>
+                      <p style={{
+                        fontFamily: '"Space Grotesk", sans-serif',
+                        fontWeight: 700, fontSize: 15, color: '#dde2f6', margin: 0,
+                      }}>${Number(est.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                      <span style={{
+                        padding: '4px 10px', borderRadius: 4,
+                        background: mobileStatusBadgeBg(est.status),
+                        color: sColor,
+                        fontSize: 10,
+                        fontFamily: '"Space Grotesk", sans-serif',
+                        fontWeight: 700,
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                      }}>{mobileStatusLabel(est.status)}</span>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        {est.status === 'draft' ? (
+                          <>
+                            <span
+                              className="material-symbols-outlined"
+                              onClick={() => handleEdit(est)}
+                              style={{ fontSize: 18, color: '#bac9cc', cursor: 'pointer' }}
+                            >edit</span>
+                            <span
+                              className="material-symbols-outlined"
+                              onClick={() => handleDelete(est)}
+                              style={{ fontSize: 18, color: '#bac9cc', cursor: 'pointer' }}
+                            >delete</span>
+                          </>
+                        ) : est.status === 'sent' || est.status === 'viewed' ? (
+                          <>
+                            <span
+                              className="material-symbols-outlined"
+                              onClick={() => handleEdit(est)}
+                              style={{ fontSize: 18, color: '#bac9cc', cursor: 'pointer' }}
+                            >visibility</span>
+                            <span
+                              className="material-symbols-outlined"
+                              onClick={() => handleSend(est)}
+                              style={{ fontSize: 18, color: '#bac9cc', cursor: 'pointer' }}
+                            >mail</span>
+                          </>
+                        ) : (
+                          <>
+                            <span
+                              className="material-symbols-outlined"
+                              onClick={() => handleEdit(est)}
+                              style={{ fontSize: 18, color: '#bac9cc', cursor: 'pointer' }}
+                            >file_download</span>
+                            <span
+                              className="material-symbols-outlined"
+                              onClick={() => handleDuplicate(est)}
+                              style={{ fontSize: 18, color: '#bac9cc', cursor: 'pointer' }}
+                            >assignment</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Automated Field Intelligence Promo */}
+          <div style={{
+            marginTop: 40,
+            background: '#161b2a',
+            borderRadius: 16,
+            padding: 32,
+            position: 'relative',
+            overflow: 'hidden',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+              <ShieldCheckIcon width={32} height={32} style={{ opacity: 0.9 }} />
+              <h3 style={{
+                fontFamily: '"Space Grotesk", sans-serif',
+                fontSize: 24, fontWeight: 700, color: '#dde2f6',
+                margin: 0,
+              }}>Automated Field Intelligence</h3>
+            </div>
+            <p style={{
+              color: '#bac9cc', fontSize: 14, lineHeight: 1.6,
+              margin: '0 0 20px',
+            }}>
+              Upload site photos or aerial measurements to generate instant tactical estimates using our ROOF-X AI core. Accuracy rated at 98.4%.
+            </p>
+            <button
+              onMouseEnter={e => { e.currentTarget.style.background = '#00e5ff'; e.currentTarget.style.color = '#00626e'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#00e5ff'; }}
+              style={{
+                width: '100%',
+                padding: '16px 24px',
+                borderRadius: 12,
+                border: '2px solid #00e5ff',
+                background: 'transparent',
+                color: '#00e5ff',
+                fontFamily: '"Space Grotesk", sans-serif',
+                fontWeight: 700,
+                fontSize: 13,
+                letterSpacing: '0.1em',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}>
+              LAUNCH MEASUREMENT TOOL
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="main-content" style={{ gap: 'var(--space-lg)' }}>
       {/* KPIs */}
       <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
         {[
-          { icon: WeatherWindIcon, value: total, label: 'Total Estimates', color: '330' },
-          { icon: TimeClockIcon, value: sentCount, label: 'Awaiting Response', color: '250' },
-          { icon: CheckIcon, value: acceptedCount, label: 'Accepted', color: '155' },
-          { icon: SavingBagIcon, value: `$${(acceptedValue / 1000).toFixed(1)}K`, label: 'Revenue Accepted', color: '155' },
+          { Icon: CloudIcon, value: total, label: 'Total Estimates', color: '330' },
+          { Icon: ClockIcon, value: sentCount, label: 'Awaiting Response', color: '250' },
+          { Icon: CheckCircleIcon, value: acceptedCount, label: 'Accepted', color: '155' },
+          { Icon: BanknotesIcon, value: `$${(acceptedValue / 1000).toFixed(1)}K`, label: 'Revenue Accepted', color: '155' },
         ].map(s => (
           <div key={s.label} className="stat-card glass" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <img src={s.icon} alt="" style={{ width: 28, height: 28 }} />
+            <s.Icon width={28} height={28} />
             <div className="stat-card__value">{s.value}</div>
             <div className="stat-card__label">{s.label}</div>
           </div>
@@ -547,6 +926,10 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   const [footerNotes, setFooterNotes] = useState('');
   const [autoSaveStatus, setAutoSaveStatus] = useState(''); // '', 'saving', 'saved'
   const [showSendModal, setShowSendModal] = useState(false);
+  const [financingEnabled, setFinancingEnabled] = useState(estimate?.financing_enabled || false);
+  const [selectedPlanIds, setSelectedPlanIds] = useState(estimate?.financing_plan_ids || []);
+  const [availablePlans, setAvailablePlans] = useState([]);
+  const [hasLender, setHasLender] = useState(false);
   const sectionImageInputRef = useRef(null);
   const [imageUploadTarget, setImageUploadTarget] = useState(null); // section id
   const editorRef = useRef(null);
@@ -596,7 +979,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
     const timer = setTimeout(async () => {
       setAutoSaveStatus('saving');
       try {
-        await estimatesApi.updateEstimate(estimate.id, form);
+        await estimatesApi.updateEstimate(estimate.id, { ...form, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds });
         setAutoSaveStatus('saved');
         setTimeout(() => setAutoSaveStatus(''), 2000);
       } catch {
@@ -605,6 +988,27 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
     }, 2000);
     return () => clearTimeout(timer);
   }, [form, estimate?.id]);
+
+  // Fetch financing plans if tenant has a lender
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data: lenders } = await client.get('/crm/financing/lenders');
+        const active = lenders.find(l => l.is_active);
+        if (active) {
+          setHasLender(true);
+          const { data: plans } = await client.get('/crm/financing/plans', { params: { lenderId: active.id } });
+          setAvailablePlans(plans.filter(p => p.is_active));
+          // Pre-select defaults if new estimate
+          if (!estimate?.id) {
+            setSelectedPlanIds(plans.filter(p => p.is_default).map(p => p.id));
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load financing plans:', err);
+      }
+    })();
+  }, []);
 
   // Section image handling
   const addSectionImage = (sectionId, file) => {
@@ -765,7 +1169,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const payload = { ...form, discounts, signers, profit_margin: profitMargin };
+      const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds };
       if (estimate) {
         await estimatesApi.updateEstimate(estimate.id, payload);
       } else {
@@ -783,7 +1187,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   const handleSaveAndSend = async () => {
     setSending(true);
     try {
-      const payload = { ...form, discounts, signers, profit_margin: profitMargin };
+      const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds };
       let est;
       if (estimate) {
         await estimatesApi.updateEstimate(estimate.id, payload);
@@ -1492,6 +1896,58 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* FINANCING SECTION */}
+          {hasLender && (
+            <div className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: financingEnabled ? 'var(--space-md)' : 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Financing Options</div>
+                <button onClick={() => setFinancingEnabled(!financingEnabled)}
+                  style={{
+                    width: 42, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', position: 'relative',
+                    background: financingEnabled ? 'oklch(0.55 0.18 145)' : 'oklch(0.3 0.02 260)',
+                    transition: 'background 0.15s',
+                  }}>
+                  <span style={{
+                    position: 'absolute', top: 3, left: financingEnabled ? 21 : 3,
+                    width: 18, height: 18, borderRadius: '50%', background: '#fff',
+                    transition: 'left 0.15s',
+                  }} />
+                </button>
+              </div>
+              {financingEnabled && availablePlans.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
+                  {availablePlans.map(plan => {
+                    const checked = selectedPlanIds.includes(plan.id);
+                    const monthly = calcMonthlyPayment(Math.round(total * 100), Number(plan.apr), plan.term_months);
+                    return (
+                      <label key={plan.id} style={{
+                        display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', padding: '8px 12px',
+                        background: 'oklch(0.16 0.02 260 / 0.4)', borderRadius: 'var(--radius-sm)',
+                        cursor: 'pointer', fontSize: 13,
+                      }}>
+                        <input type="checkbox" checked={checked}
+                          onChange={() => setSelectedPlanIds(prev => checked ? prev.filter(id => id !== plan.id) : [...prev, plan.id])}
+                          style={{ accentColor: 'oklch(0.6 0.18 250)' }} />
+                        <span style={{ flex: 1, fontWeight: 600 }}>{plan.name}</span>
+                        <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>
+                          {plan.term_months}mo @ {Number(plan.apr).toFixed(2)}%
+                        </span>
+                        <span style={{ fontWeight: 700, color: 'var(--accent-green)', fontSize: 12 }}>
+                          {formatMoney(monthly)}/mo
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+              {financingEnabled && availablePlans.length === 0 && (
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 'var(--space-sm)' }}>
+                  No active plans. Configure plans in Settings → Financing.
+                </div>
+              )}
             </div>
           )}
 
