@@ -3,9 +3,8 @@ import { getLeads, getPipelineStages, updateLead, getTeamMembers } from '../api/
 import { showToast } from './Toast';
 import { IconRefresh, IconPlusCircle, IconPhone, IconCalendar, IconFilter, IconX, IconChevronDown, IconEyeOff, IconEye } from './Icons';
 import CustomSelect from './CustomSelect';
-import iconHot from '../assets/icons/Safety-Flame-Right--Streamline-Ultimate.svg';
-import iconWarm from '../assets/icons/Temperature-Thermometer-Up--Streamline-Ultimate.svg';
-import iconCold from '../assets/icons/Ice-Water--Streamline-Ultimate.svg';
+import useIsMobile from '../hooks/useIsMobile';
+import { HomeIcon, FireIcon, SunIcon, CloudIcon } from '@heroicons/react/24/outline';
 const LeadDetail = lazy(() => import('./LeadDetail'));
 const CreateLeadModal = lazy(() => import('./CreateLeadModal'));
 
@@ -66,10 +65,10 @@ const priorityTint = {
   cold: 'oklch(0.72 0.19 250 / 0.07)',
 };
 
-const priorityIcon = {
-  hot: iconHot,
-  warm: iconWarm,
-  cold: iconCold,
+const PriorityIcon = {
+  hot: FireIcon,
+  warm: SunIcon,
+  cold: CloudIcon,
 };
 
 const priorityOptions = [
@@ -101,12 +100,15 @@ const fallbackColumns = [
 ];
 
 export default function Pipeline() {
+  const isMobile = useIsMobile();
   const [columns, setColumns] = useState(fallbackColumns);
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedLeadId, setSelectedLeadId] = useState(null);
   const [dragState, setDragState] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedStage, setSelectedStage] = useState(null);
+  const [mobileViewMode, setMobileViewMode] = useState('board');
 
   // Grab-to-pan
   const panRef = useRef(null);
@@ -285,6 +287,42 @@ export default function Pipeline() {
 
   const handleLeadUpdated = () => { fetchData(); };
 
+  // Initialize selectedStage to first column key once columns load
+  const effectiveStage = selectedStage || (columns.length > 0 ? columns[0].key : null);
+
+  // Mobile priority badge mapping
+  const mobilePriorityBadge = (priority) => {
+    switch (priority) {
+      case 'hot':
+        return {
+          label: 'Emergency',
+          bg: '#ffc1c0',
+          color: '#b4002b',
+          borderColor: '#00daf3',
+          dotBg: '#b4002b',
+          hasPulse: true,
+        };
+      case 'warm':
+        return {
+          label: 'High Wind',
+          bg: '#feb300',
+          color: '#432c00',
+          borderColor: '#feb300',
+          dotBg: null,
+          hasPulse: false,
+        };
+      default:
+        return {
+          label: 'Standard',
+          bg: '#2f3444',
+          color: '#bac9cc',
+          borderColor: '#334155',
+          dotBg: null,
+          hasPulse: false,
+        };
+    }
+  };
+
   if (loading) {
     return (
       <div className="main-content flex items-center justify-center">
@@ -293,6 +331,369 @@ export default function Pipeline() {
     );
   }
 
+  // ─── MOBILE LAYOUT ───
+  if (isMobile) {
+    const stageLeads = leads.filter(l => l.stage === effectiveStage);
+
+    return (
+      <div style={{
+        background: '#0d1321',
+        color: '#dde2f6',
+        fontFamily: 'Manrope, sans-serif',
+        minHeight: '100vh',
+        paddingBottom: 96,
+      }}>
+        {/* View Toggle & Filter */}
+        <div style={{ padding: '0 16px', marginBottom: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{
+                fontFamily: 'Space Grotesk, sans-serif',
+                fontSize: 10,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                color: '#00daf3',
+              }}>Project Status</span>
+              <h2 style={{
+                fontFamily: 'Space Grotesk, sans-serif',
+                fontSize: 24,
+                fontWeight: 700,
+                color: '#dde2f6',
+                margin: 0,
+              }}>Pipeline</h2>
+            </div>
+            <div style={{
+              background: '#080e1c',
+              padding: 4,
+              borderRadius: 8,
+              display: 'flex',
+              alignItems: 'center',
+            }}>
+              <button
+                onClick={() => setMobileViewMode('board')}
+                style={{
+                  padding: '6px 16px',
+                  borderRadius: 6,
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: 12,
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  transition: 'all 0.2s',
+                  background: mobileViewMode === 'board' ? '#00e5ff' : 'transparent',
+                  color: mobileViewMode === 'board' ? '#00363d' : '#94a3b8',
+                }}
+              >Board</button>
+              <button
+                onClick={() => setMobileViewMode('list')}
+                style={{
+                  padding: '6px 16px',
+                  borderRadius: 6,
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: 12,
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  transition: 'all 0.2s',
+                  background: mobileViewMode === 'list' ? '#00e5ff' : 'transparent',
+                  color: mobileViewMode === 'list' ? '#00363d' : '#94a3b8',
+                }}
+              >List</button>
+            </div>
+          </div>
+        </div>
+
+        {/* Horizontal Stage Pills */}
+        <div style={{
+          display: 'flex',
+          overflowX: 'auto',
+          gap: 12,
+          paddingBottom: 16,
+          paddingLeft: 16,
+          paddingRight: 16,
+          marginBottom: 16,
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        }}>
+          {columns.map(col => {
+            const colLeads = leads.filter(l => l.stage === col.key);
+            const colTotal = colLeads.reduce((sum, l) => sum + (Number(l.estimated_value) || 0), 0);
+            const isActive = effectiveStage === col.key;
+            return (
+              <div
+                key={col.key}
+                onClick={() => setSelectedStage(col.key)}
+                style={{
+                  flexShrink: 0,
+                  padding: '8px 16px',
+                  borderRadius: 12,
+                  background: isActive ? 'rgba(0, 229, 255, 0.1)' : '#161b2a',
+                  borderLeft: isActive ? '2px solid #00e5ff' : '2px solid transparent',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <div style={{
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  fontSize: 10,
+                  textTransform: 'uppercase',
+                  letterSpacing: '-0.02em',
+                  color: isActive ? '#00e5ff' : '#64748b',
+                }}>{col.label}</div>
+                <div style={{
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: '#dde2f6',
+                }}>
+                  {colLeads.length}{' '}
+                  {colTotal > 0 && (
+                    <span style={{ fontSize: 12, fontWeight: 400, opacity: 0.5 }}>
+                      ({formatCurrency(colTotal)})
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Lead Cards */}
+        <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {stageLeads.length === 0 && (
+            <div style={{
+              textAlign: 'center',
+              padding: '48px 16px',
+              color: '#64748b',
+              fontSize: 14,
+            }}>
+              No leads in this stage
+            </div>
+          )}
+          {stageLeads.map(lead => {
+            const badge = mobilePriorityBadge(lead.priority);
+            const city = lead.city?.trim() || '';
+            const st = (lead.property_state || lead.state || '').trim();
+            const zip = (lead.property_zip || lead.zip || '').trim();
+            const locationParts = [
+              lead.address ? titleCase(cleanAddr(lead.address)) : '',
+              city ? titleCase(city) : '',
+              st,
+            ].filter(Boolean).join(', ');
+            const displayName = lead.contact_name
+              ? formatOwner(lead.contact_name)
+              : (lead.address ? titleCase(cleanAddr(lead.address)) : 'Unknown Lead');
+
+            return (
+              <div
+                key={lead.id}
+                onClick={() => setSelectedLeadId(lead.id)}
+                style={{
+                  background: '#161b2a',
+                  borderRadius: 12,
+                  padding: 16,
+                  position: 'relative',
+                  overflow: 'hidden',
+                  borderLeft: `2px solid ${badge.borderColor}`,
+                  cursor: 'pointer',
+                  transition: 'transform 0.15s',
+                }}
+              >
+                {/* Priority Badge */}
+                <div style={{ position: 'absolute', top: 0, right: 0, padding: 12 }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '2px 8px',
+                    borderRadius: 9999,
+                    background: badge.bg,
+                    color: badge.color,
+                    fontSize: 10,
+                    fontFamily: 'Space Grotesk, sans-serif',
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}>
+                    {badge.hasPulse && (
+                      <span style={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: '50%',
+                        background: badge.dotBg,
+                        boxShadow: '0 0 0 0 rgba(180, 0, 43, 0.7)',
+                        animation: 'pulse 2s infinite',
+                      }} />
+                    )}
+                    {badge.label}
+                  </div>
+                </div>
+
+                {/* Name & Location */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12 }}>
+                  <h3 style={{
+                    fontFamily: 'Space Grotesk, sans-serif',
+                    fontSize: 18,
+                    fontWeight: 600,
+                    color: '#dde2f6',
+                    lineHeight: 1.2,
+                    margin: 0,
+                    paddingRight: 90,
+                  }}>{displayName}</h3>
+                  {locationParts && (
+                    <p style={{
+                      fontSize: 12,
+                      color: '#bac9cc',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      margin: 0,
+                    }}>
+                      <HomeIcon width={20} height={20} style={{ opacity: 0.9 }} />
+                      {locationParts}
+                    </p>
+                  )}
+                </div>
+
+                {/* Financing Badge (mobile) */}
+                {lead.financing_status && (
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '4px',
+                    fontSize: '0.7rem', padding: '2px 6px', borderRadius: '999px',
+                    marginBottom: 8,
+                    background: ['approved','funded'].includes(lead.financing_status) ? 'oklch(0.45 0.12 145 / 0.3)' :
+                                ['declined'].includes(lead.financing_status) ? 'oklch(0.45 0.12 25 / 0.3)' :
+                                'oklch(0.55 0.12 85 / 0.3)',
+                    color: ['approved','funded'].includes(lead.financing_status) ? 'oklch(0.8 0.15 145)' :
+                           ['declined'].includes(lead.financing_status) ? 'oklch(0.8 0.15 25)' :
+                           'oklch(0.8 0.15 85)',
+                  }}>
+                    <span className="material-symbols-rounded" style={{ fontSize: '14px' }}>payments</span>
+                    {lead.financing_status}
+                  </span>
+                )}
+
+                {/* Footer: Value + Due/Files/Rep */}
+                <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+                  <div>
+                    <span style={{
+                      fontFamily: 'Space Grotesk, sans-serif',
+                      fontSize: 10,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.1em',
+                      color: '#849396',
+                    }}>Project Value</span>
+                    <p style={{
+                      fontFamily: 'Space Grotesk, sans-serif',
+                      fontSize: 20,
+                      fontWeight: 700,
+                      color: '#00daf3',
+                      margin: 0,
+                    }}>{lead.estimated_value ? formatCurrency(lead.estimated_value) : '$0'}</p>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {lead.due_date && (() => {
+                      const info = dueDateInfo(lead.due_date);
+                      return info ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: 16, color: info.color || '#64748b' }}>schedule</span>
+                          <span style={{ fontSize: 10, fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, color: info.color || '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{info.text}</span>
+                        </div>
+                      ) : null;
+                    })()}
+                    {lead.document_count > 0 && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 16, color: '#64748b' }}>attach_file</span>
+                        <span style={{ fontSize: 10, fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{lead.document_count} files</span>
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', marginLeft: 4 }}>
+                      {lead.rep_first_name && (
+                        <div style={{
+                          width: 32, height: 32, borderRadius: '50%', border: '2px solid #161b2a',
+                          background: '#2f3444', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 11, fontWeight: 700, color: '#dde2f6',
+                        }}>
+                          {lead.rep_first_name[0]}{lead.rep_last_name?.[0] || ''}
+                        </div>
+                      )}
+                      <div style={{
+                        width: 32, height: 32, borderRadius: '50%', border: '2px solid #161b2a',
+                        background: '#2f3444', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        marginLeft: lead.rep_first_name ? -8 : 0,
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 12, color: '#dde2f6' }}>add</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* FAB */}
+        <button
+          onClick={() => setShowCreateModal(true)}
+          style={{
+            position: 'fixed',
+            bottom: 96,
+            right: 24,
+            width: 56,
+            height: 56,
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #00daf3, #00e5ff)',
+            color: '#00363d',
+            border: 'none',
+            boxShadow: '0 4px 20px rgba(0, 229, 255, 0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            zIndex: 40,
+            fontSize: 30,
+            transition: 'transform 0.15s',
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 30 }}>add</span>
+        </button>
+
+        {/* Pulse animation keyframes */}
+        <style>{`
+          @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(180, 0, 43, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(180, 0, 43, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(180, 0, 43, 0); }
+          }
+        `}</style>
+
+        {selectedLeadId && (
+          <Suspense fallback={null}>
+            <LeadDetail
+              leadId={selectedLeadId}
+              onClose={() => setSelectedLeadId(null)}
+              onUpdated={handleLeadUpdated}
+            />
+          </Suspense>
+        )}
+
+        {showCreateModal && (
+          <Suspense fallback={null}>
+            <CreateLeadModal
+              onClose={() => setShowCreateModal(false)}
+              onCreated={() => { fetchData(); }}
+            />
+          </Suspense>
+        )}
+      </div>
+    );
+  }
+
+  // ─── DESKTOP LAYOUT ───
   return (
     <div className="main-content pb-0 !overflow-hidden !gap-0" style={{ display: 'grid', gridTemplateRows: 'auto 1fr', padding: 0 }}>
       {/* Header: Single-line toolbar */}
@@ -457,17 +858,33 @@ export default function Pipeline() {
                         >
                           {/* Top Row: Priority + Value */}
                           <div className="flex items-center justify-between">
-                            {priorityIcon[lead.priority] ? (
-                              <img src={priorityIcon[lead.priority]} alt={lead.priority} width="16" height="16" className="shrink-0" />
-                            ) : (
-                              <span className={`w-2 h-2 rounded-full shrink-0 ${priorityClasses[lead.priority] || ''}`} />
-                            )}
+                            {PriorityIcon[lead.priority]
+                              ? React.createElement(PriorityIcon[lead.priority], { width: 16, height: 16, className: 'shrink-0' })
+                              : <span className={`w-2 h-2 rounded-full shrink-0 ${priorityClasses[lead.priority] || ''}`} />
+                            }
                             {lead.estimated_value && (
                               <span className="text-[13px] font-bold text-[oklch(0.75_0.18_155)]">
                                 {formatCurrency(lead.estimated_value)}
                               </span>
                             )}
                           </div>
+
+                          {/* Financing Badge */}
+                          {lead.financing_status && (
+                            <span style={{
+                              display: 'inline-flex', alignItems: 'center', gap: '4px',
+                              fontSize: '0.7rem', padding: '2px 6px', borderRadius: '999px',
+                              background: ['approved','funded'].includes(lead.financing_status) ? 'oklch(0.45 0.12 145 / 0.3)' :
+                                          ['declined'].includes(lead.financing_status) ? 'oklch(0.45 0.12 25 / 0.3)' :
+                                          'oklch(0.55 0.12 85 / 0.3)',
+                              color: ['approved','funded'].includes(lead.financing_status) ? 'oklch(0.8 0.15 145)' :
+                                     ['declined'].includes(lead.financing_status) ? 'oklch(0.8 0.15 25)' :
+                                     'oklch(0.8 0.15 85)',
+                            }}>
+                              <span className="material-symbols-rounded" style={{ fontSize: '14px' }}>payments</span>
+                              {lead.financing_status}
+                            </span>
+                          )}
 
                           {/* Address */}
                           {lead.address && (() => {

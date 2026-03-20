@@ -8,16 +8,18 @@ import { submitTrace } from '../api/skipTrace';
 import { measureRoof, manualRoofEntry, getSolarSegments } from '../api/roofMeasurement';
 import mapboxgl from 'mapbox-gl';
 import { IconX, IconPhone, IconMail, IconCalendar, IconClipboard, IconDollar, IconCamera, IconSend, IconTrash } from './Icons';
-import streetViewIcon from '../assets/icons/street-view-new.png';
-import runTraceIcon from '../assets/icons/run-trace.png';
-import quickCallIcon from '../assets/icons/Phone-Actions-Add--Streamline-Ultimate.png';
-import quickEmailIcon from '../assets/icons/Email-Action-Unread--Streamline-Ultimate.png';
-import quickSmsIcon from '../assets/icons/Messages-Logo--Streamline-Ultimate.png';
-import quickVisitIcon from '../assets/icons/Architecture-Door--Streamline-Ultimate.png';
-import logActivityIcon from '../assets/icons/log-activity.png';
-import removeLeadIcon from '../assets/icons/remove-lead.png';
-import measureRoofIcon from '../assets/icons/Measure-Caliber-1--Streamline-Ultimate.png';
-import insuranceReportIcon from '../assets/icons/Check-Badge--Streamline-Ultimate.svg';
+import {
+  EyeIcon,
+  MagnifyingGlassIcon,
+  PhoneArrowUpRightIcon,
+  EnvelopeOpenIcon,
+  ChatBubbleLeftRightIcon,
+  HomeIcon,
+  PencilSquareIcon,
+  UserMinusIcon,
+  ArrowsPointingOutIcon,
+  CheckBadgeIcon,
+} from '@heroicons/react/24/outline';
 
 function cleanAddr(str) {
   if (!str) return '';
@@ -62,6 +64,25 @@ function formatPitch(degrees) {
 import RoofDrawingTool from './RoofDrawingTool';
 import ActivityModal from './ActivityModal';
 import EmailModal from './EmailModal';
+import { calcMonthlyPayment, formatMoney } from '../utils/financing';
+
+function FinancingStatusBadge({ status }) {
+  const colors = {
+    pending: { bg: 'oklch(0.55 0.12 85 / 0.3)', fg: 'oklch(0.8 0.15 85)' },
+    redirected: { bg: 'oklch(0.55 0.12 85 / 0.3)', fg: 'oklch(0.8 0.15 85)' },
+    applied: { bg: 'oklch(0.55 0.12 85 / 0.3)', fg: 'oklch(0.8 0.15 85)' },
+    approved: { bg: 'oklch(0.45 0.12 145 / 0.3)', fg: 'oklch(0.8 0.15 145)' },
+    funded: { bg: 'oklch(0.45 0.12 145 / 0.3)', fg: 'oklch(0.8 0.15 145)' },
+    declined: { bg: 'oklch(0.45 0.12 25 / 0.3)', fg: 'oklch(0.8 0.15 25)' },
+    expired: { bg: 'oklch(0.4 0.05 250 / 0.3)', fg: 'oklch(0.7 0.05 250)' },
+  };
+  const c = colors[status] || colors.pending;
+  return (
+    <span style={{ padding: '2px 8px', borderRadius: '999px', fontSize: '0.75rem', background: c.bg, color: c.fg }}>
+      {status}
+    </span>
+  );
+}
 
 const stageLabels = {
   new: 'New',
@@ -82,6 +103,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   const [lead, setLead] = useState(null);
   const [activities, setActivities] = useState([]);
   const [documents, setDocuments] = useState([]);
+  const [financingApps, setFinancingApps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeModal, setActiveModal] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -115,9 +137,16 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
     if (leadId) {
       setLoading(true);
       getLeadDetail(leadId)
-        .then(res => {
+        .then(async res => {
           setLead(res.data);
           setActivities(res.data.activities || []);
+          // Fetch financing applications
+          try {
+            const { data: apps } = await client.get('/crm/financing/applications', { params: { leadId: res.data.id } });
+            setFinancingApps(apps);
+          } catch (err) {
+            console.error('Failed to load financing apps:', err);
+          }
         })
         .catch(() => {})
         .finally(() => setLoading(false));
@@ -531,7 +560,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
               onMouseEnter={e => e.currentTarget.style.opacity = '1'}
               onMouseLeave={e => e.currentTarget.style.opacity = '0.85'}
             >
-              <img src={streetViewIcon} alt="" style={{ width: 16, height: 16 }} />
+              <EyeIcon width={16} height={16} />
               View House
             </button>
           )}
@@ -562,7 +591,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 onMouseEnter={e => { if (!measuring) e.currentTarget.style.opacity = '1'; }}
                 onMouseLeave={e => { e.currentTarget.style.opacity = measuring ? '0.5' : '0.85'; }}
               >
-                <img src={measureRoofIcon} alt="" style={{ width: 16, height: 16 }} />
+                <ArrowsPointingOutIcon width={16} height={16} />
                 {measuring ? 'Measuring...' : lead.roof_pitch_degrees ? 'Re-measure Roof' : 'Measure Roof'}
               </button>
               {measureError && (
@@ -624,7 +653,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 onMouseEnter={e => { if (!tracing) e.currentTarget.style.opacity = '1'; }}
                 onMouseLeave={e => { e.currentTarget.style.opacity = tracing ? '0.5' : '0.85'; }}
               >
-                <img src={runTraceIcon} alt="" style={{ width: 16, height: 16 }} />
+                <MagnifyingGlassIcon width={16} height={16} />
                 {tracing ? 'Tracing...' : (phone === '—' && email === '—') ? 'Run Trace' : 'Re-trace'}
               </button>
               {traceError && <div style={{ fontSize: 11, color: 'var(--accent-red)', marginTop: 4 }}>{traceError}</div>}
@@ -957,27 +986,58 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
           </>
         )}
 
+        {/* Financing Applications */}
+        {financingApps.length > 0 && (
+          <>
+            <div className="detail-section">
+              <h4 style={{ marginBottom: 'var(--space-md)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: 14, fontWeight: 700, margin: '0 0 var(--space-md) 0' }}>
+                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>payments</span>
+                Financing
+              </h4>
+              {financingApps.map(app => (
+                <div key={app.id} className="glass" style={{ padding: 'var(--space-md)', marginBottom: 'var(--space-sm)', borderRadius: 'var(--radius-md)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 600 }}>{app.plan_name}</span>
+                    <FinancingStatusBadge status={app.status} />
+                  </div>
+                  <div style={{ fontSize: '0.85rem', opacity: 0.7, marginTop: '4px' }}>
+                    {app.term_months}mo @ {app.apr}% APR
+                    {app.approved_amount ? ` — Approved: ${formatMoney(app.approved_amount)}` : ''}
+                    {app.monthly_payment ? ` — ${formatMoney(app.monthly_payment)}/mo` : ''}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '4px' }}>
+                    {app.applied_at && `Applied ${new Date(app.applied_at).toLocaleDateString()}`}
+                    {app.decided_at && ` → Decision ${new Date(app.decided_at).toLocaleDateString()}`}
+                    {app.funded_at && ` → Funded ${new Date(app.funded_at).toLocaleDateString()}`}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="divider" />
+          </>
+        )}
+
         {/* Quick Actions */}
         <div className="detail-section">
           <div className="detail-section__title">Quick Actions</div>
           <div className="quick-actions">
             <button className="quick-action-btn" onClick={() => setActiveModal('activity')} style={{ gridColumn: '1 / -1', color: 'var(--accent-blue)' }}>
-              <img src={logActivityIcon} alt="" style={{ width: 18, height: 18 }} /> Log Activity...
+              <PencilSquareIcon width={18} height={18} /> Log Activity...
             </button>
             <button className="quick-action-btn" onClick={() => setActiveModal('call')}>
-              <img src={quickCallIcon} alt="" style={{ width: 18, height: 18 }} /> Quick Call
+              <PhoneArrowUpRightIcon width={18} height={18} /> Quick Call
             </button>
             <button className="quick-action-btn" onClick={() => setActiveModal('email')}>
-              <img src={quickEmailIcon} alt="" style={{ width: 18, height: 18 }} /> Quick Email
+              <EnvelopeOpenIcon width={18} height={18} /> Quick Email
             </button>
             <button className="quick-action-btn" onClick={() => setActiveModal('sms')}>
-              <img src={quickSmsIcon} alt="" style={{ width: 18, height: 18 }} /> Quick SMS
+              <ChatBubbleLeftRightIcon width={18} height={18} /> Quick SMS
             </button>
             <button className="quick-action-btn" onClick={() => setActiveModal('visit')}>
-              <img src={quickVisitIcon} alt="" style={{ width: 18, height: 18 }} /> Quick Visit
+              <HomeIcon width={18} height={18} /> Quick Visit
             </button>
             <button className="quick-action-btn" onClick={() => setActiveModal('insurance')}>
-              <img src={insuranceReportIcon} alt="" style={{ width: 18, height: 18 }} /> Insurance Report
+              <CheckBadgeIcon width={18} height={18} /> Insurance Report
             </button>
           </div>
         </div>
@@ -998,7 +1058,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                     cursor: 'pointer',
                   }}
                 >
-                  <img src={removeLeadIcon} alt="" style={{ width: 18, height: 18 }} /> Remove Lead
+                  <UserMinusIcon width={18} height={18} /> Remove Lead
                 </button>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1161,7 +1221,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                     doLogActivity({ type: 'call', subject: `Called ${name}`, notes: `Dialed ${phone}` }, { keepModal: true });
                   }}
                 >
-                  <img src={quickCallIcon} alt="" width="20" height="20" />
+                  <PhoneArrowUpRightIcon width={20} height={20} />
                   {phone}
                 </a>
               ) : (
@@ -1318,7 +1378,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                     textDecoration: 'none', cursor: 'pointer', border: 'none',
                   }}
                 >
-                  <img src={quickSmsIcon} alt="" width="16" height="16" /> Send SMS
+                  <ChatBubbleLeftRightIcon width={16} height={16} /> Send SMS
                 </a>
               )}
             </div>
@@ -1444,7 +1504,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                   border: 'none', cursor: 'pointer',
                 }}
               >
-                <img src={quickVisitIcon} alt="" width="16" height="16" /> Log Visit
+                <HomeIcon width={16} height={16} /> Log Visit
               </button>
             </div>
           </div>
