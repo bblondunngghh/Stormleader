@@ -1488,7 +1488,7 @@ function FinancingTab() {
   const [lender, setLender] = useState(null);
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({ apiKey: '', merchantId: '' });
+  const [form, setForm] = useState({ provider: 'mock', apiKey: '', merchantId: '' });
   const [syncing, setSyncing] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState('');
@@ -1517,7 +1517,7 @@ function FinancingTab() {
     setError('');
     try {
       const { data } = await client.post('/crm/financing/lenders', {
-        provider: 'hearth',
+        provider: form.provider,
         apiKey: form.apiKey,
         merchantId: form.merchantId,
       });
@@ -1594,7 +1594,23 @@ function FinancingTab() {
       {!lender ? (
         <form onSubmit={handleConnect}>
           <div style={{ marginBottom: 'var(--space-md)', fontSize: 13, color: 'var(--text-muted)' }}>
-            Connect your Hearth account to offer financing options on estimates.
+            Connect a financing provider to offer financing options on estimates.
+          </div>
+          <div className="form-group" style={{ marginBottom: 'var(--space-md)' }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Provider</label>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {[{ id: 'mock', label: 'Mock (Testing)' }, { id: 'hearth', label: 'Hearth' }].map(p => (
+                <button key={p.id} type="button" onClick={() => setForm(f => ({ ...f, provider: p.id }))}
+                  style={{
+                    padding: '8px 16px', borderRadius: 'var(--radius-sm)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                    border: form.provider === p.id ? '1.5px solid var(--accent-blue)' : '1px solid var(--glass-border)',
+                    background: form.provider === p.id ? 'oklch(0.25 0.05 250 / 0.5)' : 'transparent',
+                    color: form.provider === p.id ? 'var(--accent-blue)' : 'var(--text-muted)',
+                  }}>
+                  {p.label}
+                </button>
+              ))}
+            </div>
           </div>
           {error && <div style={{ color: 'oklch(0.7 0.2 25)', fontSize: 13, marginBottom: 'var(--space-md)' }}>{error}</div>}
           <div className="form-group" style={{ marginBottom: 'var(--space-md)' }}>
@@ -1615,7 +1631,7 @@ function FinancingTab() {
               background: 'var(--accent-blue)', color: '#fff', fontWeight: 600, fontSize: 13,
               opacity: connecting || !form.apiKey || !form.merchantId ? 0.5 : 1,
             }}>
-            {connecting ? 'Connecting...' : 'Connect Hearth'}
+            {connecting ? 'Connecting...' : `Connect ${form.provider === 'mock' ? 'Mock Provider' : 'Hearth'}`}
           </button>
         </form>
       ) : (

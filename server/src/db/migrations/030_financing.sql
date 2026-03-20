@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS financing_lenders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
-  provider TEXT NOT NULL CHECK (provider IN ('hearth')),
+  provider TEXT NOT NULL CHECK (provider IN ('hearth', 'mock')),
   api_key_encrypted BYTEA,
   merchant_id TEXT,
   is_active BOOLEAN NOT NULL DEFAULT true,

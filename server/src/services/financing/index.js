@@ -1,8 +1,9 @@
 import pool from '../../db/pool.js';
 import { encrypt, decrypt } from './encryption.js';
 import * as hearthAdapter from './adapters/hearth.js';
+import * as mockAdapter from './adapters/mock.js';
 
-const adapters = { hearth: hearthAdapter };
+const adapters = { hearth: hearthAdapter, mock: mockAdapter };
 
 function getAdapter(provider) {
   const adapter = adapters[provider];
