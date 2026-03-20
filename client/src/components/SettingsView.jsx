@@ -19,7 +19,7 @@ export default function SettingsView() {
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState(() => {
     const urlTab = searchParams.get('tab');
-    return ['profile', 'company', 'billing', 'payments', 'team', 'alerts', 'notifications'].includes(urlTab) ? urlTab : 'profile';
+    return ['profile', 'company', 'billing', 'payments', 'team', 'alerts', 'notifications', 'financing'].includes(urlTab) ? urlTab : 'profile';
   });
 
   const tabs = [
@@ -30,6 +30,7 @@ export default function SettingsView() {
     { id: 'team', label: 'Team' },
     { id: 'alerts', label: 'Storm Alerts' },
     { id: 'notifications', label: 'Notifications' },
+    { id: 'financing', label: 'Financing' },
   ];
 
   return (
@@ -56,6 +57,7 @@ export default function SettingsView() {
       {tab === 'team' && <TeamTab currentUserId={user?.id} />}
       {tab === 'alerts' && <AlertsTab />}
       {tab === 'notifications' && <NotificationsTab />}
+      {tab === 'financing' && <FinancingTab />}
     </div>
   );
 }
@@ -1474,6 +1476,238 @@ function ToggleRow({ label, description, checked, onChange, disabled }) {
           transform: checked ? 'translateX(20px)' : 'translateX(0)',
         }} />
       </button>
+    </div>
+  );
+}
+
+// ============================================================
+// FINANCING TAB
+// ============================================================
+
+function FinancingTab() {
+  const [lender, setLender] = useState(null);
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState({ apiKey: '', merchantId: '' });
+  const [syncing, setSyncing] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data: lenders } = await client.get('/crm/financing/lenders');
+        const active = lenders.find(l => l.is_active);
+        if (active) {
+          setLender(active);
+          const { data } = await client.get('/crm/financing/plans', { params: { lenderId: active.id } });
+          setPlans(data);
+        }
+      } catch (err) {
+        console.error('Failed to load financing config:', err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  async function handleConnect(e) {
+    e.preventDefault();
+    setConnecting(true);
+    setError('');
+    try {
+      const { data } = await client.post('/crm/financing/lenders', {
+        provider: 'hearth',
+        apiKey: form.apiKey,
+        merchantId: form.merchantId,
+      });
+      setLender(data);
+      setForm({ apiKey: '', merchantId: '' });
+      // Auto-sync plans
+      setSyncing(true);
+      const { data: synced } = await client.post('/crm/financing/plans/sync', { lenderId: data.id });
+      setPlans(synced);
+      showToast('Hearth connected and plans synced');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to connect');
+    } finally {
+      setConnecting(false);
+      setSyncing(false);
+    }
+  }
+
+  async function handleSync() {
+    if (!lender) return;
+    setSyncing(true);
+    try {
+      const { data } = await client.post('/crm/financing/plans/sync', { lenderId: lender.id });
+      setPlans(data);
+      showToast('Plans synced from Hearth');
+    } catch (err) {
+      showToast('Failed to sync plans');
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  async function handleDisconnect() {
+    if (!lender) return;
+    try {
+      await client.delete(`/crm/financing/lenders/${lender.id}`);
+      setLender(null);
+      setPlans([]);
+      showToast('Hearth disconnected');
+    } catch (err) {
+      showToast('Failed to disconnect');
+    }
+  }
+
+  async function togglePlan(planId, field, value) {
+    try {
+      const { data } = await client.patch(`/crm/financing/plans/${planId}`, { [field]: value });
+      setPlans(prev => prev.map(p => p.id === planId ? data : p));
+    } catch (err) {
+      showToast('Failed to update plan');
+    }
+  }
+
+  if (loading) return <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)', textAlign: 'center', color: 'var(--text-muted)' }}>Loading...</div>;
+
+  return (
+    <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
+      <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 'var(--space-lg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span>Financing</span>
+        {lender && (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600,
+            color: lender.is_active ? 'oklch(0.75 0.18 145)' : 'oklch(0.65 0.18 25)',
+          }}>
+            <span style={{
+              width: 8, height: 8, borderRadius: '50%',
+              background: lender.is_active ? 'oklch(0.65 0.2 145)' : 'oklch(0.55 0.2 25)',
+            }} />
+            {lender.is_active ? 'Connected' : 'Disconnected'}
+          </span>
+        )}
+      </div>
+
+      {!lender ? (
+        <form onSubmit={handleConnect}>
+          <div style={{ marginBottom: 'var(--space-md)', fontSize: 13, color: 'var(--text-muted)' }}>
+            Connect your Hearth account to offer financing options on estimates.
+          </div>
+          {error && <div style={{ color: 'oklch(0.7 0.2 25)', fontSize: 13, marginBottom: 'var(--space-md)' }}>{error}</div>}
+          <div className="form-group" style={{ marginBottom: 'var(--space-md)' }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>API Key</label>
+            <input type="password" value={form.apiKey} onChange={e => setForm(f => ({ ...f, apiKey: e.target.value }))}
+              placeholder="Enter your Hearth API key"
+              style={{ width: '100%', padding: '10px 12px', background: 'oklch(0.18 0.02 260 / 0.5)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)', fontSize: 13 }} />
+          </div>
+          <div className="form-group" style={{ marginBottom: 'var(--space-lg)' }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Merchant ID</label>
+            <input type="text" value={form.merchantId} onChange={e => setForm(f => ({ ...f, merchantId: e.target.value }))}
+              placeholder="Enter your Hearth merchant ID"
+              style={{ width: '100%', padding: '10px 12px', background: 'oklch(0.18 0.02 260 / 0.5)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)', fontSize: 13 }} />
+          </div>
+          <button type="submit" disabled={connecting || !form.apiKey || !form.merchantId}
+            style={{
+              padding: '10px 24px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer',
+              background: 'var(--accent-blue)', color: '#fff', fontWeight: 600, fontSize: 13,
+              opacity: connecting || !form.apiKey || !form.merchantId ? 0.5 : 1,
+            }}>
+            {connecting ? 'Connecting...' : 'Connect Hearth'}
+          </button>
+        </form>
+      ) : (
+        <>
+          {/* Plan Management */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>
+              Financing Plans ({plans.length})
+            </span>
+            <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+              <button onClick={handleSync} disabled={syncing}
+                style={{
+                  padding: '6px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--glass-border)',
+                  background: 'transparent', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                  opacity: syncing ? 0.5 : 1,
+                }}>
+                {syncing ? 'Syncing...' : 'Sync Plans'}
+              </button>
+              <button onClick={handleDisconnect}
+                style={{
+                  padding: '6px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid oklch(0.5 0.15 25 / 0.3)',
+                  background: 'transparent', color: 'oklch(0.7 0.18 25)', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                }}>
+                Disconnect
+              </button>
+            </div>
+          </div>
+
+          {plans.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: 'var(--space-xl)', color: 'var(--text-muted)', fontSize: 13 }}>
+              No plans found. Click &quot;Sync Plans&quot; to fetch from Hearth.
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {/* Header */}
+              <div style={{
+                display: 'grid', gridTemplateColumns: '1fr 80px 70px 80px 70px 70px',
+                gap: 'var(--space-sm)', padding: '8px 12px', fontSize: 11, fontWeight: 700,
+                color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em',
+              }}>
+                <span>Plan</span>
+                <span>Term</span>
+                <span>APR</span>
+                <span>Dealer Fee</span>
+                <span style={{ textAlign: 'center' }}>Active</span>
+                <span style={{ textAlign: 'center' }}>Default</span>
+              </div>
+              {plans.map(plan => (
+                <div key={plan.id} style={{
+                  display: 'grid', gridTemplateColumns: '1fr 80px 70px 80px 70px 70px',
+                  gap: 'var(--space-sm)', padding: '10px 12px', fontSize: 13,
+                  background: 'oklch(0.18 0.02 260 / 0.3)', borderRadius: 'var(--radius-sm)',
+                  color: plan.is_active ? 'var(--text-primary)' : 'var(--text-muted)',
+                }}>
+                  <span style={{ fontWeight: 600 }}>{plan.name}</span>
+                  <span>{plan.term_months}mo</span>
+                  <span>{Number(plan.apr).toFixed(2)}%</span>
+                  <span>{Number(plan.dealer_fee_pct).toFixed(1)}%</span>
+                  <span style={{ textAlign: 'center' }}>
+                    <button onClick={() => togglePlan(plan.id, 'isActive', !plan.is_active)}
+                      style={{
+                        width: 36, height: 20, borderRadius: 10, border: 'none', cursor: 'pointer', position: 'relative',
+                        background: plan.is_active ? 'oklch(0.55 0.18 145)' : 'oklch(0.3 0.02 260)',
+                        transition: 'background 0.15s',
+                      }}>
+                      <span style={{
+                        position: 'absolute', top: 2, left: plan.is_active ? 18 : 2,
+                        width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                        transition: 'left 0.15s',
+                      }} />
+                    </button>
+                  </span>
+                  <span style={{ textAlign: 'center' }}>
+                    <button onClick={() => togglePlan(plan.id, 'isDefault', !plan.is_default)}
+                      style={{
+                        width: 36, height: 20, borderRadius: 10, border: 'none', cursor: 'pointer', position: 'relative',
+                        background: plan.is_default ? 'oklch(0.55 0.18 250)' : 'oklch(0.3 0.02 260)',
+                        transition: 'background 0.15s',
+                      }}>
+                      <span style={{
+                        position: 'absolute', top: 2, left: plan.is_default ? 18 : 2,
+                        width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                        transition: 'left 0.15s',
+                      }} />
+                    </button>
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
