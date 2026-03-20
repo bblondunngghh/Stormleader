@@ -3,6 +3,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import client from '../api/client';
 import { createPublicPaymentIntent } from '../api/payments';
+import { calcMonthlyPayment, formatMoney } from '../utils/financing';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder');
 
@@ -33,6 +34,10 @@ export default function PublicEstimate({ token }) {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [paymentError, setPaymentError] = useState(null);
   const [paymentFeeInfo, setPaymentFeeInfo] = useState(null);
+  const [financingPlans, setFinancingPlans] = useState([]);
+  const [financingApps, setFinancingApps] = useState([]);
+  const [applyingPlan, setApplyingPlan] = useState(null);
+  const [financingPolling, setFinancingPolling] = useState(false);
   const canvasRef = useRef(null);
   const drawingRef = useRef(false);
 
@@ -41,6 +46,48 @@ export default function PublicEstimate({ token }) {
       .then(res => setEstimate(res.data))
       .catch(() => setError('Estimate not found or has expired.'))
       .finally(() => setLoading(false));
+  }, [token]);
+
+  // Fetch financing plans + applications after estimate loads
+  useEffect(() => {
+    if (!estimate?.financing_enabled) return;
+    (async () => {
+      try {
+        const [plansRes, appsRes] = await Promise.all([
+          client.get(`/crm/financing/public/${token}/plans`),
+          client.get(`/crm/financing/public/${token}/applications`),
+        ]);
+        setFinancingPlans(plansRes.data);
+        setFinancingApps(appsRes.data);
+      } catch (err) {
+        console.error('Failed to load financing options:', err);
+      }
+    })();
+  }, [estimate?.financing_enabled, token]);
+
+  // Poll for financing status after redirect back from lender
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('financing') || !token) return;
+
+    setFinancingPolling(true);
+    let elapsed = 0;
+    const interval = setInterval(async () => {
+      elapsed += 3000;
+      try {
+        const { data } = await client.get(`/crm/financing/public/${token}/applications`);
+        setFinancingApps(data);
+        const hasDecision = data.some(a => !['pending', 'redirected'].includes(a.status));
+        if (hasDecision || elapsed >= 30000) {
+          clearInterval(interval);
+          setFinancingPolling(false);
+        }
+      } catch {
+        clearInterval(interval);
+        setFinancingPolling(false);
+      }
+    }, 3000);
+    return () => clearInterval(interval);
   }, [token]);
 
   // Canvas drawing
@@ -150,6 +197,24 @@ export default function PublicEstimate({ token }) {
     setPaymentLoading(false);
   };
 
+  const handleApplyFinancing = async (planId) => {
+    setApplyingPlan(planId);
+    try {
+      const { data } = await client.post(`/crm/financing/public/${token}/apply`, { planId });
+      if (data.redirect_url) {
+        window.location.href = data.redirect_url;
+      } else {
+        // Application already exists, refresh apps
+        const { data: apps } = await client.get(`/crm/financing/public/${token}/applications`);
+        setFinancingApps(apps);
+      }
+    } catch (err) {
+      console.error('Failed to apply for financing:', err);
+    } finally {
+      setApplyingPlan(null);
+    }
+  };
+
   const handlePaymentComplete = () => {
     setPaymentSuccess(true);
     setShowPayment(false);
@@ -237,7 +302,79 @@ export default function PublicEstimate({ token }) {
             <span>Total</span>
             <span>${Number(estimate.total).toFixed(2)}</span>
           </div>
+          {financingPlans.length > 0 && (() => {
+            const totalCentsForCalc = Math.round(Number(estimate.total) * 100);
+            const lowestMonthly = Math.min(...financingPlans.map(p => calcMonthlyPayment(totalCentsForCalc, Number(p.apr), p.term_months)));
+            return (
+              <div style={{ textAlign: 'center', padding: '8px 0', fontSize: 15, fontWeight: 600, color: '#16a34a' }}>
+                Or as low as {formatMoney(lowestMonthly)}/mo with financing
+              </div>
+            );
+          })()}
         </div>
+
+        {/* Financing Options */}
+        {financingPlans.length > 0 && (
+          <div className="public-estimate-section" style={{ marginTop: 24 }}>
+            <div className="public-estimate-section-title">Financing Options</div>
+            {financingPolling && (
+              <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 13, color: '#6b7280' }}>
+                Checking financing status...
+              </div>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {financingPlans.map(plan => {
+                const totalCentsForCalc = Math.round(Number(estimate.total) * 100);
+                const monthly = calcMonthlyPayment(totalCentsForCalc, Number(plan.apr), plan.term_months);
+                const existingApp = financingApps.find(a => a.plan_id === plan.id);
+                return (
+                  <div key={plan.id} style={{
+                    padding: 16, borderRadius: 8, border: '1px solid #e5e7eb', background: '#f9fafb',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
+                  }}>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 15 }}>{plan.name}</div>
+                      <div style={{ fontSize: 13, color: '#6b7280' }}>
+                        {plan.term_months} months @ {Number(plan.apr).toFixed(2)}% APR
+                      </div>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: '#111', marginTop: 4 }}>
+                        {formatMoney(monthly)}/mo
+                      </div>
+                    </div>
+                    <div>
+                      {existingApp ? (
+                        <span style={{
+                          padding: '8px 16px', borderRadius: 6, fontSize: 13, fontWeight: 600,
+                          background: existingApp.status === 'approved' || existingApp.status === 'funded' ? '#dcfce7' :
+                                     existingApp.status === 'declined' ? '#fef2f2' : '#fef9c3',
+                          color: existingApp.status === 'approved' || existingApp.status === 'funded' ? '#166534' :
+                                existingApp.status === 'declined' ? '#991b1b' : '#854d0e',
+                        }}>
+                          {existingApp.status === 'redirected' ? 'Application in progress' :
+                           existingApp.status === 'applied' ? 'Application submitted' :
+                           existingApp.status === 'approved' ? `Approved — ${formatMoney(existingApp.monthly_payment || monthly)}/mo` :
+                           existingApp.status === 'funded' ? 'Loan funded' :
+                           existingApp.status === 'declined' ? 'Not approved' :
+                           existingApp.status}
+                        </span>
+                      ) : (
+                        <button onClick={() => handleApplyFinancing(plan.id)}
+                          disabled={applyingPlan === plan.id}
+                          style={{
+                            padding: '10px 24px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                            background: '#2563eb', color: '#fff', fontWeight: 600, fontSize: 14,
+                            opacity: applyingPlan === plan.id ? 0.6 : 1,
+                          }}>
+                          {applyingPlan === plan.id ? 'Redirecting...' : 'Apply for Financing'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Scope */}
         {estimate.scope_of_work && (
