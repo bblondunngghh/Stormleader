@@ -26,6 +26,7 @@ import automationsRouter from './automations.js';
 import invoicesRouter from './invoices.js';
 import canvassingRouter from './canvassing.js';
 import reportsRouter from './reports.js';
+import workOrdersRouter from './workOrders.js';
 
 const router = Router();
 
@@ -55,6 +56,7 @@ router.use('/crm/automations', automationsRouter);
 router.use('/crm/invoices', invoicesRouter);
 router.use('/crm/canvass-pins', canvassingRouter);
 router.use('/crm/reports', reportsRouter);
+router.use('/crm/work-orders', workOrdersRouter);
 router.use('/webhooks/hearth', hearthWebhookRouter);
 
 export default router;

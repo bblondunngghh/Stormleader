@@ -194,3 +194,20 @@ export const getStageDurationReport = (start, end) =>
 
 export const getLeadSourcesReport = (start, end) =>
   client.get('/crm/reports/lead-sources', { params: { start, end } });
+
+// ============================================================
+// WORK ORDERS
+// ============================================================
+
+export const getWorkOrders = (params) => client.get('/crm/work-orders', { params });
+
+export const getWorkOrder = (id) => client.get(`/crm/work-orders/${id}`);
+
+export const createWorkOrder = (data) => client.post('/crm/work-orders', data);
+
+export const createWorkOrderFromEstimate = (estimateId) =>
+  client.post(`/crm/work-orders/from-estimate/${estimateId}`);
+
+export const updateWorkOrder = (id, data) => client.patch(`/crm/work-orders/${id}`, data);
+
+export const completeWorkOrder = (id) => client.patch(`/crm/work-orders/${id}/complete`);
