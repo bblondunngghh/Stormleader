@@ -725,4 +725,97 @@ router.get('/calendar', async (req, res, next) => {
   }
 });
 
+// ============================================================
+// CUSTOM FIELD DEFINITIONS
+// ============================================================
+
+// GET /api/crm/custom-fields — list tenant's field definitions
+router.get('/custom-fields', async (req, res, next) => {
+  try {
+    const entityType = req.query.entity_type || 'lead';
+    const { rows } = await pool.query(
+      `SELECT * FROM custom_field_definitions
+       WHERE tenant_id = $1 AND entity_type = $2
+       ORDER BY sort_order ASC, created_at ASC`,
+      [req.tenantId, entityType]
+    );
+    res.json(rows);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/crm/custom-fields — create field definition
+router.post('/custom-fields', async (req, res, next) => {
+  try {
+    let { field_key, field_label, field_type, options, is_required, sort_order } = req.body;
+    if (!field_label) return res.status(400).json({ error: 'field_label is required' });
+
+    // Auto-generate field_key from field_label if not provided
+    if (!field_key) {
+      field_key = field_label.toLowerCase().replace(/[^a-z0-9\s_]/g, '').replace(/\s+/g, '_').substring(0, 50);
+    }
+
+    const validTypes = ['text', 'number', 'date', 'select', 'boolean'];
+    if (field_type && !validTypes.includes(field_type)) {
+      return res.status(400).json({ error: `field_type must be one of: ${validTypes.join(', ')}` });
+    }
+
+    const { rows } = await pool.query(
+      `INSERT INTO custom_field_definitions (tenant_id, entity_type, field_key, field_label, field_type, options, is_required, sort_order)
+       VALUES ($1, 'lead', $2, $3, $4, $5, $6, $7)
+       RETURNING *`,
+      [req.tenantId, field_key, field_label, field_type || 'text', options ? JSON.stringify(options) : null, is_required || false, sort_order || 0]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    if (err.code === '23505') {
+      return res.status(409).json({ error: 'A field with this key already exists' });
+    }
+    next(err);
+  }
+});
+
+// PATCH /api/crm/custom-fields/:id — update field definition
+router.patch('/custom-fields/:id', async (req, res, next) => {
+  try {
+    const { field_label, field_type, options, is_required, sort_order } = req.body;
+    const setClauses = [];
+    const params = [req.tenantId, req.params.id];
+
+    if (field_label !== undefined) { params.push(field_label); setClauses.push(`field_label = $${params.length}`); }
+    if (field_type !== undefined) { params.push(field_type); setClauses.push(`field_type = $${params.length}`); }
+    if (options !== undefined) { params.push(JSON.stringify(options)); setClauses.push(`options = $${params.length}`); }
+    if (is_required !== undefined) { params.push(is_required); setClauses.push(`is_required = $${params.length}`); }
+    if (sort_order !== undefined) { params.push(sort_order); setClauses.push(`sort_order = $${params.length}`); }
+
+    if (setClauses.length === 0) return res.status(400).json({ error: 'No fields to update' });
+
+    const { rows } = await pool.query(
+      `UPDATE custom_field_definitions SET ${setClauses.join(', ')}
+       WHERE id = $2 AND tenant_id = $1
+       RETURNING *`,
+      params
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Field definition not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// DELETE /api/crm/custom-fields/:id — delete field definition
+router.delete('/custom-fields/:id', async (req, res, next) => {
+  try {
+    const { rowCount } = await pool.query(
+      `DELETE FROM custom_field_definitions WHERE id = $1 AND tenant_id = $2`,
+      [req.params.id, req.tenantId]
+    );
+    if (rowCount === 0) return res.status(404).json({ error: 'Field definition not found' });
+    res.json({ deleted: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

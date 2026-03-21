@@ -159,3 +159,16 @@ export const updateCanvassPin = (id, data) => client.patch(`/crm/canvass-pins/${
 export const convertCanvassPin = (id) => client.post(`/crm/canvass-pins/${id}/convert`);
 
 export const getCanvassStats = (date) => client.get('/crm/canvass-pins/stats', { params: { date } });
+
+// ============================================================
+// CUSTOM FIELDS
+// ============================================================
+
+export const getCustomFieldDefinitions = (entityType = 'lead') =>
+  client.get('/crm/custom-fields', { params: { entity_type: entityType } });
+
+export const createCustomField = (data) => client.post('/crm/custom-fields', data);
+
+export const updateCustomField = (id, data) => client.patch(`/crm/custom-fields/${id}`, data);
+
+export const deleteCustomField = (id) => client.delete(`/crm/custom-fields/${id}`);

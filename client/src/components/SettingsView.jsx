@@ -14,13 +14,14 @@ import * as onboardingApi from '../api/onboarding';
 import * as paymentsApi from '../api/payments';
 import { showToast } from './Toast';
 import AutomationSettings from './AutomationSettings';
+import { getCustomFieldDefinitions, createCustomField, updateCustomField, deleteCustomField } from '../api/crm';
 
 export default function SettingsView() {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState(() => {
     const urlTab = searchParams.get('tab');
-    return ['profile', 'company', 'billing', 'payments', 'team', 'alerts', 'notifications', 'financing', 'automations'].includes(urlTab) ? urlTab : 'profile';
+    return ['profile', 'company', 'billing', 'payments', 'team', 'alerts', 'notifications', 'financing', 'automations', 'custom-fields'].includes(urlTab) ? urlTab : 'profile';
   });
 
   const tabs = [
@@ -33,6 +34,7 @@ export default function SettingsView() {
     { id: 'notifications', label: 'Notifications' },
     { id: 'financing', label: 'Financing' },
     { id: 'automations', label: 'Automations' },
+    { id: 'custom-fields', label: 'Custom Fields' },
   ];
 
   return (
@@ -61,6 +63,7 @@ export default function SettingsView() {
       {tab === 'notifications' && <NotificationsTab />}
       {tab === 'financing' && <FinancingTab />}
       {tab === 'automations' && <AutomationSettings />}
+      {tab === 'custom-fields' && <CustomFieldsTab />}
     </div>
   );
 }
@@ -1726,6 +1729,310 @@ function FinancingTab() {
             </div>
           )}
         </>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// CUSTOM FIELDS TAB
+// ============================================================
+
+const FIELD_TYPES = [
+  { value: 'text', label: 'Text' },
+  { value: 'number', label: 'Number' },
+  { value: 'date', label: 'Date' },
+  { value: 'select', label: 'Select' },
+  { value: 'boolean', label: 'Yes / No' },
+];
+
+const TYPE_BADGE_COLORS = {
+  text: { bg: 'oklch(0.35 0.08 250 / 0.5)', fg: 'oklch(0.75 0.1 250)' },
+  number: { bg: 'oklch(0.35 0.08 145 / 0.5)', fg: 'oklch(0.75 0.1 145)' },
+  date: { bg: 'oklch(0.35 0.08 85 / 0.5)', fg: 'oklch(0.75 0.1 85)' },
+  select: { bg: 'oklch(0.35 0.08 310 / 0.5)', fg: 'oklch(0.75 0.1 310)' },
+  boolean: { bg: 'oklch(0.35 0.08 25 / 0.5)', fg: 'oklch(0.75 0.1 25)' },
+};
+
+function CustomFieldsTab() {
+  const [fields, setFields] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [form, setForm] = useState({ field_label: '', field_key: '', field_type: 'text', options: [], is_required: false, sort_order: 0 });
+  const [newOption, setNewOption] = useState('');
+
+  useEffect(() => {
+    loadFields();
+  }, []);
+
+  async function loadFields() {
+    try {
+      const { data } = await getCustomFieldDefinitions('lead');
+      setFields(data);
+    } catch (err) {
+      console.error('Failed to load custom fields:', err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function resetForm() {
+    setForm({ field_label: '', field_key: '', field_type: 'text', options: [], is_required: false, sort_order: 0 });
+    setNewOption('');
+    setShowForm(false);
+    setEditingId(null);
+  }
+
+  function slugify(label) {
+    return label.toLowerCase().replace(/[^a-z0-9\s_]/g, '').replace(/\s+/g, '_').substring(0, 50);
+  }
+
+  async function handleSave(e) {
+    e.preventDefault();
+    if (!form.field_label.trim()) return;
+    setSaving(true);
+    try {
+      const payload = {
+        field_label: form.field_label.trim(),
+        field_key: form.field_key || slugify(form.field_label),
+        field_type: form.field_type,
+        options: form.field_type === 'select' ? form.options : null,
+        is_required: form.is_required,
+        sort_order: form.sort_order,
+      };
+      if (editingId) {
+        await updateCustomField(editingId, payload);
+        showToast('Field updated');
+      } else {
+        await createCustomField(payload);
+        showToast('Field created');
+      }
+      await loadFields();
+      resetForm();
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Failed to save field', 'error');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete(id) {
+    try {
+      await deleteCustomField(id);
+      showToast('Field deleted');
+      setConfirmDelete(null);
+      await loadFields();
+    } catch (err) {
+      showToast('Failed to delete field', 'error');
+    }
+  }
+
+  function startEdit(field) {
+    setForm({
+      field_label: field.field_label,
+      field_key: field.field_key,
+      field_type: field.field_type,
+      options: field.options || [],
+      is_required: field.is_required,
+      sort_order: field.sort_order || 0,
+    });
+    setEditingId(field.id);
+    setShowForm(true);
+  }
+
+  function addOption() {
+    if (!newOption.trim()) return;
+    setForm(f => ({ ...f, options: [...f.options, newOption.trim()] }));
+    setNewOption('');
+  }
+
+  function removeOption(idx) {
+    setForm(f => ({ ...f, options: f.options.filter((_, i) => i !== idx) }));
+  }
+
+  const inputStyle = {
+    background: 'oklch(0.18 0.02 260 / 0.6)', color: 'var(--text-primary)',
+    border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-sm)',
+    padding: '8px 12px', fontSize: 13, width: '100%',
+  };
+
+  if (loading) {
+    return (
+      <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
+        <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>Loading...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-lg)' }}>
+        <div style={{ fontSize: 15, fontWeight: 700 }}>Custom Fields</div>
+        {!showForm && (
+          <button onClick={() => { resetForm(); setShowForm(true); }}
+            style={{
+              padding: '6px 16px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer',
+              background: 'var(--accent-blue)', color: '#fff', fontSize: 13, fontWeight: 600,
+            }}>
+            + Add Field
+          </button>
+        )}
+      </div>
+
+      {/* Add / Edit Form */}
+      {showForm && (
+        <form onSubmit={handleSave} style={{
+          padding: 'var(--space-lg)', marginBottom: 'var(--space-lg)',
+          background: 'oklch(0.16 0.02 260 / 0.4)', borderRadius: 'var(--radius-md)',
+          border: '1px solid var(--glass-border)',
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 'var(--space-md)' }}>
+            {editingId ? 'Edit Field' : 'New Field'}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)' }}>
+            <div>
+              <label style={{ fontSize: 12, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>Label</label>
+              <input value={form.field_label} onChange={e => {
+                const label = e.target.value;
+                setForm(f => ({ ...f, field_label: label, field_key: editingId ? f.field_key : slugify(label) }));
+              }} style={inputStyle} placeholder="e.g. Deductible Amount" required />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>Key</label>
+              <input value={form.field_key} readOnly={!!editingId}
+                onChange={e => !editingId && setForm(f => ({ ...f, field_key: e.target.value }))}
+                style={{ ...inputStyle, opacity: editingId ? 0.5 : 1 }} placeholder="auto-generated" />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>Type</label>
+              <select value={form.field_type} onChange={e => setForm(f => ({ ...f, field_type: e.target.value }))}
+                style={inputStyle}>
+                {FIELD_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)', paddingTop: 20 }}>
+              <label style={{ fontSize: 13, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <button type="button" onClick={() => setForm(f => ({ ...f, is_required: !f.is_required }))}
+                  style={{
+                    width: 36, height: 20, borderRadius: 10, border: 'none', cursor: 'pointer', position: 'relative',
+                    background: form.is_required ? 'oklch(0.55 0.18 145)' : 'oklch(0.3 0.02 260)',
+                    transition: 'background 0.15s',
+                  }}>
+                  <span style={{
+                    position: 'absolute', top: 2, left: form.is_required ? 18 : 2,
+                    width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                    transition: 'left 0.15s',
+                  }} />
+                </button>
+                Required
+              </label>
+            </div>
+          </div>
+
+          {/* Options list for select type */}
+          {form.field_type === 'select' && (
+            <div style={{ marginTop: 'var(--space-md)' }}>
+              <label style={{ fontSize: 12, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>Options</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+                {form.options.map((opt, idx) => (
+                  <span key={idx} style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    padding: '4px 10px', borderRadius: 'var(--radius-sm)',
+                    background: 'oklch(0.25 0.03 260)', fontSize: 12, color: 'var(--text-secondary)',
+                  }}>
+                    {opt}
+                    <button type="button" onClick={() => removeOption(idx)}
+                      style={{ background: 'none', border: 'none', color: 'oklch(0.6 0.15 25)', cursor: 'pointer', fontSize: 14, padding: 0, lineHeight: 1 }}>
+                      x
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input value={newOption} onChange={e => setNewOption(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOption(); } }}
+                  style={{ ...inputStyle, flex: 1 }} placeholder="Add option..." />
+                <button type="button" onClick={addOption}
+                  style={{ padding: '6px 14px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'oklch(0.3 0.04 260)', color: 'var(--text-secondary)', fontSize: 13 }}>
+                  Add
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', gap: 8, marginTop: 'var(--space-lg)', justifyContent: 'flex-end' }}>
+            <button type="button" onClick={resetForm}
+              style={{ padding: '6px 16px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--glass-border)', cursor: 'pointer', background: 'transparent', color: 'var(--text-secondary)', fontSize: 13 }}>
+              Cancel
+            </button>
+            <button type="submit" disabled={saving}
+              style={{ padding: '6px 16px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'var(--accent-blue)', color: '#fff', fontSize: 13, fontWeight: 600, opacity: saving ? 0.6 : 1 }}>
+              {saving ? 'Saving...' : editingId ? 'Update' : 'Create'}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Field List */}
+      {fields.length === 0 && !showForm ? (
+        <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: 'var(--space-lg) 0', textAlign: 'center' }}>
+          No custom fields defined yet. Click "Add Field" to create one.
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {fields.map(field => (
+            <div key={field.id} style={{
+              display: 'flex', alignItems: 'center', gap: 'var(--space-md)',
+              padding: 'var(--space-md) var(--space-lg)',
+              background: 'oklch(0.16 0.02 260 / 0.3)', borderRadius: 'var(--radius-sm)',
+              border: '1px solid var(--glass-border)',
+            }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>
+                  {field.field_label}
+                  {field.is_required && <span style={{ color: 'oklch(0.7 0.2 25)', marginLeft: 4, fontSize: 12 }}>required</span>}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2, fontFamily: 'monospace' }}>
+                  {field.field_key}
+                  {field.field_type === 'select' && field.options?.length > 0 && (
+                    <span> ({field.options.join(', ')})</span>
+                  )}
+                </div>
+              </div>
+              <span style={{
+                padding: '2px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600,
+                background: (TYPE_BADGE_COLORS[field.field_type] || TYPE_BADGE_COLORS.text).bg,
+                color: (TYPE_BADGE_COLORS[field.field_type] || TYPE_BADGE_COLORS.text).fg,
+              }}>
+                {FIELD_TYPES.find(t => t.value === field.field_type)?.label || field.field_type}
+              </span>
+              <button onClick={() => startEdit(field)}
+                style={{ padding: '4px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--glass-border)', cursor: 'pointer', background: 'transparent', color: 'var(--text-secondary)', fontSize: 12 }}>
+                Edit
+              </button>
+              {confirmDelete === field.id ? (
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <button onClick={() => handleDelete(field.id)}
+                    style={{ padding: '4px 10px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'oklch(0.45 0.18 25)', color: '#fff', fontSize: 12 }}>
+                    Confirm
+                  </button>
+                  <button onClick={() => setConfirmDelete(null)}
+                    style={{ padding: '4px 10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--glass-border)', cursor: 'pointer', background: 'transparent', color: 'var(--text-muted)', fontSize: 12 }}>
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button onClick={() => setConfirmDelete(field.id)}
+                  style={{ padding: '4px 12px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'oklch(0.25 0.08 25 / 0.4)', color: 'oklch(0.7 0.15 25)', fontSize: 12 }}>
+                  Delete
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

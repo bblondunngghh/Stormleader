@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { getLeadDetail, updateLead, deleteLead, updateLeadRoofType, logActivity, getActivities, addContact } from '../api/crm';
+import { getLeadDetail, updateLead, deleteLead, updateLeadRoofType, logActivity, getActivities, addContact, getCustomFieldDefinitions } from '../api/crm';
 import client from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { getDocuments, uploadDocument, deleteDocument } from '../api/documents';
@@ -133,6 +133,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   const [weatherEvents, setWeatherEvents] = useState([]);
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [weatherError, setWeatherError] = useState('');
+  const [customFieldDefs, setCustomFieldDefs] = useState([]);
   const adjustMapRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -170,6 +171,13 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
       .then(res => setDocuments(res.data.documents || []))
       .catch(() => {});
   }, [leadId]);
+
+  // Fetch custom field definitions
+  useEffect(() => {
+    getCustomFieldDefinitions('lead')
+      .then(res => setCustomFieldDefs(res.data || []))
+      .catch(() => {});
+  }, []);
 
   // Fetch solar segments when drawing tool opens
   useEffect(() => {
@@ -941,6 +949,81 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
             </div>
           </div>
           {damageNotes && <div className="detail-notes">{damageNotes}</div>}
+        </div>
+
+        <div className="divider" />
+
+        {/* Custom Fields */}
+        <div className="detail-section">
+          <div className="detail-section__title">Custom Fields</div>
+          {customFieldDefs.length === 0 ? (
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', padding: 'var(--space-sm) 0' }}>
+              No custom fields configured. Add them in Settings.
+            </div>
+          ) : (
+            <div className="detail-grid">
+              {customFieldDefs.map(def => {
+                const val = lead.custom_fields?.[def.field_key] ?? '';
+                const handleChange = async (newVal) => {
+                  const updated = { ...(lead.custom_fields || {}), [def.field_key]: newVal };
+                  try {
+                    await updateLead(lead.id, { custom_fields: updated });
+                    setLead(prev => ({ ...prev, custom_fields: updated }));
+                    onUpdated?.();
+                  } catch { /* silent */ }
+                };
+                return (
+                  <div key={def.id} className="detail-item">
+                    <span className="detail-item__label">
+                      {def.field_label}
+                      {def.is_required && <span style={{ color: 'oklch(0.7 0.2 25)', marginLeft: 4 }}>*</span>}
+                    </span>
+                    {def.field_type === 'boolean' ? (
+                      <button
+                        onClick={() => handleChange(!val)}
+                        style={{
+                          width: 36, height: 20, borderRadius: 10, border: 'none', cursor: 'pointer', position: 'relative',
+                          background: val ? 'oklch(0.55 0.18 145)' : 'oklch(0.3 0.02 260)',
+                          transition: 'background 0.15s',
+                        }}>
+                        <span style={{
+                          position: 'absolute', top: 2, left: val ? 18 : 2,
+                          width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                          transition: 'left 0.15s',
+                        }} />
+                      </button>
+                    ) : def.field_type === 'select' ? (
+                      <select
+                        value={val || ''}
+                        onChange={e => handleChange(e.target.value)}
+                        style={{
+                          background: 'oklch(0.18 0.02 260 / 0.6)', color: 'var(--text-primary)',
+                          border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-sm)',
+                          padding: '6px 10px', fontSize: 13, width: '100%',
+                        }}>
+                        <option value="">-- Select --</option>
+                        {(def.options || []).map(opt => (
+                          <option key={opt} value={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type={def.field_type === 'number' ? 'number' : def.field_type === 'date' ? 'date' : 'text'}
+                        value={val || ''}
+                        onChange={e => handleChange(def.field_type === 'number' ? (e.target.value ? Number(e.target.value) : '') : e.target.value)}
+                        placeholder={def.field_label}
+                        style={{
+                          background: 'oklch(0.18 0.02 260 / 0.6)', color: 'var(--text-primary)',
+                          border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-sm)',
+                          padding: '6px 10px', fontSize: 13, width: '100%',
+                        }}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <div className="divider" />

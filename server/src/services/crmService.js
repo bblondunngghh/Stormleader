@@ -151,7 +151,7 @@ export async function updateLead(tenantId, leadId, updates) {
     'insurance_company', 'insurance_claim_number',
     'contact_name', 'contact_phone', 'contact_email',
     'damage_notes', 'assigned_rep_id', 'source', 'tags',
-    'notes', 'next_follow_up', 'lost_reason',
+    'notes', 'next_follow_up', 'lost_reason', 'custom_fields',
   ];
 
   const setClauses = [];
@@ -159,8 +159,14 @@ export async function updateLead(tenantId, leadId, updates) {
 
   for (const field of allowedFields) {
     if (updates[field] !== undefined) {
-      params.push(updates[field]);
-      setClauses.push(`${field} = $${params.length}`);
+      if (field === 'custom_fields') {
+        // Merge with existing custom_fields instead of replacing
+        params.push(JSON.stringify(updates[field]));
+        setClauses.push(`custom_fields = COALESCE(custom_fields, '{}') || $${params.length}::jsonb`);
+      } else {
+        params.push(updates[field]);
+        setClauses.push(`${field} = $${params.length}`);
+      }
     }
   }
 
