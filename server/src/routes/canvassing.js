@@ -2,7 +2,6 @@ import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
 import pool from '../db/pool.js';
-import logger from '../utils/logger.js';
 
 const router = Router();
 router.use(authenticate);
