@@ -16,6 +16,7 @@ import {
   WrenchIcon,
   CalendarDaysIcon,
   MapPinIcon,
+  PresentationChartBarIcon,
 } from '@heroicons/react/24/outline';
 import iconBrand from '../assets/icons/stormpipe-brand.jpg';
 const navItems = [
@@ -25,6 +26,7 @@ const navItems = [
   { id: 'leads', label: 'Leads', Icon: HomeModernIcon },
   { id: 'estimates', label: 'Estimates', Icon: DocumentTextIcon },
   { id: 'invoices', label: 'Invoices', Icon: BanknotesIcon },
+  { id: 'reports', label: 'Reports', Icon: PresentationChartBarIcon },
   { id: 'materials', label: 'Materials', Icon: WrenchIcon },
   { id: 'tasks', label: 'Tasks', Icon: ClipboardDocumentCheckIcon },
   { id: 'calendar', label: 'Calendar', Icon: CalendarDaysIcon },

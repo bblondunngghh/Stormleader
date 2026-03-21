@@ -172,3 +172,25 @@ export const createCustomField = (data) => client.post('/crm/custom-fields', dat
 export const updateCustomField = (id, data) => client.patch(`/crm/custom-fields/${id}`, data);
 
 export const deleteCustomField = (id) => client.delete(`/crm/custom-fields/${id}`);
+
+// ============================================================
+// REPORTS
+// ============================================================
+
+export const getRevenueReport = (start, end) =>
+  client.get('/crm/reports/revenue', { params: { start, end } });
+
+export const getPipelineReport = (start, end) =>
+  client.get('/crm/reports/pipeline', { params: { start, end } });
+
+export const getConversionReport = (start, end) =>
+  client.get('/crm/reports/conversion', { params: { start, end } });
+
+export const getRepPerformanceReport = (start, end) =>
+  client.get('/crm/reports/rep-performance', { params: { start, end } });
+
+export const getStageDurationReport = (start, end) =>
+  client.get('/crm/reports/stage-duration', { params: { start, end } });
+
+export const getLeadSourcesReport = (start, end) =>
+  client.get('/crm/reports/lead-sources', { params: { start, end } });
