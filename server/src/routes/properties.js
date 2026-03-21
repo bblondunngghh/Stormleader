@@ -436,4 +436,145 @@ router.post('/:id/fema-lookup', async (req, res, next) => {
   }
 });
 
+// GET /api/properties/:id/weather-history — Storm history within 5 miles of property
+router.get('/:id/weather-history', async (req, res, next) => {
+  try {
+    const propertyId = req.params.id;
+
+    const { rows: [prop] } = await pool.query(
+      `SELECT id, ST_X(location::geometry) as lng, ST_Y(location::geometry) as lat,
+              address_line1, city, state, zip
+       FROM properties WHERE id = $1`,
+      [propertyId]
+    );
+    if (!prop) return res.status(404).json({ error: 'Property not found' });
+
+    const { rows: events } = await pool.query(
+      `SELECT se.id, se.source, se.hail_size_max_in, se.wind_speed_max_mph,
+              se.event_start, se.event_end, se.raw_data
+       FROM storm_events se
+       JOIN properties p ON p.id = $1
+       WHERE ST_DWithin(se.geom::geography, p.location::geography, 8047)
+       ORDER BY se.event_start DESC`,
+      [propertyId]
+    );
+
+    res.json(events);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET /api/properties/:id/weather-history/pdf — Download storm history as PDF
+router.get('/:id/weather-history/pdf', async (req, res, next) => {
+  try {
+    const propertyId = req.params.id;
+
+    const { rows: [prop] } = await pool.query(
+      `SELECT id, ST_X(location::geometry) as lng, ST_Y(location::geometry) as lat,
+              address_line1, city, state, zip
+       FROM properties WHERE id = $1`,
+      [propertyId]
+    );
+    if (!prop) return res.status(404).json({ error: 'Property not found' });
+
+    const { rows: events } = await pool.query(
+      `SELECT se.id, se.source, se.hail_size_max_in, se.wind_speed_max_mph,
+              se.event_start, se.event_end, se.raw_data
+       FROM storm_events se
+       JOIN properties p ON p.id = $1
+       WHERE ST_DWithin(se.geom::geography, p.location::geography, 8047)
+       ORDER BY se.event_start DESC`,
+      [propertyId]
+    );
+
+    const PdfPrinter = (await import('pdfmake')).default;
+    const fonts = {
+      Helvetica: {
+        normal: 'Helvetica',
+        bold: 'Helvetica-Bold',
+        italics: 'Helvetica-Oblique',
+        bolditalics: 'Helvetica-BoldOblique',
+      },
+    };
+    const printer = new PdfPrinter(fonts);
+
+    const fullAddress = [prop.address_line1, prop.city, prop.state, prop.zip].filter(Boolean).join(', ');
+
+    const tableBody = [
+      [
+        { text: 'Date', style: 'tableHeader' },
+        { text: 'Type', style: 'tableHeader' },
+        { text: 'Hail Size (in)', style: 'tableHeader' },
+        { text: 'Wind Speed (mph)', style: 'tableHeader' },
+        { text: 'Source', style: 'tableHeader' },
+      ],
+    ];
+
+    for (const ev of events) {
+      const date = ev.event_start ? new Date(ev.event_start).toLocaleDateString('en-US') : '—';
+      const types = [];
+      if (ev.hail_size_max_in && Number(ev.hail_size_max_in) > 0) types.push('Hail');
+      if (ev.wind_speed_max_mph && Number(ev.wind_speed_max_mph) > 0) types.push('Wind');
+      if (ev.raw_data?.event_type?.toLowerCase().includes('tornado')) types.push('Tornado');
+      if (types.length === 0) types.push(ev.source || 'Storm');
+
+      tableBody.push([
+        date,
+        types.join(', '),
+        ev.hail_size_max_in ? String(ev.hail_size_max_in) : '—',
+        ev.wind_speed_max_mph ? String(ev.wind_speed_max_mph) : '—',
+        ev.source || '—',
+      ]);
+    }
+
+    const docDefinition = {
+      defaultStyle: { font: 'Helvetica', fontSize: 10 },
+      content: [
+        { text: 'Weather History Report', style: 'header' },
+        { text: fullAddress, style: 'subheader' },
+        { text: `${events.length} storm event${events.length !== 1 ? 's' : ''} within 5 miles`, style: 'meta' },
+        { text: ' ' },
+        events.length > 0
+          ? {
+              table: {
+                headerRows: 1,
+                widths: ['auto', 'auto', 'auto', 'auto', 'auto'],
+                body: tableBody,
+              },
+              layout: 'lightHorizontalLines',
+            }
+          : { text: 'No storm events found near this property.', italics: true },
+        { text: ' ' },
+        { text: `Generated on ${new Date().toLocaleDateString('en-US')} by StormLeads`, style: 'footer' },
+      ],
+      styles: {
+        header: { fontSize: 18, bold: true, marginBottom: 4 },
+        subheader: { fontSize: 12, color: '#555', marginBottom: 2 },
+        meta: { fontSize: 10, color: '#888', marginBottom: 10 },
+        tableHeader: { bold: true, fontSize: 10, fillColor: '#f0f0f0' },
+        footer: { fontSize: 8, color: '#999', marginTop: 20 },
+      },
+    };
+
+    const pdfDoc = printer.createPdfKitDocument(docDefinition);
+
+    const chunks = [];
+    pdfDoc.on('data', chunk => chunks.push(chunk));
+    pdfDoc.on('end', () => {
+      const pdfBuffer = Buffer.concat(chunks);
+      const safeAddr = (prop.address_line1 || 'property').replace(/[^a-zA-Z0-9]/g, '-').substring(0, 50);
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="weather-history-${safeAddr}.pdf"`,
+        'Content-Length': pdfBuffer.length,
+      });
+      res.send(pdfBuffer);
+    });
+    pdfDoc.end();
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

@@ -19,6 +19,8 @@ import {
   UserMinusIcon,
   ArrowsPointingOutIcon,
   CheckBadgeIcon,
+  CloudIcon,
+  ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
 
 function cleanAddr(str) {
@@ -127,6 +129,10 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   const [roofOutline, setRoofOutline] = useState([]);
   const [showStreetView, setShowStreetView] = useState(false);
   const [mapMode, setMapMode] = useState('street'); // 'street' | 'satellite' | 'adjust'
+  const [showWeatherHistory, setShowWeatherHistory] = useState(false);
+  const [weatherEvents, setWeatherEvents] = useState([]);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+  const [weatherError, setWeatherError] = useState('');
   const adjustMapRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -252,6 +258,40 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
       setTraceError(err.response?.data?.error || 'Trace failed. Check Settings > Skip Tracing.');
     } finally {
       setTracing(false);
+    }
+  };
+
+  const fetchWeatherHistory = async () => {
+    if (!lead?.property_id) return;
+    setWeatherLoading(true);
+    setWeatherError('');
+    try {
+      const { data } = await client.get(`/properties/${lead.property_id}/weather-history`);
+      setWeatherEvents(data);
+      setShowWeatherHistory(true);
+    } catch (err) {
+      setWeatherError(err.response?.data?.error || 'Failed to load weather history');
+    } finally {
+      setWeatherLoading(false);
+    }
+  };
+
+  const downloadWeatherPdf = async () => {
+    if (!lead?.property_id) return;
+    try {
+      const response = await client.get(`/properties/${lead.property_id}/weather-history/pdf`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = response.headers['content-disposition']?.match(/filename="(.+)"/)?.[1] || 'weather-history.pdf';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      // silent
     }
   };
 
@@ -657,6 +697,32 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 {tracing ? 'Tracing...' : (phone === '—' && email === '—') ? 'Run Trace' : 'Re-trace'}
               </button>
               {traceError && <div style={{ fontSize: 11, color: 'var(--accent-red)', marginTop: 4 }}>{traceError}</div>}
+            </div>
+          )}
+
+          {/* Storm History Button */}
+          {leadId && lead.property_id && (
+            <div style={{ marginTop: 'var(--space-sm)' }}>
+              <button
+                onClick={fetchWeatherHistory}
+                disabled={weatherLoading}
+                className="icon-spin-btn"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '6px 0', fontSize: 12, fontWeight: 600,
+                  background: 'none', border: 'none',
+                  color: 'var(--accent-blue)',
+                  cursor: weatherLoading ? 'not-allowed' : 'pointer',
+                  opacity: weatherLoading ? 0.5 : 0.85,
+                  transition: 'opacity 0.15s',
+                }}
+                onMouseEnter={e => { if (!weatherLoading) e.currentTarget.style.opacity = '1'; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = weatherLoading ? '0.5' : '0.85'; }}
+              >
+                <CloudIcon width={16} height={16} />
+                {weatherLoading ? 'Loading...' : 'Storm History'}
+              </button>
+              {weatherError && <div style={{ fontSize: 11, color: 'var(--accent-red)', marginTop: 4 }}>{weatherError}</div>}
             </div>
           )}
         </div>
@@ -1127,6 +1193,134 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
           }}
           onClose={() => setActiveModal(null)}
         />
+      )}
+
+      {/* Storm History Modal */}
+      {showWeatherHistory && createPortal(
+        <>
+          <div className="slide-over-backdrop" onClick={() => setShowWeatherHistory(false)} style={{ zIndex: 200 }} />
+          <div style={{
+            position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            zIndex: 201, width: 560, maxWidth: '90vw', maxHeight: '80vh',
+            borderRadius: 16, overflow: 'hidden',
+            background: 'oklch(0.18 0.01 260)', border: '1px solid oklch(1 0 0 / 0.1)',
+            boxShadow: '0 24px 48px oklch(0 0 0 / 0.5)',
+            display: 'flex', flexDirection: 'column',
+          }}>
+            <div style={{ padding: '20px 24px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>
+                  <CloudIcon width={18} height={18} style={{ verticalAlign: -3, marginRight: 6 }} />
+                  Storm History
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
+                  {weatherEvents.length} event{weatherEvents.length !== 1 ? 's' : ''} within 5 miles
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button
+                  onClick={downloadWeatherPdf}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                    background: 'var(--accent-blue)', border: 'none',
+                    color: '#fff', cursor: 'pointer',
+                  }}
+                >
+                  <ArrowDownTrayIcon width={14} height={14} />
+                  Download PDF
+                </button>
+                <button
+                  onClick={() => setShowWeatherHistory(false)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 4 }}
+                >
+                  <IconX />
+                </button>
+              </div>
+            </div>
+            <div style={{ overflowY: 'auto', padding: '0 24px 20px', flex: 1 }}>
+              {weatherEvents.length === 0 ? (
+                <div style={{ padding: '32px 0', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>
+                  No storm events found near this property.
+                </div>
+              ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid oklch(1 0 0 / 0.08)' }}>
+                      <th style={{ padding: '8px 8px 8px 0', textAlign: 'left', fontWeight: 600, color: 'var(--text-muted)', fontSize: 11 }}>Date</th>
+                      <th style={{ padding: '8px', textAlign: 'left', fontWeight: 600, color: 'var(--text-muted)', fontSize: 11 }}>Type</th>
+                      <th style={{ padding: '8px', textAlign: 'right', fontWeight: 600, color: 'var(--text-muted)', fontSize: 11 }}>Hail Size</th>
+                      <th style={{ padding: '8px', textAlign: 'right', fontWeight: 600, color: 'var(--text-muted)', fontSize: 11 }}>Wind Speed</th>
+                      <th style={{ padding: '8px 0 8px 8px', textAlign: 'right', fontWeight: 600, color: 'var(--text-muted)', fontSize: 11 }}>Source</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {weatherEvents.map(ev => {
+                      const hail = ev.hail_size_max_in ? Number(ev.hail_size_max_in) : 0;
+                      const wind = ev.wind_speed_max_mph ? Number(ev.wind_speed_max_mph) : 0;
+                      const isTornado = ev.raw_data?.event_type?.toLowerCase().includes('tornado');
+                      const types = [];
+                      if (hail > 0) types.push('Hail');
+                      if (wind > 0) types.push('Wind');
+                      if (isTornado) types.push('Tornado');
+                      if (types.length === 0) types.push(ev.source || 'Storm');
+
+                      // Severity color based on hail size
+                      let severityBg = 'transparent';
+                      let severityFg = 'var(--text-secondary)';
+                      if (isTornado) {
+                        severityBg = 'oklch(0.45 0.18 25 / 0.2)';
+                        severityFg = 'oklch(0.75 0.18 25)';
+                      } else if (hail >= 2) {
+                        severityBg = 'oklch(0.45 0.18 25 / 0.2)';
+                        severityFg = 'oklch(0.75 0.18 25)';
+                      } else if (hail >= 1) {
+                        severityBg = 'oklch(0.5 0.15 60 / 0.2)';
+                        severityFg = 'oklch(0.8 0.15 60)';
+                      } else if (hail > 0) {
+                        severityBg = 'oklch(0.55 0.15 95 / 0.2)';
+                        severityFg = 'oklch(0.82 0.15 95)';
+                      } else if (wind >= 75) {
+                        severityBg = 'oklch(0.45 0.18 25 / 0.2)';
+                        severityFg = 'oklch(0.75 0.18 25)';
+                      } else if (wind >= 58) {
+                        severityBg = 'oklch(0.5 0.15 60 / 0.2)';
+                        severityFg = 'oklch(0.8 0.15 60)';
+                      }
+
+                      return (
+                        <tr key={ev.id} style={{ borderBottom: '1px solid oklch(1 0 0 / 0.05)' }}>
+                          <td style={{ padding: '10px 8px 10px 0', color: 'var(--text-primary)', fontWeight: 500 }}>
+                            {ev.event_start ? new Date(ev.event_start).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
+                          </td>
+                          <td style={{ padding: '10px 8px' }}>
+                            <span style={{
+                              display: 'inline-block', padding: '2px 8px', borderRadius: 999,
+                              fontSize: 11, fontWeight: 600,
+                              background: severityBg, color: severityFg,
+                            }}>
+                              {types.join(' + ')}
+                            </span>
+                          </td>
+                          <td style={{ padding: '10px 8px', textAlign: 'right', color: hail > 0 ? 'var(--text-primary)' : 'var(--text-muted)', fontWeight: hail >= 1 ? 600 : 400 }}>
+                            {hail > 0 ? `${hail}"` : '—'}
+                          </td>
+                          <td style={{ padding: '10px 8px', textAlign: 'right', color: wind > 0 ? 'var(--text-primary)' : 'var(--text-muted)', fontWeight: wind >= 58 ? 600 : 400 }}>
+                            {wind > 0 ? `${wind} mph` : '—'}
+                          </td>
+                          <td style={{ padding: '10px 0 10px 8px', textAlign: 'right', color: 'var(--text-muted)', fontSize: 11 }}>
+                            {ev.source?.replace(/_/g, ' ') || '—'}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </>,
+        document.body
       )}
 
       {/* Billing Confirmation Modal */}
