@@ -2,28 +2,32 @@ import { useState } from 'react';
 import { IconLogOut } from './Icons';
 import { useAuth } from '../auth/AuthContext';
 
-import iconDashboard from '../assets/icons/App-Window-Pie-Chart--Streamline-Ultimate.svg';
-import iconPipeline from '../assets/icons/Business-Team-Goal--Streamline-Ultimate.svg';
-import iconLeads from '../assets/icons/Style-Three-Pin-Home--Streamline-Ultimate.svg';
-import iconStormMap from '../assets/icons/Rain-Umbrella-1--Streamline-Ultimate.svg';
-import iconAlerts from '../assets/icons/Cog-Double-2--Streamline-Ultimate.png';
-import iconTasks from '../assets/icons/Checklist--Streamline-Ultimate.svg';
-import iconEstimates from '../assets/icons/Accounting-Calculator-1--Streamline-Ultimate.svg';
-import iconSettings from '../assets/icons/Settings-Slider-Desktop-Horizontal--Streamline-Ultimate.svg';
+import {
+  ChartBarSquareIcon,
+  UserCircleIcon,
+  HomeModernIcon,
+  CloudIcon,
+  BellAlertIcon,
+  ClipboardDocumentCheckIcon,
+  DocumentTextIcon,
+  AdjustmentsHorizontalIcon,
+  ChartBarIcon,
+  WrenchIcon,
+  CalendarDaysIcon,
+} from '@heroicons/react/24/outline';
 import iconBrand from '../assets/icons/stormpipe-brand.jpg';
-import iconAdmin from '../assets/icons/Monitor-Graph-Line--Streamline-Ultimate.svg';
-import iconMaterials from '../assets/icons/Hammer-1--Streamline-Ultimate.png';
 const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: iconDashboard },
-  { id: 'storm-map', label: 'Storm Map', icon: iconStormMap },
-  { id: 'pipeline', label: 'Pipeline', icon: iconPipeline },
-  { id: 'leads', label: 'Leads', icon: iconLeads },
-  { id: 'estimates', label: 'Estimates', icon: iconEstimates },
-  { id: 'materials', label: 'Materials', icon: iconMaterials },
-  { id: 'tasks', label: 'Tasks', icon: iconTasks },
+  { id: 'dashboard', label: 'Dashboard', Icon: ChartBarSquareIcon },
+  { id: 'storm-map', label: 'Storm Map', Icon: CloudIcon },
+  { id: 'pipeline', label: 'Pipeline', Icon: UserCircleIcon },
+  { id: 'leads', label: 'Leads', Icon: HomeModernIcon },
+  { id: 'estimates', label: 'Estimates', Icon: DocumentTextIcon },
+  { id: 'materials', label: 'Materials', Icon: WrenchIcon },
+  { id: 'tasks', label: 'Tasks', Icon: ClipboardDocumentCheckIcon },
+  { id: 'calendar', label: 'Calendar', Icon: CalendarDaysIcon },
 ];
 
-const settingsItem = { id: 'settings', label: 'Settings', icon: iconSettings };
+const settingsItem = { id: 'settings', label: 'Settings', Icon: AdjustmentsHorizontalIcon };
 
 export default function Sidebar({ activeView, onNavigate }) {
   const { user, logout } = useAuth();
@@ -56,7 +60,7 @@ export default function Sidebar({ activeView, onNavigate }) {
             onClick={() => onNavigate(item.id)}
             title={collapsed ? item.label : undefined}
           >
-            <img src={item.icon} alt="" width="20" height="20" className="nav-link__icon" style={item.invert ? { filter: 'invert(1)' } : undefined} />
+            <item.Icon width={20} height={20} className="nav-link__icon" />
             {!collapsed && item.label}
           </button>
         ))}
@@ -69,7 +73,7 @@ export default function Sidebar({ activeView, onNavigate }) {
         onClick={() => onNavigate(settingsItem.id)}
         title={collapsed ? settingsItem.label : undefined}
       >
-        <img src={settingsItem.icon} alt="" width="20" height="20" className="nav-link__icon" />
+        <settingsItem.Icon width={20} height={20} className="nav-link__icon" />
         {!collapsed && settingsItem.label}
       </button>
 
@@ -82,7 +86,7 @@ export default function Sidebar({ activeView, onNavigate }) {
             color: activeView === 'admin' ? 'oklch(0.72 0.18 250)' : 'var(--text-muted)',
           }}
         >
-          <img src={iconAdmin} alt="" width="20" height="20" className="nav-link__icon" />
+          <ChartBarIcon width={20} height={20} className="nav-link__icon" />
           {!collapsed && 'Admin'}
         </button>
       )}

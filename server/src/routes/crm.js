@@ -614,4 +614,79 @@ router.delete('/prospect-lists/:id', async (req, res, next) => {
   }
 });
 
+// ============================================================
+// CALENDAR
+// ============================================================
+
+// GET /api/crm/calendar?start=ISO&end=ISO
+router.get('/calendar', async (req, res, next) => {
+  try {
+    const { start, end } = req.query;
+    if (!start || !end) return res.status(400).json({ error: 'start and end query params required' });
+
+    const colorMap = {
+      task: 'oklch(0.7 0.15 220)',
+      call: 'oklch(0.75 0.18 145)',
+      email: 'oklch(0.7 0.15 280)',
+      door_knock: 'oklch(0.75 0.15 55)',
+    };
+
+    // Query tasks in range
+    const { rows: tasks } = await pool.query(
+      `SELECT t.id, t.title, t.due_date, t.priority, t.status, t.lead_id,
+              l.contact_name, l.address
+       FROM tasks t
+       LEFT JOIN leads l ON t.lead_id = l.id
+       WHERE t.tenant_id = $1
+         AND t.due_date BETWEEN $2 AND $3
+       ORDER BY t.due_date`,
+      [req.tenantId, start, end]
+    );
+
+    // Query activities in range
+    const { rows: activities } = await pool.query(
+      `SELECT a.id, a.type, a.subject, a.created_at, a.lead_id,
+              l.contact_name, l.address
+       FROM activities a
+       LEFT JOIN leads l ON a.lead_id = l.id
+       WHERE a.tenant_id = $1
+         AND a.created_at BETWEEN $2 AND $3
+         AND a.type IN ('call', 'door_knock', 'email')
+       ORDER BY a.created_at`,
+      [req.tenantId, start, end]
+    );
+
+    const events = [
+      ...tasks.map(t => ({
+        id: `task-${t.id}`,
+        title: t.title || 'Untitled Task',
+        start: t.due_date,
+        type: 'task',
+        color: colorMap.task,
+        leadId: t.lead_id,
+        contactName: t.contact_name,
+        address: t.address,
+        priority: t.priority,
+        status: t.status,
+      })),
+      ...activities.map(a => ({
+        id: `activity-${a.id}`,
+        title: a.subject || `${a.type} activity`,
+        start: a.created_at,
+        type: a.type,
+        color: colorMap[a.type] || colorMap.task,
+        leadId: a.lead_id,
+        contactName: a.contact_name,
+        address: a.address,
+        priority: null,
+        status: null,
+      })),
+    ];
+
+    res.json(events);
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

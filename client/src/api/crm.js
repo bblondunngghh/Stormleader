@@ -104,3 +104,10 @@ export const deleteProspectList = (listId) =>
 
 export const removeProspectListItem = (listId, propertyId) =>
   client.delete(`/crm/prospect-lists/${listId}/items/${propertyId}`);
+
+// ============================================================
+// CALENDAR
+// ============================================================
+
+export const getCalendarEvents = (start, end) =>
+  client.get('/crm/calendar', { params: { start, end } });

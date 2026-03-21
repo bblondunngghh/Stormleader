@@ -3,6 +3,7 @@ import { lazy, Suspense, useMemo, useCallback } from 'react';
 import ProtectedRoute from './auth/ProtectedRoute';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
+import BottomTabBar from './components/BottomTabBar';
 import ToastContainer from './components/Toast';
 
 // Lazy-load all pages so only the active route's code is downloaded
@@ -19,6 +20,7 @@ const EstimatesView = lazy(() => import('./components/EstimatesView'));
 const SettingsView = lazy(() => import('./components/SettingsView'));
 const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 const MaterialsView = lazy(() => import('./components/MaterialsView'));
+const CalendarView = lazy(() => import('./components/CalendarView'));
 const PublicEstimate = lazy(() => import('./components/PublicEstimate'));
 
 function PageLoader() {
@@ -37,6 +39,7 @@ const viewRoutes = {
   'storm-map': '/storm-map',
   alerts: '/alerts',
   tasks: '/tasks',
+  calendar: '/calendar',
   estimates: '/estimates',
   materials: '/materials',
   settings: '/settings',
@@ -72,6 +75,7 @@ function AppShell() {
           <Route path="/storm-map" element={<StormMap />} />
           <Route path="/alerts" element={<AlertSettings />} />
           <Route path="/tasks" element={<TasksView />} />
+          <Route path="/calendar" element={<CalendarView />} />
           <Route path="/estimates" element={<EstimatesView />} />
           <Route path="/materials" element={<MaterialsView />} />
           <Route path="/settings" element={<SettingsView />} />
@@ -79,6 +83,7 @@ function AppShell() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
+      <BottomTabBar activeView={activeView} onNavigate={handleNavigate} />
     </div>
   );
 }
