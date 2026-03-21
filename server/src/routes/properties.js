@@ -488,7 +488,9 @@ router.get('/:id/weather-history/pdf', async (req, res, next) => {
       [propertyId]
     );
 
-    const PdfPrinter = (await import('pdfmake')).default;
+    const { createRequire } = await import('module');
+    const require = createRequire(import.meta.url);
+    const PdfPrinter = require('pdfmake');
     const fonts = {
       Helvetica: {
         normal: 'Helvetica',
