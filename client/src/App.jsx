@@ -23,6 +23,7 @@ const MaterialsView = lazy(() => import('./components/MaterialsView'));
 const CalendarView = lazy(() => import('./components/CalendarView'));
 const InvoicesView = lazy(() => import('./components/InvoicesView'));
 const PublicEstimate = lazy(() => import('./components/PublicEstimate'));
+const CanvassingMode = lazy(() => import('./components/CanvassingMode'));
 
 function PageLoader() {
   return (
@@ -41,6 +42,7 @@ const viewRoutes = {
   alerts: '/alerts',
   tasks: '/tasks',
   calendar: '/calendar',
+  canvassing: '/canvassing',
   estimates: '/estimates',
   invoices: '/invoices',
   materials: '/materials',
@@ -78,6 +80,7 @@ function AppShell() {
           <Route path="/alerts" element={<AlertSettings />} />
           <Route path="/tasks" element={<TasksView />} />
           <Route path="/calendar" element={<CalendarView />} />
+          <Route path="/canvassing" element={<CanvassingMode />} />
           <Route path="/estimates" element={<EstimatesView />} />
           <Route path="/invoices" element={<InvoicesView />} />
           <Route path="/materials" element={<MaterialsView />} />

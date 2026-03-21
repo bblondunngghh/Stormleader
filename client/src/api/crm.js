@@ -145,3 +145,17 @@ export const updateAutomation = (id, data) => client.patch(`/crm/automations/${i
 export const deleteAutomation = (id) => client.delete(`/crm/automations/${id}`);
 
 export const toggleAutomation = (id) => client.patch(`/crm/automations/${id}/toggle`);
+
+// ============================================================
+// CANVASSING
+// ============================================================
+
+export const getCanvassPins = (params) => client.get('/crm/canvass-pins', { params });
+
+export const createCanvassPin = (data) => client.post('/crm/canvass-pins', data);
+
+export const updateCanvassPin = (id, data) => client.patch(`/crm/canvass-pins/${id}`, data);
+
+export const convertCanvassPin = (id) => client.post(`/crm/canvass-pins/${id}/convert`);
+
+export const getCanvassStats = (date) => client.get('/crm/canvass-pins/stats', { params: { date } });
