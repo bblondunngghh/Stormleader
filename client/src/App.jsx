@@ -21,6 +21,7 @@ const SettingsView = lazy(() => import('./components/SettingsView'));
 const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 const MaterialsView = lazy(() => import('./components/MaterialsView'));
 const CalendarView = lazy(() => import('./components/CalendarView'));
+const InvoicesView = lazy(() => import('./components/InvoicesView'));
 const PublicEstimate = lazy(() => import('./components/PublicEstimate'));
 
 function PageLoader() {
@@ -41,6 +42,7 @@ const viewRoutes = {
   tasks: '/tasks',
   calendar: '/calendar',
   estimates: '/estimates',
+  invoices: '/invoices',
   materials: '/materials',
   settings: '/settings',
   admin: '/admin',
@@ -77,6 +79,7 @@ function AppShell() {
           <Route path="/tasks" element={<TasksView />} />
           <Route path="/calendar" element={<CalendarView />} />
           <Route path="/estimates" element={<EstimatesView />} />
+          <Route path="/invoices" element={<InvoicesView />} />
           <Route path="/materials" element={<MaterialsView />} />
           <Route path="/settings" element={<SettingsView />} />
           <Route path="/admin" element={<AdminDashboard />} />
