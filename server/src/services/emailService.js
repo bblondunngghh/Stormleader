@@ -103,3 +103,29 @@ export async function sendEstimateEmail(to, estimate, appUrl, { senderEmail } = 
   logger.info({ to, messageId: result.messageId, estimateId: estimate.id }, 'Estimate email sent');
   return result;
 }
+
+/**
+ * Send a simple automation-triggered email to a lead contact.
+ */
+export async function sendAutomationEmail(to, { subject, body, contactName }) {
+  const transport = getTransporter();
+  const from = config.SMTP_FROM || '"StormLeads" <noreply@stormleads.io>';
+
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
+      <p style="color: #333; font-size: 16px; line-height: 1.6;">
+        Hi${contactName ? ' ' + contactName.split(' ')[0] : ''},
+      </p>
+      <div style="color: #333; font-size: 16px; line-height: 1.6; white-space: pre-wrap;">${body}</div>
+    </div>
+  `;
+
+  if (!transport) {
+    logger.info({ to, from, subject }, 'Automation email (SMTP not configured, logging only)');
+    return { messageId: `log-${Date.now()}`, logged: true };
+  }
+
+  const result = await transport.sendMail({ from, to, subject, html, text: body });
+  logger.info({ to, messageId: result.messageId }, 'Automation email sent');
+  return result;
+}

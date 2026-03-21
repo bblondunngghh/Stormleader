@@ -4,6 +4,8 @@ import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
 import * as crmService from '../services/crmService.js';
 import pool from '../db/pool.js';
+import { fireTrigger } from '../services/automationEngine.js';
+import logger from '../utils/logger.js';
 
 const router = Router();
 router.use(authenticate);
@@ -85,6 +87,13 @@ router.post('/leads', async (req, res, next) => {
         prop.address_line1 || null, prop.city || null,
       ]
     );
+
+    // Fire lead_created automation trigger (fire-and-forget)
+    fireTrigger(req.tenantId, 'lead_created', {
+      leadId: rows[0].id,
+      source,
+    }).catch(err => logger.error({ err }, 'Automation trigger failed'));
+
     res.status(201).json(rows[0]);
   } catch (err) {
     next(err);
@@ -115,6 +124,13 @@ router.post('/leads/quick', async (req, res, next) => {
         address || null, city || null, state || null, zip || null,
       ]
     );
+
+    // Fire lead_created automation trigger (fire-and-forget)
+    fireTrigger(req.tenantId, 'lead_created', {
+      leadId: rows[0].id,
+      source: source || 'manual',
+    }).catch(err => logger.error({ err }, 'Automation trigger failed'));
+
     res.status(201).json(rows[0]);
   } catch (err) {
     next(err);
@@ -135,8 +151,28 @@ router.get('/leads/:id', async (req, res, next) => {
 // PATCH /api/crm/leads/:id — Update lead
 router.patch('/leads/:id', async (req, res, next) => {
   try {
+    // Fetch old stage before update for automation triggers
+    let oldStage = null;
+    if (req.body.stage) {
+      const { rows: old } = await pool.query(
+        `SELECT stage FROM leads WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL`,
+        [req.params.id, req.tenantId]
+      );
+      if (old.length) oldStage = old[0].stage;
+    }
+
     const lead = await crmService.updateLead(req.tenantId, req.params.id, req.body);
     if (!lead) return res.status(404).json({ error: 'Lead not found' });
+
+    // Fire stage_changed automation trigger (fire-and-forget)
+    if (req.body.stage && req.body.stage !== oldStage) {
+      fireTrigger(req.tenantId, 'stage_changed', {
+        leadId: req.params.id,
+        fromStage: oldStage,
+        toStage: req.body.stage,
+      }).catch(err => logger.error({ err }, 'Automation trigger failed'));
+    }
+
     res.json(lead);
   } catch (err) {
     next(err);

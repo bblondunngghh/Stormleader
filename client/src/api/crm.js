@@ -111,3 +111,17 @@ export const removeProspectListItem = (listId, propertyId) =>
 
 export const getCalendarEvents = (start, end) =>
   client.get('/crm/calendar', { params: { start, end } });
+
+// ============================================================
+// AUTOMATIONS
+// ============================================================
+
+export const getAutomations = () => client.get('/crm/automations');
+
+export const createAutomation = (data) => client.post('/crm/automations', data);
+
+export const updateAutomation = (id, data) => client.patch(`/crm/automations/${id}`, data);
+
+export const deleteAutomation = (id) => client.delete(`/crm/automations/${id}`);
+
+export const toggleAutomation = (id) => client.patch(`/crm/automations/${id}/toggle`);

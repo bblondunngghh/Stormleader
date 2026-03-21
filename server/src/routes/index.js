@@ -22,6 +22,7 @@ import paymentsRouter from './payments.js';
 import materialsRouter from './materials.js';
 import financingRouter from './financing.js';
 import hearthWebhookRouter from './hearthWebhook.js';
+import automationsRouter from './automations.js';
 
 const router = Router();
 
@@ -47,6 +48,7 @@ router.use('/admin', adminRouter);
 router.use('/payments', paymentsRouter);
 router.use('/materials', materialsRouter);
 router.use('/crm/financing', financingRouter);
+router.use('/crm/automations', automationsRouter);
 router.use('/webhooks/hearth', hearthWebhookRouter);
 
 export default router;

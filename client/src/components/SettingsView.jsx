@@ -13,13 +13,14 @@ import client from '../api/client';
 import * as onboardingApi from '../api/onboarding';
 import * as paymentsApi from '../api/payments';
 import { showToast } from './Toast';
+import AutomationSettings from './AutomationSettings';
 
 export default function SettingsView() {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState(() => {
     const urlTab = searchParams.get('tab');
-    return ['profile', 'company', 'billing', 'payments', 'team', 'alerts', 'notifications', 'financing'].includes(urlTab) ? urlTab : 'profile';
+    return ['profile', 'company', 'billing', 'payments', 'team', 'alerts', 'notifications', 'financing', 'automations'].includes(urlTab) ? urlTab : 'profile';
   });
 
   const tabs = [
@@ -31,6 +32,7 @@ export default function SettingsView() {
     { id: 'alerts', label: 'Storm Alerts' },
     { id: 'notifications', label: 'Notifications' },
     { id: 'financing', label: 'Financing' },
+    { id: 'automations', label: 'Automations' },
   ];
 
   return (
@@ -58,6 +60,7 @@ export default function SettingsView() {
       {tab === 'alerts' && <AlertsTab />}
       {tab === 'notifications' && <NotificationsTab />}
       {tab === 'financing' && <FinancingTab />}
+      {tab === 'automations' && <AutomationSettings />}
     </div>
   );
 }
