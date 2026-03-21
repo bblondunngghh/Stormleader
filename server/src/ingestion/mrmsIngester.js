@@ -77,6 +77,7 @@ export async function ingestMRMS(dateStr) {
 
   const baseName = latestKey.split('/').pop().replace('.grib2.gz', '');
   let inserted = 0;
+  const insertedIds = [];
 
   for (const feature of features) {
     const hailSize = feature.properties.hail_size_max_in;
@@ -84,20 +85,22 @@ export async function ingestMRMS(dateStr) {
     const geojson = JSON.stringify(feature.geometry);
 
     try {
-      const { rowCount } = await pool.query(
+      const { rows: insertedRows, rowCount } = await pool.query(
         `INSERT INTO storm_events (source, source_id, geom, hail_size_max_in, event_start, raw_data)
          VALUES ('mrms_mesh', $1, ST_Simplify(ST_Intersection(ST_SetSRID(ST_GeomFromGeoJSON($2), 4326), ${TX_CLIP}), 0.0001), $3, $4, $5)
-         ON CONFLICT (source, source_id) DO NOTHING`,
+         ON CONFLICT (source, source_id) DO NOTHING
+         RETURNING id`,
         [sourceId, geojson, hailSize, eventStart, JSON.stringify({ file: latestKey, threshold: hailSize })]
       );
       inserted += rowCount;
+      if (insertedRows.length > 0) insertedIds.push(insertedRows[0].id);
     } catch (err) {
       logger.warn({ err: err.message }, `Failed to insert contour at ${hailSize}in`);
     }
   }
 
   logger.info(`MRMS ingestion complete: ${inserted} swath polygons inserted for ${dateStr}`);
-  return inserted;
+  return { inserted, insertedIds };
 }
 
 /**

@@ -9,6 +9,7 @@ import { backfillSPC } from './spcHistoryIngester.js';
 import { checkAndAlert } from '../services/alertService.js';
 import { correctAllPending } from '../services/windDriftService.js';
 import { autoImportForStorms } from '../services/countyService.js';
+import { checkImpactedAssetsForEvents } from '../services/impactedAssetService.js';
 
 export function startScheduler() {
   if (config.NODE_ENV === 'test') {
@@ -20,8 +21,13 @@ export function startScheduler() {
   cron.schedule('*/30 * * * *', async () => {
     logger.info('Scheduler: running MRMS ingestion');
     try {
-      await ingestMRMS();
+      const result = await ingestMRMS();
       await checkAndAlert();
+      if (result.insertedIds?.length > 0) {
+        checkImpactedAssetsForEvents(result.insertedIds).catch(err =>
+          logger.error({ err }, 'Impacted asset check failed after MRMS ingestion')
+        );
+      }
     } catch (err) {
       logger.error({ err }, 'Scheduler: MRMS ingestion failed');
     }
@@ -31,8 +37,13 @@ export function startScheduler() {
   cron.schedule('0 * * * *', async () => {
     logger.info('Scheduler: running NWS ingestion');
     try {
-      await ingestNWS();
+      const result = await ingestNWS();
       await checkAndAlert();
+      if (result?.insertedIds?.length > 0) {
+        checkImpactedAssetsForEvents(result.insertedIds).catch(err =>
+          logger.error({ err }, 'Impacted asset check failed after NWS ingestion')
+        );
+      }
     } catch (err) {
       logger.error({ err }, 'Scheduler: NWS ingestion failed');
     }
@@ -42,9 +53,14 @@ export function startScheduler() {
   cron.schedule('0 */2 * * *', async () => {
     logger.info('Scheduler: running SPC ingestion');
     try {
-      await ingestSPC();
+      const result = await ingestSPC();
       await correctAllPending();
       await checkAndAlert();
+      if (result.insertedIds?.length > 0) {
+        checkImpactedAssetsForEvents(result.insertedIds).catch(err =>
+          logger.error({ err }, 'Impacted asset check failed after SPC ingestion')
+        );
+      }
     } catch (err) {
       logger.error({ err }, 'Scheduler: SPC ingestion failed');
     }
@@ -103,16 +119,26 @@ export function startScheduler() {
   setTimeout(async () => {
     try {
       logger.info('Scheduler: running immediate NWS ingestion on startup');
-      await ingestNWS();
+      const nwsResult = await ingestNWS();
       logger.info('Scheduler: startup NWS ingestion complete');
+      if (nwsResult?.insertedIds?.length > 0) {
+        checkImpactedAssetsForEvents(nwsResult.insertedIds).catch(err =>
+          logger.error({ err }, 'Impacted asset check failed after startup NWS ingestion')
+        );
+      }
     } catch (err) {
       logger.error({ err }, 'Scheduler: startup NWS ingestion failed');
     }
 
     try {
       logger.info('Scheduler: running immediate SPC ingestion on startup');
-      await ingestSPC();
+      const spcResult = await ingestSPC();
       logger.info('Scheduler: startup SPC ingestion complete');
+      if (spcResult.insertedIds?.length > 0) {
+        checkImpactedAssetsForEvents(spcResult.insertedIds).catch(err =>
+          logger.error({ err }, 'Impacted asset check failed after startup SPC ingestion')
+        );
+      }
     } catch (err) {
       logger.error({ err }, 'Scheduler: startup SPC ingestion failed');
     }
@@ -130,8 +156,13 @@ export function startScheduler() {
       if (deleted > 0) {
         logger.info(`Scheduler: deleted ${deleted} SPC point records for re-ingestion as polygons`);
       }
-      const count = await backfillSPC(7);
-      logger.info(`Scheduler: startup backfill complete — ${count} reports processed`);
+      const backfillResult = await backfillSPC(7);
+      logger.info(`Scheduler: startup backfill complete — ${backfillResult.inserted} reports processed`);
+      if (backfillResult.insertedIds?.length > 0) {
+        checkImpactedAssetsForEvents(backfillResult.insertedIds).catch(err =>
+          logger.error({ err }, 'Impacted asset check failed after startup SPC backfill')
+        );
+      }
     } catch (err) {
       logger.error({ err }, 'Scheduler: startup SPC backfill failed');
     }

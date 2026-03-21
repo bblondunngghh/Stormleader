@@ -23,6 +23,7 @@ export async function ingestSPCDate(date) {
   ];
 
   let totalInserted = 0;
+  const allInsertedIds = [];
 
   for (const { file, parseRow } of types) {
     const url = `${SPC_BASE}/${file}`;
@@ -67,27 +68,31 @@ export async function ingestSPCDate(date) {
       if (newReports.length === 0) continue;
 
       let inserted = 0;
+      const insertedIds = [];
       for (const event of newReports) {
-        const { rowCount } = await pool.query(
+        const { rows: insertedRows, rowCount } = await pool.query(
           `INSERT INTO storm_events (source, source_id, geom, hail_size_max_in, wind_speed_max_mph, event_start, raw_data)
            VALUES ($1, $2,
              ST_Simplify(ST_Buffer(ST_SetSRID(ST_GeomFromGeoJSON($3), 4326)::geography, $8)::geometry, 0.0001),
              $4, $5, $6, $7)
-           ON CONFLICT (source, source_id) DO NOTHING`,
+           ON CONFLICT (source, source_id) DO NOTHING
+           RETURNING id`,
           [event.source, event.sourceId, event.geojson, event.hailSize, event.windSpeed, event.eventStart, JSON.stringify(event.rawData), event.bufferMeters]
         );
         inserted += rowCount;
+        if (insertedRows.length > 0) insertedIds.push(insertedRows[0].id);
       }
       if (inserted > 0) {
         logger.info(`Ingested ${inserted} new reports from ${file} (${existingIds.size} already existed)`);
       }
       totalInserted += inserted;
+      allInsertedIds.push(...insertedIds);
     } catch (err) {
       logger.error({ err }, `Failed to ingest ${file}`);
     }
   }
 
-  return totalInserted;
+  return { inserted: totalInserted, insertedIds: allInsertedIds };
 }
 
 function parseHailRow(line, date) {
@@ -193,15 +198,17 @@ function makeTimestamp(date, time) {
 export async function backfillSPC(days = 30) {
   logger.info(`Backfilling SPC reports for past ${days} days`);
   let total = 0;
+  const allInsertedIds = [];
   const now = new Date();
 
   for (let i = 0; i < days; i++) {
     const date = new Date(now);
     date.setDate(date.getDate() - i);
-    const count = await ingestSPCDate(date);
-    total += count;
+    const result = await ingestSPCDate(date);
+    total += result.inserted;
+    allInsertedIds.push(...result.insertedIds);
   }
 
   logger.info(`SPC backfill complete: ${total} total reports ingested`);
-  return total;
+  return { inserted: total, insertedIds: allInsertedIds };
 }

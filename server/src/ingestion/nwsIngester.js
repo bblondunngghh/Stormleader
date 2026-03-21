@@ -163,6 +163,7 @@ export async function ingestNWS() {
   logger.info(`${existingIds.size} of ${alertIds.length} alerts already in DB — skipping those`);
 
   let inserted = 0;
+  const insertedIds = [];
   let skippedNoGeom = 0;
   let skippedExisting = 0;
   for (const feature of features) {
@@ -218,14 +219,15 @@ export async function ingestNWS() {
     )`;
 
     try {
-      const { rowCount } = await pool.query(
+      const { rows: insertedRows, rowCount } = await pool.query(
         `INSERT INTO storm_events (source, source_id, geom, hail_size_max_in, wind_speed_max_mph, event_start, event_end, raw_data)
          VALUES ('nws_alert', $1, ${geomSQL}, $3, $4, $5, $6, $7)
          ON CONFLICT (source, source_id) DO UPDATE SET
            geom = EXCLUDED.geom,
            hail_size_max_in = COALESCE(EXCLUDED.hail_size_max_in, storm_events.hail_size_max_in),
            wind_speed_max_mph = COALESCE(EXCLUDED.wind_speed_max_mph, storm_events.wind_speed_max_mph),
-           raw_data = EXCLUDED.raw_data`,
+           raw_data = EXCLUDED.raw_data
+         RETURNING id`,
         [
           alertId,
           geojson,
@@ -249,6 +251,7 @@ export async function ingestNWS() {
         ]
       );
       inserted += rowCount;
+      if (insertedRows.length > 0) insertedIds.push(insertedRows[0].id);
     } catch (err) {
       logger.error({ err, alertId, event: props.event }, 'Failed to insert NWS alert');
     }
@@ -258,5 +261,6 @@ export async function ingestNWS() {
     logger.warn(`NWS ingestion: skipped ${skippedNoGeom} alerts with no resolvable geometry`);
   }
   logger.info(`NWS ingestion complete: ${inserted} new, ${skippedExisting} already existed, ${skippedNoGeom} no geometry`);
+  return { inserted, insertedIds };
 }
 

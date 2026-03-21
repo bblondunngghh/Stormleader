@@ -95,13 +95,15 @@ async function ingestHail() {
   logger.info(`SPC hail: ${reports.length} TX reports, ${existingIds.size} already exist, ${newReports.length} new`);
 
   let inserted = 0;
+  const insertedIds = [];
   for (const r of newReports) {
-    const { rowCount } = await pool.query(
+    const { rows: insertedRows, rowCount } = await pool.query(
       `INSERT INTO storm_events (source, source_id, geom, hail_size_max_in, event_start, raw_data)
        VALUES ('spc_report', $1,
          ST_Simplify(ST_Buffer(ST_SetSRID(ST_GeomFromGeoJSON($2), 4326)::geography, $6)::geometry, 0.0001),
          $3, $4, $5)
-       ON CONFLICT (source, source_id) DO NOTHING`,
+       ON CONFLICT (source, source_id) DO NOTHING
+       RETURNING id`,
       [
         r.sourceId,
         r.geojson,
@@ -112,10 +114,11 @@ async function ingestHail() {
       ]
     );
     inserted += rowCount;
+    if (insertedRows.length > 0) insertedIds.push(insertedRows[0].id);
   }
 
   logger.info(`SPC hail ingestion complete: ${inserted} new reports inserted`);
-  return inserted;
+  return { inserted, insertedIds };
 }
 
 async function ingestWind() {
@@ -174,13 +177,15 @@ async function ingestWind() {
   logger.info(`SPC wind: ${reports.length} TX reports, ${existingIds.size} already exist, ${newReports.length} new`);
 
   let inserted = 0;
+  const insertedIds = [];
   for (const r of newReports) {
-    const { rowCount } = await pool.query(
+    const { rows: insertedRows, rowCount } = await pool.query(
       `INSERT INTO storm_events (source, source_id, geom, wind_speed_max_mph, event_start, raw_data)
        VALUES ('spc_report', $1,
          ST_Simplify(ST_Buffer(ST_SetSRID(ST_GeomFromGeoJSON($2), 4326)::geography, $6)::geometry, 0.0001),
          $3, $4, $5)
-       ON CONFLICT (source, source_id) DO NOTHING`,
+       ON CONFLICT (source, source_id) DO NOTHING
+       RETURNING id`,
       [
         r.sourceId,
         r.geojson,
@@ -191,14 +196,19 @@ async function ingestWind() {
       ]
     );
     inserted += rowCount;
+    if (insertedRows.length > 0) insertedIds.push(insertedRows[0].id);
   }
 
   logger.info(`SPC wind ingestion complete: ${inserted} new reports inserted`);
-  return inserted;
+  return { inserted, insertedIds };
 }
 
 export async function ingestSPC() {
-  const hailCount = await ingestHail();
-  const windCount = await ingestWind();
-  return { hail: hailCount, wind: windCount };
+  const hailResult = await ingestHail();
+  const windResult = await ingestWind();
+  return {
+    hail: hailResult.inserted,
+    wind: windResult.inserted,
+    insertedIds: [...hailResult.insertedIds, ...windResult.insertedIds],
+  };
 }
