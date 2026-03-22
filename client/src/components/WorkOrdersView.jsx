@@ -114,19 +114,19 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
           <label style={labelStyle}>
             Title
             <input value={form.title} onChange={e => handleChange('title', e.target.value)}
-              style={inputStyle} />
+              className="form-input" style={{ marginTop: 4 }} />
           </label>
 
           <label style={labelStyle}>
             Description
             <textarea value={form.description} onChange={e => handleChange('description', e.target.value)}
-              rows={2} style={{ ...inputStyle, resize: 'vertical' }} />
+              rows={2} className="form-input" style={{ height: 'auto', minHeight: 60, marginTop: 4, resize: 'vertical' }} />
           </label>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)' }}>
             <label style={labelStyle}>
               Assigned To
-              <select value={form.assigned_to} onChange={e => handleChange('assigned_to', e.target.value)} style={inputStyle}>
+              <select value={form.assigned_to} onChange={e => handleChange('assigned_to', e.target.value)} className="form-input" style={{ marginTop: 4 }}>
                 <option value="">Unassigned</option>
                 {teamMembers.map(m => (
                   <option key={m.id} value={m.id}>
@@ -138,22 +138,22 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
             <label style={labelStyle}>
               Crew Name
               <input value={form.crew_name} onChange={e => handleChange('crew_name', e.target.value)}
-                style={inputStyle} placeholder="e.g. Crew A" />
+                className="form-input" style={{ marginTop: 4 }} placeholder="e.g. Crew A" />
             </label>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-md)' }}>
             <label style={labelStyle}>
               Date
-              <input type="date" value={form.scheduled_date} onChange={e => handleChange('scheduled_date', e.target.value)} style={inputStyle} />
+              <input type="date" value={form.scheduled_date} onChange={e => handleChange('scheduled_date', e.target.value)} className="form-input" style={{ marginTop: 4 }} />
             </label>
             <label style={labelStyle}>
               Start Time
-              <input type="time" value={form.scheduled_time_start} onChange={e => handleChange('scheduled_time_start', e.target.value)} style={inputStyle} />
+              <input type="time" value={form.scheduled_time_start} onChange={e => handleChange('scheduled_time_start', e.target.value)} className="form-input" style={{ marginTop: 4 }} />
             </label>
             <label style={labelStyle}>
               End Time
-              <input type="time" value={form.scheduled_time_end} onChange={e => handleChange('scheduled_time_end', e.target.value)} style={inputStyle} />
+              <input type="time" value={form.scheduled_time_end} onChange={e => handleChange('scheduled_time_end', e.target.value)} className="form-input" style={{ marginTop: 4 }} />
             </label>
           </div>
 
@@ -182,7 +182,7 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
           <label style={labelStyle}>
             Notes
             <textarea value={form.notes} onChange={e => handleChange('notes', e.target.value)}
-              rows={3} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Internal notes..." />
+              rows={3} className="form-input" style={{ height: 'auto', minHeight: 80, marginTop: 4, resize: 'vertical' }} placeholder="Internal notes..." />
           </label>
 
           {/* Lead link */}
@@ -261,16 +261,16 @@ function CreateWorkOrderModal({ onClose, onCreate, teamMembers }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
           <label style={labelStyle}>
             Title *
-            <input value={form.title} onChange={e => handleChange('title', e.target.value)} style={inputStyle} placeholder="e.g. Roof Replacement" required />
+            <input value={form.title} onChange={e => handleChange('title', e.target.value)} className="form-input" style={{ marginTop: 4 }} placeholder="e.g. Roof Replacement" required />
           </label>
           <label style={labelStyle}>
             Description
-            <textarea value={form.description} onChange={e => handleChange('description', e.target.value)} rows={2} style={{ ...inputStyle, resize: 'vertical' }} />
+            <textarea value={form.description} onChange={e => handleChange('description', e.target.value)} rows={2} className="form-input" style={{ height: 'auto', minHeight: 60, marginTop: 4, resize: 'vertical' }} />
           </label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <label style={labelStyle}>
               Assigned To
-              <select value={form.assigned_to || ''} onChange={e => handleChange('assigned_to', e.target.value)} style={inputStyle}>
+              <select value={form.assigned_to || ''} onChange={e => handleChange('assigned_to', e.target.value)} className="form-input" style={{ marginTop: 4 }}>
                 <option value="">Unassigned</option>
                 {teamMembers.map(m => (
                   <option key={m.id} value={m.id}>
@@ -281,21 +281,21 @@ function CreateWorkOrderModal({ onClose, onCreate, teamMembers }) {
             </label>
             <label style={labelStyle}>
               Crew Name
-              <input value={form.crew_name} onChange={e => handleChange('crew_name', e.target.value)} style={inputStyle} placeholder="e.g. Crew A" />
+              <input value={form.crew_name} onChange={e => handleChange('crew_name', e.target.value)} className="form-input" style={{ marginTop: 4 }} placeholder="e.g. Crew A" />
             </label>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
             <label style={labelStyle}>
               Date
-              <input type="date" value={form.scheduled_date} onChange={e => handleChange('scheduled_date', e.target.value)} style={inputStyle} />
+              <input type="date" value={form.scheduled_date} onChange={e => handleChange('scheduled_date', e.target.value)} className="form-input" style={{ marginTop: 4 }} />
             </label>
             <label style={labelStyle}>
               Start
-              <input type="time" value={form.scheduled_time_start} onChange={e => handleChange('scheduled_time_start', e.target.value)} style={inputStyle} />
+              <input type="time" value={form.scheduled_time_start} onChange={e => handleChange('scheduled_time_start', e.target.value)} className="form-input" style={{ marginTop: 4 }} />
             </label>
             <label style={labelStyle}>
               End
-              <input type="time" value={form.scheduled_time_end} onChange={e => handleChange('scheduled_time_end', e.target.value)} style={inputStyle} />
+              <input type="time" value={form.scheduled_time_end} onChange={e => handleChange('scheduled_time_end', e.target.value)} className="form-input" style={{ marginTop: 4 }} />
             </label>
           </div>
         </div>
@@ -652,13 +652,6 @@ export default function WorkOrdersView() {
 // ============================================================
 // SHARED STYLES
 // ============================================================
-const inputStyle = {
-  display: 'block', width: '100%', marginTop: 4, padding: '8px 12px',
-  borderRadius: 10, border: '1px solid oklch(0.3 0.03 260)',
-  background: 'oklch(0.18 0.02 260)', color: 'var(--text-primary)',
-  fontSize: 13, outline: 'none', colorScheme: 'dark',
-};
-
 const labelStyle = {
   fontSize: 12, fontWeight: 600, color: 'var(--text-muted)',
 };

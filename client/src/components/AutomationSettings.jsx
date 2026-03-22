@@ -51,14 +51,6 @@ function actionLabel(type) {
   return ACTION_TYPES.find(t => t.value === type)?.label || type;
 }
 
-const inputStyle = {
-  width: '100%', padding: '8px 12px', borderRadius: 'var(--radius-sm)',
-  background: 'oklch(0.16 0.02 260 / 0.8)', border: '1px solid var(--glass-border)',
-  color: 'var(--text-primary)', fontSize: 13, outline: 'none', colorScheme: 'dark',
-};
-
-const selectStyle = { ...inputStyle, appearance: 'none', cursor: 'pointer' };
-
 const labelStyle = { fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 4, display: 'block' };
 
 export default function AutomationSettings() {
@@ -176,14 +168,14 @@ export default function AutomationSettings() {
             {/* Name */}
             <div style={{ gridColumn: '1 / -1' }}>
               <label style={labelStyle}>Rule Name</label>
-              <input style={inputStyle} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              <input className="form-input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 placeholder="e.g. Create follow-up task when sold" />
             </div>
 
             {/* Trigger Type */}
             <div>
               <label style={labelStyle}>When (Trigger)</label>
-              <select style={selectStyle} value={form.trigger_type}
+              <select className="form-input" value={form.trigger_type}
                 onChange={e => setForm(f => ({ ...f, trigger_type: e.target.value, trigger_config: {} }))}>
                 {TRIGGER_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
@@ -194,13 +186,13 @@ export default function AutomationSettings() {
               <label style={labelStyle}>Conditions</label>
               {form.trigger_type === 'stage_changed' && (
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <select style={{ ...selectStyle, flex: 1 }}
+                  <select className="form-input" style={{ flex: 1 }}
                     value={form.trigger_config.fromStage || ''}
                     onChange={e => updateTriggerConfig('fromStage', e.target.value)}>
                     <option value="">From: Any</option>
                     {STAGES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                   </select>
-                  <select style={{ ...selectStyle, flex: 1 }}
+                  <select className="form-input" style={{ flex: 1 }}
                     value={form.trigger_config.toStage || ''}
                     onChange={e => updateTriggerConfig('toStage', e.target.value)}>
                     <option value="">To: Any</option>
@@ -209,7 +201,7 @@ export default function AutomationSettings() {
                 </div>
               )}
               {form.trigger_type === 'lead_created' && (
-                <select style={selectStyle}
+                <select className="form-input"
                   value={form.trigger_config.source || ''}
                   onChange={e => updateTriggerConfig('source', e.target.value)}>
                   {SOURCES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -220,7 +212,7 @@ export default function AutomationSettings() {
             {/* Action Type */}
             <div>
               <label style={labelStyle}>Then (Action)</label>
-              <select style={selectStyle} value={form.action_type}
+              <select className="form-input" value={form.action_type}
                 onChange={e => setForm(f => ({ ...f, action_type: e.target.value, action_config: {} }))}>
                 {ACTION_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
@@ -328,15 +320,15 @@ function ActionConfigFields({ actionType, config, onChange, teamMembers }) {
     case 'create_task':
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <input style={inputStyle} placeholder="Task title" value={config.title || ''}
+          <input className="form-input" placeholder="Task title" value={config.title || ''}
             onChange={e => onChange('title', e.target.value)} />
           <div style={{ display: 'flex', gap: 8 }}>
-            <select style={{ ...selectStyle, flex: 1 }} value={config.priority || 'medium'}
+            <select className="form-input" style={{ flex: 1 }} value={config.priority || 'medium'}
               onChange={e => onChange('priority', e.target.value)}>
               {PRIORITIES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
             </select>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 1 }}>
-              <input style={{ ...inputStyle, width: 60 }} type="number" min="0" placeholder="Days"
+              <input className="form-input" style={{ width: 60 }} type="number" min="0" placeholder="Days"
                 value={config.dueDaysFromNow ?? ''} onChange={e => onChange('dueDaysFromNow', parseInt(e.target.value) || 0)} />
               <span style={{ fontSize: 12, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>days out</span>
             </div>
@@ -346,7 +338,7 @@ function ActionConfigFields({ actionType, config, onChange, teamMembers }) {
 
     case 'change_stage':
       return (
-        <select style={selectStyle} value={config.stage || ''}
+        <select className="form-input" value={config.stage || ''}
           onChange={e => onChange('stage', e.target.value)}>
           <option value="">Select stage...</option>
           {STAGES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -356,9 +348,9 @@ function ActionConfigFields({ actionType, config, onChange, teamMembers }) {
     case 'send_email':
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <input style={inputStyle} placeholder="Email subject" value={config.subject || ''}
+          <input className="form-input" placeholder="Email subject" value={config.subject || ''}
             onChange={e => onChange('subject', e.target.value)} />
-          <textarea style={{ ...inputStyle, minHeight: 60, resize: 'vertical' }} placeholder="Email body"
+          <textarea className="form-input" style={{ height: 'auto', minHeight: 60, resize: 'vertical' }} placeholder="Email body"
             value={config.body || ''} onChange={e => onChange('body', e.target.value)} />
         </div>
       );
@@ -366,16 +358,16 @@ function ActionConfigFields({ actionType, config, onChange, teamMembers }) {
     case 'notify':
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <input style={inputStyle} placeholder="Notification title" value={config.title || ''}
+          <input className="form-input" placeholder="Notification title" value={config.title || ''}
             onChange={e => onChange('title', e.target.value)} />
-          <input style={inputStyle} placeholder="Notification body" value={config.body || ''}
+          <input className="form-input" placeholder="Notification body" value={config.body || ''}
             onChange={e => onChange('body', e.target.value)} />
         </div>
       );
 
     case 'assign_rep':
       return (
-        <select style={selectStyle} value={config.repId || ''}
+        <select className="form-input" value={config.repId || ''}
           onChange={e => onChange('repId', e.target.value)}>
           <option value="">Select rep...</option>
           {teamMembers.map(m => (

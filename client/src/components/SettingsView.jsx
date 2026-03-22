@@ -1853,11 +1853,7 @@ function CustomFieldsTab() {
     setForm(f => ({ ...f, options: f.options.filter((_, i) => i !== idx) }));
   }
 
-  const inputStyle = {
-    background: 'oklch(0.18 0.02 260 / 0.6)', color: 'var(--text-primary)',
-    border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-sm)',
-    padding: '8px 12px', fontSize: 13, width: '100%',
-  };
+  // form-input CSS class used for all inputs/selects
 
   if (loading) {
     return (
@@ -1898,18 +1894,18 @@ function CustomFieldsTab() {
               <input value={form.field_label} onChange={e => {
                 const label = e.target.value;
                 setForm(f => ({ ...f, field_label: label, field_key: editingId ? f.field_key : slugify(label) }));
-              }} style={inputStyle} placeholder="e.g. Deductible Amount" required />
+              }} className="form-input" placeholder="e.g. Deductible Amount" required />
             </div>
             <div>
               <label style={{ fontSize: 12, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>Key</label>
               <input value={form.field_key} readOnly={!!editingId}
                 onChange={e => !editingId && setForm(f => ({ ...f, field_key: e.target.value }))}
-                style={{ ...inputStyle, opacity: editingId ? 0.5 : 1 }} placeholder="auto-generated" />
+                className="form-input" style={{ opacity: editingId ? 0.5 : 1 }} placeholder="auto-generated" />
             </div>
             <div>
               <label style={{ fontSize: 12, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>Type</label>
               <select value={form.field_type} onChange={e => setForm(f => ({ ...f, field_type: e.target.value }))}
-                style={inputStyle}>
+                className="form-input">
                 {FIELD_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
             </div>
@@ -1954,7 +1950,7 @@ function CustomFieldsTab() {
               <div style={{ display: 'flex', gap: 8 }}>
                 <input value={newOption} onChange={e => setNewOption(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOption(); } }}
-                  style={{ ...inputStyle, flex: 1 }} placeholder="Add option..." />
+                  className="form-input" style={{ flex: 1 }} placeholder="Add option..." />
                 <button type="button" onClick={addOption}
                   style={{ padding: '6px 14px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'oklch(0.3 0.04 260)', color: 'var(--text-secondary)', fontSize: 13 }}>
                   Add

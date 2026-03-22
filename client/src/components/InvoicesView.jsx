@@ -431,18 +431,6 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
     }
   };
 
-  const inputStyle = {
-    background: 'oklch(0.18 0.02 260)',
-    border: '1px solid oklch(0.3 0.03 260)',
-    borderRadius: 10,
-    padding: '10px 14px',
-    color: 'var(--text-primary)',
-    fontSize: 13,
-    width: '100%',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-  };
-
   return (
     <div className="main-content" style={{ gap: 'var(--space-lg)' }}>
       {/* Header */}
@@ -497,7 +485,7 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
                 value={leadSearch}
                 onChange={e => setLeadSearch(e.target.value)}
                 placeholder="Search leads by name or address..."
-                style={inputStyle}
+                className="form-input"
               />
               {leadResults.length > 0 && (
                 <div style={{
@@ -552,7 +540,7 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
                   value={item.description}
                   onChange={e => updateLineItem(idx, 'description', e.target.value)}
                   placeholder="Item description"
-                  style={{ ...inputStyle, padding: '8px 12px' }}
+                  className="form-input"
                 />
                 <input
                   type="number"
@@ -560,7 +548,7 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
                   onChange={e => updateLineItem(idx, 'quantity', e.target.value)}
                   min="0"
                   step="1"
-                  style={{ ...inputStyle, padding: '8px 12px', textAlign: 'center' }}
+                  className="form-input" style={{ textAlign: 'center' }}
                 />
                 <input
                   type="number"
@@ -568,7 +556,7 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
                   onChange={e => updateLineItem(idx, 'unit_price', e.target.value)}
                   min="0"
                   step="0.01"
-                  style={{ ...inputStyle, padding: '8px 12px', textAlign: 'right' }}
+                  className="form-input" style={{ textAlign: 'right' }}
                 />
                 <div style={{ fontWeight: 600, textAlign: 'right', fontSize: 13, padding: '8px 0' }}>
                   ${lineTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
@@ -608,7 +596,7 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
                 type="date"
                 value={dueDate}
                 onChange={e => setDueDate(e.target.value)}
-                style={inputStyle}
+                className="form-input"
               />
             </div>
 
@@ -619,7 +607,7 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
                 onChange={e => setNotes(e.target.value)}
                 placeholder="Additional notes..."
                 rows={4}
-                style={{ ...inputStyle, resize: 'vertical' }}
+                className="form-input" style={{ height: 'auto', minHeight: 100, resize: 'vertical' }}
               />
             </div>
           </div>
