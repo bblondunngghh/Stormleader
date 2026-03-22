@@ -40,11 +40,11 @@ export default function SettingsView() {
   return (
     <div className="main-content" style={{ gap: 'var(--space-lg)', maxWidth: 800 }}>
       {/* Tab Navigation */}
-      <div style={{ display: 'flex', gap: 2, background: 'oklch(0.16 0.02 260 / 0.6)', borderRadius: 'var(--radius-md)', padding: 3, border: '1px solid var(--glass-border)', width: 'fit-content' }}>
+      <div style={{ display: 'flex', gap: 2, background: 'oklch(0.16 0.02 260 / 0.6)', borderRadius: 'var(--radius-md)', padding: 3, border: '1px solid var(--glass-border)', overflowX: 'auto', maxWidth: '100%', scrollbarWidth: 'none' }}>
         {tabs.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
             style={{
-              padding: '8px 18px', borderRadius: 'var(--radius-sm)', fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer',
+              padding: '8px 18px', borderRadius: 'var(--radius-sm)', fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
               background: tab === t.id ? 'oklch(0.30 0.05 250 / 0.6)' : 'transparent',
               color: tab === t.id ? 'var(--accent-blue)' : 'var(--text-muted)',
               transition: 'all 0.15s var(--ease-out)',
