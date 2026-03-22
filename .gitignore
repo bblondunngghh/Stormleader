@@ -6,3 +6,5 @@ dist/
 uploads/
 photos/
 .claude/
+audit-*.png
+*.playwright-mcp/

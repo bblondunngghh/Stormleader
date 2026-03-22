@@ -3,58 +3,105 @@
 ## Phase 1: Feature Implementation (Tasks 1-9)
 
 All 9 competitor feature parity tasks were already completed in prior sessions:
+1. Weather History Report with PDF generation
+2. Impacted Asset Alerts
+3. Calendar View with FullCalendar
+4. Workflow Automation Engine
+5. Invoicing with estimate conversion
+6. Canvassing Mode with GPS pin dropping
+7. Custom Fields on Leads
+8. Report Builder with recharts
+9. Work Orders with kanban board
 
-1. **Weather History Report** — on-demand NOAA lookup + PDF generation
-2. **Impacted Asset Alerts** — notify when existing leads hit by new storms
-3. **Calendar View** — FullCalendar with task/activity scheduling and drag-to-reschedule
-4. **Workflow Automation Engine** — trigger/action rules (stage_changed, lead_created, task_overdue)
-5. **Invoicing** — full CRUD with estimate conversion and payment tracking
-6. **Canvassing Mode** — GPS-verified pin dropping with lead conversion
-7. **Custom Fields on Leads** — tenant-scoped field definitions with dynamic rendering
-8. **Report Builder** — revenue, pipeline, conversion, rep performance, lead sources, stage duration charts
-9. **Work Orders** — kanban board with estimate conversion and crew assignment
+## Phase 2: Visual Testing & UI Polish
 
-## Phase 2: Optimization (This Session)
+Visually audited all 11 pages using Playwright browser tools (21 screenshots taken).
 
-### Database Indexes (035_optimization_indexes.sql)
-Added missing indexes for frequently-queried columns across new feature tables:
-- `invoices(estimate_id)` — estimate-to-invoice lookups
-- `invoices(due_date)` — overdue invoice queries (partial index excluding paid/void)
-- `work_orders(assigned_to)` — crew/assignee filtering
-- `work_orders(estimate_id)` — estimate-to-work-order lookups
-- `activities(user_id)` — per-user activity feeds
-- `contacts(email)` — deduplication/email lookups
-- `estimates(created_by)` — user's estimates listing
+### Pages Audited
 
-### UI Polish: WorkOrdersView.jsx
-Converted all hardcoded spacing/radius values to CSS design tokens:
-- `borderRadius: '24px / 22px'` → `var(--radius-xl)`
-- `padding: 28` → `var(--space-xl)`
-- `gap: 14` → `var(--space-md)`
-- `borderRadius: 99` → `var(--radius-pill)`
-- `gap: 10` → `var(--space-md)`
-- Replaced inline `fontSize: 12, fontWeight: 600, color: 'var(--text-muted)'` label styles with shared `labelStyle` constant
-- Removed unused `React` default import
+| Page | Status | Notes |
+|------|--------|-------|
+| /storm-map | Pass | Layer panel, search bar, legend all styled correctly |
+| /pipeline | Pass | Kanban columns, filter buttons, dark glass theme |
+| /leads | Pass | Search, filter dropdowns, table, pagination all correct |
+| /estimates | Pass | Reference page — stat cards, filters, table match theme |
+| /invoices | Fixed | TopBar showed "Dashboard" instead of "Invoices" |
+| /reports | Fixed | Duplicate "Reports" heading removed |
+| /calendar | Pass | FullCalendar with dark theme, view switcher, today highlight |
+| /work-orders | Fixed | Nearly-invisible inputs fixed, added dark color-scheme |
+| /canvassing | Pass | Dark Google Map, stats bar, Drop Pin button |
+| /tasks | Pass | Filter tabs, form uses .form-input class properly |
+| /settings | Fixed | AutomationSettings missing colorScheme: dark |
 
-### UI Polish: ReportsView.jsx
-- Documented why hex colors are used in Recharts charts (SVG attribute compatibility)
-- Confirmed all oklch colors used correctly in tooltips, axis labels, and grid lines
+### Issues Found & Fixed
 
-### Code Cleanup
-- Removed unused `React` default import from `BottomTabBar.jsx`
-- Removed unused `React` default import from `WorkOrdersView.jsx`
-- Verified no unused imports in CalendarView, InvoicesView, CanvassingMode, ReportsView, AutomationSettings
+| # | Issue | Fix | Files |
+|---|-------|-----|-------|
+| 1 | TopBar showed "Dashboard" for 7 pages | Added missing viewTitles entries | TopBar.jsx |
+| 2 | Duplicate "Reports" h1 heading | Removed redundant h1 | ReportsView.jsx |
+| 3 | Work Order inputs nearly invisible | Changed bg to solid dark oklch | WorkOrdersView.jsx |
+| 4 | Missing dark color-scheme on inputs | Added colorScheme: dark | WorkOrdersView.jsx, AutomationSettings.jsx |
+| 5 | No global dark mode for date/time pickers | Added CSS overrides | index.css |
 
-### Analysis: Items Reviewed but Not Changed
-- **CanvassingMode.jsx**: Hardcoded values in styles object are appropriate for map overlay context; `rgba()` in Google Maps markers is required by the Google Maps API
-- **InvoicesView.jsx**: `color: '330'` hue values in stat card config are unused dead props but harmless; filter pill sizing is intentionally smaller than `auth-btn` (UI pattern for compact filter rows)
-- **ReportsView.jsx hex colors**: Kept as-is because Recharts renders via SVG attributes where oklch() support is inconsistent across browsers
-- **Storm map performance**: FEMA properties already load with viewport bounding box; Supercluster rebuilds are debounced; no urgent performance issues identified
-- **Bundle size**: All new views are properly lazy-loaded; mapbox-gl (1.6MB) is the largest chunk but is a core dependency
+### Global CSS Additions (index.css)
+- `color-scheme: dark` for `input[type="date/time/datetime-local"]`
+- `::-webkit-calendar-picker-indicator` filter for dark mode icons
+- `select option` dark background for all select elements
 
-## Issues Found
-- No critical bugs or blocking issues found
-- Build warning about chunk sizes (mapbox-gl at 1.6MB, ReportsView at 418KB from recharts) — these are lazy-loaded and acceptable
+### Commit
+- `b509d60` — fix(ui): visual audit — fix page titles, dark mode form inputs, duplicate headings
 
-## Build Status
-Final build: **PASS** (7.12s, 43 chunks)
+### Notes
+- Backend API endpoints for invoices, work-orders, canvassing, custom-fields return errors because DB migrations haven't been run. UI renders correctly despite missing data.
+- 21 screenshots captured during audit (audit-*.png files in project root).
+- Build passes cleanly after all changes.
+
+---
+
+## Phase 3: Second Visual Audit Pass (Session 2)
+
+### Additional Fixes
+| # | Issue | Fix | Files |
+|---|-------|-----|-------|
+| 6 | Settings tab bar overflows viewport (10 tabs) | Added overflowX auto, scrollbarWidth none, flexShrink 0 | SettingsView.jsx |
+
+### Second Pass Pages Audited (14 screenshots)
+All 11 pages re-audited. Design consistency confirmed across all pages:
+- Glass panels with consistent backdrop-filter, border-radius, box-shadow
+- oklch color palette throughout (dark backgrounds 0.08-0.16 lightness)
+- Form elements styled with dark backgrounds and glass styling
+- Buttons use consistent gradient accent colors
+- Typography sizes consistent (13-14px body, 15-18px headings)
+
+### Commits
+- `057b34b` — fix(ui): make Settings tab bar horizontally scrollable
+- `416149c` — chore: remove audit screenshots from repo
+
+---
+
+## Phase 4: Competitor Deep Dive
+
+### Full analysis: [docs/competitor-gap-analysis.md](docs/competitor-gap-analysis.md)
+
+### Summary
+
+**StormLeads replaces TWO expensive tools** (JobNimbus CRM at $225-550+/mo + HailTrace at $49-249/mo) with a single, significantly cheaper platform.
+
+### Feature Parity Score
+- **Matching competitors:** 40+ features across CRM, estimating, invoicing, calendar, work orders, automations, reports, storm maps, canvassing, custom fields
+- **Better than competitors:** Built-in estimating with e-signatures (vs JN's paid SumoQuote add-on), real-time NOAA storm data (vs HailTrace's delayed data), built-in financing, no add-on pricing
+- **Missing vs competitors:** Native mobile app, QuickBooks integration, SMS texting, email campaigns, Google Calendar sync, Zapier
+
+### Pricing Recommendation
+
+| Tier | Price | vs Combined Competitor Cost | Annual Savings |
+|------|-------|-----------------------------|----------------|
+| Starter (1 user) | $49/mo | vs $304/mo | $3,060/year (84%) |
+| Team (5 users) | $99/mo | vs $624/mo | $6,300/year (84%) |
+| Business (15 users) | $199/mo | vs $949/mo | $9,000/year (79%) |
+
+### Next High-Priority Features
+1. QuickBooks integration (free API)
+2. Google Calendar sync (OAuth2)
+3. SMS/texting (Twilio or alternatives)
+4. PWA for mobile experience without native app cost
