@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Valet Shift Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                        "navy-900": "#0f172a",
+                        "navy-800": "#1e293b",
+                        "charcoal": "#334155"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Inter', sans-serif;
+        }
+        .ios-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-navy-800 antialiased selection:bg-primary/30">
+<!-- iOS Status Bar Spacer -->
+<div class="h-12 w-full bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-50 flex items-center justify-between px-6">
+<span class="text-sm font-semibold">9:41</span>
+<div class="flex items-center space-x-1.5">
+<span class="material-icons text-xs">signal_cellular_alt</span>
+<span class="material-icons text-xs">wifi</span>
+<span class="material-icons text-xs">battery_full</span>
+</div>
+</div>
+<!-- Main Content Container -->
+<main class="pb-32">
+<!-- Header -->
+<header class="px-5 py-4 flex justify-between items-center">
+<div>
+<h1 class="text-2xl font-bold tracking-tight text-navy-900">Shift Dashboard</h1>
+<p class="text-xs font-medium text-charcoal/60 uppercase tracking-widest">Grand Plaza Hotel • PM Shift</p>
+</div>
+<div class="relative">
+<img alt="Profile" class="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover" data-alt="Professional profile picture of shift supervisor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBj96vWnYG2gLZc-EHWUwlGgSXvGBLZe55Pw9KlueQLyQNzap3q_eT3onMg3TjbG8c6mTR7u8RZ_NZZS8_COxduuq3jd65Ejl3cEedtPLh7lqGFINqWfuG8unjgiu_Y3mNYZqRb5uqbADjXec22TklEdaWNs5xSt1v6Lq5rqr88V85mJTZ3mTGAf9jc2mryIXoYp9ClnksmhJwG9ulpNxwcfld5rje_EguKSiuXUPVY4ZOAX8f1eMIKJj2wZAqulNzVuau1IaH50KNJ"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+</div>
+</header>
+<!-- KPI Metrics Grid -->
+<section class="px-5 mt-2 grid grid-cols-2 gap-4">
+<!-- Total Cars -->
+<div class="bg-navy-900 rounded-xl p-4 shadow-lg flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="material-icons text-primary bg-primary/10 p-1.5 rounded-lg text-lg">directions_car</span>
+<span class="text-green-400 text-xs font-bold">+12%</span>
+</div>
+<div class="mt-4">
+<p class="text-3xl font-bold text-white">184</p>
+<p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Parked</p>
+</div>
+</div>
+<!-- Active Valets -->
+<div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="material-icons text-primary bg-primary/10 p-1.5 rounded-lg text-lg">badge</span>
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-slate-200 border-2 border-white"></div>
+<div class="w-6 h-6 rounded-full bg-slate-300 border-2 border-white"></div>
+</div>
+</div>
+<div class="mt-4">
+<p class="text-3xl font-bold text-navy-900">08</p>
+<p class="text-[10px] uppercase font-bold text-charcoal/50 tracking-wider">Staff On Duty</p>
+</div>
+</div>
+<!-- Current Occupancy -->
+<div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 col-span-2">
+<div class="flex items-center justify-between mb-3">
+<div class="flex items-center space-x-2">
+<span class="material-icons text-primary text-xl">local_parking</span>
+<p class="text-sm font-semibold text-navy-900">Lot Occupancy</p>
+</div>
+<span class="text-sm font-bold text-navy-900">82%</span>
+</div>
+<div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 82%"></div>
+</div>
+<div class="flex justify-between mt-2">
+<p class="text-[10px] font-medium text-charcoal/40">164 / 200 Spaces</p>
+<p class="text-[10px] font-medium text-primary">12 Priority Reserved</p>
+</div>
+</div>
+</section>
+<!-- Quick Actions Scroll -->
+<section class="mt-8">
+<h2 class="px-5 text-sm font-bold text-navy-900 uppercase tracking-wider mb-3">Quick Actions</h2>
+<div class="flex space-x-4 overflow-x-auto px-5 pb-2 hide-scrollbar">
+<button class="flex-shrink-0 bg-primary text-white rounded-xl px-4 py-3 flex items-center space-x-2 shadow-md shadow-primary/20">
+<span class="material-icons text-sm">add</span>
+<span class="text-sm font-semibold">New Entry</span>
+</button>
+<button class="flex-shrink-0 bg-white text-navy-900 border border-slate-200 rounded-xl px-4 py-3 flex items-center space-x-2 shadow-sm">
+<span class="material-icons text-sm">minor_crash</span>
+<span class="text-sm font-semibold">Log Incident</span>
+</button>
+<button class="flex-shrink-0 bg-white text-navy-900 border border-slate-200 rounded-xl px-4 py-3 flex items-center space-x-2 shadow-sm">
+<span class="material-icons text-sm">schedule</span>
+<span class="text-sm font-semibold">Request Relief</span>
+</button>
+</div>
+</section>
+<!-- Live Activity Feed -->
+<section class="mt-8 px-5">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center space-x-2">
+<h2 class="text-sm font-bold text-navy-900 uppercase tracking-wider">Live Activity</h2>
+<div class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+</div>
+</div>
+<button class="text-xs font-bold text-primary">View All</button>
+</div>
+<div class="space-y-3">
+<!-- Activity Item 1 -->
+<div class="bg-white p-4 rounded-xl border border-slate-100 flex items-start space-x-4 shadow-sm">
+<div class="bg-slate-50 p-2 rounded-lg">
+<span class="material-icons text-primary">vpn_key</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h4 class="text-sm font-bold text-navy-900">Mercedes S-Class (#A42)</h4>
+<span class="text-[10px] font-medium text-slate-400 uppercase tracking-tighter">2m ago</span>
+</div>
+<p class="text-xs text-charcoal/70 mt-0.5">Checked-in by <span class="font-semibold">Marcus R.</span> at Zone B</p>
+</div>
+</div>
+<!-- Activity Item 2 -->
+<div class="bg-white p-4 rounded-xl border border-slate-100 flex items-start space-x-4 shadow-sm">
+<div class="bg-orange-50 p-2 rounded-lg">
+<span class="material-icons text-orange-500">priority_high</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h4 class="text-sm font-bold text-navy-900">Retrieval Requested</h4>
+<span class="text-[10px] font-medium text-slate-400 uppercase tracking-tighter">5m ago</span>
+</div>
+<p class="text-xs text-charcoal/70 mt-0.5">Ticket #8841 • VIP Lobby Entry</p>
+<div class="mt-2 flex items-center space-x-2">
+<div class="h-1.5 w-full bg-slate-100 rounded-full">
+<div class="bg-orange-400 h-full rounded-full" style="width: 45%"></div>
+</div>
+<span class="text-[10px] font-bold text-orange-500 whitespace-nowrap">Est. 4m</span>
+</div>
+</div>
+</div>
+<!-- Activity Item 3 -->
+<div class="bg-white p-4 rounded-xl border border-slate-100 flex items-start space-x-4 shadow-sm opacity-80">
+<div class="bg-green-50 p-2 rounded-lg">
+<span class="material-icons text-green-500">done_all</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h4 class="text-sm font-bold text-navy-900">Shift Handover</h4>
+<span class="text-[10px] font-medium text-slate-400 uppercase tracking-tighter">12m ago</span>
+</div>
+<p class="text-xs text-charcoal/70 mt-0.5">Supervisor <span class="font-semibold">Sarah T.</span> clocked in.</p>
+</div>
+</div>
+<!-- Activity Item 4 -->
+<div class="bg-white p-4 rounded-xl border border-slate-100 flex items-start space-x-4 shadow-sm opacity-80">
+<div class="bg-slate-50 p-2 rounded-lg">
+<span class="material-icons text-primary">directions_car</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h4 class="text-sm font-bold text-navy-900">Tesla Model 3 (#C11)</h4>
+<span class="text-[10px] font-medium text-slate-400 uppercase tracking-tighter">18m ago</span>
+</div>
+<p class="text-xs text-charcoal/70 mt-0.5">Parked at Level 3 by <span class="font-semibold">David K.</span></p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Map Insight Card (Small) -->
+<div class="px-5 mb-10">
+<div class="relative w-full h-24 rounded-xl overflow-hidden shadow-sm group">
+<img alt="Facility Map" class="w-full h-full object-cover filter brightness-50" data-alt="Blurred aerial map of parking facility zones" data-location="San Francisco" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeXqi9Z1GET31M1gQOeJrxpK74rJjrAJmwOrVC8oSjeRu-ck6zpQ2Qt4uneV58eHp23i7wjoxr32URyFiB6bjxeONy_Jl22AGQYR3GHEvEMI3OSYpr6CcsQNUkiQ67SB3Rss3gMFFvpeLJ1Aiw5L7hHVWb_y-25u1q0zINIinjPSvL28fklmzomMVbXMRaRm9LAIDRV5tugQ8pt2BDLWPLhI_TG6nwCD3acO5kBZy_qabT5wGygq-9sUI3otWdfxpXL_HG8BwS_UK2"/>
+<div class="absolute inset-0 flex items-center justify-between px-4">
+<div>
+<p class="text-white text-xs font-bold uppercase tracking-widest">Facility Status</p>
+<p class="text-white/80 text-[10px]">All zones operating normally</p>
+</div>
+<button class="bg-white/20 backdrop-blur-md text-white border border-white/30 rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider">
+                    Expand Map
+                </button>
+</div>
+</div>
+</div>
+<!-- iOS Tab Bar -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-navy-900/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 px-6 pb-8 pt-3 z-50">
+<div class="flex justify-between items-center max-w-md mx-auto">
+<a class="flex flex-col items-center space-y-1 text-primary" href="#">
+<span class="material-icons">dashboard</span>
+<span class="text-[10px] font-bold">Dashboard</span>
+</a>
+<a class="flex flex-col items-center space-y-1 text-charcoal/40 dark:text-slate-500" href="#">
+<span class="material-icons">car_rental</span>
+<span class="text-[10px] font-bold">Vehicles</span>
+</a>
+<!-- Center Action Button -->
+<div class="-mt-12 bg-primary w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-primary/40 ring-4 ring-white dark:ring-navy-800">
+<span class="material-icons text-white text-3xl">qr_code_scanner</span>
+</div>
+<a class="flex flex-col items-center space-y-1 text-charcoal/40 dark:text-slate-500" href="#">
+<span class="material-icons">people</span>
+<span class="text-[10px] font-bold">Team</span>
+</a>
+<a class="flex flex-col items-center space-y-1 text-charcoal/40 dark:text-slate-500" href="#">
+<span class="material-icons">analytics</span>
+<span class="text-[10px] font-bold">Reports</span>
+</a>
+</div>
+</nav>
+<!-- iOS Home Indicator -->
+<div class="fixed bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-200 dark:bg-slate-700 rounded-full z-50"></div>
+</body></html>

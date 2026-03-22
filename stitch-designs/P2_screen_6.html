@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bespoke Shift Sign-off</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#000000",
+                        "accent": "#c5a358",
+                        "background-light": "#ffffff",
+                        "background-dark": "#0a0a0a",
+                    },
+                    fontFamily: {
+                        "sans": ["Inter", "sans-serif"],
+                        "serif": ["Bodoni Moda", "serif"],
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply font-sans antialiased text-slate-900 dark:text-slate-100 bg-background-light dark:bg-background-dark;
+            }
+        }
+        .ios-blur {
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+        }
+        .ink-glow {
+            filter: drop-shadow(0 0 8px rgba(197, 163, 88, 0.6));
+        }
+        @keyframes pulse-subtle {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.02); opacity: 0.95; }
+        }
+        .animate-pulse-subtle {
+            animation: pulse-subtle 3s ease-in-out infinite;
+        }
+        .signature-canvas {
+            background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(248,250,252,1) 100%);
+        }
+        .dark .signature-canvas {
+            background: linear-gradient(180deg, rgba(10,10,10,0) 0%, rgba(20,20,20,1) 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen">
+<div class="max-w-md mx-auto min-h-screen flex flex-col relative bg-white dark:bg-background-dark">
+<header class="sticky top-0 z-40 bg-white/80 dark:bg-background-dark/80 ios-blur px-6 pt-14 pb-6 border-b border-slate-100 dark:border-white/5">
+<div class="flex items-center justify-between mb-4">
+<button class="text-slate-400 dark:text-slate-500 hover:text-accent transition-colors">
+<span class="material-symbols-outlined text-2xl">arrow_back_ios_new</span>
+</button>
+<div class="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">Concierge Valet</div>
+<div class="w-8"></div>
+</div>
+<h1 class="text-4xl font-serif italic font-medium tracking-tight">Shift Report</h1>
+<p class="text-slate-400 dark:text-slate-500 text-[11px] uppercase tracking-widest mt-2 font-medium">Saturday • Oct 21 • 06:00 — 14:00</p>
+</header>
+<main class="flex-grow pb-48">
+<section class="p-6 grid grid-cols-2 gap-px bg-slate-100 dark:bg-white/5 border-b border-slate-100 dark:border-white/5">
+<div class="bg-white dark:bg-background-dark p-6">
+<p class="text-[10px] uppercase tracking-widest text-slate-400 mb-1">Total Parked</p>
+<p class="text-3xl font-serif">142</p>
+</div>
+<div class="bg-white dark:bg-background-dark p-6">
+<p class="text-[10px] uppercase tracking-widest text-slate-400 mb-1">Keys Active</p>
+<p class="text-3xl font-serif text-accent">38</p>
+</div>
+<div class="bg-white dark:bg-background-dark p-6">
+<p class="text-[10px] uppercase tracking-widest text-slate-400 mb-1">Net Gratuity</p>
+<p class="text-3xl font-serif">$245</p>
+</div>
+<div class="bg-white dark:bg-background-dark p-6">
+<p class="text-[10px] uppercase tracking-widest text-slate-400 mb-1">Incidents</p>
+<p class="text-3xl font-serif">00</p>
+</div>
+</section>
+<section class="p-8">
+<label class="block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-4" for="notes">Notes for Relief</label>
+<textarea class="w-full bg-transparent border-0 border-b border-slate-200 dark:border-white/10 p-0 pb-4 text-base font-serif italic placeholder:text-slate-300 dark:placeholder:text-slate-700 focus:ring-0 focus:border-accent transition-colors" id="notes" placeholder="No significant events to report..." rows="2"></textarea>
+</section>
+<section class="px-8 py-4 flex items-center justify-between">
+<div class="flex -space-x-3">
+<img alt="team" class="w-10 h-10 rounded-full border-2 border-white dark:border-background-dark object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2H2mj37LsjprZ2QF0CWgRcUF3vzSyOat7jkqaNXbQMvft3OUjmWfMHPsh2vEzkO1_E66BneSlbcDfEJ9qLR3t5OD-RWLyXmew-n-JTD4y4_ma10rR5pQWVieql32CRJazCzego2x0J28wXlwzHK9_qdmwXyQJWg38XEiuBAf3OocMH5XulnVCQSOd8E-ko3-flzFABUxpS6rykceX3yKpTkNauOLNsUFTEixyPdoqomApGSE2Xsgg33kgCr9CMwELZ3GiyrOdYXgf"/>
+<img alt="team" class="w-10 h-10 rounded-full border-2 border-white dark:border-background-dark object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkJ0aP3G9fH-EAf-K5QP0aA1DM3e1hfA5uulveURRtaAcFmY3gSNcyMmjsNL0u_1q-cN4bz4qHUoPBEO-xjLdCAXvPLxyefI94Z4cqb_fLXEHvmB61tpHeufZtFBBSpant20q6mqh1-9JQHqrQrej2TsaEDt2HrMKt_2rSNl_S5PuepxOFMRTZR7BzUQBmYDcJ_hrR4MbGJZQgGH2Wsj5BcrN-yFlKg1ofuwjHt1DIwg5YRM-QvtgCh17XT-H-839iHNbQyiBeuosO"/>
+<div class="w-10 h-10 rounded-full border-2 border-white dark:border-background-dark bg-slate-100 dark:bg-white/5 flex items-center justify-center text-[10px] font-bold text-slate-400">
+                        +4
+                    </div>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">On Duty</p>
+<p class="text-xs font-medium">M. Rossi &amp; 5 others</p>
+</div>
+</section>
+<section class="mt-8 relative border-t border-slate-100 dark:border-white/5">
+<div class="flex items-center justify-between px-8 py-4 absolute top-0 left-0 right-0 z-10">
+<h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Supervisor Signature</h2>
+<button class="text-[10px] font-bold uppercase tracking-widest text-accent/60 hover:text-accent transition-colors">Clear</button>
+</div>
+<div class="signature-canvas h-72 flex flex-col items-center justify-center relative overflow-hidden group">
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 dark:opacity-10">
+<span class="text-4xl font-serif italic text-slate-400">Verification Required</span>
+</div>
+<div class="relative w-full h-full flex items-center justify-center p-12">
+<img alt="signature" class="ink-glow opacity-90 dark:invert contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhX0Luse1RB7RaJLddv5eIvYkfojltdU2gSt9dTLtUA4dhjykTaDl4NWd5Ta6S5wUshc5yoUooTSU1HDj0yALLBZieH7kDvjlsWsUMrEFJCpzTGtnB6MoaezXi7jUIU15icnxiNnoJ-xMo2gnAhORKEynNCwSbE9GTiZgtc21bou1dv5YIcCapneB9EnxhQ4T2myJC2wiIxdWGPGLypxBfkXdsRcMqTiyovi1jY-bK4Q2bfF5VrdK6C2kiE9zhGgW7OkUBTMc8v5EJ"/>
+</div>
+<div class="absolute bottom-8 left-0 right-0 text-center">
+<p class="text-[9px] uppercase tracking-[0.3em] text-slate-400/50">Digital Attestation Active</p>
+</div>
+</div>
+</section>
+</main>
+<footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-8 pt-0 pointer-events-none">
+<div class="bg-gradient-to-t from-white dark:from-background-dark via-white/80 dark:via-background-dark/80 to-transparent h-32 absolute bottom-0 left-0 right-0 -z-10"></div>
+<div class="pointer-events-auto flex flex-col items-center">
+<button class="animate-pulse-subtle group relative w-full overflow-hidden bg-primary dark:bg-white text-white dark:text-black font-serif italic text-xl py-6 rounded-full shadow-2xl shadow-black/20 dark:shadow-white/5 transition-all active:scale-[0.96]">
+<div class="absolute inset-0 bg-accent/10 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+<span class="relative z-10">Finish Shift</span>
+</button>
+<p class="mt-4 text-[9px] text-slate-400 uppercase tracking-[0.2em] font-medium opacity-60">Archive and notify management</p>
+</div>
+</footer>
+</div>
+
+</body></html>

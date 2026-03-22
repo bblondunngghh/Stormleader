@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ROOF COMMAND | Tasks</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "inverse-surface": "#dde2f6",
+              "on-tertiary-fixed-variant": "#920021",
+              "secondary": "#ffd799",
+              "on-background": "#dde2f6",
+              "tertiary-fixed-dim": "#ffb3b3",
+              "secondary-fixed-dim": "#ffba38",
+              "surface-container-low": "#161b2a",
+              "secondary-container": "#feb300",
+              "inverse-on-surface": "#2b3040",
+              "primary-fixed": "#9cf0ff",
+              "surface-container-high": "#242a39",
+              "primary-container": "#00e5ff",
+              "surface": "#0d1321",
+              "on-secondary-container": "#6a4800",
+              "primary": "#c3f5ff",
+              "surface-container": "#1a1f2e",
+              "on-primary-fixed-variant": "#004f58",
+              "on-surface": "#dde2f6",
+              "on-primary-fixed": "#001f24",
+              "error": "#ffb4ab",
+              "on-primary": "#00363d",
+              "on-tertiary": "#680014",
+              "background": "#0d1321",
+              "on-tertiary-container": "#b4002b",
+              "on-error": "#690005",
+              "on-primary-container": "#00626e",
+              "secondary-fixed": "#ffdeac",
+              "inverse-primary": "#006875",
+              "surface-container-lowest": "#080e1c",
+              "surface-container-highest": "#2f3444",
+              "tertiary-container": "#ffc1c0",
+              "tertiary": "#ffe7e6",
+              "on-secondary": "#432c00",
+              "surface-bright": "#333949",
+              "outline-variant": "#3b494c",
+              "primary-fixed-dim": "#00daf3",
+              "outline": "#849396",
+              "on-surface-variant": "#bac9cc",
+              "surface-variant": "#2f3444",
+              "surface-dim": "#0d1321",
+              "on-secondary-fixed": "#281900",
+              "error-container": "#93000a",
+              "surface-tint": "#00daf3",
+              "on-tertiary-fixed": "#400009",
+              "on-error-container": "#ffdad6",
+              "tertiary-fixed": "#ffdad9",
+              "on-secondary-fixed-variant": "#604100"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Manrope"],
+              "label": ["Space Grotesk"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-panel {
+        background: rgba(47, 52, 68, 0.6);
+        backdrop-filter: blur(20px);
+      }
+      .pulse-indicator {
+        box-shadow: 0 0 0 0 rgba(0, 218, 243, 0.7);
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 218, 243, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 218, 243, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 218, 243, 0); }
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 z-50 w-full h-16 px-6 flex justify-between items-center bg-[#0d1321] shadow-[0_0_20px_rgba(0,229,255,0.05)] border-none">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-cyan-400 cursor-pointer">menu_open</span>
+<h1 class="text-xl font-bold tracking-tighter text-cyan-400 font-headline uppercase">ROOF COMMAND</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center gap-6 mr-8">
+<a class="text-slate-400 hover:text-cyan-300 font-label text-xs tracking-widest uppercase transition-colors" href="#">Dashboard</a>
+<a class="text-slate-400 hover:text-cyan-300 font-label text-xs tracking-widest uppercase transition-colors" href="#">Map</a>
+<a class="text-slate-400 hover:text-cyan-300 font-label text-xs tracking-widest uppercase transition-colors" href="#">Pipeline</a>
+<a class="text-cyan-300 font-label text-xs tracking-widest uppercase transition-colors" href="#">Tasks</a>
+</div>
+<span class="material-symbols-outlined text-cyan-400 cursor-pointer">notifications</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="User profile avatar professionally lit portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBA2zWmXTM5JhEkUDVcfwM3dthIlttuSCKLyxSLfcLh7BzrbzRaMurefM_TyzmGe7K-0PcYcs5Hnj6BvzeGsf_tQ_DbfrUtwTH2dJ5JPXZJuG21yYJ5lvxrhvAypcp3d9g7EH2lgGFB6DCit7ohYY9aKFYR9h49nMIAHk1BUQuf90okQgVY9bpN2anmA_Y2t3BiBiaU9SLNPB_yuy1INiMH1LRtC6GSAmgND-0nuiF7NTkzihMNXesnyos-5Huswv2PCGUTU7KBtW_e"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-7xl mx-auto">
+<!-- Dashboard Header Section -->
+<div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="w-2 h-2 rounded-full bg-primary-fixed-dim pulse-indicator"></span>
+<p class="font-label text-xs tracking-widest uppercase text-primary-fixed-dim">Operational Status: Active</p>
+</div>
+<h2 class="text-4xl font-bold font-headline text-on-surface tracking-tight">Mission Log</h2>
+<p class="text-on-surface-variant font-body mt-1">Tactical task management and field deployment queue.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-low text-on-surface border-b-2 border-outline-variant/30 font-headline text-sm hover:bg-surface-bright transition-all active:scale-95">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+<span>FILTER OPS</span>
+</button>
+<button class="flex items-center gap-2 px-6 py-2 bg-gradient-to-br from-primary to-primary-container text-on-primary-container font-headline font-bold text-sm rounded-md shadow-[0_0_15px_rgba(0,229,255,0.2)] hover:brightness-110 transition-all active:scale-95">
+<span class="material-symbols-outlined text-sm">add</span>
+<span>NEW TASK</span>
+</button>
+</div>
+</div>
+<!-- Task Bento Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- OVERDUE COLUMN (Critical Path) -->
+<div class="lg:col-span-4 space-y-4">
+<div class="flex items-center justify-between px-2 mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-error">priority_high</span>
+<h3 class="font-headline font-bold tracking-widest uppercase text-sm">Overdue</h3>
+</div>
+<span class="bg-error-container text-on-error-container px-2 py-0.5 rounded text-[10px] font-bold font-label tracking-tighter">03 BLOCKED</span>
+</div>
+<!-- Overdue Task Card 1 -->
+<div class="group relative bg-surface-container-lowest p-5 rounded-lg border-l-2 border-error hover:bg-surface-container-low transition-colors duration-300">
+<div class="flex justify-between items-start mb-3">
+<span class="bg-tertiary-container text-on-tertiary-container px-2 py-0.5 text-[10px] font-bold font-label uppercase tracking-widest rounded">Urgent</span>
+<input class="form-checkbox bg-surface-container-highest border-none rounded text-primary-container focus:ring-primary-container" type="checkbox"/>
+</div>
+<h4 class="font-headline text-lg font-bold text-on-surface mb-1 group-hover:text-primary transition-colors">Emergency Leak Repair</h4>
+<p class="text-on-surface-variant text-sm font-body mb-4">1248 Oak Ridge Dr. - Reporting active water ingress in master suite.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-error">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-[11px] font-label font-bold tracking-wider">DELAYED 4H</span>
+</div>
+<div class="flex -space-x-2">
+<img class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" data-alt="Field technician avatar headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbXSnvPZpOXz5Vx7VzG7LFFrMdIDe_WkIshBLQkqkKCxV5pEd8cQVNWSfKn9Jge4791sXp-7Jxca9yfCdAerrTdsh5K2I8EhPujkM8L7xKccWGt1C_LMrL1FEIlgHZGU3SFtci0Kd5WwioLbxcEdnqSSou5PvhMXEUxJs7N9sn6Oyn75DZ20fcMv9ctII46OseL81SMKh0e5wGlvwl-XJMO4FCZOoEo1LzdPHL3Mi5bdVUTMS5vZ9wnmfVcDVYpn8AVRquirUmXpGT"/>
+</div>
+</div>
+</div>
+<!-- Overdue Task Card 2 -->
+<div class="group relative bg-surface-container-lowest p-5 rounded-lg border-l-2 border-error hover:bg-surface-container-low transition-colors duration-300">
+<div class="flex justify-between items-start mb-3">
+<span class="bg-tertiary-container text-on-tertiary-container px-2 py-0.5 text-[10px] font-bold font-label uppercase tracking-widest rounded">Urgent</span>
+<input class="form-checkbox bg-surface-container-highest border-none rounded text-primary-container focus:ring-primary-container" type="checkbox"/>
+</div>
+<h4 class="font-headline text-lg font-bold text-on-surface mb-1">Contract Signature</h4>
+<p class="text-on-surface-variant text-sm font-body mb-4">Miller Residence - Need finalize scope of work before solar install.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-error">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-[11px] font-label font-bold tracking-wider">DELAYED 2D</span>
+</div>
+</div>
+</div>
+</div>
+<!-- TODAY COLUMN -->
+<div class="lg:col-span-4 space-y-4">
+<div class="flex items-center justify-between px-2 mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-fixed-dim">today</span>
+<h3 class="font-headline font-bold tracking-widest uppercase text-sm">Today</h3>
+</div>
+<span class="bg-primary-container/20 text-primary-fixed-dim px-2 py-0.5 rounded text-[10px] font-bold font-label tracking-tighter">05 ACTIVE</span>
+</div>
+<!-- Today Task Card 1 -->
+<div class="group glass-panel p-5 rounded-lg border-l-2 border-primary-fixed-dim hover:bg-surface-container-low transition-colors duration-300">
+<div class="flex justify-between items-start mb-3">
+<span class="bg-surface-container-highest text-primary px-2 py-0.5 text-[10px] font-bold font-label uppercase tracking-widest rounded">Standard</span>
+<input class="form-checkbox bg-surface-container-highest border-none rounded text-primary-container focus:ring-primary-container" type="checkbox"/>
+</div>
+<h4 class="font-headline text-lg font-bold text-on-surface mb-1 group-hover:text-primary transition-colors">Site Inspection: Zone 4</h4>
+<p class="text-on-surface-variant text-sm font-body mb-4">Post-storm verification for commercial complex at 5th &amp; Main.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-primary-fixed-dim">
+<span class="material-symbols-outlined text-sm">timer</span>
+<span class="text-[11px] font-label font-bold tracking-wider">T-MINUS 2H</span>
+</div>
+<div class="flex -space-x-2">
+<img class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" data-alt="Project manager avatar headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZi_2zzAzVUITAtzEmIPHn5tly3htnb3scCrxdOb_zer2VdlZjl_b06tUkzWz9jeHjGV9J7wzeKA7oAC_WlfBm0ifMX0muHQsHCSsKQyuz7b5P69fx3yPSrVaOol0j73Illg3AKwb_8np1W1qVWi0t1YPXDgedSztVJBbZ-klhnpEBWEvlU4wsDQM3p0LJOqHJ2tP7CLoXV3QX1HlN8GnMiwNvCoEQt0zf01HcxJfmY2bWyHx22kEIwqESwcj-07L5qbjnoZ5Fwnl4"/>
+<img class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" data-alt="Technical Lead headshot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuBfdcakVx-r742-eAty8vLTk6eVg87IPhfR_EwaDtCJ4EJU3Y131dg-DwO3pppl63sbWnXeg-vSeW4U0zAA4FGQiuUruJv5-_tUXEAbZTSLECjMy3eO5QzlrS8hDvCT5IA3WOYbtZs5bU5_IE_Bs0oBXE_zMrgMjbfN7-32k3WHfxCkuqxhIOhnXK5p8p4lqD9Rfwa95LfPEaAkEY8PnylZoYXhZ4kUuWZC9WFF0yY7rrzRwdZ2q_HfOcu1OFqUWiJz2b5HTxrXvn"/>
+</div>
+</div>
+</div>
+<!-- Today Task Card 2 -->
+<div class="group glass-panel p-5 rounded-lg border-l-2 border-primary-fixed-dim hover:bg-surface-container-low transition-colors duration-300">
+<div class="flex justify-between items-start mb-3">
+<span class="bg-surface-container-highest text-primary px-2 py-0.5 text-[10px] font-bold font-label uppercase tracking-widest rounded">Standard</span>
+<input class="form-checkbox bg-surface-container-highest border-none rounded text-primary-container focus:ring-primary-container" type="checkbox"/>
+</div>
+<h4 class="font-headline text-lg font-bold text-on-surface mb-1">Permit Acquisition</h4>
+<p class="text-on-surface-variant text-sm font-body mb-4">Submit engineering drawings to city hall for Smith project.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-slate-500">
+<span class="material-symbols-outlined text-sm">event</span>
+<span class="text-[11px] font-label font-bold tracking-wider">BY 17:00</span>
+</div>
+</div>
+</div>
+<!-- Completed Task Example (Dimmed) -->
+<div class="group bg-surface-container-lowest/40 p-5 rounded-lg border-l-2 border-outline opacity-60">
+<div class="flex justify-between items-start mb-3">
+<span class="bg-outline-variant text-on-surface-variant px-2 py-0.5 text-[10px] font-bold font-label uppercase tracking-widest rounded">Completed</span>
+<input checked="" class="form-checkbox bg-surface-container-highest border-none rounded text-primary-container focus:ring-primary-container opacity-50" type="checkbox"/>
+</div>
+<h4 class="font-headline text-lg font-bold text-on-surface-variant mb-1 line-through">Equipment Inventory</h4>
+<div class="flex items-center gap-2 text-cyan-500/50">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+<span class="text-[11px] font-label font-bold tracking-wider uppercase">Verified</span>
+</div>
+</div>
+</div>
+<!-- UPCOMING COLUMN -->
+<div class="lg:col-span-4 space-y-4">
+<div class="flex items-center justify-between px-2 mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400">calendar_month</span>
+<h3 class="font-headline font-bold tracking-widest uppercase text-sm">Upcoming</h3>
+</div>
+<span class="bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-bold font-label tracking-tighter">12 QUEUED</span>
+</div>
+<!-- Upcoming Task Card 1 -->
+<div class="group bg-surface-container-lowest p-5 rounded-lg border-l-2 border-outline-variant hover:bg-surface-container-low transition-colors duration-300">
+<div class="flex justify-between items-start mb-3">
+<span class="bg-surface-container-highest text-on-surface-variant px-2 py-0.5 text-[10px] font-bold font-label uppercase tracking-widest rounded">Standard</span>
+<input class="form-checkbox bg-surface-container-highest border-none rounded text-primary-container focus:ring-primary-container" type="checkbox"/>
+</div>
+<h4 class="font-headline text-lg font-bold text-on-surface mb-1">Material Delivery: Ridge Rd</h4>
+<p class="text-on-surface-variant text-sm font-body mb-4">Coordinate shingles and underlayment drop for Tuesday install.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-slate-500">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span class="text-[11px] font-label font-bold tracking-wider">TOMORROW</span>
+</div>
+</div>
+</div>
+<!-- Task Metrics Card (Tactical Detail) -->
+<div class="bg-primary-container/5 rounded-lg p-6 border border-primary-container/10">
+<h5 class="font-label text-xs tracking-[0.2em] uppercase text-primary-fixed-dim mb-4">Efficiency Index</h5>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-[10px] font-bold mb-1 font-label uppercase tracking-wider">
+<span>Task Completion Rate</span>
+<span>88%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="bg-primary-container h-full w-[88%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[10px] font-bold mb-1 font-label uppercase tracking-wider">
+<span>Critical Path Velocity</span>
+<span>64%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="bg-secondary h-full w-[64%]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-[#0d1321]/80 backdrop-blur-xl flex justify-around items-center px-4 py-3 pb-safe shadow-[0_-4px_24px_rgba(0,0,0,0.4)]">
+<div class="flex flex-col items-center justify-center text-slate-500 px-3 py-1.5 hover:text-cyan-200 cursor-pointer">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label text-[10px] uppercase font-bold tracking-widest mt-1">Dashboard</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 px-3 py-1.5 hover:text-cyan-200 cursor-pointer">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label text-[10px] uppercase font-bold tracking-widest mt-1">Map</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 px-3 py-1.5 hover:text-cyan-200 cursor-pointer">
+<span class="material-symbols-outlined">query_stats</span>
+<span class="font-label text-[10px] uppercase font-bold tracking-widest mt-1">Pipeline</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-cyan-500/10 text-cyan-400 rounded-xl px-3 py-1.5 scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined">assignment_late</span>
+<span class="font-label text-[10px] uppercase font-bold tracking-widest mt-1">Tasks</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 px-3 py-1.5 hover:text-cyan-200 cursor-pointer">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label text-[10px] uppercase font-bold tracking-widest mt-1">Settings</span>
+</div>
+</nav>
+<!-- FAB (Suppressed on Tasks as per UX Goal - context is Task Focused already) -->
+</body></html>

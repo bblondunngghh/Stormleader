@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Premium Financial Summary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#6366f1",
+                        "accent": "#0ea5e9",
+                        "background-dark": "#020617",
+                    },
+                    fontFamily: {
+                        "sans": ["'Plus Jakarta Sans'", "sans-serif"],
+                        "mono": ["'JetBrains Mono'", "monospace"]
+                    },
+                    borderRadius: {
+                        "xl": "1rem",
+                        "2xl": "1.5rem",
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --mesh-gradient: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                             radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                             radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #020617;
+            background-image: var(--mesh-gradient);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ios-blur {
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+        .financial-figure {
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: -0.05em;
+        }
+        .liquid-fill {
+            background: linear-gradient(180deg, rgba(99, 102, 241, 0.2) 0%, rgba(99, 102, 241, 0.8) 100%);
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0,50 C20,40 30,60 50,50 C70,40 80,60 100,50 L100,100 L0,100 Z' fill='black'%3E%3C/path%3E%3C/svg%3E");
+            mask-size: 200% 100%;
+            mask-repeat: repeat-x;
+        }
+        .glowing-line {
+            filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.6));
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-slate-100 min-h-screen pb-24">
+<div class="sticky top-0 z-50 bg-background-dark/20 ios-blur">
+<div class="flex justify-between items-center px-8 pt-4 pb-2">
+<div class="flex items-center gap-1">
+<span class="text-sm font-bold tracking-tight">9:41</span>
+</div>
+<div class="flex items-center gap-1.5 opacity-80">
+<span class="material-symbols-outlined text-[18px]">signal_cellular_alt</span>
+<span class="material-symbols-outlined text-[18px]">wifi</span>
+<span class="material-symbols-outlined text-[18px]">battery_very_low</span>
+</div>
+</div>
+<header class="px-8 py-4 flex justify-between items-center">
+<div>
+<h1 class="text-2xl font-bold tracking-tight">Premium Summary</h1>
+<p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Shift • Oct 21 • PM</p>
+</div>
+<button class="w-10 h-10 rounded-full glass-card flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">share</span>
+</button>
+</header>
+</div>
+<main class="px-6 py-4 space-y-6">
+<section class="relative overflow-hidden glass-card rounded-3xl p-8 h-64 flex flex-col justify-between">
+<div class="absolute inset-0 z-0">
+<div class="liquid-fill absolute bottom-0 left-0 right-0 h-3/4 opacity-40"></div>
+</div>
+<div class="relative z-10">
+<p class="text-[10px] text-indigo-300 font-bold uppercase tracking-[0.2em] mb-2">Net Shift Revenue</p>
+<div class="flex items-baseline gap-1">
+<span class="text-2xl font-light text-indigo-400 financial-figure">$</span>
+<span class="text-5xl font-bold financial-figure">1,248.50</span>
+</div>
+</div>
+<div class="relative z-10 flex justify-between items-end">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+<span class="material-symbols-outlined text-emerald-400 text-sm">trending_up</span>
+<span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">+12.4%</span>
+</div>
+<div class="h-16 w-32 relative">
+<svg class="w-full h-full glowing-line" viewBox="0 0 100 40">
+<path d="M0,35 Q10,30 20,38 T40,20 T60,25 T80,5 T100,15" fill="none" stroke="url(#gradient-line)" stroke-linecap="round" stroke-width="3"></path>
+<defs>
+<linearGradient id="gradient-line" x1="0%" x2="100%" y1="0%" y2="0%">
+<stop offset="0%" stop-color="#6366f1"></stop>
+<stop offset="100%" stop-color="#0ea5e9"></stop>
+</linearGradient>
+</defs>
+</svg>
+</div>
+</div>
+</section>
+<section class="grid grid-cols-2 gap-4">
+<div class="glass-card p-5 rounded-2xl">
+<div class="flex items-center justify-between mb-3">
+<span class="material-symbols-outlined text-indigo-400 text-xl">account_balance_wallet</span>
+<span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Cash</span>
+</div>
+<p class="text-xl financial-figure font-bold">$342.00</p>
+</div>
+<div class="glass-card p-5 rounded-2xl">
+<div class="flex items-center justify-between mb-3">
+<span class="material-symbols-outlined text-accent text-xl">contactless</span>
+<span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Digital</span>
+</div>
+<p class="text-xl financial-figure font-bold">$418.50</p>
+</div>
+</section>
+<section class="glass-card rounded-3xl p-6 relative overflow-hidden">
+<div class="flex justify-between items-center mb-8">
+<h3 class="text-sm font-bold uppercase tracking-widest text-slate-400">Activity Flow</h3>
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]"></div>
+<span class="text-[10px] font-bold text-slate-500 uppercase">Live</span>
+</div>
+</div>
+<div class="h-40 w-full relative">
+<div class="absolute inset-0 flex flex-col justify-between opacity-10">
+<div class="w-full h-px bg-slate-100"></div>
+<div class="w-full h-px bg-slate-100"></div>
+<div class="w-full h-px bg-slate-100"></div>
+</div>
+<svg class="absolute inset-0 w-full h-full glowing-line overflow-visible" viewBox="0 0 300 120">
+<path d="M0,100 C30,95 50,40 80,60 C110,80 140,20 180,30 C220,40 250,110 300,80" fill="none" stroke="url(#main-glow)" stroke-linecap="round" stroke-width="4"></path>
+<defs>
+<linearGradient id="main-glow" x1="0%" x2="100%" y1="0%" y2="0%">
+<stop offset="0%" stop-color="#6366f1"></stop>
+<stop offset="50%" stop-color="#0ea5e9"></stop>
+<stop offset="100%" stop-color="#6366f1"></stop>
+</linearGradient>
+</defs>
+<circle cx="180" cy="30" fill="white" r="4"></circle>
+<circle class="opacity-20" cx="180" cy="30" fill="white" r="10"></circle>
+</svg>
+</div>
+<div class="flex justify-between mt-4">
+<span class="text-[10px] financial-figure text-slate-500">18:00</span>
+<span class="text-[10px] financial-figure text-indigo-400 font-bold">Peak</span>
+<span class="text-[10px] financial-figure text-slate-500">02:00</span>
+</div>
+</section>
+<section class="space-y-3">
+<h3 class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 px-2">Volume Breakdown</h3>
+<div class="glass-card px-6 py-5 rounded-2xl flex justify-between items-center group">
+<div class="flex items-center gap-4">
+<div class="w-11 h-11 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-indigo-400">minor_crash</span>
+</div>
+<div>
+<p class="text-sm font-bold">Standard Valet</p>
+<p class="text-[10px] text-slate-500 uppercase font-medium">62 Units</p>
+</div>
+</div>
+<p class="financial-figure font-bold text-lg">$930.00</p>
+</div>
+<div class="glass-card px-6 py-5 rounded-2xl flex justify-between items-center">
+<div class="flex items-center gap-4">
+<div class="w-11 h-11 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-accent">diamond</span>
+</div>
+<div>
+<p class="text-sm font-bold">VIP Priority</p>
+<p class="text-[10px] text-slate-500 uppercase font-medium">22 Units</p>
+</div>
+</div>
+<p class="financial-figure font-bold text-lg">$318.50</p>
+</div>
+</section>
+<button class="w-full bg-white text-background-dark py-5 rounded-2xl font-bold tracking-tight text-sm shadow-[0_20px_40px_rgba(255,255,255,0.1)] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+        FINALIZE REPORT
+        <span class="material-symbols-outlined text-lg">arrow_forward_ios</span>
+</button>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 bg-background-dark/30 ios-blur border-t border-white/5 px-8 py-5 flex justify-between items-center z-50">
+<button class="flex flex-col items-center justify-center w-12 h-12 text-slate-500">
+<span class="material-symbols-outlined">grid_view</span>
+</button>
+<button class="flex flex-col items-center justify-center w-12 h-12 text-slate-500">
+<span class="material-symbols-outlined">directions_car</span>
+</button>
+<button class="flex flex-col items-center justify-center w-14 h-14 bg-indigo-500 text-white rounded-2xl shadow-[0_8px_20px_rgba(99,102,241,0.4)]">
+<span class="material-symbols-outlined">analytics</span>
+</button>
+<button class="flex flex-col items-center justify-center w-12 h-12 text-slate-500">
+<span class="material-symbols-outlined">group</span>
+</button>
+<button class="flex flex-col items-center justify-center w-12 h-12 text-slate-500">
+<span class="material-symbols-outlined">adjust</span>
+</button>
+</nav>
+<div class="fixed inset-0 pointer-events-none opacity-[0.03] contrast-150 grayscale" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDoDJ0N5QFqccWXzuH8W88-r74z4xqjmU_iDuLEECuvAYn636TXsxwSaz65glA5FRr5ZUmlaxxMB-mqyDxA6NxjMiBS-8MeAGcL1Kc6_pdmfcIjl5Dimfpr0PYyUKOwbcie259TsUSKvJF5DM7C9pNtyg4gXMOuAZGtxQi_y73MVjifrHfta9uhLm_nRAJjlJn5Jetxuv-Tb5SOfT-WVBe6VXTD2C7ssmuEZmy1FfegYE_Sg3qcJhdv5gVDd7nQoufnB-8XV0RysqHt');"></div>
+
+</body></html>

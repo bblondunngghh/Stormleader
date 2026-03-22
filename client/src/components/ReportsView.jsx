@@ -9,7 +9,9 @@ import {
 } from '../api/crm';
 import useIsMobile from '../hooks/useIsMobile';
 
-// Hex palette approximating oklch values — required by recharts
+// Recharts renders via SVG attributes (not CSS properties), so oklch() may not
+// work in all browsers for SVG fill/stroke. These hex values approximate the
+// oklch design-system palette and are kept intentionally for SVG compatibility.
 const CHART_COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#f97316'];
 
 const STAGE_LABELS = {

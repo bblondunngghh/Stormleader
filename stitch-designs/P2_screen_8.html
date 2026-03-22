@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Incident Report Form</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ios-shadow {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="max-w-[430px] mx-auto bg-background-light dark:bg-background-dark min-h-screen flex flex-col relative pb-20">
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-3 flex items-center justify-between">
+<button class="text-primary font-medium text-sm">Cancel</button>
+<h1 class="text-base font-semibold">Incident Report</h1>
+<button class="text-primary font-bold text-sm">Submit</button>
+</header>
+<main class="flex-1 overflow-y-auto p-4 space-y-6">
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Basic Information</h2>
+<span class="text-[10px] bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full font-bold">URGENT</span>
+</div>
+<div class="bg-white dark:bg-slate-900 rounded-xl ios-shadow overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+<div class="p-4 flex items-center space-x-3">
+<span class="material-icons text-slate-400 text-lg">confirmation_number</span>
+<div class="flex-1">
+<label class="block text-[10px] font-bold text-slate-400 uppercase" for="ticket">Ticket Number</label>
+<input class="w-full bg-transparent border-none p-0 text-base focus:ring-0 placeholder:text-slate-300 dark:placeholder:text-slate-600" id="ticket" placeholder="e.g. 84920" type="number"/>
+</div>
+</div>
+</div>
+</section>
+<section class="space-y-4">
+<h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Vehicle Details</h2>
+<div class="bg-white dark:bg-slate-900 rounded-xl ios-shadow overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+<div class="p-4 flex items-center space-x-3">
+<span class="material-icons text-slate-400 text-lg">directions_car</span>
+<div class="flex-1">
+<label class="block text-[10px] font-bold text-slate-400 uppercase" for="make-model">Make &amp; Model</label>
+<input class="w-full bg-transparent border-none p-0 text-base focus:ring-0 placeholder:text-slate-300 dark:placeholder:text-slate-600" id="make-model" placeholder="Tesla Model 3" type="text"/>
+</div>
+</div>
+<div class="p-4 flex items-center space-x-3">
+<span class="material-icons text-slate-400 text-lg">badge</span>
+<div class="flex-1">
+<label class="block text-[10px] font-bold text-slate-400 uppercase" for="plate">License Plate</label>
+<input class="w-full bg-transparent border-none p-0 text-base focus:ring-0 placeholder:text-slate-300 dark:placeholder:text-slate-600" id="plate" placeholder="ABC-1234" type="text"/>
+</div>
+</div>
+</div>
+</section>
+<section class="space-y-4">
+<h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Incident Evidence</h2>
+<div class="space-y-3">
+<button class="w-full bg-primary hover:bg-primary/90 text-white flex items-center justify-center space-x-2 py-4 rounded-xl font-bold transition-all active:scale-[0.98]">
+<span class="material-icons">add_a_photo</span>
+<span>Add Photos</span>
+</button>
+<div class="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide">
+<div class="relative flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-800">
+<img class="w-full h-full object-cover" data-alt="Close up photo of car bumper scratch" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuPaLweJt9P3Go6dwRN1MWObXfX95u4OdfBAntti_IEc3vdt3TEcrrFgVBPC5aypjD2PeCN3QUe8fwXgN0-RvGc1vftX8ApxY0TnGmGd6SkCxZTNpoJlBAVU04s-hc8Sa4e054qVt68GKp8e3ALTiuXVqLTlAvJ0F-XIxfHP93wB8_myvX3BRFRaITM1hvMik8e8kTjo4k3ufjtDBy5DkFzAnBTtebeOKzdc2UBKN5uZvB4xzIWXfSaOP8tbzHCM4yn1dPUQ9bal-0"/>
+<button class="absolute top-1 right-1 bg-black/50 text-white rounded-full p-0.5">
+<span class="material-icons text-xs">close</span>
+</button>
+</div>
+<div class="relative flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-800">
+<img class="w-full h-full object-cover" data-alt="Photo of car side door dent" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeMdoMgaoUBonLWRFmcyLi6BzGO-jEBP8jMZuux8MKDGeRsPwMFv7HzjTQSPOqs1d5Whnk2dGHD1rjAq9EolZVNjuU901XXrBLukj7272PKP3pCh57IIiUYA_NrpDZOrmIKWoMXI0ezgebeacul6ZLtizSUDb1pKGQ_r3-bpR7hSRJeK3vGA4HcRHmHRNAt6b1P3otmsNRVviz5dodu06Ioiy2ZL5GJ1ZX8aF9hYQORfVfx4C_y3mQVPanI1iFUaWUCOpJ07Sn4iaJ"/>
+<button class="absolute top-1 right-1 bg-black/50 text-white rounded-full p-0.5">
+<span class="material-icons text-xs">close</span>
+</button>
+</div>
+<div class="flex-shrink-0 w-24 h-24 rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center">
+<span class="material-icons text-slate-300 dark:text-slate-700">add</span>
+</div>
+</div>
+</div>
+</section>
+<section class="space-y-4">
+<h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Description</h2>
+<div class="bg-white dark:bg-slate-900 rounded-xl ios-shadow p-4">
+<textarea class="w-full bg-transparent border-none p-0 text-base focus:ring-0 placeholder:text-slate-300 dark:placeholder:text-slate-600 resize-none" placeholder="Describe the incident in detail..." rows="4"></textarea>
+</div>
+</section>
+<section class="pt-4 flex items-center space-x-2 text-slate-400 px-1">
+<span class="material-icons text-sm">info</span>
+<p class="text-[11px] leading-tight">By submitting, you confirm that all photos and details provided are accurate to the best of your knowledge.</p>
+</section>
+</main>
+<footer class="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto p-4 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md border-t border-slate-200 dark:border-slate-800">
+<button class="w-full bg-primary py-3.5 rounded-xl text-white font-bold flex items-center justify-center space-x-2 shadow-lg shadow-primary/20">
+<span>Submit Report</span>
+<span class="material-icons text-sm">send</span>
+</button>
+</footer>
+</div>
+
+```</body></html>

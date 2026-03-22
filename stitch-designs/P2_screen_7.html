@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Key Inventory &amp; Activity</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased min-h-screen">
+<!-- iOS Status Bar Placeholder -->
+<div class="h-11 bg-white dark:bg-background-dark flex items-center justify-between px-6 sticky top-0 z-50">
+<span class="text-sm font-semibold">9:41</span>
+<div class="flex items-center space-x-2">
+<span class="material-icons text-xs">signal_cellular_alt</span>
+<span class="material-icons text-xs">wifi</span>
+<span class="material-icons text-xs">battery_full</span>
+</div>
+</div>
+<!-- Header & Title -->
+<header class="bg-white dark:bg-background-dark border-b border-slate-200 dark:border-slate-800 px-4 pt-4 pb-2 sticky top-11 z-40">
+<div class="flex justify-between items-center mb-4">
+<h1 class="text-2xl font-bold tracking-tight">Key Inventory</h1>
+<div class="flex items-center space-x-1 text-xs text-primary bg-primary/10 px-2 py-1 rounded-full">
+<span class="material-icons text-[12px] animate-pulse">sync</span>
+<span class="font-medium uppercase tracking-wider text-[10px]">Live Updates</span>
+</div>
+</div>
+<!-- Search Bar -->
+<div class="relative mb-4">
+<span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+<input class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-xl pl-10 pr-4 py-3 text-sm focus:ring-2 focus:ring-primary" placeholder="Search ticket, make, or color..." type="text"/>
+</div>
+<!-- Filter Segmented Control -->
+<div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex">
+<button class="flex-1 py-1.5 text-sm font-semibold rounded-lg bg-white dark:bg-slate-700 shadow-sm text-primary">All (42)</button>
+<button class="flex-1 py-1.5 text-sm font-medium rounded-lg text-slate-500 dark:text-slate-400">Arriving</button>
+<button class="flex-1 py-1.5 text-sm font-medium rounded-lg text-slate-500 dark:text-slate-400">Departed</button>
+</div>
+</header>
+<!-- Content Area -->
+<main class="p-4 pb-32">
+<div class="flex justify-between items-center mb-3">
+<span class="text-xs font-bold uppercase tracking-widest text-slate-500">Current Inventory</span>
+<span class="text-xs text-slate-400">Sorted by Ticket #</span>
+</div>
+<!-- Inventory List -->
+<div class="space-y-3">
+<!-- Vehicle Card 1 -->
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-between">
+<div class="flex items-center space-x-4">
+<div class="flex flex-col items-center justify-center bg-primary/10 w-16 h-16 rounded-lg">
+<span class="text-[10px] font-bold text-primary uppercase leading-none">Ticket</span>
+<span class="text-lg font-bold text-primary">4502</span>
+</div>
+<div>
+<div class="flex items-center space-x-2">
+<span class="font-bold text-base">Tesla Model 3</span>
+<span class="w-2 h-2 rounded-full bg-slate-300"></span>
+<span class="text-sm text-slate-500">Silver</span>
+</div>
+<p class="text-xs text-slate-400 mt-1 flex items-center">
+<span class="material-icons text-xs mr-1">schedule</span>
+                            Arrived 12m ago
+                        </p>
+</div>
+</div>
+<div class="text-right">
+<div class="inline-block px-3 py-1 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="block text-[10px] text-slate-400 font-bold uppercase leading-tight">Spot</span>
+<span class="text-lg font-bold tracking-tight">A-12</span>
+</div>
+</div>
+</div>
+<!-- Vehicle Card 2 -->
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-between">
+<div class="flex items-center space-x-4">
+<div class="flex flex-col items-center justify-center bg-primary/10 w-16 h-16 rounded-lg">
+<span class="text-[10px] font-bold text-primary uppercase leading-none">Ticket</span>
+<span class="text-lg font-bold text-primary">4508</span>
+</div>
+<div>
+<div class="flex items-center space-x-2">
+<span class="font-bold text-base">BMW X5</span>
+<span class="w-2 h-2 rounded-full bg-blue-600"></span>
+<span class="text-sm text-slate-500">Blue</span>
+</div>
+<p class="text-xs text-slate-400 mt-1 flex items-center">
+<span class="material-icons text-xs mr-1">schedule</span>
+                            Arrived 45m ago
+                        </p>
+</div>
+</div>
+<div class="text-right">
+<div class="inline-block px-3 py-1 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="block text-[10px] text-slate-400 font-bold uppercase leading-tight">Spot</span>
+<span class="text-lg font-bold tracking-tight">B-04</span>
+</div>
+</div>
+</div>
+<!-- Vehicle Card 3 -->
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-between opacity-80 border-l-4 border-l-amber-500">
+<div class="flex items-center space-x-4">
+<div class="flex flex-col items-center justify-center bg-primary/10 w-16 h-16 rounded-lg">
+<span class="text-[10px] font-bold text-primary uppercase leading-none">Ticket</span>
+<span class="text-lg font-bold text-primary">4511</span>
+</div>
+<div>
+<div class="flex items-center space-x-2">
+<span class="font-bold text-base">Toyota Camry</span>
+<span class="w-2 h-2 rounded-full bg-red-600"></span>
+<span class="text-sm text-slate-500">Red</span>
+</div>
+<div class="flex items-center space-x-2 mt-1">
+<span class="text-[10px] font-bold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded uppercase">Requested</span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<div class="inline-block px-3 py-1 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="block text-[10px] text-slate-400 font-bold uppercase leading-tight">Spot</span>
+<span class="text-lg font-bold tracking-tight">C-15</span>
+</div>
+</div>
+</div>
+<!-- Vehicle Card 4 -->
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-between">
+<div class="flex items-center space-x-4">
+<div class="flex flex-col items-center justify-center bg-primary/10 w-16 h-16 rounded-lg">
+<span class="text-[10px] font-bold text-primary uppercase leading-none">Ticket</span>
+<span class="text-lg font-bold text-primary">4515</span>
+</div>
+<div>
+<div class="flex items-center space-x-2">
+<span class="font-bold text-base">Audi A4</span>
+<span class="w-2 h-2 rounded-full bg-black"></span>
+<span class="text-sm text-slate-500">Black</span>
+</div>
+<p class="text-xs text-slate-400 mt-1 flex items-center">
+<span class="material-icons text-xs mr-1">schedule</span>
+                            Arrived 1h ago
+                        </p>
+</div>
+</div>
+<div class="text-right">
+<div class="inline-block px-3 py-1 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="block text-[10px] text-slate-400 font-bold uppercase leading-tight">Spot</span>
+<span class="text-lg font-bold tracking-tight">A-08</span>
+</div>
+</div>
+</div>
+<!-- Vehicle Card 5 -->
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-between">
+<div class="flex items-center space-x-4">
+<div class="flex flex-col items-center justify-center bg-primary/10 w-16 h-16 rounded-lg">
+<span class="text-[10px] font-bold text-primary uppercase leading-none">Ticket</span>
+<span class="text-lg font-bold text-primary">4519</span>
+</div>
+<div>
+<div class="flex items-center space-x-2">
+<span class="font-bold text-base">Lexus RX</span>
+<span class="w-2 h-2 rounded-full bg-white border border-slate-300"></span>
+<span class="text-sm text-slate-500">White</span>
+</div>
+<p class="text-xs text-slate-400 mt-1 flex items-center">
+<span class="material-icons text-xs mr-1">schedule</span>
+                            Arrived 2h ago
+                        </p>
+</div>
+</div>
+<div class="text-right">
+<div class="inline-block px-3 py-1 bg-slate-100 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="block text-[10px] text-slate-400 font-bold uppercase leading-tight">Spot</span>
+<span class="text-lg font-bold tracking-tight">D-02</span>
+</div>
+</div>
+</div>
+</div>
+<!-- FAB for New Arrival -->
+<div class="fixed bottom-24 right-6">
+<button class="bg-primary text-white w-14 h-14 rounded-full shadow-lg shadow-primary/40 flex items-center justify-center">
+<span class="material-icons text-3xl">add</span>
+</button>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-background-dark/80 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 px-6 pb-8 pt-2 flex justify-between items-center z-50">
+<button class="flex flex-col items-center space-y-1 text-primary">
+<span class="material-icons">directions_car</span>
+<span class="text-[10px] font-bold uppercase">Inventory</span>
+</button>
+<button class="flex flex-col items-center space-y-1 text-slate-400">
+<span class="material-icons">history</span>
+<span class="text-[10px] font-bold uppercase">Activity</span>
+</button>
+<button class="flex flex-col items-center space-y-1 text-slate-400">
+<span class="material-icons">analytics</span>
+<span class="text-[10px] font-bold uppercase">Reports</span>
+</button>
+<button class="flex flex-col items-center space-y-1 text-slate-400">
+<span class="material-icons">settings</span>
+<span class="text-[10px] font-bold uppercase">Settings</span>
+</button>
+</nav>
+<!-- Home Indicator -->
+<div class="fixed bottom-1 left-1/2 -translate-x-1/2 w-32 h-1 bg-slate-300 dark:bg-slate-700 rounded-full z-[60]"></div>
+</body></html>

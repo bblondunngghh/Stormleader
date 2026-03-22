@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getWorkOrders, createWorkOrder, createWorkOrderFromEstimate, updateWorkOrder, completeWorkOrder, getTeamMembers } from '../api/crm';
 import { getEstimates } from '../api/estimates';
 import { showToast } from './Toast';
@@ -91,15 +91,15 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
     <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="glass" onClick={e => e.stopPropagation()} style={{
         width: '100%', maxWidth: 580, maxHeight: '90vh', overflow: 'auto',
-        borderRadius: '24px / 22px', padding: 28,
+        borderRadius: 'var(--radius-xl)', padding: 'var(--space-xl)',
         boxShadow: '0 24px 80px oklch(0 0 0 / 0.5), inset 0 1px 0 oklch(1 0 0 / 0.06)',
       }}>
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-lg)' }}>
           <div>
             <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Work Order Detail</h2>
             <span style={{
-              display: 'inline-block', marginTop: 6, padding: '2px 10px', borderRadius: 99,
+              display: 'inline-block', marginTop: 6, padding: '2px 10px', borderRadius: 'var(--radius-pill)',
               fontSize: 11, fontWeight: 700, color: statusColor,
               background: `color-mix(in oklch, ${statusColor} 14%, transparent)`,
             }}>{wo.status?.replace('_', ' ').toUpperCase()}</span>
@@ -110,21 +110,21 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
         </div>
 
         {/* Form Fields */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+          <label style={labelStyle}>
             Title
             <input value={form.title} onChange={e => handleChange('title', e.target.value)}
               style={inputStyle} />
           </label>
 
-          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>
+          <label style={labelStyle}>
             Description
             <textarea value={form.description} onChange={e => handleChange('description', e.target.value)}
               rows={2} style={{ ...inputStyle, resize: 'vertical' }} />
           </label>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)' }}>
+            <label style={labelStyle}>
               Assigned To
               <select value={form.assigned_to} onChange={e => handleChange('assigned_to', e.target.value)} style={inputStyle}>
                 <option value="">Unassigned</option>
@@ -135,23 +135,23 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
                 ))}
               </select>
             </label>
-            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>
+            <label style={labelStyle}>
               Crew Name
               <input value={form.crew_name} onChange={e => handleChange('crew_name', e.target.value)}
                 style={inputStyle} placeholder="e.g. Crew A" />
             </label>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-md)' }}>
+            <label style={labelStyle}>
               Date
               <input type="date" value={form.scheduled_date} onChange={e => handleChange('scheduled_date', e.target.value)} style={inputStyle} />
             </label>
-            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>
+            <label style={labelStyle}>
               Start Time
               <input type="time" value={form.scheduled_time_start} onChange={e => handleChange('scheduled_time_start', e.target.value)} style={inputStyle} />
             </label>
-            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>
+            <label style={labelStyle}>
               End Time
               <input type="time" value={form.scheduled_time_end} onChange={e => handleChange('scheduled_time_end', e.target.value)} style={inputStyle} />
             </label>
@@ -179,7 +179,7 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
             </div>
           )}
 
-          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>
+          <label style={labelStyle}>
             Notes
             <textarea value={form.notes} onChange={e => handleChange('notes', e.target.value)}
               rows={3} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Internal notes..." />
@@ -194,7 +194,7 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
         </div>
 
         {/* Actions */}
-        <div style={{ display: 'flex', gap: 10, marginTop: 20, justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-md)', marginTop: 'var(--space-lg)', justifyContent: 'flex-end' }}>
           {wo.status !== 'completed' && (
             <button onClick={handleComplete} disabled={saving} style={{
               ...btnStyle,
@@ -248,7 +248,7 @@ function CreateWorkOrderModal({ onClose, onCreate, teamMembers }) {
   return (
     <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <form className="glass" onClick={e => e.stopPropagation()} onSubmit={handleSubmit} style={{
-        width: '100%', maxWidth: 480, borderRadius: '24px / 22px', padding: 28,
+        width: '100%', maxWidth: 480, borderRadius: 'var(--radius-xl)', padding: 'var(--space-xl)',
         boxShadow: '0 24px 80px oklch(0 0 0 / 0.5), inset 0 1px 0 oklch(1 0 0 / 0.06)',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
@@ -258,7 +258,7 @@ function CreateWorkOrderModal({ onClose, onCreate, teamMembers }) {
           </button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
           <label style={labelStyle}>
             Title *
             <input value={form.title} onChange={e => handleChange('title', e.target.value)} style={inputStyle} placeholder="e.g. Roof Replacement" required />
@@ -332,7 +332,7 @@ function EstimatePickerModal({ onClose, onPick }) {
     <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="glass" onClick={e => e.stopPropagation()} style={{
         width: '100%', maxWidth: 480, maxHeight: '70vh', overflow: 'auto',
-        borderRadius: '24px / 22px', padding: 28,
+        borderRadius: 'var(--radius-xl)', padding: 'var(--space-xl)',
         boxShadow: '0 24px 80px oklch(0 0 0 / 0.5), inset 0 1px 0 oklch(1 0 0 / 0.06)',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
@@ -495,7 +495,7 @@ export default function WorkOrdersView() {
       }}>
         <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Work Orders</h1>
         <span style={{
-          fontSize: 12, fontWeight: 700, padding: '2px 10px', borderRadius: 99,
+          fontSize: 12, fontWeight: 700, padding: '2px 10px', borderRadius: 'var(--radius-pill)',
           color: 'var(--text-muted)', background: 'oklch(1 0 0 / 0.06)',
         }}>{workOrders.length}</span>
 
@@ -548,15 +548,15 @@ export default function WorkOrdersView() {
                 <div
                   className="glass"
                   style={{
-                    display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px',
-                    borderRadius: '20px / 18px', position: 'sticky', top: 0, zIndex: 10,
+                    display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', padding: 'var(--space-md) var(--space-lg)',
+                    borderRadius: 'var(--radius-xl)', position: 'sticky', top: 0, zIndex: 10,
                     boxShadow: '0 8px 32px oklch(0 0 0 / 0.25), inset 0 1px 0 oklch(1 0 0 / 0.05)',
                   }}
                 >
                   <span style={{ width: 10, height: 10, borderRadius: '50%', background: col.color, flexShrink: 0 }} />
                   <span style={{ fontSize: 13, fontWeight: 700, color: col.color, flex: 1 }}>{col.label}</span>
                   <span style={{
-                    fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 99,
+                    fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 'var(--radius-pill)',
                     color: col.color, background: `color-mix(in oklch, ${col.color} 12%, transparent)`,
                   }}>{colOrders.length}</span>
                 </div>
@@ -572,7 +572,7 @@ export default function WorkOrdersView() {
                       onDragEnd={handleDragEnd}
                       onClick={() => setSelectedWO(wo)}
                       style={{
-                        padding: 16, borderRadius: '20px / 18px', cursor: 'pointer',
+                        padding: 'var(--space-lg)', borderRadius: 'var(--radius-xl)', cursor: 'pointer',
                         display: 'flex', flexDirection: 'column', gap: 6,
                         boxShadow: '0 8px 32px oklch(0 0 0 / 0.25), inset 0 1px 0 oklch(1 0 0 / 0.05)',
                         transition: 'transform 0.15s, box-shadow 0.15s',

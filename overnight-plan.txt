@@ -1,0 +1,82 @@
+You are working on the StormLeads application — a roofing CRM and storm lead generation tool. Your job is to implement features from the plan at docs/superpowers/plans/2026-03-21-competitor-feature-parity.md.
+
+CRITICAL CONSTRAINTS — VIOLATING THESE IS A HARD FAILURE:
+1. ZERO paid APIs. Only free public data sources (NOAA, FEMA NSI).
+2. ZERO bulk geocoding. Google geocoding API costs real money. All geocode calls must be user-initiated, one-at-a-time, triggered by button click only.
+3. ZERO bulk DB writes. All data writes must be gated behind explicit user actions. Production DB is Neon free tier.
+4. Follow existing patterns: oklch colors, .glass class for panels, dark-mode-first, pool.query() from ../db/pool.js, axios client from ../api/client.
+5. Build check after EVERY feature: cd /c/Projects/stormleads/client && npx vite build — fix any errors before committing.
+6. Commit after EVERY completed feature with a descriptive message.
+
+INSTRUCTIONS:
+1. Read the full plan at docs/superpowers/plans/2026-03-21-competitor-feature-parity.md
+2. Read MEMORY.md at C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\MEMORY.md for project context and constraints.
+3. Check which tasks are already completed by reviewing git log and existing files. Skip any tasks already done.
+4. For each remaining task (1 through 9), implement it following the plan steps exactly.
+5. After implementing each feature, verify the build passes: cd /c/Projects/stormleads/client && npx vite build
+6. After the build passes, commit with: git add -A && git commit -m "feat: <descriptive message>"
+
+VISUAL TESTING WITH CHROME:
+After implementing each frontend feature:
+1. Make sure the dev servers are running. If not, start them:
+   - Backend: cd /c/Projects/stormleads && npm run dev (runs on port 3001)
+   - Frontend: cd /c/Projects/stormleads/client && npm run dev (runs on port 5173)
+2. Use the Chrome MCP browser tools to navigate to http://localhost:5173
+3. Log in if needed (check .env for test credentials or create a test user)
+4. Navigate to the new feature's page and visually verify:
+   - The page loads without errors
+   - The UI matches the glass/oklch design system
+   - Buttons and interactions work
+   - Check browser console for errors using read_console_messages
+5. If you find visual bugs or errors, fix them before moving to the next feature.
+6. Take a screenshot of each completed feature for review.
+
+UI REVIEW (MANDATORY for every frontend feature):
+After visual testing, perform a professional-grade UI review. This is NON-NEGOTIABLE:
+1. ALIGNMENT: All elements on the same row must share the same vertical center and height. Buttons next to dropdowns must have matching height and vertical alignment. Form inputs in the same group must be flush.
+2. SIZING: Buttons, badges, inputs, and cards must match sizing patterns used elsewhere in the app. Check existing components (Pipeline.jsx, Dashboard.jsx, EstimatesView.jsx) for reference dimensions.
+3. SPACING: Consistent gaps between sections (typically 16-24px), cards (12-16px gap), form groups (12px). Use the same spacing values as existing views.
+4. TYPOGRAPHY: Labels are typically 12px muted color, values 13-14px normal weight. Section headers match existing patterns.
+5. THEME: oklch colors ONLY. Glass panels with backdrop-filter. Dark-mode-first. No raw hex colors. No light-mode-only styles.
+6. COMPARE: Open an existing view (e.g., Pipeline or Estimates) side-by-side to compare element sizing, button styles, card patterns. The new feature must look like it was built by the same developer.
+7. If ANY alignment, sizing, or spacing inconsistencies are found, FIX THEM before committing. This must look like it was built by a senior frontend developer.
+
+PHASE 2: OPTIMIZATION (after all 9 features are built)
+If all 9 features from the plan are already implemented (check git log), shift to optimization mode:
+
+1. STORM MAP PERFORMANCE:
+   - Profile the map rendering. Identify slow paths.
+   - Ensure FEMA properties ONLY load within storm swath areas (never outside).
+   - Optimize Supercluster rebuilds — batch updates instead of rebuilding per chunk.
+   - Reduce canvas redraws — only redraw when visible properties actually change.
+   - Test with large datasets (1000+ properties visible).
+
+2. BUNDLE SIZE:
+   - Check if any large libraries can be lazy-loaded or code-split.
+   - Ensure all new views (Calendar, Reports, Invoices, etc.) are lazy-loaded.
+
+3. DATABASE QUERY OPTIMIZATION:
+   - Add missing indexes for new tables (invoices, canvass_pins, work_orders, custom_field_definitions).
+   - Review report queries for efficiency — ensure they use indexes.
+   - Check for N+1 query patterns in list endpoints.
+
+4. UI POLISH:
+   - Review EVERY new frontend page for alignment, sizing, spacing consistency.
+   - Compare button heights, input heights, card padding against existing pages.
+   - Fix any inconsistencies between new and existing pages.
+   - Test mobile responsiveness of new views.
+
+5. GENERAL CODE QUALITY:
+   - Remove any unused imports or dead code introduced by the 9 features.
+   - Ensure error handling is consistent across all new routes.
+   - Check for potential memory leaks (event listeners, intervals not cleaned up).
+
+WHEN FINISHED:
+1. Create a file called OVERNIGHT-REPORT.md in the project root summarizing:
+   - Which tasks were completed (new features OR optimization work)
+   - What was optimized and the before/after impact
+   - Any issues found and how they were resolved
+   - Any features that had issues (and what the issues were)
+   - Screenshots taken of UI review
+2. Run a final build check
+3. Create a final commit with all remaining changes

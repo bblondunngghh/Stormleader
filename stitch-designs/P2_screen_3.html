@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Advanced Incident Logging</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00f2ff",
+                        "accent": "#7000ff",
+                        "background-dark": "#05070a",
+                        "card-dark": "#0f131a",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --glass-bg: rgba(15, 19, 26, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --neon-blue: #00f2ff;
+            --neon-purple: #7000ff;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #05070a;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+        }
+        .glossy-button {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glossy-button:hover {
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+            border-color: var(--neon-blue);
+            transform: translateY(-1px);
+        }
+        .neon-text {
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+        }
+        .car-wireframe-container {
+            perspective: 1000px;
+            height: 200px;
+            background: radial-gradient(circle at center, rgba(0, 242, 255, 0.05) 0%, transparent 70%);
+        }
+        .damage-point {
+            @apply absolute w-4 h-4 bg-red-500 rounded-full border-2 border-white cursor-pointer;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .drag-drop-zone {
+            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%2300F2FF44' stroke-width='2' stroke-dasharray='8%2c 12' stroke-linecap='square'/%3e%3c/svg%3e");
+            transition: all 0.4s ease;
+        }
+        .drag-drop-zone:hover {
+            background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='24' ry='24' stroke='%2300F2FF' stroke-width='2' stroke-dasharray='0' stroke-linecap='square'/%3e%3c/svg%3e");
+            background-color: rgba(0, 242, 255, 0.03);
+        }
+        .ios-modal-handle {
+            width: 36px;
+            height: 5px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 2.5px;
+            margin: 8px auto;
+        }
+        .scanner-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+            animation: scan 3s infinite linear;
+        }
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display text-white">
+<div class="max-w-[430px] mx-auto min-h-screen flex flex-col relative pb-32">
+<div class="ios-modal-handle"></div>
+<header class="px-6 pt-2 pb-6 flex items-center justify-between sticky top-0 z-50 bg-background-dark/80 backdrop-blur-lg">
+<button class="text-white/60 text-sm font-medium">Cancel</button>
+<div class="text-center">
+<h1 class="text-lg font-bold tracking-tight neon-text">ADVANCED LOGGING</h1>
+<p class="text-[10px] text-primary/60 tracking-[0.2em] font-bold uppercase">System Active</p>
+</div>
+<button class="text-primary font-bold text-sm">SUBMIT</button>
+</header>
+<main class="flex-1 px-6 space-y-8">
+<section class="grid grid-cols-2 gap-4">
+<div class="glass-card rounded-2xl p-4 flex flex-col space-y-1 border-l-4 border-l-primary/50">
+<label class="text-[10px] font-bold text-white/40 uppercase tracking-widest">Ticket ID</label>
+<input class="bg-transparent border-none p-0 text-lg font-bold focus:ring-0 text-white" type="text" value="#84920"/>
+</div>
+<div class="glass-card rounded-2xl p-4 flex flex-col space-y-1 border-l-4 border-l-red-500/50">
+<label class="text-[10px] font-bold text-white/40 uppercase tracking-widest">Priority</label>
+<div class="flex items-center space-x-2">
+<span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
+<span class="text-lg font-bold text-red-400">CRITICAL</span>
+</div>
+</div>
+</section>
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="text-xs font-black uppercase tracking-[0.2em] text-white/40">Visual Damage Map</h2>
+<span class="text-[10px] text-primary font-bold">3D WIREFRAME ACTIVE</span>
+</div>
+<div class="glass-card rounded-3xl overflow-hidden relative car-wireframe-container flex items-center justify-center p-8">
+<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(var(--neon-blue) 1px, transparent 1px); background-size: 20px 20px;"></div>
+<div class="relative w-full h-full flex items-center justify-center">
+<svg class="w-full h-auto opacity-40 stroke-primary" fill="none" stroke-width="0.5" viewBox="0 0 200 100">
+<path d="M20,70 Q20,30 50,25 L150,25 Q180,30 180,70 L170,75 L30,75 Z"></path>
+<circle cx="50" cy="75" r="12"></circle>
+<circle cx="150" cy="75" r="12"></circle>
+<path d="M50,25 L60,10 L140,10 L150,25"></path>
+</svg>
+<div class="damage-point" style="top: 25%; left: 45%;"></div>
+<div class="damage-point" style="top: 55%; right: 20%;"></div>
+</div>
+<div class="absolute bottom-4 left-4 flex flex-col space-y-1">
+<span class="text-[8px] font-mono text-primary/40">X: 42.092</span>
+<span class="text-[8px] font-mono text-primary/40">Y: 12.841</span>
+</div>
+<div class="absolute top-4 right-4">
+<span class="material-symbols-outlined text-primary text-sm">view_in_ar</span>
+</div>
+</div>
+</section>
+<section class="space-y-4">
+<h2 class="text-xs font-black uppercase tracking-[0.2em] text-white/40">Vehicle ID</h2>
+<div class="glass-card rounded-2xl divide-y divide-white/5 overflow-hidden">
+<div class="p-4 flex items-center space-x-4">
+<span class="material-symbols-outlined text-primary/60">directions_car</span>
+<div class="flex-1">
+<label class="block text-[10px] font-bold text-white/30 uppercase">Model</label>
+<input class="w-full bg-transparent border-none p-0 text-sm font-medium focus:ring-0 placeholder:text-white/10" type="text" value="Tesla Model S Plaid"/>
+</div>
+</div>
+<div class="p-4 flex items-center space-x-4">
+<span class="material-symbols-outlined text-primary/60">fingerprint</span>
+<div class="flex-1">
+<label class="block text-[10px] font-bold text-white/30 uppercase">License Plate</label>
+<input class="w-full bg-transparent border-none p-0 text-sm font-medium focus:ring-0 placeholder:text-white/10" type="text" value="PLATINUM-01"/>
+</div>
+</div>
+</div>
+</section>
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="text-xs font-black uppercase tracking-[0.2em] text-white/40">Evidence Capture</h2>
+<span class="text-[10px] text-accent font-bold italic">SECURE ENCRYPTION</span>
+</div>
+<div class="drag-drop-zone rounded-3xl p-8 flex flex-col items-center justify-center space-y-4 relative overflow-hidden group">
+<div class="scanner-line"></div>
+<div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-primary text-3xl">upload_file</span>
+</div>
+<div class="text-center">
+<p class="text-sm font-bold text-white">Drag &amp; Drop Files</p>
+<p class="text-[10px] text-white/40 mt-1 uppercase tracking-wider font-medium">or tap to initialize camera</p>
+</div>
+<button class="glossy-button px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest text-primary">
+                    Select Media
+                </button>
+</div>
+<div class="flex space-x-3 overflow-x-auto pb-4 scrollbar-hide">
+<div class="relative flex-shrink-0 w-28 h-28 rounded-2xl overflow-hidden glass-card p-1">
+<img class="w-full h-full object-cover rounded-xl opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDuPaLweJt9P3Go6dwRN1MWObXfX95u4OdfBAntti_IEc3vdt3TEcrrFgVBPC5aypjD2PeCN3QUe8fwXgN0-RvGc1vftX8ApxY0TnGmGd6SkCxZTNpoJlBAVU04s-hc8Sa4e054qVt68GKp8e3ALTiuXVqLTlAvJ0F-XIxfHP93wB8_myvX3BRFRaITM1hvMik8e8kTjo4k3ufjtDBy5DkFzAnBTtebeOKzdc2UBKN5uZvB4xzIWXfSaOP8tbzHCM4yn1dPUQ9bal-0"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<button class="absolute top-2 right-2 bg-black/50 backdrop-blur-md text-white rounded-full p-1 border border-white/10">
+<span class="material-icons text-[10px]">close</span>
+</button>
+<span class="absolute bottom-2 left-2 text-[8px] font-mono text-primary uppercase">IMG_001.RAW</span>
+</div>
+<div class="relative flex-shrink-0 w-28 h-28 rounded-2xl overflow-hidden glass-card p-1">
+<img class="w-full h-full object-cover rounded-xl opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeMdoMgaoUBonLWRFmcyLi6BzGO-jEBP8jMZuux8MKDGeRsPwMFv7HzjTQSPOqs1d5Whnk2dGHD1rjAq9EolZVNjuU901XXrBLukj7272PKP3pCh57IIiUYA_NrpDZOrmIKWoMXI0ezgebeacul6ZLtizSUDb1pKGQ_r3-bpR7hSRJeK3vGA4HcRHmHRNAt6b1P3otmsNRVviz5dodu06Ioiy2ZL5GJ1ZX8aF9hYQORfVfx4C_y3mQVPanI1iFUaWUCOpJ07Sn4iaJ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<button class="absolute top-2 right-2 bg-black/50 backdrop-blur-md text-white rounded-full p-1 border border-white/10">
+<span class="material-icons text-[10px]">close</span>
+</button>
+<span class="absolute bottom-2 left-2 text-[8px] font-mono text-primary uppercase">IMG_002.RAW</span>
+</div>
+<div class="flex-shrink-0 w-28 h-28 rounded-2xl glass-card flex items-center justify-center border-dashed border-primary/20 hover:border-primary/50 transition-colors">
+<span class="material-symbols-outlined text-primary/30">add_circle</span>
+</div>
+</div>
+</section>
+<section class="space-y-4">
+<h2 class="text-xs font-black uppercase tracking-[0.2em] text-white/40">Incident Log</h2>
+<div class="glass-card rounded-2xl p-4 focus-within:ring-1 focus-within:ring-primary/50 transition-all">
+<textarea class="w-full bg-transparent border-none p-0 text-sm font-medium focus:ring-0 placeholder:text-white/10 resize-none leading-relaxed" placeholder="Initialize report narrative..." rows="3"></textarea>
+</div>
+</section>
+<section class="flex items-start space-x-3 text-white/30 px-2">
+<span class="material-symbols-outlined text-sm mt-0.5">verified_user</span>
+<p class="text-[10px] leading-relaxed uppercase tracking-wide">Digital signature active. All metadata including timestamp and geolocation will be embedded into this report upon final transmission.</p>
+</section>
+</main>
+<footer class="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto p-6 bg-background-dark/60 backdrop-blur-xl border-t border-white/5">
+<button class="glossy-button w-full h-14 rounded-2xl flex items-center justify-center space-x-3 group">
+<span class="text-sm font-black uppercase tracking-[0.3em] text-white group-hover:text-primary transition-colors">Transmit Report</span>
+<span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">bolt</span>
+<div class="absolute top-0 -left-[100%] w-1/2 h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12"></div>
+</button>
+</footer>
+</div>
+
+</body></html>

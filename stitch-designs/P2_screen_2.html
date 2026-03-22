@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Shift Handover &amp; Sign-off</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ios-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .signature-grid {
+            background-size: 20px 20px;
+            background-image: radial-gradient(circle, #e2e8f0 1px, transparent 1px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="max-w-md mx-auto min-h-screen flex flex-col relative pb-24">
+<header class="sticky top-0 z-30 bg-white/80 dark:bg-background-dark/80 ios-blur px-5 pt-12 pb-4 border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center justify-between mb-2">
+<button class="text-primary flex items-center gap-1 font-medium">
+<span class="material-icons text-xl">chevron_left</span>
+<span>Back</span>
+</button>
+<div class="text-xs font-semibold uppercase tracking-wider text-slate-400">Shift Report</div>
+<div class="w-12"></div>
+</div>
+<h1 class="text-3xl font-bold tracking-tight">Shift Handover</h1>
+<p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Saturday, Oct 21 • Morning Shift (06:00 - 14:00)</p>
+</header>
+<main class="flex-grow p-5 space-y-6">
+<section>
+<div class="flex items-center justify-between mb-3">
+<h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Shift Summary</h2>
+<span class="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs px-2 py-0.5 rounded-full font-medium">Audit Balanced</span>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-icons text-primary text-lg">directions_car</span>
+<span class="text-xs font-medium text-slate-500">Cars Parked</span>
+</div>
+<div class="text-2xl font-bold">142</div>
+<div class="text-[10px] text-green-500 mt-1 flex items-center font-medium">
+<span class="material-icons text-[12px]">trending_up</span> 12% vs last shift
+                        </div>
+</div>
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-icons text-primary text-lg">vpn_key</span>
+<span class="text-xs font-medium text-slate-500">Keys Handed Over</span>
+</div>
+<div class="text-2xl font-bold text-primary">38</div>
+<div class="text-[10px] text-slate-400 mt-1 flex items-center font-medium">
+                            Verified by Box Audit
+                        </div>
+</div>
+</div>
+</section>
+<section>
+<div class="grid grid-cols-1 gap-3">
+<div class="flex items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-icons">payments</span>
+</div>
+<div>
+<p class="text-sm font-semibold">Total Tips</p>
+<p class="text-xs text-slate-500">Cash &amp; Digital Combined</p>
+</div>
+</div>
+<div class="text-right">
+<div class="font-bold">$245.50</div>
+<div class="text-[10px] text-slate-400">Processed</div>
+</div>
+</div>
+<div class="flex items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
+<span class="material-icons">report_problem</span>
+</div>
+<div>
+<p class="text-sm font-semibold">Incidents</p>
+<p class="text-xs text-slate-500">Damage reports or issues</p>
+</div>
+</div>
+<div class="text-right font-bold text-amber-500">0</div>
+</div>
+</div>
+</section>
+<section>
+<label class="block text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3 px-1" for="notes">Notes for Next Shift</label>
+<textarea class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm placeholder:text-slate-400 focus:ring-primary focus:border-primary" id="notes" placeholder="Enter parking lot capacity updates, VIP arrivals, or any equipment issues..." rows="4"></textarea>
+</section>
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Supervisor Sign-off</h2>
+<button class="text-primary text-xs font-semibold uppercase tracking-tight">Clear Signature</button>
+</div>
+<div class="bg-white dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl h-48 signature-grid flex items-center justify-center relative overflow-hidden group">
+<span class="text-slate-300 dark:text-slate-700 text-sm font-medium pointer-events-none select-none">Sign here for verification</span>
+<img alt="signature" class="hidden" data-alt="Sample supervisor digital signature image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhX0Luse1RB7RaJLddv5eIvYkfojltdU2gSt9dTLtUA4dhjykTaDl4NWd5Ta6S5wUshc5yoUooTSU1HDj0yALLBZieH7kDvjlsWsUMrEFJCpzTGtnB6MoaezXi7jUIU15icnxiNnoJ-xMo2gnAhORKEynNCwSbE9GTiZgtc21bou1dv5YIcCapneB9EnxhQ4T2myJC2wiIxdWGPGLypxBfkXdsRcMqTiyovi1jY-bK4Q2bfF5VrdK6C2kiE9zhGgW7OkUBTMc8v5EJ"/>
+</div>
+<div class="flex items-start gap-3 px-1">
+<div class="mt-0.5">
+<input class="rounded text-primary focus:ring-primary h-4 w-4" id="confirm" type="checkbox"/>
+</div>
+<label class="text-xs text-slate-500 leading-relaxed" for="confirm">
+                        I hereby certify that the shift summary provided above is accurate and all keys have been successfully accounted for in the secure lockbox.
+                    </label>
+</div>
+</section>
+<div class="flex flex-col items-center gap-4 py-4">
+<div class="flex -space-x-2">
+<img alt="team" class="w-8 h-8 rounded-full border-2 border-background-light dark:border-background-dark" data-alt="Portrait of a valet staff member" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2H2mj37LsjprZ2QF0CWgRcUF3vzSyOat7jkqaNXbQMvft3OUjmWfMHPsh2vEzkO1_E66BneSlbcDfEJ9qLR3t5OD-RWLyXmew-n-JTD4y4_ma10rR5pQWVieql32CRJazCzego2x0J28wXlwzHK9_qdmwXyQJWg38XEiuBAf3OocMH5XulnVCQSOd8E-ko3-flzFABUxpS6rykceX3yKpTkNauOLNsUFTEixyPdoqomApGSE2Xsgg33kgCr9CMwELZ3GiyrOdYXgf"/>
+<img alt="team" class="w-8 h-8 rounded-full border-2 border-background-light dark:border-background-dark" data-alt="Portrait of a valet supervisor member" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkJ0aP3G9fH-EAf-K5QP0aA1DM3e1hfA5uulveURRtaAcFmY3gSNcyMmjsNL0u_1q-cN4bz4qHUoPBEO-xjLdCAXvPLxyefI94Z4cqb_fLXEHvmB61tpHeufZtFBBSpant20q6mqh1-9JQHqrQrej2TsaEDt2HrMKt_2rSNl_S5PuepxOFMRTZR7BzUQBmYDcJ_hrR4MbGJZQgGH2Wsj5BcrN-yFlKg1ofuwjHt1DIwg5YRM-QvtgCh17XT-H-839iHNbQyiBeuosO"/>
+<div class="w-8 h-8 rounded-full border-2 border-background-light dark:border-background-dark bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[10px] font-bold">+4</div>
+</div>
+<p class="text-[10px] text-slate-400 font-medium">Shift Personnel: Marcus, Sarah, and 4 others</p>
+</div>
+</main>
+<footer class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-white/90 dark:bg-background-dark/90 ios-blur border-t border-slate-200 dark:border-slate-800">
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 transition-transform active:scale-[0.98]">
+<span>Submit Shift Report</span>
+<span class="material-icons">send</span>
+</button>
+</footer>
+</div>
+</body></html>

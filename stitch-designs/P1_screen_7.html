@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Storm Map | ROOF COMMAND</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "inverse-surface": "#dde2f6",
+                        "on-tertiary-fixed-variant": "#920021",
+                        "secondary": "#ffd799",
+                        "on-background": "#dde2f6",
+                        "tertiary-fixed-dim": "#ffb3b3",
+                        "secondary-fixed-dim": "#ffba38",
+                        "surface-container-low": "#161b2a",
+                        "secondary-container": "#feb300",
+                        "inverse-on-surface": "#2b3040",
+                        "primary-fixed": "#9cf0ff",
+                        "surface-container-high": "#242a39",
+                        "primary-container": "#00e5ff",
+                        "surface": "#0d1321",
+                        "on-secondary-container": "#6a4800",
+                        "primary": "#c3f5ff",
+                        "surface-container": "#1a1f2e",
+                        "on-primary-fixed-variant": "#004f58",
+                        "on-surface": "#dde2f6",
+                        "on-primary-fixed": "#001f24",
+                        "error": "#ffb4ab",
+                        "on-primary": "#00363d",
+                        "on-tertiary": "#680014",
+                        "background": "#0d1321",
+                        "on-tertiary-container": "#b4002b",
+                        "on-error": "#690005",
+                        "on-primary-container": "#00626e",
+                        "secondary-fixed": "#ffdeac",
+                        "inverse-primary": "#006875",
+                        "surface-container-lowest": "#080e1c",
+                        "surface-container-highest": "#2f3444",
+                        "tertiary-container": "#ffc1c0",
+                        "tertiary": "#ffe7e6",
+                        "on-secondary": "#432c00",
+                        "surface-bright": "#333949",
+                        "outline-variant": "#3b494c",
+                        "primary-fixed-dim": "#00daf3",
+                        "outline": "#849396",
+                        "on-surface-variant": "#bac9cc",
+                        "surface-variant": "#2f3444",
+                        "surface-dim": "#0d1321",
+                        "on-secondary-fixed": "#281900",
+                        "error-container": "#93000a",
+                        "surface-tint": "#00daf3",
+                        "on-tertiary-fixed": "#400009",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffdad9",
+                        "on-secondary-fixed-variant": "#604100"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Space Grotesk"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .pulse-indicator {
+            position: relative;
+        }
+        .pulse-indicator::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.4;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.4; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+        .glass-panel {
+            backdrop-filter: blur(20px);
+            background: rgba(13, 19, 33, 0.7);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Anchor -->
+<header class="bg-[#0d1321] dark:bg-[#0d1321] flex justify-between items-center w-full px-6 h-16 fixed top-0 z-50 shadow-[0_0_20px_rgba(0,229,255,0.05)]">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-cyan-400">menu_open</span>
+<h1 class="text-xl font-bold tracking-tighter text-cyan-400 font-headline">ROOF COMMAND</h1>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden md:flex items-center gap-8 font-label text-xs tracking-widest uppercase font-bold">
+<a class="text-slate-400 hover:text-cyan-200 transition-colors" href="#">Dashboard</a>
+<a class="text-cyan-300" href="#">Map</a>
+<a class="text-slate-400 hover:text-cyan-200 transition-colors" href="#">Pipeline</a>
+<a class="text-slate-400 hover:text-cyan-200 transition-colors" href="#">Tasks</a>
+</nav>
+<span class="material-symbols-outlined text-cyan-400">notifications</span>
+</div>
+</header>
+<main class="pt-16 pb-20 md:pb-0 min-h-screen relative overflow-hidden flex flex-col md:flex-row">
+<!-- Interactive Map Canvas -->
+<div class="flex-grow relative h-[442px] md:h-screen overflow-hidden">
+<img class="w-full h-full object-cover filter brightness-[0.3] contrast-[1.2] grayscale-[0.5]" data-alt="Dark satellite map with glowing neon radar overlays" data-location="Dallas, Texas" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyBVy43iOrzk56puu7Vm-vniy2e7xKdGE6-ACwcC6wWyLYwHvYCGRFLG3N1Ilbpa-JPxLY3sBepbLMYfN0bW5Z7DgbNQrAx6Eq6Uv3hsH9X3u2fq79pQk4gr-B5ODOrPAS6ZnKzFzzTqDvCna_18vagM-I_UHmjkeA5ZE0UA-4Bt3bTK2j-OfBnw7Z54giG8exMod3emwAAFE30058GrpAcbcnXiAemXe3YfYD1HxcuQ8dYBECYu3gHeX3lo2rxMjVq95LyqdNFEHK"/>
+<!-- Map Overlay UI: Radar Sweep -->
+<div class="absolute inset-0 pointer-events-none bg-gradient-to-tr from-background/40 to-transparent"></div>
+<!-- Dynamic Pin Layer -->
+<div class="absolute top-[30%] left-[45%] group cursor-pointer">
+<div class="pulse-indicator text-primary-container w-3 h-3 bg-primary-container rounded-full shadow-[0_0_15px_#00e5ff]"></div>
+<div class="absolute top-6 left-1/2 -translate-x-1/2 glass-panel p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity border-b border-primary-container/30">
+<p class="font-label text-[10px] text-primary whitespace-nowrap">HIGH WIND ALERT</p>
+<p class="text-xs font-bold text-on-surface">Plano Sector 4</p>
+</div>
+</div>
+<div class="absolute top-[55%] left-[25%] group cursor-pointer">
+<div class="text-secondary w-3 h-3 bg-secondary rounded-full shadow-[0_0_10px_#ffd799]"></div>
+<div class="absolute top-6 left-1/2 -translate-x-1/2 glass-panel p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity border-b border-secondary/30">
+<p class="font-label text-[10px] text-secondary whitespace-nowrap">LEAD: ANDERSON</p>
+<p class="text-xs font-bold text-on-surface">Claim Pending</p>
+</div>
+</div>
+<!-- Floating Command Elements -->
+<div class="absolute top-6 left-6 flex flex-col gap-3">
+<div class="glass-panel p-4 rounded-xl border-l-2 border-primary shadow-lg max-w-xs">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-2 h-2 rounded-full bg-primary-container pulse-indicator"></div>
+<span class="font-label text-[10px] tracking-widest uppercase font-bold text-primary">Live Radar Status</span>
+</div>
+<h2 class="font-headline text-lg font-bold leading-tight">ACTIVE CELL: BRAVO-9</h2>
+<p class="text-xs text-on-surface-variant font-body mt-1">Movement: 42mph NE. Hail probability 85%.</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-surface-container-high/80 backdrop-blur-md px-3 py-2 rounded-lg border-b border-outline-variant/30 flex items-center gap-2 hover:bg-surface-bright transition-colors">
+<span class="material-symbols-outlined text-sm text-primary">layers</span>
+<span class="font-label text-[10px] uppercase font-bold">Terrain</span>
+</button>
+<button class="bg-primary-container text-on-primary-container px-3 py-2 rounded-lg flex items-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-sm">storm</span>
+<span class="font-label text-[10px] uppercase font-bold">Show Hail Trace</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Sidebar Tactical Panel -->
+<aside class="w-full md:w-96 bg-surface-container-lowest border-l border-outline-variant/10 p-6 flex flex-col gap-6 z-10">
+<div class="flex items-center justify-between">
+<h3 class="font-headline text-xl font-bold tracking-tight">STORM FEED</h3>
+<span class="material-symbols-outlined text-slate-500">filter_list</span>
+</div>
+<!-- Bento Card: Impact Stats -->
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-surface-container-low p-4 rounded-xl border-b border-outline-variant/10">
+<p class="font-label text-[10px] text-slate-500 uppercase font-bold mb-1">Total Leads</p>
+<p class="font-headline text-2xl font-bold text-primary">142</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl border-b border-outline-variant/10">
+<p class="font-label text-[10px] text-slate-500 uppercase font-bold mb-1">In Impact Zone</p>
+<p class="font-headline text-2xl font-bold text-secondary">38</p>
+</div>
+</div>
+<!-- Scrollable Lead Feed -->
+<div class="flex flex-col gap-4 overflow-y-auto max-h-[400px] md:max-h-full">
+<!-- Data Card: Tactical Precision -->
+<div class="bg-surface-container p-4 rounded-xl relative overflow-hidden group hover:bg-surface-container-high transition-colors">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+<div class="flex justify-between items-start mb-2">
+<div>
+<h4 class="font-bold text-on-surface font-body">Harrison Residence</h4>
+<p class="text-xs text-slate-400">4219 Mockingbird Ln, Dallas</p>
+</div>
+<span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<div class="flex items-center gap-3 mt-4">
+<div class="bg-surface-container-lowest px-2 py-1 rounded text-[10px] font-label font-bold text-primary border border-primary/20">
+                            1.5" HAIL
+                        </div>
+<div class="bg-surface-container-lowest px-2 py-1 rounded text-[10px] font-label font-bold text-slate-400">
+                            4.2 MILES
+                        </div>
+</div>
+</div>
+<div class="bg-surface-container p-4 rounded-xl relative overflow-hidden group hover:bg-surface-container-high transition-colors">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary"></div>
+<div class="flex justify-between items-start mb-2">
+<div>
+<h4 class="font-bold text-on-surface font-body">Summit Apartments</h4>
+<p class="text-xs text-slate-400">8800 Central Expwy, Dallas</p>
+</div>
+<span class="material-symbols-outlined text-slate-500 text-lg">corporate_fare</span>
+</div>
+<div class="flex items-center gap-3 mt-4">
+<div class="bg-surface-container-lowest px-2 py-1 rounded text-[10px] font-label font-bold text-secondary border border-secondary/20">
+                            WIND DAMAGE
+                        </div>
+<div class="bg-surface-container-lowest px-2 py-1 rounded text-[10px] font-label font-bold text-slate-400">
+                            0.8 MILES
+                        </div>
+</div>
+</div>
+<div class="bg-surface-container p-4 rounded-xl relative overflow-hidden group hover:bg-surface-container-high transition-colors">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-error"></div>
+<div class="flex justify-between items-start mb-2">
+<div>
+<h4 class="font-bold text-on-surface font-body">Miller Family Home</h4>
+<p class="text-xs text-slate-400">1204 Oak Ridge, Plano</p>
+</div>
+<span class="material-symbols-outlined text-error text-lg">priority_high</span>
+</div>
+<div class="flex items-center gap-3 mt-4">
+<div class="bg-error-container/20 px-2 py-1 rounded text-[10px] font-label font-bold text-error border border-error/20">
+                            EMERGENCY
+                        </div>
+<div class="bg-surface-container-lowest px-2 py-1 rounded text-[10px] font-label font-bold text-slate-400">
+                            NEW HIT
+                        </div>
+</div>
+</div>
+</div>
+<button class="mt-auto w-full py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-headline font-bold uppercase tracking-widest rounded-xl shadow-[0_4px_20px_rgba(0,229,255,0.2)] active:scale-95 transition-all">
+                Generate Canvassing List
+            </button>
+</aside>
+</main>
+<!-- Bottom Navigation Mobile -->
+<nav class="md:hidden bg-[#0d1321]/80 backdrop-blur-xl fixed bottom-0 w-full z-50 rounded-t-xl flex justify-around items-center px-4 py-3 pb-safe shadow-[0_-4px_24px_rgba(0,0,0,0.4)]">
+<div class="flex flex-col items-center justify-center text-slate-500 px-3 py-1.5 hover:text-cyan-200 transition-colors">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label text-[10px] uppercase font-bold tracking-widest mt-1">Dashboard</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-cyan-500/10 text-cyan-400 rounded-xl px-3 py-1.5 active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-label text-[10px] uppercase font-bold tracking-widest mt-1">Map</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 px-3 py-1.5 hover:text-cyan-200 transition-colors">
+<span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+<span class="font-label text-[10px] uppercase font-bold tracking-widest mt-1">Pipeline</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 px-3 py-1.5 hover:text-cyan-200 transition-colors">
+<span class="material-symbols-outlined" data-icon="assignment_late">assignment_late</span>
+<span class="font-label text-[10px] uppercase font-bold tracking-widest mt-1">Tasks</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 px-3 py-1.5 hover:text-cyan-200 transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label text-[10px] uppercase font-bold tracking-widest mt-1">Settings</span>
+</div>
+</nav>
+</body></html>

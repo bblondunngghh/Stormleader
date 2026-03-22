@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Modern Valet Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "cyber-blue": "#00f2ff",
+                        "cyber-amber": "#ffaa00",
+                        "deep-charcoal": "#0a0a0c",
+                        "glass-bg": "rgba(255, 255, 255, 0.03)",
+                        "glass-border": "rgba(255, 255, 255, 0.08)",
+                    },
+                    fontFamily: {
+                        "display": ["'Plus Jakarta Sans'", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-deep-charcoal text-white font-display antialiased;
+                -webkit-tap-highlight-color: transparent;
+            }
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .neon-blue {
+            border-bottom: 2px solid #00f2ff;
+            box-shadow: 0 4px 20px -10px #00f2ff;
+        }
+        .neon-amber {
+            border-bottom: 2px solid #ffaa00;
+            box-shadow: 0 4px 20px -10px #ffaa00;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="selection:bg-cyber-blue/30">
+<div class="h-12 w-full bg-deep-charcoal/80 backdrop-blur-md sticky top-0 z-50 flex items-center justify-between px-6">
+<span class="text-sm font-bold tracking-tighter">9:41</span>
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-[16px]">signal_cellular_alt</span>
+<span class="material-symbols-outlined text-[16px]">wifi</span>
+<span class="material-symbols-outlined text-[16px]">battery_full</span>
+</div>
+</div>
+<main class="pb-32">
+<header class="px-6 py-6 flex justify-between items-end">
+<div>
+<p class="text-[10px] font-black text-cyber-blue uppercase tracking-[0.2em] mb-1">Shift Operations</p>
+<h1 class="text-3xl font-extrabold tracking-tight">Grand Plaza <span class="text-white/40 font-light">PM</span></h1>
+</div>
+<div class="relative">
+<div class="w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-cyber-blue to-transparent">
+<img alt="Profile" class="w-full h-full rounded-full object-cover grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBj96vWnYG2gLZc-EHWUwlGgSXvGBLZe55Pw9KlueQLyQNzap3q_eT3onMg3TjbG8c6mTR7u8RZ_NZZS8_COxduuq3jd65Ejl3cEedtPLh7lqGFINqWfuG8unjgiu_Y3mNYZqRb5uqbADjXec22TklEdaWNs5xSt1v6Lq5rqr88V85mJTZ3mTGAf9jc2mryIXoYp9ClnksmhJwG9ulpNxwcfld5rje_EguKSiuXUPVY4ZOAX8f1eMIKJj2wZAqulNzVuau1IaH50KNJ"/>
+</div>
+<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-cyber-blue rounded-full border-[3px] border-deep-charcoal"></div>
+</div>
+</header>
+<section class="px-6 grid grid-cols-2 gap-4">
+<div class="glass-card neon-blue rounded-2xl p-5 relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl">directions_car</span>
+</div>
+<p class="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Total Parked</p>
+<div class="flex items-baseline space-x-2">
+<span class="text-4xl font-black bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">184</span>
+<span class="text-[10px] font-bold text-cyber-blue">+12%</span>
+</div>
+</div>
+<div class="glass-card neon-amber rounded-2xl p-5 relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl">badge</span>
+</div>
+<p class="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">On Duty</p>
+<div class="flex items-baseline space-x-2">
+<span class="text-4xl font-black bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">08</span>
+<span class="text-[10px] font-bold text-cyber-amber">Live</span>
+</div>
+</div>
+<div class="glass-card col-span-2 rounded-2xl p-6 flex items-center justify-between">
+<div>
+<p class="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Lot Occupancy</p>
+<h3 class="text-2xl font-black mb-1">82<span class="text-cyber-blue">%</span> Capacity</h3>
+<p class="text-[11px] font-medium text-white/30 italic">164 of 200 spaces utilized</p>
+</div>
+<div class="relative flex items-center justify-center">
+<svg class="w-20 h-20">
+<circle class="text-white/5" cx="40" cy="40" fill="transparent" r="34" stroke="currentColor" stroke-width="6"></circle>
+<circle class="text-cyber-blue progress-ring-circle" cx="40" cy="40" fill="transparent" r="34" stroke="currentColor" stroke-dasharray="213.6" stroke-dashoffset="38.4" stroke-linecap="round" stroke-width="6"></circle>
+</svg>
+<span class="absolute material-symbols-outlined text-cyber-blue text-xl">local_parking</span>
+</div>
+</div>
+</section>
+<section class="mt-10">
+<h2 class="px-6 text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-4">Tactical Controls</h2>
+<div class="flex space-x-3 overflow-x-auto px-6 pb-2 hide-scrollbar">
+<button class="flex-shrink-0 bg-cyber-blue text-deep-charcoal rounded-xl px-6 py-4 flex items-center space-x-3 font-black text-sm uppercase tracking-tighter">
+<span class="material-symbols-outlined font-bold">add_circle</span>
+<span>New Entry</span>
+</button>
+<button class="flex-shrink-0 glass-card text-white rounded-xl px-6 py-4 flex items-center space-x-3 font-black text-sm uppercase tracking-tighter">
+<span class="material-symbols-outlined text-cyber-amber">warning</span>
+<span>Incident</span>
+</button>
+<button class="flex-shrink-0 glass-card text-white rounded-xl px-6 py-4 flex items-center space-x-3 font-black text-sm uppercase tracking-tighter">
+<span class="material-symbols-outlined">sync_alt</span>
+<span>Relief</span>
+</button>
+</div>
+</section>
+<section class="mt-10 px-6">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center space-x-3">
+<h2 class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Operational Stream</h2>
+<span class="inline-block h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse"></span>
+</div>
+<button class="text-[10px] font-black text-cyber-blue uppercase tracking-widest">Archive</button>
+</div>
+<div class="space-y-4">
+<div class="glass-card p-5 rounded-2xl flex items-start space-x-4">
+<div class="w-10 h-10 rounded-xl bg-cyber-blue/10 flex items-center justify-center border border-cyber-blue/20">
+<span class="material-symbols-outlined text-cyber-blue">key</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="text-sm font-black tracking-tight uppercase">Mercedes S-Class <span class="text-cyber-blue">#A42</span></h4>
+<span class="text-[10px] font-bold text-white/20 uppercase">2m</span>
+</div>
+<p class="text-xs text-white/50 mt-1 font-medium italic">Checked-in: Zone B • <span class="text-white/70">Marcus R.</span></p>
+</div>
+</div>
+<div class="glass-card p-5 rounded-2xl flex items-start space-x-4 border-l-2 border-l-cyber-amber">
+<div class="w-10 h-10 rounded-xl bg-cyber-amber/10 flex items-center justify-center border border-cyber-amber/20">
+<span class="material-symbols-outlined text-cyber-amber">priority_high</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="text-sm font-black tracking-tight uppercase">Retrieval Request</h4>
+<span class="text-[10px] font-bold text-white/20 uppercase">5m</span>
+</div>
+<p class="text-xs text-white/50 mt-1 font-medium italic">Ticket #8841 • VIP Lobby</p>
+<div class="mt-3 h-[2px] w-full bg-white/5 overflow-hidden">
+<div class="h-full bg-cyber-amber w-[45%]"></div>
+</div>
+</div>
+</div>
+<div class="glass-card p-5 rounded-2xl flex items-start space-x-4 opacity-60">
+<div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
+<span class="material-symbols-outlined text-white/40">verified_user</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="text-sm font-black tracking-tight uppercase">Handover Sync</h4>
+<span class="text-[10px] font-bold text-white/20 uppercase">12m</span>
+</div>
+<p class="text-xs text-white/50 mt-1 font-medium italic">Supervisor <span class="text-white/70">Sarah T.</span> Authorized</p>
+</div>
+</div>
+</div>
+</section>
+<div class="px-6 mt-10 mb-6">
+<div class="relative w-full h-32 rounded-2xl overflow-hidden glass-card group">
+<img alt="Facility Map" class="w-full h-full object-cover grayscale opacity-30 contrast-125" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeXqi9Z1GET31M1gQOeJrxpK74rJjrAJmwOrVC8oSjeRu-ck6zpQ2Qt4uneV58eHp23i7wjoxr32URyFiB6bjxeONy_Jl22AGQYR3GHEvEMI3OSYpr6CcsQNUkiQ67SB3Rss3gMFFvpeLJ1Aiw5L7hHVWb_y-25u1q0zINIinjPSvL28fklmzomMVbXMRaRm9LAIDRV5tugQ8pt2BDLWPLhI_TG6nwCD3acO5kBZy_qabT5wGygq-9sUI3otWdfxpXL_HG8BwS_UK2"/>
+<div class="absolute inset-0 bg-gradient-to-t from-deep-charcoal via-transparent to-transparent"></div>
+<div class="absolute inset-0 flex items-center justify-between px-6">
+<div>
+<p class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-1">Live Map</p>
+<p class="text-sm font-black">All Zones Clear</p>
+</div>
+<button class="bg-white/10 backdrop-blur-md text-white border border-white/10 rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-widest hover:bg-cyber-blue hover:text-deep-charcoal transition-colors">
+                    Expand Interface
+                </button>
+</div>
+</div>
+</div>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 bg-deep-charcoal/80 backdrop-blur-2xl border-t border-white/5 px-8 pb-10 pt-4 z-50">
+<div class="flex justify-between items-center max-w-md mx-auto relative">
+<a class="flex flex-col items-center space-y-1 text-cyber-blue" href="#">
+<span class="material-symbols-outlined fill-1">dashboard</span>
+<span class="text-[9px] font-black uppercase tracking-widest">Main</span>
+</a>
+<a class="flex flex-col items-center space-y-1 text-white/30" href="#">
+<span class="material-symbols-outlined">directions_car</span>
+<span class="text-[9px] font-black uppercase tracking-widest">Fleet</span>
+</a>
+<div class="-mt-14 w-16 h-16 rounded-full bg-deep-charcoal p-1">
+<div class="w-full h-full rounded-full bg-cyber-blue flex items-center justify-center shadow-[0_0_30px_-5px_#00f2ff]">
+<span class="material-symbols-outlined text-deep-charcoal text-3xl font-bold">qr_code_scanner</span>
+</div>
+</div>
+<a class="flex flex-col items-center space-y-1 text-white/30" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="text-[9px] font-black uppercase tracking-widest">Staff</span>
+</a>
+<a class="flex flex-col items-center space-y-1 text-white/30" href="#">
+<span class="material-symbols-outlined">equalizer</span>
+<span class="text-[9px] font-black uppercase tracking-widest">Data</span>
+</a>
+</div>
+</nav>
+<div class="fixed bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/10 rounded-full z-50"></div>
+
+</body></html>

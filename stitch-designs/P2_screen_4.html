@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Financial Shift Summary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#136dec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101822",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ios-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen pb-20">
+<!-- iOS Status Bar Simulation -->
+<div class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 ios-blur">
+<div class="flex justify-between items-center px-6 pt-4 pb-2">
+<div class="flex items-center gap-1">
+<span class="text-sm font-semibold">9:41</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-icons text-[18px]">signal_cellular_alt</span>
+<span class="material-icons text-[18px]">wifi</span>
+<span class="material-icons text-[18px]">battery_full</span>
+</div>
+</div>
+<!-- App Header -->
+<header class="px-6 py-4 flex justify-between items-center border-b border-slate-200 dark:border-slate-800">
+<div>
+<h1 class="text-xl font-bold">Shift Summary</h1>
+<p class="text-xs text-slate-500 font-medium">Sat, Oct 21 • 6:00 PM - 2:00 AM</p>
+</div>
+<button class="bg-primary/10 text-primary p-2 rounded-full flex items-center justify-center">
+<span class="material-icons">share</span>
+</button>
+</header>
+</div>
+<!-- Main Content -->
+<main class="px-5 py-6 space-y-6">
+<!-- Primary Revenue Card -->
+<section class="bg-primary rounded-xl p-6 text-white shadow-lg shadow-primary/20 relative overflow-hidden">
+<div class="relative z-10">
+<p class="text-white/80 text-sm font-medium uppercase tracking-wider">Total Revenue</p>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="text-2xl font-medium opacity-80">$</span>
+<span class="text-5xl font-bold tracking-tight">1,248.50</span>
+</div>
+<div class="mt-4 flex items-center gap-2 bg-white/10 w-fit px-3 py-1 rounded-full border border-white/10">
+<span class="material-icons text-sm">trending_up</span>
+<span class="text-xs font-semibold">+12% vs last Saturday</span>
+</div>
+</div>
+<div class="absolute -right-10 -bottom-10 opacity-10">
+<span class="material-icons text-[160px]">account_balance_wallet</span>
+</div>
+</section>
+<!-- KPI Grid -->
+<section class="grid grid-cols-2 gap-4">
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-2">
+<span class="material-icons text-sm">payments</span>
+<span class="text-xs font-semibold uppercase tracking-tight">Cash Tips</span>
+</div>
+<p class="text-xl font-bold">$342.00</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-2">
+<span class="material-icons text-sm">credit_card</span>
+<span class="text-xs font-semibold uppercase tracking-tight">Digital Tips</span>
+</div>
+<p class="text-xl font-bold">$418.50</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-2">
+<span class="material-icons text-sm">directions_car</span>
+<span class="text-xs font-semibold uppercase tracking-tight">Total Cars</span>
+</div>
+<p class="text-xl font-bold">84</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-2">
+<span class="material-icons text-sm">speed</span>
+<span class="text-xs font-semibold uppercase tracking-tight">Hourly Avg</span>
+</div>
+<p class="text-xl font-bold">$156.06</p>
+</div>
+</section>
+<!-- Performance Chart Section -->
+<section class="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-end mb-6">
+<div>
+<h3 class="font-bold text-lg tracking-tight">Shift Volume</h3>
+<p class="text-xs text-slate-500">Revenue (bars) vs Cars (line)</p>
+</div>
+<div class="flex gap-3">
+<div class="flex items-center gap-1.5">
+<div class="w-2.5 h-2.5 bg-primary rounded-full"></div>
+<span class="text-[10px] font-bold text-slate-400 uppercase">Rev</span>
+</div>
+<div class="flex items-center gap-1.5">
+<div class="w-2.5 h-2.5 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+<span class="text-[10px] font-bold text-slate-400 uppercase">Cars</span>
+</div>
+</div>
+</div>
+<!-- Custom Bar Chart Simulation -->
+<div class="h-48 flex items-end justify-between gap-3 px-1">
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="relative w-full flex flex-col items-center justify-end h-full">
+<div class="w-full bg-slate-100 dark:bg-slate-800 rounded-t-sm h-[40%] mb-[-40%] z-0"></div>
+<div class="w-full bg-primary/40 rounded-t-sm h-[30%] z-10"></div>
+</div>
+<span class="text-[10px] font-medium text-slate-400">18:00</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="relative w-full flex flex-col items-center justify-end h-full">
+<div class="w-full bg-slate-100 dark:bg-slate-800 rounded-t-sm h-[60%] mb-[-60%] z-0"></div>
+<div class="w-full bg-primary/60 rounded-t-sm h-[50%] z-10"></div>
+</div>
+<span class="text-[10px] font-medium text-slate-400">19:00</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="relative w-full flex flex-col items-center justify-end h-full">
+<div class="w-full bg-slate-100 dark:bg-slate-800 rounded-t-sm h-[90%] mb-[-90%] z-0"></div>
+<div class="w-full bg-primary rounded-t-sm h-[85%] z-10"></div>
+</div>
+<span class="text-[10px] font-medium text-slate-400">20:00</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="relative w-full flex flex-col items-center justify-end h-full">
+<div class="w-full bg-slate-100 dark:bg-slate-800 rounded-t-sm h-[100%] mb-[-100%] z-0"></div>
+<div class="w-full bg-primary rounded-t-sm h-[95%] z-10"></div>
+</div>
+<span class="text-[10px] font-medium text-slate-400">21:00</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="relative w-full flex flex-col items-center justify-end h-full">
+<div class="w-full bg-slate-100 dark:bg-slate-800 rounded-t-sm h-[70%] mb-[-70%] z-0"></div>
+<div class="w-full bg-primary/70 rounded-t-sm h-[65%] z-10"></div>
+</div>
+<span class="text-[10px] font-medium text-slate-400">22:00</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="relative w-full flex flex-col items-center justify-end h-full">
+<div class="w-full bg-slate-100 dark:bg-slate-800 rounded-t-sm h-[40%] mb-[-40%] z-0"></div>
+<div class="w-full bg-primary/40 rounded-t-sm h-[35%] z-10"></div>
+</div>
+<span class="text-[10px] font-medium text-slate-400">23:00</span>
+</div>
+</div>
+</section>
+<!-- Breakdown List -->
+<section class="space-y-4">
+<h3 class="font-bold text-lg px-1">Fee Breakdown</h3>
+<div class="space-y-3">
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg flex items-center justify-center">
+<span class="material-icons">local_parking</span>
+</div>
+<div>
+<p class="font-semibold">Standard Parking</p>
+<p class="text-xs text-slate-500">62 vehicles</p>
+</div>
+</div>
+<p class="font-bold">$930.00</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-amber-50 dark:bg-amber-900/30 text-amber-600 rounded-lg flex items-center justify-center">
+<span class="material-icons">stars</span>
+</div>
+<div>
+<p class="font-semibold">VIP / Oversize</p>
+<p class="text-xs text-slate-500">22 vehicles</p>
+</div>
+</div>
+<p class="font-bold">$318.50</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between items-center">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-slate-50 dark:bg-slate-800 text-slate-600 rounded-lg flex items-center justify-center">
+<span class="material-icons">history</span>
+</div>
+<div>
+<p class="font-semibold">Overtime Fees</p>
+<p class="text-xs text-slate-500">Manual adjustments</p>
+</div>
+</div>
+<p class="font-bold">$0.00</p>
+</div>
+</div>
+</section>
+<!-- Final Action Button -->
+<button class="w-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2">
+<span class="material-icons text-sm">check_circle</span>
+            Close Shift &amp; Sync
+        </button>
+</main>
+<!-- Navigation Bar -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 ios-blur border-t border-slate-200 dark:border-slate-800 px-6 py-3 flex justify-between items-center z-50">
+<div class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-icons">dashboard</span>
+<span class="text-[10px] font-medium">Activity</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-icons">directions_car</span>
+<span class="text-[10px] font-medium">Inventory</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-primary">
+<span class="material-icons">analytics</span>
+<span class="text-[10px] font-bold">Revenue</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-icons">people</span>
+<span class="text-[10px] font-medium">Team</span>
+</div>
+<div class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-icons">settings</span>
+<span class="text-[10px] font-medium">Settings</span>
+</div>
+</nav>
+<!-- Quick Insights Overlay (Optional Visual Flair) -->
+<div class="fixed bottom-24 right-5">
+<button class="bg-primary text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center">
+<span class="material-icons">add</span>
+</button>
+</div>
+</body></html>
