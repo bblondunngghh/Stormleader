@@ -49,9 +49,12 @@ export async function getLeads(tenantId, filters = {}) {
   params.push(limit, offset);
 
   const { rows } = await pool.query(
-    `SELECT *,
-       (SELECT status FROM financing_applications WHERE lead_id = lead_summary_view.id ORDER BY created_at DESC LIMIT 1) AS financing_status
-     FROM lead_summary_view
+    `SELECT lsv.*,
+       fa.status AS financing_status
+     FROM lead_summary_view lsv
+     LEFT JOIN LATERAL (
+       SELECT status FROM financing_applications WHERE lead_id = lsv.id ORDER BY created_at DESC LIMIT 1
+     ) fa ON true
      WHERE ${where}
      ORDER BY ${orderCol} ${orderDir}
      LIMIT $${params.length - 1} OFFSET $${params.length}`,
