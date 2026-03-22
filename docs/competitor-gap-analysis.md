@@ -69,6 +69,11 @@
 | Impacted asset alerts | No | Yes | Yes (auto-notify when leads hit by new storms) | Match |
 | Real-time storm tracking | No | Yes | Yes (MRMS radar, NWS alerts, SPC reports) | Better |
 | Thunderstorm layer | No | Partial | Yes (NWS thunderstorm warnings overlay) | Better |
+| Meteorologist-reviewed reports | No | Yes (4 tiers incl. court-ready) | No (automated only) | Worse |
+| Property owner contact data | No | Yes (Cole Information) | Via skip trace (paid) | Partial |
+| Roof damage health score | No | Yes (0-100 scale) | Not yet | Missing |
+| 14+ year weather archive | No | Yes | Limited (local storm_events DB) | Worse |
+| Branded/white-label reports | No | Yes (your logo on PDFs) | Not yet | Missing |
 | **Canvassing** |
 | GPS-verified pin dropping | No | Yes | Yes (browser geolocation) | Match |
 | Outcome tracking per door | No | Yes | Yes (6 outcome types) | Match |
@@ -108,12 +113,16 @@
 
 ## Where StormLeads Is Worse or Missing
 
-1. **No native mobile app** — Both competitors have iOS/Android apps. We're web-only (responsive). Mobile app is critical for field reps doing canvassing, inspections, and photo documentation.
-2. **No QuickBooks integration** — Many roofers use QuickBooks for accounting. This is table stakes for a CRM.
-3. **No SMS/text messaging** — JobNimbus Engage allows texting customers directly from the CRM. This is high-value for follow-ups.
-4. **No email campaigns** — No built-in email marketing for drip campaigns or bulk outreach.
-5. **No Google Calendar sync** — Calendar exists but doesn't sync with external calendars.
-6. **No Zapier integration** — Limits ability to connect with other tools in the roofer's stack.
+1. **No native mobile app** — Both competitors have iOS/Android apps. We're web-only (responsive). Critical for field reps.
+2. **No QuickBooks integration** — JobNimbus has two-way QuickBooks sync. Table stakes for a CRM.
+3. **No SMS/text messaging** — JobNimbus Engage allows texting from CRM. High-value for follow-ups.
+4. **No meteorologist-reviewed weather reports** — HailTrace offers 4 tiers of weather reports up to court-ready expert testimony. Our reports are automated-only.
+5. **No roof damage health score** — HailTrace scores properties 0-100 based on hail history + roof age. Helps prioritize leads.
+6. **No email campaigns** — No built-in email marketing for drip campaigns or bulk outreach.
+7. **No Google Calendar sync** — Calendar exists but doesn't sync with external calendars.
+8. **No Zapier integration** — Limits ability to connect with other tools.
+9. **No branded/white-label reports** — HailTrace lets you put your logo on weather history PDFs.
+10. **No subcontractor portal** — JobNimbus lets subs access shared job folders.
 
 ---
 
@@ -165,16 +174,31 @@
 
 ### HailTrace Pricing (as of 2025-2026)
 
-| Plan | Price | Includes |
-|------|-------|----------|
-| Basic | ~$49-79/mo | Hail maps, basic alerts |
-| Pro | ~$99-149/mo | All storm data, canvassing, property data |
-| Enterprise | Custom | Multi-state, bulk data, API access |
+**Note:** HailTrace also requires contacting sales for exact pricing. Figures from third-party sources.
 
-**Typical total costs:**
-- Solo operator: ~$79/mo
-- 5-person team: ~$99-149/mo (team plan)
-- 10-person team: ~$149-249/mo
+**Base subscription:** ~$999-1,999/year (~$83-167/mo)
+
+**Add-ons (all separate costs):**
+- Canvassing subscription: separate from maps (price undisclosed)
+- Residential/Commercial Data Plans: per-download or flat rate for property owner data (Cole Information)
+- Weather History Reports: tiered pricing per report
+  - Weather History Report (automated): included/low cost
+  - Meteorologist Reviewed Report: higher per-report fee
+  - Certified Report (forensic meteorologist signed): premium per-report
+  - Expert Report (court-ready, Daubert-compliant): highest tier
+- Branded/white-label reports: upgrade fee
+
+**Real-world total costs:**
+- Solo operator: ~$83-167/mo (maps only)
+- With canvassing + data: ~$167-333/mo ($2,000-4,000/yr)
+- Plus per-report fees for certified weather reports
+
+**Key differentiators vs StormLeads:**
+- Meteorologist-produced maps (human-reviewed, 1-5 star severity rating)
+- Court-ready expert weather reports with forensic meteorologist testimony
+- 14+ years of weather history archive
+- Cole Information integration for property owner contact data
+- Purple Zones for highest-severity areas within swaths
 
 ### Combined Competitor Cost (JobNimbus + HailTrace)
 
