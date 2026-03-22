@@ -85,7 +85,7 @@ All 11 pages re-audited. Design consistency confirmed across all pages:
 
 ### Summary
 
-**StormLeads replaces TWO expensive tools** (JobNimbus CRM at $225-550+/mo + HailTrace at $49-249/mo) with a single, significantly cheaper platform.
+**StormLeads replaces TWO expensive tools** (JobNimbus CRM at $300-2,000+/mo real-world cost + HailTrace at $49-249/mo) with a single, significantly cheaper platform.
 
 ### Feature Parity Score
 - **Matching competitors:** 40+ features across CRM, estimating, invoicing, calendar, work orders, automations, reports, storm maps, canvassing, custom fields
@@ -96,9 +96,9 @@ All 11 pages re-audited. Design consistency confirmed across all pages:
 
 | Tier | Price | vs Combined Competitor Cost | Annual Savings |
 |------|-------|-----------------------------|----------------|
-| Starter (1 user) | $49/mo | vs $304/mo | $3,060/year (84%) |
-| Team (5 users) | $99/mo | vs $624/mo | $6,300/year (84%) |
-| Business (15 users) | $199/mo | vs $949/mo | $9,000/year (79%) |
+| Starter (1 user) | $49/mo | vs $379/mo | $3,960/year (87%) |
+| Team (5 users) | $99/mo | vs $898/mo | $9,588/year (89%) |
+| Business (15 users) | $199/mo | vs $1,798/mo | $19,188/year (89%) |
 
 ### Next High-Priority Features
 1. QuickBooks integration (free API)

@@ -91,6 +91,9 @@
 | Text/SMS messaging | Yes (Engage add-on $$) | No | Not yet | Missing |
 | Email campaigns | Yes | No | Not yet | Missing |
 | Aerial roof measurement | Yes (EagleView integration) | No | Yes (roof drawing tool) | Match |
+| Material ordering | Yes (ABC Supply, Beacon, SRS) | No | Yes (materials view) | Partial |
+| Subcontractor management | Yes (portal for subs) | No | Not yet | Missing |
+| Video upload | Yes | No | Not yet | Missing |
 
 ---
 
@@ -118,22 +121,47 @@
 
 ### JobNimbus Pricing (as of 2025-2026)
 
-| Plan | Price | Includes |
-|------|-------|----------|
-| Growing | ~$225/mo (billed annually) | Up to 2 users, CRM, estimating basics |
-| Established | ~$375/mo (billed annually) | Up to 5 users, automations, reporting |
-| Advanced | ~$550/mo (billed annually) | Up to 10 users, all features, priority support |
+**Note:** JobNimbus does NOT publish pricing. They require a sales call. Figures below from third-party research and user reviews.
 
-**Add-on costs:**
-- SumoQuote (advanced estimating): ~$59/mo
-- Engage (texting): ~$49-99/mo
-- Marketing features: ~$49/mo
-- Additional users: ~$30-40/user/mo
+**Three-layer pricing model:**
 
-**Typical total costs:**
-- Solo operator: ~$225/mo (Growing)
-- 5-person team: ~$375-500/mo (Established + add-ons)
-- 10-person team: ~$550-800/mo (Advanced + add-ons)
+**Layer 1 — Base Platform Fee:**
+
+| Plan | Monthly Cost | Key Limits |
+|------|-------------|------------|
+| Growing | ~$225/mo | 10 automations, 5 integrations, no API access |
+| Established | ~$550/mo | Unlimited automations, integrations, API access |
+
+**Layer 2 — Per-User Fees (every team member needs a paid seat):**
+
+| Tier | Cost/User/Month |
+|------|----------------|
+| Basic | ~$25/user/mo |
+| Standard | ~$40/user/mo |
+| Full Access | ~$65-75/user/mo |
+
+**Layer 3 — Add-Ons:**
+- Engage Texting (Basic): $49/mo + $20 setup
+- Engage Texting (Standard): $149/mo + $20 setup
+- Engage Texting (Full): $249/mo + $20 setup
+- CompanyCam: ~$19/user/mo (separate subscription)
+- EagleView Reports: per-report fee
+- Marketing Bundle: custom pricing
+- Payment processing: card + ACH transaction fees
+
+**Real-world total costs (from reviews/research):**
+- Solo operator: ~$300/mo minimum (base + 1 user)
+- 5-person team (Growing): ~$749/mo ($225 base + 5×$75 users + $149 texting)
+- 5-person team (Established): ~$1,074/mo ($550 base + 5×$75 users + $149 texting)
+- 10-person team (Established): ~$1,549-2,000/mo ($550 base + 10×$75 users + $249 texting + add-ons)
+
+**Common pricing complaints from reviews:**
+1. Hidden/opaque pricing requires sales call
+2. Three-layer model is confusing and hard to budget
+3. Every seat costs money — even field techs and subcontractors
+4. Texting (a core feature for roofers) is a $49-249/mo add-on
+5. Growing plan's 10-automation and 5-integration limits force upgrade to $550/mo Established
+6. Implementation/onboarding fees: $500-5,000 one-time
 
 ### HailTrace Pricing (as of 2025-2026)
 
@@ -150,11 +178,11 @@
 
 ### Combined Competitor Cost (JobNimbus + HailTrace)
 
-| Company Size | JobNimbus | HailTrace | Total/mo |
-|-------------|-----------|-----------|----------|
-| Solo operator | $225 | $79 | **$304/mo** |
-| 5-person team | $475 | $149 | **$624/mo** |
-| 10-person team | $700 | $249 | **$949/mo** |
+| Company Size | JobNimbus | HailTrace | Total/mo | Annual |
+|-------------|-----------|-----------|----------|--------|
+| Solo operator | $300 | $79 | **$379/mo** | $4,548/yr |
+| 5-person team | $749 | $149 | **$898/mo** | $10,776/yr |
+| 10-person team | $1,549 | $249 | **$1,798/mo** | $21,576/yr |
 
 ---
 
@@ -175,9 +203,9 @@
 
 | Company Size | Competitors (JN + HT) | StormLeads | Annual Savings |
 |-------------|----------------------|------------|----------------|
-| Solo operator | $304/mo | $49/mo | **$3,060/year** (84% savings) |
-| 5-person team | $624/mo | $99/mo | **$6,300/year** (84% savings) |
-| 10-person team | $949/mo | $199/mo | **$9,000/year** (79% savings) |
+| Solo operator | $379/mo | $49/mo | **$3,960/year** (87% savings) |
+| 5-person team | $898/mo | $99/mo | **$9,588/year** (89% savings) |
+| 10-person team | $1,798/mo | $199/mo | **$19,188/year** (89% savings) |
 
 ### Why This Works
 
