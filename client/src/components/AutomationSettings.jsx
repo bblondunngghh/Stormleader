@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getAutomations, createAutomation, updateAutomation, deleteAutomation, toggleAutomation, getTeamMembers } from '../api/crm';
 import { showToast } from './Toast';
+import CustomSelect from './CustomSelect';
 
 const STAGES = [
   { value: 'new', label: 'New' },
@@ -175,10 +176,9 @@ export default function AutomationSettings() {
             {/* Trigger Type */}
             <div>
               <label style={labelStyle}>When (Trigger)</label>
-              <select className="form-input" value={form.trigger_type}
-                onChange={e => setForm(f => ({ ...f, trigger_type: e.target.value, trigger_config: {} }))}>
-                {TRIGGER_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-              </select>
+              <CustomSelect value={form.trigger_type}
+                onChange={v => setForm(f => ({ ...f, trigger_type: v, trigger_config: {} }))}
+                options={TRIGGER_TYPES} />
             </div>
 
             {/* Trigger Conditions */}
@@ -186,36 +186,30 @@ export default function AutomationSettings() {
               <label style={labelStyle}>Conditions</label>
               {form.trigger_type === 'stage_changed' && (
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <select className="form-input" style={{ flex: 1 }}
+                  <CustomSelect style={{ flex: 1 }}
                     value={form.trigger_config.fromStage || ''}
-                    onChange={e => updateTriggerConfig('fromStage', e.target.value)}>
-                    <option value="">From: Any</option>
-                    {STAGES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                  </select>
-                  <select className="form-input" style={{ flex: 1 }}
+                    onChange={v => updateTriggerConfig('fromStage', v)}
+                    options={[{ value: '', label: 'From: Any' }, ...STAGES]} />
+                  <CustomSelect style={{ flex: 1 }}
                     value={form.trigger_config.toStage || ''}
-                    onChange={e => updateTriggerConfig('toStage', e.target.value)}>
-                    <option value="">To: Any</option>
-                    {STAGES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                  </select>
+                    onChange={v => updateTriggerConfig('toStage', v)}
+                    options={[{ value: '', label: 'To: Any' }, ...STAGES]} />
                 </div>
               )}
               {form.trigger_type === 'lead_created' && (
-                <select className="form-input"
+                <CustomSelect
                   value={form.trigger_config.source || ''}
-                  onChange={e => updateTriggerConfig('source', e.target.value)}>
-                  {SOURCES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-                </select>
+                  onChange={v => updateTriggerConfig('source', v)}
+                  options={SOURCES} />
               )}
             </div>
 
             {/* Action Type */}
             <div>
               <label style={labelStyle}>Then (Action)</label>
-              <select className="form-input" value={form.action_type}
-                onChange={e => setForm(f => ({ ...f, action_type: e.target.value, action_config: {} }))}>
-                {ACTION_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-              </select>
+              <CustomSelect value={form.action_type}
+                onChange={v => setForm(f => ({ ...f, action_type: v, action_config: {} }))}
+                options={ACTION_TYPES} />
             </div>
 
             {/* Action Config */}
@@ -323,10 +317,9 @@ function ActionConfigFields({ actionType, config, onChange, teamMembers }) {
           <input className="form-input" placeholder="Task title" value={config.title || ''}
             onChange={e => onChange('title', e.target.value)} />
           <div style={{ display: 'flex', gap: 8 }}>
-            <select className="form-input" style={{ flex: 1 }} value={config.priority || 'medium'}
-              onChange={e => onChange('priority', e.target.value)}>
-              {PRIORITIES.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
-            </select>
+            <CustomSelect style={{ flex: 1 }} value={config.priority || 'medium'}
+              onChange={v => onChange('priority', v)}
+              options={PRIORITIES} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 1 }}>
               <input className="form-input" style={{ width: 60 }} type="number" min="0" placeholder="Days"
                 value={config.dueDaysFromNow ?? ''} onChange={e => onChange('dueDaysFromNow', parseInt(e.target.value) || 0)} />
@@ -338,11 +331,9 @@ function ActionConfigFields({ actionType, config, onChange, teamMembers }) {
 
     case 'change_stage':
       return (
-        <select className="form-input" value={config.stage || ''}
-          onChange={e => onChange('stage', e.target.value)}>
-          <option value="">Select stage...</option>
-          {STAGES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-        </select>
+        <CustomSelect value={config.stage || ''}
+          onChange={v => onChange('stage', v)}
+          options={[{ value: '', label: 'Select stage...' }, ...STAGES]} />
       );
 
     case 'send_email':
@@ -367,15 +358,9 @@ function ActionConfigFields({ actionType, config, onChange, teamMembers }) {
 
     case 'assign_rep':
       return (
-        <select className="form-input" value={config.repId || ''}
-          onChange={e => onChange('repId', e.target.value)}>
-          <option value="">Select rep...</option>
-          {teamMembers.map(m => (
-            <option key={m.id} value={m.id}>
-              {m.first_name} {m.last_name}
-            </option>
-          ))}
-        </select>
+        <CustomSelect value={config.repId || ''}
+          onChange={v => onChange('repId', v)}
+          options={[{ value: '', label: 'Select rep...' }, ...teamMembers.map(m => ({ value: m.id, label: `${m.first_name} ${m.last_name}` }))]} />
       );
 
     default:
