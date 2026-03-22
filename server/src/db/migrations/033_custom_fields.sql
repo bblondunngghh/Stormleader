@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS custom_field_definitions (
 ALTER TABLE leads ADD COLUMN IF NOT EXISTS custom_fields JSONB DEFAULT '{}';
 
 -- Update lead_summary_view to include custom_fields
+DROP VIEW IF EXISTS lead_summary_view;
 CREATE OR REPLACE VIEW lead_summary_view AS
 SELECT
   l.id,

@@ -91,18 +91,18 @@ router.get('/rep-performance', async (req, res, next) => {
     const [start, end] = parseDateRange(req.query);
     const { rows } = await pool.query(
       `SELECT
-        u.id, u.name,
-        COUNT(l.id) as leads_assigned,
-        COUNT(l.id) FILTER (WHERE l.stage = 'sold') as leads_sold,
+        u.id, CONCAT(u.first_name, ' ', u.last_name) as name,
+        COUNT(DISTINCT l.id) as leads_assigned,
+        COUNT(DISTINCT l.id) FILTER (WHERE l.stage = 'sold') as leads_sold,
         SUM(COALESCE(l.estimated_value, 0)) FILTER (WHERE l.stage = 'sold') as sold_value,
-        COUNT(a.id) as activity_count
+        COUNT(DISTINCT a.id) as activity_count
       FROM users u
       LEFT JOIN leads l ON l.assigned_rep_id = u.id AND l.tenant_id = $1 AND l.deleted_at IS NULL
         AND l.created_at BETWEEN $2 AND $3
       LEFT JOIN activities a ON a.user_id = u.id AND a.tenant_id = $1
         AND a.created_at BETWEEN $2 AND $3
-      WHERE u.tenant_id = $1 AND u.is_active = true
-      GROUP BY u.id, u.name
+      WHERE u.tenant_id = $1
+      GROUP BY u.id, u.first_name, u.last_name
       ORDER BY sold_value DESC NULLS LAST`,
       [req.tenantId, start, end]
     );
