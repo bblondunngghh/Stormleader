@@ -356,8 +356,6 @@ export default function ReportsView() {
   return (
     <div className="main-content" style={{ padding: isMobile ? 12 : 24, overflow: 'auto' }}>
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: 'oklch(0.95 0 0)', marginBottom: 12 }}>Reports</h1>
-
         <div className="reports-controls">
           <div className="reports-presets">
             {PRESETS.map(p => (

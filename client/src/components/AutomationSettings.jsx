@@ -54,7 +54,7 @@ function actionLabel(type) {
 const inputStyle = {
   width: '100%', padding: '8px 12px', borderRadius: 'var(--radius-sm)',
   background: 'oklch(0.16 0.02 260 / 0.8)', border: '1px solid var(--glass-border)',
-  color: 'var(--text-primary)', fontSize: 13, outline: 'none',
+  color: 'var(--text-primary)', fontSize: 13, outline: 'none', colorScheme: 'dark',
 };
 
 const selectStyle = { ...inputStyle, appearance: 'none', cursor: 'pointer' };

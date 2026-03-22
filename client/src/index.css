@@ -2173,6 +2173,25 @@ select.form-input option {
   color: var(--text-primary);
 }
 
+/* Global dark mode for native form elements */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  color-scheme: dark;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+  cursor: pointer;
+}
+
+select option {
+  background: oklch(0.16 0.02 260);
+  color: var(--text-primary);
+}
+
 .auth-btn {
   height: 36px;
   padding: 0 var(--space-xl);
@@ -2677,6 +2696,21 @@ select.form-input option {
   border-bottom-left-radius: 6px;
   opacity: 0.7;
   margin-right: 6px;
+}
+
+/* Tree structure — clean indentation */
+.map-controls__tree {
+  padding-left: 22px;
+  margin-top: 2px;
+}
+
+.map-controls__tree-item {
+  display: flex;
+  align-items: center;
+}
+
+.map-controls__tree-branch {
+  display: none;
 }
 
 .map-controls__toggle--sub {
@@ -3606,20 +3640,51 @@ input[type="checkbox"]:checked::after {
   padding: 10px 4px;
 }
 
+/* Day number — centered with pill style */
+.calendar-view .fc .fc-daygrid-day-top {
+  display: flex !important;
+  justify-content: center !important;
+  padding: 6px 0 2px;
+}
+
 .calendar-view .fc .fc-daygrid-day-number {
-  color: oklch(0.75 0 0);
+  color: oklch(0.80 0 0);
   font-size: 13px;
-  font-weight: 500;
-  padding: 6px 8px;
+  font-weight: 600;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 50%;
+  transition: all 0.15s var(--ease-out);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-view .fc .fc-daygrid-day-number:hover {
+  background: oklch(0.30 0.03 260 / 0.4);
+  color: oklch(0.95 0 0);
 }
 
 .calendar-view .fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
-  color: oklch(0.85 0.15 220);
+  background: oklch(0.55 0.18 220 / 0.5);
+  color: oklch(0.95 0 0);
   font-weight: 700;
+  box-shadow: 0 0 12px oklch(0.55 0.18 220 / 0.25);
 }
 
 .calendar-view .fc .fc-daygrid-day.fc-day-other .fc-daygrid-day-number {
-  color: oklch(0.45 0 0);
+  color: oklch(0.40 0 0);
+}
+
+/* Subtle alternating row tint for depth */
+.calendar-view .fc .fc-daygrid-body tr:nth-child(even) .fc-daygrid-day {
+  background: oklch(0.13 0.01 260 / 0.2);
+}
+
+/* Hover highlight on day cells */
+.calendar-view .fc .fc-daygrid-day:hover {
+  background: oklch(0.18 0.02 260 / 0.3);
 }
 
 .calendar-view .fc .fc-event {

@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { IconSearch, IconX } from './Icons';
-import iconHelpCircle from '../assets/icons/Question-Circle--Streamline-Ultimate.png';
-import iconAlarmBell from '../assets/icons/Alarm-Bell-1--Streamline-Ultimate.png';
-import iconBadge from '../assets/icons/Check-Badge--Streamline-Ultimate.svg';
+import { QuestionMarkCircleIcon, BellIcon, CheckBadgeIcon } from '@heroicons/react/24/outline';
 import * as notificationsApi from '../api/notifications';
 import * as searchApi from '../api/search';
 import client from '../api/client';
@@ -15,14 +13,29 @@ const viewTitles = {
   'storm-map': 'Storm Map',
   alerts: 'Alerts',
   tasks: 'Tasks',
+  calendar: 'Calendar',
+  canvassing: 'Canvassing',
   estimates: 'Estimates',
+  invoices: 'Invoices',
+  reports: 'Reports',
+  materials: 'Materials',
+  'work-orders': 'Work Orders',
   settings: 'Settings',
+  admin: 'Admin',
 };
 
 export default function TopBar({ activeView, onNavigate }) {
   return (
     <header className="topbar glass">
-      <h1 className="topbar__page-title">{viewTitles[activeView] || 'Dashboard'}</h1>
+      {/* Desktop: page title */}
+      <h1 className="topbar__page-title hide-mobile">{viewTitles[activeView] || 'Dashboard'}</h1>
+
+      {/* Mobile: ROOF COMMAND branding */}
+      <div className="topbar__mobile-brand show-mobile" style={{ display: 'none', alignItems: 'center', gap: 8 }}>
+        <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.02em', color: '#00e5ff', fontFamily: "'Space Grotesk', sans-serif" }}>
+          ROOF COMMAND
+        </span>
+      </div>
 
       <GlobalSearch onNavigate={onNavigate} />
 
@@ -207,7 +220,7 @@ function PlanBadge({ onNavigate }) {
       onClick={() => onNavigate('settings', 'tab=billing')}
       style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: '10px / 8px', background: `color-mix(in oklch, ${color} 12%, transparent)`, border: `1px solid color-mix(in oklch, ${color} 25%, transparent)`, cursor: 'pointer' }}
     >
-      <img src={iconBadge} alt="" width="16" height="16" style={{ filter: 'brightness(0.9)' }} />
+      <CheckBadgeIcon width={16} height={16} />
       <span style={{ fontSize: 11, fontWeight: 700, color, textTransform: 'capitalize', letterSpacing: '0.03em' }}>{tier}</span>
     </button>
   );
@@ -236,7 +249,7 @@ function HelpGuide() {
   return (
     <div ref={dropdownRef} style={{ position: 'relative' }}>
       <button className="topbar__btn" aria-label="Help" onClick={() => setOpen(!open)}>
-        <img src={iconHelpCircle} alt="Help" width="20" height="20" />
+        <QuestionMarkCircleIcon width={20} height={20} />
       </button>
 
       {open && (
@@ -478,7 +491,7 @@ function NotificationBell() {
   return (
     <div ref={dropdownRef} style={{ position: 'relative' }}>
       <button className="topbar__btn" aria-label="Notifications" onClick={handleOpen}>
-        <img src={iconAlarmBell} alt="Notifications" width="20" height="20" />
+        <BellIcon width={20} height={20} />
         {unreadCount > 0 && <span className="topbar__badge" />}
       </button>
 

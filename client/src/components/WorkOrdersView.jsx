@@ -654,9 +654,9 @@ export default function WorkOrdersView() {
 // ============================================================
 const inputStyle = {
   display: 'block', width: '100%', marginTop: 4, padding: '8px 12px',
-  borderRadius: 10, border: '1px solid oklch(1 0 0 / 0.1)',
-  background: 'oklch(1 0 0 / 0.04)', color: 'var(--text-primary)',
-  fontSize: 13, outline: 'none',
+  borderRadius: 10, border: '1px solid oklch(0.3 0.03 260)',
+  background: 'oklch(0.18 0.02 260)', color: 'var(--text-primary)',
+  fontSize: 13, outline: 'none', colorScheme: 'dark',
 };
 
 const labelStyle = {
