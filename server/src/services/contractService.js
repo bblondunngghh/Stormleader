@@ -115,7 +115,7 @@ export async function updateContract(tenantId, id, data) {
     }
   }
 
-  if (setClauses.length === 0) return getContract(tenantId, id);
+  if (setClauses.length === 0) return null;
 
   setClauses.push('updated_at = NOW()');
 
@@ -169,7 +169,7 @@ export async function markViewed(token) {
 export async function voidContract(tenantId, id) {
   const { rows } = await pool.query(
     `UPDATE contracts SET status = 'voided', updated_at = NOW()
-     WHERE id = $1 AND tenant_id = $2
+     WHERE id = $1 AND tenant_id = $2 AND status NOT IN ('signed', 'voided')
      RETURNING *`,
     [id, tenantId]
   );

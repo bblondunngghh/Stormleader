@@ -13,9 +13,10 @@ router.get('/public/:token', async (req, res, next) => {
   try {
     const contract = await contractService.getContractByToken(req.params.token);
     if (!contract) return res.status(404).json({ error: 'Contract not found' });
-    // Mark as viewed (side effect)
+    // Mark as viewed (side effect) and return updated state
     await contractService.markViewed(req.params.token);
-    res.json(contract);
+    const updated = await contractService.getContractByToken(req.params.token);
+    res.json(updated);
   } catch (err) {
     next(err);
   }
