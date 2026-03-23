@@ -1,6 +1,60 @@
 import pool from '../db/pool.js';
 
 // ============================================================
+// MILESTONES
+// ============================================================
+
+const DEFAULT_MILESTONES = [
+  'Permit Pulled',
+  'Materials Delivered',
+  'Tear-off',
+  'Install',
+  'Cleanup',
+  'Final Inspection',
+  'Complete',
+];
+
+export async function createMilestones(workOrderId) {
+  for (let i = 0; i < DEFAULT_MILESTONES.length; i++) {
+    await pool.query(
+      'INSERT INTO work_order_milestones (work_order_id, name, sort_order) VALUES ($1, $2, $3)',
+      [workOrderId, DEFAULT_MILESTONES[i], i + 1]
+    );
+  }
+}
+
+export async function getMilestones(workOrderId) {
+  const { rows } = await pool.query(
+    'SELECT * FROM work_order_milestones WHERE work_order_id = $1 ORDER BY sort_order',
+    [workOrderId]
+  );
+  return rows;
+}
+
+export async function updateMilestone(workOrderId, milestoneId, { completed, photoUrl }) {
+  const { rows } = await pool.query(
+    `UPDATE work_order_milestones
+     SET completed = $3,
+         completed_at = CASE WHEN $3 = true THEN NOW() ELSE NULL END,
+         photo_url = COALESCE($4, photo_url)
+     WHERE id = $2 AND work_order_id = $1
+     RETURNING *`,
+    [workOrderId, milestoneId, completed, photoUrl || null]
+  );
+  return rows[0] || null;
+}
+
+export async function checkAndCompleteWorkOrder(workOrderId) {
+  const milestones = await getMilestones(workOrderId);
+  if (milestones.length > 0 && milestones.every(m => m.completed)) {
+    await pool.query(
+      "UPDATE work_orders SET status = 'completed', completed_at = NOW(), updated_at = NOW() WHERE id = $1 AND status != 'completed'",
+      [workOrderId]
+    );
+  }
+}
+
+// ============================================================
 // WORK ORDERS CRUD
 // ============================================================
 
@@ -21,7 +75,7 @@ export async function getWorkOrders(tenantId, { status, assignedTo, limit = 50, 
   params.push(limit, offset);
 
   const { rows } = await pool.query(
-    `SELECT wo.*, l.contact_name, l.address, u.name AS assigned_name
+    `SELECT wo.*, l.contact_name, l.address, CONCAT(u.first_name, ' ', u.last_name) AS assigned_name
      FROM work_orders wo
      LEFT JOIN leads l ON wo.lead_id = l.id
      LEFT JOIN users u ON wo.assigned_to = u.id
@@ -42,7 +96,7 @@ export async function getWorkOrders(tenantId, { status, assignedTo, limit = 50, 
 export async function getWorkOrder(tenantId, id) {
   const { rows } = await pool.query(
     `SELECT wo.*, l.contact_name, l.address, l.contact_phone, l.contact_email,
-            u.name AS assigned_name
+            CONCAT(u.first_name, ' ', u.last_name) AS assigned_name
      FROM work_orders wo
      LEFT JOIN leads l ON wo.lead_id = l.id
      LEFT JOIN users u ON wo.assigned_to = u.id
@@ -73,7 +127,10 @@ export async function createWorkOrder(tenantId, data) {
     ]
   );
 
-  return rows[0];
+  const newWorkOrder = rows[0];
+  await createMilestones(newWorkOrder.id);
+
+  return newWorkOrder;
 }
 
 export async function createFromEstimate(tenantId, estimateId) {

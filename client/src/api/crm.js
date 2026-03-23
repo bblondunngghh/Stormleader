@@ -234,3 +234,19 @@ export const createWorkOrderFromEstimate = (estimateId) =>
 export const updateWorkOrder = (id, data) => client.patch(`/crm/work-orders/${id}`, data);
 
 export const completeWorkOrder = (id) => client.patch(`/crm/work-orders/${id}/complete`);
+
+export const getWorkOrderMilestones = (woId) => client.get(`/crm/work-orders/${woId}/milestones`);
+
+export const updateWorkOrderMilestone = (woId, mId, data) =>
+  client.patch(`/crm/work-orders/${woId}/milestones/${mId}`, data);
+
+// ============================================================
+// AI CONTENT STUDIO
+// ============================================================
+
+export const generateContent = (data) => client.post('/crm/content/generate', data);
+
+export const getContentTemplates = (type, tone) =>
+  client.get('/crm/content/templates', { params: { type, tone } });
+
+export const generateContentBatch = (data) => client.post('/crm/content/generate-batch', data);

@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { getWorkOrders, createWorkOrder, createWorkOrderFromEstimate, updateWorkOrder, completeWorkOrder, getTeamMembers } from '../api/crm';
+import { getWorkOrders, createWorkOrder, createWorkOrderFromEstimate, updateWorkOrder, completeWorkOrder, getTeamMembers, getWorkOrderMilestones, updateWorkOrderMilestone } from '../api/crm';
 import { getEstimates } from '../api/estimates';
 import { showToast } from './Toast';
 import { IconPlusCircle, IconX, IconRefresh } from './Icons';
-import { CheckCircleIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, CameraIcon } from '@heroicons/react/24/outline';
+import CustomSelect from './CustomSelect';
+import DatePicker from './DatePicker';
+import TimePicker from './TimePicker';
 
 const STATUS_COLUMNS = [
   { key: 'pending',     label: 'Pending',     color: 'oklch(0.6 0 0)' },
@@ -59,6 +62,37 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
     notes: wo.notes || '',
   });
   const [saving, setSaving] = useState(false);
+  const [milestones, setMilestones] = useState([]);
+  const [milestonesLoading, setMilestonesLoading] = useState(true);
+
+  useEffect(() => {
+    getWorkOrderMilestones(wo.id)
+      .then(res => setMilestones(res.data?.milestones || []))
+      .catch(() => {})
+      .finally(() => setMilestonesLoading(false));
+  }, [wo.id]);
+
+  const toggleMilestone = async (milestone) => {
+    const newCompleted = !milestone.completed;
+    // Optimistic update
+    setMilestones(prev => prev.map(m =>
+      m.id === milestone.id ? { ...m, completed: newCompleted, completed_at: newCompleted ? new Date().toISOString() : null } : m
+    ));
+    try {
+      const res = await updateWorkOrderMilestone(wo.id, milestone.id, { completed: newCompleted });
+      setMilestones(prev => prev.map(m => m.id === milestone.id ? res.data : m));
+    } catch {
+      // Revert
+      setMilestones(prev => prev.map(m =>
+        m.id === milestone.id ? milestone : m
+      ));
+      showToast('Failed to update milestone', 'error');
+    }
+  };
+
+  const completedCount = milestones.filter(m => m.completed).length;
+  const totalCount = milestones.length;
+  const progressPct = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   const handleChange = (field, val) => setForm(f => ({ ...f, [field]: val }));
 
@@ -123,38 +157,43 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
               rows={2} className="form-input" style={{ height: 'auto', minHeight: 60, marginTop: 4, resize: 'vertical' }} />
           </label>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)' }}>
-            <label style={labelStyle}>
-              Assigned To
-              <select value={form.assigned_to} onChange={e => handleChange('assigned_to', e.target.value)} className="form-input" style={{ marginTop: 4 }}>
-                <option value="">Unassigned</option>
-                {teamMembers.map(m => (
-                  <option key={m.id} value={m.id}>
-                    {[m.first_name, m.last_name].filter(Boolean).join(' ') || m.email}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label style={labelStyle}>
-              Crew Name
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)', alignItems: 'end' }}>
+            <div>
+              <span style={labelStyle}>Assigned To</span>
+              <CustomSelect
+                value={form.assigned_to || ''}
+                onChange={(v) => handleChange('assigned_to', v)}
+                placeholder="Unassigned"
+                options={[
+                  { value: '', label: 'Unassigned' },
+                  ...teamMembers.map(m => ({
+                    value: m.id,
+                    label: [m.first_name, m.last_name].filter(Boolean).join(' ') || m.email,
+                  })),
+                ]}
+                style={{ marginTop: 4 }}
+              />
+            </div>
+            <div>
+              <span style={labelStyle}>Crew Name</span>
               <input value={form.crew_name} onChange={e => handleChange('crew_name', e.target.value)}
                 className="form-input" style={{ marginTop: 4 }} placeholder="e.g. Crew A" />
-            </label>
+            </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-md)' }}>
-            <label style={labelStyle}>
-              Date
-              <input type="date" value={form.scheduled_date} onChange={e => handleChange('scheduled_date', e.target.value)} className="form-input" style={{ marginTop: 4 }} />
-            </label>
-            <label style={labelStyle}>
-              Start Time
-              <input type="time" value={form.scheduled_time_start} onChange={e => handleChange('scheduled_time_start', e.target.value)} className="form-input" style={{ marginTop: 4 }} />
-            </label>
-            <label style={labelStyle}>
-              End Time
-              <input type="time" value={form.scheduled_time_end} onChange={e => handleChange('scheduled_time_end', e.target.value)} className="form-input" style={{ marginTop: 4 }} />
-            </label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-md)', alignItems: 'end', overflow: 'visible', position: 'relative', zIndex: 10 }}>
+            <div>
+              <span style={labelStyle}>Date</span>
+              <DatePicker value={form.scheduled_date} onChange={v => handleChange('scheduled_date', v)} placeholder="Select date" />
+            </div>
+            <div>
+              <span style={labelStyle}>Start Time</span>
+              <TimePicker value={form.scheduled_time_start} onChange={v => handleChange('scheduled_time_start', v)} placeholder="Start" />
+            </div>
+            <div>
+              <span style={labelStyle}>End Time</span>
+              <TimePicker value={form.scheduled_time_end} onChange={v => handleChange('scheduled_time_end', v)} placeholder="End" />
+            </div>
           </div>
 
           {/* Line Items (read-only) */}
@@ -184,6 +223,84 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
             <textarea value={form.notes} onChange={e => handleChange('notes', e.target.value)}
               rows={3} className="form-input" style={{ height: 'auto', minHeight: 80, marginTop: 4, resize: 'vertical' }} placeholder="Internal notes..." />
           </label>
+
+          {/* Milestones */}
+          {!milestonesLoading && milestones.length > 0 && (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>
+                  Milestones ({completedCount}/{totalCount})
+                </span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: progressPct === 100 ? 'oklch(0.75 0.18 145)' : 'var(--text-muted)' }}>
+                  {Math.round(progressPct)}%
+                </span>
+              </div>
+              {/* Progress bar */}
+              <div style={{
+                height: 4, borderRadius: 2, background: 'oklch(1 0 0 / 0.08)',
+                marginBottom: 10, overflow: 'hidden',
+              }}>
+                <div style={{
+                  height: '100%', borderRadius: 2,
+                  width: `${progressPct}%`,
+                  background: progressPct === 100 ? 'oklch(0.75 0.18 145)' : 'oklch(0.72 0.19 250)',
+                  transition: 'width 0.3s ease',
+                }} />
+              </div>
+              {/* Milestone rows */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {milestones.map(m => (
+                  <div key={m.id} style={{
+                    display: 'flex', alignItems: 'center', gap: 10, padding: '6px 10px',
+                    borderRadius: 8, background: 'oklch(1 0 0 / 0.04)',
+                    opacity: m.completed ? 0.7 : 1,
+                  }}>
+                    <button
+                      onClick={() => toggleMilestone(m)}
+                      style={{
+                        width: 20, height: 20, borderRadius: 6, border: 'none', cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                        background: m.completed ? 'oklch(0.75 0.18 145)' : 'oklch(1 0 0 / 0.08)',
+                        color: m.completed ? 'oklch(0.2 0 0)' : 'transparent',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      {m.completed && (
+                        <svg width={12} height={12} viewBox="0 0 12 12" fill="none">
+                          <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </button>
+                    <span style={{
+                      flex: 1, fontSize: 13, color: 'var(--text-primary)', fontWeight: 500,
+                      textDecoration: m.completed ? 'line-through' : 'none',
+                    }}>
+                      {m.name}
+                    </span>
+                    {m.completed_at && (
+                      <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>
+                        {formatDate(m.completed_at)}
+                      </span>
+                    )}
+                    {m.photo_url && (
+                      <img src={m.photo_url} alt="" style={{ width: 24, height: 24, borderRadius: 4, objectFit: 'cover' }} />
+                    )}
+                    <button
+                      title="Add photo (coming soon)"
+                      style={{
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        color: 'var(--text-muted)', display: 'flex', alignItems: 'center',
+                        opacity: 0.5, padding: 2,
+                      }}
+                      onClick={(e) => { e.stopPropagation(); showToast('Photo upload coming soon', 'info'); }}
+                    >
+                      <CameraIcon width={14} height={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Lead link */}
           {wo.lead_id && (
@@ -267,36 +384,41 @@ function CreateWorkOrderModal({ onClose, onCreate, teamMembers }) {
             Description
             <textarea value={form.description} onChange={e => handleChange('description', e.target.value)} rows={2} className="form-input" style={{ height: 'auto', minHeight: 60, marginTop: 4, resize: 'vertical' }} />
           </label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <label style={labelStyle}>
-              Assigned To
-              <select value={form.assigned_to || ''} onChange={e => handleChange('assigned_to', e.target.value)} className="form-input" style={{ marginTop: 4 }}>
-                <option value="">Unassigned</option>
-                {teamMembers.map(m => (
-                  <option key={m.id} value={m.id}>
-                    {[m.first_name, m.last_name].filter(Boolean).join(' ') || m.email}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label style={labelStyle}>
-              Crew Name
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'end' }}>
+            <div>
+              <span style={labelStyle}>Assigned To</span>
+              <CustomSelect
+                value={form.assigned_to || ''}
+                onChange={(v) => handleChange('assigned_to', v)}
+                placeholder="Unassigned"
+                options={[
+                  { value: '', label: 'Unassigned' },
+                  ...teamMembers.map(m => ({
+                    value: m.id,
+                    label: [m.first_name, m.last_name].filter(Boolean).join(' ') || m.email,
+                  })),
+                ]}
+                style={{ marginTop: 4 }}
+              />
+            </div>
+            <div>
+              <span style={labelStyle}>Crew Name</span>
               <input value={form.crew_name} onChange={e => handleChange('crew_name', e.target.value)} className="form-input" style={{ marginTop: 4 }} placeholder="e.g. Crew A" />
-            </label>
+            </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-            <label style={labelStyle}>
-              Date
-              <input type="date" value={form.scheduled_date} onChange={e => handleChange('scheduled_date', e.target.value)} className="form-input" style={{ marginTop: 4 }} />
-            </label>
-            <label style={labelStyle}>
-              Start
-              <input type="time" value={form.scheduled_time_start} onChange={e => handleChange('scheduled_time_start', e.target.value)} className="form-input" style={{ marginTop: 4 }} />
-            </label>
-            <label style={labelStyle}>
-              End
-              <input type="time" value={form.scheduled_time_end} onChange={e => handleChange('scheduled_time_end', e.target.value)} className="form-input" style={{ marginTop: 4 }} />
-            </label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, alignItems: 'end', overflow: 'visible', position: 'relative', zIndex: 10 }}>
+            <div>
+              <span style={labelStyle}>Date</span>
+              <DatePicker value={form.scheduled_date} onChange={v => handleChange('scheduled_date', v)} placeholder="Select date" />
+            </div>
+            <div>
+              <span style={labelStyle}>Start</span>
+              <TimePicker value={form.scheduled_time_start} onChange={v => handleChange('scheduled_time_start', v)} placeholder="Start" />
+            </div>
+            <div>
+              <span style={labelStyle}>End</span>
+              <TimePicker value={form.scheduled_time_end} onChange={v => handleChange('scheduled_time_end', v)} placeholder="End" />
+            </div>
           </div>
         </div>
 
@@ -385,16 +507,33 @@ export default function WorkOrdersView() {
   const [showCreate, setShowCreate] = useState(false);
   const [showEstimatePicker, setShowEstimatePicker] = useState(false);
   const [dragState, setDragState] = useState(null);
+  const [milestoneCounts, setMilestoneCounts] = useState({}); // { woId: { completed, total } }
+
+  const fetchMilestoneCounts = useCallback(async (wos) => {
+    const counts = {};
+    await Promise.all(wos.map(async (wo) => {
+      try {
+        const res = await getWorkOrderMilestones(wo.id);
+        const ms = res.data?.milestones || [];
+        counts[wo.id] = { completed: ms.filter(m => m.completed).length, total: ms.length };
+      } catch {
+        counts[wo.id] = { completed: 0, total: 0 };
+      }
+    }));
+    setMilestoneCounts(counts);
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
       const res = await getWorkOrders({ limit: 500 });
-      setWorkOrders(res.data?.workOrders || []);
+      const wos = res.data?.workOrders || [];
+      setWorkOrders(wos);
+      fetchMilestoneCounts(wos);
     } catch {
       showToast('Failed to load work orders', 'error');
     }
     setLoading(false);
-  }, []);
+  }, [fetchMilestoneCounts]);
 
   useEffect(() => {
     fetchData();
@@ -601,6 +740,26 @@ export default function WorkOrdersView() {
                           {truncate(wo.address, 35)}
                         </span>
                       )}
+
+                      {/* Milestone progress */}
+                      {milestoneCounts[wo.id] && milestoneCounts[wo.id].total > 0 && (() => {
+                        const mc = milestoneCounts[wo.id];
+                        const pct = (mc.completed / mc.total) * 100;
+                        return (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
+                            <div style={{ flex: 1, height: 3, borderRadius: 2, background: 'oklch(1 0 0 / 0.08)', overflow: 'hidden' }}>
+                              <div style={{
+                                height: '100%', borderRadius: 2,
+                                width: `${pct}%`,
+                                background: pct === 100 ? 'oklch(0.75 0.18 145)' : 'oklch(0.72 0.19 250)',
+                              }} />
+                            </div>
+                            <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                              {mc.completed}/{mc.total}
+                            </span>
+                          </div>
+                        );
+                      })()}
                     </div>
                   ))}
 

@@ -77,4 +77,35 @@ router.patch('/:id/complete', async (req, res, next) => {
   }
 });
 
+// Get milestones for a work order
+router.get('/:id/milestones', async (req, res, next) => {
+  try {
+    const milestones = await workOrderService.getMilestones(req.params.id);
+    res.json({ milestones });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Update a milestone (toggle complete, set photo)
+router.patch('/:id/milestones/:milestoneId', async (req, res, next) => {
+  try {
+    const { completed, photo_url } = req.body;
+    const milestone = await workOrderService.updateMilestone(
+      req.params.id, req.params.milestoneId,
+      { completed, photoUrl: photo_url }
+    );
+    if (!milestone) return res.status(404).json({ error: 'Milestone not found' });
+
+    // Check if all milestones complete → auto-complete work order
+    if (completed) {
+      await workOrderService.checkAndCompleteWorkOrder(req.params.id);
+    }
+
+    res.json(milestone);
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;
