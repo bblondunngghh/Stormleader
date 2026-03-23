@@ -14,6 +14,8 @@ import * as onboardingApi from '../api/onboarding';
 import * as paymentsApi from '../api/payments';
 import { showToast } from './Toast';
 import AutomationSettings from './AutomationSettings';
+import DripSequences from './DripSequences';
+import CustomSelect from './CustomSelect';
 import { getCustomFieldDefinitions, createCustomField, updateCustomField, deleteCustomField } from '../api/crm';
 
 export default function SettingsView() {
@@ -21,7 +23,7 @@ export default function SettingsView() {
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState(() => {
     const urlTab = searchParams.get('tab');
-    return ['profile', 'company', 'billing', 'payments', 'team', 'alerts', 'notifications', 'financing', 'automations', 'custom-fields'].includes(urlTab) ? urlTab : 'profile';
+    return ['profile', 'company', 'billing', 'payments', 'team', 'alerts', 'notifications', 'financing', 'automations', 'drip-sequences', 'custom-fields'].includes(urlTab) ? urlTab : 'profile';
   });
 
   const tabs = [
@@ -34,17 +36,18 @@ export default function SettingsView() {
     { id: 'notifications', label: 'Notifications' },
     { id: 'financing', label: 'Financing' },
     { id: 'automations', label: 'Automations' },
+    { id: 'drip-sequences', label: 'Drip Sequences' },
     { id: 'custom-fields', label: 'Custom Fields' },
   ];
 
   return (
-    <div className="main-content" style={{ gap: 'var(--space-lg)', maxWidth: 800 }}>
-      {/* Tab Navigation */}
-      <div style={{ display: 'flex', gap: 2, background: 'oklch(0.16 0.02 260 / 0.6)', borderRadius: 'var(--radius-md)', padding: 3, border: '1px solid var(--glass-border)', overflowX: 'auto', maxWidth: '100%', scrollbarWidth: 'none' }}>
+    <div className="main-content" style={{ gap: 0, maxWidth: 800, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      {/* Tab Navigation — fixed at top, scrollable horizontally */}
+      <div style={{ display: 'flex', gap: 2, background: 'oklch(0.16 0.02 260 / 0.6)', borderRadius: 'var(--radius-md)', padding: 3, border: '1px solid var(--glass-border)', overflowX: 'auto', flexShrink: 0, scrollbarWidth: 'none', zIndex: 20 }}>
         {tabs.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
             style={{
-              padding: '8px 18px', borderRadius: 'var(--radius-sm)', fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
+              padding: '8px 12px', borderRadius: 'var(--radius-sm)', fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
               background: tab === t.id ? 'oklch(0.30 0.05 250 / 0.6)' : 'transparent',
               color: tab === t.id ? 'var(--accent-blue)' : 'var(--text-muted)',
               transition: 'all 0.15s var(--ease-out)',
@@ -54,6 +57,8 @@ export default function SettingsView() {
         ))}
       </div>
 
+      {/* Tab Content — scrollable */}
+      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)', paddingTop: 'var(--space-lg)' }}>
       {tab === 'profile' && <ProfileTab user={user} />}
       {tab === 'company' && <CompanyTab />}
       {tab === 'billing' && <BillingTab />}
@@ -63,7 +68,9 @@ export default function SettingsView() {
       {tab === 'notifications' && <NotificationsTab />}
       {tab === 'financing' && <FinancingTab />}
       {tab === 'automations' && <AutomationSettings />}
+      {tab === 'drip-sequences' && <DripSequences />}
       {tab === 'custom-fields' && <CustomFieldsTab />}
+      </div>
     </div>
   );
 }
@@ -1137,13 +1144,12 @@ function TeamTab({ currentUserId }) {
             </div>
             <div>
               <label style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>Role</label>
-              <select className="form-input" value={inviteForm.role}
-                onChange={e => setInviteForm(f => ({ ...f, role: e.target.value }))}
-                style={{ width: '100%', fontSize: 13 }}>
-                <option value="sales_rep">Sales Rep</option>
-                <option value="manager">Manager</option>
-                <option value="admin">Admin</option>
-              </select>
+              <CustomSelect value={inviteForm.role} onChange={v => setInviteForm(f => ({ ...f, role: v }))}
+                options={[
+                  { value: 'sales_rep', label: 'Sales Rep' },
+                  { value: 'manager', label: 'Manager' },
+                  { value: 'admin', label: 'Admin' },
+                ]} />
             </div>
           </div>
           <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'flex-end', marginTop: 'var(--space-xs)' }}>
@@ -1207,14 +1213,18 @@ function TeamTab({ currentUserId }) {
                 </div>
               </div>
 
-              <select className="form-input" value={member.role}
-                onChange={(e) => handleRoleChange(member.id, e.target.value)}
-                disabled={isCurrentUser}
-                style={{ fontSize: 12, width: '100%' }}>
-                <option value="admin">Admin</option>
-                <option value="manager">Manager</option>
-                <option value="sales_rep">Sales Rep</option>
-              </select>
+              {isCurrentUser ? (
+                <div className="form-input" style={{ display: 'flex', alignItems: 'center', opacity: 0.6, fontSize: 12 }}>
+                  {member.role === 'admin' ? 'Admin' : member.role === 'manager' ? 'Manager' : 'Sales Rep'}
+                </div>
+              ) : (
+                <CustomSelect value={member.role} onChange={v => handleRoleChange(member.id, v)}
+                  options={[
+                    { value: 'admin', label: 'Admin' },
+                    { value: 'manager', label: 'Manager' },
+                    { value: 'sales_rep', label: 'Sales Rep' },
+                  ]} />
+              )}
             </div>
           );
         })}
@@ -1299,11 +1309,12 @@ function AlertsTab() {
 
           <div className="form-group">
             <label>Alert Mode</label>
-            <select className="form-input" value={alertConfig.alert_mode || 'immediate'}
-              onChange={(e) => handleAlertToggle('alert_mode', e.target.value)} disabled={saving}>
-              <option value="immediate">Immediate — alert on every qualifying storm</option>
-              <option value="digest">Daily Digest — batch alerts into one email</option>
-            </select>
+            <CustomSelect value={alertConfig.alert_mode || 'immediate'}
+              onChange={v => handleAlertToggle('alert_mode', v)}
+              options={[
+                { value: 'immediate', label: 'Immediate — alert on every qualifying storm' },
+                { value: 'digest', label: 'Daily Digest — batch alerts into one email' },
+              ]} />
           </div>
         </div>
       )}
@@ -1904,10 +1915,8 @@ function CustomFieldsTab() {
             </div>
             <div>
               <label style={{ fontSize: 12, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>Type</label>
-              <select value={form.field_type} onChange={e => setForm(f => ({ ...f, field_type: e.target.value }))}
-                className="form-input">
-                {FIELD_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-              </select>
+              <CustomSelect value={form.field_type} onChange={v => setForm(f => ({ ...f, field_type: v }))}
+                options={FIELD_TYPES} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)', paddingTop: 20 }}>
               <label style={{ fontSize: 13, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>

@@ -147,6 +147,29 @@ export const deleteAutomation = (id) => client.delete(`/crm/automations/${id}`);
 export const toggleAutomation = (id) => client.patch(`/crm/automations/${id}/toggle`);
 
 // ============================================================
+// DRIP SEQUENCES
+// ============================================================
+
+export const getDripSequences = () => client.get('/crm/drip-sequences');
+
+export const getDripSequence = (id) => client.get(`/crm/drip-sequences/${id}`);
+
+export const createDripSequence = (data) => client.post('/crm/drip-sequences', data);
+
+export const updateDripSequence = (id, data) => client.patch(`/crm/drip-sequences/${id}`, data);
+
+export const deleteDripSequence = (id) => client.delete(`/crm/drip-sequences/${id}`);
+
+export const enrollLeadInSequence = (sequenceId, leadId) =>
+  client.post(`/crm/drip-sequences/${sequenceId}/enroll`, { leadId });
+
+export const cancelSequenceEnrollment = (sequenceId, leadId) =>
+  client.post(`/crm/drip-sequences/${sequenceId}/cancel`, { leadId });
+
+export const getSequenceEnrollments = (sequenceId) =>
+  client.get(`/crm/drip-sequences/${sequenceId}/enrollments`);
+
+// ============================================================
 // CANVASSING
 // ============================================================
 

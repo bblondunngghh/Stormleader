@@ -10,6 +10,7 @@ import { checkAndAlert } from '../services/alertService.js';
 import { correctAllPending } from '../services/windDriftService.js';
 import { autoImportForStorms } from '../services/countyService.js';
 import { checkImpactedAssetsForEvents } from '../services/impactedAssetService.js';
+import { processScheduledSteps } from '../services/dripService.js';
 
 export function startScheduler() {
   if (config.NODE_ENV === 'test') {
@@ -113,7 +114,16 @@ export function startScheduler() {
     }
   });
 
-  logger.info('Ingestion scheduler started (MRMS: 30m, NWS: 1h, SPC: 2h, auto-import: 3x/day, cleanup: 3am daily)');
+  // Drip sequence processing — every 15 minutes
+  cron.schedule('*/15 * * * *', async () => {
+    try {
+      await processScheduledSteps();
+    } catch (err) {
+      logger.error({ err }, 'Drip processing failed');
+    }
+  });
+
+  logger.info('Ingestion scheduler started (MRMS: 30m, NWS: 1h, SPC: 2h, auto-import: 3x/day, drip: 15m, cleanup: 3am daily)');
 
   // Run NWS + SPC ingestion immediately on startup (don't wait for first cron tick)
   setTimeout(async () => {

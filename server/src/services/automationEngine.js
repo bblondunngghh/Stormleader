@@ -1,6 +1,7 @@
 import pool from '../db/pool.js';
 import logger from '../utils/logger.js';
 import { sendAutomationEmail } from './emailService.js';
+import { checkDripEnrollments } from './dripService.js';
 
 /**
  * Fire all active automations matching a given trigger for a tenant.
@@ -26,6 +27,13 @@ export async function fireTrigger(tenantId, triggerType, context = {}) {
         'Automation execution failed'
       );
     }
+  }
+
+  // Also check for drip sequence auto-enrollment
+  try {
+    await checkDripEnrollments(tenantId, triggerType, context);
+  } catch (err) {
+    logger.error({ err, triggerType }, 'Drip sequence enrollment check failed');
   }
 }
 
