@@ -18,7 +18,7 @@ router.get('/', async (req, res, next) => {
     let idx = 2;
 
     let sql = `
-      SELECT cp.*, u.name as user_name,
+      SELECT cp.*, CONCAT(u.first_name, ' ', u.last_name) as user_name,
              ST_Y(cp.location::geometry) as lat, ST_X(cp.location::geometry) as lng
       FROM canvass_pins cp
       JOIN users u ON cp.user_id = u.id

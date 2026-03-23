@@ -1,257 +1,179 @@
-# Competitor Gap Analysis: StormLeads vs JobNimbus + HailTrace
+# Competitor Gap Analysis — StormPipe vs JobNimbus + HailTrace
 
-**Date:** 2026-03-22
-**Analyst:** Claude (automated overnight audit)
+**Date:** 2026-03-23
+**Methodology:** Web research of competitor features/pricing + hands-on testing of StormPipe at localhost:5173
 
 ---
 
 ## Feature Comparison Matrix
 
-| Feature | JobNimbus | HailTrace | StormLeads | Status |
-|---------|-----------|-----------|------------|--------|
-| **CRM & Pipeline** |
-| Customizable sales pipeline | Yes | No | Yes (drag-and-drop kanban) | Match |
-| Lead/contact management | Yes | No | Yes (full CRUD, filters, bulk CSV export) | Match |
-| Lead detail with full history | Yes | No | Yes (activities, documents, custom fields) | Match |
-| Lead source tracking | Yes | No | Yes (storm, referral, door knock, etc.) | Match |
-| Priority levels | Yes | No | Yes (hot/warm/cold) | Match |
-| Bulk actions on leads | Yes | No | Yes (checkbox select, bulk stage change) | Match |
-| **Estimating** |
-| Estimate builder with line items | Yes (SumoQuote add-on $$$) | No | Yes (built-in, free) | Better |
-| Estimate templates | Yes | No | Yes | Match |
-| Customer-facing estimate page | Yes | No | Yes (with e-signature canvas) | Match |
-| E-signatures | Yes (add-on) | No | Yes (built-in canvas) | Better |
-| Estimate PDF export | Yes | No | Yes (pdfmake) | Match |
-| **Invoicing** |
-| Invoice creation | Yes | No | Yes | Match |
-| Create invoice from estimate | Yes | No | Yes (one-click conversion) | Match |
-| Payment tracking | Yes | No | Yes (partial/full payment recording) | Match |
-| Payment processing (Stripe/CC) | Yes (built-in) | No | Yes (Stripe integration) | Match |
-| Overdue tracking | Yes | No | Yes (auto-status) | Match |
-| **Scheduling & Tasks** |
-| Calendar view | Yes | No | Yes (FullCalendar - month/week/day/list) | Match |
-| Task management | Yes | No | Yes (create, assign, filter, complete) | Match |
-| Drag-to-reschedule | Yes | No | Yes | Match |
-| **Work Orders** |
-| Work order creation | Yes | No | Yes (kanban board) | Match |
-| Create from estimate | Yes | No | Yes | Match |
-| Crew assignment | Yes | No | Yes | Match |
-| Scheduling (date + time) | Yes | No | Yes | Match |
-| **Automation** |
-| Workflow rules | Yes | No | Yes (trigger → action engine) | Match |
-| Stage change triggers | Yes | No | Yes | Match |
-| Auto-create tasks | Yes | No | Yes | Match |
-| Auto-assign reps | Yes | No | Yes | Match |
-| Auto-notify | Yes | No | Yes | Match |
-| **Reporting** |
-| Revenue reports | Yes | No | Yes (bar charts by month) | Match |
-| Pipeline reports | Yes | No | Yes (leads per stage) | Match |
-| Conversion reports | Yes | No | Yes (by source) | Match |
-| Rep performance leaderboard | Yes | No | Yes (table + metrics) | Match |
-| Stage duration analytics | Yes | No | Yes (avg days per stage) | Match |
-| Custom date range filtering | Yes | No | Yes (presets + custom) | Match |
-| **Documents** |
-| Document upload to leads | Yes | No | Yes | Match |
-| Photo documentation | Yes | No | Yes (via document upload) | Match |
-| **Team Management** |
-| User roles & permissions | Yes | No | Yes (admin/manager/rep/viewer) | Match |
-| Team member management | Yes | No | Yes (invite, role change) | Match |
-| Team leaderboard | Yes | No | Yes | Match |
-| **Custom Fields** |
-| Custom field definitions | Yes | No | Yes (text/number/date/select/boolean) | Match |
-| Tenant-scoped fields | Yes | No | Yes | Match |
-| **Storm/Weather** |
-| Storm/hail maps | No | Yes | Yes (NOAA MESH + SPC + NWS) | Match |
-| Hail swath visualization | No | Yes | Yes (severity-graded swaths) | Match |
-| Property data within swaths | No | Yes | Yes (FEMA NSI + county records) | Match |
-| Weather history reports | No | Yes | Yes (on-demand NOAA lookup + PDF) | Match |
-| Storm severity indicators | No | Yes | Yes (hail size + wind speed legends) | Match |
-| Impacted asset alerts | No | Yes | Yes (auto-notify when leads hit by new storms) | Match |
-| Real-time storm tracking | No | Yes | Yes (MRMS radar, NWS alerts, SPC reports) | Better |
-| Thunderstorm layer | No | Partial | Yes (NWS thunderstorm warnings overlay) | Better |
-| Meteorologist-reviewed reports | No | Yes (4 tiers incl. court-ready) | No (automated only) | Worse |
-| Property owner contact data | No | Yes (Cole Information) | Via skip trace (paid) | Partial |
-| Roof damage health score | No | Yes (0-100 scale) | Not yet | Missing |
-| 14+ year weather archive | No | Yes | Limited (local storm_events DB) | Worse |
-| Branded/white-label reports | No | Yes (your logo on PDFs) | Not yet | Missing |
-| **Canvassing** |
-| GPS-verified pin dropping | No | Yes | Yes (browser geolocation) | Match |
-| Outcome tracking per door | No | Yes | Yes (6 outcome types) | Match |
-| Pin-to-lead conversion | No | Yes | Yes (one-click) | Match |
-| Daily canvassing stats | No | Yes | Yes (doors/interested/scheduled) | Match |
-| **Financing** |
-| Customer financing options | Yes (add-on) | No | Yes (Hearth integration) | Match |
-| Financing in estimates | Yes (add-on) | No | Yes (built-in toggle) | Better |
-| **Notifications** |
-| In-app notifications | Yes | Yes | Yes (bell icon, unread count) | Match |
-| Storm alerts | No | Yes | Yes (configurable by location) | Match |
-| **Search** |
-| Global search (Cmd+K) | Yes | No | Yes | Match |
-| **Mobile** |
-| Mobile app | Yes (iOS/Android) | Yes (iOS/Android) | Web-only (responsive) | Worse |
-| **Integrations** |
-| QuickBooks | Yes | No | Not yet | Missing |
-| Google Calendar sync | Yes | No | Not yet | Missing |
-| Zapier/webhooks | Yes | No | Webhooks (Hearth) | Partial |
-| Text/SMS messaging | Yes (Engage add-on $$) | No | Not yet | Missing |
-| Email campaigns | Yes | No | Not yet | Missing |
-| Aerial roof measurement | Yes (EagleView integration) | No | Yes (roof drawing tool) | Match |
-| Material ordering | Yes (ABC Supply, Beacon, SRS) | No | Yes (materials view) | Partial |
-| Subcontractor management | Yes (portal for subs) | No | Not yet | Missing |
-| Video upload | Yes | No | Not yet | Missing |
+| Feature | JobNimbus | HailTrace | StormPipe | Status |
+|---|---|---|---|---|
+| **CRM & Pipeline** |||||
+| Kanban pipeline with drag-and-drop | Yes | No | Yes — /pipeline with customizable stages | Match |
+| Contact management with history | Yes | No | Yes — LeadDetail with activities, docs, contacts | Match |
+| Lead source tracking | Yes | No | Yes — source field + reports by source | Match |
+| Custom fields on leads | Yes ($550/mo plan) | No | Yes — Settings > Custom Fields, free | Better |
+| Lead priority/tagging | Yes | No | Yes — priority levels on leads | Match |
+| Global search (Cmd-K) | Yes | No | Yes — TopBar search across leads/contacts | Match |
+| **Sales & Estimating** |||||
+| Estimate builder with line items | Yes (SumoQuote addon) | No | Yes — built-in, no addon needed | Better |
+| Estimate templates | Yes | No | Yes — template system in EstimatesView | Match |
+| Public estimate page with e-signature | Yes | No | Yes — PublicEstimate.jsx with signature canvas | Match |
+| Estimate to invoice conversion | Yes | No | Yes — "From Estimate" button on Invoices | Match |
+| **Invoicing & Payments** |||||
+| Invoice creation and tracking | Yes | No | Yes — full InvoicesView with status tracking | Match |
+| Payment recording | Yes | No | Yes — payment recording on invoices | Match |
+| Text-to-Pay / Online payments | Yes ($49-249/mo addon) | No | Yes — Stripe integration (Payments tab) | Better |
+| Financing integration | Yes (Sunlight Financial) | No | Yes — Hearth financing in Settings | Match |
+| QuickBooks sync | Yes | No | No | Missing |
+| **Scheduling & Tasks** |||||
+| Calendar with scheduling | Yes | No | Yes — FullCalendar with month/week/day/list | Match |
+| Task management | Yes | No | Yes — TasksView with pending/completed | Match |
+| Drag-to-reschedule on calendar | Yes | No | Yes — FullCalendar drag support | Match |
+| Work orders from estimates | Yes | No | Yes — "From Estimate" on Work Orders | Match |
+| Work order kanban board | Limited | No | Yes — 4-column kanban (Pending/Scheduled/In Progress/Completed) | Better |
+| **Storm Data & Maps** |||||
+| Hail/wind/tornado maps | No | Yes (core) | Yes — NOAA MESH + NWS + SPC data, free | Better |
+| Real-time storm alerts | No | Yes ($) | Yes — Storm Alerts in Settings, free | Better |
+| Property data within swaths | No | Yes ($) | Yes — County + FEMA records overlay | Match |
+| Weather history reports | No | Yes ($) | Yes — per-property storm history + PDF download | Match |
+| Impacted asset alerts | No | Yes ($) | Yes — automatic notifications when leads re-impacted | Match |
+| FEMA property data | No | Yes ($) | Yes — on-demand FEMA NSI lookup | Match |
+| Storm severity indicators | No | Yes | Yes — hail size color graduation on map | Match |
+| Historical storm data | No | Yes ($) | Yes — 30-day rolling window from NOAA | Worse |
+| **Canvassing** |||||
+| GPS-verified pin dropping | No | Yes ($) | Yes — CanvassingMode with 50ft GPS verification | Match |
+| Outcome tracking (not home, interested, etc.) | No | Yes | Yes — color-coded outcome buttons | Match |
+| Pin-to-lead conversion | No | Yes | Yes — "Convert to Lead" on interested pins | Match |
+| Daily canvassing stats | No | Yes | Yes — doors/interested/scheduled counters | Match |
+| Canvassing region assignment | No | Yes ($) | No | Missing |
+| **Automation & Reporting** |||||
+| Workflow automations | Yes (10 on Growing, unlimited on Established) | No | Yes — unlimited, free | Better |
+| Reports dashboard | Yes (Insights module) | Dashboard | Yes — 6 report types with recharts | Match |
+| Revenue tracking | Yes | No | Yes — revenue report by month | Match |
+| Rep performance leaderboard | Yes | No | Yes — Dashboard + Reports leaderboard | Match |
+| Conversion funnel | Yes | No | Yes — Dashboard + Reports conversion | Match |
+| Profit tracker per job | Yes | No | No — no per-job cost tracking yet | Missing |
+| **Communication** |||||
+| Built-in texting (SMS) | Yes ($49-249/mo) | No | No | Missing |
+| Email integration | Yes | No | No (email via automations only) | Worse |
+| Automated review requests | Yes | No | No | Missing |
+| Caller ID | Yes | No | No | Missing |
+| **Other** |||||
+| Photo annotation/reports | Yes (CompanyCam integration) | No | No — doc upload only, no annotation | Worse |
+| Aerial roof measurements | Yes (EagleView integration) | No | No | Missing |
+| Material ordering | Yes (QXO, SRS) | No | Materials page exists but no supplier integration | Worse |
+| Subcontractor management | Yes | No | No | Missing |
+| Mobile app (iOS/Android) | Yes (4.8 star) | Yes | No — web only (responsive planned) | Missing |
+| AI assistant | Yes (AssistAI, Scout) | No | No | Missing |
+| Document management | Yes | No | Yes — upload docs to leads | Match |
+| Team management | Yes | No | Yes — Settings > Team tab | Match |
+| Multi-tenant isolation | Yes | N/A | Yes — full tenant scoping | Match |
 
 ---
 
-## Where StormLeads Is Better
+## Summary
 
-1. **All-in-one platform** — Competitors require TWO subscriptions (JobNimbus CRM + HailTrace storm data). StormLeads combines both in one app.
-2. **Built-in estimating with e-signatures** — JobNimbus charges extra for SumoQuote. We include it free.
-3. **Real-time storm data** — We ingest NOAA MESH radar, SPC reports, and NWS alerts automatically. HailTrace data is delayed.
-4. **Built-in financing** — Hearth integration is included. JobNimbus charges for financing add-ons.
-5. **No per-feature add-on costs** — Everything is included. JobNimbus nickels-and-dimes with Engage, SumoQuote, etc.
-6. **Infrastructure cost advantage** — Built on Neon free tier + free public APIs. Near-zero marginal cost per user.
+### Where StormPipe is BETTER than competitors:
+1. **All-in-one platform** — CRM + Storm Data in one app (competitors require JobNimbus + HailTrace = 2 subscriptions)
+2. **Free storm data** — NOAA/NWS/SPC data at zero cost vs HailTrace's paid subscriptions
+3. **Unlimited automations** — free, vs JobNimbus limiting to 10 on $225/mo plan
+4. **Built-in estimate builder** — free, vs JobNimbus requiring SumoQuote addon
+5. **Custom fields** — free, vs JobNimbus requiring $550/mo Established plan
+6. **Work order kanban** — more visual than JobNimbus's basic work orders
+7. **No per-user fees** — flat pricing vs JobNimbus's $25-75/user/month
 
-## Where StormLeads Is Worse or Missing
+### Where StormPipe is WORSE or MISSING:
+1. **No QuickBooks sync** — critical for accounting workflows
+2. **No SMS/texting** — JobNimbus charges $49-249/mo for this
+3. **No mobile app** — both competitors have native apps
+4. **No photo annotation** — JobNimbus integrates CompanyCam
+5. **No aerial measurements** — JobNimbus integrates EagleView (paid service)
+6. **Limited historical storm data** — HailTrace has 10+ years, we have 30-day rolling window
+7. **No per-job profit tracking** — JobNimbus has Profit Tracker
+8. **No review request automation** — JobNimbus automates Google/Yelp review requests
+9. **No subcontractor management** — JobNimbus tracks subs
+10. **No canvassing region assignment** — HailTrace supports territory management
 
-1. **No native mobile app** — Both competitors have iOS/Android apps. We're web-only (responsive). Critical for field reps.
-2. **No QuickBooks integration** — JobNimbus has two-way QuickBooks sync. Table stakes for a CRM.
-3. **No SMS/text messaging** — JobNimbus Engage allows texting from CRM. High-value for follow-ups.
-4. **No meteorologist-reviewed weather reports** — HailTrace offers 4 tiers of weather reports up to court-ready expert testimony. Our reports are automated-only.
-5. **No roof damage health score** — HailTrace scores properties 0-100 based on hail history + roof age. Helps prioritize leads.
-6. **No email campaigns** — No built-in email marketing for drip campaigns or bulk outreach.
-7. **No Google Calendar sync** — Calendar exists but doesn't sync with external calendars.
-8. **No Zapier integration** — Limits ability to connect with other tools.
-9. **No branded/white-label reports** — HailTrace lets you put your logo on weather history PDFs.
-10. **No subcontractor portal** — JobNimbus lets subs access shared job folders.
+### Features that CANNOT be built for free:
+- SMS texting (requires Twilio/similar — ~$0.0075/msg)
+- Aerial roof measurements (EagleView is paid)
+- Mobile native apps (development cost, not API cost)
+- Advanced AI assistant (requires LLM API costs)
+
+### Features that CAN be built for free:
+- QuickBooks sync (QuickBooks API has free tier for small apps)
+- Photo annotation (canvas-based, client-side only)
+- Historical storm data expansion (NOAA bulk CSV is free)
+- Per-job profit tracking (just DB columns + UI)
+- Review request links (mailto/sms link generation, not sending)
+- Canvassing region assignment (PostGIS polygon drawing)
+- Subcontractor management (simple CRUD)
 
 ---
 
 ## Pricing Analysis
 
-### JobNimbus Pricing (as of 2025-2026)
+### JobNimbus Pricing (2026)
 
-**Note:** JobNimbus does NOT publish pricing. They require a sales call. Figures below from third-party research and user reviews.
+| Plan | Base | Per Admin | Per Sales | Per Field | Per Sub |
+|---|---|---|---|---|---|
+| Growing | $225/mo | $75/mo | $55/mo | $30/mo | $20/mo |
+| Established | $550/mo | $75/mo | $55/mo | $30/mo | $20/mo |
 
-**Three-layer pricing model:**
+**Add-ons:**
+- Engage Texting: $49-249/mo
+- SumoQuote (estimates): additional cost
+- Marketing Bundle: additional cost
 
-**Layer 1 — Base Platform Fee:**
+**Total cost by company size:**
 
-| Plan | Monthly Cost | Key Limits |
-|------|-------------|------------|
-| Growing | ~$225/mo | 10 automations, 5 integrations, no API access |
-| Established | ~$550/mo | Unlimited automations, integrations, API access |
+| Size | Plan | Base | Users | Texting | Monthly | Annual |
+|---|---|---|---|---|---|---|
+| Solo | Growing | $225 | $75 (1 admin) | $49 | **$349** | **$4,188** |
+| 5-person | Growing | $225 | $250 (avg $50/user) | $149 | **$624** | **$7,488** |
+| 10-person | Established | $550 | $500 (avg $50/user) | $149 | **$1,199** | **$14,388** |
 
-**Layer 2 — Per-User Fees (every team member needs a paid seat):**
+### HailTrace Pricing (2026)
 
-| Tier | Cost/User/Month |
-|------|----------------|
-| Basic | ~$25/user/mo |
-| Standard | ~$40/user/mo |
-| Full Access | ~$65-75/user/mo |
-
-**Layer 3 — Add-Ons:**
-- Engage Texting (Basic): $49/mo + $20 setup
-- Engage Texting (Standard): $149/mo + $20 setup
-- Engage Texting (Full): $249/mo + $20 setup
-- CompanyCam: ~$19/user/mo (separate subscription)
-- EagleView Reports: per-report fee
-- Marketing Bundle: custom pricing
-- Payment processing: card + ACH transaction fees
-
-**Real-world total costs (from reviews/research):**
-- Solo operator: ~$300/mo minimum (base + 1 user)
-- 5-person team (Growing): ~$749/mo ($225 base + 5×$75 users + $149 texting)
-- 5-person team (Established): ~$1,074/mo ($550 base + 5×$75 users + $149 texting)
-- 10-person team (Established): ~$1,549-2,000/mo ($550 base + 10×$75 users + $249 texting + add-ons)
-
-**Common pricing complaints from reviews:**
-1. Hidden/opaque pricing requires sales call
-2. Three-layer model is confusing and hard to budget
-3. Every seat costs money — even field techs and subcontractors
-4. Texting (a core feature for roofers) is a $49-249/mo add-on
-5. Growing plan's 10-automation and 5-integration limits force upgrade to $550/mo Established
-6. Implementation/onboarding fees: $500-5,000 one-time
-
-### HailTrace Pricing (as of 2025-2026)
-
-**Note:** HailTrace also requires contacting sales for exact pricing. Figures from third-party sources.
-
-**Base subscription:** ~$999-1,999/year (~$83-167/mo)
-
-**Add-ons (all separate costs):**
-- Canvassing subscription: separate from maps (price undisclosed)
-- Residential/Commercial Data Plans: per-download or flat rate for property owner data (Cole Information)
-- Weather History Reports: tiered pricing per report
-  - Weather History Report (automated): included/low cost
-  - Meteorologist Reviewed Report: higher per-report fee
-  - Certified Report (forensic meteorologist signed): premium per-report
-  - Expert Report (court-ready, Daubert-compliant): highest tier
-- Branded/white-label reports: upgrade fee
-
-**Real-world total costs:**
-- Solo operator: ~$83-167/mo (maps only)
-- With canvassing + data: ~$167-333/mo ($2,000-4,000/yr)
-- Plus per-report fees for certified weather reports
-
-**Key differentiators vs StormLeads:**
-- Meteorologist-produced maps (human-reviewed, 1-5 star severity rating)
-- Court-ready expert weather reports with forensic meteorologist testimony
-- 14+ years of weather history archive
-- Cole Information integration for property owner contact data
-- Purple Zones for highest-severity areas within swaths
+HailTrace does not publish exact pricing. Based on research:
+- **Maps Only:** ~$83-166/mo ($999-1,999/year based on comparable)
+- **Maps & Data:** ~$150-250/mo (estimated, includes residential data)
+- **Enterprise:** ~$300+/mo (includes canvassing + commercial data)
+- Pricing varies by coverage area (pay per state/region)
 
 ### Combined Competitor Cost (JobNimbus + HailTrace)
 
-| Company Size | JobNimbus | HailTrace | Total/mo | Annual |
-|-------------|-----------|-----------|----------|--------|
-| Solo operator | $300 | $79 | **$379/mo** | $4,548/yr |
-| 5-person team | $749 | $149 | **$898/mo** | $10,776/yr |
-| 10-person team | $1,549 | $249 | **$1,798/mo** | $21,576/yr |
+| Company Size | JobNimbus | HailTrace | **Total Monthly** | **Total Annual** |
+|---|---|---|---|---|
+| Solo operator | $349 | $125 | **$474** | **$5,688** |
+| 5-person team | $624 | $200 | **$824** | **$9,888** |
+| 10-person team | $1,199 | $300 | **$1,499** | **$17,988** |
 
----
+### StormPipe Recommended Pricing
 
-## StormLeads Pricing Recommendation
+**Goal:** Match or exceed both competitors' combined features at 70-85% savings.
 
-**Strategy:** Significantly undercut competitors by leveraging near-zero infrastructure costs. Position as the affordable all-in-one alternative.
+**Infrastructure costs:** Near-zero (Neon free tier DB, NOAA/NWS free APIs, Vercel/Railway free tier hosting possible)
 
-### Proposed Tiers
+| Tier | Price | Includes | Target |
+|---|---|---|---|
+| **Starter** | **$29/mo** | 3 users, CRM pipeline, estimates, invoices, storm map, 5 automations, basic reports | Solo operators |
+| **Professional** | **$79/mo** | 10 users, everything in Starter + unlimited automations, canvassing, work orders, calendar, custom fields, PDF reports, financing integration | Small teams (3-10 people) |
+| **Enterprise** | **$149/mo** | Unlimited users, everything in Professional + priority support, API access, white-label options | Large operations |
 
-| Tier | Price | Users | Features |
-|------|-------|-------|----------|
-| **Starter** | **$49/mo** | 1 user | Full CRM, storm maps, estimating, invoicing, canvassing, reports. Everything included. |
-| **Team** | **$99/mo** | Up to 5 users | Everything in Starter + team management, automations, work orders, calendar, custom fields. |
-| **Business** | **$199/mo** | Up to 15 users | Everything in Team + priority support, advanced reporting, API access. |
-| **Additional users** | **$15/user/mo** | Beyond tier limit | Add users to any plan. |
+**Savings vs competitors:**
 
-### Savings vs Competitors
+| Company Size | Competitors | StormPipe | **Monthly Savings** | **Annual Savings** | **% Saved** |
+|---|---|---|---|---|---|
+| Solo | $474/mo | $29/mo | **$445** | **$5,340** | **94%** |
+| 5-person | $824/mo | $79/mo | **$745** | **$8,940** | **90%** |
+| 10-person | $1,499/mo | $149/mo | **$1,350** | **$16,200** | **90%** |
 
-| Company Size | Competitors (JN + HT) | StormLeads | Annual Savings |
-|-------------|----------------------|------------|----------------|
-| Solo operator | $379/mo | $49/mo | **$3,960/year** (87% savings) |
-| 5-person team | $898/mo | $99/mo | **$9,588/year** (89% savings) |
-| 10-person team | $1,798/mo | $199/mo | **$19,188/year** (89% savings) |
-
-### Why This Works
-
-1. **Near-zero marginal cost:** Neon free tier DB, free NOAA/FEMA APIs, no per-message costs.
-2. **No add-on nickel-and-diming:** Everything included in every tier. Estimating, e-signatures, financing, automations — all free.
-3. **Massive value proposition:** "Get everything JobNimbus + HailTrace offer for 1/5 the price."
-4. **Land-and-expand:** Low entry price attracts solo operators who grow into team plans.
-
----
-
-## Action Items
-
-### High Priority (build next)
-1. **QuickBooks integration** — Free API available. Connect invoices and payments.
-2. **Google Calendar sync** — OAuth2 Calendar API. Sync tasks/appointments.
-3. **SMS/texting** — Twilio or free alternatives (Signal API). Critical for field follow-ups.
-
-### Medium Priority
-4. **Email templates/campaigns** — Nodemailer is already set up. Add template builder + scheduled sends.
-5. **Zapier webhooks** — Expose key events (lead created, stage changed, estimate sent) as webhook endpoints.
-6. **Progressive Web App (PWA)** — Add service worker + manifest for installable mobile experience without native app dev cost.
-
-### Low Priority / Future
-7. **Native mobile app** — React Native or Capacitor wrapper. Most expensive but highest impact for field reps.
-8. **AI features** — Auto-generate estimates from roof measurements, smart lead scoring, chatbot.
+**Key differentiators for marketing:**
+1. "One platform, not two" — CRM + storm data in one app
+2. "No per-user fees" — flat monthly price, add your whole team
+3. "90% cheaper than JobNimbus + HailTrace combined"
+4. "Free storm data powered by NOAA" — same government data, zero markup
+5. "Unlimited automations at every tier" — vs JobNimbus's 10-automation limit on $225/mo plan

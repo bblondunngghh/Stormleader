@@ -996,11 +996,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                       <select
                         value={val || ''}
                         onChange={e => handleChange(e.target.value)}
-                        style={{
-                          background: 'oklch(0.18 0.02 260 / 0.6)', color: 'var(--text-primary)',
-                          border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-sm)',
-                          padding: '6px 10px', fontSize: 13, width: '100%',
-                        }}>
+                        className="form-input">
                         <option value="">-- Select --</option>
                         {(def.options || []).map(opt => (
                           <option key={opt} value={opt}>{opt}</option>
