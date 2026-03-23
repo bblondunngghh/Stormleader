@@ -28,6 +28,8 @@ import canvassingRouter from './canvassing.js';
 import reportsRouter from './reports.js';
 import workOrdersRouter from './workOrders.js';
 import dripRouter from './drip.js';
+import contentRouter from './content.js';
+import contractsRouter from './contracts.js';
 
 const router = Router();
 
@@ -59,6 +61,8 @@ router.use('/crm/canvass-pins', canvassingRouter);
 router.use('/crm/reports', reportsRouter);
 router.use('/crm/work-orders', workOrdersRouter);
 router.use('/crm/drip-sequences', dripRouter);
+router.use('/crm/content', contentRouter);
+router.use('/crm/contracts', contractsRouter);
 router.use('/webhooks/hearth', hearthWebhookRouter);
 
 export default router;
