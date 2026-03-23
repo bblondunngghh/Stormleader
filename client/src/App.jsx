@@ -26,6 +26,11 @@ const PublicEstimate = lazy(() => import('./components/PublicEstimate'));
 const CanvassingMode = lazy(() => import('./components/CanvassingMode'));
 const ReportsView = lazy(() => import('./components/ReportsView'));
 const WorkOrdersView = lazy(() => import('./components/WorkOrdersView'));
+const ContentStudio = lazy(() => import('./components/ContentStudio'));
+const ContractsView = lazy(() => import('./components/ContractsView'));
+const ExpensesView = lazy(() => import('./components/ExpensesView'));
+const PublicContract = lazy(() => import('./components/PublicContract'));
+const ClientStatusPage = lazy(() => import('./components/ClientStatusPage'));
 
 function PageLoader() {
   return (
@@ -50,6 +55,9 @@ const viewRoutes = {
   reports: '/reports',
   materials: '/materials',
   'work-orders': '/work-orders',
+  'content-studio': '/content-studio',
+  contracts: '/contracts',
+  expenses: '/expenses',
   settings: '/settings',
   admin: '/admin',
 };
@@ -90,6 +98,9 @@ function AppShell() {
           <Route path="/reports" element={<ReportsView />} />
           <Route path="/materials" element={<MaterialsView />} />
           <Route path="/work-orders" element={<WorkOrdersView />} />
+          <Route path="/content-studio" element={<ContentStudio />} />
+          <Route path="/contracts" element={<ContractsView />} />
+          <Route path="/expenses" element={<ExpensesView />} />
           <Route path="/settings" element={<SettingsView />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -108,6 +119,8 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/estimate/:token" element={<PublicEstimateRoute />} />
+        <Route path="/contract/:token" element={<PublicContract />} />
+        <Route path="/status/:token" element={<ClientStatusPage />} />
         <Route
           path="/*"
           element={
