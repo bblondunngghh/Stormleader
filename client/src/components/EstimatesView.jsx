@@ -574,6 +574,11 @@ export default function EstimatesView() {
                       <button className="quick-action-btn" onClick={() => handleDuplicate(est)} style={{ padding: '8px 14px', fontSize: 11 }}>
                         Copy
                       </button>
+                      {est.status === 'accepted' && (
+                        <button className="quick-action-btn" onClick={() => { window.location.href = `/contracts?fromEstimate=${est.id}`; }} style={{ padding: '8px 14px', fontSize: 11, color: 'var(--accent-blue)' }}>
+                          Contract
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -1404,13 +1409,14 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   const enabledSections = sections.filter(s => s.enabled);
 
   return (
-    <div className="main-content" style={{ gap: 0, padding: 0, overflow: 'hidden', height: 'calc(100vh - 64px)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 0, padding: 0, overflow: 'hidden', height: 'calc(100vh - 64px)' }}>
       {/* Top bar */}
-      <div style={{
+      <div className="glass" style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: 'var(--space-md) var(--space-xl)',
-        borderBottom: '1px solid var(--glass-border)',
-        background: 'var(--glass-bg)', backdropFilter: 'blur(16px)',
+        margin: 'var(--space-sm) var(--space-md) 0 var(--space-md)',
+        borderRadius: '20px / 18px',
+        boxShadow: '0 8px 32px oklch(0 0 0 / 0.25), inset 0 1px 0 oklch(1 0 0 / 0.05)',
         flexShrink: 0, zIndex: 50,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>

@@ -17,13 +17,14 @@ import AutomationSettings from './AutomationSettings';
 import DripSequences from './DripSequences';
 import CustomSelect from './CustomSelect';
 import { getCustomFieldDefinitions, createCustomField, updateCustomField, deleteCustomField } from '../api/crm';
+import * as contractsApi from '../api/contracts';
 
 export default function SettingsView() {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState(() => {
     const urlTab = searchParams.get('tab');
-    return ['profile', 'company', 'billing', 'payments', 'team', 'alerts', 'notifications', 'financing', 'automations', 'drip-sequences', 'custom-fields'].includes(urlTab) ? urlTab : 'profile';
+    return ['profile', 'company', 'billing', 'payments', 'team', 'alerts', 'notifications', 'financing', 'automations', 'drip-sequences', 'custom-fields', 'contracts'].includes(urlTab) ? urlTab : 'profile';
   });
 
   const tabs = [
@@ -38,6 +39,7 @@ export default function SettingsView() {
     { id: 'automations', label: 'Automations' },
     { id: 'drip-sequences', label: 'Drip Sequences' },
     { id: 'custom-fields', label: 'Custom Fields' },
+    { id: 'contracts', label: 'Contracts' },
   ];
 
   return (
@@ -70,6 +72,7 @@ export default function SettingsView() {
       {tab === 'automations' && <AutomationSettings />}
       {tab === 'drip-sequences' && <DripSequences />}
       {tab === 'custom-fields' && <CustomFieldsTab />}
+      {tab === 'contracts' && <ContractTemplatesTab />}
       </div>
     </div>
   );
@@ -2037,6 +2040,235 @@ function CustomFieldsTab() {
               )}
             </div>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// CONTRACT TEMPLATES TAB
+// ============================================================
+
+function ContractTemplatesTab() {
+  const [templates, setTemplates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState(null);
+  const [formName, setFormName] = useState('');
+  const [formType, setFormType] = useState('roofing_agreement');
+  const [formSections, setFormSections] = useState([{ title: 'Agreement', body: '' }]);
+  const [saving, setSaving] = useState(false);
+
+  const fetchTemplates = () => {
+    setLoading(true);
+    contractsApi.getContractTemplates()
+      .then(res => setTemplates(res.data.templates || res.data || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => { fetchTemplates(); }, []);
+
+  const typeOptions = [
+    { value: 'roofing_agreement', label: 'Roofing Agreement' },
+    { value: 'subcontractor', label: 'Subcontractor Agreement' },
+    { value: 'work_authorization', label: 'Work Authorization' },
+    { value: 'insurance_aob', label: 'Insurance AOB' },
+    { value: 'warranty', label: 'Warranty Agreement' },
+    { value: 'custom', label: 'Custom' },
+  ];
+
+  const openNewForm = () => {
+    setEditingTemplate(null);
+    setFormName('');
+    setFormType('roofing_agreement');
+    setFormSections([{ title: 'Agreement', body: '' }]);
+    setShowForm(true);
+  };
+
+  const openEditForm = (tpl) => {
+    setEditingTemplate(tpl);
+    setFormName(tpl.name || '');
+    setFormType(tpl.template_type || 'custom');
+    const parsed = tpl.content
+      ? (Array.isArray(tpl.content) ? tpl.content : (tpl.content.sections || [{ title: 'Agreement', body: '' }]))
+      : [{ title: 'Agreement', body: '' }];
+    setFormSections(parsed);
+    setShowForm(true);
+  };
+
+  const handleClone = async (tpl) => {
+    try {
+      const parsed = tpl.content
+        ? (Array.isArray(tpl.content) ? tpl.content : (tpl.content.sections || []))
+        : [];
+      await contractsApi.createContractTemplate({
+        name: `${tpl.name || 'Template'} (Copy)`,
+        template_type: tpl.template_type || 'custom',
+        content: { sections: parsed },
+      });
+      showToast('Template cloned', 'success');
+      fetchTemplates();
+    } catch {
+      showToast('Failed to clone template', 'error');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await contractsApi.deleteContractTemplate(id);
+      showToast('Template deleted', 'success');
+      fetchTemplates();
+    } catch {
+      showToast('Failed to delete template', 'error');
+    }
+  };
+
+  const handleSave = async () => {
+    if (!formName.trim()) return;
+    setSaving(true);
+    try {
+      const payload = {
+        name: formName.trim(),
+        template_type: formType,
+        content: { sections: formSections },
+      };
+      if (editingTemplate) {
+        await contractsApi.updateContractTemplate(editingTemplate.id, payload);
+      } else {
+        await contractsApi.createContractTemplate(payload);
+      }
+      showToast(editingTemplate ? 'Template updated' : 'Template created', 'success');
+      setShowForm(false);
+      fetchTemplates();
+    } catch {
+      showToast('Failed to save template', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const updateSection = (idx, field, value) => {
+    setFormSections(prev => prev.map((s, i) => i === idx ? { ...s, [field]: value } : s));
+  };
+
+  if (showForm) {
+    return (
+      <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-lg)' }}>
+          <div style={{ fontSize: 15, fontWeight: 700 }}>{editingTemplate ? 'Edit Template' : 'Create Template'}</div>
+          <button onClick={() => setShowForm(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 12 }}>Cancel</button>
+        </div>
+
+        <div style={{ marginBottom: 'var(--space-md)' }}>
+          <label style={{ display: 'block', fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>Template Name</label>
+          <input value={formName} onChange={e => setFormName(e.target.value)} className="form-input" style={{ width: '100%' }} placeholder="e.g. Standard Roofing Contract" />
+        </div>
+
+        <div style={{ marginBottom: 'var(--space-lg)' }}>
+          <label style={{ display: 'block', fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>Type</label>
+          <CustomSelect
+            value={formType}
+            onChange={v => setFormType(v)}
+            options={typeOptions}
+            style={{ width: '100%' }}
+          />
+        </div>
+
+        <div style={{ marginBottom: 'var(--space-md)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-sm)' }}>
+            <span style={{ fontSize: 13, fontWeight: 600 }}>Sections</span>
+            <button onClick={() => setFormSections(prev => [...prev, { title: 'New Section', body: '' }])}
+              style={{ padding: '4px 10px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'oklch(0.25 0.05 250 / 0.5)', color: 'var(--accent-blue)', fontSize: 11 }}>
+              + Add Section
+            </button>
+          </div>
+          {formSections.map((section, idx) => (
+            <div key={idx} style={{
+              padding: 'var(--space-md)', marginBottom: 'var(--space-sm)',
+              border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-md)',
+              background: 'oklch(0.14 0.02 260 / 0.4)',
+            }}>
+              <div style={{ display: 'flex', gap: 'var(--space-sm)', marginBottom: 'var(--space-sm)' }}>
+                <input value={section.title} onChange={e => updateSection(idx, 'title', e.target.value)}
+                  className="form-input" style={{ flex: 1, fontWeight: 700, fontSize: 12 }} placeholder="Section title" />
+                {formSections.length > 1 && (
+                  <button onClick={() => setFormSections(prev => prev.filter((_, i) => i !== idx))}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-red)', fontSize: 11 }}>
+                    Remove
+                  </button>
+                )}
+              </div>
+              <textarea value={section.body} onChange={e => updateSection(idx, 'body', e.target.value)}
+                rows={4} className="form-input" style={{ width: '100%', resize: 'vertical', fontSize: 12 }}
+                placeholder="Section content... Use {{customer_name}}, {{date}}, etc." />
+            </div>
+          ))}
+        </div>
+
+        <button onClick={handleSave} disabled={saving || !formName.trim()}
+          className="auth-btn" style={{ width: '100%' }}>
+          {saving ? 'Saving...' : editingTemplate ? 'Update Template' : 'Create Template'}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-lg)' }}>
+        <div style={{ fontSize: 15, fontWeight: 700 }}>Contract Templates</div>
+        <button onClick={openNewForm} className="auth-btn" style={{ fontSize: 12, padding: '6px 14px' }}>
+          + Create Template
+        </button>
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: 'var(--space-xl)', color: 'var(--text-muted)' }}>Loading...</div>
+      ) : templates.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: 'var(--space-xl)', color: 'var(--text-muted)', fontSize: 13 }}>
+          No contract templates yet. Create one or use a built-in template.
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
+          {templates.map(tpl => {
+            const isBuiltin = tpl.is_default;
+            return (
+              <div key={tpl.id} style={{
+                padding: 'var(--space-md) var(--space-lg)',
+                border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-md)',
+                background: 'oklch(0.14 0.02 260 / 0.3)',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 13 }}>{tpl.name || 'Untitled'}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2, textTransform: 'capitalize' }}>
+                    {(tpl.template_type || 'custom').replace(/_/g, ' ')}
+                    {isBuiltin && <span style={{ marginLeft: 8, padding: '1px 6px', borderRadius: 4, background: 'oklch(0.25 0.05 250 / 0.5)', color: 'var(--accent-blue)', fontSize: 10 }}>Built-in</span>}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+                  <button onClick={() => handleClone(tpl)}
+                    style={{ padding: '4px 12px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'oklch(0.25 0.05 250 / 0.4)', color: 'var(--accent-blue)', fontSize: 12 }}>
+                    Clone
+                  </button>
+                  {!isBuiltin && (
+                    <>
+                      <button onClick={() => openEditForm(tpl)}
+                        style={{ padding: '4px 12px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'oklch(0.25 0.05 250 / 0.4)', color: 'var(--text-secondary)', fontSize: 12 }}>
+                        Edit
+                      </button>
+                      <button onClick={() => handleDelete(tpl.id)}
+                        style={{ padding: '4px 12px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'oklch(0.25 0.08 25 / 0.4)', color: 'oklch(0.7 0.15 25)', fontSize: 12 }}>
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

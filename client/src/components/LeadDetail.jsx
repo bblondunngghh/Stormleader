@@ -5,7 +5,7 @@ import client from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { getDocuments, uploadDocument, deleteDocument } from '../api/documents';
 import { submitTrace } from '../api/skipTrace';
-import { measureRoof, manualRoofEntry, getSolarSegments } from '../api/roofMeasurement';
+import { measureRoof, manualRoofEntry, getSolarSegments, getSolarPotential } from '../api/roofMeasurement';
 import mapboxgl from 'mapbox-gl';
 import { IconX, IconPhone, IconMail, IconCalendar, IconClipboard, IconDollar, IconCamera, IconSend, IconTrash } from './Icons';
 import {
@@ -21,6 +21,7 @@ import {
   CheckBadgeIcon,
   CloudIcon,
   ArrowDownTrayIcon,
+  SunIcon,
 } from '@heroicons/react/24/outline';
 
 function cleanAddr(str) {
@@ -106,6 +107,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   const [activities, setActivities] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [financingApps, setFinancingApps] = useState([]);
+  const [leadContracts, setLeadContracts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeModal, setActiveModal] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -126,6 +128,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   const [savingManualRoof, setSavingManualRoof] = useState(false);
   const [showRoofDrawing, setShowRoofDrawing] = useState(false);
   const [solarSegments, setSolarSegments] = useState([]);
+  const [solarPotential, setSolarPotential] = useState(null);
   const [roofOutline, setRoofOutline] = useState([]);
   const [showStreetView, setShowStreetView] = useState(false);
   const [mapMode, setMapMode] = useState('street'); // 'street' | 'satellite' | 'adjust'
@@ -172,6 +175,14 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
       .catch(() => {});
   }, [leadId]);
 
+  // Fetch contracts for this lead
+  useEffect(() => {
+    if (!leadId) return;
+    client.get('/crm/contracts', { params: { lead_id: leadId } })
+      .then(res => setLeadContracts(res.data.contracts || res.data || []))
+      .catch(() => {});
+  }, [leadId]);
+
   // Fetch custom field definitions
   useEffect(() => {
     getCustomFieldDefinitions('lead')
@@ -189,6 +200,14 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
       })
       .catch(() => {});
   }, [showRoofDrawing, lead?.property_id, lead?.roof_sqft]);
+
+  // Fetch solar potential data when lead has roof measurement
+  useEffect(() => {
+    if (!lead?.property_id || !lead?.roof_sqft) return;
+    getSolarPotential(lead.property_id)
+      .then(data => setSolarPotential(data))
+      .catch(() => setSolarPotential(null));
+  }, [lead?.property_id, lead?.roof_sqft]);
 
   if (loading) {
     return (
@@ -1157,6 +1176,83 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                   </div>
                 </div>
               ))}
+            </div>
+            <div className="divider" />
+          </>
+        )}
+
+        {/* Contracts */}
+        {leadId && (
+          <>
+            <div className="detail-section">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div className="detail-section__title" style={{ margin: 0 }}>Contracts ({leadContracts.length})</div>
+                <button className="quick-action-btn" onClick={() => { window.location.href = `/contracts?leadId=${leadId}`; }}
+                  style={{ fontSize: 11, padding: '4px 10px' }}>
+                  + Generate Contract
+                </button>
+              </div>
+              {leadContracts.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)', marginTop: 'var(--space-md)' }}>
+                  {leadContracts.map(c => {
+                    const cColors = { draft: 'var(--text-muted)', sent: 'var(--accent-blue)', viewed: 'oklch(0.8 0.15 85)', signed: 'var(--accent-green)', voided: 'var(--accent-red)' };
+                    return (
+                      <div key={c.id} className="glass" style={{ padding: 'var(--space-md)', borderRadius: 'var(--radius-md)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontWeight: 600, fontSize: 13 }}>{c.template_type || c.template_name || 'Contract'}</span>
+                          <span style={{
+                            padding: '2px 8px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700,
+                            background: `color-mix(in oklch, ${cColors[c.status] || 'var(--text-muted)'} 15%, transparent)`,
+                            color: cColors[c.status] || 'var(--text-muted)', textTransform: 'uppercase',
+                          }}>{c.status}</span>
+                        </div>
+                        <div style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '4px' }}>
+                          {c.created_at && new Date(c.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            <div className="divider" />
+          </>
+        )}
+
+        {/* Solar Potential */}
+        {lead.roof_sqft && (
+          <>
+            <div className="detail-section">
+              <h4 style={{ marginBottom: 'var(--space-md)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: 14, fontWeight: 700, margin: '0 0 var(--space-md) 0' }}>
+                <SunIcon width={18} height={18} style={{ color: 'oklch(0.8 0.18 85)' }} />
+                Solar Potential
+              </h4>
+              {solarPotential?.available ? (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-sm)' }}>
+                  {[
+                    { label: 'Panel Count', value: solarPotential.maxPanels.toLocaleString(), unit: 'panels', color: 'oklch(0.75 0.12 250)' },
+                    { label: 'Annual Production', value: solarPotential.yearlyEnergyKwh.toLocaleString(), unit: 'kWh', color: 'oklch(0.8 0.18 85)' },
+                    { label: 'Est. Annual Savings', value: `$${solarPotential.annualSavings.toLocaleString()}`, unit: '/yr', color: 'oklch(0.75 0.18 145)' },
+                    { label: 'Payback Period', value: solarPotential.paybackYears, unit: 'years', color: 'oklch(0.75 0.12 250)' },
+                    { label: '25-Year Savings', value: `$${solarPotential.twentyFiveYearSavings.toLocaleString()}`, unit: '', color: 'oklch(0.75 0.18 145)' },
+                    { label: 'CO\u2082 Offset', value: solarPotential.co2OffsetTons, unit: 'tons/yr', color: 'oklch(0.75 0.15 165)' },
+                  ].map((card, i) => (
+                    <div key={i} className="glass" style={{
+                      padding: 'var(--space-sm)', borderRadius: 'var(--radius-md)', textAlign: 'center',
+                    }}>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4, lineHeight: 1.2 }}>{card.label}</div>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: card.color, lineHeight: 1.2 }}>
+                        {card.value}
+                      </div>
+                      {card.unit && <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>{card.unit}</div>}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ fontSize: 13, color: 'var(--text-muted)', fontStyle: 'italic', padding: 'var(--space-sm) 0' }}>
+                  Run a roof measurement to see solar potential
+                </div>
+              )}
             </div>
             <div className="divider" />
           </>
