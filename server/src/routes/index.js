@@ -30,6 +30,7 @@ import workOrdersRouter from './workOrders.js';
 import dripRouter from './drip.js';
 import contentRouter from './content.js';
 import contractsRouter from './contracts.js';
+import expensesRouter from './expenses.js';
 
 const router = Router();
 
@@ -63,6 +64,7 @@ router.use('/crm/work-orders', workOrdersRouter);
 router.use('/crm/drip-sequences', dripRouter);
 router.use('/crm/content', contentRouter);
 router.use('/crm/contracts', contractsRouter);
+router.use('/crm/expenses', expensesRouter);
 router.use('/webhooks/hearth', hearthWebhookRouter);
 
 export default router;

@@ -108,6 +108,8 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   const [documents, setDocuments] = useState([]);
   const [financingApps, setFinancingApps] = useState([]);
   const [leadContracts, setLeadContracts] = useState([]);
+  const [leadExpenses, setLeadExpenses] = useState([]);
+  const [jobCostSummary, setJobCostSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeModal, setActiveModal] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -180,6 +182,17 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
     if (!leadId) return;
     client.get('/crm/contracts', { params: { lead_id: leadId } })
       .then(res => setLeadContracts(res.data.contracts || res.data || []))
+      .catch(() => {});
+  }, [leadId]);
+
+  // Fetch expenses and job cost summary for this lead
+  useEffect(() => {
+    if (!leadId) return;
+    client.get('/crm/expenses', { params: { lead_id: leadId, limit: 20 } })
+      .then(res => setLeadExpenses(res.data.expenses || []))
+      .catch(() => {});
+    client.get(`/crm/expenses/summary/${leadId}`)
+      .then(res => setJobCostSummary(res.data))
       .catch(() => {});
   }, [leadId]);
 
@@ -1208,6 +1221,86 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                         </div>
                         <div style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '4px' }}>
                           {c.created_at && new Date(c.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            <div className="divider" />
+          </>
+        )}
+
+        {/* Expenses / Job Costing */}
+        {leadId && (
+          <>
+            <div className="detail-section">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div className="detail-section__title" style={{ margin: 0 }}>Expenses ({leadExpenses.length})</div>
+                <button className="quick-action-btn" onClick={() => { window.location.href = `/expenses?leadId=${leadId}`; }}
+                  style={{ fontSize: 11, padding: '4px 10px' }}>
+                  + Add Expense
+                </button>
+              </div>
+              {/* Profit Summary Card */}
+              {jobCostSummary && (jobCostSummary.estimateTotal > 0 || jobCostSummary.totalExpenses > 0) && (
+                <div className="glass" style={{
+                  padding: 'var(--space-md)', borderRadius: 'var(--radius-md)', marginTop: 'var(--space-md)',
+                  display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--space-sm)', textAlign: 'center',
+                }}>
+                  <div>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Estimate Total</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: 'oklch(0.78 0.14 250)' }}>
+                      ${Number(jobCostSummary.estimateTotal).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Total Expenses</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: 'oklch(0.78 0.14 25)' }}>
+                      ${Number(jobCostSummary.totalExpenses).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Profit</div>
+                    <div style={{
+                      fontSize: 16, fontWeight: 700,
+                      color: jobCostSummary.profit >= 0 ? 'oklch(0.78 0.14 145)' : 'oklch(0.78 0.14 25)',
+                    }}>
+                      ${Number(jobCostSummary.profit).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      <span style={{ fontSize: 11, fontWeight: 400, marginLeft: 4 }}>
+                        ({Number(jobCostSummary.profitPercent).toFixed(1)}%)
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Expense list */}
+              {leadExpenses.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)', marginTop: 'var(--space-md)' }}>
+                  {leadExpenses.map(exp => {
+                    const catColors = {
+                      materials: 'oklch(0.78 0.14 250)', labor: 'oklch(0.78 0.14 145)',
+                      subcontractor: 'oklch(0.78 0.14 300)', permit: 'oklch(0.78 0.14 85)',
+                      dumpster: 'oklch(0.78 0.14 25)', other: 'oklch(0.7 0.02 250)',
+                    };
+                    return (
+                      <div key={exp.id} className="glass" style={{ padding: 'var(--space-md)', borderRadius: 'var(--radius-md)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
+                            <span style={{
+                              padding: '2px 8px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700,
+                              background: `color-mix(in oklch, ${catColors[exp.category] || 'var(--text-muted)'} 15%, transparent)`,
+                              color: catColors[exp.category] || 'var(--text-muted)', textTransform: 'capitalize',
+                            }}>{exp.category}</span>
+                            {exp.notes && <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{exp.notes}</span>}
+                          </div>
+                          <span style={{ fontWeight: 700, fontFamily: 'monospace', fontSize: 13 }}>
+                            ${Number(exp.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '4px' }}>
+                          {exp.date && new Date(exp.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                         </div>
                       </div>
                     );
