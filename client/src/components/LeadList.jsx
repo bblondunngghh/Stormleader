@@ -443,7 +443,17 @@ export default function LeadList() {
               {loading && leads.length === 0 ? (
                 <tr><td colSpan={15} style={{ textAlign: 'center', padding: 'var(--space-3xl)', color: 'var(--text-muted)' }}>Loading...</td></tr>
               ) : leads.length === 0 ? (
-                <tr><td colSpan={15} style={{ textAlign: 'center', padding: 'var(--space-3xl)', color: 'var(--text-muted)' }}>No leads found</td></tr>
+                <tr><td colSpan={15} style={{ textAlign: 'center', padding: '64px 24px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                    <IconSearch width={40} height={40} style={{ color: 'var(--text-muted)', opacity: 0.5 }} />
+                    <div style={{ color: 'var(--text-primary)', fontSize: 16, fontWeight: 600 }}>No leads found</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: 13, maxWidth: 320 }}>
+                      {search || stageFilter || sourceFilter || priorityFilter
+                        ? 'Try adjusting your filters or search terms.'
+                        : 'Generate leads from the Storm Map or add them manually from the Pipeline view.'}
+                    </div>
+                  </div>
+                </td></tr>
               ) : leads.map((lead) => {
                 const isSelected = selected.has(lead.id);
                 const followUpOverdue = isOverdue(lead.next_follow_up);

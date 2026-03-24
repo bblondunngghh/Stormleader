@@ -189,8 +189,17 @@ export default function InvoicesView() {
               {loading && invoices.length === 0 ? (
                 <tr><td colSpan={9} style={{ textAlign: 'center', padding: 'var(--space-3xl)', color: 'var(--text-muted)' }}>Loading...</td></tr>
               ) : invoices.length === 0 ? (
-                <tr><td colSpan={9} style={{ textAlign: 'center', padding: 'var(--space-3xl)', color: 'var(--text-muted)' }}>
-                  No invoices yet — create your first one
+                <tr><td colSpan={9} style={{ textAlign: 'center', padding: '64px 24px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+                    <IconFileText width={40} height={40} style={{ color: 'var(--text-muted)', opacity: 0.5 }} />
+                    <div style={{ color: 'var(--text-primary)', fontSize: 16, fontWeight: 600 }}>No invoices yet</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: 13, maxWidth: 320 }}>
+                      Create your first invoice to start tracking payments.
+                    </div>
+                    <button className="auth-btn" onClick={handleNew} style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <IconPlusCircle style={{ width: 14, height: 14 }} /> New Invoice
+                    </button>
+                  </div>
                 </td></tr>
               ) : invoices.map(inv => {
                 const balance = Number(inv.total || 0) - Number(inv.amount_paid || 0);

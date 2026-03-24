@@ -841,6 +841,14 @@ export default function Pipeline() {
                 {/* Cards (hidden when collapsed) */}
                 {!isCollapsed && (
                   <div className="flex flex-col gap-2 pr-1">
+                    {colLeads.length === 0 && (
+                      <div style={{
+                        textAlign: 'center', padding: '32px 12px',
+                        color: 'var(--text-muted)', fontSize: 12, opacity: 0.6,
+                      }}>
+                        No leads in this stage
+                      </div>
+                    )}
                     {colLeads.map((lead) => {
                       const dueInfo = dueDateInfo(lead.next_follow_up);
                       return (
