@@ -2508,6 +2508,26 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
           />
         );
       })()}
+
+      {/* Photo Annotation Modal */}
+      {annotatingDoc && createPortal(
+        <PhotoAnnotator
+          imageUrl={annotatingDoc.file_url}
+          onSave={async (blob) => {
+            const formData = new FormData();
+            formData.append('file', blob, `annotated-${annotatingDoc.filename}`);
+            formData.append('lead_id', leadId);
+            formData.append('type', 'photo');
+            formData.append('description', `Annotated: ${annotatingDoc.filename}`);
+            await uploadDocument(formData);
+            const res = await getDocuments({ lead_id: leadId });
+            setDocuments(res.data || []);
+            setAnnotatingDoc(null);
+          }}
+          onClose={() => setAnnotatingDoc(null)}
+        />,
+        document.body
+      )}
     </>
   );
 }
