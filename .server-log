@@ -5169,3 +5169,3081 @@
 [07:30:02] [32mINFO[39m (6624): [36mImpacted asset check complete[39m
     [35mstormEventId[39m: "ddb2c34e-8043-49d4-b1b5-a78e9160f8ea"
     [35mimpactedCount[39m: 0
+[08:00:00] [32mINFO[39m (6624): [36mScheduler: running SPC ingestion[39m
+[08:00:00] [32mINFO[39m (6624): [36mStarting SPC hail report ingestion[39m
+[08:00:00] [32mINFO[39m (6624): [36mScheduler: running MRMS ingestion[39m
+[08:00:00] [32mINFO[39m (6624): [36mStarting MRMS ingestion for 20260324[39m
+[08:00:00] [32mINFO[39m (6624): [36mScheduler: running NWS ingestion[39m
+[08:00:00] [32mINFO[39m (6624): [36mStarting NWS alert ingestion[39m
+[08:00:00] [32mINFO[39m (6624): [36mSPC hail ingestion complete: 0 TX reports found[39m
+[08:00:00] [32mINFO[39m (6624): [36mStarting SPC wind report ingestion[39m
+[08:00:00] [32mINFO[39m (6624): [36mDownloading: CONUS/MESH_Max_1440min_00.50/20260324/MRMS_MESH_Max_1440min_00.50_20260324-123000.grib2.gz[39m
+[08:00:00] [32mINFO[39m (6624): [36mSPC wind ingestion complete: 0 TX reports found[39m
+[08:00:00] [32mINFO[39m (6624): [36mApplying drift correction to 304 storm events[39m
+[08:00:01] [32mINFO[39m (6624): [36mDecompressed MRMS data: 101637 bytes[39m
+[08:00:01] [32mINFO[39m (6624): [36mGRIB2 message length: 101637 bytes[39m
+[08:00:01] [32mINFO[39m (6624): [36mParsed GRIB: 7000x3500 grid, bbox: [230.005,20.005001,299.994998,54.995][39m
+[08:00:02] [32mINFO[39m (6624): [36mBuilt 6 contour features from 6 thresholds[39m
+[08:00:02] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "12"
+[08:00:02] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "00635fdf-f984-4e79-959e-a5477ce39928"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:02] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "12"
+[08:00:02] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "47828905-400d-4da4-aa9b-6d6124ae1b5b"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:02] [32mINFO[39m (6624): [36mMRMS ingestion complete: 6 swath polygons inserted for 20260324[39m
+[08:00:02] [32mINFO[39m (6624): [36mImpacted asset check complete[39m
+    [35mstormEventId[39m: "5303bb64-d523-4445-a200-ad8f7b7f47d8"
+    [35mimpactedCount[39m: 0
+[08:00:02] [32mINFO[39m (6624): [36mImpacted asset check complete[39m
+    [35mstormEventId[39m: "50107b55-fc5e-4e86-9b2c-322df956ecc8"
+    [35mimpactedCount[39m: 0
+[08:00:02] [32mINFO[39m (6624): [36mImpacted asset check complete[39m
+    [35mstormEventId[39m: "0757806a-52a1-4537-b6f7-80a183296f8e"
+    [35mimpactedCount[39m: 0
+[08:00:02] [32mINFO[39m (6624): [36mImpacted asset check complete[39m
+    [35mstormEventId[39m: "1349a65f-7fcb-405d-a505-d5c6ea334aef"
+    [35mimpactedCount[39m: 0
+[08:00:02] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "12"
+[08:00:02] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "ddb2c34e-8043-49d4-b1b5-a78e9160f8ea"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:02] [32mINFO[39m (6624): [36mImpacted asset check complete[39m
+    [35mstormEventId[39m: "98ed903e-aeaf-4cdd-8adc-6fa8a97237ac"
+    [35mimpactedCount[39m: 0
+[08:00:02] [32mINFO[39m (6624): [36mImpacted asset check complete[39m
+    [35mstormEventId[39m: "5fc2b091-aee2-470a-aef0-0ff29ab5fd1f"
+    [35mimpactedCount[39m: 0
+[08:00:02] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "12"
+[08:00:02] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "a5a6b9d9-8b49-49a5-8ae6-4909fea59c6d"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "12"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "835cbcd6-f7e8-46f8-8d5e-33c9510c748f"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "12"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "5cec2383-1308-495b-95de-20ac5c9f8e98"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "11"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "a2b48c8e-b7a5-428e-9fb9-000baf6eed2b"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "11"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "217defa5-93e0-4d0d-b830-1fe100d5c1e7"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "11"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "4a470c27-5aa8-4f2e-81eb-165dc209c01a"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "11"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "a8ab3864-ebfa-4450-970e-52751a084731"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "11"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "af82f90b-067c-49d7-b25f-c67ec032ecc7"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "11"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "7af2ced5-922c-4c08-bbc3-0c45a186f77d"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "11"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "22dd33fa-dda2-4315-bcf8-3d55682709da"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "11"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "4aacdae7-d13a-485e-9ce3-200b82fdccc8"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "11"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "46ec87b5-28bd-4c8a-992c-dcec8c7b8b1b"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "11"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "dcf7b4c7-2eff-4a57-aa16-2db527ca7308"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "11"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "2abca1c0-442c-49fe-b140-3e3dab1692df"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "11"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "9d45f6a3-211e-491a-90bd-a7a356837f70"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "10"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "decbac73-1828-49e7-aafc-f7c46bb472e6"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "10"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "3aa5f3ad-0f62-4a3d-b7aa-13427145518a"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "10"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "7bec98e6-ac03-4765-a695-e80896a8cfca"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "10"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "b86d7785-1538-4b31-a1af-d8ceb517d27a"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "10"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "dd22ee59-0718-4a75-b05a-cb018bef1ef4"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260324"
+    [35mhourStr[39m: "10"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "2d1d5bf8-8d06-4683-b285-63e44cd57321"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "15"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "458b39be-9245-41b6-be6a-8e77739fd507"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "15"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "d3e04b9f-0cf7-4409-9a13-b219f902b756"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "15"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "2ebf8c29-9ae5-47a6-a9f9-833aef759dc4"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "15"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "0ecc8689-a745-4c7b-8cac-1f537255a712"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "15"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "5cd83504-f54c-4da6-a8c2-e8832eb7f046"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "15"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "e60f71a7-93aa-4ff3-a1fa-b3b5c92cbc77"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "15"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "de49aaa3-bc5e-49f4-a16d-fd72389b0cbf"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "15"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "002eeef7-bd30-42f9-b92a-828c86758469"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "15"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "27d827f0-543b-48e9-879d-cc8317542e63"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "15"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "9891bc81-9f0f-4e27-8f32-316674d175e4"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "14"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "4a99b24d-d1db-4eb1-acfb-35971593b448"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "14"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "1f30d7df-91c4-46e0-9167-9441fe62d0a2"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "14"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "d3987135-0285-4b88-9302-dce5f1af477d"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "14"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "0804e7a1-39cb-4f2c-8df4-c8a772c8149a"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "14"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "a6a8b0ea-cb52-4f70-a2aa-3a36c6b6eb37"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "14"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "da01225b-18f7-46c2-b215-91496c8aebb3"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "14"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "e0b80905-e6da-4ea4-9b04-4edde63a8249"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "14"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "26d34ca7-6a43-4fed-b2ce-e1d5219960f6"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:03] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "14"
+[08:00:03] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "b5c29db2-c2cb-41f8-bbe0-dea0b086f2ae"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "14"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "db665466-75da-4fad-915d-9301983d564c"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "14"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "307887c4-9f77-4bd4-8e2f-127381088ab6"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "14"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "b86930d8-8ac2-4cb3-a64e-e1d38f1bc9ae"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "13"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "ffa36f54-5a26-4828-b8de-53e95e65459f"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "13"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "5889c217-4da9-4275-8439-90e28c7a08a5"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "13"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "526cbf8d-18ef-45b6-9bae-1ed24e55abff"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "13"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "24387255-4613-41eb-8a45-4b5c5fc3e40a"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "13"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "fe72a768-2740-4aad-b89b-b6625b05f6e7"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "13"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "16ce6220-9895-4f57-9627-f5558aba8408"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "13"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "32cd851a-0a7d-4ca9-829c-47e87f8dcbd9"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "13"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "3aed4a6d-3ec6-41b2-bc2f-1ed5279191f4"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "13"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "23aae48e-099d-4e60-9bba-5b0a2cb93178"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "13"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "3484ba1b-28ec-4011-ab7f-1e66339fccbf"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "13"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "1d3531ce-ee74-4350-92c7-67fbbfa7d54c"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "13"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "dab526b7-2ec6-455b-b4e9-a85f87ec3cd3"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "12"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "5b7a9099-10e6-450c-a13c-562f4d2e7323"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "12"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "9e55bf3e-994b-46b1-8669-523c0d607058"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "12"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "b32f7834-fdc6-424a-9095-c08bc4d29929"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "12"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "4af9738f-9e11-4cd6-b34a-36e15b2f638e"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "12"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "fc14bf65-2002-481d-92be-6537e5e3766c"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "12"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "ee3eba98-4251-4104-82ae-7d94d9834c66"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "12"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "1f549e52-7048-42c0-957d-c6eea29dac8e"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "12"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "84ad6847-5f2c-4230-840d-0c6c430ede64"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "12"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "c100399d-9df8-4a4a-8ba1-f9aac5aa39ef"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "12"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "f97f92c0-1e29-4297-a1e9-ed534ccc6831"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "12"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "7c902c33-9397-4959-be2b-f990f86d02a0"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "12"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "6ee11c2c-435b-4ba9-95d7-a34d152a94a2"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "11"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "a0b3c59e-d137-4baa-9b17-8e1aec64a2be"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "11"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "611724c3-1ffa-477c-b807-fbd6dc389fd6"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "11"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "a0e0e2ad-e32a-4bb3-9f21-c94cc0f78deb"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "11"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "49c15eec-4615-4a36-ab2e-3f9f318d1715"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "11"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "afc35f3d-6f9c-4943-a34b-45e3824e0eaf"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "11"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "bc4c6c68-f5f9-4113-8d97-4768149967b3"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:04] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "11"
+[08:00:04] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "24461f20-bffd-4b45-92c3-729ade4bad54"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "11"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "e43c6b90-4892-4cd7-98ad-55f1e6a6611e"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "11"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "638ea740-c95b-4769-94d6-4c3f96982327"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "11"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "0e009059-f492-4426-b7aa-8c29443c74ba"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "11"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "95f584c4-6d53-439d-9ce0-19584d15cad5"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "11"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "2775b68e-3ae5-4bac-8cd1-a4fd28ca37d8"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "10"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "39075ccf-9a24-4d91-92dc-cc1650634316"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "10"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "e7049d60-d23d-46a0-9100-d10b7f19795f"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "10"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "bbd9cf93-d6c4-4762-af6b-c1a2d973120c"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "10"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "f50eb73f-0f4d-4cd8-b9f5-6616fab05141"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "10"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "117e317a-0501-498a-b19b-1bfbdcb92292"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "10"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "d20e3ae6-e890-49be-9f6a-9ab123d7abe3"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "10"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "a1507f9d-1c7e-4d3b-82cb-377792f84832"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "10"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "0d4d83ad-fd79-4eb6-b4a6-f971f1bed172"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:05] [32mINFO[39m (6624): [36mFetched 0 NWS alerts across 3 event types[39m
+[08:00:05] [32mINFO[39m (6624): [36m0 of 0 alerts already in DB — skipping those[39m
+[08:00:05] [32mINFO[39m (6624): [36mNWS ingestion complete: 0 new, 0 already existed, 0 no geometry[39m
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "10"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "21fa224e-2c0c-4a2d-956c-629fc2c16fca"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "10"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "ad631b46-7a55-469f-811b-3233c896243e"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "10"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "3641380e-b62f-4869-8f95-c0c9f52fb9ce"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "10"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "fa8d54bc-6b6f-4e27-a907-6f26c3a62b09"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "09"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "5748242c-7c4a-4bd7-bf57-e2ac5aa8975f"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "09"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "c122376a-46d6-4f01-bf04-7164f9d81c0a"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "09"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "5b62084b-ab79-4101-8634-80740b89a5a7"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "09"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "7353b0b6-2b26-4b8b-bdc0-2aa94acedbcc"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "09"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "9dd9239e-f961-49e0-8533-f54ad1a13a31"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "09"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "680d3aeb-8db8-4ec0-a32d-5b7729298594"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "09"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "9997f50a-9d9b-4fce-a219-73e71db8b14b"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "09"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "ed3847fe-2467-4c2b-8cf5-e660808e2520"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "09"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "8639975f-98c6-405e-95c8-879ea1665b26"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "09"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "68c3f538-a1c7-4020-8e4c-583a50f8bf10"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "09"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "f6c78fd2-7296-4f67-b2e3-4b21dbbc8fb6"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "09"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "28c5cc36-09c9-45dd-aa23-2377265e7551"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "08"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "c6a09a73-c3ed-465a-b85a-cf78ab92b91e"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "08"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "fee652d2-2966-484c-b872-73b12a190644"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "08"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "45444402-17ec-4184-95e7-d49154857ad5"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "08"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "5792208e-f05e-444b-95b4-79fc14e4152d"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "08"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "48187510-c737-4163-bdea-51a37700548b"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "08"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "5f9321b2-0ac5-45ee-8218-1d8d455e975b"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "08"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "dd9cdb1c-88aa-411b-a47f-487b19743d8d"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "08"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "28785096-fabc-415a-8429-8e589d46c858"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "08"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "338dcd71-1dd7-45ee-bfbc-92a2fb95f6a9"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "08"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "f7a9f32b-42b3-4763-97c8-2aae43fb5987"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "08"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "bf220049-21bc-48c2-95f1-9e325a8c3832"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:05] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "08"
+[08:00:05] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "6edb23ab-db08-45b8-90ba-22c0c4c73dae"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "07"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "89afa029-bb51-4d5f-a676-c54623736ad1"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "07"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "0e98c107-0dd2-44b1-bc46-1d6c69799398"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "07"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "ab6c11e6-44dc-4943-8d7e-de3c496da2a0"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "07"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "1b37a187-e70f-4c4a-8761-6a86409f42df"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "07"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "9c01f102-c6a1-4158-bba6-e62c80556184"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "07"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "8a905ef2-022f-469a-86b1-840199110594"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "07"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "75dae401-6369-4eec-b1fc-136f3bac7daa"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "07"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "59524812-f823-414d-9516-3743fc03cf2d"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "07"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "b63e1c4e-4a63-4c5a-84f9-90bd7b820f8a"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "07"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "1b462a76-f41a-4300-b4e3-f6c31f439101"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "07"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "b55a6c4e-2965-4a6b-ac14-9630c617d714"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "07"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "f5d1b5fd-b5fe-4fad-8ea5-0f81e2677c6a"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "06"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "3fb008fe-4761-486a-96da-d0cfce438574"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "06"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "f6849a45-3132-4992-9668-a188617badac"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "06"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "aa4f0d36-435a-451d-9148-ebbfa08a3b08"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "06"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "5646baef-96fc-450b-a56a-1faa0287176c"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "06"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "3e02f6c9-e1f8-4b29-a3f7-1da601f7ea71"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "06"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "26a34ab1-8fbb-4591-b6ba-bf276ef68577"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "06"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "b2944a99-94b6-4b5a-95bd-7af0aabf20a1"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "06"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "2d7d398a-6464-4752-8e07-8dcc3f5c1813"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "06"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "3326f16a-9ac9-445b-bc61-8f6cbe338278"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "06"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "c0b60f1c-ea2e-43c3-b3af-304665b55163"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "06"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "17ba55a1-d8c7-4799-924c-b34f9099dbc0"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "06"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "8fe89e38-b952-4147-a706-e13bdf5323a8"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "05"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "eafcf935-e5db-47c3-8d4a-ad169ee6e5c4"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "05"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "e5e8cc74-dba7-4a80-8772-e5a354fe88e9"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "05"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "42ba1eca-68b4-4def-80e4-d549eaa5526c"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "05"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "8d608c81-1e59-4759-a249-9f9126332171"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "05"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "07e580c5-6031-4feb-b802-7a498897c7b8"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "05"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "d8677440-6d89-43db-8c22-3c3f1841e6ba"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "05"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "6d95e4fe-3171-4dda-a7ea-a06ca1d4c2d8"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "05"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "90525ba7-4766-4fa4-949f-77266936739e"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "05"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "c1816b3d-e2de-4695-89cd-3cadca1c536a"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "05"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "fcc46ef6-0e95-474a-90bf-2bfed29d153a"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "05"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "b1aff4a1-2282-4b9d-b443-467fa3cb49c6"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:06] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "05"
+[08:00:06] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "4f3c77b9-2f84-4512-bbf6-5b837930cc1b"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "04"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "7e8685c4-75ea-4b1b-80d6-ada4f57619f9"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "04"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "a493ad3c-0820-480d-986b-6a93fd0a21b7"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "04"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "6bb525b9-d99e-4903-bcb4-9d05727f7086"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "04"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "294ec750-0ee0-4a3a-b715-ef02faa1932a"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "04"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "8a2eed27-0f4c-45ef-9967-3fcd8eaa70bd"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "04"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "0b41af39-9b37-48e9-954c-c42e28124bb2"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "04"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "90364441-1419-450b-8f09-dbd1386fd126"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "04"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "7df2e763-9711-404e-ae8b-6133c99f94c9"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "04"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "06a0ffe4-a5ef-430e-93fc-f285967cdf31"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "04"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "04e78f91-b793-4c98-bafa-8384b7907633"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "04"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "5f9cf7c9-3e23-4b89-8634-992111620b4d"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "04"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "86a567b2-93e0-426a-8b3c-e67520fddf74"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "02"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "e28d9c42-43b6-43a9-836c-332efbf77d32"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "02"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "cc1c9428-7357-46cd-92aa-9fd28a2b4db2"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "02"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "37badd79-13b6-49d8-9f42-1ebfb1b52251"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "02"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "96136798-b6c4-4545-96ae-ed5e764bc929"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "02"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "078b2270-9264-440f-b44b-4d53b8ee3c77"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "02"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "e8353df6-7692-45bd-be4d-efd90c90b904"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "02"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "b145ee1e-57be-423b-a065-bf246fc79836"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "02"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "cb953a69-6eff-4a60-bf58-13f2757d9d7d"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "02"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "e0080c1f-7013-4da0-bae0-0eb97698d7cf"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "02"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "c3b2704e-ffa3-4892-ab2a-0a6b385a9821"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "02"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "9802849c-ae59-4a55-97b5-417ad7e58bee"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "02"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "959c66bb-5c6d-4658-b7b7-7019f1f4e700"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "01"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "caaa0a7f-cc60-4aca-90ad-5c095e36fffd"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "01"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "9bec127a-a5b9-44b1-94bd-5925a7b1757d"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "01"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "8bae40fa-7ee7-4598-97d3-931cf072efea"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "01"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "efabafda-3c31-4c3e-a747-dcf4794321bc"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "01"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "af41d05d-0d40-4ba7-a1c5-d8546ab8629f"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "01"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "edd73af0-8e3b-4d1d-9b7e-e1ac6bc5f6d9"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "01"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "87631ee6-77fc-4cbd-8d0e-53116c0b77d8"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "01"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "a3c54867-ecf4-4f65-9c07-d2c2140a5f2c"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "01"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "a0d217da-41bd-451c-9d4a-4be111fa3a1f"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "01"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "b96da2b2-84f8-4f64-ba94-84def823f235"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "01"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "5d61f770-8526-4cf7-8919-099fd460bf71"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:07] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "01"
+[08:00:07] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "8e1652c1-9c6c-4f61-a230-a79a853f375e"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "00"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "f26ceaee-d4f1-4b81-b0ec-416458a5fc9e"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "00"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "273d3c98-cec7-4dfe-b22c-7791ead6c15d"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "00"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "b6ea6896-ca01-437e-8d8d-973321d0e1bb"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "00"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "40f8d32d-81fd-479f-99b0-ba99ccdbed49"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "00"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "8b4ebb28-43d6-4115-a7b4-17c0674a2381"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "00"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "b9cc4441-6e38-4b34-9753-09d0707e9279"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "00"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "7dcdc4ae-f7a5-46ba-a2e5-abfc336627d0"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "00"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "d652f5ab-a591-40de-8cdc-eb4ea89127b0"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "00"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "f66061d9-95ed-4b32-8be0-ba07c983230e"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "00"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "2ec42b9d-0923-4827-bdfc-0faedcebc24c"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "00"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "d0807613-8c1d-45fc-883c-b8b02fb4cac1"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260322"
+    [35mhourStr[39m: "00"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "5643d320-9aa9-438d-b1ca-a81744eb7618"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "23"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "0fc14743-bb22-4619-a167-20e02078909d"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "23"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "7e155ee7-1751-46a5-8e0b-681740a69d1c"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "23"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "d1d8a61c-3897-4a5e-a29a-75e4dae405ef"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "23"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "eb95a05c-4453-4254-8059-4bac7c947a5d"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "23"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "9126d0b3-4200-4788-9b38-5924ba435157"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "23"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "ab9ce367-29a6-41f9-ac2a-77df2addc57d"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "22"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "525e51b1-6e7f-4a92-80a4-293e6f0c0357"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "22"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "31c68d6e-a053-4f95-beb7-28fb21122255"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "22"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "6d2fc8a1-4d17-4c25-862e-b64b627fca71"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "22"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "5aa5e3ad-a8c4-46ae-ba0b-b85a21bc68f3"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "22"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "001b7976-687c-4f33-a855-9762269091bb"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "22"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "8a83bac9-ac8c-4899-9fb1-3ca28a6858b7"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "22"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "dac2224d-132e-4287-a22e-0c5556600837"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "22"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "31e4f6b1-5d38-402d-9b45-66d152fdb929"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "22"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "bbcbe6c9-cccc-402f-8af9-bc1ccd3f9991"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "22"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "d35a7fe7-5809-4081-a7b4-8c371aee5a52"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "22"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "16fc6744-ce64-4e9d-9f80-d4ccafdab9e4"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "22"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "30ff4f25-2bb6-4100-9504-e59f5474f5ca"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "21"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "5e731912-1687-418e-bbd1-697363dbb177"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "21"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "99c7a8bd-83a5-4c06-99f5-9653d0f56975"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "21"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "c576a35e-c7fc-44bd-90b0-d962e83a9bbd"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "21"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "f8fec48f-d091-425b-9652-dbb77b1bb2d8"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "21"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "8f8026b7-c6af-4571-9831-30e33f375b25"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "21"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "f59a5b46-6493-4fa0-8684-3b6ce2e6547b"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "21"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "327b7fa2-46a1-4372-8c9a-e7dfb93a8386"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "21"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "d5650fff-fbc4-49ea-9a95-fb3e221731be"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:08] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "21"
+[08:00:08] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "0ce6893a-6006-49f9-8df0-0e327c7e4ed1"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "21"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "7d5e09e8-bf68-454a-aec5-53b03336f335"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "21"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "6da6d094-76e3-43b3-9dcc-fcd74387cc19"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "21"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "627f18a3-9b5f-43f5-8bae-ddc9dde7ae66"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "20"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "14fc0e47-4aaf-4035-aaf3-95973657171f"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "20"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "a7f09a94-b0c8-4800-9631-f60c9d701f6e"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "20"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "7c40d1bb-337e-4cff-9e0b-6f43416174da"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "20"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "208748fb-f615-4d5e-94e1-613fec7afe83"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "20"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "94935e42-28d1-4936-8583-7d068e9e9aa1"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "20"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "adfaa1b0-88ce-4b85-8ab1-08d80c199ea4"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "20"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "be4f1684-f1e1-446f-9859-fefaef95c645"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "20"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "cd5c0cc8-d3bd-484e-959e-f2920fdf7f28"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "20"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "2ff71fe2-3783-4d2d-85bb-d93593525e3d"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "20"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "92b01422-ee34-4bcb-a1d4-d2a0c2257293"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "20"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "e8928ad4-3577-4c2b-a3c8-744cb9f76da1"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "20"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "c2730af2-4921-4b09-ac09-77e59f47face"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "19"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "aabc5ad1-bb2e-43e2-a84c-92adb3e1f549"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "19"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "b83492e7-272f-48e1-9b3d-fb464fcf1ca6"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "19"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "da9eb09f-71b5-4496-841d-fe0444e02ae7"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "19"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "459be029-cfbe-4f45-9df5-4935817d1e2d"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "19"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "730c4533-a2c4-4b10-8f2b-752e08a7467d"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "19"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "f83fdacd-a642-4940-acc2-23f8cce05f17"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "19"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "cf02b27b-41c8-404e-9a99-854f5d399d71"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "19"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "23458a13-84ce-4597-b275-a60008f1772e"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "19"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "4eea8631-fad6-457c-a9c7-703744e41838"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "19"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "e3b2792b-d236-465f-bbbc-46056483c6b3"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "19"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "e8f25640-7726-44ae-9025-ddb56dff8e7b"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:09] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "19"
+[08:00:09] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "157ca980-d4f0-4ae2-8fa2-e0d468264dc8"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "18"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "4d56d86f-f719-4688-a9f3-6398a2710edf"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "18"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "e0693647-c05e-4562-96b8-1cef40edf251"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "18"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "9c81f58a-0291-490b-974e-ba7cc8efdc79"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "18"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "44e501cf-a02a-4d35-9144-4af463a5978b"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "18"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "fb02bbf2-0d00-426d-a80f-1c6d9fe89f74"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "18"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "202e431e-5f04-4737-994e-3f801996ef17"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "18"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "dbb8da5a-d3b0-4174-9309-78b1aa8ae067"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "18"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "2cc43621-ac67-4509-a5d9-61312b0763cc"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "18"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "3215854a-a1a0-433e-9010-dbf1aa797384"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "18"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "27258147-5c32-4b3d-a452-164e320789da"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "18"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "073fc375-3177-4d5d-982c-61c3652d0ae6"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "18"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "d3a2f5fd-eeeb-4e3e-a2d5-662107db7355"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "17"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "d2ebbc13-0fbd-4c97-bdba-6c96ac150327"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "17"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "8cabbad3-2a00-46b4-9f56-ea4a60167d6b"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "17"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "91ae3d5c-bf8d-4f41-975c-a4f51362be8e"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "17"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "553bc525-0a8c-465e-aad4-67085dd46db6"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "17"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "bee40ace-6b65-4611-92da-8bec683757bc"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "17"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "97f23e76-d544-4ff7-8690-ae22189aba7d"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "17"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "dd5bdb66-9f38-4c19-bc24-1f41568085c0"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "17"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "b415907c-2806-4457-a9b4-888c93fe3dd7"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "17"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "e8a223b4-83ec-427c-b00d-ccc228988864"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "17"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "b1f871e9-df62-4ed8-b3f5-5dcfc79390ae"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "17"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "aeb1adde-08d8-4168-b67b-e2e06d24a13d"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "17"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "32ad97aa-f7dd-4664-98d4-9130ab7c9b2c"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "16"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "ec920adb-4494-4498-bee3-448683e30f1e"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "16"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "4fb27741-471c-4580-a9a7-e8b8475f9083"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "16"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "db0bc9bb-723f-488b-aa60-0fee95f9d004"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "16"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "89d72f43-15b2-4bc6-aaf6-2dd585c7a777"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "16"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "90d70b06-3de7-4780-9fb4-1417ca1a38b3"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "16"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "f3f7a077-e938-417e-8b08-8063a7ea8842"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "16"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "ebb174aa-91d0-490a-88f9-bd212bec3db5"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "16"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "0cfb6d42-29f5-415f-8e89-76e9e991f2a9"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "16"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "a1369d76-fb07-4430-9f32-3975ea430789"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "16"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "28e3b7c3-7d0d-4f9d-9aee-6fe469589dd4"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "16"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "526119aa-9f64-4724-b42a-acb034ed6952"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "16"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "3e144b9f-f83e-4c01-9304-9df7836ec56c"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "15"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "47112cf9-e865-43db-a59f-c8ec2a2ab057"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:10] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "15"
+[08:00:10] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "fc0aee55-161e-448d-a60a-3c92fdb75557"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:11] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "15"
+[08:00:11] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "67e2641c-2beb-4627-bdc9-5762a99bca34"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:11] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "15"
+[08:00:11] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "2a039ccb-723f-400f-a806-e6bf15b57d58"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:11] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "15"
+[08:00:11] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "9b00526f-ffff-4f49-8e40-2ed1600a35b6"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:11] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "15"
+[08:00:11] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "7fc11915-cc0f-440d-9e7c-15d411a3cc7f"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:11] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "15"
+[08:00:11] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "392bd6e6-2737-4a3e-af65-bcdfcd9b9c25"
+    [35mdx_m[39m: 2200
+    [35mdy_m[39m: 1727
+    [35mfall_time_s[39m: 211
+    [35mhailSize[39m: "1.00"
+[08:00:11] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "15"
+[08:00:11] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "234e825d-419b-4c91-a7f9-bb619b82b325"
+    [35mdx_m[39m: 1796
+    [35mdy_m[39m: 1410
+    [35mfall_time_s[39m: 172
+    [35mhailSize[39m: "1.50"
+[08:00:11] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "15"
+[08:00:11] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "0692e66b-5020-4e10-9507-2e8efe966d50"
+    [35mdx_m[39m: 1556
+    [35mdy_m[39m: 1221
+    [35mfall_time_s[39m: 149
+    [35mhailSize[39m: "2.00"
+[08:00:11] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "15"
+[08:00:11] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "b8c65cc8-917a-4787-ba0f-46657216912f"
+    [35mdx_m[39m: 1391
+    [35mdy_m[39m: 1092
+    [35mfall_time_s[39m: 133
+    [35mhailSize[39m: "2.50"
+[08:00:11] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "15"
+[08:00:11] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "a2eb2860-19c6-4563-975c-7ff562cc00a6"
+    [35mdx_m[39m: 2540
+    [35mdy_m[39m: 1994
+    [35mfall_time_s[39m: 243
+    [35mhailSize[39m: "0.75"
+[08:00:11] [33mWARN[39m (6624): [36mHRRR data not available, using climatological wind profile[39m
+    [35mstatus[39m: 500
+    [35mdateStr[39m: "20260321"
+    [35mhourStr[39m: "15"
+[08:00:11] [32mINFO[39m (6624): [36mDrift correction applied[39m
+    [35mstormEventId[39m: "6b6b1226-c080-4779-89bb-ad3ebc45661c"
+    [35mdx_m[39m: 1270
+    [35mdy_m[39m: 997
+    [35mfall_time_s[39m: 122
+    [35mhailSize[39m: "3.00"
+[08:00:11] [32mINFO[39m (6624): [36mDrift correction complete: 304/304 events corrected[39m
