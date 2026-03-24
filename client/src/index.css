@@ -4278,7 +4278,7 @@ input[type="checkbox"]:checked::after {
   font-size: 14px;
   font-weight: 600;
   color: oklch(0.98 0 0);
-  background: linear-gradient(135deg, oklch(0.55 0.18 280), oklch(0.60 0.20 320));
+  background: linear-gradient(135deg, oklch(0.65 0.20 55), oklch(0.58 0.22 40));
   border: none;
   border-radius: 12px;
   cursor: pointer;
@@ -4615,6 +4615,42 @@ textarea:disabled {
 
 .empty-state__action {
   margin-top: var(--space-sm);
+}
+
+/* ============================================================
+   GLOBAL MODAL ANIMATION — applies to ALL modal overlays
+   Any fixed-position overlay backdrop gets fade-in;
+   its direct .glass child gets scale-in animation automatically.
+   ============================================================ */
+.modal-backdrop {
+  animation: modal-backdrop-in 150ms ease both;
+}
+
+.modal-backdrop > .glass,
+.modal-backdrop > form.glass {
+  animation: modal-scale-in 200ms var(--ease-apple) both;
+}
+
+/* Generic modal overlay pattern — target elements with inline position:fixed + high z-index
+   that contain a .glass panel. The backdrop class handles the named case;
+   this selector covers inline-styled overlays too. */
+div[style*="position: fixed"][style*="inset: 0"] > .glass,
+div[style*="position: fixed"][style*="inset: 0"] > form.glass,
+div[style*="position: fixed"][style*="inset: 0"] > div.glass {
+  animation: modal-scale-in 200ms var(--ease-apple) both;
+}
+
+/* Slide-over panels (LeadDetail) */
+.slide-over.glass {
+  animation: modal-scale-in 250ms var(--ease-apple) both;
+}
+
+/* ---- Stat card icons consistency ---- */
+.stat-card__icon {
+  width: 28px;
+  height: 28px;
+  color: var(--text-muted);
+  opacity: 0.6;
 }
 
 } /* end @layer base */
