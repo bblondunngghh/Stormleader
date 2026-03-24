@@ -15,12 +15,13 @@ const DEFAULT_MILESTONES = [
 ];
 
 export async function createMilestones(workOrderId) {
-  for (let i = 0; i < DEFAULT_MILESTONES.length; i++) {
-    await pool.query(
-      'INSERT INTO work_order_milestones (work_order_id, name, sort_order) VALUES ($1, $2, $3)',
-      [workOrderId, DEFAULT_MILESTONES[i], i + 1]
-    );
-  }
+  const placeholders = DEFAULT_MILESTONES.map((_, i) => `($1, $${i * 2 + 2}, $${i * 2 + 3})`);
+  const params = [workOrderId];
+  DEFAULT_MILESTONES.forEach((name, i) => { params.push(name, i + 1); });
+  await pool.query(
+    `INSERT INTO work_order_milestones (work_order_id, name, sort_order) VALUES ${placeholders.join(', ')}`,
+    params
+  );
 }
 
 export async function getMilestones(workOrderId) {
