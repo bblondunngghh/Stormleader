@@ -1,6 +1,6 @@
 # Free Data Sources for StormLeads Storm Map
 
-**Date:** 2026-03-24
+**Date:** 2026-03-24 (updated)
 **Status:** Research complete, prioritized for implementation
 
 ## Already Integrated
@@ -68,13 +68,84 @@
 - **Why:** Skip already re-roofed properties; track competitor activity
 - **Effort:** 3-5 days (per-city adapters)
 
-### Tier 3: Nice to Have
+### Tier 3: Nice to Have / Supplemental
 
-- IEM Historical Warning Polygons (mesonet.agron.iastate.edu)
-- NOAA NCEI Storm Events (damage $ amounts per storm)
+#### 9. US Census Geocoder (Free Geocoding)
+- **URL:** https://geocoding.geo.census.gov/geocoder/
+- **What:** Free address-to-coordinates geocoding, batch up to 10,000 addresses. Also returns census tract/block/county FIPS codes.
+- **Why:** Eliminates Google Geocoding API costs for bulk lookups (e.g., CSV imports).
+- **Truly free:** Yes, no API key, no per-request charge.
+- **Effort:** Easy (REST API or CSV batch upload)
+
+#### 10. NOAA SWDI (Severe Weather Data Inventory)
+- **URL:** https://www.ncei.noaa.gov/products/severe-weather-data-inventory
+- **What:** Radar-detected hail signatures, mesocyclone signatures, tornado signatures, lightning strikes. More comprehensive than ground-truth SPC reports.
+- **Truly free:** Yes, web services + bulk download at https://www1.ncdc.noaa.gov/pub/data/swdi
+- **Effort:** Easy-Medium (multiple output formats: CSV, Shapefile, KMZ, XML)
+
+#### 11. OpenFEMA Disaster & Assistance APIs
+- **URL:** https://www.fema.gov/about/openfema/api
+- **What:** Full FEMA open data catalog: disaster declarations, individual assistance, public assistance, NFIP claims. No API key required.
+- **Truly free:** Yes.
+- **Effort:** Easy (RESTful JSON API)
+
+#### 12. Iowa Environmental Mesonet (IEM)
+- **URL:** https://mesonet.agron.iastate.edu/api/
+- **What:** Archived SPC storm reports in queryable format, NEXRAD radar composites, ASOS/AWOS weather station data. Good for historical lookups.
+- **Truly free:** Yes, no API key.
+- **Effort:** Easy (REST API with CSV/JSON output)
+
+#### 13. FEMA USA Structures
+- **URL:** https://gis-fema.hub.arcgis.com/pages/usa-structures
+- **What:** Building footprints with occupancy classification (residential/commercial) for entire US. Alternative to MS Building Footprints with richer metadata.
+- **Truly free:** Yes, ArcGIS Hub download.
+- **Effort:** Medium (similar to MS footprints import)
+
+#### 14. VIDA Combined Buildings Dataset
+- **URL:** https://source.coop/vida/google-microsoft-osm-open-buildings
+- **What:** Merged dataset of Google, Microsoft, and OSM building footprints — 2.7 billion footprints worldwide, each labeled with source.
+- **Truly free:** Yes, open license.
+- **Effort:** Medium-Hard (very large dataset, PostGIS or similar needed)
+
+#### 15. Copernicus Sentinel-2 Imagery
+- **URL:** https://dataspace.copernicus.eu/
+- **What:** 10m resolution optical imagery, global, 3-5 day revisit. 13 spectral bands.
+- **Truly free:** Yes (EU mandate). Free registration for API token.
+- **Why:** Before/after change detection for tornado/large-scale damage at neighborhood level. 10m too coarse for individual roofs but good for area assessment.
+- **Effort:** Medium (OData/STAC APIs)
+
+#### 16. FEMA National Flood Hazard Layer (NFHL)
+- **URL:** https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer
+- **What:** Flood zones, base flood elevations, floodway boundaries. 90%+ of US population covered.
+- **Truly free:** Yes, ArcGIS REST API, no key needed.
+- **Why:** Flood zone properties may have water + storm damage — higher-value leads.
+- **Effort:** Easy-Medium (ArcGIS REST spatial queries)
+
+#### 17. NOAA Storm Events Database
+- **URL:** https://www.ncei.noaa.gov/stormevents/
+- **What:** Comprehensive storm event records from NWS with property damage dollar estimates, injuries, narrative descriptions.
+- **Truly free:** Yes, searchable database with CSV export.
+- **Why:** Dollar damage amounts per storm help prioritize which storms to target.
+- **Effort:** Easy (CSV export)
+
+#### 18. OSM Overpass API (Building Metadata)
+- **URL:** https://overpass-api.de/
+- **What:** Building polygons with crowd-sourced tags: `roof:material`, `roof:shape`, `roof:levels`, `building:levels`.
+- **Truly free:** Yes, no API key. Fair-use throttling on public servers.
+- **Why:** Supplemental roof material data where county records lack it. Coverage varies by area.
+- **Effort:** Easy-Medium (Overpass QL query language)
+
+#### 19. RentCast Property API (Free Tier)
+- **URL:** https://www.rentcast.io/api
+- **What:** Property details, owner info, tax assessor data, building characteristics.
+- **Truly free:** 50 free calls/month, no credit card. Paid plans for more.
+- **Why:** Ad-hoc property lookups for lead enrichment.
+- **Effort:** Easy (REST API)
+
+### Previously listed (Tier 3)
 - Census TIGER boundaries (territory management)
 - USPS Vacancy Data (filter vacant properties)
-- OpenStreetMap Buildings (roof shape metadata)
+- NLCD Tree Canopy Cover (tree-on-roof damage risk)
 
 ---
 
@@ -93,6 +164,23 @@
 | Satellite roof measurements | Google Solar API + MS footprints | PARTIAL |
 | Solar potential | Google Solar API | DONE |
 | AI proposals | Any LLM API (~$0.01/request) | TODO |
+
+| EagleView/RoofScope Feature | Free Alternative | Status |
+|---|---|---|
+| Aerial roof measurement | Google Solar segments + MS footprints area calc | PARTIAL |
+| High-res aerial imagery | NAIP 60cm via USGS ImageServer | TODO |
+| Property reports | FEMA NSI + County records + Census ACS | PARTIAL |
+
+### Key Competitive Insight
+
+HailTrace's core hail swath maps are built on **NOAA MRMS MESH data** — the exact same freely-available dataset StormLeads already ingests. Their differentiation is meteorologist review + 70-year history (SPC SVRGIS, which is also free). The paid-only components they use are:
+- **Cole Information** for property owner/phone data (we use free county records instead)
+- **OneClick Code** for building codes (could replicate with ICC code lookup)
+
+StormLeads already matches or exceeds HailTrace on data sources. The main gaps are:
+1. Historical storm archive (SVRGIS — free, just needs import)
+2. Lead scoring algorithm (all data sources are free, just needs the formula)
+3. Automated canvassing route optimization (free OSM routing APIs exist)
 
 ---
 
