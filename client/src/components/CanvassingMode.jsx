@@ -2,7 +2,8 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { loadGoogleMaps } from '../lib/googleMaps';
 import { getCanvassPins, createCanvassPin, updateCanvassPin, convertCanvassPin, getCanvassStats } from '../api/crm';
 import useIsMobile from '../hooks/useIsMobile';
-import { MapPinIcon, XMarkIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, XMarkIcon, CheckIcon, MapIcon } from '@heroicons/react/24/outline';
+import TerritoryManager from './TerritoryManager';
 
 const OUTCOME_OPTIONS = [
   { key: 'not_home', label: 'Not Home', color: 'oklch(0.6 0 0)' },
@@ -48,6 +49,9 @@ export default function CanvassingMode() {
   const [converting, setConverting] = useState(false);
   const [geoError, setGeoError] = useState(null);
   const [toast, setToast] = useState(null);
+  const [showTerritories, setShowTerritories] = useState(false);
+  const [mapsApi, setMapsApi] = useState(null);
+  const territoryPolygonsRef = useRef([]);
 
   // Load stats
   const loadStats = useCallback(async () => {
@@ -75,6 +79,7 @@ export default function CanvassingMode() {
   useEffect(() => {
     let map;
     loadGoogleMaps().then((maps) => {
+      setMapsApi(maps);
       map = new maps.Map(mapContainer.current, {
         center: { lat: 32.7, lng: -97.3 },
         zoom: 15,
@@ -245,6 +250,31 @@ export default function CanvassingMode() {
           <strong style={{ color: 'oklch(0.7 0.15 220)' }}>{scheduledCount}</strong> scheduled
         </span>
       </div>
+
+      {/* Territory toggle button */}
+      <button
+        onClick={() => setShowTerritories(s => !s)}
+        title="Manage Territories"
+        style={{
+          position: 'absolute', top: 12, right: 12, zIndex: 10,
+          width: 40, height: 40, borderRadius: 'var(--radius-sm)',
+          border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: showTerritories ? 'oklch(0.55 0.2 250)' : 'oklch(0.2 0.02 260 / 0.8)',
+          color: 'oklch(0.95 0 0)', backdropFilter: 'blur(12px)',
+          boxShadow: '0 2px 8px oklch(0 0 0 / 0.3)', transition: 'background 0.15s',
+        }}
+      >
+        <MapIcon style={{ width: 20, height: 20 }} />
+      </button>
+
+      {/* Territory Manager Panel */}
+      {showTerritories && (
+        <TerritoryManager
+          mapRef={mapRef}
+          mapsApi={mapsApi}
+          onTerritoryPolygonsChange={(polys) => { territoryPolygonsRef.current = polys; }}
+        />
+      )}
 
       {/* GPS Error */}
       {geoError && (

@@ -184,6 +184,22 @@ export const convertCanvassPin = (id) => client.post(`/crm/canvass-pins/${id}/co
 export const getCanvassStats = (date) => client.get('/crm/canvass-pins/stats', { params: { date } });
 
 // ============================================================
+// CANVASSING TERRITORIES
+// ============================================================
+
+export const getTerritories = () => client.get('/crm/territories');
+
+export const getTerritory = (id) => client.get(`/crm/territories/${id}`);
+
+export const createTerritory = (data) => client.post('/crm/territories', data);
+
+export const updateTerritory = (id, data) => client.patch(`/crm/territories/${id}`, data);
+
+export const deleteTerritory = (id) => client.delete(`/crm/territories/${id}`);
+
+export const getTerritoryPins = (id) => client.get(`/crm/territories/${id}/pins`);
+
+// ============================================================
 // CUSTOM FIELDS
 // ============================================================
 

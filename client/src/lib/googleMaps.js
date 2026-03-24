@@ -13,7 +13,7 @@ export function loadGoogleMaps() {
     }
 
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry,marker&v=weekly`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry,marker,drawing&v=weekly`;
     script.async = true;
     script.defer = true;
     script.onload = () => resolve(window.google.maps);

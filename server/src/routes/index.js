@@ -32,6 +32,7 @@ import contentRouter from './content.js';
 import contractsRouter from './contracts.js';
 import expensesRouter from './expenses.js';
 import subcontractorsRouter from './subcontractors.js';
+import territoriesRouter from './territories.js';
 
 const router = Router();
 
@@ -67,6 +68,7 @@ router.use('/crm/content', contentRouter);
 router.use('/crm/contracts', contractsRouter);
 router.use('/crm/expenses', expensesRouter);
 router.use('/crm/subcontractors', subcontractorsRouter);
+router.use('/crm/territories', territoriesRouter);
 router.use('/webhooks/hearth', hearthWebhookRouter);
 
 export default router;
