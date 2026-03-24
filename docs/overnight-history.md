@@ -65,6 +65,13 @@ and what should be prioritized next. Future agents MUST read this before startin
 - **Tasks Empty State**: Upgraded from plain text to structured empty-state with ClipboardDocumentListIcon, title, and description.
 - **Visual Audit**: 31 screenshots across Dashboard, Storm Map, Pipeline, Leads, Lead Detail, Estimates, Invoices, Work Orders, Reports, Calendar, Tasks, Settings (7 tabs), Contracts, Expenses, Canvassing, Content Studio, Materials, Drip Sequences.
 - **Responsive Testing**: Verified layouts at 1280px (desktop), 768px (tablet), 375px (mobile). Mobile "ROOF COMMAND" layout is excellent.
+- **Security Audit**: Full audit of ~150 endpoints across 33 route files. Fixed 4 issues:
+  - Added auth to POST /api/properties/trigger-import (was unauthenticated)
+  - Removed GET /api/map/debug (leaked DB schema)
+  - Added tenant ownership check on work order milestones
+  - Added admin role gate on tenant settings update
+- **Competitor Research Update**: RoofLink now $400/user/month (up from $120!). Rooftops.ai Pro only $12/month.
+- **Data Source Research**: Identified 25 free data sources across 6 categories. Top priority: SPC SVRGIS historical archive (70+ years of storm history, closes biggest gap vs HailTrace).
 - **Verified**: Per-job profit tracking already exists in LeadDetail with Estimate Total / Expenses / Profit breakdown.
 - **Verified**: All 12 Settings tabs work correctly (Automations tab switching issue was Playwright-specific, not a real bug).
 - Total: 4 commits
