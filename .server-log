@@ -1849,3 +1849,35 @@
       "line": "1469",
       "routine": "parserOpenTable"
     }
+[05:00:00] [32mINFO[39m (28304): [36mScheduler: running MRMS ingestion[39m
+[05:00:00] [32mINFO[39m (28304): [36mStarting MRMS ingestion for 20260324[39m
+[05:00:00] [32mINFO[39m (28304): [36mScheduler: running NWS ingestion[39m
+[05:00:00] [32mINFO[39m (28304): [36mStarting NWS alert ingestion[39m
+[05:00:00] [31mERROR[39m (28304): [36mDrip processing failed[39m
+    err: {
+      "type": "DatabaseError",
+      "message": "relation \"drip_enrollments\" does not exist",
+      "stack":
+          error: relation "drip_enrollments" does not exist
+              at C:\Projects\stormleads\node_modules\pg-pool\index.js:45:11
+              at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+              at async processScheduledSteps (file:///C:/Projects/stormleads/server/src/services/dripService.js:206:36)
+              at async Task._execution (file:///C:/Projects/stormleads/server/src/ingestion/scheduler.js:120:7)
+      "length": 115,
+      "name": "error",
+      "severity": "ERROR",
+      "code": "42P01",
+      "position": "54",
+      "file": "parse_relation.c",
+      "line": "1469",
+      "routine": "parserOpenTable"
+    }
+[05:00:00] [32mINFO[39m (28304): [36mDownloading: CONUS/MESH_Max_1440min_00.50/20260324/MRMS_MESH_Max_1440min_00.50_20260324-093000.grib2.gz[39m
+[05:00:00] [32mINFO[39m (28304): [36mDecompressed MRMS data: 101078 bytes[39m
+[05:00:00] [32mINFO[39m (28304): [36mGRIB2 message length: 101078 bytes[39m
+[05:00:00] [32mINFO[39m (28304): [36mParsed GRIB: 7000x3500 grid, bbox: [230.005,20.005001,299.994998,54.995][39m
+[05:00:03] [32mINFO[39m (28304): [36mBuilt 6 contour features from 6 thresholds[39m
+[05:00:03] [32mINFO[39m (28304): [36mMRMS ingestion complete: 0 swath polygons inserted for 20260324[39m
+[05:00:05] [32mINFO[39m (28304): [36mFetched 0 NWS alerts across 3 event types[39m
+[05:00:05] [32mINFO[39m (28304): [36m0 of 0 alerts already in DB — skipping those[39m
+[05:00:05] [32mINFO[39m (28304): [36mNWS ingestion complete: 0 new, 0 already existed, 0 no geometry[39m
