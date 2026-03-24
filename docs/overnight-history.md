@@ -23,9 +23,13 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Took 26+ unique screenshots across desktop/tablet/mobile viewports
 - Tested responsive layouts at 1920px, 768px, and 375px — mobile layout works well
 - Started security review of all API routes (agent still running at end of session)
+- Applied modal-scale-in animation to LeadDetail Weather History and Billing modals
+- Replaced inline fieldStyle in CreateLeadModal with .form-input CSS class for consistency
+- Added modal-scale-in animation to CreateLeadModal container
+- Total: 8 commits, 49 screenshots across desktop/tablet/mobile
 
 ### What was skipped and why
-- Full modal animation integration into individual components — CSS is ready but React components need `animation` class names added to their overlay/modal JSX
+- Remaining modal animation integration — LeadDetail and CreateLeadModal done, but WorkOrdersView, InvoicesView, TasksView modals still use inline styles
 - Historical NOAA storm data expansion — needs a data ingestion pipeline for bulk CSV
 - Microsoft Building Footprints integration — needs research on how to serve tiles efficiently
 - QuickBooks integration — needs QB API key setup and OAuth flow
