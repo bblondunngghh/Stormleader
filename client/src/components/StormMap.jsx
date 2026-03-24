@@ -66,6 +66,35 @@ function formatOwner(first, last) {
   return titleCase(raw);
 }
 
+// Ray-casting point-in-polygon test — returns true if [lng, lat] is inside a polygon ring
+function pointInRing(lng, lat, ring) {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    if ((yi > lat) !== (yj > lat) && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+// Check if a point falls inside ANY loaded storm swath polygon
+function pointInsideAnySwath(lng, lat, stormFeatures) {
+  for (const f of stormFeatures) {
+    if (!f.geometry?.coordinates) continue;
+    const type = f.geometry.type;
+    if (type === 'Polygon') {
+      if (pointInRing(lng, lat, f.geometry.coordinates[0])) return true;
+    } else if (type === 'MultiPolygon') {
+      for (const poly of f.geometry.coordinates) {
+        if (pointInRing(lng, lat, poly[0])) return true;
+      }
+    }
+  }
+  return false;
+}
+
 const FEMA_LABELS = {
   bldg: { W: 'Wood', M: 'Masonry', H: 'Manufactured', S: 'Steel' },
   found: { S: 'Slab', C: 'Crawlspace', B: 'Basement', P: 'Pier', I: 'Pile', F: 'Fill', W: 'Solid Wall' },
@@ -656,8 +685,8 @@ export default function StormMap() {
     // Don't load if properties layer is toggled off
     if (!layersRef.current.properties) return;
     const zoom = map.getZoom();
-    // Match swath loading zoom gate — don't load FEMA at low zoom levels
-    if (zoom < 10) return;
+    // Only load FEMA at high zoom levels — zoom 13+ ensures tight area, fewer irrelevant points
+    if (zoom < 13) return;
     // Skip if no storm swaths loaded at all
     if (stormFeaturesRef.current.length === 0) return;
 
@@ -695,6 +724,10 @@ export default function StormMap() {
 
     if (chunks.length === 0) return;
 
+    // Global cap: don't load more than 5000 FEMA points total (prevents memory bloat)
+    const existingFemaCount = propFeaturesRef.current.filter(f => f.properties?.data_source === 'fema_nsi_live').length;
+    if (existingFemaCount > 5000) return;
+
     // Abort previous FEMA session
     if (femaAbortRef.current) femaAbortRef.current.abort();
     const femaAbort = new AbortController();
@@ -725,14 +758,17 @@ export default function StormMap() {
         });
         const femaFeatures = femaRes.data?.features || [];
 
-        const MAX_FEMA_PER_CHUNK = 2000;
+        const MAX_FEMA_PER_CHUNK = 1000;
         let added = 0;
+        const storms = stormFeaturesRef.current;
         for (const f of femaFeatures) {
           if (added >= MAX_FEMA_PER_CHUNK) break;
           const pid = f.id;
           if (propIdSetRef.current.has(pid)) continue;
           const [fLng, fLat] = f.geometry.coordinates;
           if (grid.has(`${Math.round(fLat / CELL)},${Math.round(fLng / CELL)}`)) continue;
+          // Point-in-polygon: only keep FEMA records that fall INSIDE an actual storm swath
+          if (!pointInsideAnySwath(fLng, fLat, storms)) continue;
           propIdSetRef.current.add(pid);
           allNewFema.push(f);
           grid.add(`${Math.round(fLat / CELL)},${Math.round(fLng / CELL)}`);
