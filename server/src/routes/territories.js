@@ -59,6 +59,11 @@ router.post('/', async (req, res, next) => {
       return res.status(400).json({ error: 'coordinates must be an array of at least 3 [lng, lat] pairs' });
     }
 
+    // Validate all coordinates are numeric to prevent WKT injection
+    if (coordinates.some(c => !Array.isArray(c) || c.length < 2 || typeof c[0] !== 'number' || typeof c[1] !== 'number' || !isFinite(c[0]) || !isFinite(c[1]))) {
+      return res.status(400).json({ error: 'Each coordinate must be [lng, lat] with finite numeric values' });
+    }
+
     // Close the polygon ring if not already closed
     const ring = [...coordinates];
     const first = ring[0];
@@ -100,6 +105,10 @@ router.patch('/:id', async (req, res, next) => {
       idx++;
     }
     if (coordinates && Array.isArray(coordinates) && coordinates.length >= 3) {
+      // Validate all coordinates are numeric to prevent WKT injection
+      if (coordinates.some(c => !Array.isArray(c) || c.length < 2 || typeof c[0] !== 'number' || typeof c[1] !== 'number' || !isFinite(c[0]) || !isFinite(c[1]))) {
+        return res.status(400).json({ error: 'Each coordinate must be [lng, lat] with finite numeric values' });
+      }
       const ring = [...coordinates];
       const first = ring[0];
       const last = ring[ring.length - 1];

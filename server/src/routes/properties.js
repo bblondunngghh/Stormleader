@@ -66,8 +66,8 @@ router.get('/fema-live', authenticate, async (req, res, next) => {
   }
 });
 
-// GET /api/properties/import-progress — no auth needed, lightweight poll
-router.get('/import-progress', (req, res) => {
+// GET /api/properties/import-progress — lightweight poll
+router.get('/import-progress', authenticate, (req, res) => {
   res.json(getImportProgress());
 });
 
