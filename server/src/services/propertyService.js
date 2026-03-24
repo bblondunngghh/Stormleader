@@ -175,7 +175,7 @@ export async function getPropertiesInStormZones(bbox, timeRange, limit = 5000, {
 
   let timeFilter = '';
   if (timeRange && timeRange !== 'all') {
-    const intervals = { '24h': '24 hours', '7d': '7 days', '30d': '30 days' };
+    const intervals = { '12h': '12 hours', '24h': '24 hours', '3d': '3 days', '7d': '7 days', '14d': '14 days', '30d': '30 days' };
     const interval = intervals[timeRange];
     if (interval) {
       timeFilter = `AND se.event_start >= NOW() - INTERVAL '${interval}'`;

@@ -66,7 +66,7 @@ export default function DatePicker({ value, onChange, placeholder }) {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
           width: '100%', height: 36, padding: '0 16px', fontSize: 13, fontWeight: 500, boxSizing: 'border-box',
           background: 'oklch(0.22 0.02 260 / 0.45)', border: '1px solid var(--glass-border)',
-          borderRadius: '14px / 12px', color: displayValue ? 'var(--text-primary)' : 'var(--text-muted)',
+          borderRadius: 12, color: displayValue ? 'var(--text-primary)' : 'var(--text-muted)',
           cursor: 'pointer', textAlign: 'left', backdropFilter: 'blur(12px)',
         }}
       >

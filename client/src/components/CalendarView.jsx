@@ -96,6 +96,7 @@ export default function CalendarView() {
   }, []);
 
   return (
+    <div className="main-content" style={{ gap: 'var(--space-lg)' }}>
     <div className="calendar-view glass">
       {loading && (
         <div className="calendar-view__loading">
@@ -111,6 +112,25 @@ export default function CalendarView() {
           center: 'title',
           right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
         }}
+        buttonText={{
+          today: 'Today',
+          month: 'Month',
+          week: 'Week',
+          day: 'Day',
+          list: 'List',
+        }}
+        allDayText="All Day"
+        slotLabelFormat={{
+          hour: 'numeric',
+          minute: '2-digit',
+          omitZeroMinute: true,
+          meridiem: 'short',
+        }}
+        eventTimeFormat={{
+          hour: 'numeric',
+          minute: '2-digit',
+          meridiem: 'short',
+        }}
         events={events}
         datesSet={fetchEvents}
         eventClick={handleEventClick}
@@ -122,6 +142,7 @@ export default function CalendarView() {
         nowIndicator={true}
         eventDisplay="block"
       />
+    </div>
     </div>
   );
 }

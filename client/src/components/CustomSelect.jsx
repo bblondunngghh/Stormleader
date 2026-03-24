@@ -37,7 +37,7 @@ export default function CustomSelect({ value, onChange, options, placeholder, st
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
           width: '100%', height: 36, padding: '0 16px', fontSize: 13, fontWeight: 500, boxSizing: 'border-box',
           background: 'oklch(0.22 0.02 260 / 0.45)', border: '1px solid var(--glass-border)',
-          borderRadius: '14px / 12px', color: value ? 'var(--text-primary)' : 'var(--text-muted)',
+          borderRadius: 12, color: value ? 'var(--text-primary)' : 'var(--text-muted)',
           cursor: 'pointer', textAlign: 'left', backdropFilter: 'blur(12px)',
         }}
       >
@@ -50,7 +50,7 @@ export default function CustomSelect({ value, onChange, options, placeholder, st
         <div style={{
           position: 'absolute', top: '100%', left: 0, marginTop: 4, zIndex: 200,
           background: 'oklch(0.18 0.02 260)', border: '1px solid oklch(0.30 0.02 260)',
-          borderRadius: '14px / 12px', padding: 4, minWidth: '100%', width: 'max-content',
+          borderRadius: 12, padding: 4, minWidth: '100%', width: 'max-content',
           boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
           maxHeight: 260, overflowY: 'auto',
         }}>

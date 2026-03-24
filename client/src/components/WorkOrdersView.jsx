@@ -626,11 +626,13 @@ export default function WorkOrdersView() {
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr', height: '100%', overflow: 'hidden' }}>
+    <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr', height: '100%', overflow: 'hidden', padding: 0 }}>
       {/* Top Bar */}
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 12, padding: '16px 28px',
-        borderBottom: '1px solid oklch(1 0 0 / 0.06)',
+      <div className="glass" style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: 'var(--space-md) var(--space-2xl)',
+        borderRadius: '20px / 18px',
+        boxShadow: '0 8px 32px oklch(0 0 0 / 0.25), inset 0 1px 0 oklch(1 0 0 / 0.05)',
       }}>
         <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Work Orders</h1>
         <span style={{

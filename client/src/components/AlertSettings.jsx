@@ -1,9 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Switch from 'react-switch';
 import { getAlertConfig, updateAlertConfig, getAlertHistory, sendTestAlert } from '../api/alerts';
-import iconSend from '../assets/icons/Send-Email-2--Streamline-Ultimate.png';
-import iconAlarmBell from '../assets/icons/Alarm-Bell-1--Streamline-Ultimate.png';
-import iconEmail from '../assets/icons/Email-Action-Unread--Streamline-Ultimate.png';
+import { PaperAirplaneIcon, BellAlertIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 
 export default function AlertSettings() {
   const [config, setConfig] = useState(null);
@@ -93,7 +91,7 @@ export default function AlertSettings() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <h2 style={{ fontSize: '20px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <img src={iconAlarmBell} alt="" width="22" height="22" /> Storm Alerts
+            <BellAlertIcon width={22} height={22} /> Storm Alerts
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '4px' }}>
             Get notified by email when storms are detected in your service area
@@ -115,7 +113,7 @@ export default function AlertSettings() {
             border: '1px solid var(--border-subtle)',
           }}
         >
-          <img src={iconSend} alt="" width="18" height="18" /> {testing ? 'Sending...' : 'Send Test Alert'}
+          <PaperAirplaneIcon width={18} height={18} /> {testing ? 'Sending...' : 'Send Test Alert'}
         </button>
       </div>
 
@@ -155,7 +153,7 @@ export default function AlertSettings() {
           <div className="dashboard-panel glass" style={{ padding: 'var(--space-lg)', opacity: config?.enabled ? 1 : 0.5 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <img src={iconEmail} alt="" width="20" height="20" />
+                <EnvelopeIcon width={20} height={20} />
                 <h3 style={{ fontSize: '15px', fontWeight: 600 }}>Email Recipients</h3>
               </div>
               <ToggleSwitch checked={config?.email_enabled} onChange={() => handleToggle('email_enabled')} />

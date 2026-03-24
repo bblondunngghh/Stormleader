@@ -1,18 +1,23 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import useIsMobile from '../hooks/useIsMobile';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import * as dashboardApi from '../api/dashboard';
 import * as stormsApi from '../api/storms';
 import { updateTask } from '../api/crm';
 
-import iconDollar from '../assets/icons/Tag-Dollar--Streamline-Ultimate.svg';
-import iconLeads from '../assets/icons/Add-Circle-Bold--Streamline-Ultimate.svg';
-import iconTarget from '../assets/icons/Check-Badge--Streamline-Ultimate.svg';
-import iconClock from '../assets/icons/Cash-Payment-Bills-1--Streamline-Ultimate.svg';
-import iconStormMap from '../assets/icons/Rain-Umbrella-1--Streamline-Ultimate.svg';
-import iconViewLeads from '../assets/icons/Style-Three-Pin-Home--Streamline-Ultimate.svg';
+import {
+  CurrencyDollarIcon,
+  PlusCircleIcon,
+  CheckBadgeIcon,
+  BanknotesIcon,
+  CloudIcon,
+  HomeModernIcon,
+  SignalIcon,
+  HomeIcon,
+} from '@heroicons/react/24/outline';
 
 /* ── Helpers ──────────────────────────────────────────────── */
 function formatCurrency(value) {
@@ -53,7 +58,7 @@ const emptyStats = [
   { label: 'Avg Days to Close', value: '0', change: '—', icon: 'clock', color: 'oklch(0.70 0.18 330)', tint: '330', link: '/leads?stage=closed_won' },
 ];
 
-const statIconMap = { dollar: iconDollar, leads: iconLeads, target: iconTarget, clock: iconClock };
+const statIconMap = { dollar: CurrencyDollarIcon, leads: PlusCircleIcon, target: CheckBadgeIcon, clock: BanknotesIcon };
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -379,15 +384,555 @@ export default function Dashboard() {
   const overdueTasks = tasksToday.filter(t => t.due_date && new Date(t.due_date) < new Date());
   const todayStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
+  const isMobile = useIsMobile();
+
   const stormTypeBadge = {
     hail: { color: '#dcb428', bg: '#dcb42818', border: '#dcb42830' },
     tornado: { color: '#ff2d55', bg: '#ff2d5518', border: '#ff2d5530' },
     wind: { color: '#6c5ce7', bg: '#6c5ce718', border: '#6c5ce730' },
   };
 
+  /* ── Mobile Dashboard ── */
+  if (isMobile) {
+    const pipelineValue = stats.find(s => s.label === 'Pipeline Value')?.value || '$0';
+    const newLeads = stats.find(s => s.label === 'New Leads')?.value || '0';
+    const closeRate = stats.find(s => s.label === 'Close Rate')?.value || '0%';
+    const avgDays = stats.find(s => s.label === 'Avg Days to Close')?.value || '-';
+
+    return (
+      <div style={{
+        background: '#0d1321',
+        minHeight: '100vh',
+        paddingBottom: 96,
+        color: '#dde2f6',
+      }}>
+        <main style={{ paddingTop: 20, paddingLeft: 16, paddingRight: 16 }}>
+          {/* Welcome Section */}
+          <section style={{ marginBottom: 24 }}>
+            <p style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: 10,
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '0.2em',
+              color: '#64748b',
+              marginBottom: 4,
+            }}>
+              Command Center
+            </p>
+            <h2 style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: 30,
+              fontWeight: 700,
+              color: '#dde2f6',
+              margin: 0,
+              lineHeight: 1.1,
+            }}>
+              {getGreeting()}, <span style={{ color: '#00e5ff' }}>{user?.firstName || 'Commander'}</span>
+            </h2>
+          </section>
+
+          {/* Key Metrics Bento Grid */}
+          <section style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 12,
+            marginBottom: 24,
+          }}>
+            {/* Pipeline Value — full width */}
+            <div style={{
+              gridColumn: '1 / -1',
+              background: '#161b2a',
+              padding: 20,
+              borderRadius: 12,
+              borderLeft: '2px solid #00e5ff',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+            }}>
+              <div>
+                <p style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: 10,
+                  fontWeight: 500,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  color: '#94a3b8',
+                  margin: 0,
+                }}>Pipeline Value</p>
+                <h3 style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: 30,
+                  fontWeight: 700,
+                  color: '#00daf3',
+                  margin: '4px 0 0',
+                }}>{pipelineValue}</h3>
+              </div>
+              <span className="material-symbols-outlined" style={{ color: 'rgba(6,182,212,0.5)', fontSize: 24 }}>
+                account_balance_wallet
+              </span>
+            </div>
+
+            {/* New Leads — half width */}
+            <div style={{
+              background: '#161b2a',
+              padding: 16,
+              borderRadius: 12,
+            }}>
+              <p style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: 10,
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                color: '#94a3b8',
+                margin: 0,
+              }}>New Leads</p>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
+                <span style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: 24,
+                  fontWeight: 700,
+                }}>{newLeads}</span>
+                <span style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: 10,
+                  color: '#64748b',
+                }}>UNIT</span>
+              </div>
+            </div>
+
+            {/* Close Rate — half width */}
+            <div style={{
+              background: '#161b2a',
+              padding: 16,
+              borderRadius: 12,
+            }}>
+              <p style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: 10,
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                color: '#94a3b8',
+                margin: 0,
+              }}>Close Rate</p>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
+                <span style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: 24,
+                  fontWeight: 700,
+                }}>{closeRate}</span>
+                <span className="material-symbols-outlined" style={{ fontSize: 12, color: '#475569' }}>
+                  trending_flat
+                </span>
+              </div>
+            </div>
+
+            {/* Avg Days to Close — full width */}
+            <div style={{
+              gridColumn: '1 / -1',
+              background: '#161b2a',
+              padding: 16,
+              borderRadius: 12,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+              <div>
+                <p style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: 10,
+                  fontWeight: 500,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
+                  color: '#94a3b8',
+                  margin: 0,
+                }}>Avg Days to Close</p>
+                <span style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: 24,
+                  fontWeight: 700,
+                  marginTop: 4,
+                  display: 'inline-block',
+                }}>{avgDays}</span>
+              </div>
+              <div style={{
+                height: 32,
+                width: 96,
+                background: '#2f3444',
+                borderRadius: 4,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                <span style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: '#64748b',
+                }}>{avgDays === '-' || avgDays === '0' ? 'NO DATA' : `${avgDays} DAYS`}</span>
+              </div>
+            </div>
+          </section>
+
+          {/* Mini Storm Map */}
+          <section style={{ marginBottom: 24 }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 12,
+            }}>
+              <h3 style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: 14,
+                fontWeight: 700,
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                color: '#dde2f6',
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+              }}>
+                <SignalIcon width={24} height={24} style={{ opacity: 0.9 }} />
+                Storm Map
+              </h3>
+              <span style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: 10,
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                letterSpacing: '-0.02em',
+                color: '#00e5ff',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+              }}>
+                Live Radar
+                <span style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: '50%',
+                  background: '#00e5ff',
+                  display: 'inline-block',
+                  animation: 'pulse 2s infinite',
+                }} />
+              </span>
+            </div>
+            <div style={{
+              position: 'relative',
+              height: 192,
+              width: '100%',
+              borderRadius: 12,
+              overflow: 'hidden',
+              background: '#080e1c',
+            }}>
+              <MiniStormMap storms={storms} navigate={navigate} />
+              {/* Gradient overlay */}
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(to top, #0d1321, transparent, transparent)',
+                pointerEvents: 'none',
+              }} />
+              {/* Scanning overlay */}
+              <div style={{
+                position: 'absolute',
+                top: 12,
+                left: 12,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+                pointerEvents: 'none',
+              }}>
+                <div style={{
+                  background: 'rgba(47, 52, 68, 0.6)',
+                  backdropFilter: 'blur(20px)',
+                  padding: '4px 8px',
+                  borderRadius: 4,
+                  border: '1px solid rgba(255,255,255,0.05)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 14, color: '#22d3ee' }}>
+                    radar
+                  </span>
+                  <span style={{
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    color: '#ecfeff',
+                  }}>SCANNING...</span>
+                </div>
+              </div>
+              {/* Fullscreen button */}
+              <div style={{ position: 'absolute', bottom: 12, right: 12 }}>
+                <button
+                  onClick={() => navigate('/storm-map')}
+                  style={{
+                    background: '#00e5ff',
+                    color: '#00626e',
+                    padding: 8,
+                    borderRadius: 8,
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                  }}
+                >
+                  <span className="material-symbols-outlined">fullscreen</span>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* Recent Storm Activity */}
+          <section style={{ marginBottom: 24 }}>
+            <h3 style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: 14,
+              fontWeight: 700,
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              color: '#dde2f6',
+              margin: '0 0 12px',
+            }}>Recent Storm Activity</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {storms.length > 0 ? (
+                <>
+                  {storms.slice(0, 3).map(s => {
+                    const p = s.properties || {};
+                    const rawType = (p.raw_data?.type || '').toLowerCase();
+                    const isHail = rawType === 'hail' || !!p.hail_size_max_in;
+                    const isTornado = rawType === 'tornado';
+                    const typeLabel = isTornado ? 'Tornado' : isHail ? 'Hail' : 'Wind';
+                    const typeColor = isTornado ? '#ff2d55' : isHail ? '#ffc1c0' : '#6c5ce7';
+
+                    let rawLoc = p.raw_data?.location || '';
+                    const cleanLoc = rawLoc.replace(/^\d+\s+[NSEW]{1,3}\s+/i, '').trim();
+                    const county = p.raw_data?.county;
+                    const state = p.raw_data?.state;
+                    const areaDesc = p.raw_data?.areaDesc;
+                    let location;
+                    if (cleanLoc) location = cleanLoc + (state ? `, ${state}` : '');
+                    else if (areaDesc) location = areaDesc;
+                    else if (county) location = county + ' Co' + (state ? `, ${state}` : '');
+                    else location = 'Unknown';
+
+                    const hailSize = isHail && p.hail_size_max_in ? `${p.hail_size_max_in}" Hail Detected` : null;
+                    const detail = hailSize || (p.raw_data?.severity ? p.raw_data.severity : typeLabel + ' Alert');
+                    const eventDate = p.event_start ? new Date(p.event_start) : null;
+                    const hoursAgo = eventDate ? Math.round((Date.now() - eventDate) / (1000 * 60 * 60)) : null;
+                    const timeAgo = hoursAgo !== null ? (hoursAgo < 1 ? '<1h ago' : hoursAgo < 24 ? `${hoursAgo}h ago` : `${Math.round(hoursAgo / 24)}d ago`) : '';
+
+                    return (
+                      <div
+                        key={s.id}
+                        onClick={() => {
+                          const geom = s.geometry;
+                          let lat, lng;
+                          if (geom?.type === 'Point') { [lng, lat] = geom.coordinates; }
+                          else if (geom?.type === 'Polygon' || geom?.type === 'MultiPolygon') {
+                            const flat = geom.type === 'MultiPolygon' ? geom.coordinates.flat(2) : geom.coordinates[0];
+                            if (flat?.length) { lng = flat.reduce((a, c) => a + c[0], 0) / flat.length; lat = flat.reduce((a, c) => a + c[1], 0) / flat.length; }
+                          }
+                          navigate(`/storm-map${lat && lng ? `?lat=${lat}&lng=${lng}&zoom=11&stormId=${s.id}` : ''}`);
+                        }}
+                        style={{
+                          background: '#1a1f2e',
+                          padding: 16,
+                          borderRadius: 12,
+                          borderLeft: `2px solid ${typeColor}`,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <div style={{
+                            background: `${typeColor}1a`,
+                            padding: 8,
+                            borderRadius: 8,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}>
+                            <HomeIcon width={24} height={24} style={{ opacity: 0.9 }} />
+                          </div>
+                          <div>
+                            <p style={{
+                              fontFamily: "'Manrope', sans-serif",
+                              fontSize: 14,
+                              fontWeight: 600,
+                              margin: 0,
+                              color: '#dde2f6',
+                            }}>{typeLabel} Alert: {location}</p>
+                            <p style={{
+                              fontFamily: "'Space Grotesk', sans-serif",
+                              fontSize: 10,
+                              textTransform: 'uppercase',
+                              letterSpacing: '-0.02em',
+                              color: '#64748b',
+                              margin: 0,
+                            }}>{detail}{timeAgo ? ` \u2022 ${timeAgo}` : ''}</p>
+                          </div>
+                        </div>
+                        <span className="material-symbols-outlined" style={{ color: '#64748b', fontSize: 14 }}>
+                          chevron_right
+                        </span>
+                      </div>
+                    );
+                  })}
+                </>
+              ) : null}
+
+              {/* Empty state / monitoring message */}
+              <div style={{
+                background: '#080e1c',
+                border: '1px dashed #3b494c',
+                borderRadius: 12,
+                padding: '32px 16px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
+              }}>
+                <span className="material-symbols-outlined" style={{ color: '#475569', marginBottom: 8 }}>
+                  cloud_off
+                </span>
+                <p style={{
+                  fontFamily: "'Manrope', sans-serif",
+                  fontSize: 12,
+                  color: '#64748b',
+                  fontStyle: 'italic',
+                  margin: 0,
+                }}>Monitoring atmospheric conditions for new activity...</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Today's Tasks */}
+          <section style={{ marginBottom: 24 }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 12,
+            }}>
+              <h3 style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: 14,
+                fontWeight: 700,
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                color: '#dde2f6',
+                margin: 0,
+              }}>Today</h3>
+              <span style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: 12,
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                color: '#64748b',
+              }}>{tasksToday.length} Task{tasksToday.length !== 1 ? 's' : ''} Pending</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {tasksToday.length === 0 ? (
+                <div style={{
+                  background: '#161b2a',
+                  padding: 16,
+                  borderRadius: 12,
+                  textAlign: 'center',
+                }}>
+                  <p style={{
+                    fontFamily: "'Manrope', sans-serif",
+                    fontSize: 12,
+                    color: '#64748b',
+                    margin: 0,
+                  }}>Nothing scheduled - you're all clear</p>
+                </div>
+              ) : (
+                tasksToday.map(task => {
+                  const isOverdue = task.due_date && new Date(task.due_date) < new Date();
+                  const timeStr = task.due_date
+                    ? new Date(task.due_date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+                    : null;
+                  return (
+                    <div key={task.id} style={{
+                      background: '#161b2a',
+                      padding: 16,
+                      borderRadius: 12,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 16,
+                    }}>
+                      <button
+                        onClick={() => handleToggleTask(task)}
+                        style={{
+                          width: 24,
+                          height: 24,
+                          borderRadius: 4,
+                          border: `2px solid ${isOverdue ? 'var(--accent-red)' : '#3b494c'}`,
+                          background: 'transparent',
+                          cursor: 'pointer',
+                          flexShrink: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <p style={{
+                          fontFamily: "'Manrope', sans-serif",
+                          fontSize: 14,
+                          margin: 0,
+                          color: isOverdue ? 'var(--accent-red)' : '#dde2f6',
+                        }}>{task.title}</p>
+                        {(timeStr || task.lead_name) && (
+                          <p style={{
+                            fontFamily: "'Space Grotesk', sans-serif",
+                            fontSize: 10,
+                            color: isOverdue ? 'var(--accent-red)' : '#00daf3',
+                            margin: 0,
+                          }}>{timeStr || task.lead_name}</p>
+                        )}
+                      </div>
+                      {task.priority && (
+                        <div style={{
+                          background: '#2f3444',
+                          padding: '2px 8px',
+                          borderRadius: 4,
+                        }}>
+                          <span style={{
+                            fontFamily: "'Space Grotesk', sans-serif",
+                            fontSize: 9,
+                            fontWeight: 700,
+                            color: task.priority === 'urgent' ? '#ffb4ab' : '#94a3b8',
+                            textTransform: 'uppercase',
+                          }}>{task.priority}</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </section>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="main-content lg-dashboard">
-      {/* ── Header ── */}
+      {/* ── Header — Desktop ── */}
       <header className="flex items-end justify-between gap-6 flex-wrap py-1">
         <div>
           <h1 className="text-[28px] font-[820] tracking-[-0.035em] leading-tight text-[var(--text-primary)]">
@@ -403,7 +948,7 @@ export default function Dashboard() {
               hover:scale-[1.03] hover:shadow-[0_12px_40px_oklch(0_0_0/0.35),inset_0_1px_0_oklch(1_0_0/0.08)]
               active:scale-[0.97] transition-all duration-200 ease-out"
           >
-            <img src={iconStormMap} alt="" width="18" height="18"
+            <CloudIcon width={18} height={18}
               className="opacity-85 transition-transform duration-300 ease-out group-hover:rotate-12" />
             Storm Map
           </GlassCard>
@@ -414,7 +959,7 @@ export default function Dashboard() {
               hover:scale-[1.03] hover:shadow-[0_12px_40px_oklch(0_0_0/0.35),inset_0_1px_0_oklch(1_0_0/0.08)]
               active:scale-[0.97] transition-all duration-200 ease-out"
           >
-            <img src={iconViewLeads} alt="" width="18" height="18"
+            <HomeModernIcon width={18} height={18}
               className="opacity-85 transition-transform duration-300 ease-out group-hover:rotate-12" />
             View Leads
           </GlassCard>
@@ -428,11 +973,7 @@ export default function Dashboard() {
             <span className="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[oklch(0.75_0.18_155/0.12)] text-[var(--accent-green)]">
               {stat.change}
             </span>
-            <img
-              src={statIconMap[stat.icon]} alt="" width="28" height="28"
-              className="opacity-85 transition-transform duration-300 ease-out group-hover:rotate-12"
-              style={{ filter: `drop-shadow(0 0 6px oklch(0.50 0.10 ${stat.tint} / 0.3))` }}
-            />
+            {(() => { const StatIcon = statIconMap[stat.icon]; return StatIcon ? <StatIcon width={28} height={28} className="opacity-85 transition-transform duration-300 ease-out group-hover:rotate-12" style={{ filter: `drop-shadow(0 0 6px oklch(0.50 0.10 ${stat.tint} / 0.3))` }} /> : null; })()}
             <div className="text-[28px] font-[820] tracking-[-0.04em] leading-none text-[var(--text-primary)]">
               {stat.value}
             </div>

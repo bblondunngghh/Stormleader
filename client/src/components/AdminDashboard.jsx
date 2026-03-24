@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import * as adminApi from '../api/admin';
-import iconAdmin from '../assets/icons/Monitor-Graph-Line--Streamline-Ultimate.svg';
+import { ChartBarIcon } from '@heroicons/react/24/outline';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -974,7 +974,7 @@ export default function AdminDashboard() {
     <div className="main-content">
       {/* Page header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)', padding: '0 var(--space-xs)' }}>
-        <img src={iconAdmin} alt="" width="24" height="24" />
+        <ChartBarIcon width={24} height={24} />
         <div>
           <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)' }}>Super Admin</div>
           <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 1 }}>

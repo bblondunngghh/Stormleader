@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import iconBrand from '../assets/icons/Weather-Cloud-Wind-4--Streamline-Ultimate.svg';
+import { CloudIcon } from '@heroicons/react/24/outline';
 
 export default function RegisterPage() {
   const { createTenant } = useAuth();
@@ -33,7 +33,7 @@ export default function RegisterPage() {
       <div className="auth-card glass">
         <div className="auth-card__logo">
           <div className="sidebar__logo" style={{ width: 44, height: 44 }}>
-            <img src={iconBrand} alt="StormPipe" width="36" height="36" />
+            <CloudIcon width={36} height={36} />
           </div>
           <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em' }}>StormPipe</div>
         </div>

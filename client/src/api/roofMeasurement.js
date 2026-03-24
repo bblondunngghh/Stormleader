@@ -5,5 +5,6 @@ export const updateConfig = (data) => client.put('/roof-measurement/config', dat
 export const measureRoof = (propertyId) => client.post('/roof-measurement/measure', { propertyId }).then(r => r.data);
 export const manualRoofEntry = (propertyId, data) => client.post('/roof-measurement/manual', { propertyId, ...data }).then(r => r.data);
 export const getSolarSegments = (propertyId) => client.get(`/roof-measurement/segments/${propertyId}`).then(r => r.data);
+export const getSolarPotential = (propertyId) => client.get(`/roof-measurement/solar/${propertyId}`).then(r => r.data);
 export const getUsage = () => client.get('/roof-measurement/usage').then(r => r.data);
 export const getBalance = () => client.get('/roof-measurement/balance').then(r => r.data);

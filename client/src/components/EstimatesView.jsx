@@ -1409,12 +1409,11 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   const enabledSections = sections.filter(s => s.enabled);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 0, padding: 0, overflow: 'hidden', height: 'calc(100vh - 64px)' }}>
+    <div className="main-content" style={{ gap: 0, padding: 0, overflow: 'hidden', height: 'calc(100vh - 64px)' }}>
       {/* Top bar */}
       <div className="glass" style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: 'var(--space-md) var(--space-xl)',
-        margin: 'var(--space-sm) var(--space-md) 0 var(--space-md)',
+        padding: 'var(--space-md) var(--space-2xl)',
         borderRadius: '20px / 18px',
         boxShadow: '0 8px 32px oklch(0 0 0 / 0.25), inset 0 1px 0 oklch(1 0 0 / 0.05)',
         flexShrink: 0, zIndex: 50,
@@ -1456,7 +1455,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
       </div>
 
       {/* Body: Sidebar + Editor + Summary */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', padding: 'var(--space-sm) var(--space-md)', gap: 'var(--space-sm)' }}>
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', paddingTop: 'var(--space-sm)', gap: 'var(--space-sm)', paddingBottom: 'var(--space-sm)' }}>
         {/* ====== LEFT SIDEBAR ====== */}
         <div className="glass" style={{
           width: 280, flexShrink: 0, borderRadius: '20px / 18px',

@@ -1,82 +1,924 @@
-You are working on the StormLeads application — a roofing CRM and storm lead generation tool. Your job is to implement features from the plan at docs/superpowers/plans/2026-03-21-competitor-feature-parity.md.
+You are working on the StormLeads application — a roofing CRM and storm lead generation tool. Your job is to:
+1. FIRST research ALL competitors to understand the landscape
+2. THEN implement any missing/broken features based on findings
+3. THEN visually test and polish EVERY page using Chrome MCP browser tools
 
 CRITICAL CONSTRAINTS — VIOLATING THESE IS A HARD FAILURE:
 1. ZERO paid APIs. Only free public data sources (NOAA, FEMA NSI).
 2. ZERO bulk geocoding. Google geocoding API costs real money. All geocode calls must be user-initiated, one-at-a-time, triggered by button click only.
 3. ZERO bulk DB writes. All data writes must be gated behind explicit user actions. Production DB is Neon free tier.
 4. Follow existing patterns: oklch colors, .glass class for panels, dark-mode-first, pool.query() from ../db/pool.js, axios client from ../api/client.
-5. Build check after EVERY feature: cd /c/Projects/stormleads/client && npx vite build — fix any errors before committing.
-6. Commit after EVERY completed feature with a descriptive message.
+5. Build check after EVERY change: cd /c/Projects/stormleads/client && npx vite build — fix any errors before committing.
+6. Commit after EVERY completed task with a descriptive message.
+
+IMPORTANT: DO NOT SHORT-CIRCUIT. DO NOT SKIP SECTIONS. DO NOT FINISH EARLY.
+You must complete ALL sections below in order. Each section is MANDATORY.
+The previous run finished in only 18 minutes and 151 turns — that is UNACCEPTABLE.
+It barely scratched the surface. You should be working for HOURS, not minutes.
+
+MINIMUM EXPECTATIONS:
+- You MUST visit EVERY page in the browser and take screenshots
+- You MUST research ALL 4 competitors thoroughly (not just skim one search result)
+- You MUST actually implement missing features, not just note them
+- You MUST fix the FEMA property performance bug on the storm map
+- You MUST research new data sources for the storm map
+- If you finish in under 300 turns, you skipped something
+- If you didn't make at least 5 commits, you didn't do enough work
+- If you didn't take at least 40 UNIQUE page/element screenshots (not GIF frames or duplicates), you didn't visually audit properly
+
+DO NOT report "done" until you have completed EVERY section. Read through the
+ENTIRE plan before starting so you know the full scope of work expected.
+
+YOUR MINDSET: You are not just running a checklist. You are a developer who comes in
+every night to make this app BETTER. Each run should leave the app measurably improved
+over the previous night. After completing the mandatory sections, ask yourself:
+- "What else can I improve while I'm here?"
+- "What would make a roofer's day easier?"
+- "What looks rough or unfinished that I could polish?"
+- "What's a quick win I can ship right now?"
+- "Did I learn something from the competitor research I could implement tonight?"
+
+Read docs/overnight-history.md and your memory files. Look at what previous runs
+recommended for "next session." THOSE are your starting priorities after the mandatory
+sections. Then keep going — find more to improve. You should be LOOKING for work,
+not looking for reasons to stop.
+
+SELF-CHECK GATE — before writing the final report, verify:
+1. Count your commits: git log --oneline pre-overnight-$(date +%Y%m%d)..HEAD | wc -l
+   → Must be at least 5. If not, go back and do more work.
+2. Count your screenshots: review how many you took.
+   → Must be at least 40. If not, go audit more pages.
+3. Review each section of this plan and confirm you completed it.
+   → If any section was skipped, go do it now.
+4. Ask yourself: "Is the app better than when I started tonight?"
+   → If you can't point to concrete improvements, keep working.
 
 INSTRUCTIONS:
-1. Read the full plan at docs/superpowers/plans/2026-03-21-competitor-feature-parity.md
-2. Read MEMORY.md at C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\MEMORY.md for project context and constraints.
-3. Check which tasks are already completed by reviewing git log and existing files. Skip any tasks already done.
-4. For each remaining task (1 through 9), implement it following the plan steps exactly.
-5. After implementing each feature, verify the build passes: cd /c/Projects/stormleads/client && npx vite build
-6. After the build passes, commit with: git add -A && git commit -m "feat: <descriptive message>"
+1. Read MEMORY.md at C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\MEMORY.md for project context and constraints.
+2. Read ALL memory files in C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\ to understand prior learnings.
+3. CREATE A SAFETY CHECKPOINT before making ANY changes:
+   a) Run: git add -A && git commit -m "checkpoint: pre-overnight-run $(date +%Y-%m-%d)" --allow-empty
+   b) Run: git tag -f "pre-overnight-$(date +%Y%m%d)"
+   c) Run: git push origin HEAD --force-with-lease
+   This ensures Brandon can revert everything from tonight's run with a single command:
+   git reset --hard pre-overnight-YYYYMMDD
 
-VISUAL TESTING WITH CHROME:
-After implementing each frontend feature:
-1. Make sure the dev servers are running. If not, start them:
-   - Backend: cd /c/Projects/stormleads && npm run dev (runs on port 3001)
-   - Frontend: cd /c/Projects/stormleads/client && npm run dev (runs on port 5173)
-2. Use the Chrome MCP browser tools to navigate to http://localhost:5173
-3. Log in if needed (check .env for test credentials or create a test user)
-4. Navigate to the new feature's page and visually verify:
-   - The page loads without errors
-   - The UI matches the glass/oklch design system
-   - Buttons and interactions work
-   - Check browser console for errors using read_console_messages
-5. If you find visual bugs or errors, fix them before moving to the next feature.
-6. Take a screenshot of each completed feature for review.
+4. READ PREVIOUS WORK — this is critical so you don't repeat yourself:
+   a) Read docs/overnight-history.md if it exists — this is a running log of ALL prior overnight runs.
+   b) Read docs/competitor-gap-analysis.md if it exists — prior competitor findings.
+   c) Run: git log --oneline --since="7 days ago" to see what was already built recently.
+   d) Based on this, identify what has ALREADY been done and what STILL needs work.
+   e) DO NOT re-implement features that already exist. DO NOT re-research competitors
+      if the gap analysis is already thorough and recent (within 3 days). Instead, UPDATE
+      the existing analysis with any new findings.
+5. Do the COMPETITOR DEEP DIVE (Section 1) — skip if gap analysis exists and is < 3 days old,
+   but still CHECK competitor websites for any NEW features or changes.
+6. THEN implement missing/broken features based on competitor findings (Section 2).
+7. THEN do the VISUAL TESTING AND UI POLISH (Section 3).
+8. THEN fix the STORM MAP performance and research new data sources (Section 4).
+9. THEN write tonight's OVERNIGHT-REPORT.md (this gets emailed to Brandon).
+10. THEN APPEND a summary to docs/overnight-history.md (this is the running log future runs will read).
 
-UI REVIEW (MANDATORY for every frontend feature):
-After visual testing, perform a professional-grade UI review. This is NON-NEGOTIABLE:
-1. ALIGNMENT: All elements on the same row must share the same vertical center and height. Buttons next to dropdowns must have matching height and vertical alignment. Form inputs in the same group must be flush.
-2. SIZING: Buttons, badges, inputs, and cards must match sizing patterns used elsewhere in the app. Check existing components (Pipeline.jsx, Dashboard.jsx, EstimatesView.jsx) for reference dimensions.
-3. SPACING: Consistent gaps between sections (typically 16-24px), cards (12-16px gap), form groups (12px). Use the same spacing values as existing views.
-4. TYPOGRAPHY: Labels are typically 12px muted color, values 13-14px normal weight. Section headers match existing patterns.
-5. THEME: oklch colors ONLY. Glass panels with backdrop-filter. Dark-mode-first. No raw hex colors. No light-mode-only styles.
-6. COMPARE: Open an existing view (e.g., Pipeline or Estimates) side-by-side to compare element sizing, button styles, card patterns. The new feature must look like it was built by the same developer.
-7. If ANY alignment, sizing, or spacing inconsistencies are found, FIX THEM before committing. This must look like it was built by a senior frontend developer.
+===========================================================================
+SECTION 1: COMPETITOR DEEP DIVE — DO THIS FIRST, BEFORE ANY IMPLEMENTATION
+===========================================================================
 
-PHASE 2: OPTIMIZATION (after all 9 features are built)
-If all 9 features from the plan are already implemented (check git log), shift to optimization mode:
+Our competitors are:
+- JobNimbus (CRM for roofers, $225-550/mo)
+- HailTrace (storm leads, $50-99/mo)
+- RoofLink (rooflink.com — roofing industry platform)
+- Rooftops.ai (rooftops.ai — AI-powered roofing tools)
 
-1. STORM MAP PERFORMANCE:
-   - Profile the map rendering. Identify slow paths.
-   - Ensure FEMA properties ONLY load within storm swath areas (never outside).
-   - Optimize Supercluster rebuilds — batch updates instead of rebuilding per chunk.
-   - Reduce canvas redraws — only redraw when visible properties actually change.
-   - Test with large datasets (1000+ properties visible).
+StormLeads must match or exceed their functionality using only free/open-source tools.
 
-2. BUNDLE SIZE:
-   - Check if any large libraries can be lazy-loaded or code-split.
-   - Ensure all new views (Calendar, Reports, Invoices, etc.) are lazy-loaded.
+STEP 1: Research EACH competitor's CURRENT features using web search.
 
-3. DATABASE QUERY OPTIMIZATION:
-   - Add missing indexes for new tables (invoices, canvass_pins, work_orders, custom_field_definitions).
-   - Review report queries for efficiency — ensure they use indexes.
+JobNimbus:
+- Search "JobNimbus features 2026", "JobNimbus CRM demo", "JobNimbus product page"
+- Read their marketing pages, feature lists, help docs, and user reviews
+- Note EVERY feature they advertise
+
+HailTrace:
+- Search "HailTrace features 2026", "HailTrace hail maps demo", "HailTrace canvassing"
+- Read their marketing pages, feature lists, help docs, and user reviews
+- Note EVERY feature they advertise
+
+RoofLink:
+- Navigate to https://rooflink.com using Chrome MCP browser tools
+- Read EVERY page: homepage, features, pricing, about, product pages
+- Take screenshots of their UI for reference
+- Search "RoofLink roofing features", "RoofLink CRM", "RoofLink reviews"
+- Note EVERY feature they advertise
+
+Rooftops.ai:
+- Navigate to https://rooftops.ai using Chrome MCP browser tools
+- Read EVERY page: homepage, features, pricing, about, product pages
+- Take screenshots of their UI for reference
+- Search "Rooftops.ai features", "Rooftops.ai roofing AI", "Rooftops.ai reviews"
+- Note EVERY feature they advertise, especially any AI-powered features
+
+STEP 2: For EACH competitor feature, check if StormLeads has an equivalent.
+Open our app at http://localhost:5173 using Chrome MCP and test each feature:
+
+JobNimbus comparison checklist:
+- [ ] CRM pipeline with customizable stages — do ours work? Can you drag leads between stages?
+- [ ] Contact management with full history — does our lead detail show activities, documents, contacts?
+- [ ] Estimate builder with line items — does our estimate builder work end-to-end? Can you create, edit, send?
+- [ ] Estimate to invoice conversion — does the "Create from Estimate" button work on Invoices?
+- [ ] Payment tracking — can you record a payment on an invoice?
+- [ ] Calendar with scheduling — does our calendar show tasks? Can you drag to reschedule?
+- [ ] Work orders from estimates — does creating a work order from an estimate work?
+- [ ] Workflow automations — can you create a rule in Settings > Automations? Does it trigger?
+- [ ] Custom fields — can you add a custom field in Settings and see it on a lead?
+- [ ] Reports and dashboards — do our report charts load with real data?
+- [ ] Document management — can you upload docs to a lead?
+- [ ] Team management — does the team/user management in Settings work?
+- [ ] Photo documentation — can you attach photos to leads?
+
+HailTrace comparison checklist:
+- [ ] Storm/hail maps — do our swaths load and display correctly?
+- [ ] Property data within swaths — do properties show owner, value, year built?
+- [ ] Weather history reports — does the "Storm History" button on lead detail work? Does PDF download?
+- [ ] Impacted asset alerts — when new storms load, do existing leads get notified?
+- [ ] Canvassing with GPS pins — does the canvassing page work? Can you drop a pin?
+- [ ] Pin-to-lead conversion — can you convert an interested pin to a lead?
+- [ ] FEMA property data — do FEMA records load on the map when toggled on?
+- [ ] Star/severity rating on storms — do our storms show severity indicators?
+
+RoofLink comparison checklist:
+- [ ] For EACH feature found on rooflink.com, check if StormLeads has an equivalent
+- [ ] Note any unique features RoofLink offers that we don't have
+- [ ] Pay special attention to their CRM, lead management, and reporting features
+- [ ] Note their UI/UX patterns that are better than ours
+
+Rooftops.ai comparison checklist:
+- [ ] For EACH feature found on rooftops.ai, check if StormLeads has an equivalent
+- [ ] Note any AI-powered features they offer
+- [ ] Pay special attention to any measurement, estimation, or automation tools
+- [ ] Note any integrations or data sources they use that we could replicate for free
+
+STEP 3: Write findings to docs/competitor-gap-analysis.md:
+- Table: Feature | JobNimbus | HailTrace | RoofLink | Rooftops.ai | StormLeads | Status (Match/Better/Worse/Missing)
+- For each "Worse" or "Missing": what needs to be done
+- For each "Better": what we do that they don't
+
+STEP 4: PRICING ANALYSIS (INCLUDE IN EMAIL REPORT)
+Research the EXACT pricing for ALL competitors:
+
+JobNimbus:
+- Search "JobNimbus pricing 2026", "JobNimbus cost per user", "JobNimbus plans"
+- Find: base price per month, per-user cost, what's included at each tier
+- Find: add-on costs (Engage texting, SumoQuote, marketing, etc.)
+- Find: what a typical 5-person roofing company actually pays total
+- Find: what a 10-person company pays
+- Check user reviews/complaints about pricing
+
+HailTrace:
+- Search "HailTrace pricing 2026", "HailTrace plans cost", "HailTrace subscription"
+- Find: monthly subscription tiers, what each includes
+- Find: data download costs (per state, bulk data pricing)
+- Find: canvassing add-on cost
+- Find: what a typical roofing company pays for HailTrace + data
+
+RoofLink:
+- Search "RoofLink pricing 2026", "RoofLink cost", "RoofLink plans"
+- Check rooflink.com for pricing page
+- Find: subscription tiers, per-user costs, what's included
+
+Rooftops.ai:
+- Search "Rooftops.ai pricing 2026", "Rooftops.ai cost", "Rooftops.ai plans"
+- Check rooftops.ai for pricing page
+- Find: subscription tiers, per-user costs, AI feature costs
+
+Calculate:
+- Total cost for a roofing company using BOTH JobNimbus + HailTrace (since many do)
+- Total cost if they also add RoofLink or Rooftops.ai
+- Break down by company size: solo operator, 5-person team, 10-person team
+
+Then write a PRICING RECOMMENDATION for StormLeads:
+- What should our pricing tiers be?
+- Consider: we have near-zero infrastructure costs (Neon free tier, no paid APIs)
+- Our goal is to be SIGNIFICANTLY cheaper while matching or exceeding their features
+- Suggest 2-3 tiers with specific prices and what's included
+- Show the savings vs competitors at each company size
+- Include this in the OVERNIGHT-REPORT.md AND in the email sent to brandon@accessvaletparking.com
+
+===========================================================================
+SECTION 2: IMPLEMENT MISSING/BROKEN FEATURES — BASED ON COMPETITOR FINDINGS
+===========================================================================
+
+Now that you know what competitors offer, implement what's missing:
+
+1. Check docs/superpowers/plans/2026-03-21-competitor-feature-parity.md for the existing implementation plan.
+2. Cross-reference with your competitor deep dive findings from Section 1.
+3. For any feature that is BROKEN in our app: fix it immediately.
+4. For any feature competitors have that we DON'T have yet:
+   - Assess if it can be built for free (no paid APIs)
+   - If yes and it's high-impact, build it
+   - If it requires paid services, note it in the report but don't build it
+5. For any feature where our UX is SIGNIFICANTLY WORSE than a competitor: improve it.
+6. Commit each fix/feature individually with a descriptive message.
+
+PRIORITY ORDER for new features:
+- Features ALL competitors have that we're missing (table stakes)
+- Features that differentiate us (unique value propositions)
+- Nice-to-have improvements
+
+===========================================================================
+SECTION 3: VISUAL TESTING AND UI POLISH — THIS IS THE HIGHEST PRIORITY SECTION
+===========================================================================
+
+YOUR STANDARD: Senior Apple frontend engineer. Think about how Apple ships software.
+Every pixel is intentional. Every transition is smooth. Every element is perfectly
+aligned. There is a system — a design language — and NOTHING deviates from it.
+That is the bar. Not "good enough." Not "close enough." Pixel-perfect, systematic,
+obsessively consistent. If Apple wouldn't ship it, neither do we.
+
+UI CONSISTENCY IS THE #1 PRIORITY. Brandon cares deeply about the frontend having
+uniform elements, proper alignment, and visual consistency across every single page.
+This is where previous agents have fallen short — they build features but leave the
+UI looking like different developers built each page with different styles.
+
+THINK LIKE AN APPLE DESIGN REVIEWER:
+- Is there a clear visual hierarchy on every page? (title > section header > body > caption)
+- Does the eye flow naturally? Or does something feel "off" even if you can't explain why?
+- Are interactive elements obvious? Can you tell what's clickable vs static?
+- Is there breathing room? Elements should never feel cramped or crowded.
+- Are animations/transitions smooth and purposeful? No janky state changes.
+- Does it feel like ONE product built by ONE team? Or a Frankenstein of different styles?
+- Would a non-technical person find this intuitive and polished?
+
+EVERY button, modal, input, card, table, dropdown, badge, and spacing MUST be
+identical across the entire app. If it doesn't match the reference, it's broken.
+Spend as much time as needed here. Do NOT rush through this section.
+
+DESIGN SYSTEM PRINCIPLES:
+1. CONSISTENCY — Same element = same style, everywhere, no exceptions
+2. HIERARCHY — Size, weight, and color create clear importance levels
+3. ALIGNMENT — Elements on a grid. Nothing is "close enough" — it's aligned or it's wrong
+4. WHITESPACE — Generous, intentional spacing. Cramped UI = amateur UI.
+5. TYPOGRAPHY — Limited font sizes (4-5 max), consistent weights, clear scale
+6. COLOR — Limited palette, purposeful use. Status colors are consistent
+   (green = success, amber = warning, red = danger, blue = info, everywhere)
+7. DEPTH — Glass layers create visual depth. Foreground panels float over background.
+   Shadows and blur reinforce the hierarchy.
+8. MOTION — THIS IS CRITICAL. See animation requirements below.
+9. TOUCH TARGETS — Interactive elements are large enough to tap comfortably (min 36px)
+10. POLISH — No rough edges. No orphaned pixels. No inconsistent border-radius.
+    No mismatched shadows. The details ARE the design.
+
+ANIMATION & MOTION — APPLE-LEVEL REQUIREMENT:
+The app must FEEL alive. Every interaction should have fluid, purposeful motion.
+Think iOS/macOS — nothing is instant, nothing is static. Everything breathes.
+
+IMPLEMENT THESE ANIMATIONS (add to index.css as global transitions):
+
+Page Navigation:
+- Pages fade in when navigated to (opacity 0→1, subtle translateY 8px→0, ~200ms ease-out)
+- Content sections stagger in slightly (first section, then cards, then details — 50ms stagger)
+- No hard cuts between pages. Ever.
+
+Modals:
+- Backdrop fades in (opacity 0→1, ~150ms)
+- Modal scales up from 0.95→1.0 + fades in (opacity 0→1, ~200ms cubic-bezier(0.16, 1, 0.3, 1))
+- On close: reverse — scale down + fade out (~150ms)
+- This is the iOS-style spring feel. Not a linear slide. A deceleration curve.
+
+Buttons:
+- Hover: subtle brightness increase + slight scale (scale(1.02), ~150ms ease)
+- Active/press: scale DOWN slightly (scale(0.97), ~100ms) — this is the Apple "press" feel
+- Transition on all buttons: transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1)
+
+Inputs:
+- Focus: border color transitions smoothly to accent color (~150ms)
+- Focus: subtle glow/ring fades in (box-shadow transition, not instant)
+- Placeholder text fades slightly on focus
+
+Cards:
+- Hover: subtle lift effect (translateY(-1px) + slightly increased shadow, ~200ms)
+- Cards in lists/grids stagger-animate on page load (each card delays 30-50ms after previous)
+- Kanban card drag: smooth with subtle shadow increase while dragging
+
+Dropdowns/Menus:
+- Open: fade in + scale from 0.95→1.0, origin from the trigger element (~150ms)
+- Close: fade out + scale to 0.95 (~100ms)
+- Menu items have hover highlight that transitions smoothly (not instant bg swap)
+
+Sidebar:
+- Collapse/expand: smooth width transition (~250ms ease)
+- Nav items: hover highlight slides in smoothly
+- Active nav indicator transitions position when switching pages
+
+Toasts/Notifications:
+- Slide in from top-right + fade (translateX(100%)→0, ~300ms spring curve)
+- Auto-dismiss: fade out + slide right (~200ms)
+
+Loading States:
+- Skeleton loaders with shimmer animation (subtle left→right gradient sweep)
+- Spinner uses smooth rotation, not stepped
+- Content fades in when loaded, replacing skeleton smoothly
+
+Tables:
+- Row hover: background color transitions smoothly (~100ms)
+- Sort indicator animates rotation when sort direction changes
+- New rows added animate in (fade + slideDown)
+
+Toggle Switches:
+- Smooth slide animation on the knob (~200ms spring)
+- Background color transitions smoothly between on/off states
+
+THE KEY EASING CURVE:
+Use cubic-bezier(0.16, 1, 0.3, 1) for most animations — this is the Apple "spring"
+deceleration feel. Fast start, gentle settle. NOT linear. NOT ease-in-out.
+For quick micro-interactions (hover, press): 100-150ms
+For UI transitions (modal, page, sidebar): 200-300ms
+For stagger animations: 30-50ms between items
+NEVER exceed 400ms — animations should feel snappy, not slow.
+
+Add these as CSS custom properties in index.css:
+--transition-fast: 100ms cubic-bezier(0.16, 1, 0.3, 1);
+--transition-normal: 200ms cubic-bezier(0.16, 1, 0.3, 1);
+--transition-slow: 300ms cubic-bezier(0.16, 1, 0.3, 1);
+--transition-spring: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+Then USE these variables everywhere. No hardcoded transition values scattered across components.
+
+You MUST use browser tools to visually inspect EVERY page.
+This is NOT optional. You cannot skip this. Do NOT just read code — you must LOOK at the app.
+
+BROWSER TOOL PRIORITY:
+1. Try Chrome MCP tools first (mcp__claude-in-chrome__*)
+2. If Chrome MCP is unavailable or not responding, use Playwright tools instead
+   (mcp__plugin_playwright_playwright__*) — these work headlessly and don't need Chrome open
+3. You MUST use one or the other. "Browser tools didn't work" is NOT an excuse to skip
+   visual testing. Switch to the other tool set and continue.
+
+SETUP:
+1. Start the dev servers if not running:
+   - Backend: cd /c/Projects/stormleads && npm run dev &
+   - Frontend: cd /c/Projects/stormleads/client && npm run dev &
+   - Wait 5 seconds for them to start
+2. Create a new browser tab and navigate to http://localhost:5173
+3. Log in with: Email=brandon, Password=1234, Tenant=waterloo
+
+=== STEP 0: ESTABLISH THE REFERENCE STANDARD ===
+
+BEFORE touching any styling, you MUST capture detailed reference screenshots.
+These are the GOLD STANDARD. Everything else must match pixel-for-pixel.
+
+a) Navigate to /estimates:
+   - Full page screenshot
+   - ZOOM into: a glass card, a dropdown/select, a text input, a button (primary and secondary),
+     the page header, any badges/pills, spacing between elements
+   - Open the estimate builder and screenshot: the modal/form, line item rows, save/cancel buttons
+   - Note EXACT measurements: border-radius, padding, font-size, colors, shadows, backdrop-filter
+
+b) Navigate to /pipeline:
+   - Full page screenshot
+   - ZOOM into: a kanban card, stage headers, drag handles, badges, the "Add Lead" button
+
+c) Navigate to /leads:
+   - Full page screenshot
+   - ZOOM into: table headers, table rows, filter dropdowns, search bar, pagination controls,
+     action buttons, checkbox styling
+
+d) Open a Lead Detail modal/page:
+   - Screenshot the full detail view
+   - ZOOM into: every input field, every dropdown, every button, the tab navigation,
+     the activity timeline, document upload area
+
+WRITE DOWN the reference measurements:
+- Button height: ___px, border-radius: ___px, padding: ___px ___px
+- Input height: ___px, border-radius: ___px, padding: ___px
+- Card border-radius: ___px, padding: ___px, backdrop-filter: ___
+- Font sizes: page title ___px, section header ___px, body ___px, small ___px
+- Spacing: gap between cards ___px, section margin ___px
+- Colors: primary button bg, secondary button bg, border color, text color
+
+=== STEP 1: BUTTON CONSISTENCY AUDIT ===
+
+Buttons are the most visible inconsistency across the app. Check EVERY button
+on EVERY page against the reference.
+
+For EACH button you find:
+- [ ] Same height as reference buttons
+- [ ] Same border-radius (should be consistent — usually 8-10px or fully rounded)
+- [ ] Same padding (horizontal and vertical)
+- [ ] Same font-size and font-weight
+- [ ] Primary buttons all use the same background color
+- [ ] Secondary/outline buttons all use the same style
+- [ ] Danger/delete buttons all use the same red style
+- [ ] Icon buttons (with just an icon) are the same size
+- [ ] Hover states are consistent (do they all change the same way?)
+- [ ] Buttons on the same row are vertically aligned (same height, same baseline)
+- [ ] Button text is vertically centered within the button
+- [ ] Spacing between buttons in a group is consistent
+
+COMMON BUTTON PROBLEMS TO FIX:
+- One page has rounded-full buttons while another has rounded-lg
+- Primary buttons are different shades of blue on different pages
+- Some buttons have padding: 8px 16px while others have 6px 12px
+- Icon + text buttons where the icon isn't vertically centered
+- "Save" and "Cancel" buttons that are different heights
+
+=== STEP 2: MODAL CONSISTENCY AUDIT ===
+
+Open EVERY modal in the app and compare them. Modals are where agents cut corners most.
+
+Trigger and screenshot EVERY modal:
+- Create/edit lead modal
+- Activity modal
+- Create/edit estimate modal
+- Create/edit invoice modal
+- Create/edit work order modal
+- Create/edit task modal
+- Create automation rule modal
+- Add custom field modal
+- Any confirmation dialogs ("Are you sure you want to delete?")
+- Document upload modal
+- Team member invite modal
+- Any other modal you find
+
+For EACH modal:
+- [ ] Same overlay background (dark semi-transparent backdrop)
+- [ ] Same modal width (or consistent widths: small/medium/large)
+- [ ] Same border-radius on the modal container
+- [ ] Same padding inside the modal
+- [ ] Same header styling (title font-size, weight, color, close button position)
+- [ ] Same footer styling (button alignment — right-aligned? centered?)
+- [ ] Form fields inside the modal match the reference input style
+- [ ] Labels above inputs are the same font-size, weight, color, and spacing
+- [ ] Spacing between form rows is consistent
+- [ ] The close X button is in the same position (top-right) with same size
+- [ ] Modal glass/background effect matches (same backdrop-filter, same bg color)
+
+=== STEP 3: INPUT & FORM ELEMENT AUDIT ===
+
+For EVERY <select>, <input>, <textarea>, date picker, and time picker on EVERY page:
+- [ ] Height matches reference (should be 36-38px consistently)
+- [ ] Background is dark/translucent glass (NOT white, NOT browser-default)
+- [ ] Border color matches app theme (subtle oklch border, not gray default)
+- [ ] Border-radius matches reference (typically 10-12px)
+- [ ] Font size matches (13-14px)
+- [ ] Font color is light (oklch white-ish, not black)
+- [ ] Padding is consistent (8-12px horizontal)
+- [ ] Labels above inputs: same font-size, same color, same margin-bottom
+- [ ] Placeholder text: same color, same font-size
+- [ ] Focus state: same ring/border highlight color
+- [ ] The dropdown arrow on <select> is styled (not browser-default)
+- [ ] Date/time pickers have dark background
+- [ ] Textareas have the same styling as text inputs (just taller)
+- [ ] On dark background, ALL form elements must be clearly visible and readable
+
+=== STEP 4: SPACING & ALIGNMENT AUDIT ===
+
+This is where apps look "off" even when individual elements are styled correctly.
+
+For EACH page:
+- [ ] Page title/header is the same distance from the top on every page
+- [ ] Content starts at the same vertical position on every page
+- [ ] Cards in a grid have uniform gaps between them
+- [ ] Table rows have consistent row height and cell padding
+- [ ] Sidebar width is consistent (doesn't shift between pages)
+- [ ] Form labels are aligned (all left-aligned, consistent indent)
+- [ ] Form fields in the same form are the same width
+- [ ] Groups of related elements have consistent internal spacing
+- [ ] Section headers have the same margin-top and margin-bottom everywhere
+- [ ] Badge/pill elements have consistent padding, font-size, and border-radius
+- [ ] No elements are misaligned — nothing is 1-2px off from where it should be
+- [ ] Content doesn't touch the edges — consistent page padding/margins
+
+=== STEP 5: MICRO-INTERACTIONS & POLISH AUDIT ===
+
+This is what separates amateur apps from Apple-quality. Check EVERY page for:
+
+TRANSITIONS & ANIMATIONS — VERIFY ALL OF THESE ARE IMPLEMENTED:
+- [ ] Buttons: hover brightens + scale(1.02), press scales to 0.97 (the Apple "click" feel)
+- [ ] Modals: backdrop fades in, modal scales 0.95→1.0 with spring curve on open, reverse on close
+- [ ] Page navigation: content fades in with subtle translateY, no hard cuts between pages
+- [ ] Cards: hover lifts with translateY(-1px) + increased shadow
+- [ ] Cards in grids: stagger-animate on load (30-50ms between each)
+- [ ] Inputs: focus border transitions to accent color smoothly, subtle glow fades in
+- [ ] Dropdowns: fade + scale from trigger origin on open, reverse on close
+- [ ] Sidebar collapse/expand: smooth width transition ~250ms
+- [ ] Sidebar nav items: active indicator slides when switching pages
+- [ ] Loading states: skeleton loaders with shimmer, content fades in when loaded
+- [ ] Table rows: hover background transitions smoothly, not instant
+- [ ] Toasts: slide in from right + fade, auto-dismiss slides out
+- [ ] Tab switches: content fades, no layout shift
+- [ ] Toggle switches: knob slides smoothly, background color transitions
+- [ ] Sort indicators: rotate animation when direction changes
+- [ ] ALL transitions use the spring curve var(--transition-fast/normal/slow), NOT linear
+
+HOW TO VERIFY ANIMATIONS (screenshots can't show motion):
+
+1. USE JAVASCRIPT to inspect computed styles on elements. Run JS in the browser:
+   - getComputedStyle(element).transition — verify it's not "none" or "all 0s"
+   - getComputedStyle(element).animationName — verify keyframe animations exist
+   - Query all buttons: document.querySelectorAll('button').forEach(b =>
+     console.log(b.textContent.trim(), getComputedStyle(b).transition))
+   - Query all modals, inputs, cards the same way
+
+2. USE GIF RECORDING (mcp__claude-in-chrome__gif_creator) to capture interactions:
+   - Start recording, hover a button, click it — verify the press effect plays
+   - Start recording, open a modal — verify the scale+fade animation
+   - Start recording, navigate between pages — verify page transitions
+   - Start recording, hover cards in a list — verify the lift effect
+   - This is the BEST way to verify motion. Use it liberally.
+
+3. READ THE CSS to confirm transitions are defined:
+   - Check index.css for the --transition-* custom properties
+   - Grep for "transition:" across all component files
+   - Any component WITHOUT a transition on interactive elements is a bug
+
+
+If animations exist in CSS but don't appear to fire, check:
+- Is the element re-rendering instead of transitioning? (React key changes kill transitions)
+- Is the transition on the wrong property?
+- Is there a competing style that overrides it?
+
+The app should feel ALIVE — like every element responds to your touch with fluid motion.
+
+HOVER & INTERACTIVE STATES:
+- [ ] Every clickable element has a hover state (cursor: pointer + visual change)
+- [ ] Hover states are SUBTLE — slight brightness/opacity change, not dramatic color swap
+- [ ] Active/pressed states exist (slight scale-down or darken on click)
+- [ ] Focus rings are visible for keyboard navigation (accessibility)
+- [ ] Focus rings use the app's accent color, not browser-default blue outline
+- [ ] Disabled elements are visually muted (opacity: 0.5) with cursor: not-allowed
+- [ ] Selected/active tabs, nav items, and filters are clearly distinguished
+
+TYPOGRAPHY POLISH:
+- [ ] No text truncation without ellipsis (...) — text either fits or truncates gracefully
+- [ ] Long names/titles don't break layouts — use text-overflow: ellipsis
+- [ ] Numbers in tables are right-aligned (currency, counts, percentages)
+- [ ] Dates are formatted consistently everywhere (same format on every page)
+- [ ] Currency values are formatted consistently ($1,234.56 everywhere, not sometimes $1234)
+- [ ] Empty values show a dash or "—", not blank space or "null" or "undefined"
+
+VISUAL REFINEMENT:
+- [ ] Icons are the same size and weight throughout the app
+- [ ] Icons are vertically centered next to text (not 1-2px off)
+- [ ] Status badges use consistent colors: green=active, amber=pending, red=overdue, gray=draft
+- [ ] No scrollbars visible on elements that shouldn't scroll
+- [ ] Custom scrollbars on elements that do scroll (thin, styled, not browser-default)
+- [ ] No content flicker on page load (layout is stable from first paint)
+- [ ] No double borders where elements meet (card border + container border = too thick)
+- [ ] Shadows are consistent depth everywhere (same box-shadow values)
+
+If ANY of these are missing or inconsistent, fix them. These details are what make
+the difference between "this looks like a side project" and "this looks like a
+$10M product." Apple ships the details. So do we.
+
+=== STEP 6: PAGE-BY-PAGE DEEP AUDIT ===
+
+Now visit EVERY page. For EACH page, go through ALL the checklists above
+(buttons, modals, inputs, spacing, micro-interactions). Take at least 3-4 screenshots
+per page (full page + zoomed details).
+
+PAGES TO AUDIT (visit ALL of them in this order):
+1. /storm-map — layer panel, address search, popups, toggle buttons, storm cards
+2. /pipeline — kanban cards, drag handles, stage headers, add button, lead count badges
+3. /leads — table, filters, search bar, pagination, bulk action buttons, CSV export
+4. /estimates — list view, builder form, line item editor, all dropdowns, template picker
+5. /invoices — list view, builder form, payment modal, status badges, all dropdowns
+6. /reports — date range picker, chart cards, leaderboard table, filter dropdowns
+7. /calendar — calendar controls, event cards, view switcher (day/week/month), create event
+8. /work-orders — kanban board, create modal (ALL dropdowns, date pickers, time pickers, milestone steps)
+9. /canvassing — map, pin drop UI, outcome buttons, stats bar, lead conversion
+10. /tasks — task list, filter tabs, create form, checkbox styling, priority badges
+11. /settings — ALL tabs: Profile, Team, Alerts, Notifications, Automations, Custom Fields, Contracts
+12. /content-studio — if it exists, full audit
+13. Lead Detail — open a lead and audit EVERY tab, EVERY field, EVERY button
+
+For EACH page:
+  a) Full page screenshot
+  b) Zoom into every distinct element group
+  c) Run through button checklist
+  d) Open every modal on that page and run through modal checklist
+  e) Check every input/select and run through form element checklist
+  f) Check alignment and spacing
+  g) If ANYTHING doesn't match the reference: fix the code, rebuild, refresh, screenshot again
+  h) Do NOT move to the next page until the current page is perfect
+  i) Commit each fix
+
+The app uses a GLASSMORPHISM style — rounded edges, translucent glass backgrounds with
+backdrop-filter blur, NOT flat solid dark backgrounds. If you apply solid dark backgrounds
+to form elements, you are doing it WRONG. Match the glass look.
+
+CSS FIXES:
+Add global dark-mode overrides in client/src/index.css if not already present:
+- select, input[type="date"], input[type="time"] need dark backgrounds
+- ::-webkit-calendar-picker-indicator needs filter: invert(1) for dark mode
+- option elements inside <select> need dark background
+- Ensure color-scheme: dark is set on form elements
+
+AFTER FIXING EACH PAGE:
+1. Take a "before" screenshot showing the issue
+2. Fix the code
+3. Rebuild: cd /c/Projects/stormleads/client && npx vite build
+4. Refresh the browser page
+5. Take an "after" screenshot confirming the fix
+6. COMPARE the after screenshot to the reference — are they consistent now?
+7. If not, keep iterating. Do not move on until they match.
+8. Commit: git add -A && git commit -m "fix(ui): [page] [what was fixed]"
+
+===========================================================================
+SECTION 4: STORM MAP — CRITICAL PERFORMANCE FIX & DATA RESEARCH
+===========================================================================
+
+THIS IS A HIGH PRIORITY SECTION. The storm map is the core differentiator of StormLeads.
+It MUST be fast, smooth, and snappy. Right now it is not.
+
+CRITICAL BUG — FEMA PROPERTIES LOADING OUTSIDE STORM SWATHS:
+FEMA properties are currently loading EVERYWHERE on the map, not just within storm swath
+boundaries. This causes massive lag when zooming in because thousands of irrelevant
+properties load. This MUST be fixed.
+
+1. READ the current storm map code:
+   - client/src/components/StormMap.jsx
+   - Any related API endpoints in server/src/routes/
+   - Understand how FEMA properties are currently fetched and rendered
+
+2. FIX: FEMA properties must ONLY load within storm swath polygons:
+   - Before fetching FEMA data, compute the bounding box of visible storm swaths ONLY
+   - If no storm swaths are visible, do NOT fetch any FEMA properties
+   - Use spatial intersection — a property should only display if it falls INSIDE a swath polygon
+   - This is the #1 performance fix. Get this right.
+
+3. PERFORMANCE OPTIMIZATION — make the map smooth and snappy:
+   - Profile what's causing lag: is it too many DOM elements? Canvas redraws? API calls?
+   - Optimize Supercluster rebuilds — batch updates instead of rebuilding per chunk
+   - Reduce canvas redraws — only redraw when visible properties actually change
+   - Consider virtualization: only render properties visible in the current viewport
+   - Debounce map move/zoom events to prevent rapid-fire API calls
+   - Test by zooming into a storm swath area — it should feel instant, not laggy
+   - Take before/after screenshots and note the improvement
+
+4. STORM MAP DATA RESEARCH — NEW DATA SOURCES:
+   Do EXTENSIVE web research to find ANY and ALL free data sources that could enhance
+   the storm map for roofing companies. The examples below are just STARTING POINTS —
+   do not limit yourself to these. Search broadly and creatively. Think about what data
+   a roofer would find valuable when looking at a storm-affected area, and then find
+   free sources for that data.
+
+   Search categories (but explore BEYOND these):
+
+   Roof measurement & building data:
+   - Search "free roof measurement API", "open source roof area calculation"
+   - Search "free building footprint data", "satellite roof measurement free"
+   - Can we calculate roof area or estimate roof pitch from any free source?
+
+   Property data:
+   - Search "free property data API", "open property records API"
+   - What data helps roofers? Roof age, material, last permit, owner info, sale history?
+   - Free county assessor feeds, building permit data?
+
+   Weather & damage data:
+   - Search "free hail damage data API", "NOAA severe weather reports API"
+   - Actual damage reports, insurance claim density, local storm reports?
+
+   Aerial/satellite imagery:
+   - Free high-res aerial or satellite imagery APIs?
+
+   Anything else:
+   - Search "free APIs for roofing contractors", "free data for storm damage assessment"
+   - Search "open data for construction industry", "free GIS data layers roofing"
+   - Think creatively — what data do competitors charge for that's available free?
+   - Look at what RoofLink, Rooftops.ai, JobNimbus, and HailTrace use as data sources
+     and find free alternatives
+
+   The goal is to find data sources that give StormLeads a COMPETITIVE ADVANTAGE —
+   data that competitors charge extra for but we can provide for free.
+
+   Write ALL findings to the report with:
+   - Data source name and URL
+   - What data it provides
+   - Whether it's truly free (no API key costs, no per-request fees)
+   - How it could help roofing companies
+   - Estimated implementation difficulty (easy/medium/hard)
+   - Recommendation: should we build this integration?
+
+===========================================================================
+SECTION 5: ERROR STATE & EMPTY STATE TESTING
+===========================================================================
+
+Test what happens when things go wrong or when there's no data. A polished app
+handles these gracefully — a rough app just shows blank screens or crashes.
+
+For EACH page in the app:
+1. What does it look like with ZERO data? (no leads, no estimates, no tasks, etc.)
+   - Is there a helpful empty state message? ("No estimates yet. Create your first one.")
+   - Or does it just show a blank white/dark void?
+   - If there's no empty state, ADD ONE with a helpful message and a call-to-action button
+2. What happens if the API request fails?
+   - Temporarily break an API URL and see what the page shows
+   - Is there an error message? Or does it silently fail?
+   - Add user-friendly error states where missing
+3. Loading states:
+   - Do pages show a loading spinner/skeleton while data loads?
+   - Or do they flash from empty to populated?
+
+Commit each fix. These are the details that make an app feel professional.
+
+===========================================================================
+SECTION 6: CROSS-BROWSER & RESPONSIVE TESTING
+===========================================================================
+
+Test the app at different viewport sizes to ensure it works for roofers in the field
+who are likely using phones and tablets.
+
+1. Use browser tools to resize the viewport and test at:
+   - Desktop: 1920x1080 (standard)
+   - Laptop: 1366x768 (common small laptop)
+   - Tablet: 768x1024 (iPad)
+   - Mobile: 375x812 (iPhone)
+
+2. For EACH viewport size, visit at least these key pages:
+   - /pipeline (do kanban cards stack properly?)
+   - /leads (does the table scroll horizontally or collapse?)
+   - /storm-map (does the map fill the screen? Are controls accessible?)
+   - /estimates (can you read and interact with the builder?)
+
+3. Fix any major layout issues:
+   - Overlapping elements
+   - Text cut off or unreadable
+   - Buttons too small to tap
+   - Modals that overflow the screen
+   - Sidebar covering content on mobile
+
+Note: Full mobile responsiveness is a large effort. Focus on the WORST issues
+that would prevent a roofer from using the app on their phone in the field.
+
+===========================================================================
+SECTION 7: SECURITY REVIEW
+===========================================================================
+
+Review the codebase for security vulnerabilities. This is critical — roofers
+will be entering customer data, financial info, and business data.
+
+1. API ROUTE AUTHENTICATION:
+   - Check EVERY route in server/src/routes/ — does each one use auth middleware?
+   - Are there any endpoints accessible without a JWT token?
+   - Does tenant isolation (tenantScope) apply to ALL data queries?
+   - Can user A access user B's data by guessing IDs?
+
+2. INPUT VALIDATION:
+   - Are user inputs sanitized before DB queries?
+   - Check for SQL injection: are all queries parameterized (pool.query with $1, $2)?
+   - Check for XSS: is user-generated content escaped before rendering?
+   - Are file uploads validated (type, size)?
+
+3. SENSITIVE DATA:
+   - Are there any API keys or secrets hardcoded in client-side code?
+   - Is the .env file in .gitignore?
+   - Are passwords hashed (not stored in plaintext)?
+   - Are JWTs set to expire?
+
+4. Fix any vulnerabilities found immediately. For each fix, describe:
+   - What the vulnerability was
+   - How it could be exploited
+   - What you did to fix it
+
+===========================================================================
+SECTION 8: PERFORMANCE OPTIMIZATION
+===========================================================================
+
+1. BUNDLE SIZE:
+   - Ensure all new views are lazy-loaded.
+   - Check for unnecessarily large imports (importing all of lodash vs specific functions).
+
+2. DATABASE QUERY OPTIMIZATION:
+   - Review report queries for efficiency.
    - Check for N+1 query patterns in list endpoints.
+   - Ensure indexes exist on frequently queried columns (tenant_id, lead_id, etc.)
 
-4. UI POLISH:
-   - Review EVERY new frontend page for alignment, sizing, spacing consistency.
-   - Compare button heights, input heights, card padding against existing pages.
-   - Fix any inconsistencies between new and existing pages.
-   - Test mobile responsiveness of new views.
+3. PAGE LOAD PERFORMANCE:
+   - Use browser tools to check how long each page takes to become interactive
+   - Are there unnecessary API calls on page load?
+   - Are there components re-rendering excessively?
 
-5. GENERAL CODE QUALITY:
-   - Remove any unused imports or dead code introduced by the 9 features.
+4. GENERAL CODE QUALITY:
+   - Remove unused imports or dead code.
    - Ensure error handling is consistent across all new routes.
-   - Check for potential memory leaks (event listeners, intervals not cleaned up).
 
-WHEN FINISHED:
-1. Create a file called OVERNIGHT-REPORT.md in the project root summarizing:
-   - Which tasks were completed (new features OR optimization work)
-   - What was optimized and the before/after impact
-   - Any issues found and how they were resolved
-   - Any features that had issues (and what the issues were)
-   - Screenshots taken of UI review
-2. Run a final build check
-3. Create a final commit with all remaining changes
+===========================================================================
+SECTION 9: PRODUCT VISION & IMPROVEMENT RECOMMENDATIONS
+===========================================================================
+
+Before writing the final report, study the project deeply to understand what
+Brandon wants this application to become, and make proactive recommendations.
+
+1. READ ALL PROJECT DOCS:
+   - SPEC.md (Phase 1 — storm data vision)
+   - CRMLead.md (Phase 2 — CRM, the 10-prompt plan)
+   - MEMORY.md at C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\MEMORY.md
+   - All files in C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\
+   - docs/competitor-gap-analysis.md (your findings from Section 1)
+
+2. UNDERSTAND THE PRODUCT MISSION:
+   - StormLeads is an affordable alternative to JobNimbus + HailTrace
+   - All features must be free or very cheap to operate
+   - Target users: small-to-mid roofing companies
+
+3. BASED ON EVERYTHING YOU'VE LEARNED, write a "Product Recommendations" section:
+   - What 5 features would have the HIGHEST impact for roofing companies?
+   - What free data sources or APIs could we integrate that competitors don't use?
+   - What workflow automations would save roofers the most time?
+   - Are there any AI features we could add using free/local models?
+   - What would make a roofer choose StormLeads over JobNimbus + HailTrace?
+   - What's the single biggest weakness of our app right now?
+
+4. SAVE INSIGHTS TO MEMORY:
+   - If you discover something important about what the user wants, save it to
+     C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\ as a new
+     memory file and update MEMORY.md. This helps future sessions understand
+     the product direction.
+
+===========================================================================
+WHEN FINISHED
+===========================================================================
+
+1. Create OVERNIGHT-REPORT.md as a WELL-WRITTEN EMAIL REPORT (not a code dump).
+
+   FORMAT RULES:
+   - Write it like a professional email briefing to a CEO, NOT a developer log
+   - NO code snippets, NO file paths in the main body, NO technical jargon
+   - Use plain English descriptions of what was done and where to find it
+   - Structure with clear headers and bullet points
+   - Be specific about WHERE in the app each change can be seen
+
+   REQUIRED SECTIONS (in this order):
+
+   ## Executive Summary
+   - 2-3 sentence overview of what was accomplished tonight
+
+   ## Competitor Intelligence
+   - Key findings from researching all 4 competitors
+   - What they charge vs what we could charge
+   - Features they have that we were missing (and which ones you built)
+
+   ## Pricing Recommendation
+   - Suggested tiers with prices
+   - Savings comparison vs competitors by company size
+
+   ## New Features Added
+   For EACH new feature, write a paragraph that includes:
+   - What the feature does (in plain English)
+   - WHERE to find it in the app (e.g., "Go to the Pipeline page and click...")
+   - WHY it matters (what competitor gap it fills)
+   - How it works from the user's perspective
+
+   ## UI Improvements
+   For EACH visual fix, describe:
+   - Which page was affected (e.g., "The Work Orders page")
+   - What looked wrong before (e.g., "The date picker had a white background...")
+   - What it looks like now (e.g., "Now matches the glass style on Estimates")
+   - No code — just describe the visual change
+
+   ## Product Recommendations
+   - Top 5 high-impact features to build next
+   - Free data sources or integrations to explore
+   - Workflow automation ideas
+   - What would make roofers switch from competitors
+
+   ## Still Needs Attention
+   - Anything that couldn't be fixed tonight and why
+   - Suggested priorities for the next session
+
+2. APPEND to docs/overnight-history.md (create if it doesn't exist).
+   This is the RUNNING LOG that future overnight runs will read to understand
+   what has already been done. Format each entry like this:
+
+   ---
+   ## Run: [TODAY'S DATE]
+   ### What was done
+   - Bullet list of features built, bugs fixed, UI improvements made
+   - Be specific: "Added invoice payment recording modal on /invoices page"
+
+   ### What was skipped and why
+   - Features that couldn't be built (e.g., requires paid API)
+   - Things that need Brandon's input before proceeding
+
+   ### What should be done next run
+   - Prioritized list of what the next overnight run should focus on
+   - Include any partially-completed work
+
+   ### Lessons learned
+   - Patterns that worked well or caused problems
+   - Anything surprising discovered about the codebase
+   - Competitor insights worth remembering
+   ---
+
+   IMPORTANT: Do NOT delete or overwrite previous entries in overnight-history.md.
+   Always APPEND to the end. This file is the agent's long-term memory across runs.
+
+3. Update memory files in C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\
+   if you learned anything new about:
+   - What Brandon wants the product to do (save as project memory)
+   - Patterns to follow or avoid (save as feedback memory)
+   - New competitor intelligence worth remembering (save as project memory)
+   Update MEMORY.md index if you add new files.
+
+4. Run final build check
+5. Final commit with all remaining changes

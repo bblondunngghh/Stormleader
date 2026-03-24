@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Supercluster from 'supercluster';
 import { loadGoogleMaps } from '../lib/googleMaps';
@@ -8,6 +8,9 @@ import { addPropertyToPipeline, createManualLead } from '../api/crm';
 import { TimeFilter, LayerPanel } from './MapControls';
 import AddressSearch from './AddressSearch';
 import SwathPopup from './SwathPopup';
+import useIsMobile from '../hooks/useIsMobile';
+
+import { SignalIcon, BoltIcon } from '@heroicons/react/24/outline';
 
 // Clean address strings from messy data (trailing commas, extra spaces)
 function cleanAddr(str) {
@@ -202,6 +205,7 @@ function PropertyLegend() {
 
 export default function StormMap() {
   const [searchParams] = useSearchParams();
+  const isMobile = useIsMobile();
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
   const infoRef = useRef(null);
@@ -225,6 +229,15 @@ export default function StormMap() {
   });
   const improvedOnlyRef = useRef(improvedOnly);
   improvedOnlyRef.current = improvedOnly;
+  const [showCounty, setShowCounty] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('stormMapShowCounty');
+      if (saved !== null) return JSON.parse(saved);
+    } catch {}
+    return true;
+  });
+  const showCountyRef = useRef(showCounty);
+  showCountyRef.current = showCounty;
   const [showFema, setShowFema] = useState(() => {
     try {
       const saved = sessionStorage.getItem('stormMapShowFema');
@@ -237,15 +250,16 @@ export default function StormMap() {
   // Persist layer/filter selections in sessionStorage (survives navigation, cleared on new session)
   useEffect(() => { sessionStorage.setItem('stormMapLayers', JSON.stringify(layers)); }, [layers]);
   useEffect(() => { sessionStorage.setItem('stormMapImprovedOnly', JSON.stringify(improvedOnly)); }, [improvedOnly]);
+  useEffect(() => { sessionStorage.setItem('stormMapShowCounty', JSON.stringify(showCounty)); }, [showCounty]);
   useEffect(() => { sessionStorage.setItem('stormMapShowFema', JSON.stringify(showFema)); }, [showFema]);
 
-  // Rebuild cluster index when Houses Only or FEMA filter changes
+  // Rebuild cluster index when Houses Only, County, or FEMA filter changes
   useEffect(() => {
     if (propFeaturesRef.current.length > 0) {
       rebuildClusterIndex(true);
       if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
     }
-  }, [improvedOnly, showFema]);
+  }, [improvedOnly, showFema, showCounty]);
 
   const [searchLoading, setSearchLoading] = useState(false);
   const [mapLoading, setMapLoading] = useState(false);
@@ -407,12 +421,15 @@ export default function StormMap() {
     const doRebuild = () => {
       const improvedOnly = improvedOnlyRef.current;
       const showFema = showFemaRef.current;
-      const needsFilter = improvedOnly || !showFema;
+      const showCounty = showCountyRef.current;
+      const needsFilter = improvedOnly || !showFema || !showCounty;
       let features = propFeaturesRef.current;
       if (needsFilter) {
         features = features.filter(f => {
-          if (improvedOnly && !f.properties?.year_built) return false;
-          if (!showFema && f.properties?.data_source === 'fema_nsi_live') return false;
+          const isFema = f.properties?.data_source === 'fema_nsi_live';
+          if (!showFema && isFema) return false;
+          if (!showCounty && !isFema) return false;
+          if (showCounty && improvedOnly && !isFema && !f.properties?.year_built) return false;
           return true;
         });
       }
@@ -488,6 +505,8 @@ export default function StormMap() {
 
   const loadSwathProperties = useCallback(async (map) => {
     if (!map || !cacheRestoredRef.current) return;
+    // Don't load if properties layer is toggled off
+    if (!layersRef.current.properties) return;
     const zoom = map.getZoom();
 
     // Too zoomed out — abort loading and hide dots, but keep data cached
@@ -601,9 +620,13 @@ export default function StormMap() {
   }, []);
 
   // Check if a bbox overlaps any storm swath
-  function chunkOverlapsSwath(chunkBbox) {
-    const [cw, cs, ce, cn] = chunkBbox;
-    for (const f of stormFeaturesRef.current) {
+  // Pre-compute swath bounding boxes once and cache them
+  const swathBboxCacheRef = useRef({ version: 0, bboxes: [] });
+  function getSwathBboxes() {
+    const features = stormFeaturesRef.current;
+    if (swathBboxCacheRef.current.version === features.length) return swathBboxCacheRef.current.bboxes;
+    const bboxes = [];
+    for (const f of features) {
       if (!f.geometry?.coordinates) continue;
       const coords = f.geometry.type === 'MultiPolygon' ? f.geometry.coordinates.flat(2) : f.geometry.coordinates.flat(1);
       let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
@@ -613,7 +636,15 @@ export default function StormMap() {
         if (lng < minLng) minLng = lng;
         if (lng > maxLng) maxLng = lng;
       }
-      // Bbox overlap test
+      bboxes.push([minLng, minLat, maxLng, maxLat]);
+    }
+    swathBboxCacheRef.current = { version: features.length, bboxes };
+    return bboxes;
+  }
+
+  function chunkOverlapsSwath(chunkBbox) {
+    const [cw, cs, ce, cn] = chunkBbox;
+    for (const [minLng, minLat, maxLng, maxLat] of getSwathBboxes()) {
       if (!(maxLat < cs || minLat > cn || maxLng < cw || minLng > ce)) return true;
     }
     return false;
@@ -622,8 +653,13 @@ export default function StormMap() {
   // Load FEMA properties independently from DB property loading
   const loadFemaProperties = useCallback(async (map) => {
     if (!map || !cacheRestoredRef.current) return;
+    // Don't load if properties layer is toggled off
+    if (!layersRef.current.properties) return;
     const zoom = map.getZoom();
-    if (zoom < 8) return;
+    // Match swath loading zoom gate — don't load FEMA at low zoom levels
+    if (zoom < 10) return;
+    // Skip if no storm swaths loaded at all
+    if (stormFeaturesRef.current.length === 0) return;
 
     const bounds = map.getBounds();
     if (!bounds) return;
@@ -632,7 +668,8 @@ export default function StormMap() {
     const viewBbox = [sw.lng(), sw.lat(), ne.lng(), ne.lat()];
 
     // Build list of unloaded FEMA tile-sized chunks that overlap storm swaths
-    const CHUNK = 0.45;
+    // Smaller chunks = tighter fit to actual swath areas, fewer wasted API calls
+    const CHUNK = 0.2;
     const chunks = [];
     for (let w = viewBbox[0]; w < viewBbox[2]; w += CHUNK) {
       for (let s = viewBbox[1]; s < viewBbox[3]; s += CHUNK) {
@@ -685,7 +722,9 @@ export default function StormMap() {
         const femaFeatures = femaRes.data?.features || [];
 
         const newFema = [];
+        const MAX_FEMA_PER_CHUNK = 2000; // Cap per chunk to prevent overwhelming the map
         for (const f of femaFeatures) {
+          if (newFema.length >= MAX_FEMA_PER_CHUNK) break;
           const pid = f.id;
           if (propIdSetRef.current.has(pid)) continue;
           const [fLng, fLat] = f.geometry.coordinates;
@@ -1521,10 +1560,11 @@ export default function StormMap() {
               if (status === 'OK' && results[0]) {
                 const components = results[0].address_components || [];
                 const get = (type) => components.find(c => c.types.includes(type))?.long_name || '';
+                const getShort = (type) => components.find(c => c.types.includes(type))?.short_name || '';
                 const streetNum = get('street_number');
                 const route = get('route');
                 const city = get('locality') || get('sublocality');
-                const state = get('administrative_area_level_1');
+                const state = getShort('administrative_area_level_1');
                 const zip = get('postal_code');
                 const street = [streetNum, route].filter(Boolean).join(' ');
                 addrEl.innerHTML = formatFullAddr(street, city, state, zip);
@@ -1688,11 +1728,21 @@ export default function StormMap() {
       canvasOverlayRef.current.setMap(layers.properties ? map : null);
     }
 
-    // Toggle labels
+    // Toggle labels and abort loads when properties unchecked
     if (!layers.properties) {
       for (const lbl of propLabelsRef.current) lbl.map = null;
+      // Abort any in-progress property loading
+      if (swathAbortRef.current) swathAbortRef.current.abort();
+      if (femaAbortRef.current) femaAbortRef.current.abort();
+      setSwathProgress(null);
+      setFemaLoading(false);
     } else {
       for (const lbl of propLabelsRef.current) lbl.map = map;
+      // Resume loading when toggled back on
+      if (map) {
+        loadSwathProperties(map);
+        loadFemaProperties(map);
+      }
     }
 
   }, [layers]);
@@ -1866,6 +1916,351 @@ export default function StormMap() {
     });
   }, [loadSwathProperties]);
 
+  /* ── Mobile: derive storm feed data from loaded properties ── */
+  const mobileStormFeed = useMemo(() => {
+    if (!isMobile) return [];
+    const features = propFeaturesRef.current;
+    // Take the most recent / interesting properties for the feed
+    return features.slice(0, 50).map((f, i) => {
+      const p = f.properties || {};
+      const owner = formatOwner(p.owner_first_name, p.owner_last_name);
+      const street = p.address_line1 ? titleCase(cleanAddr(p.address_line1)) : 'Unknown Address';
+      const city = p.city ? titleCase(p.city) : '';
+      const state = p.state?.toUpperCase() || '';
+      const location = [city, state].filter(Boolean).join(', ');
+      const hailSize = p.hail_size_in || p.hail_size_max_in;
+      const windSpeed = p.wind_speed_mph || p.wind_speed_max_mph;
+      const distance = p.distance_miles;
+      const isFema = p.data_source === 'fema_nsi_live';
+      // Determine severity for left bar color
+      let severity = 'primary'; // cyan
+      if (windSpeed && windSpeed >= 70) severity = 'error'; // red
+      else if (hailSize && hailSize >= 1.5) severity = 'secondary'; // amber
+      return { id: p.id || i, owner, street, location, hailSize, windSpeed, distance, isFema, severity };
+    });
+  }, [isMobile, propFeaturesRef.current?.length]);
+
+  // Active storm cell info for the floating glass panel
+  const activeStormInfo = useMemo(() => {
+    if (!isMobile) return null;
+    const storms = stormFeaturesRef.current;
+    if (!storms.length) return { name: 'NO ACTIVE CELLS', desc: 'No storm data in view.', active: false };
+    // Pick the most recent/significant storm
+    const s = storms[0];
+    const sp = s.properties || {};
+    const hail = sp.hail_size_max_in ? `Hail: ${sp.hail_size_max_in}"` : '';
+    const wind = sp.wind_speed_max_mph ? `Wind: ${sp.wind_speed_max_mph}mph` : '';
+    const name = sp.event_name || sp.wfo || sp.storm_event_id || 'STORM CELL';
+    const desc = [hail, wind].filter(Boolean).join('. ') || 'Storm detected in area.';
+    return { name: `ACTIVE CELL: ${String(name).toUpperCase()}`, desc, active: true };
+  }, [isMobile, stormFeaturesRef.current?.length]);
+
+  const totalPropertyCount = propFeaturesRef.current.length;
+  const impactZoneCount = useMemo(() => {
+    if (!isMobile) return 0;
+    return propFeaturesRef.current.filter(f => {
+      const p = f.properties || {};
+      return p.hail_size_in || p.wind_speed_mph || p.hail_size_max_in || p.wind_speed_max_mph;
+    }).length;
+  }, [isMobile, propFeaturesRef.current?.length]);
+
+  /* ── Mobile layout ────────────────────────────────────────── */
+  if (isMobile) {
+    const mobileStyles = {
+      wrapper: {
+        display: 'flex', flexDirection: 'column', width: '100%',
+        background: '#0d1321', minHeight: '100vh', paddingBottom: 88,
+      },
+      mapSection: {
+        position: 'relative', width: '100%', height: '442px', flexShrink: 0, overflow: 'hidden',
+      },
+      mapGradientOverlay: {
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        background: 'linear-gradient(to top right, rgba(13,19,33,0.4), transparent)',
+        zIndex: 2,
+      },
+      floatingPanel: {
+        position: 'absolute', top: '16px', left: '16px', zIndex: 10,
+        display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '280px',
+      },
+      glassCard: {
+        backdropFilter: 'blur(20px)', background: 'rgba(13,19,33,0.7)',
+        padding: '16px', borderRadius: '12px', borderLeft: '2px solid #00e5ff',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+      },
+      pulseContainer: {
+        display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px',
+      },
+      pulseDot: {
+        width: '8px', height: '8px', borderRadius: '50%', background: '#00e5ff',
+        boxShadow: '0 0 8px #00e5ff', position: 'relative', flexShrink: 0,
+      },
+      radarLabel: {
+        fontFamily: 'Space Grotesk, sans-serif', fontSize: '10px', letterSpacing: '0.1em',
+        textTransform: 'uppercase', fontWeight: 700, color: '#c3f5ff',
+      },
+      cellHeading: {
+        fontFamily: 'Space Grotesk, sans-serif', fontSize: '18px', fontWeight: 700,
+        lineHeight: 1.2, color: '#dde2f6',
+      },
+      cellDesc: {
+        fontSize: '12px', color: '#bac9cc', fontFamily: 'Manrope, sans-serif', marginTop: '4px',
+      },
+      layerButtons: {
+        display: 'flex', gap: '8px',
+      },
+      layerBtnBase: {
+        backdropFilter: 'blur(12px)', background: 'rgba(36,42,57,0.8)',
+        padding: '8px 12px', borderRadius: '8px', border: 'none',
+        borderBottom: '1px solid rgba(132,147,150,0.3)',
+        display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
+        color: '#dde2f6',
+      },
+      layerBtnActive: {
+        background: '#00e5ff', color: '#00363d',
+        padding: '8px 12px', borderRadius: '8px', border: 'none',
+        display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
+      },
+      layerBtnLabel: {
+        fontFamily: 'Space Grotesk, sans-serif', fontSize: '10px',
+        textTransform: 'uppercase', fontWeight: 700,
+      },
+      aside: {
+        background: '#080e1c', borderTop: '1px solid rgba(59,73,76,0.1)',
+        padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px',
+        zIndex: 10,
+      },
+      feedHeader: {
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      },
+      feedTitle: {
+        fontFamily: 'Space Grotesk, sans-serif', fontSize: '20px', fontWeight: 700,
+        letterSpacing: '-0.02em', color: '#dde2f6',
+      },
+      statsGrid: {
+        display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px',
+      },
+      statCard: {
+        background: '#161b2a', padding: '16px', borderRadius: '12px',
+        borderBottom: '1px solid rgba(59,73,76,0.1)',
+      },
+      statLabel: {
+        fontFamily: 'Space Grotesk, sans-serif', fontSize: '10px', color: '#64748b',
+        textTransform: 'uppercase', fontWeight: 700, marginBottom: '4px',
+      },
+      statValue: {
+        fontFamily: 'Space Grotesk, sans-serif', fontSize: '24px', fontWeight: 700,
+      },
+      feedScroll: {
+        display: 'flex', flexDirection: 'column', gap: '12px',
+      },
+      feedCard: {
+        background: '#1a1f2e', padding: '16px', borderRadius: '12px',
+        position: 'relative', overflow: 'hidden',
+      },
+      feedCardBar: (color) => ({
+        position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px',
+        background: color === 'error' ? '#ffb4ab' : color === 'secondary' ? '#ffd799' : '#00e5ff',
+      }),
+      feedCardHeader: {
+        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px',
+      },
+      feedCardName: {
+        fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '14px', color: '#dde2f6',
+      },
+      feedCardAddr: {
+        fontSize: '12px', color: '#94a3b8', marginTop: '2px',
+      },
+      feedCardTags: {
+        display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px', flexWrap: 'wrap',
+      },
+      tag: (color) => ({
+        background: '#080e1c', padding: '4px 8px', borderRadius: '4px',
+        fontSize: '10px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700,
+        color: color || '#94a3b8',
+        border: color ? `1px solid ${color}33` : 'none',
+      }),
+      canvassingBtn: {
+        marginTop: 'auto', width: '100%', padding: '16px',
+        background: 'linear-gradient(to right, #00e5ff, #00daf3)',
+        color: '#00363d', border: 'none', borderRadius: '12px',
+        fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700,
+        textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '14px',
+        boxShadow: '0 4px 20px rgba(0,229,255,0.2)', cursor: 'pointer',
+      },
+    };
+
+    const severityColors = { primary: '#00e5ff', secondary: '#ffd799', error: '#ffb4ab' };
+
+    return (
+      <div style={{ padding: 0, overflow: 'auto', gridRow: '2 / -1' }}>
+        <div style={mobileStyles.wrapper}>
+          {/* ── Map Section ── */}
+          <div style={mobileStyles.mapSection}>
+            <div ref={mapContainer} style={{ position: 'absolute', inset: 0 }} />
+            <div style={mobileStyles.mapGradientOverlay} />
+
+            {/* Loading overlay */}
+            {mapLoading && (
+              <div className="storm-map-loading">
+                <div className="storm-map-loading__spinner">
+                  <i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i />
+                </div>
+                <span>Loading storms…</span>
+              </div>
+            )}
+            <SwathPropertyProgress state={swathProgress} />
+            {femaLoading && (
+              <div className="fema-loading-bar glass">
+                <span>Fetching FEMA property records<span className="loading-dots"><span>.</span><span>.</span><span>.</span></span></span>
+              </div>
+            )}
+
+            {/* Floating Glass Panel */}
+            <div style={mobileStyles.floatingPanel}>
+              <div style={mobileStyles.glassCard}>
+                <div style={mobileStyles.pulseContainer}>
+                  <div style={mobileStyles.pulseDot} className="mobile-pulse-dot" />
+                  <SignalIcon width={24} height={24} style={{ opacity: 0.9 }} />
+                  <span style={mobileStyles.radarLabel}>Live Radar Status</span>
+                </div>
+                <h2 style={mobileStyles.cellHeading}>
+                  {activeStormInfo?.name || 'NO ACTIVE CELLS'}
+                </h2>
+                <p style={mobileStyles.cellDesc}>
+                  {activeStormInfo?.desc || 'No storm data in view.'}
+                </p>
+              </div>
+
+              {/* Layer Toggle Buttons */}
+              <div style={mobileStyles.layerButtons}>
+                <button
+                  style={mobileStyles.layerBtnBase}
+                  onClick={() => {
+                    const map = mapRef.current;
+                    if (map) {
+                      const type = map.getMapTypeId();
+                      map.setMapTypeId(type === 'terrain' ? 'roadmap' : 'terrain');
+                    }
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#c3f5ff' }}>layers</span>
+                  <span style={mobileStyles.layerBtnLabel}>Terrain</span>
+                </button>
+                <button
+                  style={layers.hail ? mobileStyles.layerBtnActive : { ...mobileStyles.layerBtnBase, background: '#00e5ff', color: '#00363d' }}
+                  onClick={() => setLayers(prev => ({ ...prev, hail: !prev.hail }))}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>storm</span>
+                  <span style={mobileStyles.layerBtnLabel}>Show Hail Trace</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Address search bar (positioned at bottom of map) */}
+            <div style={{ position: 'absolute', bottom: '12px', left: '16px', right: '16px', zIndex: 10 }}>
+              <AddressSearch onSelect={handleAddressSelect} isLoading={searchLoading} />
+            </div>
+          </div>
+
+          {/* ── Storm Feed Panel ── */}
+          <aside style={mobileStyles.aside}>
+            <div style={mobileStyles.feedHeader}>
+              <h3 style={mobileStyles.feedTitle}>STORM FEED</h3>
+              <span className="material-symbols-outlined" style={{ color: '#64748b', fontSize: '20px' }}>filter_list</span>
+            </div>
+
+            {/* Stats Grid */}
+            <div style={mobileStyles.statsGrid}>
+              <div style={mobileStyles.statCard}>
+                <p style={mobileStyles.statLabel}>Total Leads</p>
+                <p style={{ ...mobileStyles.statValue, color: '#00e5ff' }}>{totalPropertyCount.toLocaleString()}</p>
+              </div>
+              <div style={mobileStyles.statCard}>
+                <p style={mobileStyles.statLabel}>In Impact Zone</p>
+                <p style={{ ...mobileStyles.statValue, color: '#ffd799' }}>{impactZoneCount.toLocaleString()}</p>
+              </div>
+            </div>
+
+            {/* Scrollable Lead Feed */}
+            <div style={mobileStyles.feedScroll}>
+              {mobileStormFeed.length === 0 && !mapLoading && (
+                <div style={{ textAlign: 'center', padding: '32px 16px', color: '#64748b', fontSize: '13px' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '40px', display: 'block', marginBottom: '8px', opacity: 0.4 }}>
+                    location_searching
+                  </span>
+                  Zoom into a storm area to load properties
+                </div>
+              )}
+              {mobileStormFeed.map((item) => (
+                <div key={item.id} style={mobileStyles.feedCard}>
+                  <div style={mobileStyles.feedCardBar(item.severity)} />
+                  <div style={mobileStyles.feedCardHeader}>
+                    <div style={{ paddingLeft: '8px' }}>
+                      <h4 style={mobileStyles.feedCardName}>
+                        {item.owner || item.street}
+                      </h4>
+                      <p style={mobileStyles.feedCardAddr}>
+                        {item.owner ? item.street : ''}{item.location ? (item.owner ? `, ${item.location}` : item.location) : ''}
+                      </p>
+                    </div>
+                    <BoltIcon width={20} height={20} style={{ opacity: 0.9 }} />
+                  </div>
+                  <div style={mobileStyles.feedCardTags}>
+                    {item.hailSize && (
+                      <div style={mobileStyles.tag('#00e5ff')}>
+                        {item.hailSize}" HAIL
+                      </div>
+                    )}
+                    {item.distance != null && (
+                      <div style={mobileStyles.tag(null)}>
+                        {Number(item.distance).toFixed(1)} MILES
+                      </div>
+                    )}
+                    {item.windSpeed && (
+                      <div style={mobileStyles.tag('#ffd799')}>
+                        WIND {item.windSpeed}MPH
+                      </div>
+                    )}
+                    {item.severity === 'error' && (
+                      <div style={mobileStyles.tag('#ffb4ab')}>
+                        EMERGENCY
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Generate Canvassing List Button */}
+            <button
+              style={mobileStyles.canvassingBtn}
+              onClick={() => {/* TODO: generate canvassing list */}}
+            >
+              Generate Canvassing List
+            </button>
+          </aside>
+
+          {/* Hidden: keep TimeFilter and LayerPanel mounted for state */}
+          <div style={{ display: 'none' }}>
+            <TimeFilter timeRange={timeRange} onTimeRangeChange={setTimeRange} />
+            <LayerPanel
+              layers={layers}
+              onLayersChange={setLayers}
+              improvedOnly={improvedOnly}
+              onImprovedOnlyChange={setImprovedOnly}
+              showFema={showFema}
+              onShowFemaChange={setShowFema}
+              showCounty={showCounty}
+              onShowCountyChange={setShowCounty}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── Desktop layout (unchanged) ────────────────────────────── */
   return (
     <div className="main-content storm-map-fullbleed" style={{ padding: 0, overflow: 'hidden' }}>
       <div className="storm-map-container">
@@ -1880,6 +2275,8 @@ export default function StormMap() {
           onImprovedOnlyChange={setImprovedOnly}
           showFema={showFema}
           onShowFemaChange={setShowFema}
+          showCounty={showCounty}
+          onShowCountyChange={setShowCounty}
         />
         <div className="storm-map-wrapper">
           <div ref={mapContainer} style={{ position: 'absolute', inset: 0 }} />

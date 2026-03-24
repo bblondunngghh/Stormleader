@@ -1514,12 +1514,12 @@ ul, ol { list-style: none; }
 
 .slide-over {
   position: fixed;
-  top: 64px;
-  right: 0;
-  bottom: 0;
+  top: calc(64px + var(--space-md));
+  right: var(--space-md);
+  bottom: var(--space-md);
   width: 480px;
   max-width: 90vw;
-  border-radius: 0;
+  border-radius: 20px / 18px;
   padding: var(--space-2xl);
   overflow-y: auto;
   z-index: 101;
@@ -1527,6 +1527,8 @@ ul, ol { list-style: none; }
   display: flex;
   flex-direction: column;
   gap: var(--space-xl);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 @keyframes slideIn {

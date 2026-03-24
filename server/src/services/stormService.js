@@ -68,7 +68,7 @@ export async function listEvents({ source, limit = 50, offset = 0, timeRange }) 
   }
 
   if (timeRange) {
-    const intervals = { '24h': '24 hours', '7d': '7 days', '30d': '30 days' };
+    const intervals = { '12h': '12 hours', '24h': '24 hours', '3d': '3 days', '7d': '7 days', '14d': '14 days', '30d': '30 days' };
     const interval = intervals[timeRange];
     if (interval) {
       conditions.push(`event_start >= NOW() - INTERVAL '${interval}'`);
@@ -185,7 +185,7 @@ export async function getSwathsByViewport(bbox, timeRange, startDate, endDate) {
 
   let timeFilter = '';
   if (timeRange && timeRange !== 'custom') {
-    const intervals = { '24h': '24 hours', '7d': '7 days', '30d': '30 days' };
+    const intervals = { '12h': '12 hours', '24h': '24 hours', '3d': '3 days', '7d': '7 days', '14d': '14 days', '30d': '30 days' };
     const interval = intervals[timeRange];
     if (interval) {
       timeFilter = `AND event_start >= NOW() - INTERVAL '${interval}'`;

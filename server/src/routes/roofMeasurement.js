@@ -175,6 +175,67 @@ router.get('/segments/:propertyId', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// GET /api/roof-measurement/solar/:propertyId — Solar potential data for upselling
+router.get('/solar/:propertyId', async (req, res, next) => {
+  try {
+    const { propertyId } = req.params;
+    const { rows } = await pool.query(
+      `SELECT raw_response FROM roof_measurement_usage
+       WHERE tenant_id = $1 AND property_id = $2
+       ORDER BY created_at DESC LIMIT 1`,
+      [req.tenantId, propertyId]
+    );
+    if (!rows.length || !rows[0].raw_response) {
+      return res.json({ available: false });
+    }
+    const data = typeof rows[0].raw_response === 'string'
+      ? JSON.parse(rows[0].raw_response)
+      : rows[0].raw_response;
+
+    const solar = data.solarPotential;
+    if (!solar) {
+      return res.json({ available: false });
+    }
+
+    const maxPanels = solar.maxArrayPanelsCount || 0;
+    const maxAreaM2 = solar.maxArrayAreaMeters2 || 0;
+    const maxAreaSqft = Math.round(maxAreaM2 * 10.7639);
+    const sunshineHours = solar.maxSunshineHoursPerYear || 0;
+    const carbonFactor = solar.carbonOffsetFactorKgPerMwh || 0;
+
+    // Get annual energy from the largest panel config
+    const configs = solar.solarPanelConfigs || [];
+    const bestConfig = configs.length > 0 ? configs[configs.length - 1] : null;
+    const yearlyEnergyKwh = bestConfig ? Math.round(bestConfig.yearlyEnergyDcKwh || 0) : 0;
+
+    // Financial estimates
+    const electricityRate = 0.13; // US average $/kWh
+    const costPerPanel = 2500;    // avg installed cost per panel
+    const annualSavings = Math.round(yearlyEnergyKwh * electricityRate);
+    const systemCost = maxPanels * costPerPanel;
+    const paybackYears = annualSavings > 0 ? Math.round((systemCost / annualSavings) * 10) / 10 : 0;
+    const twentyFiveYearSavings = (annualSavings * 25) - systemCost;
+
+    // CO2 offset: carbonFactor is kg per MWh, convert yearlyEnergy to MWh, then to metric tons
+    const yearlyMwh = yearlyEnergyKwh / 1000;
+    const co2OffsetKg = yearlyMwh * carbonFactor;
+    const co2OffsetTons = Math.round(co2OffsetKg / 1000 * 10) / 10;
+
+    res.json({
+      available: true,
+      maxPanels,
+      maxAreaSqft,
+      sunshineHours: Math.round(sunshineHours),
+      yearlyEnergyKwh,
+      annualSavings,
+      systemCost,
+      paybackYears,
+      twentyFiveYearSavings,
+      co2OffsetTons,
+    });
+  } catch (err) { next(err); }
+});
+
 // GET /api/roof-measurement/usage
 router.get('/usage', async (req, res, next) => {
   try {

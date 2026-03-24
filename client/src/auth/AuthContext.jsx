@@ -6,13 +6,20 @@ import client from '../api/client';
 
 const AuthContext = createContext(null);
 
+const DEV_BYPASS = import.meta.env.VITE_DEV_BYPASS_AUTH === 'true';
+const DEV_USER = {
+  id: '93fb33ea-e7d8-461f-87e4-bba4e55acc9e', firstName: 'Brandon', lastName: 'Admin', email: 'brandon',
+  role: 'super_admin', tenantId: '791bb51d-3293-4839-92e9-bd4d4f873af2',
+};
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(DEV_BYPASS ? DEV_USER : null);
+  const [token, setToken] = useState(DEV_BYPASS ? 'dev-bypass' : null);
+  const [loading, setLoading] = useState(!DEV_BYPASS);
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (DEV_BYPASS) return;
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
 

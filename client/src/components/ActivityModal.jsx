@@ -3,18 +3,14 @@ import { createPortal } from 'react-dom';
 import { logActivity } from '../api/crm';
 import { IconX } from './Icons';
 import DatePicker from './DatePicker';
-import iconCall from '../assets/icons/Phone-Actions-Add--Streamline-Ultimate.png';
-import iconEmail from '../assets/icons/Email-Action-Unread--Streamline-Ultimate.png';
-import iconText from '../assets/icons/Messages-Logo--Streamline-Ultimate.png';
-import iconDoorKnock from '../assets/icons/Architecture-Door--Streamline-Ultimate.png';
-import iconNote from '../assets/icons/Content-Paper-Edit--Streamline-Ultimate.png';
+import { PhoneArrowUpRightIcon, EnvelopeOpenIcon, ChatBubbleLeftRightIcon, HomeIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 
 const activityTypes = [
-  { key: 'call', label: 'Call', icon: iconCall },
-  { key: 'email', label: 'Email', icon: iconEmail },
-  { key: 'text', label: 'Text', icon: iconText },
-  { key: 'door_knock', label: 'Door Knock', icon: iconDoorKnock },
-  { key: 'note', label: 'Note', icon: iconNote },
+  { key: 'call', label: 'Call', Icon: PhoneArrowUpRightIcon },
+  { key: 'email', label: 'Email', Icon: EnvelopeOpenIcon },
+  { key: 'text', label: 'Text', Icon: ChatBubbleLeftRightIcon },
+  { key: 'door_knock', label: 'Door Knock', Icon: HomeIcon },
+  { key: 'note', label: 'Note', Icon: PencilSquareIcon },
 ];
 
 const directionOptions = [
@@ -87,7 +83,7 @@ export default function ActivityModal({ leadId, onSave, onClose }) {
                 className={`activity-type-btn ${type === at.key ? 'activity-type-btn--active' : ''}`}
                 onClick={() => { setType(at.key); setOutcome(''); }}
               >
-                <img src={at.icon} alt="" width="18" height="18" /> {at.label}
+                <at.Icon width={18} height={18} /> {at.label}
               </button>
             ))}
           </div>

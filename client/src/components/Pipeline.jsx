@@ -4,7 +4,7 @@ import { showToast } from './Toast';
 import { IconRefresh, IconPlusCircle, IconPhone, IconCalendar, IconFilter, IconX, IconChevronDown, IconEyeOff, IconEye } from './Icons';
 import CustomSelect from './CustomSelect';
 import useIsMobile from '../hooks/useIsMobile';
-import { HomeIcon, FireIcon, SunIcon, CloudIcon } from '@heroicons/react/24/outline';
+import { UserCircleIcon, FireIcon, SunIcon, CloudIcon } from '@heroicons/react/24/outline';
 const LeadDetail = lazy(() => import('./LeadDetail'));
 const CreateLeadModal = lazy(() => import('./CreateLeadModal'));
 
@@ -553,7 +553,7 @@ export default function Pipeline() {
                       gap: 4,
                       margin: 0,
                     }}>
-                      <HomeIcon width={20} height={20} style={{ opacity: 0.9 }} />
+                      <UserCircleIcon width={20} height={20} style={{ opacity: 0.9 }} />
                       {locationParts}
                     </p>
                   )}
@@ -698,7 +698,7 @@ export default function Pipeline() {
     <div className="main-content pb-0 !overflow-hidden !gap-0" style={{ display: 'grid', gridTemplateRows: 'auto 1fr', padding: 0 }}>
       {/* Header: Single-line toolbar */}
       <div
-        className="glass px-4 py-2.5 mx-[var(--space-2xl)] mt-[var(--space-lg)] flex items-center gap-3 shadow-[0_8px_32px_oklch(0_0_0/0.25),inset_0_1px_0_oklch(1_0_0/0.05)]"
+        className="glass px-4 py-2.5 mt-[var(--space-lg)] flex items-center gap-3 shadow-[0_8px_32px_oklch(0_0_0/0.25),inset_0_1px_0_oklch(1_0_0/0.05)]"
         style={{ borderRadius: '20px / 18px', whiteSpace: 'nowrap', flexShrink: 0, zIndex: 20, position: 'relative' }}
       >
         <h1 className="text-[15px] font-bold text-[var(--text-primary)] shrink-0">Sales Pipeline</h1>
@@ -773,7 +773,7 @@ export default function Pipeline() {
       {/* Scrollable Pipeline Area — grab to pan */}
       <div
         ref={panRef}
-        className="overflow-auto px-[var(--space-2xl)] pb-4 pt-2"
+        className="overflow-auto pb-4 pt-2"
         style={{ gridRow: '2 / 3', cursor: 'grab', userSelect: 'none' }}
         onMouseDown={handlePanDown}
       >

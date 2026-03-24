@@ -4,9 +4,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useAuth } from './AuthContext';
 import * as onboardingApi from '../api/onboarding';
-import iconBrand from '../assets/icons/Weather-Cloud-Wind-4--Streamline-Ultimate.svg';
-import iconSkipTrace from '../assets/icons/run-trace.png';
-import iconRoofMeasure from '../assets/icons/Measure-Caliber-1--Streamline-Ultimate.png';
+import { CloudIcon, MagnifyingGlassIcon, ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
 
 function formatPhone(value) {
   const digits = value.replace(/\D/g, '').slice(0, 10);
@@ -132,7 +130,7 @@ function OnboardingLogo() {
   return (
     <div className="auth-card__logo">
       <div className="sidebar__logo" style={{ width: 44, height: 44 }}>
-        <img src={iconBrand} alt="StormPipe" width="36" height="36" />
+        <CloudIcon width={36} height={36} />
       </div>
       <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em' }}>StormPipe</div>
     </div>
@@ -805,7 +803,7 @@ function AddonCard({ title, description, price, icon, checked, onChange, toggleI
       }}
       onClick={() => onChange(!checked)}
     >
-      <img src={icon} alt="" width="28" height="28" style={{ flexShrink: 0, opacity: 0.9 }} />
+      {(() => { const Icon = icon; return <Icon width={28} height={28} style={{ flexShrink: 0, opacity: 0.9 }} />; })()}
 
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 2 }}>
@@ -878,7 +876,7 @@ function StepAddons({ onComplete }) {
           title="Skip Trace"
           description="Instantly look up contact info for property owners — phone, email, and mailing address from public records."
           price="$0.20 per record"
-          icon={iconSkipTrace}
+          icon={MagnifyingGlassIcon}
           checked={skipTrace}
           onChange={setSkipTrace}
           toggleId="toggle-skip-trace"
@@ -887,7 +885,7 @@ function StepAddons({ onComplete }) {
           title="Roof Measurements"
           description="Order detailed aerial roof measurements with pitch, slope, and material estimates for accurate quotes."
           price="$0.10 per measurement"
-          icon={iconRoofMeasure}
+          icon={ArrowsPointingOutIcon}
           checked={roofMeasurement}
           onChange={setRoofMeasurement}
           toggleId="toggle-roof-measurement"
