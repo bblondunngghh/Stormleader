@@ -1094,7 +1094,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
       return;
     }
     try {
-      const res = await materialsApi.getProducts();
+      const res = await materialsApi.searchProducts({});
       const catalog = res.data?.products || [];
       const priceMap = {};
       catalog.forEach(p => { priceMap[p.id] = p.price; });

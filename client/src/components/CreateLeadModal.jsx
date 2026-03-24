@@ -94,7 +94,6 @@ export default function CreateLeadModal({ onClose, onCreated }) {
         boxShadow: '0 8px 32px oklch(0 0 0 / 0.4), inset 0 1px 0 oklch(1 0 0 / 0.05)',
         padding: 24,
         animation: 'modal-scale-in 200ms cubic-bezier(0.16, 1, 0.3, 1) both',
-        animation: 'modalSlideIn 0.3s ease-out',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>Add Lead</h2>
