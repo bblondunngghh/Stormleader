@@ -80,7 +80,7 @@ async function ingestHail() {
 
   if (reports.length === 0) {
     logger.info('SPC hail ingestion complete: 0 TX reports found');
-    return 0;
+    return { inserted: 0, insertedIds: [] };
   }
 
   // Check which source_ids already exist
@@ -162,7 +162,7 @@ async function ingestWind() {
 
   if (reports.length === 0) {
     logger.info('SPC wind ingestion complete: 0 TX reports found');
-    return 0;
+    return { inserted: 0, insertedIds: [] };
   }
 
   // Check which source_ids already exist

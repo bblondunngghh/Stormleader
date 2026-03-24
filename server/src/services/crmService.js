@@ -893,8 +893,7 @@ export async function getTasksDueToday(tenantId) {
        AND (t.due_date IS NULL OR t.due_date <= (CURRENT_DATE + interval '1 day'))
      ORDER BY
        CASE WHEN t.due_date < CURRENT_DATE THEN 0 ELSE 1 END,
-       t.priority = 'urgent' DESC,
-       t.priority = 'high' DESC,
+       CASE t.priority WHEN 'hot' THEN 0 WHEN 'warm' THEN 1 WHEN 'cold' THEN 2 ELSE 3 END,
        t.due_date ASC NULLS LAST
      LIMIT 20`,
     [tenantId]
