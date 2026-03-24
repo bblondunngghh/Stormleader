@@ -8247,3 +8247,71 @@
     [35mfall_time_s[39m: 122
     [35mhailSize[39m: "3.00"
 [08:00:11] [32mINFO[39m (6624): [36mDrift correction complete: 304/304 events corrected[39m
+[08:05:11] [31mERROR[39m (6624): [36mRefresh token revoked or user not found[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/api/auth/refresh"
+    err: {
+      "type": "Error",
+      "message": "Refresh token revoked or user not found",
+      "stack":
+          Error: Refresh token revoked or user not found
+              at Module.refreshToken (file:///C:/Projects/stormleads/server/src/services/authService.js:285:17)
+              at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+              at async file:///C:/Projects/stormleads/server/src/routes/auth.js:96:20
+      "status": 401
+    }
+[08:05:16] [31mERROR[39m (6624): [36mInvalid email or password[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/api/auth/login"
+    err: {
+      "type": "Error",
+      "message": "Invalid email or password",
+      "stack":
+          Error: Invalid email or password
+              at Module.login (file:///C:/Projects/stormleads/server/src/services/authService.js:86:17)
+              at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+              at async file:///C:/Projects/stormleads/server/src/routes/auth.js:41:20
+      "status": 401
+    }
+[08:06:46] [31mERROR[39m (6624): [36mRefresh token revoked or user not found[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/api/auth/refresh"
+    err: {
+      "type": "Error",
+      "message": "Refresh token revoked or user not found",
+      "stack":
+          Error: Refresh token revoked or user not found
+              at Module.refreshToken (file:///C:/Projects/stormleads/server/src/services/authService.js:285:17)
+              at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+              at async file:///C:/Projects/stormleads/server/src/routes/auth.js:96:20
+      "status": 401
+    }
+[08:30:00] [32mINFO[39m (6624): [36mScheduler: running MRMS ingestion[39m
+[08:30:00] [32mINFO[39m (6624): [36mStarting MRMS ingestion for 20260324[39m
+[08:30:01] [32mINFO[39m (6624): [36mDownloading: CONUS/MESH_Max_1440min_00.50/20260324/MRMS_MESH_Max_1440min_00.50_20260324-130000.grib2.gz[39m
+[08:30:01] [32mINFO[39m (6624): [36mDecompressed MRMS data: 101798 bytes[39m
+[08:30:01] [32mINFO[39m (6624): [36mGRIB2 message length: 101798 bytes[39m
+[08:30:01] [32mINFO[39m (6624): [36mParsed GRIB: 7000x3500 grid, bbox: [230.005,20.005001,299.994998,54.995][39m
+[08:30:02] [32mINFO[39m (6624): [36mBuilt 6 contour features from 6 thresholds[39m
+[08:30:03] [32mINFO[39m (6624): [36mMRMS ingestion complete: 0 swath polygons inserted for 20260324[39m
+[09:00:00] [32mINFO[39m (6624): [36mScheduler: running MRMS ingestion[39m
+[09:00:00] [32mINFO[39m (6624): [36mStarting MRMS ingestion for 20260324[39m
+[09:00:00] [32mINFO[39m (6624): [36mScheduler: running NWS ingestion[39m
+[09:00:00] [32mINFO[39m (6624): [36mStarting NWS alert ingestion[39m
+[09:00:00] [32mINFO[39m (6624): [36mDownloading: CONUS/MESH_Max_1440min_00.50/20260324/MRMS_MESH_Max_1440min_00.50_20260324-133000.grib2.gz[39m
+[09:00:00] [32mINFO[39m (6624): [36mDecompressed MRMS data: 101661 bytes[39m
+[09:00:00] [32mINFO[39m (6624): [36mGRIB2 message length: 101661 bytes[39m
+[09:00:00] [32mINFO[39m (6624): [36mParsed GRIB: 7000x3500 grid, bbox: [230.005,20.005001,299.994998,54.995][39m
+[09:00:02] [32mINFO[39m (6624): [36mBuilt 6 contour features from 6 thresholds[39m
+[09:00:02] [32mINFO[39m (6624): [36mMRMS ingestion complete: 0 swath polygons inserted for 20260324[39m
+[09:00:09] [32mINFO[39m (6624): [36mFetched 0 NWS alerts across 3 event types[39m
+[09:00:09] [32mINFO[39m (6624): [36m0 of 0 alerts already in DB — skipping those[39m
+[09:00:09] [32mINFO[39m (6624): [36mNWS ingestion complete: 0 new, 0 already existed, 0 no geometry[39m
+[09:30:00] [32mINFO[39m (6624): [36mScheduler: running MRMS ingestion[39m
+[09:30:00] [32mINFO[39m (6624): [36mStarting MRMS ingestion for 20260324[39m
+[09:30:00] [32mINFO[39m (6624): [36mDownloading: CONUS/MESH_Max_1440min_00.50/20260324/MRMS_MESH_Max_1440min_00.50_20260324-140000.grib2.gz[39m
+[09:30:01] [32mINFO[39m (6624): [36mDecompressed MRMS data: 102780 bytes[39m
+[09:30:01] [32mINFO[39m (6624): [36mGRIB2 message length: 102780 bytes[39m
+[09:30:01] [32mINFO[39m (6624): [36mParsed GRIB: 7000x3500 grid, bbox: [230.005,20.005001,299.994998,54.995][39m
+[09:30:03] [32mINFO[39m (6624): [36mBuilt 6 contour features from 6 thresholds[39m
+[09:30:03] [32mINFO[39m (6624): [36mMRMS ingestion complete: 0 swath polygons inserted for 20260324[39m
