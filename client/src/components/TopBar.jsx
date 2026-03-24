@@ -16,10 +16,13 @@ const viewTitles = {
   calendar: 'Calendar',
   canvassing: 'Canvassing',
   estimates: 'Estimates',
+  contracts: 'Contracts',
   invoices: 'Invoices',
+  expenses: 'Expenses',
   reports: 'Reports',
   materials: 'Materials',
   'work-orders': 'Work Orders',
+  'content-studio': 'Content Studio',
   settings: 'Settings',
   admin: 'Admin',
 };
