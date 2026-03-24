@@ -1497,12 +1497,13 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
         <>
           <div className="slide-over-backdrop" onClick={() => setShowWeatherHistory(false)} style={{ zIndex: 200 }} />
           <div style={{
-            position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            position: 'fixed', top: '50%', left: '50%',
             zIndex: 201, width: 560, maxWidth: '90vw', maxHeight: '80vh',
             borderRadius: 16, overflow: 'hidden',
             background: 'oklch(0.18 0.01 260)', border: '1px solid oklch(1 0 0 / 0.1)',
             boxShadow: '0 24px 48px oklch(0 0 0 / 0.5)',
             display: 'flex', flexDirection: 'column',
+            animation: 'modal-scale-in 200ms cubic-bezier(0.16, 1, 0.3, 1) both',
           }}>
             <div style={{ padding: '20px 24px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
@@ -1625,10 +1626,11 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
         <>
           <div className="slide-over-backdrop" onClick={() => setBillingModal(null)} style={{ zIndex: 200 }} />
           <div style={{
-            position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            position: 'fixed', top: '50%', left: '50%',
             zIndex: 201, width: 360, padding: 24, borderRadius: 16,
             background: 'oklch(0.18 0.01 260)', border: '1px solid oklch(1 0 0 / 0.1)',
             boxShadow: '0 24px 48px oklch(0 0 0 / 0.5)',
+            animation: 'modal-scale-in 200ms cubic-bezier(0.16, 1, 0.3, 1) both',
           }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>
               Billing Notice
