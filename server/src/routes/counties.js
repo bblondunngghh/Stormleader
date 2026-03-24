@@ -1,7 +1,9 @@
 import { Router } from 'express';
+import authenticate from '../middleware/authenticate.js';
 import { listCounties, getCounty, addCounty, triggerImport, getImportStatus } from '../services/countyService.js';
 
 const router = Router();
+router.use(authenticate);
 
 /**
  * GET /api/counties — list all registered county data sources

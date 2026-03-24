@@ -391,6 +391,10 @@ router.get('/team', async (req, res, next) => {
 // PATCH /api/crm/team/:userId/role
 router.patch('/team/:userId/role', async (req, res, next) => {
   try {
+    // Only admins can change roles
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Only admins can change team roles' });
+    }
     const { role } = req.body;
     if (!['admin', 'manager', 'sales_rep'].includes(role)) {
       return res.status(400).json({ error: 'Invalid role' });
