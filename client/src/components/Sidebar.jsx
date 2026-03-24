@@ -18,6 +18,7 @@ import {
   MapPinIcon,
   PresentationChartBarIcon,
   ChevronDownIcon,
+  UserGroupIcon,
 } from '@heroicons/react/24/outline';
 
 const topItems = [
@@ -53,6 +54,7 @@ const groups = [
       { id: 'tasks', label: 'Tasks', Icon: ClipboardDocumentCheckIcon },
       { id: 'calendar', label: 'Calendar', Icon: CalendarDaysIcon },
       { id: 'canvassing', label: 'Canvassing', Icon: MapPinIcon },
+      { id: 'subcontractors', label: 'Subcontractors', Icon: UserGroupIcon },
       { id: 'reports', label: 'Reports', Icon: PresentationChartBarIcon },
     ],
   },

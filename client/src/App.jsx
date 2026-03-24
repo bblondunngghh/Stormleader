@@ -31,6 +31,7 @@ const ContractsView = lazy(() => import('./components/ContractsView'));
 const ExpensesView = lazy(() => import('./components/ExpensesView'));
 const PublicContract = lazy(() => import('./components/PublicContract'));
 const ClientStatusPage = lazy(() => import('./components/ClientStatusPage'));
+const SubcontractorsView = lazy(() => import('./components/SubcontractorsView'));
 
 function PageLoader() {
   return (
@@ -101,6 +102,7 @@ function AppShell() {
           <Route path="/content-studio" element={<ContentStudio />} />
           <Route path="/contracts" element={<ContractsView />} />
           <Route path="/expenses" element={<ExpensesView />} />
+          <Route path="/subcontractors" element={<SubcontractorsView />} />
           <Route path="/settings" element={<SettingsView />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<Navigate to="/" replace />} />
