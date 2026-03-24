@@ -20,7 +20,9 @@ RETRY_WAIT=14400  # 4 hours between retries (rate limit cooldown)
 for attempt in $(seq 1 $MAX_RETRIES); do
   echo "=== Attempt $attempt of $MAX_RETRIES at $(date) ==="
 
-  claude -p < overnight-plan.txt \
+  PLAN_CONTENT=$(cat overnight-plan.txt)
+
+  claude -p "$PLAN_CONTENT" \
     --dangerously-skip-permissions \
     --max-turns 1000 \
     --output-format json \
