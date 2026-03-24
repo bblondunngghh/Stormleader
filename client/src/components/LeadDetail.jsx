@@ -1312,6 +1312,35 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
           </>
         )}
 
+        {/* Share Status Page */}
+        {leadId && (
+          <>
+            <div className="detail-section">
+              <div className="detail-section__title">Client Status Page</div>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '0 0 var(--space-md) 0' }}>
+                Share a live status page with your customer so they can track job progress.
+              </p>
+              <button
+                className="quick-action-btn"
+                style={{ fontSize: 12, padding: '6px 14px' }}
+                onClick={async () => {
+                  try {
+                    const res = await client.post(`/leads/${leadId}/status-token`);
+                    const fullUrl = `${window.location.origin}${res.data.url}`;
+                    await navigator.clipboard.writeText(fullUrl);
+                    alert('Status page link copied to clipboard!');
+                  } catch {
+                    alert('Failed to generate status link');
+                  }
+                }}
+              >
+                Share Status Page
+              </button>
+            </div>
+            <div className="divider" />
+          </>
+        )}
+
         {/* Solar Potential */}
         {lead.roof_sqft && (
           <>

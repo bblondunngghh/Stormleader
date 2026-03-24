@@ -2,8 +2,82 @@ import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
 import * as leadService from '../services/leadService.js';
+import pool from '../db/pool.js';
 
 const router = Router();
+
+// ============================================================
+// PUBLIC routes (no auth — customer-facing)
+// ============================================================
+
+router.get('/status/public/:token', async (req, res, next) => {
+  try {
+    // 1. Look up token → get lead_id and tenant_id
+    const tokenResult = await pool.query(
+      'SELECT * FROM client_status_tokens WHERE token = $1',
+      [req.params.token]
+    );
+    if (!tokenResult.rows[0]) return res.status(404).json({ error: 'Not found' });
+
+    const { lead_id, tenant_id } = tokenResult.rows[0];
+
+    // 2. Fetch lead info
+    const leadResult = await pool.query(
+      'SELECT id, contact_name, address, city, state, zip, stage, created_at, updated_at FROM leads WHERE id = $1',
+      [lead_id]
+    );
+    const lead = leadResult.rows[0];
+    if (!lead) return res.status(404).json({ error: 'Not found' });
+
+    // 3. Fetch tenant company name
+    const tenantResult = await pool.query(
+      'SELECT company_name FROM tenants WHERE id = $1',
+      [tenant_id]
+    );
+
+    // 4. Fetch work orders + milestones for this lead
+    const woResult = await pool.query(
+      'SELECT id, title, status, scheduled_date FROM work_orders WHERE lead_id = $1 ORDER BY created_at DESC LIMIT 1',
+      [lead_id]
+    );
+
+    let milestones = [];
+    if (woResult.rows[0]) {
+      const msResult = await pool.query(
+        'SELECT * FROM work_order_milestones WHERE work_order_id = $1 ORDER BY sort_order',
+        [woResult.rows[0].id]
+      );
+      milestones = msResult.rows;
+    }
+
+    // 5. Fetch stage history from activities (stage changes)
+    const actResult = await pool.query(
+      `SELECT description, created_at FROM activities
+       WHERE lead_id = $1 AND type = 'stage_change'
+       ORDER BY created_at ASC`,
+      [lead_id]
+    );
+
+    res.json({
+      companyName: tenantResult.rows[0]?.company_name || 'Company',
+      customer: {
+        name: lead.contact_name,
+        address: [lead.address, lead.city, lead.state, lead.zip].filter(Boolean).join(', '),
+      },
+      currentStage: lead.stage,
+      stageHistory: actResult.rows,
+      workOrder: woResult.rows[0] || null,
+      milestones,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ============================================================
+// AUTHENTICATED routes
+// ============================================================
+
 router.use(authenticate);
 router.use(tenantScope);
 
@@ -48,6 +122,26 @@ router.patch('/:id', async (req, res, next) => {
       return res.status(404).json({ error: 'Lead not found' });
     }
     res.json(lead);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/leads/:id/status-token — Generate a public status page token
+router.post('/:id/status-token', async (req, res, next) => {
+  try {
+    const crypto = await import('crypto');
+    const token = crypto.randomBytes(32).toString('hex');
+
+    const { rows } = await pool.query(
+      `INSERT INTO client_status_tokens (tenant_id, lead_id, token)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (lead_id) DO UPDATE SET token = $3, updated_at = NOW()
+       RETURNING *`,
+      [req.tenantId, req.params.id, token]
+    );
+
+    res.json({ token: rows[0].token, url: `/status/${rows[0].token}` });
   } catch (err) {
     next(err);
   }
