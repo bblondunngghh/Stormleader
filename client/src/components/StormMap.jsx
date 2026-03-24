@@ -307,6 +307,7 @@ export default function StormMap() {
   const femaAbortRef = useRef(null); // separate abort controller for FEMA fetches
   const swathDebounceRef = useRef(null); // debounce timer
   const femaDebounceRef = useRef(null); // separate debounce for FEMA loading
+  const femaCountRef = useRef(0); // track FEMA point count without filtering array
   const [swathProgress, setSwathProgress] = useState(null); // progress bar state
   const [femaLoading, setFemaLoading] = useState(false);
   const femaLoadingCountRef = useRef(0);
@@ -606,9 +607,10 @@ export default function StormMap() {
           }
 
           if (newFeatures.length > 0) {
-            propFeaturesRef.current = [...propFeaturesRef.current, ...newFeatures];
+            // Push in-place to avoid O(n) spread on every batch
+            for (const nf of newFeatures) propFeaturesRef.current.push(nf);
             totalNew += newFeatures.length;
-            rebuildClusterIndex();
+            rebuildClusterIndex(); // debounced — coalesces rapid calls
             if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
             updatePropertyLabels(map, propFeaturesRef.current);
             // Persist to IndexedDB in background
@@ -673,8 +675,27 @@ export default function StormMap() {
 
   function chunkOverlapsSwath(chunkBbox) {
     const [cw, cs, ce, cn] = chunkBbox;
-    for (const [minLng, minLat, maxLng, maxLat] of getSwathBboxes()) {
-      if (!(maxLat < cs || minLat > cn || maxLng < cw || minLng > ce)) return true;
+    // Quick bbox pre-filter first
+    const bboxes = getSwathBboxes();
+    const storms = stormFeaturesRef.current;
+    for (let i = 0; i < bboxes.length; i++) {
+      const [minLng, minLat, maxLng, maxLat] = bboxes[i];
+      if (maxLat < cs || minLat > cn || maxLng < cw || minLng > ce) continue;
+      // Bbox overlaps — now check if any sample point actually falls inside the polygon
+      // Test 5 points: center + 4 corners. If any is inside, the chunk overlaps the swath.
+      const midLng = (cw + ce) / 2, midLat = (cs + cn) / 2;
+      const testPoints = [[midLng, midLat], [cw, cs], [ce, cs], [cw, cn], [ce, cn]];
+      const f = storms[i];
+      if (!f?.geometry?.coordinates) continue;
+      for (const [tLng, tLat] of testPoints) {
+        if (f.geometry.type === 'Polygon') {
+          if (pointInRing(tLng, tLat, f.geometry.coordinates[0])) return true;
+        } else if (f.geometry.type === 'MultiPolygon') {
+          for (const poly of f.geometry.coordinates) {
+            if (pointInRing(tLng, tLat, poly[0])) return true;
+          }
+        }
+      }
     }
     return false;
   }
@@ -698,7 +719,7 @@ export default function StormMap() {
 
     // Build list of unloaded FEMA tile-sized chunks that overlap storm swaths
     // Smaller chunks = tighter fit to actual swath areas, fewer wasted API calls
-    const CHUNK = 0.2;
+    const CHUNK = 0.1;
     const chunks = [];
     for (let w = viewBbox[0]; w < viewBbox[2]; w += CHUNK) {
       for (let s = viewBbox[1]; s < viewBbox[3]; s += CHUNK) {
@@ -725,8 +746,7 @@ export default function StormMap() {
     if (chunks.length === 0) return;
 
     // Global cap: don't load more than 5000 FEMA points total (prevents memory bloat)
-    const existingFemaCount = propFeaturesRef.current.filter(f => f.properties?.data_source === 'fema_nsi_live').length;
-    if (existingFemaCount > 5000) return;
+    if (femaCountRef.current > 5000) return;
 
     // Abort previous FEMA session
     if (femaAbortRef.current) femaAbortRef.current.abort();
@@ -788,6 +808,7 @@ export default function StormMap() {
     // Single batch update — one rebuildClusterIndex instead of per-chunk
     if (allNewFema.length > 0) {
       propFeaturesRef.current = [...propFeaturesRef.current, ...allNewFema];
+      femaCountRef.current += allNewFema.length;
       rebuildClusterIndex();
       if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
       cacheProperties(allNewFema);
@@ -1447,9 +1468,9 @@ export default function StormMap() {
         sessionStorage.setItem('stormMapViewport', JSON.stringify({ lat: c.lat(), lng: c.lng(), zoom: map.getZoom() }));
         clearTimeout(swathDebounceRef.current);
         swathDebounceRef.current = setTimeout(() => loadSwathProperties(map), 500);
-        // FEMA loading runs independently with its own debounce
+        // FEMA loading runs independently with its own debounce (longer delay — less critical)
         clearTimeout(femaDebounceRef.current);
-        femaDebounceRef.current = setTimeout(() => loadFemaProperties(map), 600);
+        femaDebounceRef.current = setTimeout(() => loadFemaProperties(map), 1200);
       });
 
       // Shared property popup function
@@ -1660,10 +1681,13 @@ export default function StormMap() {
         ]);
         if (cachedFeatures.length > 0) {
           propFeaturesRef.current = cachedFeatures;
+          let femaCount = 0;
           for (const f of cachedFeatures) {
             const pid = f.id || f.properties?.id;
             if (pid) propIdSetRef.current.add(pid);
+            if (f.properties?.data_source === 'fema_nsi_live') femaCount++;
           }
+          femaCountRef.current = femaCount;
           for (const key of cachedTiles) {
             if (key.startsWith('fema:')) {
               femaLoadedTilesRef.current.add(key);
@@ -1736,6 +1760,7 @@ export default function StormMap() {
       propIdSetRef.current.clear();
       loadedTilesRef.current.clear();
       femaLoadedTilesRef.current.clear();
+      femaCountRef.current = 0;
       mapRef.current = null;
     };
   }, []);
@@ -1749,6 +1774,7 @@ export default function StormMap() {
       propIdSetRef.current.clear();
       loadedTilesRef.current.clear();
       femaLoadedTilesRef.current.clear();
+      femaCountRef.current = 0;
       clearPropertyCache();
       setSwathProgress(null);
       propFeaturesRef.current = [];
