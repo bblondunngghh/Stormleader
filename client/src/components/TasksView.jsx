@@ -359,8 +359,10 @@ export default function TasksView() {
         {loading && allTasks.length === 0 ? (
           <div style={{ padding: 'var(--space-3xl)', textAlign: 'center', color: 'var(--text-muted)' }}>Loading...</div>
         ) : tasks.length === 0 ? (
-          <div style={{ padding: 'var(--space-3xl)', textAlign: 'center', color: 'var(--text-muted)' }}>
-            {filter === 'completed' ? 'No completed tasks' : 'No tasks yet — create one to get started'}
+          <div className="empty-state">
+            <ClipboardDocumentListIcon className="empty-state__icon" />
+            <div className="empty-state__title">{filter === 'completed' ? 'No completed tasks' : 'No tasks yet'}</div>
+            <div className="empty-state__desc">{filter === 'completed' ? 'Complete a task and it will appear here' : 'Create your first task to start tracking your work'}</div>
           </div>
         ) : (
           <div className="task-list">
