@@ -4,6 +4,7 @@ import * as contractsApi from '../api/contracts';
 import { getLeads } from '../api/crm';
 import client from '../api/client';
 import { IconPlusCircle, IconArrowLeft, IconSend, IconEye, IconX, IconTrash } from './Icons';
+import { DocumentTextIcon, PencilSquareIcon, ClockIcon, CheckBadgeIcon } from '@heroicons/react/24/outline';
 import CustomSelect from './CustomSelect';
 import { showToast } from './Toast';
 import useIsMobile from '../hooks/useIsMobile';
@@ -133,12 +134,13 @@ export default function ContractsView() {
       {/* KPIs */}
       <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
         {[
-          { value: totalContracts, label: 'Total Contracts', color: '330' },
-          { value: draftCount, label: 'Drafts', color: '250' },
-          { value: sentCount, label: 'Awaiting Signature', color: '85' },
-          { value: signedCount, label: 'Signed', color: '155' },
+          { Icon: DocumentTextIcon, value: totalContracts, label: 'Total Contracts', color: '330' },
+          { Icon: PencilSquareIcon, value: draftCount, label: 'Drafts', color: '250' },
+          { Icon: ClockIcon, value: sentCount, label: 'Awaiting Signature', color: '85' },
+          { Icon: CheckBadgeIcon, value: signedCount, label: 'Signed', color: '155' },
         ].map(s => (
           <div key={s.label} className="stat-card glass" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <s.Icon width={28} height={28} />
             <div className="stat-card__value">{s.value}</div>
             <div className="stat-card__label">{s.label}</div>
           </div>
