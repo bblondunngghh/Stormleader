@@ -1341,6 +1341,20 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
           </>
         )}
 
+        {/* Review Request — show when job is completed */}
+        {leadId && stage === 'completed' && (
+          <>
+            <div className="detail-section">
+              <div className="detail-section__title">Request Review</div>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '0 0 var(--space-md) 0' }}>
+                Generate a Google review link to send to your customer after job completion.
+              </p>
+              <ReviewRequestSection lead={lead} />
+            </div>
+            <div className="divider" />
+          </>
+        )}
+
         {/* Solar Potential */}
         {lead.roof_sqft && (
           <>
@@ -2483,6 +2497,85 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
         );
       })()}
     </>
+  );
+}
+
+function ReviewRequestSection({ lead }) {
+  const [settings, setSettings] = useState({ googlePlaceId: '', reviewMessageTemplate: '', name: '' });
+  const [copied, setCopied] = useState(null); // 'link' | 'sms' | 'email'
+
+  useEffect(() => {
+    client.get('/crm/tenant-settings')
+      .then(res => setSettings(res.data))
+      .catch(() => {});
+  }, []);
+
+  const customerFirst = lead.contact_name && lead.contact_name !== '—' ? lead.contact_name.split(' ')[0] : 'there';
+  const companyName = settings.name || 'our company';
+  const googleReviewUrl = settings.googlePlaceId
+    ? `https://search.google.com/local/writereview?placeid=${settings.googlePlaceId}`
+    : '';
+
+  const defaultMessage = settings.reviewMessageTemplate
+    || `Hi {{name}}, thank you for choosing {{company}}! We'd love to hear about your experience. Would you mind leaving us a quick Google review? {{link}}`;
+
+  const resolvedMessage = defaultMessage
+    .replace(/\{\{name\}\}/g, customerFirst)
+    .replace(/\{\{company\}\}/g, companyName)
+    .replace(/\{\{link\}\}/g, googleReviewUrl || '(Set your Google Place ID in Settings)');
+
+  const handleCopy = async (type) => {
+    let text = resolvedMessage;
+    if (type === 'link') text = googleReviewUrl || '(No Google Place ID configured)';
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(type);
+      setTimeout(() => setCopied(null), 2000);
+    } catch { /* ignore */ }
+  };
+
+  if (!settings.googlePlaceId) {
+    return (
+      <div style={{ fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic' }}>
+        Set your Google Place ID in Settings &rarr; Reviews to enable review requests.
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+      <div style={{
+        padding: 'var(--space-md)', borderRadius: 'var(--radius-md)',
+        background: 'oklch(0.25 0.04 145 / 0.15)', border: '1px solid oklch(0.5 0.12 145 / 0.2)',
+        fontSize: 12, color: 'oklch(0.78 0.14 145)', lineHeight: 1.5,
+      }}>
+        {resolvedMessage}
+      </div>
+      <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
+        <button className="quick-action-btn" style={{ fontSize: 12, padding: '6px 14px' }}
+          onClick={() => handleCopy('link')}>
+          {copied === 'link' ? 'Copied!' : 'Copy Review Link'}
+        </button>
+        <button className="quick-action-btn" style={{ fontSize: 12, padding: '6px 14px' }}
+          onClick={() => handleCopy('message')}>
+          {copied === 'message' ? 'Copied!' : 'Copy Message'}
+        </button>
+        {lead.phone && (
+          <a href={`sms:${lead.phone}?body=${encodeURIComponent(resolvedMessage)}`}
+            className="quick-action-btn"
+            style={{ fontSize: 12, padding: '6px 14px', textDecoration: 'none' }}>
+            Send SMS
+          </a>
+        )}
+        {lead.email && (
+          <a href={`mailto:${lead.email}?subject=${encodeURIComponent(`Review Request — ${companyName}`)}&body=${encodeURIComponent(resolvedMessage)}`}
+            className="quick-action-btn"
+            style={{ fontSize: 12, padding: '6px 14px', textDecoration: 'none' }}>
+            Send Email
+          </a>
+        )}
+      </div>
+    </div>
   );
 }
 

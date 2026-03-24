@@ -465,18 +465,21 @@ router.get('/tenant-settings', async (req, res, next) => {
   try {
     const { rows } = await pool.query(
       `SELECT name, slug, company_phone, company_website, company_address, sender_email,
-              subscription_tier, subscription_status, onboarding_completed, plan_changed_at
+              subscription_tier, subscription_status, onboarding_completed, plan_changed_at, branding
        FROM tenants WHERE id = $1`,
       [req.tenantId],
     );
     if (!rows.length) return res.status(404).json({ error: 'Tenant not found' });
     const t = rows[0];
+    const branding = t.branding || {};
     res.json({
       name: t.name, slug: t.slug, companyPhone: t.company_phone,
       companyWebsite: t.company_website, companyAddress: t.company_address,
       senderEmail: t.sender_email, subscriptionTier: t.subscription_tier,
       subscriptionStatus: t.subscription_status, onboardingCompleted: t.onboarding_completed,
       planChangedAt: t.plan_changed_at,
+      googlePlaceId: branding.google_place_id || '',
+      reviewMessageTemplate: branding.review_message_template || '',
     });
   } catch (err) { next(err); }
 });
@@ -487,23 +490,39 @@ router.put('/tenant-settings', async (req, res, next) => {
     if (req.user?.role !== 'admin' && req.user?.role !== 'super_admin') {
       return res.status(403).json({ error: 'Only admins can modify company settings' });
     }
-    const { senderEmail, companyPhone, companyWebsite, companyAddress } = req.body;
+    const { senderEmail, companyPhone, companyWebsite, companyAddress, googlePlaceId, reviewMessageTemplate } = req.body;
+
+    // Update branding JSONB for review settings if provided
+    let brandingUpdate = '';
+    const params = [senderEmail ?? null, companyPhone ?? null, companyWebsite ?? null, companyAddress ?? null, req.tenantId];
+    if (googlePlaceId !== undefined || reviewMessageTemplate !== undefined) {
+      brandingUpdate = `,
+         branding = branding || $6::jsonb`;
+      const brandingPatch = {};
+      if (googlePlaceId !== undefined) brandingPatch.google_place_id = googlePlaceId;
+      if (reviewMessageTemplate !== undefined) brandingPatch.review_message_template = reviewMessageTemplate;
+      params.push(JSON.stringify(brandingPatch));
+    }
+
     const { rows } = await pool.query(
       `UPDATE tenants SET
          sender_email    = COALESCE($1, sender_email),
          company_phone   = COALESCE($2, company_phone),
          company_website = COALESCE($3, company_website),
-         company_address = COALESCE($4, company_address),
+         company_address = COALESCE($4, company_address)${brandingUpdate},
          updated_at = NOW()
        WHERE id = $5
-       RETURNING name, slug, sender_email, company_phone, company_website, company_address`,
-      [senderEmail ?? null, companyPhone ?? null, companyWebsite ?? null, companyAddress ?? null, req.tenantId],
+       RETURNING name, slug, sender_email, company_phone, company_website, company_address, branding`,
+      params,
     );
     if (!rows.length) return res.status(404).json({ error: 'Tenant not found' });
     const t = rows[0];
+    const branding = t.branding || {};
     res.json({
       name: t.name, slug: t.slug, senderEmail: t.sender_email,
       companyPhone: t.company_phone, companyWebsite: t.company_website, companyAddress: t.company_address,
+      googlePlaceId: branding.google_place_id || '',
+      reviewMessageTemplate: branding.review_message_template || '',
     });
   } catch (err) { next(err); }
 });

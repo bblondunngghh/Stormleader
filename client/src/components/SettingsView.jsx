@@ -24,7 +24,7 @@ export default function SettingsView() {
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState(() => {
     const urlTab = searchParams.get('tab');
-    return ['profile', 'company', 'billing', 'payments', 'team', 'alerts', 'notifications', 'financing', 'automations', 'drip-sequences', 'custom-fields', 'contracts'].includes(urlTab) ? urlTab : 'profile';
+    return ['profile', 'company', 'billing', 'payments', 'team', 'alerts', 'notifications', 'financing', 'automations', 'drip-sequences', 'custom-fields', 'contracts', 'reviews'].includes(urlTab) ? urlTab : 'profile';
   });
 
   const tabs = [
@@ -40,6 +40,7 @@ export default function SettingsView() {
     { id: 'drip-sequences', label: 'Drip Sequences' },
     { id: 'custom-fields', label: 'Custom Fields' },
     { id: 'contracts', label: 'Contracts' },
+    { id: 'reviews', label: 'Reviews' },
   ];
 
   return (
@@ -73,6 +74,7 @@ export default function SettingsView() {
       {tab === 'drip-sequences' && <DripSequences />}
       {tab === 'custom-fields' && <CustomFieldsTab />}
       {tab === 'contracts' && <ContractTemplatesTab />}
+      {tab === 'reviews' && <ReviewSettingsTab />}
       </div>
     </div>
   );
@@ -2271,6 +2273,112 @@ function ContractTemplatesTab() {
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+function ReviewSettingsTab() {
+  const [googlePlaceId, setGooglePlaceId] = useState('');
+  const [reviewMessageTemplate, setReviewMessageTemplate] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    client.get('/crm/tenant-settings')
+      .then(res => {
+        setGooglePlaceId(res.data.googlePlaceId || '');
+        setReviewMessageTemplate(res.data.reviewMessageTemplate || '');
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await client.put('/crm/tenant-settings', { googlePlaceId, reviewMessageTemplate });
+      showToast('Review settings saved', 'success');
+    } catch {
+      showToast('Failed to save', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const defaultTemplate = 'Hi {{name}}, thank you for choosing {{company}}! We\'d love to hear about your experience. Would you mind leaving us a quick Google review? {{link}}';
+
+  if (loading) return <div style={{ textAlign: 'center', padding: 'var(--space-xl)', color: 'var(--text-muted)' }}>Loading...</div>;
+
+  return (
+    <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
+      <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 'var(--space-lg)' }}>Google Review Requests</div>
+      <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '0 0 var(--space-lg) 0', lineHeight: 1.5 }}>
+        When a job is marked as "Completed", a review request section will appear in the lead detail page.
+        Customers can be sent a direct link to leave a Google review for your business.
+      </p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)' }}>
+        <div className="form-group">
+          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            Google Place ID
+          </label>
+          <input
+            type="text"
+            className="form-input"
+            value={googlePlaceId}
+            onChange={e => setGooglePlaceId(e.target.value)}
+            placeholder="e.g. ChIJ..."
+            style={{ height: 36, borderRadius: 12, fontSize: 13 }}
+          />
+          <span style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.4 }}>
+            Find your Place ID at{' '}
+            <a href="https://developers.google.com/maps/documentation/places/web-service/place-id" target="_blank" rel="noreferrer"
+              style={{ color: 'var(--accent-blue)' }}>
+              Google Place ID Finder
+            </a>. Search for your business, then copy the Place ID.
+          </span>
+        </div>
+
+        <div className="form-group">
+          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            Review Message Template
+          </label>
+          <textarea
+            className="form-input"
+            rows={4}
+            value={reviewMessageTemplate}
+            onChange={e => setReviewMessageTemplate(e.target.value)}
+            placeholder={defaultTemplate}
+            style={{ resize: 'vertical', fontSize: 13, borderRadius: 12 }}
+          />
+          <span style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.4 }}>
+            Available variables: <code style={{ color: 'var(--accent-blue)' }}>{'{{name}}'}</code>,{' '}
+            <code style={{ color: 'var(--accent-blue)' }}>{'{{company}}'}</code>,{' '}
+            <code style={{ color: 'var(--accent-blue)' }}>{'{{link}}'}</code>
+          </span>
+        </div>
+
+        {googlePlaceId && (
+          <div style={{
+            padding: 'var(--space-md)', borderRadius: 'var(--radius-md)',
+            background: 'oklch(0.20 0.03 260 / 0.5)', border: '1px solid var(--glass-border)',
+          }}>
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 'var(--space-sm)' }}>
+              Preview
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              {(reviewMessageTemplate || defaultTemplate)
+                .replace(/\{\{name\}\}/g, 'John')
+                .replace(/\{\{company\}\}/g, 'Your Company')
+                .replace(/\{\{link\}\}/g, `https://search.google.com/local/writereview?placeid=${googlePlaceId}`)}
+            </div>
+          </div>
+        )}
+
+        <button onClick={handleSave} disabled={saving} className="auth-btn" style={{ width: '100%' }}>
+          {saving ? 'Saving...' : 'Save Review Settings'}
+        </button>
+      </div>
     </div>
   );
 }
