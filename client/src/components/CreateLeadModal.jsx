@@ -29,16 +29,8 @@ const stageOptions = [
   { value: 'sold', label: 'Sold' },
 ];
 
-const fieldStyle = {
-  width: '100%', boxSizing: 'border-box',
-  padding: '8px 14px', fontSize: 13,
-  background: 'oklch(0.22 0.02 260 / 0.45)',
-  border: '1px solid var(--glass-border)',
-  borderRadius: '14px / 12px',
-  color: 'var(--text-primary)',
-  backdropFilter: 'blur(12px)',
-  outline: 'none',
-};
+// Use CSS class for consistent styling with focus glow and transitions
+const fieldStyle = undefined; // replaced by className="form-input"
 
 export default function CreateLeadModal({ onClose, onCreated }) {
   const [form, setForm] = useState({
@@ -93,7 +85,7 @@ export default function CreateLeadModal({ onClose, onCreated }) {
       />
       <div style={{
         position: 'fixed', top: '50%', left: '50%',
-        transform: 'translate(-50%, -50%)', zIndex: 301,
+        zIndex: 301,
         width: 440, overflow: 'visible',
         borderRadius: '20px / 18px',
         background: 'var(--glass-bg)',
@@ -101,6 +93,7 @@ export default function CreateLeadModal({ onClose, onCreated }) {
         border: '1px solid var(--glass-border)',
         boxShadow: '0 8px 32px oklch(0 0 0 / 0.4), inset 0 1px 0 oklch(1 0 0 / 0.05)',
         padding: 24,
+        animation: 'modal-scale-in 200ms cubic-bezier(0.16, 1, 0.3, 1) both',
         animation: 'modalSlideIn 0.3s ease-out',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
@@ -115,36 +108,36 @@ export default function CreateLeadModal({ onClose, onCreated }) {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
               <label style={labelStyle}>Contact Name</label>
-              <input style={fieldStyle} value={form.contact_name} onChange={set('contact_name')} placeholder="John Doe" />
+              <input className="form-input" value={form.contact_name} onChange={set('contact_name')} placeholder="John Doe" />
             </div>
             <div>
               <label style={labelStyle}>Phone</label>
-              <input style={fieldStyle} value={form.contact_phone} onChange={handlePhoneChange} placeholder="555-123-4567" />
+              <input className="form-input" value={form.contact_phone} onChange={handlePhoneChange} placeholder="555-123-4567" />
             </div>
           </div>
 
           <div>
             <label style={labelStyle}>Email</label>
-            <input style={fieldStyle} value={form.contact_email} onChange={set('contact_email')} placeholder="john@example.com" />
+            <input className="form-input" value={form.contact_email} onChange={set('contact_email')} placeholder="john@example.com" />
           </div>
 
           <div>
             <label style={labelStyle}>Address</label>
-            <input style={fieldStyle} value={form.address} onChange={set('address')} placeholder="123 Main St" />
+            <input className="form-input" value={form.address} onChange={set('address')} placeholder="123 Main St" />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 12 }}>
             <div>
               <label style={labelStyle}>City</label>
-              <input style={fieldStyle} value={form.city} onChange={set('city')} placeholder="Austin" />
+              <input className="form-input" value={form.city} onChange={set('city')} placeholder="Austin" />
             </div>
             <div>
               <label style={labelStyle}>State</label>
-              <input style={fieldStyle} value={form.state} onChange={set('state')} placeholder="TX" maxLength={2} />
+              <input className="form-input" value={form.state} onChange={set('state')} placeholder="TX" maxLength={2} />
             </div>
             <div>
               <label style={labelStyle}>Zip</label>
-              <input style={fieldStyle} value={form.zip} onChange={set('zip')} placeholder="78701" />
+              <input className="form-input" value={form.zip} onChange={set('zip')} placeholder="78701" />
             </div>
           </div>
 
@@ -165,7 +158,7 @@ export default function CreateLeadModal({ onClose, onCreated }) {
 
           <div>
             <label style={labelStyle}>Estimated Value ($)</label>
-            <input style={fieldStyle} type="number" value={form.estimated_value} onChange={set('estimated_value')} placeholder="15000" />
+            <input className="form-input" type="number" value={form.estimated_value} onChange={set('estimated_value')} placeholder="15000" />
           </div>
 
           <button
