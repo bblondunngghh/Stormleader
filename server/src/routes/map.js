@@ -24,23 +24,7 @@ async function checkPostGIS() {
 
 const emptyFC = { type: 'FeatureCollection', features: [] };
 
-// Debug endpoint to diagnose map issues — remove after fixing
-router.get('/debug', async (req, res) => {
-  try {
-    const postgis = await checkPostGIS();
-    const { rows: ext } = await pool.query(`SELECT extname FROM pg_extension ORDER BY extname`);
-    const { rows: tables } = await pool.query(`SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name IN ('storm_events','properties') ORDER BY table_name`);
-    const colInfo = {};
-    for (const t of tables) {
-      const { rows: cols } = await pool.query(`SELECT column_name, data_type, udt_name FROM information_schema.columns WHERE table_name = $1 AND column_name IN ('geom','location','drift_corrected_geom','bbox') ORDER BY column_name`, [t.table_name]);
-      colInfo[t.table_name] = cols;
-    }
-    const { rows: counts } = await pool.query(`SELECT (SELECT count(*) FROM storm_events) AS storms, (SELECT count(*) FROM properties) AS props`);
-    res.json({ postgis, extensions: ext.map(e => e.extname), tables: tables.map(t => t.table_name), columns: colInfo, counts: counts[0] });
-  } catch (err) {
-    res.status(500).json({ error: err.message, code: err.code });
-  }
-});
+// Debug endpoint removed — exposed database schema info (security audit 2026-03-24)
 
 // GET /api/map/properties?bbox=w,s,e,n&improvedOnly=true
 router.get('/properties', async (req, res, next) => {

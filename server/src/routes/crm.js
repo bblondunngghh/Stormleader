@@ -481,9 +481,12 @@ router.get('/tenant-settings', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// PUT /api/crm/tenant-settings
+// PUT /api/crm/tenant-settings (admin only)
 router.put('/tenant-settings', async (req, res, next) => {
   try {
+    if (req.user?.role !== 'admin' && req.user?.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Only admins can modify company settings' });
+    }
     const { senderEmail, companyPhone, companyWebsite, companyAddress } = req.body;
     const { rows } = await pool.query(
       `UPDATE tenants SET

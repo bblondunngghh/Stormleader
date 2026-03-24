@@ -77,9 +77,12 @@ router.patch('/:id/complete', async (req, res, next) => {
   }
 });
 
-// Get milestones for a work order
+// Get milestones for a work order (tenant-scoped)
 router.get('/:id/milestones', async (req, res, next) => {
   try {
+    // Verify work order belongs to this tenant before returning milestones
+    const wo = await workOrderService.getWorkOrder(req.tenantId, req.params.id);
+    if (!wo) return res.status(404).json({ error: 'Work order not found' });
     const milestones = await workOrderService.getMilestones(req.params.id);
     res.json({ milestones });
   } catch (err) {
@@ -87,9 +90,12 @@ router.get('/:id/milestones', async (req, res, next) => {
   }
 });
 
-// Update a milestone (toggle complete, set photo)
+// Update a milestone (toggle complete, set photo) — tenant-scoped
 router.patch('/:id/milestones/:milestoneId', async (req, res, next) => {
   try {
+    // Verify work order belongs to this tenant
+    const wo = await workOrderService.getWorkOrder(req.tenantId, req.params.id);
+    if (!wo) return res.status(404).json({ error: 'Work order not found' });
     const { completed, photo_url } = req.body;
     const milestone = await workOrderService.updateMilestone(
       req.params.id, req.params.milestoneId,

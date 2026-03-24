@@ -71,8 +71,8 @@ router.get('/import-progress', (req, res) => {
   res.json(getImportProgress());
 });
 
-// POST /api/properties/trigger-import — kick off storm area auto-import
-router.post('/trigger-import', (req, res) => {
+// POST /api/properties/trigger-import — kick off storm area auto-import (auth required)
+router.post('/trigger-import', authenticate, (req, res) => {
   const progress = getImportProgress();
   if (progress.active) {
     return res.json({ status: 'already_running', progress });
