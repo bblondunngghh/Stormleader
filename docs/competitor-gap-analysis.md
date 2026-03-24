@@ -1,6 +1,6 @@
 # Competitor Gap Analysis — StormLeads vs JobNimbus + HailTrace + RoofLink + Rooftops.ai
 
-**Date:** 2026-03-24 (comprehensive update with fresh web research)
+**Date:** 2026-03-24 (verified update with multiple-source cross-referencing)
 **Methodology:** Web research of competitor websites, review sites, press releases, and pricing pages
 
 ---
@@ -8,7 +8,7 @@
 ## 1. JobNimbus
 
 ### Overview
-- Founded 2013, 6,000+ roofing contractors, 4.8-star mobile app
+- Founded 2013, 6,000+ roofing contractors (self-reported), 4.8-star mobile app
 - All-in-one CRM for roofing/exterior contractors: marketing, sales, production, billing, communication
 - Acquired Roofer Marketers (April 2023) and SumoQuote (2024) to expand into marketing and estimating
 
@@ -117,14 +117,17 @@ JobNimbus no longer publishes specific dollar amounts on their website ("Request
 - Automation features help seal process gaps
 - 4.8-star rating on app stores
 
-**Negative/Complaints:**
+**Negative/Complaints (2025-2026 reviews from Capterra, G2, Trustpilot):**
 - Setup and learning curve challenging for fieldwork teams
-- Integrations described as "finicky at best"
-- Customer support criticized as "horrendous" -- training unavailable after onboarding
+- Integrations described as "finicky at best" — nothing flows easily without manual entry
+- Customer support criticized as "horrendous" -- training unavailable after two onboarding calls
 - Email system problems caused missed communications (led to BBB complaints)
 - Pricing opacity (no public pricing, three-layer cost model makes budgeting difficult)
 - Growing plan limitations (5 integrations, 10 automations) force upgrades
 - Third-party tools (CompanyCam, EagleView) add hidden costs beyond base subscription
+- New "Insights" reporting feature described as "AWFUL" by users
+- Cannot handle commercial job costing or vendor portals — residential-only workflow
+- Mobile performance issues reported; setup complexity remains a barrier
 
 ### New Features Added 2025-2026
 1. **AssistAI** — AI phone answering/receptionist ($298/agent/month)
@@ -139,10 +142,10 @@ JobNimbus no longer publishes specific dollar amounts on their website ("Request
 ## 2. HailTrace
 
 ### Overview
-- The industry-leading storm mapping platform for roofing contractors
+- The industry-leading storm mapping platform, trusted by 9,000+ contractors across North America
 - Only company with a team of 15+ in-house meteorologists hand-mapping storms live
 - Available in US and Canada
-- Integrates with: JobNimbus, OneClick Code, SPOTIO, SalesRabbit, Lettrlabs, Enzy
+- Integrates with: JobNimbus, OneClick Code, SPOTIO, SalesRabbit, Lettrlabs, Enzy, Knockbase
 
 ### All Features (2026)
 
@@ -209,6 +212,9 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 - Pricing varies by coverage area (pay per state/region)
 - Some sources cite $50-99/mo for basic plans
 - Enterprise with canvassing + commercial data likely $300+/mo
+- Competitor Hail Recon charges $999-$1,999/year (~$83-166/mo), suggesting HailTrace is in a similar or higher range
+- Property data sourced from Cole Information, updated quarterly
+- Each subscriber gets a dedicated Customer Success Specialist
 
 ### User Reviews & Complaints
 
@@ -297,21 +303,21 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 
 ### Pricing (2026)
 
-**IMPORTANT UPDATE:** RoofLink's pricing page now shows **$400/user/month** (up from the previously reported $120/user/month).
+**CORRECTION:** Multiple sources (GetApp, Capterra, SoftwareAdvice, SoftwareFinder) confirm RoofLink is **$120/user/month**. A prior version of this doc incorrectly listed $400/user/month. Discounts available for larger teams. Combined promo with SalesRabbit Pro: $160/user/month for both platforms.
 
 | Plan | Cost | Includes |
 |---|---|---|
-| **Flat Rate** | $400/user/month | Everything -- CRM, measurements, canvassing, production, estimates, territory management, payments, all integrations |
+| **Flat Rate** | $120/user/month | Everything -- CRM, measurements, canvassing, production, estimates, territory management, payments, all integrations |
 
 - No tiers, no feature gating, no add-on fees
-- No per-measurement costs
-- Volume discounts may be available
+- No per-measurement costs (built-in satellite roof drawing tool)
+- Volume discounts available for larger companies
 
 | Team Size | Users | Monthly | Annual |
 |---|---|---|---|
-| Solo | 1 | **$400** | **$4,800** |
-| 5-person | 5 | **$2,000** | **$24,000** |
-| 10-person | 10 | **$4,000** | **$48,000** |
+| Solo | 1 | **$120** | **$1,440** |
+| 5-person | 5 | **$600** | **$7,200** |
+| 10-person | 10 | **$1,200** | **$14,400** |
 
 **Reported ROI (from RoofLink site):**
 - 70% efficiency increase within 6 months
@@ -392,14 +398,15 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 - Google Solar API (buildingInsights endpoint)
 - OpenAI/GPT-5 integration
 
-### Pricing (2026)
+### Pricing (2026, verified)
 
-| Tier | Cost | Includes |
-|---|---|---|
-| **Free** | $0 | 3 property reports |
-| **Rooftops Pro** | $12/month | 300 reports/month, Rooftops GPT, AI Creator Studio, Document Manager, 3-day free trial |
-| **AI Employees** | $199/month | Coming soon -- automated sales, content, social media, 24/7 responses |
-| **White-Glove Consulting** | $5,000 one-time | 5 one-hour Zoom sessions, custom AI setup, 6 months premium access, 90-day business roadmap |
+| Tier | Cost (Annual) | Cost (Monthly) | Includes |
+|---|---|---|---|
+| **Free** | $0 | $0 | 3 property reports |
+| **Rooftops Pro (Individual)** | $12/month | $12/month | 300 reports/month, Rooftops GPT, AI Creator Studio, Document Manager |
+| **Rooftops Pro (Team)** | $55/month | $55/month | Up to 5 team members, all Pro features for each member |
+| **AI Employees** | $199/month | $199/month | Coming soon -- Marcus (sales), Aisha (content/SEO), Elena (social), Ryan (24/7 responses) |
+| **White-Glove Consulting** | $5,000 one-time | N/A | 5 one-hour Zoom sessions, custom AI setup, 6 months premium access, 90-day business roadmap |
 
 ### Key Differentiators
 - Extremely cheap for what it offers ($12/mo for 300 AI reports)
@@ -459,7 +466,7 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 | **Automation & Reporting** |||||||
 | Workflow automations | Yes (10-100 limit) | No | No | Yes (drip) | Yes (unlimited, free) | **Better** |
 | Reports/analytics | Yes | Dashboard | Yes (custom) | No | Yes (6 types) | Match |
-| Profit tracker per job | Yes (new) | No | Yes (built-in) | No | No | **Missing** |
+| Profit tracker per job | Yes (new) | No | Yes (built-in) | No | Yes (LeadDetail) | Match |
 | **Communication** |||||||
 | SMS texting | Yes ($49-249/mo) | No | No | No | No | **Missing** |
 | Email integration | Yes | No | No | No | No (automations) | **Worse** |
@@ -507,16 +514,17 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 
 | Team Size | Monthly | Annual |
 |---|---|---|
-| Solo | **$400** | **$4,800** |
-| 5-person | **$2,000** | **$24,000** |
-| 10-person | **$4,000** | **$48,000** |
+| Solo | **$120** | **$1,440** |
+| 5-person | **$600** | **$7,200** |
+| 10-person | **$1,200** | **$14,400** |
 
 ### Rooftops.ai
 
 | Tier | Monthly | Annual |
 |---|---|---|
 | Free | $0 | $0 |
-| Pro | **$12** | **$144** |
+| Pro (Individual) | **$12** | **$144** |
+| Pro (Team, up to 5) | **$55** | **$660** |
 | AI Employees | **$199** | **$2,388** |
 | White-Glove | $5,000 one-time | N/A |
 
@@ -541,7 +549,7 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 5. **Custom fields** -- free, vs JobNimbus requiring Premium/Established tier (~$550/mo base)
 6. **Online payments** -- Stripe integration free, vs JobNimbus charging $49-249/mo for Engage texting/payment
 7. **Work order kanban** -- 4-column visual board, better than JobNimbus's basic work orders
-8. **No per-user fees** -- flat pricing vs JobNimbus ($25-75/user), RoofLink ($400/user!)
+8. **No per-user fees** -- flat pricing vs JobNimbus ($25-75/user), RoofLink ($120/user)
 9. **Weather history reports** -- free, vs HailTrace charging for this as a paid tier feature
 10. **Impacted asset alerts** -- free, vs HailTrace charging for impact tracking
 
@@ -556,10 +564,10 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 
 **Moderate gaps:**
 6. **Limited historical storm data** -- HailTrace has 10+ years; StormLeads has 30-day rolling NOAA window
-7. **No per-job profit tracking** -- JobNimbus has Profit Tracker; RoofLink has built-in margin calc
-8. **No canvassing region/territory assignment** -- HailTrace and RoofLink both support this
-9. **No material ordering integration** -- JN (QXO/SRS), RoofLink (SRS direct)
-10. **No photo annotation** -- JN and RoofLink integrate CompanyCam
+7. **No canvassing region/territory assignment** -- HailTrace and RoofLink both support this
+8. **No material ordering integration** -- JN (QXO/SRS), RoofLink (SRS direct)
+9. **No photo annotation** -- JN and RoofLink integrate CompanyCam
+10. **No commercial job costing** -- JobNimbus also lacks this (user complaints), but RoofLink has it
 
 **Lower priority gaps:**
 11. **No subcontractor management** -- JobNimbus tracks subs
@@ -610,9 +618,9 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 
 | Company Size | RoofLink | StormLeads | Monthly Savings | % Saved |
 |---|---|---|---|---|
-| Solo | $400/mo | $29/mo | **$371** | **93%** |
-| 5-person | $2,000/mo | $79/mo | **$1,921** | **96%** |
-| 10-person | $4,000/mo | $149/mo | **$3,851** | **96%** |
+| Solo | $120/mo | $29/mo | **$91** | **76%** |
+| 5-person | $600/mo | $79/mo | **$521** | **87%** |
+| 10-person | $1,200/mo | $149/mo | **$1,051** | **88%** |
 
 ---
 
@@ -621,14 +629,14 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 ### Tier 1: Must-have for launch (close critical gaps)
 1. QuickBooks sync (free API tier)
 2. Territory/region assignment for canvassing (PostGIS)
-3. Per-job profit tracking (DB + UI)
-4. Historical storm data expansion (NOAA archives)
+3. Historical storm data expansion (NOAA archives — SPC SVRGIS has 70+ years free)
+4. SMS/texting via Twilio (pass-through cost to users, ~$0.0075/msg)
 
 ### Tier 2: High-value differentiators
-5. AI roof reports (satellite, like Rooftops.ai -- Google Solar API)
-6. SMS/texting via Twilio (pass-through cost to users)
-7. AI assistant for email/content (cheap LLM API)
-8. Solar analysis panel (Google Solar API free tier)
+5. AI roof reports (satellite, like Rooftops.ai -- Google Solar API free tier)
+6. AI assistant for email/content (cheap LLM API, ~$0.01/request)
+7. Solar analysis panel (Google Solar API free tier)
+8. Review request automation (mailto/SMS links when job marked Complete)
 
 ### Tier 3: Nice-to-have
 9. Photo annotation (HTML5 canvas)
@@ -641,10 +649,20 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 
 ## Key Marketing Messages
 
-1. **"One platform, not two"** -- CRM + storm data + canvassing in one app
-2. **"No per-user fees"** -- flat monthly price (RoofLink charges $400/user!)
-3. **"90% cheaper than JobNimbus + HailTrace combined"**
+1. **"One platform, not two"** -- CRM + storm data + canvassing in one app (competitors need JN + HailTrace)
+2. **"No per-user fees"** -- flat monthly price vs JobNimbus ($25-75/user) and RoofLink ($120/user)
+3. **"90% cheaper than JobNimbus + HailTrace combined"** -- $79/mo vs $824/mo for 5-person team
 4. **"Free storm data powered by NOAA"** -- same government data sources, zero markup
 5. **"Unlimited automations at every tier"** -- vs JobNimbus capping at 10-100
 6. **"All the features, none of the add-on fees"** -- estimates, e-sign, payments all included
-7. **"Switch from $1,500/mo to $79/mo"** -- for a typical 5-person team
+7. **"Switch from $824/mo to $79/mo"** -- for a typical 5-person team using JN + HailTrace
+8. **"They hide their pricing — we don't"** -- JobNimbus and HailTrace both require "request pricing" forms
+
+## Research Sources
+
+- [JobNimbus Pricing](https://www.jobnimbus.com/pricing) | [Toricentlabs Analysis](https://toricentlabs.com/blog/jobnimbus-pricing-2026.html)
+- [HailTrace Plans](https://hailtrace.com/plans) | [Hook Agency Comparison](https://hookagency.com/blog/hail-trackers-for-roofing/)
+- [RoofLink Pricing](https://rooflink.com/pricing/) | [GetApp](https://www.getapp.com/construction-software/a/rooflink/) | [Capterra](https://www.capterra.com/p/198426/ROOF-link/)
+- [Rooftops.ai Pro Plans](https://www.rooftops.ai/products) | [Resources](https://resources.rooftops.ai/)
+- [JobNimbus Reviews - Capterra](https://www.capterra.com/p/126797/JobNimbus/reviews/) | [G2](https://www.g2.com/products/jobnimbus/reviews)
+- [JobNimbus AssistAI](https://www.jobnimbus.com/product/assistai) | [Scout Announcement](https://www.einpresswire.com/article/882981375/jobnimbus-unveils-scout-a-mobile-ai-assistant-designed-for-real-time-field-work)
