@@ -711,6 +711,10 @@ export default function StormMap() {
       grid.add(`${Math.round(eLat / CELL)},${Math.round(eLng / CELL)}`);
     }
 
+    // Batch all FEMA features to avoid per-chunk rebuildClusterIndex
+    const allNewFema = [];
+    const allKeys = [];
+
     for (const chunk of chunks) {
       if (femaAbort.signal.aborted) break;
       try {
@@ -721,35 +725,38 @@ export default function StormMap() {
         });
         const femaFeatures = femaRes.data?.features || [];
 
-        const newFema = [];
-        const MAX_FEMA_PER_CHUNK = 2000; // Cap per chunk to prevent overwhelming the map
+        const MAX_FEMA_PER_CHUNK = 2000;
+        let added = 0;
         for (const f of femaFeatures) {
-          if (newFema.length >= MAX_FEMA_PER_CHUNK) break;
+          if (added >= MAX_FEMA_PER_CHUNK) break;
           const pid = f.id;
           if (propIdSetRef.current.has(pid)) continue;
           const [fLng, fLat] = f.geometry.coordinates;
           if (grid.has(`${Math.round(fLat / CELL)},${Math.round(fLng / CELL)}`)) continue;
           propIdSetRef.current.add(pid);
-          newFema.push(f);
+          allNewFema.push(f);
           grid.add(`${Math.round(fLat / CELL)},${Math.round(fLng / CELL)}`);
-        }
-
-        if (newFema.length > 0) {
-          propFeaturesRef.current = [...propFeaturesRef.current, ...newFema];
-          rebuildClusterIndex();
-          if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
-          cacheProperties(newFema);
+          added++;
         }
 
         for (const key of chunk.keys) {
           femaLoadedTilesRef.current.add(key);
+          allKeys.push(key);
         }
-        cacheTileKeys(chunk.keys);
       } catch (err) {
         if (err.name === 'AbortError' || err.name === 'CanceledError') break;
         console.warn('FEMA chunk fetch failed:', err.message);
       }
     }
+
+    // Single batch update — one rebuildClusterIndex instead of per-chunk
+    if (allNewFema.length > 0) {
+      propFeaturesRef.current = [...propFeaturesRef.current, ...allNewFema];
+      rebuildClusterIndex();
+      if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
+      cacheProperties(allNewFema);
+    }
+    if (allKeys.length > 0) cacheTileKeys(allKeys);
 
     if (!femaAbort.signal.aborted) {
       setFemaLoading(false);
