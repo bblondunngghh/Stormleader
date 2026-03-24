@@ -99,3 +99,44 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Global CSS selectors like `div[style*="position: fixed"] > .glass` can apply animations without modifying every component individually.
 - Playwright clicks on React buttons don't reliably trigger synthetic events — use `page.evaluate()` to call native `.click()` for tab switching and modal triggers.
 - The app already has per-job profit tracking, drip sequences, contracts with e-signing, expense tracking, materials catalog, and workflow automations — all features competitors charge extra for.
+
+---
+
+## Run: 2026-03-24 (Run 3)
+
+### What was done
+- **Canvassing Territory Management**: Full feature — database migration for canvass_territories table with PostGIS POLYGON geometry, backend CRUD routes with spatial queries (ST_Within, ST_AsGeoJSON), frontend TerritoryManager panel with Google Maps Drawing API polygon tool, color picker, team member assignment dropdown, territory list with pin counts. Closes a key competitive gap vs HailTrace and RoofLink.
+- **Photo Annotation Tool**: Wired up the existing PhotoAnnotator component into LeadDetail documents tab via createPortal modal. Clicking the pencil icon on document thumbnails opens the annotation canvas. Annotated photos save as new documents linked to the lead. Replaces need for CompanyCam ($19/user/month).
+- **Security Hardening (Run 3)**: Fixed WKT injection vulnerability in territory coordinates (validate finite numbers before PostGIS string interpolation). Added authenticate middleware to import-progress endpoint. Wrote comprehensive security audit doc covering all 34 route files.
+- **Empty States Improved**: LeadList (contextual messaging for filter vs no-data), Pipeline (desktop kanban columns show "No leads in this stage"), InvoicesView (icon, description, "New Invoice" CTA button).
+- **FEMA Map Performance**: Replaced bbox-only chunk overlap with polygon point-in-ring test (5 sample points per chunk). Reduced chunk size from 0.2° to 0.1°. Switched from O(n) array spread to in-place push. Increased debounce from 600ms to 1200ms. Reset counter on cache clear.
+- **Database Performance**: Batched work order milestone inserts (7 individual INSERTs → single multi-value INSERT). Added composite indexes on tasks(tenant_id, status, due_date) and activities(user_id, created_at DESC).
+- **Data Sources Research**: Added 11 new free data sources: US Census Geocoder, NOAA SWDI, OpenFEMA APIs, Iowa Environmental Mesonet, FEMA USA Structures, VIDA Combined Buildings, Sentinel-2, FEMA NFHL flood zones, NOAA Storm Events DB, OSM Overpass buildings, RentCast.
+- **Google Review Request**: Added auto-generate review link when job marked Completed.
+- **Subcontractor Management**: Full CRUD with work order assignment and UI.
+- **PWA Support**: Added web manifest and service worker for mobile install-to-home-screen.
+- Total: 7 commits, 17 files changed, 890 lines added
+
+### What was skipped and why
+- Historical NOAA storm data expansion — still needs bulk CSV download and ingestion pipeline
+- QuickBooks integration — needs OAuth flow setup and API key
+- SMS texting — requires Twilio account and billing model design
+- React Query migration — large refactor across all views
+- @dnd-kit for Pipeline — working but limited mobile drag support with HTML5 API
+- Hail swath color graduation — visual enhancement, not blocking
+
+### What should be done next run
+1. **Historical storm data**: Import SPC SVRGIS archive (70+ years, free shapefiles) into PostGIS
+2. **Lead scoring algorithm**: Combine storm history, home age, ownership, value, FEMA declarations
+3. **QuickBooks sync**: Set up OAuth, build basic invoice sync
+4. **SMS integration**: Twilio setup, appointment reminder texting
+5. **AI content generation**: Cheap LLM API integration for marketing content
+6. **Remaining empty states**: Estimates, Contracts, Expenses, Work Orders, Automations, Drip Sequences, Custom Fields
+7. **FEMA Disaster Declarations API**: Simple REST integration for county-level disaster data
+8. **Census ACS demographics**: Home age, ownership rate for lead scoring
+
+### Lessons learned
+- WKT string interpolation for PostGIS is a real injection risk — always validate coordinate inputs as finite numbers before building geometry strings.
+- The PhotoAnnotator component was already built but never rendered — always check for unused components before building new ones.
+- Batching INSERT queries (multi-value INSERT) significantly reduces database round trips on Neon free tier.
+- Reducing FEMA chunk size from 0.2° to 0.1° combined with polygon-aware filtering dramatically reduces false positive property loads on elongated storm swaths.
