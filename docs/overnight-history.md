@@ -52,3 +52,43 @@ and what should be prioritized next. Future agents MUST read this before startin
 - The tasks table shares the lead_priority enum but the query used non-existent values — always check enum values before writing ORDER BY
 - Multiple old Vite/Node processes can accumulate on Windows — kill them between restarts
 - The mobile responsive layout is already surprisingly good with dedicated "ROOF COMMAND" branding
+
+---
+
+## Run: 2026-03-24 (Run 2)
+
+### What was done
+- **FEMA Performance Fix**: Added point-in-polygon ray-casting to filter FEMA properties — only loads records inside actual storm swath polygons, not just bounding box overlap. Increased zoom gate from 10 to 13. Added 5000-point global cap.
+- **Global Modal Animations**: Added CSS rules that auto-apply modal-scale-in animation to ALL modal overlays via `.modal-backdrop > .glass` and inline-styled overlay selectors. Covers WorkOrdersView, InvoicesView, TasksView, ExpensesView, ContractsView, MaterialsView, SettingsView.
+- **Content Studio Button**: Fixed Generate Content button from purple gradient to orange gradient matching app's CTA color scheme.
+- **Contracts Stat Card Icons**: Added DocumentTextIcon, PencilSquareIcon, ClockIcon, CheckBadgeIcon to Contracts page stat cards for consistency with Estimates/Invoices.
+- **Tasks Empty State**: Upgraded from plain text to structured empty-state with ClipboardDocumentListIcon, title, and description.
+- **Visual Audit**: 31 screenshots across Dashboard, Storm Map, Pipeline, Leads, Lead Detail, Estimates, Invoices, Work Orders, Reports, Calendar, Tasks, Settings (7 tabs), Contracts, Expenses, Canvassing, Content Studio, Materials, Drip Sequences.
+- **Responsive Testing**: Verified layouts at 1280px (desktop), 768px (tablet), 375px (mobile). Mobile "ROOF COMMAND" layout is excellent.
+- **Verified**: Per-job profit tracking already exists in LeadDetail with Estimate Total / Expenses / Profit breakdown.
+- **Verified**: All 12 Settings tabs work correctly (Automations tab switching issue was Playwright-specific, not a real bug).
+- Total: 4 commits
+
+### What was skipped and why
+- Historical NOAA storm data expansion — requires bulk CSV download pipeline, not a quick fix
+- Microsoft Building Footprints — needs tile serving infrastructure
+- QuickBooks integration — needs API key setup and OAuth flow
+- Photo annotation tool — medium effort canvas drawing, not started
+- SMS texting — requires Twilio account setup
+- Empty state upgrades — only did Tasks, rest still need icons/CTAs
+
+### What should be done next run
+1. **Upgrade remaining empty states**: Add icons + CTAs to Estimates, Invoices, Contracts, Expenses, Work Orders, Automations, Drip Sequences, Custom Fields
+2. **PWA manifest**: Add web manifest + service worker for install-to-home-screen on mobile
+3. **Photo annotation tool**: Canvas-based markup overlay for roof damage photos
+4. **Historical storm data**: Build NOAA Storm Events CSV ingestion pipeline for 2+ years
+5. **Google review request**: Auto-generate review link when job is marked Completed
+6. **SMS integration**: Evaluate Twilio costs, build basic appointment reminder texting
+7. **QuickBooks sync**: Research QB API free tier, build basic invoice sync
+8. **Canvassing region assignment**: PostGIS polygon drawing for territory management
+
+### Lessons learned
+- The `chunkOverlapsSwath` bounding-box check for FEMA loading was too loose — bounding boxes of elongated storm swaths cover much more area than the actual polygon. Point-in-polygon filtering is essential.
+- Global CSS selectors like `div[style*="position: fixed"] > .glass` can apply animations without modifying every component individually.
+- Playwright clicks on React buttons don't reliably trigger synthetic events — use `page.evaluate()` to call native `.click()` for tab switching and modal triggers.
+- The app already has per-job profit tracking, drip sequences, contracts with e-signing, expense tracking, materials catalog, and workflow automations — all features competitors charge extra for.
