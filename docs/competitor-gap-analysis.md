@@ -1,13 +1,36 @@
-# Competitor Gap Analysis — StormPipe vs JobNimbus + HailTrace
+# Competitor Gap Analysis — StormPipe vs JobNimbus + HailTrace + RoofLink + Rooftops.ai
 
-**Date:** 2026-03-23
+**Date:** 2026-03-24 (updated)
 **Methodology:** Web research of competitor features/pricing + hands-on testing of StormPipe at localhost:5173
+
+---
+
+## New Competitors Added (2026-03-24)
+
+### RoofLink ($120/user/month)
+- 7-step workflow: Target → Measure → Estimate → Approve → Order → Install → Collect
+- Integrations: SRS Distribution, SalesRabbit, QuickBooks, Stripe, Hover, EagleView, CompanyCam, Zapier
+- Territory mapping for canvassing with rep assignment
+- Direct material ordering from SRS branches
+- Satellite roof measurements via Hover/EagleView integration
+- Real-time supplier pricing visibility with profit margin calc
+- **Key differentiator:** Material ordering pipeline from estimate to supplier PO in one click
+
+### Rooftops.ai ($199/mo for AI employees, $5k white-glove setup)
+- AI-powered satellite roof measurements (pitch, facets, sqft)
+- Instant cost estimates based on custom pricing tables
+- One-click professional proposal generation
+- AI assistant for email drafting and task help
+- Automated follow-up drip sequences
+- Solar upselling analysis built in
+- AI Employees (coming soon): automated lead follow-up, content/SEO, social media, 24/7 responses
+- **Key differentiator:** AI-first approach to measurements and proposals
 
 ---
 
 ## Feature Comparison Matrix
 
-| Feature | JobNimbus | HailTrace | StormPipe | Status |
+| Feature | JobNimbus | HailTrace | RoofLink | Rooftops.ai | StormPipe | Status |
 |---|---|---|---|---|
 | **CRM & Pipeline** |||||
 | Kanban pipeline with drag-and-drop | Yes | No | Yes — /pipeline with customizable stages | Match |
@@ -76,13 +99,16 @@
 ## Summary
 
 ### Where StormPipe is BETTER than competitors:
-1. **All-in-one platform** — CRM + Storm Data in one app (competitors require JobNimbus + HailTrace = 2 subscriptions)
+1. **All-in-one platform** — CRM + Storm Data in one app (competitors require JobNimbus + HailTrace = 2+ subscriptions)
 2. **Free storm data** — NOAA/NWS/SPC data at zero cost vs HailTrace's paid subscriptions
 3. **Unlimited automations** — free, vs JobNimbus limiting to 10 on $225/mo plan
 4. **Built-in estimate builder** — free, vs JobNimbus requiring SumoQuote addon
 5. **Custom fields** — free, vs JobNimbus requiring $550/mo Established plan
 6. **Work order kanban** — more visual than JobNimbus's basic work orders
-7. **No per-user fees** — flat pricing vs JobNimbus's $25-75/user/month
+7. **No per-user fees** — flat pricing vs JobNimbus's $25-75/user/month and RoofLink's $120/user/month
+8. **Contracts + e-signing** — built in, vs competitors requiring separate tools
+9. **Expense tracking** — per-job cost tracking built in
+10. **Drip sequences** — automated follow-up included free, vs Rooftops.ai charging $199/mo for AI automation
 
 ### Where StormPipe is WORSE or MISSING:
 1. **No QuickBooks sync** — critical for accounting workflows
@@ -142,6 +168,25 @@ HailTrace does not publish exact pricing. Based on research:
 - **Maps & Data:** ~$150-250/mo (estimated, includes residential data)
 - **Enterprise:** ~$300+/mo (includes canvassing + commercial data)
 - Pricing varies by coverage area (pay per state/region)
+
+### RoofLink Pricing (2026)
+
+- **$120/user/month** flat rate — all features included, no tiers
+- Volume discount available (~$100/user)
+- No per-measurement costs
+
+| Company Size | Users | Monthly | Annual |
+|---|---|---|---|
+| Solo | 1 | **$120** | **$1,440** |
+| 5-person | 5 | **$600** | **$7,200** |
+| 10-person | 10 | **$1,200** | **$14,400** |
+
+### Rooftops.ai Pricing (2026)
+
+- **Free tier:** 1 free roof report
+- **AI Employees:** $199/mo (coming soon) — automated follow-up, content, social media
+- **White-glove consulting:** $5,000 one-time (5-week setup + 6 months premium)
+- Regular subscription pricing not publicly disclosed
 
 ### Combined Competitor Cost (JobNimbus + HailTrace)
 
