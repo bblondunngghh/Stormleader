@@ -97,6 +97,26 @@ CRITICAL CONSTRAINTS:
 
 Read MEMORY.md at C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\MEMORY.md first.
 Read docs/overnight-history.md if it exists to understand prior work.
+
+RESUME SUPPORT:
+Check if C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\overnight_resume.md exists.
+If it does, read it — it contains notes from a previous run that hit its turn limit,
+describing what was already completed and where to pick up. Use it to skip finished work
+and continue from where the last run left off. After you finish (or are about to hit your
+turn limit), UPDATE that file with your current progress so the next run can resume.
+
+TURN LIMIT WARNING:
+You have a LIMITED number of turns. If you are running low on turns and cannot finish
+your full task, you MUST before your final turn:
+1. Commit any uncommitted work: git add -A && git commit -m "wip: [stage] partial progress"
+2. Write your progress to C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\overnight_resume.md
+   Include:
+   - Which stage you were working on
+   - What you completed
+   - What still needs to be done (be specific — list exact pages/features/files)
+   - Any context the next run needs to pick up seamlessly
+3. Update MEMORY.md index if the resume file is new
+This ensures NO work is lost between runs.
 PREAMBLE
 
 # STAGE 1: Competitor Research
@@ -362,37 +382,32 @@ STAGE6
 # ============================================================
 
 log "Stage 1: Competitor Research"
-run_stage "s1-competitors" 150 /tmp/stage-1-competitors.txt
+run_stage "s1-competitors" 50 /tmp/stage-1-competitors.txt
 COMMITS_AFTER_S1=$(git log --oneline "overnight-checkpoint-${TODAY}"..HEAD 2>/dev/null | wc -l)
 log "  Commits so far: $COMMITS_AFTER_S1"
 
 log "Stage 2: Feature Implementation"
-run_stage "s2-features" 250 /tmp/stage-2-features.txt
+run_stage "s2-features" 50 /tmp/stage-2-features.txt
 COMMITS_AFTER_S2=$(git log --oneline "overnight-checkpoint-${TODAY}"..HEAD 2>/dev/null | wc -l)
 log "  Commits so far: $COMMITS_AFTER_S2"
 
-# Gate check: if fewer than 3 commits total, something's wrong
-if [ "$COMMITS_AFTER_S2" -lt 3 ] 2>/dev/null; then
-  log "WARNING: Only $COMMITS_AFTER_S2 commits after 2 stages. Agent may be short-circuiting."
-fi
-
 log "Stage 3: Visual UI Audit"
-run_stage "s3-ui-audit" 250 /tmp/stage-3-ui-audit.txt
+run_stage "s3-ui-audit" 50 /tmp/stage-3-ui-audit.txt
 COMMITS_AFTER_S3=$(git log --oneline "overnight-checkpoint-${TODAY}"..HEAD 2>/dev/null | wc -l)
 log "  Commits so far: $COMMITS_AFTER_S3"
 
 log "Stage 4: Storm Map + Data Sources"
-run_stage "s4-stormmap" 200 /tmp/stage-4-stormmap.txt
+run_stage "s4-stormmap" 50 /tmp/stage-4-stormmap.txt
 COMMITS_AFTER_S4=$(git log --oneline "overnight-checkpoint-${TODAY}"..HEAD 2>/dev/null | wc -l)
 log "  Commits so far: $COMMITS_AFTER_S4"
 
 log "Stage 5: Security + Polish"
-run_stage "s5-security" 200 /tmp/stage-5-security-polish.txt
+run_stage "s5-security" 50 /tmp/stage-5-security-polish.txt
 COMMITS_AFTER_S5=$(git log --oneline "overnight-checkpoint-${TODAY}"..HEAD 2>/dev/null | wc -l)
 log "  Commits so far: $COMMITS_AFTER_S5"
 
 log "Stage 6: Report Writing"
-run_stage "s6-report" 100 /tmp/stage-6-report.txt
+run_stage "s6-report" 50 /tmp/stage-6-report.txt
 FINAL_COMMITS=$(git log --oneline "overnight-checkpoint-${TODAY}"..HEAD 2>/dev/null | wc -l)
 log "  Final commit count: $FINAL_COMMITS"
 

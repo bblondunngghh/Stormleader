@@ -23,6 +23,7 @@ import {
   ArrowDownTrayIcon,
   SunIcon,
 } from '@heroicons/react/24/outline';
+import PhotoAnnotator from './PhotoAnnotator';
 
 function cleanAddr(str) {
   if (!str) return '';
@@ -139,6 +140,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [weatherError, setWeatherError] = useState('');
   const [customFieldDefs, setCustomFieldDefs] = useState([]);
+  const [annotatingDoc, setAnnotatingDoc] = useState(null); // doc object being annotated
   const adjustMapRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -1147,12 +1149,22 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                             {doc.filename}
                           </a>
                         )}
-                        <button onClick={() => handleDeleteDoc(doc.id)} style={{
-                          position: 'absolute', top: 2, right: 2, background: 'oklch(0.12 0.02 260 / 0.8)',
-                          border: 'none', borderRadius: 4, cursor: 'pointer', padding: 2, lineHeight: 0,
-                        }}>
-                          <IconTrash style={{ width: 12, height: 12, color: 'var(--accent-red)' }} />
-                        </button>
+                        <div style={{ position: 'absolute', top: 2, right: 2, display: 'flex', gap: 2 }}>
+                          {isImage && (
+                            <button onClick={() => setAnnotatingDoc(doc)} title="Annotate photo" style={{
+                              background: 'oklch(0.12 0.02 260 / 0.8)',
+                              border: 'none', borderRadius: 4, cursor: 'pointer', padding: 2, lineHeight: 0,
+                            }}>
+                              <PencilSquareIcon style={{ width: 12, height: 12, color: 'var(--accent-blue)' }} />
+                            </button>
+                          )}
+                          <button onClick={() => handleDeleteDoc(doc.id)} style={{
+                            background: 'oklch(0.12 0.02 260 / 0.8)',
+                            border: 'none', borderRadius: 4, cursor: 'pointer', padding: 2, lineHeight: 0,
+                          }}>
+                            <IconTrash style={{ width: 12, height: 12, color: 'var(--accent-red)' }} />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
