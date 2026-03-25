@@ -85,7 +85,7 @@ export async function getLeadDetail(tenantId, leadId) {
         p.roof_hip_ft, p.roof_drip_edge_ft, p.roof_flashing_ft,
         COALESCE(p.year_built, p.fema_year_built) AS year_built,
         COALESCE(p.assessed_value, p.fema_replacement_value) AS assessed_value,
-        p.homestead_exempt, p.county_parcel_id,
+        p.homestead_exempt, p.county_parcel_id, p.county AS property_county,
         COALESCE(p.property_sqft, p.fema_sqft) AS property_sqft,
         p.fema_bldg_type, p.fema_num_stories, p.fema_foundation_type,
         p.fema_occupancy_type, p.fema_ground_elevation,

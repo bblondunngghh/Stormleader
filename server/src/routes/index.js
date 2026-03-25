@@ -33,6 +33,7 @@ import contractsRouter from './contracts.js';
 import expensesRouter from './expenses.js';
 import subcontractorsRouter from './subcontractors.js';
 import territoriesRouter from './territories.js';
+import disasterDeclarationsRouter from './disasterDeclarations.js';
 
 const router = Router();
 
@@ -70,5 +71,6 @@ router.use('/crm/expenses', expensesRouter);
 router.use('/crm/subcontractors', subcontractorsRouter);
 router.use('/crm/territories', territoriesRouter);
 router.use('/webhooks/hearth', hearthWebhookRouter);
+router.use('/disaster-declarations', disasterDeclarationsRouter);
 
 export default router;

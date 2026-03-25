@@ -56,3 +56,6 @@ export const createProperty = (data) =>
 
 export const fetchFemaData = (propertyId) =>
   client.post(`/properties/${propertyId}/fema-lookup`);
+
+export const getDisasterDeclarations = (state, county) =>
+  client.get('/disaster-declarations', { params: { state, county } });

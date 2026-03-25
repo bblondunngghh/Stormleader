@@ -5,6 +5,7 @@ import client from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { getDocuments, uploadDocument, deleteDocument } from '../api/documents';
 import { submitTrace } from '../api/skipTrace';
+import { getDisasterDeclarations } from '../api/storms';
 import { measureRoof, manualRoofEntry, getSolarSegments, getSolarPotential } from '../api/roofMeasurement';
 import mapboxgl from 'mapbox-gl';
 import { IconX, IconPhone, IconMail, IconCalendar, IconClipboard, IconDollar, IconCamera, IconSend, IconTrash } from './Icons';
@@ -141,6 +142,8 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   const [weatherError, setWeatherError] = useState('');
   const [customFieldDefs, setCustomFieldDefs] = useState([]);
   const [annotatingDoc, setAnnotatingDoc] = useState(null); // doc object being annotated
+  const [disasterData, setDisasterData] = useState(null);
+  const [disasterLoading, setDisasterLoading] = useState(false);
   const adjustMapRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -300,6 +303,21 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
       setTraceError(err.response?.data?.error || 'Trace failed. Check Settings > Skip Tracing.');
     } finally {
       setTracing(false);
+    }
+  };
+
+  const fetchDisasterDeclarations = async () => {
+    const st = lead?.state?.trim() || lead?.property_state?.trim();
+    const county = lead?.property_county?.trim() || '';
+    if (!st || !county) return;
+    setDisasterLoading(true);
+    try {
+      const { data } = await getDisasterDeclarations(st, county);
+      setDisasterData(data);
+    } catch {
+      // silently fail — not critical
+    } finally {
+      setDisasterLoading(false);
     }
   };
 
@@ -794,6 +812,65 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 {weatherLoading ? 'Loading...' : 'Storm History'}
               </button>
               {weatherError && <div style={{ fontSize: 11, color: 'var(--accent-red)', marginTop: 4 }}>{weatherError}</div>}
+            </div>
+          )}
+
+          {/* Disaster Declarations Button */}
+          {leadId && (lead?.state || lead?.property_state) && lead?.property_county && (
+            <div style={{ marginTop: 'var(--space-sm)' }}>
+              <button
+                onClick={fetchDisasterDeclarations}
+                disabled={disasterLoading}
+                className="icon-spin-btn"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '6px 0', fontSize: 12, fontWeight: 600,
+                  background: 'none', border: 'none',
+                  color: 'oklch(0.75 0.15 60)',
+                  cursor: disasterLoading ? 'not-allowed' : 'pointer',
+                  opacity: disasterLoading ? 0.5 : 0.85,
+                  transition: 'opacity 0.15s',
+                }}
+                onMouseEnter={e => { if (!disasterLoading) e.currentTarget.style.opacity = '1'; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = disasterLoading ? '0.5' : '0.85'; }}
+              >
+                <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
+                  <path d="M12 15.75h.007v.008H12v-.008z" />
+                </svg>
+                {disasterLoading ? 'Loading...' : disasterData ? `${disasterData.summary?.total || 0} Disaster Declarations` : 'FEMA Disaster History'}
+              </button>
+              {disasterData && disasterData.summary?.total > 0 && (
+                <div style={{
+                  marginTop: 6, padding: '8px 10px',
+                  background: 'oklch(0.20 0.02 260 / 0.5)',
+                  borderRadius: 10, fontSize: 11, lineHeight: 1.6,
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <span style={{ color: 'var(--text-muted)' }}>County Risk Score</span>
+                    <span style={{
+                      fontWeight: 700,
+                      color: disasterData.riskScore >= 60 ? 'oklch(0.65 0.20 30)' : disasterData.riskScore >= 30 ? 'oklch(0.75 0.15 85)' : 'oklch(0.75 0.18 145)',
+                    }}>
+                      {disasterData.riskScore}/100
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Total Declarations</span>
+                    <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{disasterData.summary.total}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Last 5 Years</span>
+                    <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{disasterData.summary.recentCount}</span>
+                  </div>
+                  {Object.entries(disasterData.summary.byType || {}).slice(0, 4).map(([type, count]) => (
+                    <div key={type} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 1 }}>
+                      <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>{type}</span>
+                      <span style={{ color: 'var(--text-secondary)', fontSize: 10 }}>{count}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
