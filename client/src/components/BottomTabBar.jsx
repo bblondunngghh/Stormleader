@@ -8,7 +8,7 @@ const tabs = [
   { id: 'settings', label: 'Settings', Icon: Cog6ToothIcon },
 ];
 
-const ACTIVE_COLOR = '#00e5ff';
+const ACTIVE_COLOR = 'var(--accent-cyan, oklch(0.78 0.12 200))';
 const INACTIVE_COLOR = 'var(--text-muted, oklch(0.55 0.01 260))';
 
 export default function BottomTabBar({ activeView, onNavigate }) {
@@ -21,11 +21,11 @@ export default function BottomTabBar({ activeView, onNavigate }) {
       zIndex: 50,
       alignItems: 'center',
       justifyContent: 'space-evenly',
-      background: 'rgba(13, 19, 33, 0.85)',
+      background: 'oklch(0.12 0.02 260 / 0.85)',
       backdropFilter: 'blur(20px)',
       WebkitBackdropFilter: 'blur(20px)',
       borderRadius: '16px 16px 0 0',
-      boxShadow: '0 -4px 24px rgba(0,0,0,0.4)',
+      boxShadow: '0 -4px 24px oklch(0 0 0 / 0.4)',
       padding: '10px 16px',
       paddingBottom: 'calc(10px + env(safe-area-inset-bottom, 0px))',
     }} className="bottom-tab-bar">
