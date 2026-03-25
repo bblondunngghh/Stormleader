@@ -25,6 +25,35 @@ git push origin "pre-overnight-${TODAY}" --force 2>/dev/null
 
 log "=== STAGED OVERNIGHT RUN STARTING ==="
 
+# --- Ensure Firecrawl is available ---
+if ! command -v firecrawl &>/dev/null; then
+  log "ERROR: firecrawl CLI not found. Run: npm install -g firecrawl-cli"
+  exit 1
+fi
+firecrawl --status >> "$LOG" 2>&1
+
+# --- Start tunnel for local dev server ---
+# Firecrawl is cloud-based and cannot access localhost.
+# Start vite + localtunnel so Firecrawl can reach the dev server.
+cd /c/Projects/stormleads/client && npx vite --host 0.0.0.0 &>/dev/null &
+VITE_PID=$!
+sleep 5
+
+# Start localtunnel
+npx -y localtunnel --port 5173 > /tmp/localtunnel-output.txt 2>&1 &
+TUNNEL_PID=$!
+sleep 10
+TUNNEL_URL=$(grep -oP 'https://[a-z0-9-]+\.loca\.lt' /tmp/localtunnel-output.txt | head -1)
+
+if [ -z "$TUNNEL_URL" ]; then
+  log "WARNING: Could not start tunnel. UI audit stage will be limited."
+  TUNNEL_URL="http://localhost:5173"
+else
+  log "Tunnel active: $TUNNEL_URL"
+fi
+
+cd /c/Projects/stormleads
+
 # --- Helper: run a stage with retry ---
 # Usage: run_stage <stage_name> <max_turns> <prompt_file>
 # Writes JSON output to claude-overnight-YYYYMMDD-<stage_name>.json
@@ -95,6 +124,16 @@ CRITICAL CONSTRAINTS:
 5. Build check after EVERY change: cd /c/Projects/stormleads/client && npx vite build
 6. Commit after EVERY completed task with a descriptive message.
 
+WEB TOOLS:
+- Use ONLY the firecrawl CLI for ALL web operations (search, scrape, browse).
+- Do NOT use Chrome MCP tools (mcp__claude-in-chrome__*) or Playwright (mcp__plugin_playwright_playwright__*).
+- For web search: firecrawl search "query" -o .firecrawl/result.json
+- For scraping pages: firecrawl scrape <url> -o .firecrawl/page.md
+- For screenshots: firecrawl scrape <url> --format screenshot -o .firecrawl/screenshot.json
+- For interactive pages: firecrawl browser "open <url>" then firecrawl browser "snapshot"
+- Store all firecrawl outputs in .firecrawl/ directory.
+- Run independent scrapes in parallel with & and wait.
+
 Read MEMORY.md at C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\MEMORY.md first.
 Read docs/overnight-history.md if it exists to understand prior work.
 
@@ -123,7 +162,9 @@ PREAMBLE
 cat /tmp/overnight-preamble.txt > /tmp/stage-1-competitors.txt
 cat >> /tmp/stage-1-competitors.txt << 'STAGE1'
 
-YOUR TASK: Deep competitor research. This is your ONLY task — do NOT implement features or fix UI.
+YOUR TASK: Deep competitor research using Firecrawl. This is your ONLY task — do NOT implement features or fix UI.
+
+IMPORTANT: Use ONLY the firecrawl CLI for all web research. Do NOT use WebSearch, WebFetch, Chrome MCP, or Playwright.
 
 DO NOT STOP until you have completed ALL of the following:
 
@@ -131,26 +172,36 @@ DO NOT STOP until you have completed ALL of the following:
    - If recent: UPDATE it with any new findings. Still do the research below.
    - If missing or stale: create it from scratch.
 
-2. Research ALL 4 competitors thoroughly using web search:
-   - JobNimbus: features, pricing tiers, per-user costs, add-on costs
-   - HailTrace: features, pricing tiers, data costs
-   - RoofLink (rooflink.com): features, pricing, UI patterns
-   - Rooftops.ai: features, pricing, any AI capabilities
+2. Create .firecrawl/competitor-research/ directory for storing results.
 
-3. For EACH competitor, find EXACT pricing:
+3. Research ALL 4 competitors using firecrawl search and scrape IN PARALLEL:
+   Run these in parallel with & and wait:
+   - firecrawl search "JobNimbus CRM features pricing 2026" --scrape -o .firecrawl/competitor-research/jobnimbus-search.json
+   - firecrawl search "HailTrace storm leads features pricing" --scrape -o .firecrawl/competitor-research/hailtrace-search.json
+   - firecrawl search "RoofLink rooflink.com roofing platform features" --scrape -o .firecrawl/competitor-research/rooflink-search.json
+   - firecrawl search "Rooftops.ai roofing AI features pricing" --scrape -o .firecrawl/competitor-research/rooftopsai-search.json
+
+4. Scrape each competitor's main pages directly (in parallel):
+   - firecrawl scrape "https://www.jobnimbus.com/features" -o .firecrawl/competitor-research/jobnimbus-features.md
+   - firecrawl scrape "https://www.jobnimbus.com/pricing" -o .firecrawl/competitor-research/jobnimbus-pricing.md
+   - firecrawl scrape "https://www.hailtrace.com" -o .firecrawl/competitor-research/hailtrace-main.md
+   - firecrawl scrape "https://rooflink.com" -o .firecrawl/competitor-research/rooflink-main.md
+   - firecrawl scrape "https://rooftops.ai" -o .firecrawl/competitor-research/rooftopsai-main.md
+
+5. For EACH competitor, find EXACT pricing from the scraped data:
    - Base price per month
    - Per-user costs
    - What a 5-person and 10-person roofing company actually pays total
    - Add-on costs (texting, marketing, data, etc.)
 
-4. Write a feature comparison table to docs/competitor-gap-analysis.md:
+6. Write a feature comparison table to docs/competitor-gap-analysis.md:
    Feature | JobNimbus | HailTrace | RoofLink | Rooftops.ai | StormLeads | Status
 
-5. Write a pricing recommendation: what should StormLeads charge?
+7. Write a pricing recommendation: what should StormLeads charge?
    - 2-3 tiers with specific prices
    - Savings vs competitors at each company size
 
-6. Commit your work: git add docs/competitor-gap-analysis.md && git commit -m "docs: update competitor analysis"
+8. Commit your work: git add docs/competitor-gap-analysis.md && git commit -m "docs: update competitor analysis"
 
 DELIVERABLE: docs/competitor-gap-analysis.md must exist with a complete feature table and pricing analysis.
 You are DONE when you have committed this file. Do not do anything else.
@@ -191,65 +242,82 @@ STAGE2
 
 # STAGE 3: Visual UI Audit
 cat /tmp/overnight-preamble.txt > /tmp/stage-3-ui-audit.txt
-cat >> /tmp/stage-3-ui-audit.txt << 'STAGE3'
+cat >> /tmp/stage-3-ui-audit.txt << STAGE3
 
 YOUR TASK: Visual UI audit and polish. This is your ONLY task — do NOT implement new features.
 
 UI CONSISTENCY IS THE #1 PRIORITY. Every button, modal, input, card, and table must be
 identical across the entire app. Think like an Apple design reviewer.
 
-BROWSER TOOLS:
-1. Try Chrome MCP tools first (mcp__claude-in-chrome__*)
-2. If Chrome MCP is unavailable, use Playwright (mcp__plugin_playwright_playwright__*)
-3. You MUST use one or the other. No excuses.
+BROWSER TOOLS — USE FIRECRAWL ONLY:
+- Do NOT use Chrome MCP (mcp__claude-in-chrome__*) or Playwright (mcp__plugin_playwright_playwright__*)
+- Use firecrawl scrape and firecrawl browser for all page inspection
+- The dev server is accessible at: ${TUNNEL_URL}
+  (This is a cloudflared tunnel to localhost:5173)
 
 SETUP:
-- Start dev servers if not running: cd /c/Projects/stormleads && npm run dev &
-- Start frontend: cd /c/Projects/stormleads/client && npm run dev &
-- Wait 5 seconds, then navigate to http://localhost:5173
-- Log in with: Email=brandon, Password=1234, Tenant=waterloo
+- The dev server and tunnel are already running (started by the overnight script).
+- Log in using firecrawl browser:
+  firecrawl browser "open ${TUNNEL_URL}"
+  firecrawl browser "snapshot"
+  (Find and fill login form: Email=brandon, Password=1234, Tenant=waterloo)
+  firecrawl browser "fill @emailRef 'brandon'"
+  firecrawl browser "fill @passwordRef '1234'"
+  firecrawl browser "fill @tenantRef 'waterloo'"
+  firecrawl browser "click @loginButton"
 
 STEP 1: ESTABLISH REFERENCE
-- Navigate to /estimates — screenshot the page
-- Zoom into: a glass card, a dropdown, a text input, a primary button, a secondary button
-- Note the exact styles: border-radius, padding, font-size, colors, backdrop-filter
+- Navigate to /estimates:
+  firecrawl browser "open ${TUNNEL_URL}/estimates"
+  firecrawl browser "snapshot"
+  firecrawl scrape "${TUNNEL_URL}/estimates" --format screenshot -o .firecrawl/ui-audit/estimates-reference.json
+- Read the snapshot output to identify glass cards, dropdowns, text inputs, buttons
+- Note the exact styles from the code: border-radius, padding, font-size, colors, backdrop-filter
 - These are the GOLD STANDARD. Everything else must match.
 
-STEP 2: AUDIT EVERY PAGE (visit ALL of these):
-1. /storm-map
-2. /pipeline
-3. /leads
-4. /estimates
-5. /invoices
-6. /reports
-7. /calendar
-8. /work-orders
-9. /canvassing
-10. /tasks
-11. /settings (ALL tabs)
-12. /content-studio (if it exists)
-13. Open a Lead Detail page
+STEP 2: AUDIT EVERY PAGE using firecrawl scrape for screenshots + firecrawl browser for interaction:
+
+Create .firecrawl/ui-audit/ directory first.
+
+Pages to audit (scrape ALL in parallel first for screenshots):
+  firecrawl scrape "${TUNNEL_URL}/storm-map" --format screenshot -o .firecrawl/ui-audit/storm-map.json &
+  firecrawl scrape "${TUNNEL_URL}/pipeline" --format screenshot -o .firecrawl/ui-audit/pipeline.json &
+  firecrawl scrape "${TUNNEL_URL}/leads" --format screenshot -o .firecrawl/ui-audit/leads.json &
+  firecrawl scrape "${TUNNEL_URL}/estimates" --format screenshot -o .firecrawl/ui-audit/estimates.json &
+  firecrawl scrape "${TUNNEL_URL}/invoices" --format screenshot -o .firecrawl/ui-audit/invoices.json &
+  firecrawl scrape "${TUNNEL_URL}/reports" --format screenshot -o .firecrawl/ui-audit/reports.json &
+  firecrawl scrape "${TUNNEL_URL}/calendar" --format screenshot -o .firecrawl/ui-audit/calendar.json &
+  firecrawl scrape "${TUNNEL_URL}/work-orders" --format screenshot -o .firecrawl/ui-audit/work-orders.json &
+  firecrawl scrape "${TUNNEL_URL}/canvassing" --format screenshot -o .firecrawl/ui-audit/canvassing.json &
+  firecrawl scrape "${TUNNEL_URL}/tasks" --format screenshot -o .firecrawl/ui-audit/tasks.json &
+  firecrawl scrape "${TUNNEL_URL}/settings" --format screenshot -o .firecrawl/ui-audit/settings.json &
+  wait
+
+Then for EACH page, also scrape the HTML to inspect styles:
+  firecrawl scrape "${TUNNEL_URL}/[page]" --format markdown -o .firecrawl/ui-audit/[page]-content.md
 
 For EACH page:
-a) Full page screenshot
+a) Review the screenshot and markdown content
 b) Check every button matches reference (same height, border-radius, padding, color)
 c) Check every input/select matches reference (same height, bg, border, font-size)
 d) Check spacing and alignment
-e) Open every modal on that page — check it matches reference modals
-f) If ANYTHING doesn't match: fix the code, rebuild, screenshot again
+e) Use firecrawl browser to interact with modals: open them, take snapshots
+f) If ANYTHING doesn't match: fix the code, rebuild, re-scrape to verify
 g) Commit each fix: git commit -m "fix(ui): [page] [what was fixed]"
 
-STEP 3: ANIMATION CHECK
+STEP 3: CODE-LEVEL AUDIT (supplement visual checks)
+- Read the CSS/component source code directly for each page
 - Verify CSS custom properties exist: --transition-fast, --transition-normal, --transition-slow
 - Check buttons have hover/active transitions
 - Check modals have open/close animations
+- Cross-reference code styles against the reference page styles
 - Add any missing animations
 
-You must take AT LEAST 30 screenshots across all pages.
+You must scrape AT LEAST 11 pages for screenshots.
 You must make AT LEAST 2 commits fixing UI inconsistencies.
-Do NOT stop after checking 2-3 pages — check ALL 13 pages listed above.
+Do NOT stop after checking 2-3 pages — check ALL pages listed above.
 
-DELIVERABLE: All pages visually audited with screenshots, inconsistencies fixed and committed.
+DELIVERABLE: All pages visually audited via firecrawl, inconsistencies fixed and committed.
 STAGE3
 
 # STAGE 4: Storm Map Performance + Data Sources
@@ -508,5 +576,9 @@ fetch('https://api.resend.com/emails', {
   console.log(d.id ? 'Email sent (id: ' + d.id + ')' : 'Email failed: ' + JSON.stringify(d));
 }).catch(e => console.error('Email send failed:', e.message));
 " "$GIT_SUMMARY" "$TODAY_PRETTY" "$TODAY" "$TOTAL_TURNS" "$TOTAL_COST" "$STAGE_RESULTS"
+
+# --- Cleanup tunnel and dev server ---
+[ -n "$TUNNEL_PID" ] && kill $TUNNEL_PID 2>/dev/null
+[ -n "$VITE_PID" ] && kill $VITE_PID 2>/dev/null
 
 log "=== OVERNIGHT RUN FINISHED ==="

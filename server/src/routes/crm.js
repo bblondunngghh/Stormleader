@@ -232,6 +232,33 @@ router.post('/leads/bulk-status', async (req, res, next) => {
 });
 
 // ============================================================
+// LEAD SCORING
+// ============================================================
+
+// POST /api/crm/leads/:id/score — Compute/refresh score for a single lead
+router.post('/leads/:id/score', async (req, res, next) => {
+  try {
+    const { scoreLead } = await import('../services/leadScoringService.js');
+    const result = await scoreLead(req.tenantId, req.params.id);
+    if (!result) return res.status(404).json({ error: 'Lead not found' });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/crm/leads/score-all — Batch score stale leads (max 100 per call)
+router.post('/leads/score-all', async (req, res, next) => {
+  try {
+    const { scoreAllLeads } = await import('../services/leadScoringService.js');
+    const result = await scoreAllLeads(req.tenantId);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ============================================================
 // CONTACTS
 // ============================================================
 

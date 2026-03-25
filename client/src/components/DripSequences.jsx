@@ -448,7 +448,7 @@ export default function DripSequences() {
                   }}
                 >
                   <div style={{
-                    width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                    width: 16, height: 16, borderRadius: '50%', background: 'oklch(1 0 0)',
                     position: 'absolute', top: 3,
                     left: seq.is_active ? 21 : 3, transition: 'left 0.2s',
                   }} />

@@ -227,7 +227,7 @@ export default function LeadList() {
   const exportCSV = () => {
     setExporting(true);
     try {
-      const headers = ['Name', 'Address', 'City', 'Phone', 'Email', 'Stage', 'Priority', 'Source', 'Value', 'Rep', 'Hail Size', 'Storm Date', 'Last Contact', 'Next Follow-up', 'Created'];
+      const headers = ['Name', 'Address', 'City', 'Phone', 'Email', 'Stage', 'Priority', 'Score', 'Source', 'Value', 'Rep', 'Hail Size', 'Storm Date', 'Last Contact', 'Next Follow-up', 'Created'];
       const rows = leads.map(l => [
         l.contact_name || '',
         l.address || '',
@@ -236,6 +236,7 @@ export default function LeadList() {
         l.contact_email || '',
         stageLabels[l.stage] || l.stage || '',
         priorityLabels[l.priority] || l.priority || '',
+        l.lead_score != null ? l.lead_score : '',
         sourceLabels[l.source] || l.source || '',
         l.estimated_value || '',
         l.rep_first_name ? `${l.rep_first_name} ${l.rep_last_name || ''}`.trim() : '',
@@ -425,6 +426,7 @@ export default function LeadList() {
                 </th>
                 <th onClick={() => handleSort('stage')} style={{ cursor: 'pointer' }}>Stage{sortArrow('stage')}</th>
                 <th onClick={() => handleSort('priority')} style={{ cursor: 'pointer', width: 60 }}>Pri{sortArrow('priority')}</th>
+                <th onClick={() => handleSort('lead_score')} style={{ cursor: 'pointer', width: 60 }}>Score{sortArrow('lead_score')}</th>
                 <th>Address</th>
                 <th onClick={() => handleSort('contact_name')} style={{ cursor: 'pointer' }}>Contact{sortArrow('contact_name')}</th>
                 <th>Phone</th>
@@ -441,9 +443,9 @@ export default function LeadList() {
             </thead>
             <tbody>
               {loading && leads.length === 0 ? (
-                <tr><td colSpan={15} style={{ textAlign: 'center', padding: 'var(--space-3xl)', color: 'var(--text-muted)' }}>Loading...</td></tr>
+                <tr><td colSpan={16} style={{ textAlign: 'center', padding: 'var(--space-3xl)', color: 'var(--text-muted)' }}>Loading...</td></tr>
               ) : leads.length === 0 ? (
-                <tr><td colSpan={15} style={{ textAlign: 'center', padding: '64px 24px' }}>
+                <tr><td colSpan={16} style={{ textAlign: 'center', padding: '64px 24px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
                     <IconSearch width={40} height={40} style={{ color: 'var(--text-muted)', opacity: 0.5 }} />
                     <div style={{ color: 'var(--text-primary)', fontSize: 16, fontWeight: 600 }}>No leads found</div>
@@ -475,6 +477,27 @@ export default function LeadList() {
                     </td>
                     <td>
                       <span className={`lead-table__priority-dot lead-table__priority-dot--${lead.priority}`} />
+                    </td>
+                    <td>
+                      {lead.lead_score != null ? (
+                        <span style={{
+                          fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 'var(--radius-pill)',
+                          background: lead.lead_score >= 80 ? 'oklch(0.35 0.12 145 / 0.4)'
+                            : lead.lead_score >= 60 ? 'oklch(0.35 0.1 85 / 0.4)'
+                            : lead.lead_score >= 40 ? 'oklch(0.35 0.1 60 / 0.4)'
+                            : lead.lead_score >= 20 ? 'oklch(0.35 0.1 30 / 0.4)'
+                            : 'oklch(0.25 0.05 0 / 0.3)',
+                          color: lead.lead_score >= 80 ? 'oklch(0.85 0.18 145)'
+                            : lead.lead_score >= 60 ? 'oklch(0.85 0.15 85)'
+                            : lead.lead_score >= 40 ? 'oklch(0.85 0.15 60)'
+                            : lead.lead_score >= 20 ? 'oklch(0.75 0.15 30)'
+                            : 'oklch(0.6 0.05 0)',
+                        }}>
+                          {lead.lead_score}
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>—</span>
+                      )}
                     </td>
                     <td style={{ maxWidth: 200 }}>
                       <div style={{ fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>

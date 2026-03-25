@@ -1,7 +1,7 @@
 You are working on the StormLeads application — a roofing CRM and storm lead generation tool. Your job is to:
 1. FIRST research ALL competitors to understand the landscape
 2. THEN implement any missing/broken features based on findings
-3. THEN visually test and polish EVERY page using Chrome MCP browser tools
+3. THEN visually test and polish EVERY page using Firecrawl (scrape + browser)
 
 CRITICAL CONSTRAINTS — VIOLATING THESE IS A HARD FAILURE:
 1. ZERO paid APIs. Only free public data sources (NOAA, FEMA NSI).

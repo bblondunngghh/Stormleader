@@ -1917,7 +1917,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                   }}>
                   <span style={{
                     position: 'absolute', top: 3, left: financingEnabled ? 21 : 3,
-                    width: 18, height: 18, borderRadius: '50%', background: '#fff',
+                    width: 18, height: 18, borderRadius: '50%', background: 'oklch(1 0 0)',
                     transition: 'left 0.15s',
                   }} />
                 </button>

@@ -8,3 +8,4 @@ photos/
 .claude/
 audit-*.png
 *.playwright-mcp/
+.firecrawl/
