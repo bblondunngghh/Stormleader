@@ -4489,11 +4489,7 @@ input[type="checkbox"]:checked::after {
 
 /* ---- Button micro-interactions ---- */
 button:not(.mapboxgl-ctrl button):not([class*="fc-"]):not(.nav-link):not(.nav-group__header) {
-  transition: all var(--transition-fast);
-}
-
-button:not(.mapboxgl-ctrl button):not([class*="fc-"]):not(.nav-link):not(.nav-group__header):hover {
-  filter: brightness(1.08);
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
 }
 
 button:not(.mapboxgl-ctrl button):not([class*="fc-"]):not(.nav-link):not(.nav-group__header):active {
