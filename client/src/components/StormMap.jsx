@@ -651,12 +651,13 @@ export default function StormMap() {
   }, []);
 
   // Check if a bbox overlaps any storm swath
-  // Pre-compute swath bounding boxes once and cache them
-  const swathBboxCacheRef = useRef({ version: 0, bboxes: [] });
-  function getSwathBboxes() {
+  // Pre-compute swath bounding boxes once and cache them — stores { bbox, feature } pairs
+  // so bbox[i] always corresponds to the correct feature (no alignment bugs from skipping)
+  const swathBboxCacheRef = useRef({ version: 0, entries: [] });
+  function getSwathEntries() {
     const features = stormFeaturesRef.current;
-    if (swathBboxCacheRef.current.version === features.length) return swathBboxCacheRef.current.bboxes;
-    const bboxes = [];
+    if (swathBboxCacheRef.current.version === features.length) return swathBboxCacheRef.current.entries;
+    const entries = [];
     for (const f of features) {
       if (!f.geometry?.coordinates) continue;
       const coords = f.geometry.type === 'MultiPolygon' ? f.geometry.coordinates.flat(2) : f.geometry.coordinates.flat(1);
@@ -667,25 +668,48 @@ export default function StormMap() {
         if (lng < minLng) minLng = lng;
         if (lng > maxLng) maxLng = lng;
       }
-      bboxes.push([minLng, minLat, maxLng, maxLat]);
+      entries.push({ bbox: [minLng, minLat, maxLng, maxLat], feature: f });
     }
-    swathBboxCacheRef.current = { version: features.length, bboxes };
-    return bboxes;
+    swathBboxCacheRef.current = { version: features.length, entries };
+    return entries;
+  }
+
+  // Check if the viewport actually intersects any storm swath polygon (not just bbox)
+  function viewportHasSwaths(viewBbox) {
+    const [vw, vs, ve, vn] = viewBbox;
+    const entries = getSwathEntries();
+    for (const { bbox: [minLng, minLat, maxLng, maxLat], feature } of entries) {
+      if (maxLat < vs || minLat > vn || maxLng < vw || minLng > ve) continue;
+      // Bbox overlap found — do a quick point-in-polygon check with viewport center + edges
+      const midLng = (vw + ve) / 2, midLat = (vs + vn) / 2;
+      const testPoints = [[midLng, midLat], [vw, vs], [ve, vs], [vw, vn], [ve, vn],
+        [midLng, vs], [midLng, vn], [vw, midLat], [ve, midLat]];
+      for (const [tLng, tLat] of testPoints) {
+        if (pointInsideAnySwath(tLng, tLat, [feature])) return true;
+      }
+      // Also check if any swath vertex falls inside viewport
+      const rings = feature.geometry.type === 'Polygon'
+        ? [feature.geometry.coordinates[0]]
+        : feature.geometry.coordinates.map(p => p[0]);
+      for (const ring of rings) {
+        for (const [lng, lat] of ring) {
+          if (lng >= vw && lng <= ve && lat >= vs && lat <= vn) return true;
+        }
+      }
+    }
+    return false;
   }
 
   function chunkOverlapsSwath(chunkBbox) {
     const [cw, cs, ce, cn] = chunkBbox;
-    // Quick bbox pre-filter first
-    const bboxes = getSwathBboxes();
-    const storms = stormFeaturesRef.current;
-    for (let i = 0; i < bboxes.length; i++) {
-      const [minLng, minLat, maxLng, maxLat] = bboxes[i];
+    const entries = getSwathEntries();
+    for (const { bbox: [minLng, minLat, maxLng, maxLat], feature: f } of entries) {
       if (maxLat < cs || minLat > cn || maxLng < cw || minLng > ce) continue;
-      // Bbox overlaps — now check if any sample point actually falls inside the polygon
-      // Test 5 points: center + 4 corners. If any is inside, the chunk overlaps the swath.
+      // Bbox overlaps — check if any sample point actually falls inside the polygon
+      // Test 9 points: center + 4 corners + 4 edge midpoints for better coverage
       const midLng = (cw + ce) / 2, midLat = (cs + cn) / 2;
-      const testPoints = [[midLng, midLat], [cw, cs], [ce, cs], [cw, cn], [ce, cn]];
-      const f = storms[i];
+      const testPoints = [[midLng, midLat], [cw, cs], [ce, cs], [cw, cn], [ce, cn],
+        [midLng, cs], [midLng, cn], [cw, midLat], [ce, midLat]];
       if (!f?.geometry?.coordinates) continue;
       for (const [tLng, tLat] of testPoints) {
         if (f.geometry.type === 'Polygon') {
@@ -694,6 +718,15 @@ export default function StormMap() {
           for (const poly of f.geometry.coordinates) {
             if (pointInRing(tLng, tLat, poly[0])) return true;
           }
+        }
+      }
+      // Also check if any swath vertex falls inside this chunk
+      const rings = f.geometry.type === 'Polygon'
+        ? [f.geometry.coordinates[0]]
+        : f.geometry.coordinates.map(p => p[0]);
+      for (const ring of rings) {
+        for (const [lng, lat] of ring) {
+          if (lng >= cw && lng <= ce && lat >= cs && lat <= cn) return true;
         }
       }
     }
@@ -717,9 +750,12 @@ export default function StormMap() {
     const ne = bounds.getNorthEast();
     const viewBbox = [sw.lng(), sw.lat(), ne.lng(), ne.lat()];
 
+    // Early exit: don't fetch FEMA data unless the viewport actually intersects storm swath polygons
+    if (!viewportHasSwaths(viewBbox)) return;
+
     // Build list of unloaded FEMA tile-sized chunks that overlap storm swaths
     // Smaller chunks = tighter fit to actual swath areas, fewer wasted API calls
-    const CHUNK = 0.1;
+    const CHUNK = 0.05;
     const chunks = [];
     for (let w = viewBbox[0]; w < viewBbox[2]; w += CHUNK) {
       for (let s = viewBbox[1]; s < viewBbox[3]; s += CHUNK) {
