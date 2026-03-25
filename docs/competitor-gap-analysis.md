@@ -1,7 +1,8 @@
 # Competitor Gap Analysis — StormLeads vs JobNimbus + HailTrace + RoofLink + Rooftops.ai
 
-**Date:** 2026-03-25 (second update — refreshed via Firecrawl scrapes of all competitor sites)
+**Date:** 2026-03-25 (third update — re-validated all competitor sites via fresh Firecrawl scrapes)
 **Methodology:** Web research of competitor websites, review sites, press releases, and pricing pages
+**Last verified:** 2026-03-25 — all pricing and feature data confirmed current via live scrapes
 
 ---
 
@@ -144,6 +145,8 @@ JobNimbus no longer publishes specific dollar amounts on their website ("Request
 4. **Next-day funding** — Faster payment processing
 5. **SumoQuote integration** — Now built into platform (acquired 2024)
 6. **Profit Tracker** — Real-time per-job profitability tracking
+7. **Measurements** — Dedicated roof measurement ordering product page (likely EagleView/Hover integration rebranded as native feature)
+8. **Peak Performance 2025** — Industry benchmarking report for roofing contractors (lead-gen content)
 
 ---
 
@@ -420,7 +423,7 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 | **Rooftops Pro (Individual)** | $12/month | $12/month | 300 reports/month, Rooftops GPT, AI Creator Studio, Document Manager |
 | **Rooftops Pro (Team)** | $55/month | $55/month | Up to 5 team members, all Pro features for each member |
 | **AI Employees** | $199/month | $199/month | Coming soon -- Marcus (sales), Aisha (content/SEO), Elena (social), Ryan (24/7 responses) |
-| **White-Glove Consulting** | $5,000 one-time | N/A | 5 one-hour Zoom sessions, custom AI setup, 6 months premium access, 90-day business roadmap |
+| **White-Glove Consulting** | $5,000 one-time | N/A | 5-week 1-on-1 consulting program: 5 private Zoom sessions, custom AI setup, 6 months premium access, 90-day business roadmap (4 spots/month) |
 
 ### Key Differentiators
 - Extremely cheap for what it offers ($12/mo for 300 AI reports)
