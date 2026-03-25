@@ -93,11 +93,10 @@ export default function EmailModal({ leadId, lead, onSave, onClose }) {
         position: 'fixed', inset: 0, zIndex: 200,
         background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(4px)',
       }} onClick={onClose} />
-      <div style={{
+      <div className="glass" style={{
         position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
         zIndex: 201, width: '90vw', maxWidth: 580,
-        background: 'oklch(0.14 0.02 260)', border: '1px solid oklch(0.25 0.02 260)',
-        borderRadius: 12, boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
+        borderRadius: 12, boxShadow: '0 20px 60px oklch(0 0 0 / 0.6)',
         display: 'flex', flexDirection: 'column', maxHeight: '92vh',
       }}>
         {/* Header */}
@@ -214,7 +213,7 @@ function ToneDropdown({ tone, onChange }) {
           }}
         >
           {selected?.label || 'Select tone'}
-          <svg style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)' }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)' }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="oklch(0.55 0.01 260)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>
@@ -223,7 +222,7 @@ function ToneDropdown({ tone, onChange }) {
             position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4, zIndex: 50,
             background: 'oklch(0.18 0.02 260)', border: '1px solid oklch(0.30 0.02 260)',
             borderRadius: 8, padding: 4,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+            boxShadow: '0 8px 24px oklch(0 0 0 / 0.5)',
           }}>
             {tones.map(t => (
               <button

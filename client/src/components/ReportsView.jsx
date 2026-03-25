@@ -373,14 +373,14 @@ export default function ReportsView() {
               type="date"
               value={start}
               onChange={e => { setStart(e.target.value); setPreset(''); }}
-              className="reports-date-input"
+              className="form-input"
             />
             <span style={{ color: 'oklch(0.5 0 0)' }}>to</span>
             <input
               type="date"
               value={end}
               onChange={e => { setEnd(e.target.value); setPreset(''); }}
-              className="reports-date-input"
+              className="form-input"
             />
           </div>
         </div>

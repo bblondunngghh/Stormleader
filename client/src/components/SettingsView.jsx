@@ -1722,7 +1722,7 @@ function FinancingTab() {
                       }}>
                       <span style={{
                         position: 'absolute', top: 2, left: plan.is_active ? 18 : 2,
-                        width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                        width: 16, height: 16, borderRadius: '50%', background: 'oklch(1 0 0)',
                         transition: 'left 0.15s',
                       }} />
                     </button>
@@ -1736,7 +1736,7 @@ function FinancingTab() {
                       }}>
                       <span style={{
                         position: 'absolute', top: 2, left: plan.is_default ? 18 : 2,
-                        width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                        width: 16, height: 16, borderRadius: '50%', background: 'oklch(1 0 0)',
                         transition: 'left 0.15s',
                       }} />
                     </button>
@@ -1934,7 +1934,7 @@ function CustomFieldsTab() {
                   }}>
                   <span style={{
                     position: 'absolute', top: 2, left: form.is_required ? 18 : 2,
-                    width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                    width: 16, height: 16, borderRadius: '50%', background: 'oklch(1 0 0)',
                     transition: 'left 0.15s',
                   }} />
                 </button>

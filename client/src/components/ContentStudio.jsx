@@ -181,6 +181,7 @@ export default function ContentStudio() {
                 <label>{label}</label>
                 <input
                   type="text"
+                  className="form-input"
                   value={variables[key]}
                   onChange={(e) => updateVar(key, e.target.value)}
                   placeholder={placeholder}

@@ -49,14 +49,14 @@ function formatOwner(raw) {
 }
 
 const SEVERITY_COLORS = {
-  extreme: '#ff2d55',
-  severe: '#ff6b35',
-  moderate: '#dcb428',
-  minor: '#00d4aa',
+  extreme: 'oklch(0.62 0.26 15)',
+  severe: 'oklch(0.68 0.20 45)',
+  moderate: 'oklch(0.78 0.17 85)',
+  minor: 'oklch(0.75 0.18 170)',
 };
 function severityColor(rating) {
-  if (!rating) return '#888';
-  return SEVERITY_COLORS[rating.toLowerCase()] || '#888';
+  if (!rating) return 'oklch(0.55 0 0)';
+  return SEVERITY_COLORS[rating.toLowerCase()] || 'oklch(0.55 0 0)';
 }
 
 // Convert roof pitch degrees to standard X/12 format (always rounds up)
@@ -140,6 +140,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   const [weatherEvents, setWeatherEvents] = useState([]);
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [weatherError, setWeatherError] = useState('');
+  const [noaaHistory, setNoaaHistory] = useState(null);
   const [customFieldDefs, setCustomFieldDefs] = useState([]);
   const [annotatingDoc, setAnnotatingDoc] = useState(null); // doc object being annotated
   const [disasterData, setDisasterData] = useState(null);
@@ -1027,7 +1028,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
             {(stormType || windSpeed || hailSize !== '—') && (() => {
               const label = (windSpeed && hailSize !== '—') ? 'Wind / Hail'
                 : stormType || (windSpeed ? 'Wind' : hailSize !== '—' ? 'Hail' : null);
-              const color = stormType === 'tornado' ? '#ff2d55' : stormType === 'hail' ? '#dcb428' : '#6c5ce7';
+              const color = stormType === 'tornado' ? 'oklch(0.62 0.26 15)' : stormType === 'hail' ? 'oklch(0.78 0.17 85)' : 'oklch(0.70 0.18 330)';
               return label ? (
                 <span style={{ color, fontWeight: 600, textTransform: 'capitalize', fontSize: 12 }}>
                   {label}
@@ -1042,13 +1043,13 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
             </div>
             <div className="detail-item">
               <span className="detail-item__label">Hail Size</span>
-              <span className="detail-item__value" style={{ color: hailSize !== '—' && typeof hailSize === 'number' ? '#dcb428' : undefined }}>
+              <span className="detail-item__value" style={{ color: hailSize !== '—' && typeof hailSize === 'number' ? 'oklch(0.78 0.17 85)' : undefined }}>
                 {typeof hailSize === 'number' ? `${hailSize}"` : hailSize}
               </span>
             </div>
             <div className="detail-item">
               <span className="detail-item__label">Wind Speed</span>
-              <span className="detail-item__value" style={{ color: windSpeed ? '#6c5ce7' : undefined }}>
+              <span className="detail-item__value" style={{ color: windSpeed ? 'oklch(0.70 0.18 330)' : undefined }}>
                 {windSpeed ? `${windSpeed} mph` : '—'}
               </span>
             </div>
@@ -1128,7 +1129,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                         }}>
                         <span style={{
                           position: 'absolute', top: 2, left: val ? 18 : 2,
-                          width: 16, height: 16, borderRadius: '50%', background: '#fff',
+                          width: 16, height: 16, borderRadius: '50%', background: 'oklch(1 0 0)',
                           transition: 'left 0.15s',
                         }} />
                       </button>
@@ -2509,7 +2510,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                     }} style={{
                       padding: '6px 12px', fontSize: 12, fontWeight: 600, border: 'none', borderRadius: 6, cursor: 'pointer',
                       background: mapMode === 'street' ? 'var(--accent-blue)' : 'transparent',
-                      color: mapMode === 'street' ? '#fff' : 'var(--text-muted)',
+                      color: mapMode === 'street' ? 'oklch(1 0 0)' : 'var(--text-muted)',
                     }}>Street</button>
                     <button onClick={() => {
                       if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; }
@@ -2517,7 +2518,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                     }} style={{
                       padding: '6px 12px', fontSize: 12, fontWeight: 600, border: 'none', borderRadius: 6, cursor: 'pointer',
                       background: mapMode === 'satellite' ? 'var(--accent-blue)' : 'transparent',
-                      color: mapMode === 'satellite' ? '#fff' : 'var(--text-muted)',
+                      color: mapMode === 'satellite' ? 'oklch(1 0 0)' : 'var(--text-muted)',
                     }}>Satellite</button>
                   </div>
                   <button onClick={() => {

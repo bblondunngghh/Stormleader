@@ -76,24 +76,20 @@ export default function CreateLeadModal({ onClose, onCreated }) {
   return createPortal(
     <>
       <div
+        className="modal-backdrop"
         onClick={onClose}
         style={{
           position: 'fixed', inset: 0, zIndex: 300,
           background: 'oklch(0 0 0 / 0.5)', backdropFilter: 'blur(4px)',
-          animation: 'fadeIn 0.25s ease-out',
         }}
       />
-      <div style={{
+      <div className="glass" style={{
         position: 'fixed', top: '50%', left: '50%',
         zIndex: 301,
         width: 440, overflow: 'visible',
         borderRadius: '20px / 18px',
-        background: 'var(--glass-bg)',
-        backdropFilter: 'blur(16px) saturate(1.3)',
-        border: '1px solid var(--glass-border)',
         boxShadow: '0 8px 32px oklch(0 0 0 / 0.4), inset 0 1px 0 oklch(1 0 0 / 0.05)',
         padding: 24,
-        animation: 'modal-scale-in 200ms cubic-bezier(0.16, 1, 0.3, 1) both',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>Add Lead</h2>

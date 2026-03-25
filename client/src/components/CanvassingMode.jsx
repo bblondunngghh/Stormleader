@@ -324,7 +324,7 @@ export default function CanvassingMode() {
                 placeholder="Address (optional)"
                 value={formData.address}
                 onChange={(e) => setFormData(f => ({ ...f, address: e.target.value }))}
-                style={styles.input}
+                className="form-input"
               />
 
               {/* Outcome quick-select */}
@@ -351,7 +351,8 @@ export default function CanvassingMode() {
                 placeholder="Notes (optional)"
                 value={formData.notes}
                 onChange={(e) => setFormData(f => ({ ...f, notes: e.target.value }))}
-                style={styles.textarea}
+                className="form-input"
+                style={{ height: 'auto', minHeight: 60, resize: 'vertical' }}
                 rows={2}
               />
 

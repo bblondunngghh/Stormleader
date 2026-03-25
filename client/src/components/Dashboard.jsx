@@ -308,7 +308,7 @@ function MiniStormMap({ storms, navigate }) {
         paint: {
           'circle-radius': 5,
           'circle-color': ['match', ['get', 'type'], 'tornado', tornadoColor, 'hail', hailColor, windColor],
-          'circle-stroke-width': 1.5, 'circle-stroke-color': 'rgba(0,0,0,0.3)',
+          'circle-stroke-width': 1.5, 'circle-stroke-color': 'oklch(0 0 0 / 0.3)',
         },
       });
       m.on('click', 'storm-dots', (e) => {
@@ -648,11 +648,11 @@ export default function Dashboard() {
                 pointerEvents: 'none',
               }}>
                 <div style={{
-                  background: 'rgba(47, 52, 68, 0.6)',
+                  background: 'oklch(0.22 0.02 260 / 0.6)',
                   backdropFilter: 'blur(20px)',
                   padding: '4px 8px',
                   borderRadius: 4,
-                  border: '1px solid rgba(255,255,255,0.05)',
+                  border: '1px solid oklch(1 0 0 / 0.05)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
@@ -682,7 +682,7 @@ export default function Dashboard() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                    boxShadow: '0 4px 12px oklch(0 0 0 / 0.3)',
                   }}
                 >
                   <span className="material-symbols-outlined">fullscreen</span>

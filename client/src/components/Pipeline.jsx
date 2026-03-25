@@ -525,7 +525,7 @@ export default function Pipeline() {
                         height: 6,
                         borderRadius: '50%',
                         background: badge.dotBg,
-                        boxShadow: '0 0 0 0 rgba(180, 0, 43, 0.7)',
+                        boxShadow: '0 0 0 0 oklch(0.45 0.22 25 / 0.7)',
                         animation: 'pulse 2s infinite',
                       }} />
                     )}
@@ -665,9 +665,9 @@ export default function Pipeline() {
         {/* Pulse animation keyframes */}
         <style>{`
           @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(180, 0, 43, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(180, 0, 43, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(180, 0, 43, 0); }
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 oklch(0.45 0.22 25 / 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px oklch(0.45 0.22 25 / 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 oklch(0.45 0.22 25 / 0); }
           }
         `}</style>
 

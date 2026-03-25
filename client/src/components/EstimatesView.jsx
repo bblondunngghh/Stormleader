@@ -160,7 +160,7 @@ export default function EstimatesView() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
             <span style={{
               width: 8, height: 8, borderRadius: '50%', background: 'var(--accent-cyan)',
-              boxShadow: '0 0 0 0 rgba(0,229,255,0.7)',
+              boxShadow: '0 0 0 0 oklch(0.78 0.12 200 / 0.7)',
               animation: 'mobileEstPulse 2s infinite',
               display: 'inline-block',
             }} />
@@ -172,9 +172,9 @@ export default function EstimatesView() {
           </div>
           <style>{`
             @keyframes mobileEstPulse {
-              0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0,229,255,0.7); }
-              70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0,229,255,0); }
-              100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0,229,255,0); }
+              0% { transform: scale(0.95); box-shadow: 0 0 0 0 oklch(0.78 0.12 200 / 0.7); }
+              70% { transform: scale(1); box-shadow: 0 0 0 10px oklch(0.78 0.12 200 / 0); }
+              100% { transform: scale(0.95); box-shadow: 0 0 0 0 oklch(0.78 0.12 200 / 0); }
             }
           `}</style>
 
@@ -203,7 +203,7 @@ export default function EstimatesView() {
               alignItems: 'center',
               justifyContent: 'center',
               gap: 8,
-              boxShadow: '0 0 20px rgba(0,229,255,0.2)',
+              boxShadow: '0 0 20px oklch(0.78 0.12 200 / 0.2)',
               marginBottom: 24,
             }}
           >
@@ -292,7 +292,7 @@ export default function EstimatesView() {
                     fontFamily: '"Space Grotesk", sans-serif',
                     letterSpacing: '0.05em',
                     whiteSpace: 'nowrap',
-                    border: isActive ? '1px solid rgba(0,229,255,0.3)' : '1px solid transparent',
+                    border: isActive ? '1px solid oklch(0.78 0.12 200 / 0.3)' : '1px solid transparent',
                     background: isActive ? 'oklch(0.18 0.02 260)' : 'transparent',
                     color: isActive ? 'var(--accent-cyan)' : 'var(--text-secondary)',
                     cursor: 'pointer',
