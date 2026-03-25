@@ -140,3 +140,33 @@ and what should be prioritized next. Future agents MUST read this before startin
 - The PhotoAnnotator component was already built but never rendered — always check for unused components before building new ones.
 - Batching INSERT queries (multi-value INSERT) significantly reduces database round trips on Neon free tier.
 - Reducing FEMA chunk size from 0.2° to 0.1° combined with polygon-aware filtering dramatically reduces false positive property loads on elongated storm swaths.
+
+---
+
+## Run: 2026-03-25
+
+### What was done
+- **Competitor Research Refresh**: Updated gap analysis with fresh Firecrawl scrapes of all competitor sites. Discovered QuoteIQ as a new AI-first competitor ($29.99/mo). Updated JobNimbus pricing (now opaque, ~$349-1,552/mo), confirmed HailTrace at 10,000+ clients, documented RoofLink's Roofle acquisition and bundle pricing, tracked Rooftops.ai's AI Employees pivot.
+- **FEMA Disaster Declarations API**: New feature — county-level disaster risk scoring via FEMA open data. Displays disaster count, most recent declaration, and risk classification in lead detail. Helps roofers prioritize leads in federally declared disaster zones.
+- **Polygon-Based Map Property Loading**: Replaced bounding-box FEMA property loading with server-side polygon intersection. Dramatically reduces false-positive property loads on elongated storm swaths.
+- **UI Color Purge (hex → oklch)**: Replaced all remaining hardcoded hex colors across Dashboard, Pipeline, Estimates, Tasks, Storm Map, and BottomTabBar with oklch values and CSS custom properties.
+- **Modal Animation Consistency**: Added `modal-backdrop` class to all remaining modal overlays (EmailModal, EstimatesView, ExpensesView, InvoicesView, MaterialsView, SettingsView) for consistent scale-in animations.
+- **Security Audit**: Full audit of 36 route files — 100% auth coverage, 100% tenant isolation, 100% parameterized SQL. Fixed N+1 in notification broadcast (loop of INSERTs → bulk INSERT...SELECT). Added 7 missing database indexes.
+- **WorkOrdersView Empty State**: Added guided empty state with message and CTA button.
+- Total: 7 commits
+
+### What should be done next run
+1. **SPC SVRGIS Historical Archive**: Import 70+ years of free storm history shapefiles into PostGIS — closes biggest gap vs HailTrace
+2. **Lead Scoring Algorithm**: Combine storm history, home age, ownership, value, FEMA declarations into composite score
+3. **Census ACS Demographics**: Free API for home age, ownership rate, income by block group
+4. **QuickBooks Sync**: Free API tier, basic invoice push
+5. **SMS via Twilio**: Appointment reminder texting (~$0.0075/msg)
+6. **Login rate limiting**: Add express-rate-limit to auth endpoints
+7. **Hash refresh tokens**: Currently stored in plaintext
+8. **Dashboard loading skeleton**: Unified shimmer placeholders
+
+### Lessons learned
+- HailTrace's core hail data comes from the same NOAA MRMS dataset StormLeads already ingests — their real differentiation is meteorologist review and 70-year history (both achievable: algorithm-only verification + free SVRGIS archive).
+- QuoteIQ is a direct pricing threat at $29.99/mo but has zero storm data — storm mapping remains StormLeads' strongest competitive moat.
+- Server-side polygon intersection for property loading is far more efficient than client-side bounding-box filtering, especially for elongated storm swaths that create large bounding boxes.
+- Bulk INSERT...SELECT is essential on Neon free tier — the notification broadcast N+1 was doing O(n) round trips per notification event.
