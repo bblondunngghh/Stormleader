@@ -1,11 +1,37 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import rateLimit from 'express-rate-limit';
 import validate from '../middleware/validate.js';
 import authenticate from '../middleware/authenticate.js';
 import * as authService from '../services/authService.js';
 import pool from '../db/pool.js';
 
 const router = Router();
+
+// Rate limiters for auth endpoints to prevent brute-force attacks
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // 10 attempts per window per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts. Please try again in 15 minutes.' },
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // 5 registrations per hour per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many registration attempts. Please try again later.' },
+});
+
+const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30, // 30 refreshes per window per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many refresh attempts. Please try again later.' },
+});
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -25,7 +51,7 @@ const refreshSchema = z.object({
   refreshToken: z.string().min(1),
 });
 
-router.post('/register', validate(registerSchema), async (req, res, next) => {
+router.post('/register', registerLimiter, validate(registerSchema), async (req, res, next) => {
   try {
     const { email, password, firstName, lastName, tenantSlug } = req.body;
     const result = await authService.register(email, password, firstName, lastName, tenantSlug);
@@ -35,7 +61,7 @@ router.post('/register', validate(registerSchema), async (req, res, next) => {
   }
 });
 
-router.post('/login', validate(loginSchema), async (req, res, next) => {
+router.post('/login', loginLimiter, validate(loginSchema), async (req, res, next) => {
   try {
     const { email, password, tenantSlug } = req.body;
     const result = await authService.login(email, password, tenantSlug);
@@ -91,7 +117,7 @@ router.get('/me', authenticate, async (req, res, next) => {
   }
 });
 
-router.post('/refresh', validate(refreshSchema), async (req, res, next) => {
+router.post('/refresh', refreshLimiter, validate(refreshSchema), async (req, res, next) => {
   try {
     const result = await authService.refreshToken(req.body.refreshToken);
     res.json(result);

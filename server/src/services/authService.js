@@ -1,7 +1,13 @@
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import pool from '../db/pool.js';
 import config from '../config/env.js';
+
+// Hash refresh tokens with SHA-256 before storing (fast, one-way)
+function hashRefreshToken(token) {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
 
 function generateTokens(user) {
   const payload = {
@@ -63,7 +69,7 @@ export async function register(email, password, firstName, lastName, tenantSlug)
   const tokens = generateTokens(user);
 
   await pool.query('UPDATE users SET refresh_token = $1 WHERE id = $2', [
-    tokens.refreshToken,
+    hashRefreshToken(tokens.refreshToken),
     user.id,
   ]);
 
@@ -99,7 +105,7 @@ export async function login(email, password, tenantSlug) {
   const tokens = generateTokens(user);
 
   await pool.query('UPDATE users SET refresh_token = $1 WHERE id = $2', [
-    tokens.refreshToken,
+    hashRefreshToken(tokens.refreshToken),
     user.id,
   ]);
 
@@ -233,7 +239,7 @@ export async function createTenantWithAdmin(companyName, firstName, lastName, em
     const tokens = generateTokens(user);
     await client.query(
       'UPDATE users SET refresh_token = $1 WHERE id = $2',
-      [tokens.refreshToken, user.id],
+      [hashRefreshToken(tokens.refreshToken), user.id],
     );
 
     await client.query('COMMIT');
@@ -278,7 +284,7 @@ export async function refreshToken(token) {
 
   const { rows } = await pool.query(
     'SELECT id, tenant_id, email, role, first_name, last_name FROM users WHERE id = $1 AND refresh_token = $2',
-    [payload.id, token]
+    [payload.id, hashRefreshToken(token)]
   );
 
   if (rows.length === 0) {
@@ -291,7 +297,7 @@ export async function refreshToken(token) {
   const tokens = generateTokens(user);
 
   await pool.query('UPDATE users SET refresh_token = $1 WHERE id = $2', [
-    tokens.refreshToken,
+    hashRefreshToken(tokens.refreshToken),
     user.id,
   ]);
 
