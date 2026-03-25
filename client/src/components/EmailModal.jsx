@@ -89,9 +89,9 @@ export default function EmailModal({ leadId, lead, onSave, onClose }) {
 
   return (
     <>
-      <div style={{
+      <div className="modal-backdrop" style={{
         position: 'fixed', inset: 0, zIndex: 200,
-        background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+        background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(4px)',
       }} onClick={onClose} />
       <div style={{
         position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',

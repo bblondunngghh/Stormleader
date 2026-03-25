@@ -710,7 +710,7 @@ function PaymentModal({ invoice, onClose, onRecorded }) {
   };
 
   return (
-    <div style={{
+    <div className="modal-backdrop" style={{
       position: 'fixed', inset: 0, zIndex: 9999,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(8px)',

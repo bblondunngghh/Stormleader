@@ -817,7 +817,7 @@ function SendForSigningModal({ signers, customerEmail, onSend, onClose, sending 
 
   return createPortal(
     <>
-      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 400, background: 'oklch(0 0 0 / 0.5)', backdropFilter: 'blur(4px)' }} />
+      <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 400, background: 'oklch(0 0 0 / 0.5)', backdropFilter: 'blur(4px)' }} />
       <div style={{
         position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 401,
         width: 520, maxHeight: '85vh', overflow: 'visible',

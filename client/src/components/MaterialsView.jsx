@@ -454,7 +454,7 @@ function ProductDetailModal({ product, onClose, onAddToCart }) {
   const [qty, setQty] = useState(1);
 
   return (
-    <div style={{
+    <div className="modal-backdrop" style={{
       position: 'fixed', inset: 0, zIndex: 1000,
       background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(8px)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -577,7 +577,7 @@ function ProductDetailModal({ product, onClose, onAddToCart }) {
 
 function CartSidebar({ cart, cartTotal, branches, selectedBranch, setSelectedBranch, updateCartQty, removeFromCart, onClose, onSubmit, submitting }) {
   return (
-    <div style={{
+    <div className="modal-backdrop" style={{
       position: 'fixed', inset: 0, zIndex: 1000,
       background: 'oklch(0 0 0 / 0.5)',
       display: 'flex', justifyContent: 'flex-end',
@@ -893,7 +893,7 @@ export function SRSCatalogModal({ onClose, onSelect }) {
   useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
   return (
-    <div style={{
+    <div className="modal-backdrop" style={{
       position: 'fixed', inset: 0, zIndex: 1000,
       background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(8px)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
