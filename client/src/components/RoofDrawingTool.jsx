@@ -550,7 +550,7 @@ export default function RoofDrawingTool({ propertyId, lat, lng, address, roofPit
         {/* Drawing hint */}
         <div style={{
           position: 'absolute', top: 56, left: '50%', transform: 'translateX(-50%)', zIndex: 10,
-          background: 'oklch(0.12 0.02 260 / 0.9)', color: '#fff', padding: '6px 14px',
+          background: 'oklch(0.12 0.02 260 / 0.9)', color: 'oklch(1 0 0)', padding: '6px 14px',
           borderRadius: 20, fontSize: 11, fontWeight: 500, pointerEvents: 'none',
           border: '1px solid oklch(0.30 0.02 260)',
         }}>
@@ -830,7 +830,7 @@ export default function RoofDrawingTool({ propertyId, lat, lng, address, roofPit
             Cancel
           </button>
           <button onClick={handleSave} disabled={saving || !hasData}
-            style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: !hasData ? 'oklch(0.25 0.02 260)' : 'var(--accent-blue)', color: '#fff', fontSize: 12, fontWeight: 600, cursor: !hasData ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1 }}>
+            style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: !hasData ? 'oklch(0.25 0.02 260)' : 'var(--accent-blue)', color: 'oklch(1 0 0)', fontSize: 12, fontWeight: 600, cursor: !hasData ? 'not-allowed' : 'pointer', opacity: saving ? 0.6 : 1 }}>
             {saving ? 'Saving...' : 'Save Measurements'}
           </button>
         </div>

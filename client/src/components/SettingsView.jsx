@@ -219,7 +219,7 @@ function CompanyTab() {
 
       <button type="submit" disabled={saving} style={{
         padding: '12px 32px', borderRadius: 'var(--radius-md)', fontSize: 14, fontWeight: 700,
-        background: 'var(--accent-blue)', color: 'white', border: 'none', cursor: 'pointer',
+        background: 'var(--accent-blue)', color: 'oklch(1 0 0)', border: 'none', cursor: 'pointer',
         opacity: saving ? 0.6 : 1, alignSelf: 'flex-start',
         transition: 'opacity 0.15s var(--ease-out)',
       }}>
@@ -1464,7 +1464,7 @@ function AddCardForm({ email, onSuccess }) {
       {error && <div style={{ fontSize: 12, color: 'var(--accent-red)', marginBottom: 'var(--space-md)' }}>{error}</div>}
       <button type="submit" disabled={!stripe || processing} style={{
         padding: '10px 24px', borderRadius: 'var(--radius-md)', fontSize: 13, fontWeight: 700,
-        background: 'var(--accent-blue)', color: 'white', border: 'none', cursor: 'pointer',
+        background: 'var(--accent-blue)', color: 'oklch(1 0 0)', border: 'none', cursor: 'pointer',
         opacity: processing ? 0.6 : 1,
       }}>
         {processing ? 'Saving...' : 'Add Payment Method'}
@@ -1650,7 +1650,7 @@ function FinancingTab() {
           <button type="submit" disabled={connecting || !form.apiKey || !form.merchantId}
             style={{
               padding: '10px 24px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer',
-              background: 'var(--accent-blue)', color: '#fff', fontWeight: 600, fontSize: 13,
+              background: 'var(--accent-blue)', color: 'oklch(1 0 0)', fontWeight: 600, fontSize: 13,
               opacity: connecting || !form.apiKey || !form.merchantId ? 0.5 : 1,
             }}>
             {connecting ? 'Connecting...' : `Connect ${form.provider === 'mock' ? 'Mock Provider' : 'Hearth'}`}
@@ -1887,7 +1887,7 @@ function CustomFieldsTab() {
           <button onClick={() => { resetForm(); setShowForm(true); }}
             style={{
               padding: '6px 16px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer',
-              background: 'var(--accent-blue)', color: '#fff', fontSize: 13, fontWeight: 600,
+              background: 'var(--accent-blue)', color: 'oklch(1 0 0)', fontSize: 13, fontWeight: 600,
             }}>
             + Add Field
           </button>
@@ -1979,7 +1979,7 @@ function CustomFieldsTab() {
               Cancel
             </button>
             <button type="submit" disabled={saving}
-              style={{ padding: '6px 16px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'var(--accent-blue)', color: '#fff', fontSize: 13, fontWeight: 600, opacity: saving ? 0.6 : 1 }}>
+              style={{ padding: '6px 16px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'var(--accent-blue)', color: 'oklch(1 0 0)', fontSize: 13, fontWeight: 600, opacity: saving ? 0.6 : 1 }}>
               {saving ? 'Saving...' : editingId ? 'Update' : 'Create'}
             </button>
           </div>
@@ -2026,7 +2026,7 @@ function CustomFieldsTab() {
               {confirmDelete === field.id ? (
                 <div style={{ display: 'flex', gap: 4 }}>
                   <button onClick={() => handleDelete(field.id)}
-                    style={{ padding: '4px 10px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'oklch(0.45 0.18 25)', color: '#fff', fontSize: 12 }}>
+                    style={{ padding: '4px 10px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'oklch(0.45 0.18 25)', color: 'oklch(1 0 0)', fontSize: 12 }}>
                     Confirm
                   </button>
                   <button onClick={() => setConfirmDelete(null)}

@@ -494,6 +494,35 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 </div>
               )}
             </div>
+            {/* Lead Score Badge */}
+            {lead && (
+              <button
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  try {
+                    const resp = await client.post(`/crm/leads/${leadId}/score`);
+                    setLead(prev => ({ ...prev, lead_score: resp.data.score, lead_score_factors: resp.data.factors }));
+                  } catch {}
+                }}
+                title={lead.lead_score != null ? `Score: ${lead.lead_score}/100 — Click to refresh` : 'Click to compute lead score'}
+                style={{
+                  background: lead.lead_score >= 80 ? 'oklch(0.35 0.12 145 / 0.4)'
+                    : lead.lead_score >= 60 ? 'oklch(0.35 0.1 85 / 0.4)'
+                    : lead.lead_score >= 40 ? 'oklch(0.35 0.1 60 / 0.4)'
+                    : lead.lead_score >= 20 ? 'oklch(0.35 0.1 30 / 0.4)'
+                    : 'oklch(0.25 0.05 260 / 0.3)',
+                  color: lead.lead_score >= 80 ? 'oklch(0.85 0.18 145)'
+                    : lead.lead_score >= 60 ? 'oklch(0.85 0.15 85)'
+                    : lead.lead_score >= 40 ? 'oklch(0.85 0.15 60)'
+                    : lead.lead_score >= 20 ? 'oklch(0.75 0.15 30)'
+                    : 'var(--text-muted)',
+                  border: 'none', borderRadius: 'var(--radius-pill)', padding: '4px 10px',
+                  fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                }}
+              >
+                {lead.lead_score != null ? `⚡ ${lead.lead_score}` : '⚡ Score'}
+              </button>
+            )}
           </div>
           <div className="slide-over__name">{name}</div>
           <div className="slide-over__address">{address}{city && !address?.toUpperCase().includes(city?.toUpperCase()) ? `, ${titleCase(city)}` : ''}{state && !address?.includes(state) ? `, ${state}` : ''}{zip && !address?.includes(zip) ? ` ${zip}` : ''}</div>
@@ -1467,7 +1496,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                       disabled={saving}
                       style={{
                         flex: 1, padding: '8px 12px', fontSize: 12, fontWeight: 600,
-                        background: 'var(--accent-red)', color: '#fff',
+                        background: 'var(--accent-red)', color: 'oklch(1 0 0)',
                         border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
                       }}
                     >
@@ -1548,7 +1577,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                     display: 'flex', alignItems: 'center', gap: 6,
                     padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
                     background: 'var(--accent-blue)', border: 'none',
-                    color: '#fff', cursor: 'pointer',
+                    color: 'oklch(1 0 0)', cursor: 'pointer',
                   }}
                 >
                   <ArrowDownTrayIcon width={14} height={14} />
@@ -1698,7 +1727,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 style={{
                   padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600,
                   background: 'var(--accent-blue)', border: 'none',
-                  color: '#fff', cursor: 'pointer',
+                  color: 'oklch(1 0 0)', cursor: 'pointer',
                 }}
               >
                 Confirm
@@ -2341,7 +2370,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 <button onClick={handlePrint} style={{
                   display: 'flex', alignItems: 'center', gap: 6,
                   padding: '8px 24px', fontSize: 12, fontWeight: 700, border: 'none',
-                  borderRadius: 6, background: '#0ea5e9', color: '#fff', cursor: 'pointer',
+                  borderRadius: 6, background: 'var(--accent-blue)', color: 'oklch(1 0 0)', cursor: 'pointer',
                 }}>
                   Print / Save as PDF
                 </button>

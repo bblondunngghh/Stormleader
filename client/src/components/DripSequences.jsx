@@ -213,7 +213,7 @@ export default function DripSequences() {
           onClick={() => { setShowForm(true); setEditId(null); setForm(getEmptyForm()); }}
           style={{
             padding: '8px 18px', borderRadius: 'var(--radius-sm)', fontSize: 13, fontWeight: 600,
-            border: 'none', cursor: 'pointer', background: 'var(--accent-blue)', color: '#fff',
+            border: 'none', cursor: 'pointer', background: 'var(--accent-blue)', color: 'oklch(1 0 0)',
           }}
         >
           + New Sequence
@@ -295,7 +295,7 @@ export default function DripSequences() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', marginBottom: 'var(--space-sm)' }}>
                     <span style={{
                       width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      background: 'var(--accent-blue)', color: '#fff', fontSize: 11, fontWeight: 700, flexShrink: 0,
+                      background: 'var(--accent-blue)', color: 'oklch(1 0 0)', fontSize: 11, fontWeight: 700, flexShrink: 0,
                     }}>
                       {idx + 1}
                     </span>
@@ -412,7 +412,7 @@ export default function DripSequences() {
               onClick={handleSave}
               style={{
                 padding: '8px 18px', borderRadius: 'var(--radius-sm)', fontSize: 13, fontWeight: 600,
-                border: 'none', cursor: 'pointer', background: 'var(--accent-blue)', color: '#fff',
+                border: 'none', cursor: 'pointer', background: 'var(--accent-blue)', color: 'oklch(1 0 0)',
               }}
             >
               {editId ? 'Update' : 'Create'} Sequence

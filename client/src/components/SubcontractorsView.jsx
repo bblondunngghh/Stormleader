@@ -72,7 +72,7 @@ export default function SubcontractorsView() {
           <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Subcontractors</h2>
           <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 'var(--space-xs)' }}>{total} total</div>
         </div>
-        <button className="auth-btn" style={{ fontSize: 13, padding: '0 var(--space-lg)', height: 36, borderRadius: '14px / 12px', fontWeight: 700 }}
+        <button className="auth-btn" style={{ fontSize: 13, padding: '0 var(--space-lg)', height: 36, borderRadius: 'var(--radius-pill)', fontWeight: 700 }}
           onClick={() => setSlideOver('add')}>
           + Add Subcontractor
         </button>
@@ -195,7 +195,7 @@ export default function SubcontractorsView() {
           <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Showing {showStart}–{showEnd} of {total}</span>
           <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'center' }}>
             <select className="form-input" value={pageSize} onChange={e => { setPageSize(Number(e.target.value)); setPage(0); }}
-              style={{ height: 32, borderRadius: 8, fontSize: 12, width: 70 }}>
+              style={{ height: 32, borderRadius: 'var(--radius-md)', fontSize: 12, width: 70 }}>
               <option value={25}>25</option>
               <option value={50}>50</option>
               <option value={100}>100</option>
@@ -339,9 +339,9 @@ function SubSlideOver({ sub, onClose, onSaved }) {
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-md)', marginTop: 'auto' }}>
           <button className="quick-action-btn" onClick={onClose}
-            style={{ padding: 'var(--space-sm) var(--space-lg)', borderRadius: '14px / 12px', fontSize: 13, fontWeight: 600 }}>Cancel</button>
+            style={{ padding: 'var(--space-sm) var(--space-lg)', borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600 }}>Cancel</button>
           <button className="auth-btn" onClick={handleSave} disabled={saving || !form.name.trim()}
-            style={{ height: 36, padding: '0 var(--space-xl)', borderRadius: '14px / 12px', fontSize: 13, fontWeight: 700, opacity: saving || !form.name.trim() ? 0.5 : 1, cursor: saving || !form.name.trim() ? 'not-allowed' : 'pointer' }}>
+            style={{ height: 36, padding: '0 var(--space-xl)', borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 700, opacity: saving || !form.name.trim() ? 0.5 : 1, cursor: saving || !form.name.trim() ? 'not-allowed' : 'pointer' }}>
             {saving ? 'Saving...' : sub ? 'Update' : 'Add Subcontractor'}
           </button>
         </div>

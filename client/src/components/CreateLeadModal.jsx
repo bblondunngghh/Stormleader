@@ -165,7 +165,7 @@ export default function CreateLeadModal({ onClose, onCreated }) {
             disabled={saving}
             style={{
               marginTop: 8, padding: '10px 20px', fontSize: 13, fontWeight: 600,
-              borderRadius: '14px / 12px', border: 'none', cursor: 'pointer',
+              borderRadius: 'var(--radius-pill)', border: 'none', cursor: 'pointer',
               background: 'var(--accent-blue)', color: 'oklch(0.15 0.02 250)',
               opacity: saving ? 0.6 : 1,
             }}

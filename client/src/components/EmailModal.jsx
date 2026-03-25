@@ -173,7 +173,7 @@ export default function EmailModal({ leadId, lead, onSave, onClose }) {
             disabled={!to.trim() || sending}
             style={{
               padding: '8px 20px', fontSize: 12, fontWeight: 700,
-              background: 'var(--accent-blue)', color: 'white',
+              background: 'var(--accent-blue)', color: 'oklch(1 0 0)',
               border: 'none', borderRadius: 'var(--radius-sm)',
               cursor: (!to.trim() || sending) ? 'not-allowed' : 'pointer',
               opacity: (!to.trim() || sending) ? 0.5 : 1,

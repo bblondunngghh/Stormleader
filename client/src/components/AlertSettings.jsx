@@ -103,7 +103,7 @@ export default function AlertSettings() {
           disabled={testing}
           style={{
             padding: '8px 16px',
-            borderRadius: '14px / 12px',
+            borderRadius: 'var(--radius-pill)',
             fontSize: '13px',
             fontWeight: 600,
             cursor: testing ? 'wait' : 'pointer',
@@ -183,8 +183,8 @@ export default function AlertSettings() {
                   onClick={addEmail}
                   disabled={saving}
                   style={{
-                    padding: '8px 16px', background: 'oklch(0.55 0.18 250)', color: 'white',
-                    borderRadius: '14px / 12px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none',
+                    padding: '8px 16px', background: 'oklch(0.55 0.18 250)', color: 'oklch(1 0 0)',
+                    borderRadius: 'var(--radius-pill)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none',
                   }}
                 >
                   Add
@@ -230,8 +230,8 @@ export default function AlertSettings() {
                 disabled={saving}
                 style={{
                   marginTop: '12px', width: '100%', padding: '8px 16px',
-                  background: 'var(--accent-blue)', color: '#fff', border: 'none',
-                  borderRadius: '14px / 12px', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
+                  background: 'var(--accent-blue)', color: 'oklch(1 0 0)', border: 'none',
+                  borderRadius: 'var(--radius-pill)', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
                 }}
               >
                 {saving ? 'Updating...' : 'Update Thresholds'}

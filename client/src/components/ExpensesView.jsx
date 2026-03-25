@@ -119,12 +119,7 @@ function ExpenseModal({ expense, onSave, onClose }) {
               value={leadSearch}
               onChange={e => { setLeadSearch(e.target.value); setLeadId(''); }}
               placeholder="Search by address or name..."
-              className="glass"
-              style={{
-                width: '100%', padding: '8px 12px', borderRadius: 'var(--radius-md)',
-                border: '1px solid oklch(1 0 0 / 0.08)', color: 'var(--text-primary)',
-                fontSize: 13, background: 'oklch(1 0 0 / 0.04)', boxSizing: 'border-box',
-              }}
+              className="form-input"
             />
             {leadResults.length > 0 && !leadId && (
               <div className="glass" style={{
@@ -178,12 +173,8 @@ function ExpenseModal({ expense, onSave, onClose }) {
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 required
-                className="glass"
-                style={{
-                  width: '100%', padding: '8px 12px 8px 24px', borderRadius: 'var(--radius-md)',
-                  border: '1px solid oklch(1 0 0 / 0.08)', color: 'var(--text-primary)',
-                  fontSize: 13, background: 'oklch(1 0 0 / 0.04)', boxSizing: 'border-box',
-                }}
+                className="form-input"
+                style={{ paddingLeft: 24 }}
               />
             </div>
           </div>
@@ -202,13 +193,8 @@ function ExpenseModal({ expense, onSave, onClose }) {
               onChange={e => setNotes(e.target.value)}
               rows={3}
               placeholder="Optional notes..."
-              className="glass"
-              style={{
-                width: '100%', padding: '8px 12px', borderRadius: 'var(--radius-md)',
-                border: '1px solid oklch(1 0 0 / 0.08)', color: 'var(--text-primary)',
-                fontSize: 13, resize: 'vertical', background: 'oklch(1 0 0 / 0.04)',
-                fontFamily: 'inherit', boxSizing: 'border-box',
-              }}
+              className="form-input"
+              style={{ resize: 'vertical' }}
             />
           </div>
 
@@ -424,7 +410,7 @@ export default function ExpensesView() {
               <button onClick={() => handleDelete(confirmDelete)} style={{
                 padding: '8px 20px', borderRadius: 'var(--radius-pill)', fontSize: 13,
                 background: 'oklch(0.45 0.15 25)', border: 'none',
-                color: '#fff', cursor: 'pointer', fontWeight: 600,
+                color: 'oklch(1 0 0)', cursor: 'pointer', fontWeight: 600,
               }}>Delete</button>
             </div>
           </div>
