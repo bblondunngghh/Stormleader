@@ -95,35 +95,35 @@ export default function TasksView() {
 
   if (isMobile) {
     return (
-      <div style={{ minHeight: '100vh', background: '#0d1321', color: '#dde2f6', fontFamily: 'Manrope, sans-serif', paddingBottom: 100 }}>
+      <div style={{ minHeight: '100vh', background: 'var(--bg-deep)', color: 'var(--text-primary)', fontFamily: 'inherit', paddingBottom: 100 }}>
         {/* Mobile Header */}
         <div style={{ padding: '24px 24px 0' }}>
           {/* Status indicator */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
             <span style={{
-              width: 8, height: 8, borderRadius: '50%', background: '#00daf3',
-              boxShadow: '0 0 0 0 rgba(0, 218, 243, 0.7)',
+              width: 8, height: 8, borderRadius: '50%', background: 'var(--accent-cyan)',
+              boxShadow: '0 0 0 0 oklch(0.78 0.12 200 / 0.7)',
               animation: 'mobilePulse 2s infinite',
             }} />
             <p style={{
-              fontFamily: '"Space Grotesk", sans-serif', fontSize: 10, letterSpacing: '0.15em',
-              textTransform: 'uppercase', color: '#00daf3', fontWeight: 500, margin: 0,
+              fontFamily: 'inherit', fontSize: 10, letterSpacing: '0.15em',
+              textTransform: 'uppercase', color: 'var(--accent-cyan)', fontWeight: 500, margin: 0,
             }}>Operational Status: Active</p>
           </div>
           <style>{`
             @keyframes mobilePulse {
-              0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 218, 243, 0.7); }
-              70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 218, 243, 0); }
-              100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 218, 243, 0); }
+              0% { transform: scale(0.95); box-shadow: 0 0 0 0 oklch(0.78 0.12 200 / 0.7); }
+              70% { transform: scale(1); box-shadow: 0 0 0 10px oklch(0.78 0.12 200 / 0); }
+              100% { transform: scale(0.95); box-shadow: 0 0 0 0 oklch(0.78 0.12 200 / 0); }
             }
           `}</style>
 
           {/* Title */}
           <h2 style={{
-            fontSize: 32, fontWeight: 700, fontFamily: '"Space Grotesk", sans-serif',
-            color: '#dde2f6', letterSpacing: '-0.02em', margin: '0 0 4px',
+            fontSize: 32, fontWeight: 700, fontFamily: 'inherit',
+            color: 'var(--text-primary)', letterSpacing: '-0.02em', margin: '0 0 4px',
           }}>Mission Log</h2>
-          <p style={{ color: '#bac9cc', fontSize: 14, margin: '0 0 24px' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: 14, margin: '0 0 24px' }}>
             Tactical task management and field deployment queue.
           </p>
 
@@ -133,10 +133,10 @@ export default function TasksView() {
               onClick={() => setShowFilterOps(!showFilterOps)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 8,
-                padding: '8px 16px', background: '#161b2a', color: '#dde2f6',
-                borderBottom: '2px solid rgba(59,73,76,0.3)', border: 'none',
-                borderBottomWidth: 2, borderBottomStyle: 'solid', borderBottomColor: 'rgba(59,73,76,0.3)',
-                fontFamily: '"Space Grotesk", sans-serif', fontSize: 13, cursor: 'pointer',
+                padding: '8px 16px', background: 'var(--bg-surface)', color: 'var(--text-primary)',
+                borderBottom: '2px solid oklch(0.35 0.02 260 / 0.3)', border: 'none',
+                borderBottomWidth: 2, borderBottomStyle: 'solid', borderBottomColor: 'oklch(0.35 0.02 260 / 0.3)',
+                fontFamily: 'inherit', fontSize: 13, cursor: 'pointer',
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>filter_list</span>
@@ -146,10 +146,10 @@ export default function TasksView() {
               onClick={() => setShowCreate(true)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 8,
-                padding: '8px 24px', background: 'linear-gradient(135deg, #c3f5ff, #00e5ff)',
-                color: '#00626e', fontFamily: '"Space Grotesk", sans-serif', fontSize: 13,
-                fontWeight: 700, border: 'none', borderRadius: 6, cursor: 'pointer',
-                boxShadow: '0 0 15px rgba(0,229,255,0.2)',
+                padding: '8px 24px', background: 'linear-gradient(135deg, oklch(0.90 0.06 200), oklch(0.78 0.12 200))',
+                color: 'oklch(0.25 0.06 200)', fontFamily: 'inherit', fontSize: 13,
+                fontWeight: 700, border: 'none', borderRadius: 'var(--radius-md)', cursor: 'pointer',
+                boxShadow: '0 0 15px oklch(0.78 0.12 200 / 0.2)',
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
@@ -167,12 +167,12 @@ export default function TasksView() {
                   key={f}
                   onClick={() => { setFilter(f); setShowFilterOps(false); }}
                   style={{
-                    padding: '6px 14px', fontSize: 11, fontFamily: '"Space Grotesk", sans-serif',
+                    padding: '6px 14px', fontSize: 11, fontFamily: 'inherit',
                     textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600,
-                    background: filter === f ? 'rgba(0,229,255,0.15)' : '#1a1f2e',
-                    color: filter === f ? '#00e5ff' : '#bac9cc',
-                    border: filter === f ? '1px solid rgba(0,229,255,0.3)' : '1px solid transparent',
-                    borderRadius: 4, cursor: 'pointer',
+                    background: filter === f ? 'oklch(0.78 0.12 200 / 0.15)' : 'var(--bg-surface)',
+                    color: filter === f ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+                    border: filter === f ? '1px solid oklch(0.78 0.12 200 / 0.3)' : '1px solid transparent',
+                    borderRadius: 'var(--radius-sm)', cursor: 'pointer',
                   }}
                 >
                   {f}
@@ -183,19 +183,19 @@ export default function TasksView() {
         </div>
 
         {loading && allTasks.length === 0 ? (
-          <div style={{ padding: 48, textAlign: 'center', color: '#bac9cc' }}>Loading...</div>
+          <div style={{ padding: 48, textAlign: 'center', color: 'var(--text-secondary)' }}>Loading...</div>
         ) : (
           <div style={{ padding: '0 24px', display: 'flex', flexDirection: 'column', gap: 24 }}>
             {/* OVERDUE SECTION */}
             {overdueTasks.length > 0 && (
               <MobileTaskSection
                 icon="priority_high"
-                iconColor="#ffb4ab"
+                iconColor="var(--accent-red)"
                 title="Overdue"
                 badgeText={`${String(overdueTasks.length).padStart(2, '0')} BLOCKED`}
-                badgeBg="#93000a"
-                badgeColor="#ffdad6"
-                borderColor="#ffb4ab"
+                badgeBg="oklch(0.30 0.15 25)"
+                badgeColor="oklch(0.90 0.06 25)"
+                borderColor="var(--accent-red)"
                 tasks={overdueTasks}
                 completedTasks={[]}
                 cardStyle="overdue"
@@ -208,12 +208,12 @@ export default function TasksView() {
             {(todayTasks.length > 0 || completedTasks.some(t => dueToday(t) || !t.due_date)) && (
               <MobileTaskSection
                 icon="today"
-                iconColor="#00daf3"
+                iconColor="var(--accent-cyan)"
                 title="Today"
                 badgeText={`${String(todayTasks.length).padStart(2, '0')} ACTIVE`}
-                badgeBg="rgba(0,229,255,0.2)"
-                badgeColor="#00daf3"
-                borderColor="#00daf3"
+                badgeBg="oklch(0.78 0.12 200 / 0.2)"
+                badgeColor="var(--accent-cyan)"
+                borderColor="var(--accent-cyan)"
                 tasks={todayTasks}
                 completedTasks={completedTasks}
                 cardStyle="today"
@@ -226,12 +226,12 @@ export default function TasksView() {
             {upcomingTasks.length > 0 && (
               <MobileTaskSection
                 icon="calendar_month"
-                iconColor="#849396"
+                iconColor="var(--text-muted)"
                 title="Upcoming"
                 badgeText={`${String(upcomingTasks.length).padStart(2, '0')} QUEUED`}
-                badgeBg="#242a39"
-                badgeColor="#bac9cc"
-                borderColor="#3b494c"
+                badgeBg="var(--bg-surface)"
+                badgeColor="var(--text-secondary)"
+                borderColor="oklch(0.35 0.02 260)"
                 tasks={upcomingTasks}
                 completedTasks={[]}
                 cardStyle="upcoming"
@@ -242,43 +242,43 @@ export default function TasksView() {
 
             {/* EFFICIENCY INDEX */}
             <div style={{
-              background: 'rgba(0,229,255,0.05)', borderRadius: 8, padding: 24,
-              border: '1px solid rgba(0,229,255,0.1)',
+              background: 'oklch(0.78 0.12 200 / 0.05)', borderRadius: 'var(--radius-md)', padding: 24,
+              border: '1px solid oklch(0.78 0.12 200 / 0.1)',
             }}>
               <h5 style={{
-                fontFamily: '"Space Grotesk", sans-serif', fontSize: 10, letterSpacing: '0.2em',
-                textTransform: 'uppercase', color: '#00daf3', marginBottom: 16, fontWeight: 600,
+                fontFamily: 'inherit', fontSize: 10, letterSpacing: '0.2em',
+                textTransform: 'uppercase', color: 'var(--accent-cyan)', marginBottom: 16, fontWeight: 600,
                 margin: '0 0 16px',
               }}>Efficiency Index</h5>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <div>
                   <div style={{
                     display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700,
-                    marginBottom: 4, fontFamily: '"Space Grotesk", sans-serif',
-                    textTransform: 'uppercase', letterSpacing: '0.1em', color: '#dde2f6',
+                    marginBottom: 4, fontFamily: 'inherit',
+                    textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-primary)',
                   }}>
                     <span>Task Completion Rate</span>
                     <span>{completionRate}%</span>
                   </div>
                   <div style={{
-                    width: '100%', height: 6, background: '#242a39', borderRadius: 99, overflow: 'hidden',
+                    width: '100%', height: 6, background: 'oklch(0.18 0.02 260)', borderRadius: 99, overflow: 'hidden',
                   }}>
-                    <div style={{ background: '#00e5ff', height: '100%', width: `${completionRate}%`, borderRadius: 99 }} />
+                    <div style={{ background: 'var(--accent-cyan)', height: '100%', width: `${completionRate}%`, borderRadius: 99 }} />
                   </div>
                 </div>
                 <div>
                   <div style={{
                     display: 'flex', justifyContent: 'space-between', fontSize: 10, fontWeight: 700,
-                    marginBottom: 4, fontFamily: '"Space Grotesk", sans-serif',
-                    textTransform: 'uppercase', letterSpacing: '0.1em', color: '#dde2f6',
+                    marginBottom: 4, fontFamily: 'inherit',
+                    textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-primary)',
                   }}>
                     <span>Critical Path Velocity</span>
                     <span>{criticalPathVelocity}%</span>
                   </div>
                   <div style={{
-                    width: '100%', height: 6, background: '#242a39', borderRadius: 99, overflow: 'hidden',
+                    width: '100%', height: 6, background: 'oklch(0.18 0.02 260)', borderRadius: 99, overflow: 'hidden',
                   }}>
-                    <div style={{ background: '#ffd799', height: '100%', width: `${criticalPathVelocity}%`, borderRadius: 99 }} />
+                    <div style={{ background: 'var(--accent-amber)', height: '100%', width: `${criticalPathVelocity}%`, borderRadius: 99 }} />
                   </div>
                 </div>
               </div>
@@ -637,13 +637,13 @@ function MobileTaskSection({ icon, iconColor, title, badgeText, badgeBg, badgeCo
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <ClipboardDocumentListIcon width={20} height={20} style={{ opacity: 0.9 }} />
           <h3 style={{
-            fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, letterSpacing: '0.15em',
+            fontFamily: 'inherit', fontWeight: 700, letterSpacing: '0.15em',
             textTransform: 'uppercase', fontSize: 13, margin: 0,
           }}>{title}</h3>
         </div>
         <span style={{
-          background: badgeBg, color: badgeColor, padding: '2px 8px', borderRadius: 2,
-          fontSize: 10, fontWeight: 700, fontFamily: '"Space Grotesk", sans-serif',
+          background: badgeBg, color: badgeColor, padding: '2px 8px', borderRadius: 'var(--radius-sm)',
+          fontSize: 10, fontWeight: 700, fontFamily: 'inherit',
           letterSpacing: '-0.02em',
         }}>{badgeText}</span>
       </div>
@@ -666,15 +666,15 @@ function MobileTaskSection({ icon, iconColor, title, badgeText, badgeBg, badgeCo
           key={task.id}
           onClick={() => onEdit(task)}
           style={{
-            background: 'rgba(8,14,28,0.4)', padding: 20, borderRadius: 8,
-            borderLeft: '2px solid #849396', opacity: 0.6, cursor: 'pointer',
+            background: 'oklch(0.10 0.02 260 / 0.4)', padding: 20, borderRadius: 'var(--radius-md)',
+            borderLeft: '2px solid var(--text-muted)', opacity: 0.6, cursor: 'pointer',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
             <span style={{
-              background: '#3b494c', color: '#bac9cc', padding: '2px 8px',
-              fontSize: 10, fontWeight: 700, fontFamily: '"Space Grotesk", sans-serif',
-              textTransform: 'uppercase', letterSpacing: '0.15em', borderRadius: 2,
+              background: 'oklch(0.30 0.02 260)', color: 'var(--text-secondary)', padding: '2px 8px',
+              fontSize: 10, fontWeight: 700, fontFamily: 'inherit',
+              textTransform: 'uppercase', letterSpacing: '0.15em', borderRadius: 'var(--radius-sm)',
             }}>Completed</span>
             <input
               type="checkbox"
@@ -682,18 +682,18 @@ function MobileTaskSection({ icon, iconColor, title, badgeText, badgeBg, badgeCo
               onChange={() => onToggle(task)}
               onClick={e => e.stopPropagation()}
               style={{
-                width: 16, height: 16, accentColor: '#00e5ff', opacity: 0.5, cursor: 'pointer',
+                width: 16, height: 16, accentColor: 'var(--accent-cyan)', opacity: 0.5, cursor: 'pointer',
               }}
             />
           </div>
           <h4 style={{
-            fontFamily: '"Space Grotesk", sans-serif', fontSize: 18, fontWeight: 700,
-            color: '#bac9cc', marginBottom: 4, textDecoration: 'line-through', margin: '0 0 8px',
+            fontFamily: 'inherit', fontSize: 18, fontWeight: 700,
+            color: 'var(--text-secondary)', marginBottom: 4, textDecoration: 'line-through', margin: '0 0 8px',
           }}>{task.title}</h4>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'rgba(0,229,255,0.5)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'oklch(0.78 0.12 200 / 0.5)' }}>
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check_circle</span>
             <span style={{
-              fontSize: 11, fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700,
+              fontSize: 11, fontFamily: 'inherit', fontWeight: 700,
               letterSpacing: '0.1em', textTransform: 'uppercase',
             }}>Verified</span>
           </div>
@@ -707,14 +707,14 @@ function MobileTaskCard({ task, borderColor, cardStyle, onToggle, onEdit }) {
   const isUrgent = task.priority === 'hot';
   const isGlass = cardStyle === 'today';
 
-  const cardBg = isGlass ? 'rgba(47,52,68,0.6)' : '#080e1c';
+  const cardBg = isGlass ? 'oklch(0.22 0.02 260 / 0.6)' : 'oklch(0.10 0.02 260)';
   const backdropFilter = isGlass ? 'blur(20px)' : 'none';
 
   return (
     <div
       onClick={onEdit}
       style={{
-        position: 'relative', background: cardBg, padding: 20, borderRadius: 8,
+        position: 'relative', background: cardBg, padding: 20, borderRadius: 'var(--radius-md)',
         borderLeft: `2px solid ${borderColor}`, cursor: 'pointer',
         backdropFilter, WebkitBackdropFilter: backdropFilter,
         transition: 'background 0.3s',
@@ -723,11 +723,11 @@ function MobileTaskCard({ task, borderColor, cardStyle, onToggle, onEdit }) {
       {/* Priority badge + checkbox */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
         <span style={{
-          background: isUrgent ? '#ffc1c0' : '#2f3444',
-          color: isUrgent ? '#b4002b' : (cardStyle === 'today' ? '#c3f5ff' : '#bac9cc'),
+          background: isUrgent ? 'oklch(0.85 0.10 25)' : 'oklch(0.22 0.02 260)',
+          color: isUrgent ? 'oklch(0.35 0.18 25)' : (cardStyle === 'today' ? 'oklch(0.90 0.06 200)' : 'var(--text-secondary)'),
           padding: '2px 8px', fontSize: 10, fontWeight: 700,
-          fontFamily: '"Space Grotesk", sans-serif', textTransform: 'uppercase',
-          letterSpacing: '0.15em', borderRadius: 2,
+          fontFamily: 'inherit', textTransform: 'uppercase',
+          letterSpacing: '0.15em', borderRadius: 'var(--radius-sm)',
         }}>
           {isUrgent ? 'Urgent' : 'Standard'}
         </span>
@@ -737,21 +737,21 @@ function MobileTaskCard({ task, borderColor, cardStyle, onToggle, onEdit }) {
           onChange={onToggle}
           onClick={e => e.stopPropagation()}
           style={{
-            width: 16, height: 16, accentColor: '#00e5ff', cursor: 'pointer',
-            background: '#2f3444', borderRadius: 2,
+            width: 16, height: 16, accentColor: 'var(--accent-cyan)', cursor: 'pointer',
+            background: 'oklch(0.22 0.02 260)', borderRadius: 'var(--radius-sm)',
           }}
         />
       </div>
 
       {/* Title */}
       <h4 style={{
-        fontFamily: '"Space Grotesk", sans-serif', fontSize: 18, fontWeight: 700,
-        color: '#dde2f6', margin: '0 0 4px',
+        fontFamily: 'inherit', fontSize: 18, fontWeight: 700,
+        color: 'var(--text-primary)', margin: '0 0 4px',
       }}>{task.title}</h4>
 
       {/* Description */}
       {task.description && (
-        <p style={{ color: '#bac9cc', fontSize: 14, margin: '0 0 16px', lineHeight: 1.4 }}>
+        <p style={{ color: 'var(--text-secondary)', fontSize: 14, margin: '0 0 16px', lineHeight: 1.4 }}>
           {task.description}
         </p>
       )}
@@ -764,7 +764,7 @@ function MobileTaskCard({ task, borderColor, cardStyle, onToggle, onEdit }) {
               {cardStyle === 'overdue' ? 'schedule' : cardStyle === 'today' ? 'timer' : 'calendar_today'}
             </span>
             <span style={{
-              fontSize: 11, fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700,
+              fontSize: 11, fontFamily: 'inherit', fontWeight: 700,
               letterSpacing: '0.1em',
             }}>{getMobileTimeLabel(task, cardStyle)}</span>
           </div>
@@ -772,9 +772,9 @@ function MobileTaskCard({ task, borderColor, cardStyle, onToggle, onEdit }) {
         {task.assignee_first_name && (
           <div style={{ display: 'flex' }}>
             <div style={{
-              width: 24, height: 24, borderRadius: '50%', background: '#2f3444',
-              border: '2px solid #080e1c', display: 'flex', alignItems: 'center',
-              justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#dde2f6',
+              width: 24, height: 24, borderRadius: '50%', background: 'oklch(0.22 0.02 260)',
+              border: '2px solid oklch(0.10 0.02 260)', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', fontSize: 10, fontWeight: 700, color: 'var(--text-primary)',
             }}>
               {task.assignee_first_name[0]}{task.assignee_last_name?.[0] || ''}
             </div>
@@ -786,9 +786,9 @@ function MobileTaskCard({ task, borderColor, cardStyle, onToggle, onEdit }) {
 }
 
 function getMobileTimeColor(task, cardStyle) {
-  if (cardStyle === 'overdue') return '#ffb4ab';
-  if (cardStyle === 'today') return '#00daf3';
-  return '#64748b';
+  if (cardStyle === 'overdue') return 'var(--accent-red)';
+  if (cardStyle === 'today') return 'var(--accent-cyan)';
+  return 'var(--text-muted)';
 }
 
 function getMobileTimeLabel(task, cardStyle) {

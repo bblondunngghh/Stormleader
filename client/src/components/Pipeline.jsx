@@ -296,27 +296,27 @@ export default function Pipeline() {
       case 'hot':
         return {
           label: 'Emergency',
-          bg: '#ffc1c0',
-          color: '#b4002b',
-          borderColor: '#00daf3',
-          dotBg: '#b4002b',
+          bg: 'oklch(0.85 0.10 25)',
+          color: 'oklch(0.35 0.18 25)',
+          borderColor: 'var(--accent-cyan)',
+          dotBg: 'oklch(0.35 0.18 25)',
           hasPulse: true,
         };
       case 'warm':
         return {
           label: 'High Wind',
-          bg: '#feb300',
-          color: '#432c00',
-          borderColor: '#feb300',
+          bg: 'var(--accent-amber)',
+          color: 'oklch(0.30 0.10 85)',
+          borderColor: 'var(--accent-amber)',
           dotBg: null,
           hasPulse: false,
         };
       default:
         return {
           label: 'Standard',
-          bg: '#2f3444',
-          color: '#bac9cc',
-          borderColor: '#334155',
+          bg: 'oklch(0.22 0.02 260)',
+          color: 'var(--text-secondary)',
+          borderColor: 'oklch(0.30 0.02 260)',
           dotBg: null,
           hasPulse: false,
         };
@@ -337,8 +337,8 @@ export default function Pipeline() {
 
     return (
       <div style={{
-        background: '#0d1321',
-        color: '#dde2f6',
+        background: 'var(--bg-deep)',
+        color: 'var(--text-primary)',
         fontFamily: 'Manrope, sans-serif',
         minHeight: '100vh',
         paddingBottom: 96,
@@ -348,22 +348,22 @@ export default function Pipeline() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={{
-                fontFamily: 'Space Grotesk, sans-serif',
+                fontFamily: 'inherit',
                 fontSize: 10,
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
-                color: '#00daf3',
+                color: 'var(--accent-cyan)',
               }}>Project Status</span>
               <h2 style={{
-                fontFamily: 'Space Grotesk, sans-serif',
+                fontFamily: 'inherit',
                 fontSize: 24,
                 fontWeight: 700,
-                color: '#dde2f6',
+                color: 'var(--text-primary)',
                 margin: 0,
               }}>Pipeline</h2>
             </div>
             <div style={{
-              background: '#080e1c',
+              background: 'oklch(0.10 0.02 260)',
               padding: 4,
               borderRadius: 8,
               display: 'flex',
@@ -377,13 +377,13 @@ export default function Pipeline() {
                   border: 'none',
                   cursor: 'pointer',
                   fontSize: 12,
-                  fontFamily: 'Space Grotesk, sans-serif',
+                  fontFamily: 'inherit',
                   fontWeight: 700,
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                   transition: 'all 0.2s',
-                  background: mobileViewMode === 'board' ? '#00e5ff' : 'transparent',
-                  color: mobileViewMode === 'board' ? '#00363d' : '#94a3b8',
+                  background: mobileViewMode === 'board' ? 'var(--accent-cyan)' : 'transparent',
+                  color: mobileViewMode === 'board' ? 'oklch(0.25 0.06 200)' : 'var(--text-muted)',
                 }}
               >Board</button>
               <button
@@ -394,13 +394,13 @@ export default function Pipeline() {
                   border: 'none',
                   cursor: 'pointer',
                   fontSize: 12,
-                  fontFamily: 'Space Grotesk, sans-serif',
+                  fontFamily: 'inherit',
                   fontWeight: 700,
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                   transition: 'all 0.2s',
-                  background: mobileViewMode === 'list' ? '#00e5ff' : 'transparent',
-                  color: mobileViewMode === 'list' ? '#00363d' : '#94a3b8',
+                  background: mobileViewMode === 'list' ? 'var(--accent-cyan)' : 'transparent',
+                  color: mobileViewMode === 'list' ? 'oklch(0.25 0.06 200)' : 'var(--text-muted)',
                 }}
               >List</button>
             </div>
@@ -431,24 +431,24 @@ export default function Pipeline() {
                   flexShrink: 0,
                   padding: '8px 16px',
                   borderRadius: 12,
-                  background: isActive ? 'rgba(0, 229, 255, 0.1)' : '#161b2a',
-                  borderLeft: isActive ? '2px solid #00e5ff' : '2px solid transparent',
+                  background: isActive ? 'oklch(0.78 0.12 200 / 0.1)' : 'var(--bg-surface)',
+                  borderLeft: isActive ? '2px solid var(--accent-cyan)' : '2px solid transparent',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
                 }}
               >
                 <div style={{
-                  fontFamily: 'Space Grotesk, sans-serif',
+                  fontFamily: 'inherit',
                   fontSize: 10,
                   textTransform: 'uppercase',
                   letterSpacing: '-0.02em',
-                  color: isActive ? '#00e5ff' : '#64748b',
+                  color: isActive ? 'var(--accent-cyan)' : 'var(--text-muted)',
                 }}>{col.label}</div>
                 <div style={{
-                  fontFamily: 'Space Grotesk, sans-serif',
+                  fontFamily: 'inherit',
                   fontSize: 18,
                   fontWeight: 700,
-                  color: '#dde2f6',
+                  color: 'var(--text-primary)',
                 }}>
                   {colLeads.length}{' '}
                   {colTotal > 0 && (
@@ -468,7 +468,7 @@ export default function Pipeline() {
             <div style={{
               textAlign: 'center',
               padding: '48px 16px',
-              color: '#64748b',
+              color: 'var(--text-muted)',
               fontSize: 14,
             }}>
               No leads in this stage
@@ -493,7 +493,7 @@ export default function Pipeline() {
                 key={lead.id}
                 onClick={() => setSelectedLeadId(lead.id)}
                 style={{
-                  background: '#161b2a',
+                  background: 'var(--bg-surface)',
                   borderRadius: 12,
                   padding: 16,
                   position: 'relative',
@@ -514,7 +514,7 @@ export default function Pipeline() {
                     background: badge.bg,
                     color: badge.color,
                     fontSize: 10,
-                    fontFamily: 'Space Grotesk, sans-serif',
+                    fontFamily: 'inherit',
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
@@ -536,10 +536,10 @@ export default function Pipeline() {
                 {/* Name & Location */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 12 }}>
                   <h3 style={{
-                    fontFamily: 'Space Grotesk, sans-serif',
+                    fontFamily: 'inherit',
                     fontSize: 18,
                     fontWeight: 600,
-                    color: '#dde2f6',
+                    color: 'var(--text-primary)',
                     lineHeight: 1.2,
                     margin: 0,
                     paddingRight: 90,
@@ -547,7 +547,7 @@ export default function Pipeline() {
                   {locationParts && (
                     <p style={{
                       fontSize: 12,
-                      color: '#bac9cc',
+                      color: 'var(--text-secondary)',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 4,
@@ -581,17 +581,17 @@ export default function Pipeline() {
                 <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
                   <div>
                     <span style={{
-                      fontFamily: 'Space Grotesk, sans-serif',
+                      fontFamily: 'inherit',
                       fontSize: 10,
                       textTransform: 'uppercase',
                       letterSpacing: '0.1em',
-                      color: '#849396',
+                      color: 'var(--text-muted)',
                     }}>Project Value</span>
                     <p style={{
-                      fontFamily: 'Space Grotesk, sans-serif',
+                      fontFamily: 'inherit',
                       fontSize: 20,
                       fontWeight: 700,
-                      color: '#00daf3',
+                      color: 'var(--accent-cyan)',
                       margin: 0,
                     }}>{lead.estimated_value ? formatCurrency(lead.estimated_value) : '$0'}</p>
                   </div>
@@ -600,33 +600,33 @@ export default function Pipeline() {
                       const info = dueDateInfo(lead.due_date);
                       return info ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: 16, color: info.color || '#64748b' }}>schedule</span>
-                          <span style={{ fontSize: 10, fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, color: info.color || '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{info.text}</span>
+                          <span className="material-symbols-outlined" style={{ fontSize: 16, color: info.color || 'var(--text-muted)' }}>schedule</span>
+                          <span style={{ fontSize: 10, fontFamily: 'inherit', fontWeight: 700, color: info.color || 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{info.text}</span>
                         </div>
                       ) : null;
                     })()}
                     {lead.document_count > 0 && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: 16, color: '#64748b' }}>attach_file</span>
-                        <span style={{ fontSize: 10, fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{lead.document_count} files</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--text-muted)' }}>attach_file</span>
+                        <span style={{ fontSize: 10, fontFamily: 'inherit', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{lead.document_count} files</span>
                       </div>
                     )}
                     <div style={{ display: 'flex', marginLeft: 4 }}>
                       {lead.rep_first_name && (
                         <div style={{
-                          width: 32, height: 32, borderRadius: '50%', border: '2px solid #161b2a',
-                          background: '#2f3444', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 11, fontWeight: 700, color: '#dde2f6',
+                          width: 32, height: 32, borderRadius: '50%', border: '2px solid var(--bg-surface)',
+                          background: 'oklch(0.22 0.02 260)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 11, fontWeight: 700, color: 'var(--text-primary)',
                         }}>
                           {lead.rep_first_name[0]}{lead.rep_last_name?.[0] || ''}
                         </div>
                       )}
                       <div style={{
-                        width: 32, height: 32, borderRadius: '50%', border: '2px solid #161b2a',
-                        background: '#2f3444', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        width: 32, height: 32, borderRadius: '50%', border: '2px solid var(--bg-surface)',
+                        background: 'oklch(0.22 0.02 260)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                         marginLeft: lead.rep_first_name ? -8 : 0,
                       }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: 12, color: '#dde2f6' }}>add</span>
+                        <span className="material-symbols-outlined" style={{ fontSize: 12, color: 'var(--text-primary)' }}>add</span>
                       </div>
                     </div>
                   </div>
@@ -646,10 +646,10 @@ export default function Pipeline() {
             width: 56,
             height: 56,
             borderRadius: '50%',
-            background: 'linear-gradient(135deg, #00daf3, #00e5ff)',
-            color: '#00363d',
+            background: 'linear-gradient(135deg, oklch(0.78 0.12 200), oklch(0.80 0.12 200))',
+            color: 'oklch(0.25 0.06 200)',
             border: 'none',
-            boxShadow: '0 4px 20px rgba(0, 229, 255, 0.4)',
+            boxShadow: '0 4px 20px oklch(0.78 0.12 200 / 0.4)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

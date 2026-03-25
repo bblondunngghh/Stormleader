@@ -2074,7 +2074,7 @@ export default function StormMap() {
     const mobileStyles = {
       wrapper: {
         display: 'flex', flexDirection: 'column', width: '100%',
-        background: '#0d1321', minHeight: '100vh', paddingBottom: 88,
+        background: 'var(--bg-deep)', minHeight: '100vh', paddingBottom: 88,
       },
       mapSection: {
         position: 'relative', width: '100%', height: '442px', flexShrink: 0, overflow: 'hidden',
@@ -2090,26 +2090,26 @@ export default function StormMap() {
       },
       glassCard: {
         backdropFilter: 'blur(20px)', background: 'rgba(13,19,33,0.7)',
-        padding: '16px', borderRadius: '12px', borderLeft: '2px solid #00e5ff',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+        padding: '16px', borderRadius: '12px', borderLeft: '2px solid var(--accent-cyan)',
+        boxShadow: '0 4px 20px oklch(0 0 0 / 0.3)',
       },
       pulseContainer: {
         display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px',
       },
       pulseDot: {
-        width: '8px', height: '8px', borderRadius: '50%', background: '#00e5ff',
-        boxShadow: '0 0 8px #00e5ff', position: 'relative', flexShrink: 0,
+        width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-cyan)',
+        boxShadow: '0 0 8px var(--accent-cyan)', position: 'relative', flexShrink: 0,
       },
       radarLabel: {
-        fontFamily: 'Space Grotesk, sans-serif', fontSize: '10px', letterSpacing: '0.1em',
-        textTransform: 'uppercase', fontWeight: 700, color: '#c3f5ff',
+        fontFamily: 'inherit', fontSize: '10px', letterSpacing: '0.1em',
+        textTransform: 'uppercase', fontWeight: 700, color: 'oklch(0.90 0.06 200)',
       },
       cellHeading: {
-        fontFamily: 'Space Grotesk, sans-serif', fontSize: '18px', fontWeight: 700,
-        lineHeight: 1.2, color: '#dde2f6',
+        fontFamily: 'inherit', fontSize: '18px', fontWeight: 700,
+        lineHeight: 1.2, color: 'var(--text-primary)',
       },
       cellDesc: {
-        fontSize: '12px', color: '#bac9cc', fontFamily: 'Manrope, sans-serif', marginTop: '4px',
+        fontSize: '12px', color: 'var(--text-secondary)', fontFamily: 'inherit', marginTop: '4px',
       },
       layerButtons: {
         display: 'flex', gap: '8px',
@@ -2119,19 +2119,19 @@ export default function StormMap() {
         padding: '8px 12px', borderRadius: '8px', border: 'none',
         borderBottom: '1px solid rgba(132,147,150,0.3)',
         display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
-        color: '#dde2f6',
+        color: 'var(--text-primary)',
       },
       layerBtnActive: {
-        background: '#00e5ff', color: '#00363d',
+        background: 'var(--accent-cyan)', color: 'oklch(0.25 0.06 200)',
         padding: '8px 12px', borderRadius: '8px', border: 'none',
         display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
       },
       layerBtnLabel: {
-        fontFamily: 'Space Grotesk, sans-serif', fontSize: '10px',
+        fontFamily: 'inherit', fontSize: '10px',
         textTransform: 'uppercase', fontWeight: 700,
       },
       aside: {
-        background: '#080e1c', borderTop: '1px solid rgba(59,73,76,0.1)',
+        background: 'oklch(0.10 0.02 260)', borderTop: '1px solid oklch(0.35 0.02 260 / 0.1)',
         padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px',
         zIndex: 10,
       },
@@ -2139,63 +2139,63 @@ export default function StormMap() {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       },
       feedTitle: {
-        fontFamily: 'Space Grotesk, sans-serif', fontSize: '20px', fontWeight: 700,
-        letterSpacing: '-0.02em', color: '#dde2f6',
+        fontFamily: 'inherit', fontSize: '20px', fontWeight: 700,
+        letterSpacing: '-0.02em', color: 'var(--text-primary)',
       },
       statsGrid: {
         display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px',
       },
       statCard: {
-        background: '#161b2a', padding: '16px', borderRadius: '12px',
+        background: 'var(--bg-surface)', padding: '16px', borderRadius: '12px',
         borderBottom: '1px solid rgba(59,73,76,0.1)',
       },
       statLabel: {
-        fontFamily: 'Space Grotesk, sans-serif', fontSize: '10px', color: '#64748b',
+        fontFamily: 'inherit', fontSize: '10px', color: 'var(--text-muted)',
         textTransform: 'uppercase', fontWeight: 700, marginBottom: '4px',
       },
       statValue: {
-        fontFamily: 'Space Grotesk, sans-serif', fontSize: '24px', fontWeight: 700,
+        fontFamily: 'inherit', fontSize: '24px', fontWeight: 700,
       },
       feedScroll: {
         display: 'flex', flexDirection: 'column', gap: '12px',
       },
       feedCard: {
-        background: '#1a1f2e', padding: '16px', borderRadius: '12px',
+        background: 'oklch(0.16 0.02 260)', padding: '16px', borderRadius: '12px',
         position: 'relative', overflow: 'hidden',
       },
       feedCardBar: (color) => ({
         position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px',
-        background: color === 'error' ? '#ffb4ab' : color === 'secondary' ? '#ffd799' : '#00e5ff',
+        background: color === 'error' ? 'var(--accent-red)' : color === 'secondary' ? 'var(--accent-amber)' : 'var(--accent-cyan)',
       }),
       feedCardHeader: {
         display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px',
       },
       feedCardName: {
-        fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '14px', color: '#dde2f6',
+        fontFamily: 'inherit', fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)',
       },
       feedCardAddr: {
-        fontSize: '12px', color: '#94a3b8', marginTop: '2px',
+        fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px',
       },
       feedCardTags: {
         display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px', flexWrap: 'wrap',
       },
       tag: (color) => ({
-        background: '#080e1c', padding: '4px 8px', borderRadius: '4px',
-        fontSize: '10px', fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700,
-        color: color || '#94a3b8',
+        background: 'oklch(0.10 0.02 260)', padding: '4px 8px', borderRadius: '4px',
+        fontSize: '10px', fontFamily: 'inherit', fontWeight: 700,
+        color: color || 'var(--text-muted)',
         border: color ? `1px solid ${color}33` : 'none',
       }),
       canvassingBtn: {
         marginTop: 'auto', width: '100%', padding: '16px',
-        background: 'linear-gradient(to right, #00e5ff, #00daf3)',
-        color: '#00363d', border: 'none', borderRadius: '12px',
-        fontFamily: 'Space Grotesk, sans-serif', fontWeight: 700,
+        background: 'linear-gradient(to right, oklch(0.78 0.12 200), oklch(0.80 0.12 200))',
+        color: 'oklch(0.25 0.06 200)', border: 'none', borderRadius: '12px',
+        fontFamily: 'inherit', fontWeight: 700,
         textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '14px',
         boxShadow: '0 4px 20px rgba(0,229,255,0.2)', cursor: 'pointer',
       },
     };
 
-    const severityColors = { primary: '#00e5ff', secondary: '#ffd799', error: '#ffb4ab' };
+    const severityColors = { primary: 'var(--accent-cyan)', secondary: 'var(--accent-amber)', error: 'var(--accent-red)' };
 
     return (
       <div style={{ padding: 0, overflow: 'auto', gridRow: '2 / -1' }}>
@@ -2249,11 +2249,11 @@ export default function StormMap() {
                     }
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#c3f5ff' }}>layers</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'oklch(0.90 0.06 200)' }}>layers</span>
                   <span style={mobileStyles.layerBtnLabel}>Terrain</span>
                 </button>
                 <button
-                  style={layers.hail ? mobileStyles.layerBtnActive : { ...mobileStyles.layerBtnBase, background: '#00e5ff', color: '#00363d' }}
+                  style={layers.hail ? mobileStyles.layerBtnActive : { ...mobileStyles.layerBtnBase, background: 'var(--accent-cyan)', color: 'oklch(0.25 0.06 200)' }}
                   onClick={() => setLayers(prev => ({ ...prev, hail: !prev.hail }))}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>storm</span>
@@ -2272,25 +2272,25 @@ export default function StormMap() {
           <aside style={mobileStyles.aside}>
             <div style={mobileStyles.feedHeader}>
               <h3 style={mobileStyles.feedTitle}>STORM FEED</h3>
-              <span className="material-symbols-outlined" style={{ color: '#64748b', fontSize: '20px' }}>filter_list</span>
+              <span className="material-symbols-outlined" style={{ color: 'var(--text-muted)', fontSize: '20px' }}>filter_list</span>
             </div>
 
             {/* Stats Grid */}
             <div style={mobileStyles.statsGrid}>
               <div style={mobileStyles.statCard}>
                 <p style={mobileStyles.statLabel}>Total Leads</p>
-                <p style={{ ...mobileStyles.statValue, color: '#00e5ff' }}>{totalPropertyCount.toLocaleString()}</p>
+                <p style={{ ...mobileStyles.statValue, color: 'var(--accent-cyan)' }}>{totalPropertyCount.toLocaleString()}</p>
               </div>
               <div style={mobileStyles.statCard}>
                 <p style={mobileStyles.statLabel}>In Impact Zone</p>
-                <p style={{ ...mobileStyles.statValue, color: '#ffd799' }}>{impactZoneCount.toLocaleString()}</p>
+                <p style={{ ...mobileStyles.statValue, color: 'var(--accent-amber)' }}>{impactZoneCount.toLocaleString()}</p>
               </div>
             </div>
 
             {/* Scrollable Lead Feed */}
             <div style={mobileStyles.feedScroll}>
               {mobileStormFeed.length === 0 && !mapLoading && (
-                <div style={{ textAlign: 'center', padding: '32px 16px', color: '#64748b', fontSize: '13px' }}>
+                <div style={{ textAlign: 'center', padding: '32px 16px', color: 'var(--text-muted)', fontSize: '13px' }}>
                   <span className="material-symbols-outlined" style={{ fontSize: '40px', display: 'block', marginBottom: '8px', opacity: 0.4 }}>
                     location_searching
                   </span>
@@ -2313,7 +2313,7 @@ export default function StormMap() {
                   </div>
                   <div style={mobileStyles.feedCardTags}>
                     {item.hailSize && (
-                      <div style={mobileStyles.tag('#00e5ff')}>
+                      <div style={mobileStyles.tag('var(--accent-cyan)')}>
                         {item.hailSize}" HAIL
                       </div>
                     )}
@@ -2323,12 +2323,12 @@ export default function StormMap() {
                       </div>
                     )}
                     {item.windSpeed && (
-                      <div style={mobileStyles.tag('#ffd799')}>
+                      <div style={mobileStyles.tag('var(--accent-amber)')}>
                         WIND {item.windSpeed}MPH
                       </div>
                     )}
                     {item.severity === 'error' && (
-                      <div style={mobileStyles.tag('#ffb4ab')}>
+                      <div style={mobileStyles.tag('var(--accent-red)')}>
                         EMERGENCY
                       </div>
                     )}

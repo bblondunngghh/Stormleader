@@ -120,9 +120,9 @@ export default function EstimatesView() {
   };
 
   const mobileStatusColor = (status) => {
-    if (status === 'accepted') return '#ffc1c0';
-    if (status === 'sent' || status === 'viewed') return '#00e5ff';
-    return '#ffd799';
+    if (status === 'accepted') return 'oklch(0.85 0.10 25)';
+    if (status === 'sent' || status === 'viewed') return 'var(--accent-cyan)';
+    return 'var(--accent-amber)';
   };
 
   const mobileStatusBadgeBg = (status) => {
@@ -149,9 +149,9 @@ export default function EstimatesView() {
   if (isMobile) {
     return (
       <div style={{
-        background: '#0d1321',
+        background: 'var(--bg-deep)',
         minHeight: '100vh',
-        color: '#dde2f6',
+        color: 'var(--text-primary)',
         fontFamily: 'Manrope, sans-serif',
         paddingBottom: 80,
       }}>
@@ -159,7 +159,7 @@ export default function EstimatesView() {
           {/* Breadcrumb */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
             <span style={{
-              width: 8, height: 8, borderRadius: '50%', background: '#00e5ff',
+              width: 8, height: 8, borderRadius: '50%', background: 'var(--accent-cyan)',
               boxShadow: '0 0 0 0 rgba(0,229,255,0.7)',
               animation: 'mobileEstPulse 2s infinite',
               display: 'inline-block',
@@ -167,7 +167,7 @@ export default function EstimatesView() {
             <span style={{
               fontFamily: '"Space Grotesk", sans-serif',
               fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase',
-              color: '#c3f5ff',
+              color: 'oklch(0.90 0.06 200)',
             }}>Mission Control / Estimates</span>
           </div>
           <style>{`
@@ -181,7 +181,7 @@ export default function EstimatesView() {
           {/* Heading */}
           <h2 style={{
             fontFamily: '"Space Grotesk", sans-serif',
-            fontSize: 36, fontWeight: 700, color: '#dde2f6',
+            fontSize: 36, fontWeight: 700, color: 'var(--text-primary)',
             letterSpacing: '-0.02em', margin: '0 0 20px',
           }}>Project Pipeline</h2>
 
@@ -190,8 +190,8 @@ export default function EstimatesView() {
             onClick={handleNew}
             style={{
               width: '100%',
-              background: 'linear-gradient(135deg, #c3f5ff, #00e5ff)',
-              color: '#00626e',
+              background: 'linear-gradient(135deg, oklch(0.90 0.06 200), oklch(0.78 0.12 200))',
+              color: 'oklch(0.25 0.06 200)',
               fontFamily: '"Space Grotesk", sans-serif',
               fontWeight: 700,
               fontSize: 14,
@@ -215,60 +215,60 @@ export default function EstimatesView() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
             {/* Draft Volume */}
             <div style={{
-              background: '#161b2a', borderRadius: 12, padding: '20px 24px',
+              background: 'var(--bg-surface)', borderRadius: 12, padding: '20px 24px',
               position: 'relative', overflow: 'hidden',
             }}>
-              <div style={{ position: 'absolute', top: 0, left: 0, width: 4, height: '100%', background: '#ffd799' }} />
+              <div style={{ position: 'absolute', top: 0, left: 0, width: 4, height: '100%', background: 'var(--accent-amber)' }} />
               <p style={{
                 fontFamily: '"Space Grotesk", sans-serif', fontSize: 11,
                 letterSpacing: '0.1em', textTransform: 'uppercase',
-                color: '#bac9cc', marginBottom: 6,
+                color: 'var(--text-secondary)', marginBottom: 6,
               }}>Draft Volume</p>
               <h3 style={{
                 fontFamily: '"Space Grotesk", sans-serif', fontSize: 30,
-                fontWeight: 700, color: '#ffd799', margin: 0,
+                fontWeight: 700, color: 'var(--accent-amber)', margin: 0,
               }}>{formatValue(draftValue)}</h3>
-              <p style={{ fontSize: 12, color: '#bac9cc', marginTop: 8 }}>
+              <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8 }}>
                 {draftCount} Pending Estimate{draftCount !== 1 ? 's' : ''}
               </p>
             </div>
 
             {/* Sent Value */}
             <div style={{
-              background: '#161b2a', borderRadius: 12, padding: '20px 24px',
+              background: 'var(--bg-surface)', borderRadius: 12, padding: '20px 24px',
               position: 'relative', overflow: 'hidden',
             }}>
-              <div style={{ position: 'absolute', top: 0, left: 0, width: 4, height: '100%', background: '#00e5ff' }} />
+              <div style={{ position: 'absolute', top: 0, left: 0, width: 4, height: '100%', background: 'var(--accent-cyan)' }} />
               <p style={{
                 fontFamily: '"Space Grotesk", sans-serif', fontSize: 11,
                 letterSpacing: '0.1em', textTransform: 'uppercase',
-                color: '#bac9cc', marginBottom: 6,
+                color: 'var(--text-secondary)', marginBottom: 6,
               }}>Sent Value</p>
               <h3 style={{
                 fontFamily: '"Space Grotesk", sans-serif', fontSize: 30,
-                fontWeight: 700, color: '#00e5ff', margin: 0,
+                fontWeight: 700, color: 'var(--accent-cyan)', margin: 0,
               }}>{formatValue(sentValue)}</h3>
-              <p style={{ fontSize: 12, color: '#bac9cc', marginTop: 8 }}>
+              <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8 }}>
                 {sentCount} Active Proposal{sentCount !== 1 ? 's' : ''}
               </p>
             </div>
 
             {/* Approved Month */}
             <div style={{
-              background: '#161b2a', borderRadius: 12, padding: '20px 24px',
+              background: 'var(--bg-surface)', borderRadius: 12, padding: '20px 24px',
               position: 'relative', overflow: 'hidden',
             }}>
-              <div style={{ position: 'absolute', top: 0, left: 0, width: 4, height: '100%', background: '#ffc1c0' }} />
+              <div style={{ position: 'absolute', top: 0, left: 0, width: 4, height: '100%', background: 'oklch(0.85 0.10 25)' }} />
               <p style={{
                 fontFamily: '"Space Grotesk", sans-serif', fontSize: 11,
                 letterSpacing: '0.1em', textTransform: 'uppercase',
-                color: '#bac9cc', marginBottom: 6,
+                color: 'var(--text-secondary)', marginBottom: 6,
               }}>Approved Month</p>
               <h3 style={{
                 fontFamily: '"Space Grotesk", sans-serif', fontSize: 30,
-                fontWeight: 700, color: '#ffc1c0', margin: 0,
+                fontWeight: 700, color: 'oklch(0.85 0.10 25)', margin: 0,
               }}>{formatValue(acceptedValue)}</h3>
-              <p style={{ fontSize: 12, color: '#bac9cc', marginTop: 8 }}>
+              <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8 }}>
                 {acceptedCount} Approved Estimate{acceptedCount !== 1 ? 's' : ''}
               </p>
             </div>
@@ -293,8 +293,8 @@ export default function EstimatesView() {
                     letterSpacing: '0.05em',
                     whiteSpace: 'nowrap',
                     border: isActive ? '1px solid rgba(0,229,255,0.3)' : '1px solid transparent',
-                    background: isActive ? '#242a39' : 'transparent',
-                    color: isActive ? '#00e5ff' : '#bac9cc',
+                    background: isActive ? 'oklch(0.18 0.02 260)' : 'transparent',
+                    color: isActive ? 'var(--accent-cyan)' : 'var(--text-secondary)',
                     cursor: 'pointer',
                     transition: 'background 0.2s, color 0.2s',
                     fontWeight: 500,
@@ -310,23 +310,23 @@ export default function EstimatesView() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {loading && estimates.length === 0 ? (
               <div style={{
-                background: '#080e1c', borderRadius: 12, padding: 40,
-                textAlign: 'center', color: '#bac9cc', fontSize: 14,
+                background: 'oklch(0.10 0.02 260)', borderRadius: 12, padding: 40,
+                textAlign: 'center', color: 'var(--text-secondary)', fontSize: 14,
               }}>Loading...</div>
             ) : estimates.length === 0 ? (
               <div style={{
-                background: '#080e1c', borderRadius: 12, padding: 40,
-                textAlign: 'center', color: '#bac9cc', fontSize: 14,
+                background: 'oklch(0.10 0.02 260)', borderRadius: 12, padding: 40,
+                textAlign: 'center', color: 'var(--text-secondary)', fontSize: 14,
               }}>No estimates yet — create your first one</div>
             ) : estimates.map(est => {
               const sColor = mobileStatusColor(est.status);
               return (
                 <div key={est.id}
                   onClick={() => handleEdit(est)}
-                  onMouseEnter={e => e.currentTarget.style.background = '#161b2a'}
-                  onMouseLeave={e => e.currentTarget.style.background = '#080e1c'}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-surface)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'oklch(0.10 0.02 260)'}
                   style={{
-                    background: '#080e1c', borderRadius: 12, padding: 20,
+                    background: 'oklch(0.10 0.02 260)', borderRadius: 12, padding: 20,
                     borderLeft: `2px solid ${sColor}`,
                     display: 'flex', flexDirection: 'column', gap: 12,
                     cursor: 'pointer', transition: 'background 0.2s',
@@ -335,7 +335,7 @@ export default function EstimatesView() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                     <div style={{
                       width: 48, height: 48, borderRadius: 6,
-                      background: '#242a39',
+                      background: 'oklch(0.18 0.02 260)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       flexShrink: 0,
                     }}>
@@ -344,11 +344,11 @@ export default function EstimatesView() {
                     <div style={{ minWidth: 0 }}>
                       <h4 style={{
                         fontFamily: '"Space Grotesk", sans-serif',
-                        fontWeight: 700, fontSize: 18, color: '#dde2f6',
+                        fontWeight: 700, fontSize: 18, color: 'var(--text-primary)',
                         margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                       }}>{est.customer_name || est.lead_name || '—'}</h4>
                       <p style={{
-                        fontSize: 14, color: '#bac9cc', margin: 0,
+                        fontSize: 14, color: 'var(--text-secondary)', margin: 0,
                         overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                       }}>{est.customer_address || est.lead_address || ''}</p>
                     </div>
@@ -363,11 +363,11 @@ export default function EstimatesView() {
                       <p style={{
                         fontFamily: '"Space Grotesk", sans-serif',
                         fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase',
-                        color: '#bac9cc', margin: '0 0 2px',
+                        color: 'var(--text-secondary)', margin: '0 0 2px',
                       }}>Project Value</p>
                       <p style={{
                         fontFamily: '"Space Grotesk", sans-serif',
-                        fontWeight: 700, fontSize: 15, color: '#dde2f6', margin: 0,
+                        fontWeight: 700, fontSize: 15, color: 'var(--text-primary)', margin: 0,
                       }}>${Number(est.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
@@ -387,12 +387,12 @@ export default function EstimatesView() {
                             <span
                               className="material-symbols-outlined"
                               onClick={() => handleEdit(est)}
-                              style={{ fontSize: 18, color: '#bac9cc', cursor: 'pointer' }}
+                              style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
                             >edit</span>
                             <span
                               className="material-symbols-outlined"
                               onClick={() => handleDelete(est)}
-                              style={{ fontSize: 18, color: '#bac9cc', cursor: 'pointer' }}
+                              style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
                             >delete</span>
                           </>
                         ) : est.status === 'sent' || est.status === 'viewed' ? (
@@ -400,12 +400,12 @@ export default function EstimatesView() {
                             <span
                               className="material-symbols-outlined"
                               onClick={() => handleEdit(est)}
-                              style={{ fontSize: 18, color: '#bac9cc', cursor: 'pointer' }}
+                              style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
                             >visibility</span>
                             <span
                               className="material-symbols-outlined"
                               onClick={() => handleSend(est)}
-                              style={{ fontSize: 18, color: '#bac9cc', cursor: 'pointer' }}
+                              style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
                             >mail</span>
                           </>
                         ) : (
@@ -413,12 +413,12 @@ export default function EstimatesView() {
                             <span
                               className="material-symbols-outlined"
                               onClick={() => handleEdit(est)}
-                              style={{ fontSize: 18, color: '#bac9cc', cursor: 'pointer' }}
+                              style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
                             >file_download</span>
                             <span
                               className="material-symbols-outlined"
                               onClick={() => handleDuplicate(est)}
-                              style={{ fontSize: 18, color: '#bac9cc', cursor: 'pointer' }}
+                              style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
                             >assignment</span>
                           </>
                         )}
@@ -433,7 +433,7 @@ export default function EstimatesView() {
           {/* Automated Field Intelligence Promo */}
           <div style={{
             marginTop: 40,
-            background: '#161b2a',
+            background: 'var(--bg-surface)',
             borderRadius: 16,
             padding: 32,
             position: 'relative',
@@ -443,26 +443,26 @@ export default function EstimatesView() {
               <ShieldCheckIcon width={32} height={32} style={{ opacity: 0.9 }} />
               <h3 style={{
                 fontFamily: '"Space Grotesk", sans-serif',
-                fontSize: 24, fontWeight: 700, color: '#dde2f6',
+                fontSize: 24, fontWeight: 700, color: 'var(--text-primary)',
                 margin: 0,
               }}>Automated Field Intelligence</h3>
             </div>
             <p style={{
-              color: '#bac9cc', fontSize: 14, lineHeight: 1.6,
+              color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1.6,
               margin: '0 0 20px',
             }}>
               Upload site photos or aerial measurements to generate instant tactical estimates using our ROOF-X AI core. Accuracy rated at 98.4%.
             </p>
             <button
-              onMouseEnter={e => { e.currentTarget.style.background = '#00e5ff'; e.currentTarget.style.color = '#00626e'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#00e5ff'; }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-cyan)'; e.currentTarget.style.color = 'oklch(0.25 0.06 200)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--accent-cyan)'; }}
               style={{
                 width: '100%',
                 padding: '16px 24px',
                 borderRadius: 12,
-                border: '2px solid #00e5ff',
+                border: '2px solid var(--accent-cyan)',
                 background: 'transparent',
-                color: '#00e5ff',
+                color: 'var(--accent-cyan)',
                 fontFamily: '"Space Grotesk", sans-serif',
                 fontWeight: 700,
                 fontSize: 13,

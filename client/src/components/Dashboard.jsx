@@ -148,7 +148,7 @@ function StormRow({ storm, navigate }) {
   const isHail = rawType === 'hail' || !!p.hail_size_max_in;
   const isTornado = rawType === 'tornado';
   const typeLabel = isTornado ? 'Tornado' : isHail ? 'Hail' : 'Wind';
-  const typeColor = isTornado ? '#ff2d55' : isHail ? '#dcb428' : '#6c5ce7';
+  const typeColor = isTornado ? 'oklch(0.60 0.25 25)' : isHail ? 'oklch(0.75 0.15 85)' : 'oklch(0.55 0.20 300)';
 
   let rawLoc = p.raw_data?.location || '';
   const cleanLoc = rawLoc.replace(/^\d+\s+[NSEW]{1,3}\s+/i, '').trim();
@@ -292,9 +292,9 @@ function MiniStormMap({ storms, navigate }) {
       }
       m.addSource('storm-pts', { type: 'geojson', data });
       // oklch-inspired colors: tornado=red(0.68 0.22 25), hail=amber(0.78 0.17 85), wind=purple(0.70 0.18 330)
-      const tornadoColor = '#d93251';
-      const hailColor = '#c49a15';
-      const windColor = '#a94ad6';
+      const tornadoColor = 'oklch(0.60 0.25 25)';
+      const hailColor = 'oklch(0.75 0.15 85)';
+      const windColor = 'oklch(0.55 0.20 300)';
 
       m.addLayer({
         id: 'storm-glow', type: 'circle', source: 'storm-pts',
@@ -387,9 +387,9 @@ export default function Dashboard() {
   const isMobile = useIsMobile();
 
   const stormTypeBadge = {
-    hail: { color: '#dcb428', bg: '#dcb42818', border: '#dcb42830' },
-    tornado: { color: '#ff2d55', bg: '#ff2d5518', border: '#ff2d5530' },
-    wind: { color: '#6c5ce7', bg: '#6c5ce718', border: '#6c5ce730' },
+    hail: { color: 'oklch(0.75 0.15 85)', bg: 'oklch(0.75 0.15 85 / 0.1)', border: 'oklch(0.75 0.15 85 / 0.2)' },
+    tornado: { color: 'oklch(0.60 0.25 25)', bg: 'oklch(0.60 0.25 25 / 0.1)', border: 'oklch(0.60 0.25 25 / 0.2)' },
+    wind: { color: 'oklch(0.55 0.20 300)', bg: 'oklch(0.55 0.20 300 / 0.1)', border: 'oklch(0.55 0.20 300 / 0.2)' },
   };
 
   /* ── Mobile Dashboard ── */
@@ -401,34 +401,34 @@ export default function Dashboard() {
 
     return (
       <div style={{
-        background: '#0d1321',
+        background: 'var(--bg-deep)',
         minHeight: '100vh',
         paddingBottom: 96,
-        color: '#dde2f6',
+        color: 'var(--text-primary)',
       }}>
         <main style={{ paddingTop: 20, paddingLeft: 16, paddingRight: 16 }}>
           {/* Welcome Section */}
           <section style={{ marginBottom: 24 }}>
             <p style={{
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: 'inherit',
               fontSize: 10,
               fontWeight: 500,
               textTransform: 'uppercase',
               letterSpacing: '0.2em',
-              color: '#64748b',
+              color: 'var(--text-muted)',
               marginBottom: 4,
             }}>
               Command Center
             </p>
             <h2 style={{
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: 'inherit',
               fontSize: 30,
               fontWeight: 700,
-              color: '#dde2f6',
+              color: 'var(--text-primary)',
               margin: 0,
               lineHeight: 1.1,
             }}>
-              {getGreeting()}, <span style={{ color: '#00e5ff' }}>{user?.firstName || 'Commander'}</span>
+              {getGreeting()}, <span style={{ color: 'var(--accent-cyan)' }}>{user?.firstName || 'Commander'}</span>
             </h2>
           </section>
 
@@ -442,88 +442,88 @@ export default function Dashboard() {
             {/* Pipeline Value — full width */}
             <div style={{
               gridColumn: '1 / -1',
-              background: '#161b2a',
+              background: 'var(--bg-surface)',
               padding: 20,
               borderRadius: 12,
-              borderLeft: '2px solid #00e5ff',
+              borderLeft: '2px solid var(--accent-cyan)',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'flex-start',
             }}>
               <div>
                 <p style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontFamily: 'inherit',
                   fontSize: 10,
                   fontWeight: 500,
                   textTransform: 'uppercase',
                   letterSpacing: '0.1em',
-                  color: '#94a3b8',
+                  color: 'var(--text-muted)',
                   margin: 0,
                 }}>Pipeline Value</p>
                 <h3 style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontFamily: 'inherit',
                   fontSize: 30,
                   fontWeight: 700,
-                  color: '#00daf3',
+                  color: 'var(--accent-cyan)',
                   margin: '4px 0 0',
                 }}>{pipelineValue}</h3>
               </div>
-              <span className="material-symbols-outlined" style={{ color: 'rgba(6,182,212,0.5)', fontSize: 24 }}>
+              <span className="material-symbols-outlined" style={{ color: 'oklch(0.78 0.12 200 / 0.5)', fontSize: 24 }}>
                 account_balance_wallet
               </span>
             </div>
 
             {/* New Leads — half width */}
             <div style={{
-              background: '#161b2a',
+              background: 'var(--bg-surface)',
               padding: 16,
               borderRadius: 12,
             }}>
               <p style={{
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: 'inherit',
                 fontSize: 10,
                 fontWeight: 500,
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
-                color: '#94a3b8',
+                color: 'var(--text-muted)',
                 margin: 0,
               }}>New Leads</p>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
                 <span style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontFamily: 'inherit',
                   fontSize: 24,
                   fontWeight: 700,
                 }}>{newLeads}</span>
                 <span style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontFamily: 'inherit',
                   fontSize: 10,
-                  color: '#64748b',
+                  color: 'var(--text-muted)',
                 }}>UNIT</span>
               </div>
             </div>
 
             {/* Close Rate — half width */}
             <div style={{
-              background: '#161b2a',
+              background: 'var(--bg-surface)',
               padding: 16,
               borderRadius: 12,
             }}>
               <p style={{
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: 'inherit',
                 fontSize: 10,
                 fontWeight: 500,
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
-                color: '#94a3b8',
+                color: 'var(--text-muted)',
                 margin: 0,
               }}>Close Rate</p>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
                 <span style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontFamily: 'inherit',
                   fontSize: 24,
                   fontWeight: 700,
                 }}>{closeRate}</span>
-                <span className="material-symbols-outlined" style={{ fontSize: 12, color: '#475569' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                   trending_flat
                 </span>
               </div>
@@ -532,7 +532,7 @@ export default function Dashboard() {
             {/* Avg Days to Close — full width */}
             <div style={{
               gridColumn: '1 / -1',
-              background: '#161b2a',
+              background: 'var(--bg-surface)',
               padding: 16,
               borderRadius: 12,
               display: 'flex',
@@ -541,16 +541,16 @@ export default function Dashboard() {
             }}>
               <div>
                 <p style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontFamily: 'inherit',
                   fontSize: 10,
                   fontWeight: 500,
                   textTransform: 'uppercase',
                   letterSpacing: '0.1em',
-                  color: '#94a3b8',
+                  color: 'var(--text-muted)',
                   margin: 0,
                 }}>Avg Days to Close</p>
                 <span style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontFamily: 'inherit',
                   fontSize: 24,
                   fontWeight: 700,
                   marginTop: 4,
@@ -560,17 +560,17 @@ export default function Dashboard() {
               <div style={{
                 height: 32,
                 width: 96,
-                background: '#2f3444',
+                background: 'oklch(0.22 0.02 260)',
                 borderRadius: 4,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}>
                 <span style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontFamily: 'inherit',
                   fontSize: 10,
                   fontWeight: 700,
-                  color: '#64748b',
+                  color: 'var(--text-muted)',
                 }}>{avgDays === '-' || avgDays === '0' ? 'NO DATA' : `${avgDays} DAYS`}</span>
               </div>
             </div>
@@ -585,12 +585,12 @@ export default function Dashboard() {
               marginBottom: 12,
             }}>
               <h3 style={{
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: 'inherit',
                 fontSize: 14,
                 fontWeight: 700,
                 letterSpacing: '0.05em',
                 textTransform: 'uppercase',
-                color: '#dde2f6',
+                color: 'var(--text-primary)',
                 margin: 0,
                 display: 'flex',
                 alignItems: 'center',
@@ -600,12 +600,12 @@ export default function Dashboard() {
                 Storm Map
               </h3>
               <span style={{
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: 'inherit',
                 fontSize: 10,
                 fontWeight: 500,
                 textTransform: 'uppercase',
                 letterSpacing: '-0.02em',
-                color: '#00e5ff',
+                color: 'var(--accent-cyan)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 4,
@@ -615,7 +615,7 @@ export default function Dashboard() {
                   width: 6,
                   height: 6,
                   borderRadius: '50%',
-                  background: '#00e5ff',
+                  background: 'var(--accent-cyan)',
                   display: 'inline-block',
                   animation: 'pulse 2s infinite',
                 }} />
@@ -627,14 +627,14 @@ export default function Dashboard() {
               width: '100%',
               borderRadius: 12,
               overflow: 'hidden',
-              background: '#080e1c',
+              background: 'oklch(0.10 0.02 260)',
             }}>
               <MiniStormMap storms={storms} navigate={navigate} />
               {/* Gradient overlay */}
               <div style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(to top, #0d1321, transparent, transparent)',
+                background: 'linear-gradient(to top, var(--bg-deep), transparent, transparent)',
                 pointerEvents: 'none',
               }} />
               {/* Scanning overlay */}
@@ -657,14 +657,14 @@ export default function Dashboard() {
                   alignItems: 'center',
                   gap: 8,
                 }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 14, color: '#22d3ee' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 14, color: 'var(--accent-cyan)' }}>
                     radar
                   </span>
                   <span style={{
-                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontFamily: 'inherit',
                     fontSize: 10,
                     fontWeight: 700,
-                    color: '#ecfeff',
+                    color: 'var(--text-primary)',
                   }}>SCANNING...</span>
                 </div>
               </div>
@@ -673,8 +673,8 @@ export default function Dashboard() {
                 <button
                   onClick={() => navigate('/storm-map')}
                   style={{
-                    background: '#00e5ff',
-                    color: '#00626e',
+                    background: 'var(--accent-cyan)',
+                    color: 'oklch(0.25 0.06 200)',
                     padding: 8,
                     borderRadius: 8,
                     border: 'none',
@@ -694,12 +694,12 @@ export default function Dashboard() {
           {/* Recent Storm Activity */}
           <section style={{ marginBottom: 24 }}>
             <h3 style={{
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: 'inherit',
               fontSize: 14,
               fontWeight: 700,
               letterSpacing: '0.05em',
               textTransform: 'uppercase',
-              color: '#dde2f6',
+              color: 'var(--text-primary)',
               margin: '0 0 12px',
             }}>Recent Storm Activity</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -711,7 +711,7 @@ export default function Dashboard() {
                     const isHail = rawType === 'hail' || !!p.hail_size_max_in;
                     const isTornado = rawType === 'tornado';
                     const typeLabel = isTornado ? 'Tornado' : isHail ? 'Hail' : 'Wind';
-                    const typeColor = isTornado ? '#ff2d55' : isHail ? '#ffc1c0' : '#6c5ce7';
+                    const typeColor = isTornado ? 'oklch(0.60 0.25 25)' : isHail ? 'oklch(0.85 0.10 25)' : 'oklch(0.55 0.20 300)';
 
                     let rawLoc = p.raw_data?.location || '';
                     const cleanLoc = rawLoc.replace(/^\d+\s+[NSEW]{1,3}\s+/i, '').trim();
@@ -744,7 +744,7 @@ export default function Dashboard() {
                           navigate(`/storm-map${lat && lng ? `?lat=${lat}&lng=${lng}&zoom=11&stormId=${s.id}` : ''}`);
                         }}
                         style={{
-                          background: '#1a1f2e',
+                          background: 'oklch(0.16 0.02 260)',
                           padding: 16,
                           borderRadius: 12,
                           borderLeft: `2px solid ${typeColor}`,
@@ -771,19 +771,19 @@ export default function Dashboard() {
                               fontSize: 14,
                               fontWeight: 600,
                               margin: 0,
-                              color: '#dde2f6',
+                              color: 'var(--text-primary)',
                             }}>{typeLabel} Alert: {location}</p>
                             <p style={{
-                              fontFamily: "'Space Grotesk', sans-serif",
+                              fontFamily: 'inherit',
                               fontSize: 10,
                               textTransform: 'uppercase',
                               letterSpacing: '-0.02em',
-                              color: '#64748b',
+                              color: 'var(--text-muted)',
                               margin: 0,
                             }}>{detail}{timeAgo ? ` \u2022 ${timeAgo}` : ''}</p>
                           </div>
                         </div>
-                        <span className="material-symbols-outlined" style={{ color: '#64748b', fontSize: 14 }}>
+                        <span className="material-symbols-outlined" style={{ color: 'var(--text-muted)', fontSize: 14 }}>
                           chevron_right
                         </span>
                       </div>
@@ -794,8 +794,8 @@ export default function Dashboard() {
 
               {/* Empty state / monitoring message */}
               <div style={{
-                background: '#080e1c',
-                border: '1px dashed #3b494c',
+                background: 'oklch(0.10 0.02 260)',
+                border: '1px dashed oklch(0.35 0.02 260)',
                 borderRadius: 12,
                 padding: '32px 16px',
                 display: 'flex',
@@ -804,13 +804,13 @@ export default function Dashboard() {
                 justifyContent: 'center',
                 textAlign: 'center',
               }}>
-                <span className="material-symbols-outlined" style={{ color: '#475569', marginBottom: 8 }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--text-muted)', marginBottom: 8 }}>
                   cloud_off
                 </span>
                 <p style={{
                   fontFamily: "'Manrope', sans-serif",
                   fontSize: 12,
-                  color: '#64748b',
+                  color: 'var(--text-muted)',
                   fontStyle: 'italic',
                   margin: 0,
                 }}>Monitoring atmospheric conditions for new activity...</p>
@@ -827,26 +827,26 @@ export default function Dashboard() {
               marginBottom: 12,
             }}>
               <h3 style={{
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: 'inherit',
                 fontSize: 14,
                 fontWeight: 700,
                 letterSpacing: '0.05em',
                 textTransform: 'uppercase',
-                color: '#dde2f6',
+                color: 'var(--text-primary)',
                 margin: 0,
               }}>Today</h3>
               <span style={{
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: 'inherit',
                 fontSize: 12,
                 fontWeight: 500,
                 textTransform: 'uppercase',
-                color: '#64748b',
+                color: 'var(--text-muted)',
               }}>{tasksToday.length} Task{tasksToday.length !== 1 ? 's' : ''} Pending</span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {tasksToday.length === 0 ? (
                 <div style={{
-                  background: '#161b2a',
+                  background: 'var(--bg-surface)',
                   padding: 16,
                   borderRadius: 12,
                   textAlign: 'center',
@@ -854,7 +854,7 @@ export default function Dashboard() {
                   <p style={{
                     fontFamily: "'Manrope', sans-serif",
                     fontSize: 12,
-                    color: '#64748b',
+                    color: 'var(--text-muted)',
                     margin: 0,
                   }}>Nothing scheduled - you're all clear</p>
                 </div>
@@ -866,7 +866,7 @@ export default function Dashboard() {
                     : null;
                   return (
                     <div key={task.id} style={{
-                      background: '#161b2a',
+                      background: 'var(--bg-surface)',
                       padding: 16,
                       borderRadius: 12,
                       display: 'flex',
@@ -879,7 +879,7 @@ export default function Dashboard() {
                           width: 24,
                           height: 24,
                           borderRadius: 4,
-                          border: `2px solid ${isOverdue ? 'var(--accent-red)' : '#3b494c'}`,
+                          border: `2px solid ${isOverdue ? 'var(--accent-red)' : 'oklch(0.35 0.02 260)'}`,
                           background: 'transparent',
                           cursor: 'pointer',
                           flexShrink: 0,
@@ -893,28 +893,28 @@ export default function Dashboard() {
                           fontFamily: "'Manrope', sans-serif",
                           fontSize: 14,
                           margin: 0,
-                          color: isOverdue ? 'var(--accent-red)' : '#dde2f6',
+                          color: isOverdue ? 'var(--accent-red)' : 'var(--text-primary)',
                         }}>{task.title}</p>
                         {(timeStr || task.lead_name) && (
                           <p style={{
-                            fontFamily: "'Space Grotesk', sans-serif",
+                            fontFamily: 'inherit',
                             fontSize: 10,
-                            color: isOverdue ? 'var(--accent-red)' : '#00daf3',
+                            color: isOverdue ? 'var(--accent-red)' : 'var(--accent-cyan)',
                             margin: 0,
                           }}>{timeStr || task.lead_name}</p>
                         )}
                       </div>
                       {task.priority && (
                         <div style={{
-                          background: '#2f3444',
+                          background: 'oklch(0.22 0.02 260)',
                           padding: '2px 8px',
                           borderRadius: 4,
                         }}>
                           <span style={{
-                            fontFamily: "'Space Grotesk', sans-serif",
+                            fontFamily: 'inherit',
                             fontSize: 9,
                             fontWeight: 700,
-                            color: task.priority === 'urgent' ? '#ffb4ab' : '#94a3b8',
+                            color: task.priority === 'urgent' ? 'var(--accent-red)' : 'var(--text-muted)',
                             textTransform: 'uppercase',
                           }}>{task.priority}</span>
                         </div>
