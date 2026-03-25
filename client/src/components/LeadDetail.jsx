@@ -2291,15 +2291,15 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
 
         return createPortal(
           <>
-            <div onClick={() => setActiveModal(null)} style={{
+            <div className="modal-backdrop" onClick={() => setActiveModal(null)} style={{
               position: 'fixed', inset: 0, zIndex: 99998,
-              background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)',
+              background: 'oklch(0 0 0 / 0.75)', backdropFilter: 'blur(4px)',
             }} />
             <div style={{
               position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
               zIndex: 99999, width: '90vw', maxWidth: 700, maxHeight: '90vh',
-              background: '#fff', borderRadius: 8, boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
-              overflow: 'auto', color: '#1a1a1a', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+              background: 'oklch(1 0 0)', borderRadius: 8, boxShadow: '0 20px 60px oklch(0 0 0 / 0.6)',
+              overflow: 'auto', color: 'oklch(0.12 0.01 260)', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
             }}>
               {/* Paper-style report */}
               <div style={{ padding: '28px 36px' }}>
@@ -2480,15 +2480,15 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
             <div onClick={() => {
               if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; }
               setShowStreetView(false); setMapMode('street');
-            }} style={{
+            }} className="modal-backdrop" style={{
               position: 'fixed', inset: 0, zIndex: 99998,
-              background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
+              background: 'oklch(0 0 0 / 0.7)', backdropFilter: 'blur(4px)',
             }} />
-            <div style={{
+            <div className="glass" style={{
               position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-              zIndex: 99999, width: '90vw', maxWidth: 800, background: 'oklch(0.14 0.02 260)',
-              border: '1px solid oklch(0.30 0.02 260)', borderRadius: 12,
-              boxShadow: '0 20px 60px rgba(0,0,0,0.6)', overflow: 'hidden',
+              zIndex: 99999, width: '90vw', maxWidth: 800,
+              borderRadius: 12,
+              boxShadow: '0 20px 60px oklch(0 0 0 / 0.6)', overflow: 'hidden',
             }}>
               <div style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',

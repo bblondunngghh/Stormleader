@@ -105,15 +105,15 @@ function femaLabel(type, code) {
 
 // Severity color scale (hot to cold)
 const SEVERITY_COLORS = {
-  extreme: '#ff2d55',
-  severe: '#ff6b35',
-  moderate: '#dcb428',
-  minor: '#00d4aa',
-  unknown: '#888',
+  extreme: 'oklch(0.62 0.26 15)',
+  severe: 'oklch(0.68 0.20 45)',
+  moderate: 'oklch(0.78 0.17 85)',
+  minor: 'oklch(0.75 0.18 170)',
+  unknown: 'oklch(0.55 0 0)',
 };
 function severityColor(rating) {
-  if (!rating) return '#888';
-  return SEVERITY_COLORS[rating.toLowerCase()] || '#888';
+  if (!rating) return 'oklch(0.55 0 0)';
+  return SEVERITY_COLORS[rating.toLowerCase()] || 'oklch(0.55 0 0)';
 }
 
 // Hail severity color scale by size (inches)
@@ -219,13 +219,13 @@ function PropertyLegend() {
         >i</button>
       </div>
       <div className="map-legend__dots">
-        <span><span className="map-legend__dot" style={{ background: '#00d4aa' }} />County Records</span>
-        <span><span className="map-legend__dot" style={{ background: '#a882ff' }} />FEMA Records</span>
+        <span><span className="map-legend__dot" style={{ background: 'oklch(0.75 0.18 170)' }} />County Records</span>
+        <span><span className="map-legend__dot" style={{ background: 'oklch(0.70 0.18 300)' }} />FEMA Records</span>
       </div>
       {showInfo && (
         <div className="map-legend__info-panel">
-          <p><strong style={{ color: '#00d4aa' }}>County Records</strong> come from county appraisal districts and include owner names, addresses, parcel IDs, and assessed values. These support skip tracing and direct outreach.</p>
-          <p><strong style={{ color: '#a882ff' }}>FEMA Records</strong> come from the National Structure Inventory and provide building characteristics (year built, square footage, replacement value, structure type). They cover areas where county data hasn't been imported but don't include owner information.</p>
+          <p><strong style={{ color: 'oklch(0.75 0.18 170)' }}>County Records</strong> come from county appraisal districts and include owner names, addresses, parcel IDs, and assessed values. These support skip tracing and direct outreach.</p>
+          <p><strong style={{ color: 'oklch(0.70 0.18 300)' }}>FEMA Records</strong> come from the National Structure Inventory and provide building characteristics (year built, square footage, replacement value, structure type). They cover areas where county data hasn't been imported but don't include owner information.</p>
         </div>
       )}
     </div>
@@ -848,11 +848,11 @@ export default function StormMap() {
     // Check storm containment
     const dl = dataLayersRef.current;
     const layerMeta = {
-      hail:         { label: 'Hail',    color: '#dcb428' },
-      wind:         { label: 'Wind',    color: '#6c5ce7' },
-      tornado:      { label: 'Tornado', color: '#ff2d55' },
-      thunderstorm: { label: 'Severe Thunderstorm', color: '#ff9500' },
-      drift:        { label: 'Hail (Drift Corrected)', color: '#00e5ff' },
+      hail:         { label: 'Hail',    color: 'oklch(0.78 0.17 85)' },
+      wind:         { label: 'Wind',    color: 'oklch(0.70 0.18 330)' },
+      tornado:      { label: 'Tornado', color: 'oklch(0.62 0.26 15)' },
+      thunderstorm: { label: 'Severe Thunderstorm', color: 'oklch(0.72 0.17 65)' },
+      drift:        { label: 'Hail (Drift Corrected)', color: 'oklch(0.78 0.12 200)' },
     };
     let nearestSpcDist = Infinity;
     let nearestSpcData = null;
@@ -946,13 +946,13 @@ export default function StormMap() {
           if (!p._swathType) {
             const rawType = sf.properties?.raw_data?.type || '';
             if (rawType === 'hail' || sf.properties?.hail_size_max_in) {
-              p._swathType = 'Hail'; p._swathColor = '#dcb428';
+              p._swathType = 'Hail'; p._swathColor = 'oklch(0.78 0.17 85)';
             } else if (rawType === 'tornado') {
-              p._swathType = 'Tornado'; p._swathColor = '#ff2d55';
+              p._swathType = 'Tornado'; p._swathColor = 'oklch(0.62 0.26 15)';
             } else if (rawType === 'severe_thunderstorm') {
-              p._swathType = 'Severe Thunderstorm'; p._swathColor = '#ff9500';
+              p._swathType = 'Severe Thunderstorm'; p._swathColor = 'oklch(0.72 0.17 65)';
             } else {
-              p._swathType = 'Wind'; p._swathColor = '#6c5ce7';
+              p._swathType = 'Wind'; p._swathColor = 'oklch(0.70 0.18 330)';
             }
           }
           break;
@@ -1006,7 +1006,7 @@ export default function StormMap() {
       if (!addr) continue;
 
       const label = document.createElement('div');
-      label.style.cssText = 'color:#ccc;font-size:11px;text-shadow:0 0 4px rgba(0,0,0,0.8);white-space:nowrap;pointer-events:none;';
+      label.style.cssText = 'color:oklch(0.82 0 0);font-size:11px;text-shadow:0 0 4px oklch(0 0 0 / 0.8);white-space:nowrap;pointer-events:none;';
       label.textContent = addr;
 
       try {
@@ -1511,13 +1511,13 @@ export default function StormMap() {
         const posLng = typeof position.lng === 'function' ? position.lng() : position.lng;
         const html = `
           <div class="swath-popup">
-            <div class="swath-popup__title" style="color:${isFema ? '#a882ff' : '#00d4aa'}">${isFema ? 'FEMA Property' : 'Affected Property'}</div>
-            <div class="swath-popup__sv" style="width:100%;height:150px;border-radius:6px;margin-bottom:8px;overflow:hidden;background:#1a1a2e;display:none;"></div>
+            <div class="swath-popup__title" style="color:${isFema ? 'oklch(0.70 0.18 300)' : 'oklch(0.75 0.18 170)'}">${isFema ? 'FEMA Property' : 'Affected Property'}</div>
+            <div class="swath-popup__sv" style="width:100%;height:150px;border-radius:6px;margin-bottom:8px;overflow:hidden;background:oklch(0.12 0.02 260);display:none;"></div>
             <div class="swath-popup__row">
               <span class="swath-popup__label">Address</span>
-              <span class="swath-popup__value swath-popup__address">${isFema && !p.address_line1 ? '<button class="resolve-addr-btn" style="background:none;border:1px solid rgba(168,130,255,0.4);color:#a882ff;border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;font-weight:600;">Lookup Address</button>' : formatFullAddr(p.address_line1, p.city, p.state, p.zip)}</span>
+              <span class="swath-popup__value swath-popup__address">${isFema && !p.address_line1 ? '<button class="resolve-addr-btn" style="background:none;border:1px solid oklch(0.70 0.18 300 / 0.4);color:oklch(0.70 0.18 300);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;font-weight:600;">Lookup Address</button>' : formatFullAddr(p.address_line1, p.city, p.state, p.zip)}</span>
             </div>
-            ${owner ? `<div class="swath-popup__row"><span class="swath-popup__label">Owner <span style="color:#8a8a9a;font-size:9px;font-weight:400;">· Public records</span></span><span class="swath-popup__value">${owner}</span></div>` : ''}
+            ${owner ? `<div class="swath-popup__row"><span class="swath-popup__label">Owner <span style="color:oklch(0.60 0.01 260);font-size:9px;font-weight:400;">· Public records</span></span><span class="swath-popup__value">${owner}</span></div>` : ''}
             ${p.year_built ? `<div class="swath-popup__row"><span class="swath-popup__label">Year Built</span><span class="swath-popup__value">${p.year_built}</span></div>` : ''}
             ${value ? `<div class="swath-popup__row"><span class="swath-popup__label">${isFema ? 'Est. Structure Value' : 'Value'}</span><span class="swath-popup__value">${value}</span></div>` : ''}
             ${p.property_sqft ? `<div class="swath-popup__row"><span class="swath-popup__label">Building Sqft</span><span class="swath-popup__value">${Number(p.property_sqft).toLocaleString()}</span></div>` : ''}
@@ -1528,19 +1528,19 @@ export default function StormMap() {
             ${p.county_parcel_id ? `<div class="swath-popup__row"><span class="swath-popup__label">Parcel ID</span><span class="swath-popup__value">${p.county_parcel_id}</span></div>` : ''}
             ${hasStorm ? `<div style="border-top:1px solid rgba(255,255,255,0.08);margin:6px 0;padding-top:6px;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                <span class="swath-popup__title" style="color:${p._swathColor || '#dcb428'};font-size:12px;margin:0;">Weather Event</span>
-                <span style="color:${p._swathColor || '#dcb428'};font-size:12px;font-weight:600;">${eventTypeLabel}</span>
+                <span class="swath-popup__title" style="color:${p._swathColor || 'oklch(0.78 0.17 85)'};font-size:12px;margin:0;">Weather Event</span>
+                <span style="color:${p._swathColor || 'oklch(0.78 0.17 85)'};font-size:12px;font-weight:600;">${eventTypeLabel}</span>
               </div>
               ${stormDate ? `<div class="swath-popup__row"><span class="swath-popup__label">Date</span><span class="swath-popup__value">${stormDate}</span></div>` : ''}
-              <div class="swath-popup__row"><span class="swath-popup__label">Hail Size</span><span class="swath-popup__value" style="color:${p.storm_hail_size ? (p._swathColor || '#dcb428') : 'var(--text-muted)'}">${p.storm_hail_size ? p.storm_hail_size + '"' : 'N/A'}</span></div>
-              <div class="swath-popup__row"><span class="swath-popup__label">Wind Speed</span><span class="swath-popup__value" style="color:${p.storm_wind_speed ? (p._swathColor || '#6c5ce7') : 'var(--text-muted)'}">${p.storm_wind_speed ? p.storm_wind_speed + ' mph' : 'N/A'}</span></div>
+              <div class="swath-popup__row"><span class="swath-popup__label">Hail Size</span><span class="swath-popup__value" style="color:${p.storm_hail_size ? (p._swathColor || 'oklch(0.78 0.17 85)') : 'var(--text-muted)'}">${p.storm_hail_size ? p.storm_hail_size + '"' : 'N/A'}</span></div>
+              <div class="swath-popup__row"><span class="swath-popup__label">Wind Speed</span><span class="swath-popup__value" style="color:${p.storm_wind_speed ? (p._swathColor || 'oklch(0.70 0.18 330)') : 'var(--text-muted)'}">${p.storm_wind_speed ? p.storm_wind_speed + ' mph' : 'N/A'}</span></div>
               ${p._stormSeverity ? `<div class="swath-popup__row"><span class="swath-popup__label">Rating</span><span class="swath-popup__value" style="color:${severityColor(p._stormSeverity)}">${p._stormSeverity}</span></div>` : ''}
               ${p._stormCertainty ? `<div class="swath-popup__row"><span class="swath-popup__label">Certainty</span><span class="swath-popup__value">${p._stormCertainty}</span></div>` : ''}
               ${p._stormArea ? `<div class="swath-popup__row"><span class="swath-popup__label">Area</span><span class="swath-popup__value">${p._stormArea}</span></div>` : ''}
             </div>` : ''}
             <button class="add-to-pipeline-btn" data-property-id="${propertyId}" ${stormId ? `data-storm-id="${stormId}"` : ''} ${isFema ? 'data-fema="true"' : ''} data-lat="${posLat}" data-lng="${posLng}" style="
               width:100%;margin-top:8px;padding:8px 12px;
-              background:#0ea5e9;color:#fff;border:none;border-radius:6px;
+              background:oklch(0.65 0.18 230);color:oklch(1 0 0);border:none;border-radius:6px;
               font-size:13px;font-weight:600;cursor:pointer;
             ">Add to Pipeline</button>
           </div>
@@ -1560,8 +1560,8 @@ export default function StormMap() {
               if (btn.dataset.fema) {
                 if (!p.address_line1) {
                   btn.textContent = 'Lookup address first';
-                  btn.style.background = '#ef4444';
-                  setTimeout(() => { btn.textContent = 'Add to Pipeline'; btn.style.background = '#0ea5e9'; btn.disabled = false; }, 2000);
+                  btn.style.background = 'oklch(0.58 0.22 25)';
+                  setTimeout(() => { btn.textContent = 'Add to Pipeline'; btn.style.background = 'oklch(0.65 0.18 230)'; btn.disabled = false; }, 2000);
                   return;
                 }
 
@@ -1586,12 +1586,12 @@ export default function StormMap() {
                 await createManualLead(propId, btn.dataset.fema ? 'fema_nsi' : 'storm_map');
               }
               btn.textContent = 'Added to Pipeline';
-              btn.style.background = '#22c55e';
+              btn.style.background = 'oklch(0.72 0.19 150)';
             } catch (err) {
               const msg = err.response?.data?.error || 'Failed to add';
               btn.textContent = msg;
-              btn.style.background = '#ef4444';
-              setTimeout(() => { btn.textContent = 'Add to Pipeline'; btn.style.background = '#0ea5e9'; btn.disabled = false; }, 2000);
+              btn.style.background = 'oklch(0.58 0.22 25)';
+              setTimeout(() => { btn.textContent = 'Add to Pipeline'; btn.style.background = 'oklch(0.65 0.18 230)'; btn.disabled = false; }, 2000);
             }
           });
         }
@@ -1894,13 +1894,13 @@ export default function StormMap() {
     const owner = formatOwner(p.owner_first_name, p.owner_last_name);
     const html = `
       <div class="swath-popup">
-        <div class="swath-popup__title" style="color:#0ea5e9">${error ? 'Search Result' : created ? 'New Property Added' : 'Existing Property'}</div>
-        <div class="swath-popup__sv" style="width:100%;height:150px;border-radius:6px;margin-bottom:8px;overflow:hidden;background:#1a1a2e;display:none;"></div>
+        <div class="swath-popup__title" style="color:oklch(0.65 0.18 230)">${error ? 'Search Result' : created ? 'New Property Added' : 'Existing Property'}</div>
+        <div class="swath-popup__sv" style="width:100%;height:150px;border-radius:6px;margin-bottom:8px;overflow:hidden;background:oklch(0.12 0.02 260);display:none;"></div>
         <div class="swath-popup__row">
           <span class="swath-popup__label">Address</span>
           <span class="swath-popup__value">${formatFullAddr(addr.address_line1, addr.city, addr.state, addr.zip)}</span>
         </div>
-        ${owner ? `<div class="swath-popup__row"><span class="swath-popup__label">Owner <span style="color:#8a8a9a;font-size:9px;font-weight:400;">· Public records</span></span><span class="swath-popup__value">${owner}</span></div>` : ''}
+        ${owner ? `<div class="swath-popup__row"><span class="swath-popup__label">Owner <span style="color:oklch(0.60 0.01 260);font-size:9px;font-weight:400;">· Public records</span></span><span class="swath-popup__value">${owner}</span></div>` : ''}
         ${value ? `<div class="swath-popup__row"><span class="swath-popup__label">Value</span><span class="swath-popup__value">${value}</span></div>` : ''}
         ${p.year_built ? `<div class="swath-popup__row"><span class="swath-popup__label">Year Built</span><span class="swath-popup__value">${p.year_built}</span></div>` : ''}
         ${p.property_sqft ? `<div class="swath-popup__row"><span class="swath-popup__label">Building Sqft</span><span class="swath-popup__value">${Number(p.property_sqft).toLocaleString()}</span></div>` : ''}
@@ -1909,10 +1909,10 @@ export default function StormMap() {
         ${p.fema_bldg_type ? `<div class="swath-popup__row"><span class="swath-popup__label">Structure</span><span class="swath-popup__value">${femaLabel('bldg', p.fema_bldg_type)}</span></div>` : ''}
         ${p.fema_foundation_type ? `<div class="swath-popup__row"><span class="swath-popup__label">Foundation</span><span class="swath-popup__value">${femaLabel('found', p.fema_foundation_type)}</span></div>` : ''}
         ${!p.fema_bldg_type && !p.fema_foundation_type && !p.fema_num_stories && property ? `<div class="fema-auto-slot" data-property-id="${property.id}" style="margin:4px 0;"><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);padding:4px 0;"><div class="storm-map-loading__spinner" style="width:12px;height:12px;border-width:2px;"></div>Loading building details...</div></div>` : ''}
-        ${error ? `<div class="swath-popup__row"><span class="swath-popup__value" style="color:#ef4444;font-size:12px">${error}</span></div>` : ''}
+        ${error ? `<div class="swath-popup__row"><span class="swath-popup__value" style="color:oklch(0.58 0.22 25);font-size:12px">${error}</span></div>` : ''}
         ${property ? `<button class="add-to-pipeline-btn" data-property-id="${property.id}" style="
           width:100%;margin-top:8px;padding:8px 12px;
-          background:#0ea5e9;color:#fff;border:none;border-radius:6px;
+          background:oklch(0.65 0.18 230);color:oklch(1 0 0);border:none;border-radius:6px;
           font-size:13px;font-weight:600;cursor:pointer;
         ">Add to Pipeline</button>` : ''}
       </div>
@@ -1928,11 +1928,11 @@ export default function StormMap() {
         try {
           const res = await createManualLead(btn.dataset.propertyId);
           btn.textContent = res.data?.alreadyExists ? 'Already in Pipeline' : 'Added to Pipeline';
-          btn.style.background = '#22c55e';
+          btn.style.background = 'oklch(0.72 0.19 150)';
         } catch (err) {
           btn.textContent = err.response?.data?.error || 'Failed';
-          btn.style.background = '#ef4444';
-          setTimeout(() => { btn.textContent = 'Add to Pipeline'; btn.style.background = '#0ea5e9'; btn.disabled = false; }, 2000);
+          btn.style.background = 'oklch(0.58 0.22 25)';
+          setTimeout(() => { btn.textContent = 'Add to Pipeline'; btn.style.background = 'oklch(0.65 0.18 230)'; btn.disabled = false; }, 2000);
         }
       });
     }
