@@ -36,6 +36,9 @@ export const getFemaLiveProperties = ({ west, south, east, north, signal } = {})
     signal,
   });
 
+export const getFemaByPolygon = ({ geometry, signal } = {}) =>
+  client.post('/properties/fema-live-polygon', { geometry }, { signal });
+
 export const generateLeadsFromStorm = (data) =>
   client.post('/properties/generate-leads', data);
 

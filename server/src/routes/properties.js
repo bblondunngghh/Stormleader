@@ -3,7 +3,7 @@ import authenticate from '../middleware/authenticate.js';
 import * as propertyService from '../services/propertyService.js';
 import * as leadService from '../services/leadService.js';
 import { getImportProgress } from '../services/countyService.js';
-import { fetchByBbox, filterTexasResidential, extractFemaData } from '../ingestion/femaIngester.js';
+import { fetchByBbox, fetchByPolygon, filterTexasResidential, extractFemaData } from '../ingestion/femaIngester.js';
 import env from '../config/env.js';
 import pool from '../db/pool.js';
 import logger from '../utils/logger.js';
@@ -30,6 +30,55 @@ router.get('/fema-live', authenticate, async (req, res, next) => {
     }
 
     const features = await fetchByBbox({ xmin: west, ymin: south, xmax: east, ymax: north });
+    const filtered = filterTexasResidential(features);
+
+    const result = {
+      type: 'FeatureCollection',
+      features: filtered.map(f => {
+        const d = extractFemaData(f);
+        if (!d) return null;
+        return {
+          type: 'Feature',
+          id: `fema_${d.fdId}`,
+          geometry: { type: 'Point', coordinates: [d.lng, d.lat] },
+          properties: {
+            data_source: 'fema_nsi_live',
+            fema_fd_id: d.fdId,
+            year_built: d.yearBuilt,
+            assessed_value: d.replacementValue,
+            property_sqft: d.sqft,
+            fema_occupancy_type: d.occupancyType,
+            fema_bldg_type: d.bldgType,
+            fema_num_stories: d.numStories,
+            fema_foundation_type: d.foundationType,
+            fema_ground_elevation: d.groundElevation,
+          },
+        };
+      }).filter(Boolean),
+    };
+
+    res.json(result);
+  } catch (err) {
+    if (err.message?.includes('FEMA NSI API')) {
+      return res.status(502).json({ error: 'FEMA NSI API unavailable' });
+    }
+    next(err);
+  }
+});
+
+// POST /api/properties/fema-live-polygon — FEMA NSI query using storm swath polygon (no DB writes)
+// Sends geometry directly to FEMA API for server-side spatial filtering — far fewer results than bbox
+router.post('/fema-live-polygon', authenticate, async (req, res, next) => {
+  try {
+    const { geometry } = req.body;
+    if (!geometry || !geometry.type || !geometry.coordinates) {
+      return res.status(400).json({ error: 'GeoJSON geometry required in body' });
+    }
+    if (geometry.type !== 'Polygon' && geometry.type !== 'MultiPolygon') {
+      return res.status(400).json({ error: 'Only Polygon/MultiPolygon supported' });
+    }
+
+    const features = await fetchByPolygon(geometry);
     const filtered = filterTexasResidential(features);
 
     const result = {

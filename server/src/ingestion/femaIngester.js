@@ -27,7 +27,7 @@ export async function fetchByBbox(bbox) {
  * Query FEMA NSI structures by GeoJSON polygon (e.g. storm swath geometry).
  * Uses POST with GeoJSON body for complex polygons.
  */
-async function fetchByPolygon(geojson) {
+export async function fetchByPolygon(geojson) {
   const body = {
     type: 'FeatureCollection',
     features: [{

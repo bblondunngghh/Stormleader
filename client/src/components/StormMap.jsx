@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import Supercluster from 'supercluster';
 import { loadGoogleMaps } from '../lib/googleMaps';
 import { cacheProperties, loadCachedProperties, cacheTileKeys, loadCachedTileKeys, clearPropertyCache } from '../lib/propertyCache';
-import { getSwaths, getPropertiesInSwath, getSwathPropertyCount, createProperty, fetchFemaData, getFemaLiveProperties } from '../api/storms';
+import { getSwaths, getPropertiesInSwath, getSwathPropertyCount, createProperty, fetchFemaData, getFemaLiveProperties, getFemaByPolygon } from '../api/storms';
 import { addPropertyToPipeline, createManualLead } from '../api/crm';
 import { TimeFilter, LayerPanel } from './MapControls';
 import AddressSearch from './AddressSearch';
@@ -734,15 +734,19 @@ export default function StormMap() {
   }
 
   // Load FEMA properties independently from DB property loading
+  // Uses polygon-based FEMA API — sends actual swath geometry so server returns
+  // only structures inside storm polygons (not entire bbox rectangles)
   const loadFemaProperties = useCallback(async (map) => {
     if (!map || !cacheRestoredRef.current) return;
     // Don't load if properties layer is toggled off
     if (!layersRef.current.properties) return;
     const zoom = map.getZoom();
-    // Only load FEMA at high zoom levels — zoom 13+ ensures tight area, fewer irrelevant points
-    if (zoom < 13) return;
+    // Only load FEMA at high zoom levels — zoom 14+ ensures tight area
+    if (zoom < 14) return;
     // Skip if no storm swaths loaded at all
     if (stormFeaturesRef.current.length === 0) return;
+    // Global cap: don't load more than 2000 FEMA points total (prevents memory bloat)
+    if (femaCountRef.current >= 2000) return;
 
     const bounds = map.getBounds();
     if (!bounds) return;
@@ -753,36 +757,19 @@ export default function StormMap() {
     // Early exit: don't fetch FEMA data unless the viewport actually intersects storm swath polygons
     if (!viewportHasSwaths(viewBbox)) return;
 
-    // Build list of unloaded FEMA tile-sized chunks that overlap storm swaths
-    // Smaller chunks = tighter fit to actual swath areas, fewer wasted API calls
-    const CHUNK = 0.05;
-    const chunks = [];
-    for (let w = viewBbox[0]; w < viewBbox[2]; w += CHUNK) {
-      for (let s = viewBbox[1]; s < viewBbox[3]; s += CHUNK) {
-        const cb = [w, s, Math.min(w + CHUNK, viewBbox[2]), Math.min(s + CHUNK, viewBbox[3])];
-        // Only fetch FEMA data for areas that have storm swaths
-        if (!chunkOverlapsSwath(cb)) continue;
-        const cMinX = Math.floor(cb[0] / TILE_SIZE);
-        const cMaxX = Math.floor(cb[2] / TILE_SIZE);
-        const cMinY = Math.floor(cb[1] / TILE_SIZE);
-        const cMaxY = Math.floor(cb[3] / TILE_SIZE);
-        let needed = false;
-        const keys = [];
-        for (let x = cMinX; x <= cMaxX; x++) {
-          for (let y = cMinY; y <= cMaxY; y++) {
-            const key = `fema:${x}:${y}`;
-            keys.push(key);
-            if (!femaLoadedTilesRef.current.has(key)) needed = true;
-          }
-        }
-        if (needed) chunks.push({ bbox: cb, keys });
-      }
-    }
+    // Find visible swaths that haven't had FEMA loaded yet
+    const visibleSwaths = stormFeaturesRef.current.filter(f => {
+      if (!f.id || !f.geometry?.coordinates) return false;
+      // Must be a polygon-type geometry
+      if (f.geometry.type !== 'Polygon' && f.geometry.type !== 'MultiPolygon') return false;
+      // Must overlap viewport
+      if (!featureBboxOverlaps(f, bounds)) return false;
+      // Skip already-loaded swaths
+      if (femaLoadedTilesRef.current.has(`fema-swath:${f.id}`)) return false;
+      return true;
+    });
 
-    if (chunks.length === 0) return;
-
-    // Global cap: don't load more than 5000 FEMA points total (prevents memory bloat)
-    if (femaCountRef.current > 5000) return;
+    if (visibleSwaths.length === 0) return;
 
     // Abort previous FEMA session
     if (femaAbortRef.current) femaAbortRef.current.abort();
@@ -791,7 +778,7 @@ export default function StormMap() {
 
     setFemaLoading(true);
 
-    // Build spatial grid once for dedup
+    // Build spatial grid once for dedup against existing DB properties
     const CELL = 0.0003;
     const grid = new Set();
     for (const existing of propFeaturesRef.current) {
@@ -800,56 +787,52 @@ export default function StormMap() {
       grid.add(`${Math.round(eLat / CELL)},${Math.round(eLng / CELL)}`);
     }
 
-    // Batch all FEMA features to avoid per-chunk rebuildClusterIndex
+    // Batch all FEMA features across swaths — single rebuildClusterIndex at end
     const allNewFema = [];
-    const allKeys = [];
+    const MAX_FEMA_PER_SWATH = 500;
 
-    for (const chunk of chunks) {
+    for (const swath of visibleSwaths) {
       if (femaAbort.signal.aborted) break;
+      if (femaCountRef.current + allNewFema.length >= 2000) break;
+
       try {
-        const femaRes = await getFemaLiveProperties({
-          west: chunk.bbox[0], south: chunk.bbox[1],
-          east: chunk.bbox[2], north: chunk.bbox[3],
+        // Send swath polygon directly to server — FEMA API filters spatially
+        const femaRes = await getFemaByPolygon({
+          geometry: swath.geometry,
           signal: femaAbort.signal,
         });
         const femaFeatures = femaRes.data?.features || [];
 
-        const MAX_FEMA_PER_CHUNK = 1000;
         let added = 0;
-        const storms = stormFeaturesRef.current;
         for (const f of femaFeatures) {
-          if (added >= MAX_FEMA_PER_CHUNK) break;
+          if (added >= MAX_FEMA_PER_SWATH) break;
+          if (femaCountRef.current + allNewFema.length >= 2000) break;
           const pid = f.id;
           if (propIdSetRef.current.has(pid)) continue;
           const [fLng, fLat] = f.geometry.coordinates;
           if (grid.has(`${Math.round(fLat / CELL)},${Math.round(fLng / CELL)}`)) continue;
-          // Point-in-polygon: only keep FEMA records that fall INSIDE an actual storm swath
-          if (!pointInsideAnySwath(fLng, fLat, storms)) continue;
           propIdSetRef.current.add(pid);
           allNewFema.push(f);
           grid.add(`${Math.round(fLat / CELL)},${Math.round(fLng / CELL)}`);
           added++;
         }
 
-        for (const key of chunk.keys) {
-          femaLoadedTilesRef.current.add(key);
-          allKeys.push(key);
-        }
+        // Mark this swath as FEMA-loaded so we don't re-fetch on next pan
+        femaLoadedTilesRef.current.add(`fema-swath:${swath.id}`);
       } catch (err) {
         if (err.name === 'AbortError' || err.name === 'CanceledError') break;
-        console.warn('FEMA chunk fetch failed:', err.message);
+        console.warn('FEMA swath fetch failed:', err.message);
       }
     }
 
-    // Single batch update — one rebuildClusterIndex instead of per-chunk
+    // Single batch update — push in-place to avoid O(n) spread copy
     if (allNewFema.length > 0) {
-      propFeaturesRef.current = [...propFeaturesRef.current, ...allNewFema];
+      for (const nf of allNewFema) propFeaturesRef.current.push(nf);
       femaCountRef.current += allNewFema.length;
       rebuildClusterIndex();
       if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
       cacheProperties(allNewFema);
     }
-    if (allKeys.length > 0) cacheTileKeys(allKeys);
 
     if (!femaAbort.signal.aborted) {
       setFemaLoading(false);
@@ -1506,7 +1489,7 @@ export default function StormMap() {
         swathDebounceRef.current = setTimeout(() => loadSwathProperties(map), 500);
         // FEMA loading runs independently with its own debounce (longer delay — less critical)
         clearTimeout(femaDebounceRef.current);
-        femaDebounceRef.current = setTimeout(() => loadFemaProperties(map), 1200);
+        femaDebounceRef.current = setTimeout(() => loadFemaProperties(map), 2000);
       });
 
       // Shared property popup function
