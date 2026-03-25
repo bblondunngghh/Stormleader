@@ -25,19 +25,24 @@ export async function createNotification(tenantId, userId, data) {
   return rows[0];
 }
 
-// Broadcast to all users in a tenant
+// Broadcast to all users in a tenant (bulk insert, respects preferences)
 export async function broadcastNotification(tenantId, data) {
-  const { rows: users } = await pool.query(
-    `SELECT id FROM users WHERE tenant_id = $1`,
-    [tenantId]
+  const { type, title, body, reference_type, reference_id } = data;
+
+  const { rows } = await pool.query(
+    `INSERT INTO notifications (tenant_id, user_id, type, title, body, reference_type, reference_id)
+     SELECT $1, u.id, $2, $3, $4, $5, $6
+     FROM users u
+     WHERE u.tenant_id = $1
+       AND NOT EXISTS (
+         SELECT 1 FROM notification_preferences np
+         WHERE np.user_id = u.id AND np.notification_type = $2 AND np.in_app = false
+       )
+     RETURNING *`,
+    [tenantId, type, title, body || null, reference_type || null, reference_id || null]
   );
 
-  const results = [];
-  for (const user of users) {
-    const n = await createNotification(tenantId, user.id, data);
-    if (n) results.push(n);
-  }
-  return results;
+  return rows;
 }
 
 // ============================================================

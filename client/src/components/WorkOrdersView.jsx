@@ -670,6 +670,29 @@ export default function WorkOrdersView() {
 
       {/* Kanban Board */}
       <div style={{ overflow: 'auto', padding: '16px 28px 16px' }}>
+        {workOrders.length === 0 ? (
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            padding: '80px 24px', textAlign: 'center', color: 'var(--text-muted)',
+          }}>
+            <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>🔧</div>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 8px' }}>
+              No work orders yet
+            </h2>
+            <p style={{ fontSize: 14, maxWidth: 360, margin: '0 0 20px', lineHeight: 1.5 }}>
+              Create a work order from an approved estimate or start a new one to track jobs through production.
+            </p>
+            <button onClick={() => setShowCreate(true)} style={{
+              ...btnStyle,
+              background: 'oklch(0.72 0.19 250 / 0.15)',
+              color: 'oklch(0.72 0.19 250)',
+              border: '1px solid oklch(0.72 0.19 250 / 0.25)',
+              fontSize: 14, padding: '10px 20px',
+            }}>
+              <IconPlusCircle width={16} height={16} /> Create Work Order
+            </button>
+          </div>
+        ) : (
         <div style={{ display: 'flex', gap: 16, minWidth: '100%', alignItems: 'flex-start' }}>
           {STATUS_COLUMNS.map(col => {
             const colOrders = workOrders.filter(w => w.status === col.key);
@@ -779,6 +802,7 @@ export default function WorkOrdersView() {
             );
           })}
         </div>
+        )}
       </div>
 
       {/* Modals */}
