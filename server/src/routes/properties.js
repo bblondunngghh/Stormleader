@@ -66,8 +66,32 @@ router.get('/fema-live', authenticate, async (req, res, next) => {
   }
 });
 
+// Ray-casting point-in-polygon test
+function pointInRing(lng, lat, ring) {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i];
+    const [xj, yj] = ring[j];
+    if ((yi > lat) !== (yj > lat) && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+function pointInGeometry(lng, lat, geometry) {
+  if (geometry.type === 'Polygon') {
+    return pointInRing(lng, lat, geometry.coordinates[0]);
+  }
+  if (geometry.type === 'MultiPolygon') {
+    return geometry.coordinates.some(poly => pointInRing(lng, lat, poly[0]));
+  }
+  return false;
+}
+
 // POST /api/properties/fema-live-polygon — FEMA NSI query using storm swath polygon (no DB writes)
-// Sends geometry directly to FEMA API for server-side spatial filtering — far fewer results than bbox
+// FEMA NSI API returns structures in the bbox of the polygon, so we filter server-side
+// with point-in-polygon to return only structures actually inside the swath geometry.
 router.post('/fema-live-polygon', authenticate, async (req, res, next) => {
   try {
     const { geometry } = req.body;
@@ -79,7 +103,13 @@ router.post('/fema-live-polygon', authenticate, async (req, res, next) => {
     }
 
     const features = await fetchByPolygon(geometry);
-    const filtered = filterTexasResidential(features);
+    // FEMA API returns bbox approximation — filter to points actually inside the polygon
+    const spatialFiltered = features.filter(f => {
+      const [lng, lat] = f.geometry?.coordinates || [];
+      if (lng == null || lat == null) return false;
+      return pointInGeometry(lng, lat, geometry);
+    });
+    const filtered = filterTexasResidential(spatialFiltered);
 
     const result = {
       type: 'FeatureCollection',

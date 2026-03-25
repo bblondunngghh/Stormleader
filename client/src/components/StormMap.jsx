@@ -738,8 +738,8 @@ export default function StormMap() {
   // only structures inside storm polygons (not entire bbox rectangles)
   const loadFemaProperties = useCallback(async (map) => {
     if (!map || !cacheRestoredRef.current) return;
-    // Don't load if properties layer is toggled off
-    if (!layersRef.current.properties) return;
+    // Don't load if properties layer or FEMA toggle is off
+    if (!layersRef.current.properties || !showFemaRef.current) return;
     const zoom = map.getZoom();
     // Only load FEMA at high zoom levels — zoom 14+ ensures tight area
     if (zoom < 14) return;
@@ -796,12 +796,16 @@ export default function StormMap() {
       if (femaCountRef.current + allNewFema.length >= 2000) break;
 
       try {
-        // Send swath polygon directly to server — FEMA API filters spatially
+        // Send swath polygon directly to server — server filters with point-in-polygon
         const femaRes = await getFemaByPolygon({
           geometry: swath.geometry,
           signal: femaAbort.signal,
         });
-        const femaFeatures = femaRes.data?.features || [];
+        // Server already filters spatially, but verify client-side as safety net
+        const femaFeatures = (femaRes.data?.features || []).filter(f => {
+          const [fLng, fLat] = f.geometry?.coordinates || [];
+          return fLng != null && fLat != null && pointInsideAnySwath(fLng, fLat, [swath]);
+        });
 
         let added = 0;
         for (const f of femaFeatures) {
