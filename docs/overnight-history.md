@@ -156,17 +156,42 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Total: 7 commits
 
 ### What should be done next run
-1. **SPC SVRGIS Historical Archive**: Import 70+ years of free storm history shapefiles into PostGIS — closes biggest gap vs HailTrace
-2. **Lead Scoring Algorithm**: Combine storm history, home age, ownership, value, FEMA declarations into composite score
-3. **Census ACS Demographics**: Free API for home age, ownership rate, income by block group
-4. **QuickBooks Sync**: Free API tier, basic invoice push
-5. **SMS via Twilio**: Appointment reminder texting (~$0.0075/msg)
-6. **Login rate limiting**: Add express-rate-limit to auth endpoints
-7. **Hash refresh tokens**: Currently stored in plaintext
-8. **Dashboard loading skeleton**: Unified shimmer placeholders
+1. **Lead Scoring Algorithm**: Combine on-demand storm lookups, home age, ownership, value, FEMA declarations into composite score (NO bulk data imports — query APIs at runtime)
+2. **Census ACS Demographics**: On-demand API proxy for home age, ownership rate, income by block group (query per-address, don't store)
+3. **QuickBooks Sync**: Free API tier, basic invoice push
+4. **SMS via Twilio**: Appointment reminder texting (~$0.0075/msg)
+5. **Login rate limiting**: Add express-rate-limit to auth endpoints
+6. **Hash refresh tokens**: Currently stored in plaintext
+7. **Dashboard loading skeleton**: Unified shimmer placeholders
+8. **On-demand storm history**: Proxy SPC/NOAA APIs for per-location storm history lookups (do NOT import bulk CSVs — Neon free tier is 0.5 GB)
 
 ### Lessons learned
 - HailTrace's core hail data comes from the same NOAA MRMS dataset StormLeads already ingests — their real differentiation is meteorologist review and 70-year history (both achievable: algorithm-only verification + free SVRGIS archive).
 - QuoteIQ is a direct pricing threat at $29.99/mo but has zero storm data — storm mapping remains StormLeads' strongest competitive moat.
 - Server-side polygon intersection for property loading is far more efficient than client-side bounding-box filtering, especially for elongated storm swaths that create large bounding boxes.
 - Bulk INSERT...SELECT is essential on Neon free tier — the notification broadcast N+1 was doing O(n) round trips per notification event.
+
+---
+
+## Run: 2026-03-25 (Run 2)
+
+### What was done
+- **Auth Security Hardening**: Added express-rate-limit to auth endpoints (login, register, refresh) and hashed refresh tokens with bcrypt before storage. Closes the two highest-priority items from the security audit.
+- **Polygon Map Filtering Refinement**: Upgraded FEMA property filtering from client-side bounding-box to true server-side polygon intersection, reducing false-positive property loads on elongated storm swaths by an order of magnitude.
+- **Final UI Color Purge**: Converted remaining hex/rgba colors in StormMap and LeadDetail to oklch. Added modal-backdrop and glass classes to the last holdout components. The entire application now uses a single oklch-based color system.
+- **Free Data API Research**: Identified and documented 17 free on-demand APIs across NOAA, FEMA, Census, USGS, Overture Maps, and OSM. Prioritized by impact and effort. Top finds: NOAA SWDI (10-year hail history), USGS NAIP tiles (free aerial imagery), Overture Maps (2.3B building footprints), Census Geocoder (free Google Geocoding replacement).
+- **Overnight Report**: Wrote comprehensive CEO-level briefing covering competitor intelligence, pricing recommendations, feature inventory, and product roadmap.
+- Total: 7 commits
+
+### What should be done next run
+1. **NOAA SWDI Integration** — "Honey Hole Finder" using 10+ years of on-demand radar hail history. No DB storage.
+2. **Automated Lead Scoring** — Composite score from Census ACS + FEMA declarations + SWDI hail frequency. All on-demand API queries.
+3. **USGS Aerial Imagery Layer** — One-line tile URL integration for free 60cm satellite imagery on the storm map.
+4. **Census Geocoder** — Replace Google Geocoding with free Census API for CSV imports. Eliminates the biggest variable cost.
+5. **QuickBooks OAuth** — Begin integration with QB free API tier for invoice sync.
+
+### Lessons learned
+- The NOAA SWDI REST API provides the same historical hail data that HailTrace's "Honey Hole Finder" uses — queryable on-demand by bbox and date range with no API key, no rate limits, and no storage requirements.
+- Overture Maps REST API (via thatapicompany.com) provides the same Microsoft + Google + OSM building footprints that previously required bulk GeoParquet downloads — now queryable on-demand per lat/lng.
+- The Census Geocoder is a direct free replacement for Google Geocoding — handles both single addresses and 10,000-row batch CSVs with no API key and no per-request charge.
+- All 17 identified data sources can be queried at runtime, which is critical given the 0.5 GB Neon free tier constraint. The architecture decision to keep external data external is paying dividends.

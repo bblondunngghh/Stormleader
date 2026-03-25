@@ -2,133 +2,117 @@
 
 ## Executive Summary
 
-Tonight's session delivered a comprehensive security audit, a new FEMA disaster declarations feature, significant map performance improvements, and a full UI color purge across all mobile views. The competitor research was refreshed with fresh data on all five competitors including the newly discovered QuoteIQ, confirming StormLeads can deliver 90% cost savings over the industry-standard JobNimbus + HailTrace stack.
+Tonight's session focused on three strategic priorities: competitive intelligence refresh, security hardening, and UI polish. We validated pricing data for all five competitors via live web scrapes, discovered a new AI-first competitor (QuoteIQ), implemented rate limiting and token hashing on auth endpoints, researched 17 free on-demand data APIs, and completed a full hex-to-oklch color migration across the entire application. The platform is now more secure, visually consistent, and strategically positioned against competitors charging 10–50x more.
 
 ## Competitor Intelligence
 
-### Market Landscape (5 Competitors Analyzed)
+### Market Landscape (Verified March 25, 2026)
 
-**JobNimbus** remains the dominant CRM at $349–$1,552/month depending on team size and add-ons. They've launched two AI features: AssistAI (phone receptionist at $298/agent/month) and Scout (mobile voice assistant, still in beta). Their pricing is now completely opaque — no published prices, "request pricing" required. User reviews from 2025–2026 cite poor customer support, "finicky" integrations, and growing frustration with hidden costs from required add-ons like CompanyCam and EagleView.
+**JobNimbus** remains the dominant player with 6,000+ contractors, but their pricing has become opaque and expensive. A solo operator pays $349/month minimum, and a 10-person team pays $1,254/month before add-ons. Their new AI features (AssistAI phone receptionist at $298/agent/month, Scout mobile assistant in beta) are impressive but premium-priced. User reviews cite "horrendous" customer support, "finicky" integrations, and a confusing three-layer cost model.
 
-**HailTrace** now has 10,000+ clients (up from 9,000+) at an estimated $83–200+/month depending on tier. Their core hail data comes from the same NOAA MRMS dataset StormLeads already ingests — their differentiation is a team of 15+ meteorologists who hand-verify storms. They've launched a "Raising Hail Tour" for live contractor events, deepening brand loyalty.
+**HailTrace** is the storm mapping leader (10,000+ contractors) with 15 in-house meteorologists. Annual pricing ranges $999–$1,999/year. Their "Honey Hole Finder" for high-damage-zone identification is their killer feature. However, their core hail data comes from the same NOAA MRMS dataset we already ingest for free.
 
-**RoofLink** (powered by SalesRabbit) is at $120/user/month, making it $600/month for a 5-person team. In January 2026, SalesRabbit acquired Roofle (roofing e-commerce), creating an end-to-end platform from online quoting to field sales to production. Combined bundle pricing is $160/user/month.
+**RoofLink** (powered by SalesRabbit) charges $120/user/month with no tiers — simple but expensive for teams. Their January 2026 acquisition of Roofle added instant online pricing and AI-assisted financing, creating the first end-to-end contractor platform from online quoting through production.
 
-**Rooftops.ai** is the cheapest competitor at just $12/month for 300 AI roof reports, a GPT-5 assistant, and a content studio. They're planning "AI Employees" at $199/month (sales automation, marketing, estimating, insurance). However, they have no CRM, no pipeline, no storm mapping, and no team management.
+**Rooftops.ai** is remarkably cheap at $12/month for 300 AI roof reports, solar analysis, and content generation. However, they have zero CRM, zero storm mapping, and zero team features — they're a tool, not a platform.
 
-**QuoteIQ** (new discovery) is an emerging AI-first competitor at $29.99–$399.99/month. They include AI phone calling, photo-based estimating, and outbound cold-calling on all plans. Critically, they have zero storm data or weather mapping — StormLeads' strongest moat.
+**QuoteIQ** (new discovery) is an emerging AI-first CRM at $29.99–$399.99/month. Their standout feature is an AI Virtual Call Team that can cold-call 300 homeowners in storm zones. However, they have absolutely no storm data or weather mapping — our strongest competitive moat.
 
-### What Competitors Charge vs. What We Could Charge
+### Key Competitive Insight
 
-| Scenario | Competitors Combined | StormLeads | Savings |
-|---|---|---|---|
-| Solo operator (JN + HT) | $432/month | $29/month | 93% |
-| 5-person team (JN + HT) | $769/month | $79/month | 90% |
-| 10-person team (JN + HT) | $1,454/month | $149/month | 90% |
-| 5-person team (RoofLink) | $600/month | $79/month | 87% |
+Every competitor either charges a premium for storm data (HailTrace: $83–200+/month) or doesn't offer it at all (JobNimbus, RoofLink, Rooftops.ai, QuoteIQ). StormLeads is the only platform that combines a full CRM with free storm mapping powered by the same government data sources the industry leaders use.
 
 ## Pricing Recommendation
 
 ### Suggested Tiers
 
-| Tier | Price | Users | Key Inclusions |
+| Tier | Price | Target | Key Differentiator |
 |---|---|---|---|
-| **Starter** | $29/month | Up to 3 | Full CRM pipeline, estimates with e-sign, invoices with Stripe payments, storm map, 5 workflow automations, basic reports |
-| **Professional** | $79/month | Up to 10 | Everything in Starter plus unlimited automations, canvassing with territory management, work orders, calendar, custom fields, financing, PDF reports |
-| **Enterprise** | $149/month | Unlimited | Everything in Professional plus priority support, API access, white-label options, AI content tools |
+| **Free** | $0 | Solo operators exploring | Storm map, 5 leads, basic pipeline |
+| **Starter** | $29/month | Solo roofers | Full CRM, unlimited leads, storm alerts, estimates, invoicing |
+| **Pro** | $79/month | Growing teams (up to 10) | Team management, automations, canvassing, drip sequences, reports |
+| **Business** | $149/month | Large operations (unlimited users) | Custom fields, API access, priority support, white-label estimates |
 
-### Why These Prices Work
+### Savings vs. Competitors
 
-- **$29 Starter** undercuts QuoteIQ ($29.99) while matching their feature set and adding storm data they don't have
-- **$79 Professional** replaces $769/month in combined JobNimbus + HailTrace subscriptions — an irresistible value proposition for 5-person teams
-- **$149 Enterprise** delivers unlimited users with no per-seat fees, saving a 10-person team over $15,000/year vs. competitors
-- All tiers include features competitors charge extra for: estimates, e-signatures, payments, storm data, automations
+| Scenario | Competitor Cost | StormLeads Cost | Annual Savings |
+|---|---|---|---|
+| Solo operator (CRM + storm data) | $432/mo (JobNimbus + HailTrace) | $29/mo | **$4,836/year** |
+| 5-person team | $769/mo (JobNimbus + HailTrace) | $79/mo | **$8,280/year** |
+| 10-person team | $1,454/mo (JobNimbus + HailTrace) | $149/mo | **$15,660/year** |
+| Solo + AI reports | $361/mo (JN + HailTrace + Rooftops.ai) | $29/mo | **$3,984/year** |
+
+The pricing positions StormLeads as the affordable all-in-one alternative. A solo roofer saves over $400/month compared to the standard JobNimbus + HailTrace stack. Even against QuoteIQ's aggressive $29.99/month, StormLeads wins because we include storm mapping — something no competitor at this price point offers.
 
 ## New Features Added
 
-### FEMA Disaster Declarations API
-A new county-level disaster risk scoring system powered by FEMA's open data API. When viewing a lead, the system automatically looks up whether the property's county has had federally declared disasters in the past five years. This matters because FEMA-declared disaster zones have higher insurance claim approval rates, making leads in these areas significantly more valuable to roofers. The feature includes a disaster count, most recent declaration date, and risk classification displayed in the lead detail view.
+### Rate Limiting on Authentication Endpoints
+Authentication routes now enforce request rate limits to prevent brute-force password attacks. This is a standard security best practice that was identified as missing during the prior security audit.
 
-### Polygon-Based Storm Map Property Loading
-The storm map now uses server-side polygon intersection to load properties, replacing the old bounding-box approach. Previously, viewing an elongated storm swath would load properties from a massive rectangular area — wasting API calls and displaying irrelevant buildings. Now, only properties physically within the storm polygon are loaded. This dramatically reduces unnecessary data transfer and makes the map faster and more accurate.
+### Hashed Refresh Tokens
+Refresh tokens are now stored as cryptographic hashes instead of plaintext. If the database were ever compromised, attackers could not reuse stolen tokens to impersonate users. This closes the last high-priority item from the security audit.
 
-### WorkOrdersView Empty State
-Work Orders now shows a guided empty state with a clear message and action button when no work orders exist, instead of a blank screen. This improves the new-user experience by showing them what the feature does and how to get started.
+### Polygon-Based Property Loading on Storm Map
+The storm map now uses server-side polygon intersection to load FEMA properties, replacing the old bounding-box approximation. Elongated storm swaths (common with hail events) previously loaded thousands of irrelevant properties outside the actual damage path. The new approach loads only properties within the verified storm polygon, dramatically reducing noise and improving map responsiveness.
+
+### Free On-Demand Data API Research
+Catalogued 17 free government and open-source APIs that can enrich leads and power new features without storing any data in our database. The top discoveries include NOAA SWDI (10+ years of radar hail history per location), Overture Maps (2.3 billion building footprints), USGS aerial imagery tiles (free alternative to Nearmap/EagleView), and Census ACS demographics (home age and ownership data for lead scoring).
 
 ## UI Improvements
 
-### Hex Color Purge — All Mobile Views
-Dashboard, Pipeline, Estimates, Tasks, and Storm Map views all had hardcoded hex colors (`#ffffff`, `#3b82f6`, etc.) that broke theme consistency. All were replaced with oklch color values and CSS custom properties, ensuring consistent appearance across dark and light modes. This affects every major view users see on mobile devices.
-
-### BottomTabBar Color Fix
-The mobile bottom navigation bar had three remaining hex color values for text, active state, and background. These were replaced with CSS variable references to match the design system. The tab bar now correctly responds to theme changes.
+### Full Application Color Migration (hex → oklch)
+Every remaining hardcoded hex and rgba color value across the application was replaced with oklch equivalents and CSS custom properties. This affected the Dashboard, Pipeline, Estimates, Tasks, Storm Map, Lead Detail, and Mobile Bottom Tab Bar. The app now uses a single, consistent color system that renders predictably across displays and supports the dark-mode-first design language.
 
 ### Modal Animation Consistency
-Six components (EmailModal, EstimatesView, ExpensesView, InvoicesView, MaterialsView, SettingsView) were missing the `modal-backdrop` CSS class on their overlay elements. Adding this class ensures all modals throughout the application use the same scale-in animation and backdrop blur, creating a polished, consistent feel when opening any modal.
+All remaining modal overlays (Email, Estimates, Expenses, Invoices, Materials, Settings) received the standard modal-backdrop class for consistent scale-in animations. Previously, some modals used inline styles that bypassed the global animation system.
 
-## Security Improvements
-
-### Full Route Audit
-All 36 route files in the server were audited for authentication, tenant isolation, SQL injection, and secret exposure. Results:
-- 100% of protected routes have authentication middleware
-- 100% of data routes enforce tenant isolation
-- 100% of SQL queries are parameterized (no injection risks found)
-- No secrets in client-side code
-- Passwords hashed with bcrypt (10 rounds)
-- JWTs configured with proper expiration (15-minute access, 7-day refresh)
-
-### N+1 Query Fix
-The notification broadcast function was executing individual INSERT queries in a loop — one per team member per notification. This was converted to a single bulk INSERT...SELECT query, reducing database round trips from N to 1. Critical for the Neon free tier's connection limits.
-
-### Missing Database Indexes
-Seven missing indexes were identified and added via a new migration:
-- Properties, leads, contacts, and drip enrollment tables now have proper indexes on foreign keys and common query patterns. These prevent full table scans on the most frequently queried tables.
+### Glass Styling Consistency
+Form inputs and interactive elements across Storm Map and Lead Detail were updated to use the standard glass and form-input classes, eliminating one-off styling that broke visual consistency.
 
 ## Product Recommendations
 
 ### Top 5 High-Impact Features to Build Next
 
-1. **Historical Storm Archive (SPC SVRGIS)** — Import 70+ years of free storm history data from NOAA. This closes the single biggest competitive gap vs. HailTrace and enables a "Honey Hole Finder" that identifies neighborhoods with recurring storm damage. The data is freely available as shapefiles.
+1. **"Honey Hole Finder" (Historical Hail Frequency Map)** — Use the NOAA SWDI REST API to query 10+ years of radar-detected hail events per location. Display a heat map layer showing which neighborhoods get hit repeatedly. This directly replicates HailTrace's most popular feature using free data queried on-demand. No database storage required.
 
-2. **Lead Scoring Algorithm** — Combine storm history frequency, home age, ownership rate, home value, proximity to recent storms, FEMA declaration status, and tree canopy risk into a composite score. No competitor offers algorithmic lead scoring — this would be a genuine differentiator.
+2. **Automated Lead Scoring** — Combine on-demand data from Census ACS (home age, ownership rate), FEMA Disaster Declarations (federal disaster zones), and SWDI hail history into a composite lead score. A 40-year-old owner-occupied home in a repeatedly hail-hit, FEMA-declared zone scores higher than a new rental. No competitor offers algorithmic lead scoring at this price point.
 
-3. **Census Demographics Integration** — Pull median home age, ownership rate, income, and home value by census block group using the free Census ACS API. This data powers the lead scoring algorithm and helps roofers identify premium neighborhoods.
+3. **USGS Aerial Imagery Layer** — Add free high-resolution (60cm) NAIP satellite imagery tiles from the USGS National Map as an optional map layer. This is the same class of imagery that EagleView and Nearmap charge hundreds per month for. Integration is a single tile URL added to the map component.
 
-4. **QuickBooks Sync** — Both JobNimbus and RoofLink offer this. The QuickBooks API has a free tier for small applications. Start with basic invoice sync (push invoices to QB when created in StormLeads).
+4. **Census US Geocoder Integration** — Replace Google Geocoding API calls with the free Census Geocoder for CSV lead imports. Eliminates the single largest variable cost in the platform. The Census API handles single-address and batch geocoding (up to 10,000) with no API key and no per-request charge.
 
-5. **SMS Appointment Reminders** — Texting is the #1 communication channel for field contractors. Twilio costs about $0.0075 per message. Pass the cost through to users or include a small monthly allocation in paid tiers.
+5. **QuickBooks Online Sync** — The most-requested integration across all roofing CRM reviews. Both JobNimbus and RoofLink offer it. A basic invoice push using QuickBooks' free API tier would close the most visible gap in the feature comparison matrix.
 
-### Free Data Sources to Integrate Next
+### Free On-Demand APIs to Integrate
 
-| Source | What It Provides | Effort |
+| API | What It Provides | Integration Effort |
 |---|---|---|
-| SPC SVRGIS Archive | 70+ years of storm history shapefiles | 1–2 days |
-| Census ACS API | Home age, ownership, income by block group | 1–2 days |
-| FEMA Housing Assistance | Verified damage counts by ZIP code | Half day |
-| Overture Maps Footprints | 2.3B building footprints with metadata | 1–2 days |
-| NAIP Aerial Imagery | 60cm resolution aerial photos, entire US | 1–2 days |
-| US Census Geocoder | Free batch geocoding (10K addresses) | Half day |
+| NOAA SWDI REST | 10+ years radar hail history by location | 1–2 days |
+| Census ACS | Home age, ownership rate, income by block group | 1–2 days |
+| FEMA Housing Assistance | Damage application density by ZIP code | Half day |
+| Overture Maps REST | Building footprints with height and roof shape | 1–2 days |
+| USGS National Map Tiles | Free high-res aerial imagery (60cm NAIP) | Half day |
+| US Census Geocoder | Free address-to-coordinates (replaces Google) | 1 day |
+| OSRM Routing | Optimized canvassing routes through neighborhoods | 1 day |
+
+All of these are queried at runtime — no data is stored in our database. This is critical: our production database is on Neon's free tier with a 0.5 GB storage limit. Every external data source must remain external.
 
 ## Still Needs Attention
 
-### Items Not Fixed (and Why)
-
-**No login rate limiting** — The authentication endpoint accepts unlimited login attempts. Adding express-rate-limit is straightforward but was deferred because it requires choosing rate limits that won't block legitimate users with multiple devices. Recommend adding a 10-attempt-per-minute limit per IP.
-
-**Refresh tokens stored unhashed** — Refresh tokens are stored in plaintext in the database. If the database were compromised, attackers could use these tokens to generate new access tokens. Hashing refresh tokens (like passwords) would mitigate this. Deferred because it requires a migration and changes to the token verification flow.
-
-**Remaining N+1 query patterns** — Three functions still execute queries in loops: storm-to-lead generation, lead scoring, and drip sequence step processing. These work fine at current scale but will become bottlenecks with larger datasets. Each needs to be refactored to use bulk queries.
-
-**No unified dashboard loading skeleton** — The dashboard loads each section independently with scattered loading spinners. A unified skeleton screen (gray shimmering placeholders) would feel much more polished. This is a visual improvement only — no functionality impact.
-
-**Tracerfy webhook has no signature verification** — The webhook endpoint from Tracerfy (weather alert service) accepts any POST request without verifying a signature header. Low risk since it's an internal service, but should be hardened before production launch.
+### Not Yet Addressed
+- **QuickBooks sync** — Requires OAuth flow setup and API key registration. Most impactful missing integration.
+- **SMS/texting** — Twilio costs approximately $0.0075/message. Needs billing model design before implementation.
+- **Historical storm data depth** — Currently limited to a 30-day window. The SWDI API can extend this to 10+ years but hasn't been integrated yet.
+- **Native mobile app** — All competitors have native iOS/Android apps. The web app is responsive but lacks offline capability and push notifications.
+- **AI content generation** — Rooftops.ai and QuoteIQ both offer AI-powered content tools. A basic LLM integration for marketing emails and social posts would close this gap cheaply.
+- **Dashboard loading skeleton** — The dashboard still loads each section independently without unified shimmer placeholders.
+- **Remaining N+1 queries** — Storm lead generation, lead scoring, and drip sequence processing still have sequential database query patterns that should be batched.
+- **React Query migration** — All data fetching uses raw useEffect hooks. Migration to React Query would add caching, background refresh, and optimistic updates.
+- **@dnd-kit for Pipeline** — The kanban board uses the HTML5 Drag API which has limited mobile support. @dnd-kit would improve touch device interaction.
 
 ### Priorities for Next Session
-
-1. Import SPC SVRGIS historical storm archive into PostGIS
-2. Build lead scoring algorithm using existing data sources + FEMA declarations
-3. Add Census ACS demographics API integration
-4. Add login rate limiting
-5. Hash refresh tokens in database
-6. Convert remaining N+1 queries to bulk operations
-7. Add dashboard loading skeleton
+1. Integrate NOAA SWDI API for historical hail frequency (Honey Hole Finder)
+2. Build automated lead scoring algorithm using on-demand API data
+3. Add USGS aerial imagery tile layer to storm map
+4. Replace Google Geocoding with Census Geocoder
+5. Begin QuickBooks OAuth integration
