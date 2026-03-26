@@ -45,7 +45,13 @@ export async function createEstimate(tenantId, userId, data) {
     ]
   );
 
-  return rows[0];
+  // Sync estimate total to lead's estimated_value
+  const estimate = rows[0];
+  if (estimate && estimate.lead_id) {
+    await syncLeadEstimatedValue(estimate.lead_id, tenantId);
+  }
+
+  return estimate;
 }
 
 export async function getEstimates(tenantId, filters = {}) {
@@ -143,14 +149,32 @@ export async function updateEstimate(tenantId, estimateId, updates) {
     params
   );
 
-  return rows[0] || null;
+  // Sync estimate total to lead's estimated_value
+  const estimate = rows[0];
+  if (estimate && estimate.lead_id) {
+    await syncLeadEstimatedValue(estimate.lead_id, tenantId);
+  }
+
+  return estimate || null;
 }
 
 export async function deleteEstimate(tenantId, estimateId) {
+  // Fetch lead_id before deleting so we can sync the lead's estimated_value
+  const { rows: estRows } = await pool.query(
+    `SELECT lead_id FROM estimates WHERE id = $1 AND tenant_id = $2`,
+    [estimateId, tenantId]
+  );
+  const leadId = estRows[0]?.lead_id;
+
   const { rowCount } = await pool.query(
     `DELETE FROM estimates WHERE id = $1 AND tenant_id = $2`,
     [estimateId, tenantId]
   );
+
+  if (rowCount > 0 && leadId) {
+    await syncLeadEstimatedValue(leadId, tenantId);
+  }
+
   return rowCount > 0;
 }
 
@@ -209,6 +233,52 @@ export async function duplicateEstimate(tenantId, userId, estimateId) {
   });
 }
 
+/**
+ * Generate Good/Better/Best tiered estimates from a single estimate.
+ * Good = 85% of original price (basic materials)
+ * Better = original price (standard — the source estimate)
+ * Best = 120% of original price (premium materials/warranty)
+ */
+export async function generateTiers(tenantId, userId, estimateId) {
+  const original = await getEstimateDetail(tenantId, estimateId);
+  if (!original) return null;
+
+  const tiers = [
+    { label: 'Good', factor: 0.85, desc: 'Standard materials, manufacturer warranty' },
+    { label: 'Better', factor: 1.0, desc: 'Upgraded materials, extended warranty' },
+    { label: 'Best', factor: 1.20, desc: 'Premium materials, lifetime warranty, priority scheduling' },
+  ];
+
+  const results = [];
+  for (const tier of tiers) {
+    const adjustedItems = (original.line_items || []).map(item => ({
+      ...item,
+      unit_price: Math.round((parseFloat(item.unit_price) || 0) * tier.factor * 100) / 100,
+    }));
+
+    const estimate = await createEstimate(tenantId, userId, {
+      lead_id: original.lead_id,
+      customer_name: original.customer_name,
+      customer_address: original.customer_address,
+      customer_phone: original.customer_phone,
+      customer_email: original.customer_email,
+      line_items: adjustedItems,
+      tax_rate: parseFloat(original.tax_rate),
+      discount_type: original.discount_type,
+      discount_value: parseFloat(original.discount_value),
+      scope_of_work: original.scope_of_work,
+      terms: original.terms,
+      warranty_info: original.warranty_info,
+      notes: `[${tier.label} Tier] ${tier.desc}\n\n${original.notes || ''}`.trim(),
+      valid_until: original.valid_until,
+    });
+
+    results.push({ ...estimate, tier_label: tier.label });
+  }
+
+  return results;
+}
+
 // ============================================================
 // PUBLIC (customer-facing)
 // ============================================================
@@ -243,7 +313,11 @@ export async function acceptEstimate(token, signerName, signatureData) {
      RETURNING *`,
     [token, signerName, signatureData]
   );
-  return rows[0] || null;
+  const estimate = rows[0];
+  if (estimate && estimate.lead_id) {
+    await syncLeadEstimatedValue(estimate.lead_id, estimate.tenant_id);
+  }
+  return estimate || null;
 }
 
 export async function declineEstimate(token) {
@@ -253,7 +327,11 @@ export async function declineEstimate(token) {
      RETURNING *`,
     [token]
   );
-  return rows[0] || null;
+  const estimate = rows[0];
+  if (estimate && estimate.lead_id) {
+    await syncLeadEstimatedValue(estimate.lead_id, estimate.tenant_id);
+  }
+  return estimate || null;
 }
 
 // ============================================================
@@ -302,6 +380,21 @@ export async function getTemplates(tenantId) {
 // ============================================================
 // HELPERS
 // ============================================================
+
+/**
+ * Sync the sum of non-declined estimate totals to the lead's estimated_value.
+ */
+async function syncLeadEstimatedValue(leadId, tenantId) {
+  const { rows: [totals] } = await pool.query(
+    `SELECT COALESCE(SUM(total), 0) AS sum FROM estimates
+     WHERE lead_id = $1 AND tenant_id = $2 AND status != 'declined'`,
+    [leadId, tenantId]
+  );
+  await pool.query(
+    'UPDATE leads SET estimated_value = $1 WHERE id = $2 AND tenant_id = $3',
+    [totals.sum, leadId, tenantId]
+  );
+}
 
 function calculateTotals(lineItems, taxRate, discountType, discountValue) {
   const items = Array.isArray(lineItems) ? lineItems : [];

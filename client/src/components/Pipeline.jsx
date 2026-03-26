@@ -816,11 +816,9 @@ export default function Pipeline() {
                       <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ color: col.color, background: `color-mix(in oklch, ${col.color} 12%, transparent)` }}>
                         {colLeads.length}
                       </span>
-                      {colTotal > 0 && (
-                        <span className="text-[10px] font-bold" style={{ color: 'oklch(0.75 0.18 155)' }}>
-                          {formatCurrency(colTotal)}
-                        </span>
-                      )}
+                      <span className="text-[14px] font-bold" style={{ color: 'oklch(0.75 0.18 155)' }}>
+                        {formatCurrency(colTotal)}
+                      </span>
                       <button
                         onClick={() => toggleCollapse(col.key)}
                         title="Collapse column"
