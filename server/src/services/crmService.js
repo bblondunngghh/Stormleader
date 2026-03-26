@@ -449,16 +449,36 @@ export async function getPipelineMetrics(tenantId) {
   );
 
   // Merge with pipeline stages for color/label
-  const stages = await getPipelineStages(tenantId);
-  const stageMap = Object.fromEntries(stages.map(s => [s.key, s]));
+  let stages = await getPipelineStages(tenantId);
 
-  return rows.map(r => ({
-    stage: stageMap[r.stage]?.label || r.stage,
-    key: r.stage,
-    count: parseInt(r.count, 10),
-    value: parseFloat(r.value),
-    color: stageMap[r.stage]?.color || 'oklch(0.55 0.05 260)',
-  }));
+  // Fallback to default stages if tenant has none configured
+  if (!stages.length) {
+    stages = [
+      { key: 'new', label: 'New', color: 'oklch(0.72 0.19 250)' },
+      { key: 'contacted', label: 'Contacted', color: 'oklch(0.75 0.15 200)' },
+      { key: 'appt_set', label: 'Appt Set', color: 'oklch(0.78 0.17 85)' },
+      { key: 'inspected', label: 'Inspected', color: 'oklch(0.72 0.20 50)' },
+      { key: 'estimate_sent', label: 'Estimate Sent', color: 'oklch(0.70 0.18 330)' },
+      { key: 'negotiating', label: 'Negotiating', color: 'oklch(0.65 0.15 280)' },
+      { key: 'sold', label: 'Sold', color: 'oklch(0.75 0.18 155)' },
+      { key: 'in_production', label: 'In Production', color: 'oklch(0.70 0.16 170)' },
+    ];
+  }
+
+  // Build a map of actual counts from DB
+  const countMap = Object.fromEntries(rows.map(r => [r.stage, r]));
+
+  // Return ALL pipeline stages (even those with 0 leads) so the chart always shows the full pipeline
+  return stages.map(s => {
+    const r = countMap[s.key];
+    return {
+      stage: s.label,
+      key: s.key,
+      count: r ? parseInt(r.count, 10) : 0,
+      value: r ? parseFloat(r.value) : 0,
+      color: s.color || 'oklch(0.55 0.05 260)',
+    };
+  });
 }
 
 // ============================================================

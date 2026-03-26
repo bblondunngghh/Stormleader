@@ -934,7 +934,14 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
           {lead?.property_id && (
             <div>
               <button
-                onClick={() => window.open(`/api/properties/${lead.property_id}/report/pdf`, '_blank')}
+                onClick={async () => {
+                  try {
+                    const res = await client.get(`/properties/${lead.property_id}/report/pdf`, { responseType: 'blob' });
+                    const url = URL.createObjectURL(res.data);
+                    window.open(url, '_blank');
+                    setTimeout(() => URL.revokeObjectURL(url), 60000);
+                  } catch {}
+                }}
                 className="icon-spin-btn"
                 style={{
                   display: 'flex', alignItems: 'center', gap: 8,

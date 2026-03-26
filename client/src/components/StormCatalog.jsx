@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getStorms } from '../api/storms';
+import client from '../api/client';
 
 const TIME_RANGES = [
   { id: '24h', label: '24 Hours' },
@@ -9,11 +10,20 @@ const TIME_RANGES = [
   { id: '30d', label: '30 Days' },
 ];
 
+// Get centroid from server-computed values
+function getCentroid(storm) {
+  const p = storm.properties || {};
+  if (p.centroid_lat && p.centroid_lng) return { lat: p.centroid_lat, lng: p.centroid_lng };
+  return null;
+}
+
 export default function StormCatalog() {
   const [storms, setStorms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('30d');
   const [search, setSearch] = useState('');
+  const [locations, setLocations] = useState({});
+  const geocodeCacheRef = useRef({});
 
   useEffect(() => {
     setLoading(true);
@@ -28,10 +38,53 @@ export default function StormCatalog() {
       .finally(() => setLoading(false));
   }, [timeRange]);
 
+  // Lazy reverse-geocode storms that don't have location in raw_data
+  useEffect(() => {
+    if (storms.length === 0) return;
+    const toGeocode = storms.filter(s => {
+      const rd = s.properties?.raw_data || {};
+      if (rd.location || rd.areaDesc) return false; // already has location
+      if (geocodeCacheRef.current[s.id]) return false; // already geocoded
+      return true;
+    }).slice(0, 20); // limit to 20 at a time
+
+    if (toGeocode.length === 0) return;
+
+    let cancelled = false;
+    (async () => {
+      const newLocs = {};
+      for (const s of toGeocode) {
+        if (cancelled) break;
+        const centroid = getCentroid(s);
+        if (!centroid) continue;
+        // Round to reduce duplicate lookups for nearby storms
+        const key = `${centroid.lat.toFixed(1)},${centroid.lng.toFixed(1)}`;
+        if (geocodeCacheRef.current[key]) {
+          newLocs[s.id] = geocodeCacheRef.current[key];
+          continue;
+        }
+        try {
+          const { data } = await client.get('/properties/reverse-geocode', { params: centroid });
+          const label = data.matched && data.city ? `${data.city}, ${data.state || 'TX'}` : null;
+          if (label) {
+            geocodeCacheRef.current[key] = label;
+            geocodeCacheRef.current[s.id] = label;
+            newLocs[s.id] = label;
+          }
+        } catch {}
+      }
+      if (!cancelled && Object.keys(newLocs).length > 0) {
+        setLocations(prev => ({ ...prev, ...newLocs }));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [storms]);
+
   const filtered = storms.filter(s => {
     if (!search) return true;
     const p = s.properties || {};
-    const text = `${p.raw_data?.type || ''} ${p.source || ''} ${p.hail_size_max_in || ''} ${p.wind_speed_max_mph || ''}`.toLowerCase();
+    const rd = p.raw_data || {};
+    const text = `${rd.type || ''} ${p.source || ''} ${p.hail_size_max_in || ''} ${p.wind_speed_max_mph || ''} ${rd.location || ''} ${rd.county || ''} ${rd.state || ''} ${rd.areaDesc || ''}`.toLowerCase();
     return text.includes(search.toLowerCase());
   });
 
@@ -52,7 +105,7 @@ export default function StormCatalog() {
   };
 
   return (
-    <div style={{ padding: 'var(--space-xl)', maxWidth: 1000 }}>
+    <div style={{ padding: 'var(--space-xl)', overflow: 'auto', gridRow: '2 / -1' }}>
       <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 'var(--space-lg)' }}>Storm Archive</h1>
 
       <div style={{ display: 'flex', gap: 'var(--space-sm)', marginBottom: 'var(--space-lg)', flexWrap: 'wrap' }}>
@@ -88,16 +141,22 @@ export default function StormCatalog() {
             const p = s.properties || {};
             const date = p.event_start ? new Date(p.event_start).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '\u2014';
             const time = p.event_start ? new Date(p.event_start).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+            const rd = p.raw_data || {};
+            // SPC reports have location/county/state, NWS alerts have areaDesc, MRMS uses reverse-geocoded location
+            const loc = rd.location && rd.state
+              ? `${rd.location}${rd.county ? ', ' + rd.county : ''}, ${rd.state}`
+              : rd.areaDesc || locations[s.id] || '';
             return (
               <div key={s.id} className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-lg)', cursor: 'pointer', transition: 'transform 0.15s ease' }}
                 onClick={() => window.location.href = `/storm-map?stormId=${s.id}`}
                 onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                   <span style={{ fontSize: 14, fontWeight: 700, color: typeColor(s) }}>{typeLabel(s)}</span>
                   <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{date} {time}</span>
                 </div>
+                {loc && <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{loc}</div>}
                 <div style={{ display: 'flex', gap: 'var(--space-lg)', fontSize: 12 }}>
                   {p.hail_size_max_in && (
                     <div>

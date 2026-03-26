@@ -75,7 +75,9 @@ export async function listEvents({ source, limit = 50, offset = 0, timeRange }) 
     }
   }
 
-  const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  // Always exclude empty geometries (MRMS storms without polygon data)
+  conditions.push('NOT ST_IsEmpty(geom)');
+  const where = `WHERE ${conditions.join(' AND ')}`;
 
   params.push(limit, offset);
   const limitIdx = params.length - 1;
@@ -84,6 +86,8 @@ export async function listEvents({ source, limit = 50, offset = 0, timeRange }) 
   const { rows } = await pool.query(
     `SELECT id, source, source_id,
             ST_AsGeoJSON(ST_ChaikinSmoothing(ST_Simplify(geom, 0.0001), 3))::json AS geometry,
+            ST_Y(ST_Centroid(geom)) AS centroid_lat,
+            ST_X(ST_Centroid(geom)) AS centroid_lng,
             hail_size_max_in, wind_speed_max_mph,
             event_start, event_end, raw_data, created_at
      FROM storm_events
@@ -107,6 +111,8 @@ export async function listEvents({ source, limit = 50, offset = 0, timeRange }) 
         event_start: r.event_start,
         event_end: r.event_end,
         raw_data: r.raw_data,
+        centroid_lat: r.centroid_lat,
+        centroid_lng: r.centroid_lng,
       },
     })),
   };
