@@ -71,6 +71,7 @@ import RoofDrawingTool from './RoofDrawingTool';
 import ActivityModal from './ActivityModal';
 import EmailModal from './EmailModal';
 import { calcMonthlyPayment, formatMoney } from '../utils/financing';
+import CustomSelect from './CustomSelect';
 
 function FinancingStatusBadge({ status }) {
   const colors = {
@@ -1286,15 +1287,14 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                         }} />
                       </button>
                     ) : def.field_type === 'select' ? (
-                      <select
-                        value={val || ''}
-                        onChange={e => handleChange(e.target.value)}
-                        className="form-input">
-                        <option value="">-- Select --</option>
-                        {(def.options || []).map(opt => (
-                          <option key={opt} value={opt}>{opt}</option>
-                        ))}
-                      </select>
+                      <CustomSelect
+                        value={String(val || '')}
+                        onChange={v => handleChange(v)}
+                        options={[
+                          { value: '', label: '-- Select --' },
+                          ...(def.options || []).map(opt => ({ value: String(opt), label: String(opt) }))
+                        ]}
+                      />
                     ) : (
                       <input
                         type={def.field_type === 'number' ? 'number' : def.field_type === 'date' ? 'date' : 'text'}

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getTerritories, createTerritory, updateTerritory, deleteTerritory, getTeamMembers } from '../api/crm';
 import { MapPinIcon, TrashIcon, PencilSquareIcon, PlusIcon, XMarkIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import CustomSelect from './CustomSelect';
 
 const TERRITORY_COLORS = [
   'oklch(0.65 0.27 29)',   // red
@@ -235,17 +236,14 @@ export default function TerritoryManager({ mapRef, mapsApi, onTerritoryPolygonsC
 
             <div style={{ marginBottom: 8 }}>
               <label style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>Assign to Rep</label>
-              <select
-                className="form-input"
-                value={formData.assigned_user_id}
-                onChange={e => setFormData(f => ({ ...f, assigned_user_id: e.target.value }))}
-                style={{ fontSize: 13 }}
-              >
-                <option value="">Unassigned</option>
-                {teamMembers.map(m => (
-                  <option key={m.id} value={m.id}>{m.first_name} {m.last_name}</option>
-                ))}
-              </select>
+              <CustomSelect
+                value={String(formData.assigned_user_id || '')}
+                onChange={v => setFormData(f => ({ ...f, assigned_user_id: v }))}
+                options={[
+                  { value: '', label: 'Unassigned' },
+                  ...teamMembers.map(m => ({ value: String(m.id), label: `${m.first_name} ${m.last_name}` }))
+                ]}
+              />
             </div>
 
             <textarea

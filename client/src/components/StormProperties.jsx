@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { getProspectLists, getProspectListItems, deleteProspectList, removeProspectListItem } from '../api/crm';
 import { IconSearch } from './Icons';
+import CustomSelect from './CustomSelect';
 
 const PAGE_SIZE = 50;
 
@@ -459,105 +460,103 @@ export default function StormProperties() {
           {/* Value filter */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={filterLabelStyle}>Assessed Value</span>
-            <select
+            <CustomSelect
               value={`${filters.value_min}|${filters.value_max}`}
-              onChange={e => {
-                const [min, max] = e.target.value.split('|');
+              onChange={v => {
+                const [min, max] = v.split('|');
                 setFilters(prev => ({ ...prev, value_min: min, value_max: max }));
                 setPage(0);
               }}
-              style={selectStyle}
-            >
-              {VALUE_PRESETS.map(p => (
-                <option key={p.label} value={`${p.min}|${p.max}`}>{p.label}</option>
-              ))}
-            </select>
+              options={VALUE_PRESETS.map(p => ({ value: `${p.min}|${p.max}`, label: p.label }))}
+            />
           </div>
 
           {/* Year built filter */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={filterLabelStyle}>Year Built</span>
-            <select
+            <CustomSelect
               value={`${filters.year_min}|${filters.year_max}`}
-              onChange={e => {
-                const [min, max] = e.target.value.split('|');
+              onChange={v => {
+                const [min, max] = v.split('|');
                 setFilters(prev => ({ ...prev, year_min: min, year_max: max }));
                 setPage(0);
               }}
-              style={selectStyle}
-            >
-              {YEAR_PRESETS.map(p => (
-                <option key={p.label} value={`${p.min}|${p.max}`}>{p.label}</option>
-              ))}
-            </select>
+              options={YEAR_PRESETS.map(p => ({ value: `${p.min}|${p.max}`, label: p.label }))}
+            />
           </div>
 
           {/* Roof size filter */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={filterLabelStyle}>Roof Size</span>
-            <select
+            <CustomSelect
               value={`${filters.roof_min}|${filters.roof_max}`}
-              onChange={e => {
-                const [min, max] = e.target.value.split('|');
+              onChange={v => {
+                const [min, max] = v.split('|');
                 setFilters(prev => ({ ...prev, roof_min: min, roof_max: max }));
                 setPage(0);
               }}
-              style={selectStyle}
-            >
-              {ROOF_PRESETS.map(p => (
-                <option key={p.label} value={`${p.min}|${p.max}`}>{p.label}</option>
-              ))}
-            </select>
+              options={ROOF_PRESETS.map(p => ({ value: `${p.min}|${p.max}`, label: p.label }))}
+            />
           </div>
 
           {/* Owner filter */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={filterLabelStyle}>Owner</span>
-            <select value={filters.has_owner} onChange={e => updateFilter('has_owner', e.target.value)} style={selectStyle}>
-              <option value="">All</option>
-              <option value="true">Has Owner</option>
-              <option value="false">No Owner</option>
-            </select>
+            <CustomSelect value={filters.has_owner} onChange={v => updateFilter('has_owner', v)}
+              options={[
+                { value: '', label: 'All' },
+                { value: 'true', label: 'Has Owner' },
+                { value: 'false', label: 'No Owner' },
+              ]}
+            />
           </div>
 
           {/* Phone filter */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={filterLabelStyle}>Phone</span>
-            <select value={filters.has_phone} onChange={e => updateFilter('has_phone', e.target.value)} style={selectStyle}>
-              <option value="">All</option>
-              <option value="true">Has Phone</option>
-              <option value="false">No Phone</option>
-            </select>
+            <CustomSelect value={filters.has_phone} onChange={v => updateFilter('has_phone', v)}
+              options={[
+                { value: '', label: 'All' },
+                { value: 'true', label: 'Has Phone' },
+                { value: 'false', label: 'No Phone' },
+              ]}
+            />
           </div>
 
           {/* Homestead filter */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={filterLabelStyle}>Homestead</span>
-            <select value={filters.homestead} onChange={e => updateFilter('homestead', e.target.value)} style={selectStyle}>
-              <option value="">All</option>
-              <option value="true">Homestead Only</option>
-              <option value="false">Non-Homestead</option>
-            </select>
+            <CustomSelect value={filters.homestead} onChange={v => updateFilter('homestead', v)}
+              options={[
+                { value: '', label: 'All' },
+                { value: 'true', label: 'Homestead Only' },
+                { value: 'false', label: 'Non-Homestead' },
+              ]}
+            />
           </div>
 
           {/* Status filter */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={filterLabelStyle}>Status</span>
-            <select value={filters.status} onChange={e => updateFilter('status', e.target.value)} style={selectStyle}>
-              <option value="">All</option>
-              <option value="new">New Only</option>
-              <option value="lead">In Pipeline</option>
-            </select>
+            <CustomSelect value={filters.status} onChange={v => updateFilter('status', v)}
+              options={[
+                { value: '', label: 'All' },
+                { value: 'new', label: 'New Only' },
+                { value: 'lead', label: 'In Pipeline' },
+              ]}
+            />
           </div>
 
           {/* City filter */}
           {cities.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={filterLabelStyle}>City</span>
-              <select value={filters.city} onChange={e => updateFilter('city', e.target.value)} style={selectStyle}>
-                <option value="">All Cities</option>
-                {cities.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+              <CustomSelect value={filters.city} onChange={v => updateFilter('city', v)}
+                options={[
+                  { value: '', label: 'All Cities' },
+                  ...cities.map(c => ({ value: c, label: c }))
+                ]}
+              />
             </div>
           )}
 
@@ -565,10 +564,12 @@ export default function StormProperties() {
           {roofTypes.length > 0 && (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={filterLabelStyle}>Roof Type</span>
-              <select value={filters.roof_type} onChange={e => updateFilter('roof_type', e.target.value)} style={selectStyle}>
-                <option value="">All Types</option>
-                {roofTypes.map(t => <option key={t} value={t}>{titleCase(t)}</option>)}
-              </select>
+              <CustomSelect value={filters.roof_type} onChange={v => updateFilter('roof_type', v)}
+                options={[
+                  { value: '', label: 'All Types' },
+                  ...roofTypes.map(t => ({ value: t, label: titleCase(t) }))
+                ]}
+              />
             </div>
           )}
 

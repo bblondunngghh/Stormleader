@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import * as adminApi from '../api/admin';
 import { ChartBarIcon } from '@heroicons/react/24/outline';
+import CustomSelect from './CustomSelect';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -349,22 +350,24 @@ function TenantDetail({ tenantId, onClose }) {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
                 <label style={{ fontSize: 11, color: 'var(--text-muted)' }}>Subscription Tier</label>
-                <select value={tier} onChange={e => setTier(e.target.value)}
-                  className="form-input" style={{ fontSize: 12 }}>
-                  <option value="starter">Starter</option>
-                  <option value="professional">Professional</option>
-                  <option value="enterprise">Enterprise</option>
-                </select>
+                <CustomSelect value={tier} onChange={v => setTier(v)}
+                  options={[
+                    { value: 'starter', label: 'Starter' },
+                    { value: 'professional', label: 'Professional' },
+                    { value: 'enterprise', label: 'Enterprise' },
+                  ]}
+                />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
                 <label style={{ fontSize: 11, color: 'var(--text-muted)' }}>Subscription Status</label>
-                <select value={status} onChange={e => setStatus(e.target.value)}
-                  className="form-input" style={{ fontSize: 12 }}>
-                  <option value="active">Active</option>
-                  <option value="trialing">Trialing</option>
-                  <option value="past_due">Past Due</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
+                <CustomSelect value={status} onChange={v => setStatus(v)}
+                  options={[
+                    { value: 'active', label: 'Active' },
+                    { value: 'trialing', label: 'Trialing' },
+                    { value: 'past_due', label: 'Past Due' },
+                    { value: 'cancelled', label: 'Cancelled' },
+                  ]}
+                />
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
                 <button onClick={handleSave} disabled={saving} style={{
@@ -584,14 +587,15 @@ function TenantsTab() {
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
         </div>
-        <select value={sort} onChange={e => { setSort(e.target.value); }}
-          className="form-input" style={{ fontSize: 12, width: 'auto' }}>
-          <option value="created_at">Sort: Created</option>
-          <option value="name">Sort: Name</option>
-          <option value="user_count">Sort: Users</option>
-          <option value="lead_count">Sort: Leads</option>
-          <option value="last_activity">Sort: Last Active</option>
-        </select>
+        <CustomSelect value={sort} onChange={v => setSort(v)}
+          options={[
+            { value: 'created_at', label: 'Sort: Created' },
+            { value: 'name', label: 'Sort: Name' },
+            { value: 'user_count', label: 'Sort: Users' },
+            { value: 'lead_count', label: 'Sort: Leads' },
+            { value: 'last_activity', label: 'Sort: Last Active' },
+          ]}
+        />
       </div>
 
       {/* Table */}

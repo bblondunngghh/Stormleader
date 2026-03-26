@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import client from '../api/client';
 import { IconUpload, IconX, IconCheckCircle, IconXCircle, IconWarning } from './Icons';
+import CustomSelect from './CustomSelect';
 
 const REQUIRED_FIELDS = ['address'];
 const OPTIONAL_FIELDS = ['city', 'state', 'zip', 'contact_name', 'contact_phone', 'contact_email'];
@@ -247,17 +248,14 @@ export default function ImportLeadsModal({ onClose, onImported }) {
                     {field.replace(/_/g, ' ')}
                     {REQUIRED_FIELDS.includes(field) && <span style={{ color: 'var(--accent-red)' }}> *</span>}
                   </label>
-                  <select
-                    className="form-input"
+                  <CustomSelect
                     value={columnMapping[field] || ''}
-                    onChange={e => setColumnMapping(prev => ({ ...prev, [field]: e.target.value }))}
-                    style={{ flex: 1, fontSize: 12, padding: '6px 8px' }}
-                  >
-                    <option value="">— skip —</option>
-                    {csvData.headers.map(h => (
-                      <option key={h} value={h}>{h}</option>
-                    ))}
-                  </select>
+                    onChange={v => setColumnMapping(prev => ({ ...prev, [field]: v }))}
+                    options={[
+                      { value: '', label: '— skip —' },
+                      ...csvData.headers.map(h => ({ value: h, label: h }))
+                    ]}
+                  />
                 </div>
               ))}
             </div>
