@@ -23,6 +23,7 @@ import {
   CloudIcon,
   ArrowDownTrayIcon,
   SunIcon,
+  DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 import PhotoAnnotator from './PhotoAnnotator';
 
@@ -926,6 +927,30 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 {weatherLoading ? 'Loading...' : 'Storm History'}
               </button>
               {weatherError && <div style={{ fontSize: 11, color: 'var(--accent-red)', marginTop: 4 }}>{weatherError}</div>}
+            </div>
+          )}
+
+          {/* Property Report PDF Button */}
+          {lead?.property_id && (
+            <div>
+              <button
+                onClick={() => window.open(`/api/properties/${lead.property_id}/report/pdf`, '_blank')}
+                className="icon-spin-btn"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '6px 0', fontSize: 12, fontWeight: 600,
+                  background: 'none', border: 'none',
+                  color: 'oklch(0.75 0.12 200)',
+                  cursor: 'pointer',
+                  opacity: 0.85,
+                  transition: 'opacity 0.15s',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = '0.85'; }}
+              >
+                <DocumentTextIcon width={16} height={16} />
+                Property Report
+              </button>
             </div>
           )}
 

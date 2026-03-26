@@ -795,4 +795,171 @@ router.get('/:id/weather-history/pdf', async (req, res, next) => {
   }
 });
 
+// GET /api/properties/:id/report/pdf — Comprehensive property report
+router.get('/:id/report/pdf', async (req, res, next) => {
+  try {
+    const propId = req.params.id;
+
+    const [propResult, stormResult] = await Promise.all([
+      pool.query(
+        `SELECT p.*, ST_Y(p.location::geometry) AS lat, ST_X(p.location::geometry) AS lng
+         FROM properties p WHERE p.id = $1`,
+        [propId]
+      ),
+      pool.query(
+        `SELECT se.source, se.hail_size_max_in, se.wind_speed_max_mph,
+                se.event_start, se.raw_data
+         FROM storm_events se
+         JOIN properties p ON p.id = $1
+         WHERE ST_DWithin(se.geom::geography, p.location::geography, 8047)
+         ORDER BY se.event_start DESC
+         LIMIT 30`,
+        [propId]
+      ),
+    ]);
+
+    if (!propResult.rows[0]) return res.status(404).json({ error: 'Property not found' });
+    const prop = propResult.rows[0];
+    const storms = stormResult.rows;
+
+    // Get lead score if available
+    let scoreData = null;
+    const leadResult = await pool.query(
+      'SELECT lead_score, lead_score_factors FROM leads WHERE property_id = $1 LIMIT 1',
+      [propId]
+    );
+    if (leadResult.rows[0]?.lead_score) {
+      scoreData = { score: leadResult.rows[0].lead_score, factors: leadResult.rows[0].lead_score_factors };
+    }
+
+    const { createRequire } = await import('module');
+    const require = createRequire(import.meta.url);
+    const PdfPrinter = require('pdfmake');
+    const fonts = {
+      Helvetica: {
+        normal: 'Helvetica',
+        bold: 'Helvetica-Bold',
+        italics: 'Helvetica-Oblique',
+        bolditalics: 'Helvetica-BoldOblique',
+      },
+    };
+    const printer = new PdfPrinter(fonts);
+
+    const fullAddress = [prop.address_line1, prop.city, prop.state, prop.zip].filter(Boolean).join(', ');
+
+    // Property details table
+    const detailRows = [
+      ['Year Built', prop.year_built ? String(prop.year_built) : '—'],
+      ['Assessed Value', prop.assessed_value ? `$${Number(prop.assessed_value).toLocaleString()}` : '—'],
+      ['Square Footage', prop.sqft ? Number(prop.sqft).toLocaleString() : '—'],
+      ['Roof Type', prop.roof_type || '—'],
+      ['Building Type', prop.building_type || '—'],
+      ['Stories', prop.stories ? String(prop.stories) : '—'],
+    ];
+
+    const detailTable = {
+      table: {
+        widths: [120, '*'],
+        body: detailRows.map(([label, val]) => [
+          { text: label, bold: true, fontSize: 10 },
+          { text: val, fontSize: 10 },
+        ]),
+      },
+      layout: 'lightHorizontalLines',
+    };
+
+    // Lead score section
+    const scoreSection = scoreData
+      ? [
+          { text: ' ' },
+          { text: 'Lead Score', style: 'sectionHeader' },
+          { text: `${scoreData.score} / 100`, fontSize: 16, bold: true, marginBottom: 6 },
+        ]
+      : [];
+
+    // Storm history table
+    const stormTableBody = [
+      [
+        { text: 'Date', style: 'tableHeader' },
+        { text: 'Type', style: 'tableHeader' },
+        { text: 'Hail Size (in)', style: 'tableHeader' },
+        { text: 'Wind Speed (mph)', style: 'tableHeader' },
+        { text: 'Source', style: 'tableHeader' },
+      ],
+    ];
+
+    for (const ev of storms) {
+      const date = ev.event_start ? new Date(ev.event_start).toLocaleDateString('en-US') : '—';
+      const types = [];
+      if (ev.hail_size_max_in && Number(ev.hail_size_max_in) > 0) types.push('Hail');
+      if (ev.wind_speed_max_mph && Number(ev.wind_speed_max_mph) > 0) types.push('Wind');
+      if (ev.raw_data?.event_type?.toLowerCase().includes('tornado')) types.push('Tornado');
+      if (types.length === 0) types.push(ev.source || 'Storm');
+
+      stormTableBody.push([
+        date,
+        types.join(', '),
+        ev.hail_size_max_in ? String(ev.hail_size_max_in) : '—',
+        ev.wind_speed_max_mph ? String(ev.wind_speed_max_mph) : '—',
+        ev.source || '—',
+      ]);
+    }
+
+    const stormSection = storms.length > 0
+      ? {
+          table: {
+            headerRows: 1,
+            widths: ['auto', 'auto', 'auto', 'auto', 'auto'],
+            body: stormTableBody,
+          },
+          layout: 'lightHorizontalLines',
+        }
+      : { text: 'No storm events found near this property.', italics: true };
+
+    const docDefinition = {
+      defaultStyle: { font: 'Helvetica', fontSize: 10 },
+      content: [
+        { text: 'Property Report', style: 'header' },
+        { text: fullAddress, style: 'subheader' },
+        { text: ' ' },
+        { text: 'Property Details', style: 'sectionHeader' },
+        detailTable,
+        ...scoreSection,
+        { text: ' ' },
+        { text: 'Storm History', style: 'sectionHeader' },
+        { text: `${storms.length} storm event${storms.length !== 1 ? 's' : ''} within 5 miles (most recent 30)`, style: 'meta' },
+        stormSection,
+        { text: ' ' },
+        { text: `Generated on ${new Date().toLocaleDateString('en-US')} by StormLeads`, style: 'footer' },
+      ],
+      styles: {
+        header: { fontSize: 20, bold: true, marginBottom: 4 },
+        subheader: { fontSize: 12, color: '#555', marginBottom: 2 },
+        sectionHeader: { fontSize: 14, bold: true, marginBottom: 6, marginTop: 4 },
+        meta: { fontSize: 10, color: '#888', marginBottom: 10 },
+        tableHeader: { bold: true, fontSize: 10, fillColor: '#f0f0f0' },
+        footer: { fontSize: 8, color: '#999', marginTop: 20 },
+      },
+    };
+
+    const pdfDoc = printer.createPdfKitDocument(docDefinition);
+
+    const chunks = [];
+    pdfDoc.on('data', chunk => chunks.push(chunk));
+    pdfDoc.on('end', () => {
+      const pdfBuffer = Buffer.concat(chunks);
+      const safeAddr = (prop.address_line1 || 'property').replace(/[^a-zA-Z0-9]/g, '-').substring(0, 50);
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="property-report-${safeAddr}.pdf"`,
+        'Content-Length': pdfBuffer.length,
+      });
+      res.send(pdfBuffer);
+    });
+    pdfDoc.end();
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;
