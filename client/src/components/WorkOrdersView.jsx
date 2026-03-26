@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { getWorkOrders, createWorkOrder, createWorkOrderFromEstimate, updateWorkOrder, completeWorkOrder, getTeamMembers, getWorkOrderMilestones, updateWorkOrderMilestone } from '../api/crm';
 import { getEstimates } from '../api/estimates';
+import { uploadDocument } from '../api/documents';
 import { showToast } from './Toast';
 import { IconPlusCircle, IconX, IconRefresh } from './Icons';
 import { CheckCircleIcon, CameraIcon } from '@heroicons/react/24/outline';
@@ -64,6 +65,46 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
   const [saving, setSaving] = useState(false);
   const [milestones, setMilestones] = useState([]);
   const [milestonesLoading, setMilestonesLoading] = useState(true);
+  const [uploadingMilestoneId, setUploadingMilestoneId] = useState(null);
+  const photoInputRef = useRef(null);
+  const activeMilestoneRef = useRef(null);
+
+  const handlePhotoUpload = async (milestoneId) => {
+    activeMilestoneRef.current = milestoneId;
+    photoInputRef.current?.click();
+  };
+
+  const handleFileSelected = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const milestoneId = activeMilestoneRef.current;
+    if (!milestoneId) return;
+
+    setUploadingMilestoneId(milestoneId);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('lead_id', wo.lead_id || '');
+      formData.append('category', 'milestone_photo');
+      formData.append('description', `Work order milestone photo`);
+
+      const uploadRes = await uploadDocument(formData);
+      const photoUrl = uploadRes.data?.url || uploadRes.data?.file_url;
+
+      if (photoUrl) {
+        const res = await updateWorkOrderMilestone(wo.id, milestoneId, { photo_url: photoUrl });
+        setMilestones(prev => prev.map(m => m.id === milestoneId ? { ...m, photo_url: photoUrl, ...res.data } : m));
+        showToast('Photo uploaded successfully');
+      } else {
+        showToast('Upload succeeded but no URL returned', 'error');
+      }
+    } catch (err) {
+      showToast('Failed to upload photo', 'error');
+    } finally {
+      setUploadingMilestoneId(null);
+      if (photoInputRef.current) photoInputRef.current.value = '';
+    }
+  };
 
   useEffect(() => {
     getWorkOrderMilestones(wo.id)
@@ -283,24 +324,42 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
                       </span>
                     )}
                     {m.photo_url && (
-                      <img src={m.photo_url} alt="" style={{ width: 24, height: 24, borderRadius: 4, objectFit: 'cover' }} />
+                      <a href={m.photo_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
+                        <img src={m.photo_url} alt="Milestone photo" style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover', border: '1px solid var(--glass-border)' }} />
+                      </a>
                     )}
                     <button
-                      title="Add photo (coming soon)"
+                      title={m.photo_url ? 'Replace photo' : 'Upload milestone photo'}
+                      disabled={uploadingMilestoneId === m.id}
                       style={{
                         background: 'none', border: 'none', cursor: 'pointer',
-                        color: 'var(--text-muted)', display: 'flex', alignItems: 'center',
-                        opacity: 0.5, padding: 2,
+                        color: uploadingMilestoneId === m.id ? 'var(--accent-blue)' : m.photo_url ? 'oklch(0.75 0.18 155)' : 'var(--text-muted)',
+                        display: 'flex', alignItems: 'center',
+                        opacity: uploadingMilestoneId === m.id ? 1 : 0.7, padding: 2,
                       }}
-                      onClick={(e) => { e.stopPropagation(); showToast('Photo upload coming soon', 'info'); }}
+                      onClick={(e) => { e.stopPropagation(); handlePhotoUpload(m.id); }}
                     >
-                      <CameraIcon width={14} height={14} />
+                      {uploadingMilestoneId === m.id ? (
+                        <span style={{ fontSize: 10, fontWeight: 600 }}>...</span>
+                      ) : (
+                        <CameraIcon width={14} height={14} />
+                      )}
                     </button>
                   </div>
                 ))}
               </div>
             </div>
           )}
+
+          {/* Hidden file input for milestone photo upload */}
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            style={{ display: 'none' }}
+            onChange={handleFileSelected}
+          />
 
           {/* Lead link */}
           {wo.lead_id && (
