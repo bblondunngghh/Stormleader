@@ -453,7 +453,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                   position: 'absolute', top: '100%', left: 0, marginTop: 4, zIndex: 50,
                   background: 'oklch(0.18 0.02 260)', border: '1px solid oklch(0.30 0.02 260)',
                   borderRadius: 8, padding: 4, minWidth: 100,
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                  boxShadow: '0 8px 24px oklch(0 0 0 / 0.5)',
                 }}>
                   {['hot', 'warm', 'cold'].map(p => (
                     <button key={p} onClick={() => { handlePriorityChange({ target: { value: p } }); setOpenDropdown(null); }}
@@ -493,7 +493,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                   position: 'absolute', top: '100%', left: 0, marginTop: 4, zIndex: 50,
                   background: 'oklch(0.18 0.02 260)', border: '1px solid oklch(0.30 0.02 260)',
                   borderRadius: 8, padding: 4, minWidth: 140,
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                  boxShadow: '0 8px 24px oklch(0 0 0 / 0.5)',
                   maxHeight: 280, overflowY: 'auto',
                 }}>
                   {stageKeys.map(k => (
@@ -661,7 +661,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                       position: 'absolute', top: '100%', left: 0, marginTop: 8, zIndex: 100,
                       background: 'oklch(0.14 0.02 260)', border: '1px solid oklch(0.30 0.02 260)',
                       borderRadius: 10, padding: '16px 18px', width: 340,
-                      boxShadow: '0 12px 40px rgba(0,0,0,0.6)', fontSize: 12, lineHeight: 1.6,
+                      boxShadow: '0 12px 40px oklch(0 0 0 / 0.6)', fontSize: 12, lineHeight: 1.6,
                       color: 'var(--text-secondary)',
                     }}>
                       <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--text-primary)', marginBottom: 10 }}>
@@ -1002,7 +1002,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                         position: 'absolute', top: '100%', left: 0, marginTop: 4, zIndex: 50,
                         background: 'oklch(0.18 0.02 260)', border: '1px solid oklch(0.30 0.02 260)',
                         borderRadius: 8, padding: 4, minWidth: 140,
-                        boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                        boxShadow: '0 8px 24px oklch(0 0 0 / 0.5)',
                       }}>
                         {['Composition', 'Asphalt', 'Metal', 'Slate', 'Tile', 'Wood', 'Built-Up'].map(t => (
                           <button key={t} onClick={async () => {

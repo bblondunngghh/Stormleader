@@ -344,7 +344,7 @@ function ToggleSwitch({ checked, onChange }) {
       height={24}
       width={44}
       borderRadius={12}
-      activeBoxShadow="0 0 2px 3px rgba(74, 125, 255, 0.3)"
+      activeBoxShadow="0 0 2px 3px oklch(0.60 0.18 260 / 0.3)"
     />
   );
 }

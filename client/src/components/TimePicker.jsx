@@ -59,7 +59,7 @@ export default function TimePicker({ value, onChange, placeholder }) {
           position: 'absolute', top: '100%', left: 0, marginTop: 4, zIndex: 200,
           background: 'oklch(0.18 0.02 260)', border: '1px solid oklch(0.30 0.02 260)',
           borderRadius: 12, padding: 4, minWidth: '100%', width: 'max-content',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+          boxShadow: '0 8px 24px oklch(0 0 0 / 0.5)',
           maxHeight: 240, overflowY: 'auto',
         }}>
           {timeOptions.map(o => (

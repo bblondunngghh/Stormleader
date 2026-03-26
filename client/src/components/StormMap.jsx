@@ -852,8 +852,8 @@ export default function StormMap() {
     if (zoom < 14) return;
     // Skip if no storm swaths loaded at all
     if (stormFeaturesRef.current.length === 0) return;
-    // Global cap: don't load more than 2000 FEMA points total (prevents memory bloat)
-    if (femaCountRef.current >= 2000) return;
+    // Global cap: don't load more than 10000 FEMA points total (prevents memory bloat)
+    if (femaCountRef.current >= 10000) return;
 
     const bounds = map.getBounds();
     if (!bounds) return;
@@ -900,7 +900,7 @@ export default function StormMap() {
 
     for (const swath of visibleSwaths) {
       if (femaAbort.signal.aborted) break;
-      if (femaCountRef.current + allNewFema.length >= 2000) break;
+      if (femaCountRef.current + allNewFema.length >= 10000) break;
 
       try {
         // Send swath polygon directly to server — server filters with point-in-polygon
@@ -917,7 +917,7 @@ export default function StormMap() {
         let added = 0;
         for (const f of femaFeatures) {
           if (added >= MAX_FEMA_PER_SWATH) break;
-          if (femaCountRef.current + allNewFema.length >= 2000) break;
+          if (femaCountRef.current + allNewFema.length >= 10000) break;
           const pid = f.id;
           if (propIdSetRef.current.has(pid)) continue;
           const [fLng, fLat] = f.geometry.coordinates;
@@ -2278,7 +2278,7 @@ export default function StormMap() {
       },
       mapGradientOverlay: {
         position: 'absolute', inset: 0, pointerEvents: 'none',
-        background: 'linear-gradient(to top right, rgba(13,19,33,0.4), transparent)',
+        background: 'linear-gradient(to top right, oklch(0.10 0.02 260 / 0.4), transparent)',
         zIndex: 2,
       },
       floatingPanel: {
@@ -2286,7 +2286,7 @@ export default function StormMap() {
         display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '280px',
       },
       glassCard: {
-        backdropFilter: 'blur(20px)', background: 'rgba(13,19,33,0.7)',
+        backdropFilter: 'blur(20px)', background: 'oklch(0.10 0.02 260 / 0.7)',
         padding: '16px', borderRadius: '12px', borderLeft: '2px solid var(--accent-cyan)',
         boxShadow: '0 4px 20px oklch(0 0 0 / 0.3)',
       },
@@ -2312,9 +2312,9 @@ export default function StormMap() {
         display: 'flex', gap: '8px',
       },
       layerBtnBase: {
-        backdropFilter: 'blur(12px)', background: 'rgba(36,42,57,0.8)',
+        backdropFilter: 'blur(12px)', background: 'oklch(0.18 0.02 260 / 0.8)',
         padding: '8px 12px', borderRadius: '8px', border: 'none',
-        borderBottom: '1px solid rgba(132,147,150,0.3)',
+        borderBottom: '1px solid oklch(0.60 0.01 200 / 0.3)',
         display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer',
         color: 'var(--text-primary)',
       },
@@ -2344,7 +2344,7 @@ export default function StormMap() {
       },
       statCard: {
         background: 'var(--bg-surface)', padding: '16px', borderRadius: '12px',
-        borderBottom: '1px solid rgba(59,73,76,0.1)',
+        borderBottom: '1px solid oklch(0.35 0.02 180 / 0.1)',
       },
       statLabel: {
         fontFamily: 'inherit', fontSize: '10px', color: 'var(--text-muted)',
@@ -2388,7 +2388,7 @@ export default function StormMap() {
         color: 'oklch(0.25 0.06 200)', border: 'none', borderRadius: '12px',
         fontFamily: 'inherit', fontWeight: 700,
         textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '14px',
-        boxShadow: '0 4px 20px rgba(0,229,255,0.2)', cursor: 'pointer',
+        boxShadow: '0 4px 20px oklch(0.82 0.15 200 / 0.2)', cursor: 'pointer',
       },
     };
 
@@ -2606,12 +2606,15 @@ export default function StormMap() {
               <span>Loading storms…</span>
             </div>
           )}
-          <SwathPropertyProgress state={swathProgress} />
-          {femaLoading && (
-            <div className="fema-loading-bar glass">
-              <span>Fetching FEMA property records<span className="loading-dots"><span>.</span><span>.</span><span>.</span></span></span>
-            </div>
-          )}
+          {/* Loading indicators — stacked below transparency slider, slide up when one finishes */}
+          <div className="map-loading-stack">
+            <SwathPropertyProgress state={swathProgress} />
+            {femaLoading && (
+              <div className="fema-loading-bar glass">
+                <span>Fetching FEMA property records<span className="loading-dots"><span>.</span><span>.</span><span>.</span></span></span>
+              </div>
+            )}
+          </div>
 
           <div className="map-legends">
             <div className="map-legend glass">
