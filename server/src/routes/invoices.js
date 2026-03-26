@@ -2,6 +2,7 @@ import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
 import * as invoiceService from '../services/invoiceService.js';
+import pool from '../db/pool.js';
 
 const router = Router();
 router.use(authenticate);
@@ -85,6 +86,69 @@ router.post('/:id/send', async (req, res, next) => {
     if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
     res.json(invoice);
   } catch (err) {
+    next(err);
+  }
+});
+
+// Send invoice via email
+router.post('/:id/send-email', async (req, res, next) => {
+  try {
+    const { to } = req.body;
+    if (!to) return res.status(400).json({ error: 'Recipient email required' });
+
+    // Get invoice + tenant info
+    const { rows: [inv] } = await pool.query(
+      `SELECT i.*, t.name AS company_name, t.sender_email, t.branding, t.company_phone
+       FROM invoices i JOIN tenants t ON t.id = i.tenant_id
+       WHERE i.id = $1 AND i.tenant_id = $2`,
+      [req.params.id, req.tenantId]
+    );
+    if (!inv) return res.status(404).json({ error: 'Invoice not found' });
+
+    const branding = inv.branding || {};
+    const { getTenantTransporter } = await import('../services/emailService.js');
+    const transporter = getTenantTransporter(branding);
+    if (!transporter) return res.status(400).json({ error: 'Email not configured. Set up SMTP in Settings first.' });
+
+    const from = branding.smtp_from || inv.sender_email || '"StormLeads" <noreply@stormleads.io>';
+    const total = Number(inv.total || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    const dueDate = inv.due_date ? new Date(inv.due_date).toLocaleDateString() : 'Upon receipt';
+    const companyName = inv.company_name || 'Your Contractor';
+
+    await transporter.sendMail({
+      from,
+      to,
+      subject: `Invoice ${inv.invoice_number} from ${companyName} — ${total}`,
+      html: `<div style="font-family: -apple-system, sans-serif; max-width: 540px; margin: 0 auto; padding: 32px;">
+        <h2 style="margin: 0 0 8px;">Invoice ${inv.invoice_number}</h2>
+        <p style="color: #555; font-size: 15px; margin: 0 0 24px;">From <strong>${companyName}</strong></p>
+        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+            <span style="color: #666;">Amount Due</span>
+            <span style="font-size: 20px; font-weight: 700; color: #1a1a2e;">${total}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: #666;">Due Date</span>
+            <span style="font-weight: 600;">${dueDate}</span>
+          </div>
+        </div>
+        ${inv.notes ? `<p style="color: #555; font-size: 14px; line-height: 1.6;">${inv.notes}</p>` : ''}
+        <p style="color: #888; font-size: 12px; margin-top: 32px;">
+          Questions? Contact ${companyName}${inv.company_phone ? ` at ${inv.company_phone}` : ''}.
+        </p>
+      </div>`,
+    });
+
+    // Mark as sent if still draft
+    if (inv.status === 'draft') {
+      await invoiceService.sendInvoice(req.tenantId, req.params.id);
+    }
+
+    res.json({ success: true, message: `Invoice sent to ${to}` });
+  } catch (err) {
+    if (err.code === 'ECONNREFUSED' || err.code === 'ESOCKET' || err.responseCode) {
+      return res.status(400).json({ error: `Email delivery failed: ${err.message}` });
+    }
     next(err);
   }
 });

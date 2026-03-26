@@ -929,7 +929,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="main-content lg-dashboard">
+    <div className="main-content lg-dashboard no-scrollbar">
       {/* ── Header — Desktop ── */}
       <header className="flex items-end justify-between gap-6 flex-wrap py-1">
         <div>

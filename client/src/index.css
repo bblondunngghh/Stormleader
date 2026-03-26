@@ -3829,10 +3829,11 @@ input[type="checkbox"]:checked::after {
 
 .calendar-view .fc .fc-col-header-cell-cushion {
   color: oklch(0.75 0 0);
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
   text-transform: capitalize;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
+  padding: 12px 8px;
   padding: 10px 4px;
 }
 

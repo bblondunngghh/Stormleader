@@ -159,7 +159,7 @@ export default function InvoicesView() {
           ))}
         </div>
         <span style={{ fontSize: 12, color: 'var(--text-muted)', flex: 1 }}>{total} invoice{total !== 1 ? 's' : ''}</span>
-        <button className="auth-btn" onClick={() => setShowEstimatePicker(true)} style={{ display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap', background: 'oklch(0.3 0.02 260)', border: '1px solid oklch(0.4 0.04 260)' }}>
+        <button className="quick-action-btn" onClick={() => setShowEstimatePicker(true)} style={{ display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap', height: 36, padding: '0 16px', borderRadius: '14px / 12px', fontSize: 13, fontWeight: 600 }}>
           <IconFileText style={{ width: 14, height: 14 }} /> From Estimate
         </button>
         <button className="auth-btn" onClick={handleNew} style={{ display: 'flex', alignItems: 'center', gap: 5, whiteSpace: 'nowrap' }}>
@@ -428,13 +428,28 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
     }
   };
 
+  const [showSendModal, setShowSendModal] = useState(false);
+  const [sendEmail, setSendEmail] = useState('');
+  const [sending, setSending] = useState(false);
+
   const handleSend = async () => {
+    // Pre-fill email from lead data if available
+    setSendEmail(invoice.customer_email || invoice.lead_email || '');
+    setShowSendModal(true);
+  };
+
+  const handleSendEmail = async () => {
+    if (!sendEmail) return;
+    setSending(true);
     try {
-      await invoicesApi.sendInvoice(invoice.id);
-      showToast('Invoice marked as sent', 'success');
+      await client.post(`/invoices/${invoice.id}/send-email`, { to: sendEmail });
+      showToast(`Invoice sent to ${sendEmail}`, 'success');
+      setShowSendModal(false);
       onSave();
-    } catch {
-      showToast('Failed to send invoice', 'error');
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Failed to send invoice', 'error');
+    } finally {
+      setSending(false);
     }
   };
 
@@ -467,9 +482,9 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
           }}>{statusLabels[invoice.status]}</span>
         )}
         <div style={{ flex: 1 }} />
-        {isEdit && invoice.status === 'draft' && (
+        {isEdit && ['draft', 'sent', 'viewed'].includes(invoice.status) && (
           <button className="auth-btn" onClick={handleSend} style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'oklch(0.35 0.12 220)', border: 'none' }}>
-            <IconSend style={{ width: 14, height: 14 }} /> Mark Sent
+            <IconSend style={{ width: 14, height: 14 }} /> Send Invoice
           </button>
         )}
         {isEdit && ['sent', 'viewed', 'overdue'].includes(invoice.status) && (
@@ -680,6 +695,41 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
           onClose={() => setShowPaymentModal(false)}
           onRecorded={onSave}
         />
+      )}
+
+      {showSendModal && (
+        <div className="modal-backdrop" onClick={() => setShowSendModal(false)} style={{ position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.5)', backdropFilter: 'blur(4px)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="glass" onClick={e => e.stopPropagation()} style={{
+            width: 400, borderRadius: '20px / 18px', padding: 24,
+            boxShadow: '0 24px 80px oklch(0 0 0 / 0.5), inset 0 1px 0 oklch(1 0 0 / 0.06)',
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Send Invoice</h3>
+              <button onClick={() => setShowSendModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 18 }}>&times;</button>
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12 }}>
+              Send <strong>{invoice.invoice_number}</strong> for <strong>${Number(invoice.total || 0).toLocaleString()}</strong> to the customer.
+            </div>
+            <div className="form-group" style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>Recipient Email</label>
+              <input
+                className="form-input"
+                type="email"
+                placeholder="customer@example.com"
+                value={sendEmail}
+                onChange={e => setSendEmail(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && sendEmail) handleSendEmail(); }}
+                autoFocus
+              />
+            </div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button className="quick-action-btn" onClick={() => setShowSendModal(false)} style={{ padding: '8px 16px', fontSize: 13 }}>Cancel</button>
+              <button className="auth-btn" onClick={handleSendEmail} disabled={sending || !sendEmail} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <IconSend style={{ width: 14, height: 14 }} /> {sending ? 'Sending...' : 'Send'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -84,7 +84,7 @@ export default function CreateLeadModal({ onClose, onCreated }) {
         }}
       />
       <div className="glass" style={{
-        position: 'fixed', top: '50%', left: '50%',
+        position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
         zIndex: 301,
         width: 440, overflow: 'visible',
         borderRadius: '20px / 18px',
