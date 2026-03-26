@@ -105,7 +105,7 @@ function GlassCard({ children, className = '', onClick, style }) {
 
 
 /* ── Pipeline Bars ────────────────────────────────────────── */
-function PipelineBars({ funnel, onClick }) {
+function PipelineBars({ funnel, onStageClick }) {
   const [animated, setAnimated] = useState(false);
   const maxCount = Math.max(...funnel.map(r => r.count), 1);
 
@@ -115,11 +115,11 @@ function PipelineBars({ funnel, onClick }) {
   }, []);
 
   return (
-    <div className="flex flex-col gap-[6px] flex-1 justify-evenly cursor-pointer" onClick={onClick}>
+    <div className="flex flex-col gap-[6px] flex-1 justify-evenly">
       {funnel.map((row, i) => {
         const pct = (row.count / maxCount) * 100;
         return (
-          <div key={row.stage} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div key={row.stage} onClick={() => onStageClick(row.stage)} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} className="rounded-md hover:bg-[oklch(1_0_0/0.03)] transition-colors px-1 -mx-1">
             <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', width: 90, flexShrink: 0 }}>{row.stage}</span>
             <div style={{
               flex: 1, height: 18, borderRadius: 6, overflow: 'hidden',
@@ -998,7 +998,7 @@ export default function Dashboard() {
           {funnel.length === 0 ? (
             <div className="text-xs text-[var(--text-muted)] py-5 text-center">No pipeline data yet</div>
           ) : (
-            <PipelineBars funnel={funnel} onClick={() => navigate('/pipeline')} />
+            <PipelineBars funnel={funnel} onStageClick={(stage) => navigate(`/leads?stage=${stage}`)} />
           )}
         </Panel>
 
@@ -1080,8 +1080,8 @@ export default function Dashboard() {
                 {tasksToday.map(task => {
                   const isOverdue = task.due_date && new Date(task.due_date) < new Date();
                   return (
-                    <div key={task.id} className="flex items-center gap-2.5 py-2 px-1 text-xs border-b border-[oklch(0.22_0.015_265/0.15)] rounded-md">
-                      <button className="w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0" onClick={() => handleToggleTask(task)}
+                    <div key={task.id} className="flex items-center gap-2.5 py-2 px-1 text-xs border-b border-[oklch(0.22_0.015_265/0.15)] rounded-md hover:bg-[oklch(1_0_0/0.03)] transition-colors" style={{ cursor: task.lead_id ? 'pointer' : undefined }} onClick={() => task.lead_id && navigate(`/leads/${task.lead_id}`)}>
+                      <button className="w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0" onClick={(e) => { e.stopPropagation(); handleToggleTask(task); }}
                         style={{ borderColor: isOverdue ? 'var(--accent-red)' : undefined }} />
                       <div className="flex-1 min-w-0 flex flex-col">
                         <span className={`text-[var(--text-secondary)] font-medium truncate${isOverdue ? ' text-[var(--accent-red)] font-[620]' : ''}`}>{task.title}</span>
@@ -1102,7 +1102,7 @@ export default function Dashboard() {
                 {followups.map((fu, idx) => {
                   const isOverdue = fu.follow_up_at && new Date(fu.follow_up_at) < new Date();
                   return (
-                    <div key={fu.id || idx} className="flex items-center gap-2.5 py-2 px-1 text-xs border-b border-[oklch(0.22_0.015_265/0.15)] rounded-md">
+                    <div key={fu.id || idx} className="flex items-center gap-2.5 py-2 px-1 text-xs border-b border-[oklch(0.22_0.015_265/0.15)] rounded-md hover:bg-[oklch(1_0_0/0.03)] transition-colors" style={{ cursor: 'pointer' }} onClick={() => fu.id && navigate(`/leads/${fu.id}`)}>
                       <div className="w-[7px] h-[7px] rounded-full shrink-0" style={{ background: isOverdue ? 'var(--accent-red)' : 'oklch(0.72 0.16 45)', boxShadow: `0 0 6px ${isOverdue ? 'var(--accent-red)' : 'oklch(0.72 0.16 45 / 0.5)'}` }} />
                       <div className="flex-1 min-w-0 flex flex-col">
                         <span className={`text-[var(--text-secondary)] font-medium truncate${isOverdue ? ' text-[var(--accent-red)] font-[620]' : ''}`}>{fu.contact_name || 'Unknown'}</span>
@@ -1128,7 +1128,7 @@ export default function Dashboard() {
               const dotColorMap = { sold: 'var(--accent-green)', estimate: 'var(--accent-purple)', appointment: 'var(--accent-amber)', lead: 'var(--accent-blue)', inspection: 'var(--accent-cyan)', call: 'var(--text-muted)' };
               const dotColor = dotColorMap[item.type] || 'var(--text-muted)';
               return (
-                <div key={item.id} className="flex items-start gap-2.5 py-[7px] px-1 rounded-md">
+                <div key={item.id} className="flex items-start gap-2.5 py-[7px] px-1 rounded-md hover:bg-[oklch(1_0_0/0.03)] transition-colors" style={{ cursor: item.lead_id ? 'pointer' : undefined }} onClick={() => item.lead_id && navigate(`/leads/${item.lead_id}`)}>
                   <span className="w-[7px] h-[7px] rounded-full shrink-0 mt-[5px]" style={{ background: dotColor, boxShadow: `0 0 6px ${dotColor}` }} />
                   <span className="text-xs text-[var(--text-secondary)] leading-[1.4] flex-1">{item.text}</span>
                   <span className="text-[10px] text-[var(--text-muted)] shrink-0 mt-px">{item.time}</span>
@@ -1237,7 +1237,7 @@ export default function Dashboard() {
               </tr></thead>
               <tbody>
                 {leaderboard.map((rep, idx) => (
-                  <tr key={rep.id}>
+                  <tr key={rep.id} className="cursor-pointer hover:bg-[oklch(1_0_0/0.03)] transition-colors" onClick={() => navigate(`/leads?assigned_rep=${rep.id}`)}>
                     <td className={`text-center py-2.5 px-2.5 text-[var(--text-secondary)] !text-left font-[620] !text-[var(--text-primary)]${idx < leaderboard.length - 1 ? ' border-b border-[oklch(0.18_0.015_265/0.08)]' : ''}`}>{rep.first_name} {rep.last_name}</td>
                     <td className={`text-center py-2.5 px-2.5 text-[var(--text-secondary)]${idx < leaderboard.length - 1 ? ' border-b border-[oklch(0.18_0.015_265/0.08)]' : ''}`}>{rep.leads_assigned}</td>
                     <td className={`text-center py-2.5 px-2.5 text-[var(--text-secondary)]${idx < leaderboard.length - 1 ? ' border-b border-[oklch(0.18_0.015_265/0.08)]' : ''}`}>{rep.contacted}</td>

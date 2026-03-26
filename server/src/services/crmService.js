@@ -586,6 +586,7 @@ export async function getRecentActivity(tenantId, limit = 15) {
 
     return {
       id: r.id,
+      lead_id: r.lead_id,
       type: typeMap[r.type] || 'lead',
       text: `${name} — ${action}`,
       time: formatRelativeTime(r.created_at),
