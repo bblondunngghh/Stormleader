@@ -1,5 +1,11 @@
 import client from './client';
 
+export const getStormHistory = (lat, lng, { radius = 5, years = 5 } = {}) =>
+  client.get('/storm-history', { params: { lat, lng, radius, years } });
+
+export const getHailHeatmap = (west, south, east, north, { years = 10 } = {}) =>
+  client.get('/storm-history/heatmap', { params: { bbox: `${west},${south},${east},${north}`, years } });
+
 export const getSwaths = ({ west, south, east, north, ...rest }) =>
   client.get('/map/swaths', {
     params: { bbox: `${west},${south},${east},${north}`, ...rest },

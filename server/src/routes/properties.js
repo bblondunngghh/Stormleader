@@ -231,6 +231,23 @@ router.get('/in-swath/:stormEventId', async (req, res, next) => {
   }
 });
 
+// GET /api/properties/reverse-geocode?lat=32.45&lng=-96.78 — Free reverse geocoding (replaces Google)
+router.get('/reverse-geocode', authenticate, async (req, res, next) => {
+  try {
+    const lat = parseFloat(req.query.lat);
+    const lng = parseFloat(req.query.lng);
+    if (isNaN(lat) || isNaN(lng)) return res.status(400).json({ error: 'lat and lng are required' });
+
+    const { reverseGeocode } = await import('../services/censusGeocoderService.js');
+    const result = await reverseGeocode(lat, lng);
+
+    if (!result) return res.json({ matched: false });
+    res.json({ matched: true, ...result });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /api/properties/:id — Single property detail
 router.get('/:id', async (req, res, next) => {
   try {
@@ -261,6 +278,126 @@ router.post('/generate-leads', async (req, res, next) => {
       tenantId, stormEventId, propertyIds, assignedRepId
     );
     res.status(201).json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/properties/geocode — Server-side geocoding via free Census API (replaces Google Geocoding)
+router.post('/geocode', authenticate, async (req, res, next) => {
+  try {
+    const { address, city, state, zip } = req.body;
+    if (!address) return res.status(400).json({ error: 'address is required' });
+
+    const { geocodeAddress } = await import('../services/censusGeocoderService.js');
+    const result = await geocodeAddress(address, city, state, zip);
+
+    if (!result) return res.json({ matched: false });
+    res.json({ matched: true, ...result });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST /api/properties/import-csv — Batch import leads from CSV with free Census geocoding
+router.post('/import-csv', authenticate, async (req, res, next) => {
+  try {
+    const { rows } = req.body; // Array of { address, city, state, zip, contact_name, contact_phone, contact_email, ... }
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return res.status(400).json({ error: 'rows array is required' });
+    }
+    if (rows.length > 10000) {
+      return res.status(400).json({ error: 'Maximum 10,000 rows per import' });
+    }
+
+    const { batchGeocode } = await import('../services/censusGeocoderService.js');
+
+    // Prepare addresses for batch geocoding
+    const toGeocode = rows.map((row, i) => ({
+      id: String(i),
+      address: row.address || row.address_line1 || '',
+      city: row.city || '',
+      state: row.state || '',
+      zip: row.zip || '',
+    }));
+
+    // Batch geocode all addresses via Census API (free, up to 10k)
+    const geocoded = await batchGeocode(toGeocode);
+
+    // Create properties and leads for matched addresses
+    let created = 0, skipped = 0, failed = 0;
+    const results = [];
+
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const geo = geocoded.get(String(i));
+
+      if (!geo) {
+        skipped++;
+        results.push({ row: i, status: 'no_match', address: row.address || row.address_line1 });
+        continue;
+      }
+
+      try {
+        // Check for existing property at these coordinates
+        const { rows: existing } = await pool.query(
+          `SELECT id FROM properties
+           WHERE ST_DWithin(location, ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography, 20)
+           LIMIT 1`,
+          [geo.lng, geo.lat]
+        );
+
+        let propertyId;
+        if (existing.length > 0) {
+          propertyId = existing[0].id;
+        } else {
+          // Create property
+          const { rows: newProp } = await pool.query(
+            `INSERT INTO properties (address_line1, city, state, zip, location, data_source)
+             VALUES ($1, $2, $3, $4, ST_SetSRID(ST_MakePoint($5, $6), 4326), 'csv_import')
+             RETURNING id`,
+            [row.address || row.address_line1, row.city, row.state, row.zip, geo.lng, geo.lat]
+          );
+          propertyId = newProp[0].id;
+        }
+
+        // Create lead
+        const { rows: existingLead } = await pool.query(
+          `SELECT id FROM leads WHERE tenant_id = $1 AND property_id = $2 AND deleted_at IS NULL LIMIT 1`,
+          [req.tenantId, propertyId]
+        );
+
+        if (existingLead.length > 0) {
+          results.push({ row: i, status: 'duplicate', leadId: existingLead[0].id });
+          skipped++;
+        } else {
+          const { rows: newLead } = await pool.query(
+            `INSERT INTO leads (tenant_id, property_id, stage, priority, source,
+              contact_name, contact_phone, contact_email, address, city)
+             VALUES ($1, $2, 'new', 'warm', 'csv_import', $3, $4, $5, $6, $7)
+             RETURNING id`,
+            [req.tenantId, propertyId,
+              row.contact_name || null, row.contact_phone || null, row.contact_email || null,
+              row.address || row.address_line1 || null, row.city || null]
+          );
+          results.push({ row: i, status: 'created', leadId: newLead[0].id });
+          created++;
+        }
+      } catch (err) {
+        logger.error({ err, row: i }, 'CSV import row failed');
+        results.push({ row: i, status: 'error', error: err.message });
+        failed++;
+      }
+    }
+
+    res.json({
+      total: rows.length,
+      geocoded: geocoded.size,
+      created,
+      skipped,
+      failed,
+      results,
+    });
   } catch (err) {
     next(err);
   }

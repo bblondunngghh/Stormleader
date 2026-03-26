@@ -7,7 +7,6 @@ import CustomSelect from './CustomSelect';
 import DatePicker from './DatePicker';
 import { showToast } from './Toast';
 import { BanknotesIcon, DocumentCheckIcon, ClockIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
-import useIsMobile from '../hooks/useIsMobile';
 
 const statusColors = {
   draft: 'oklch(0.6 0 0)',
@@ -57,7 +56,7 @@ export default function InvoicesView() {
 
   useEffect(() => { fetchInvoices(); }, [fetchInvoices]);
 
-  const isMobile = useIsMobile();
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
 
   const totalValue = invoices.reduce((s, inv) => s + Number(inv.total || 0), 0);
   const paidValue = invoices.filter(i => i.status === 'paid').reduce((s, inv) => s + Number(inv.total || 0), 0);
@@ -744,22 +743,13 @@ function PaymentModal({ invoice, onClose, onRecorded }) {
           <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>Payment Amount</label>
           <input
             type="number"
+            className="form-input"
             value={amount}
             onChange={e => setAmount(e.target.value)}
             min="0"
             step="0.01"
             autoFocus
-            style={{
-              background: 'oklch(0.18 0.02 260)',
-              border: '1px solid oklch(0.3 0.03 260)',
-              borderRadius: 10,
-              padding: '12px 14px',
-              color: 'var(--text-primary)',
-              fontSize: 16,
-              fontWeight: 700,
-              width: '100%',
-              outline: 'none',
-            }}
+            style={{ fontSize: 16, fontWeight: 700, height: 44 }}
           />
         </div>
 

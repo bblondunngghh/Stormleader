@@ -1497,6 +1497,15 @@ ul, ol { list-style: none; }
   100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 218, 243, 0); }
 }
 
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 4px oklch(0.70 0.18 300 / 0.4), inset 0 0 2px oklch(0.70 0.18 300 / 0.2); }
+  50% { box-shadow: 0 0 14px oklch(0.70 0.18 300 / 0.8), inset 0 0 4px oklch(0.70 0.18 300 / 0.4); }
+}
+
+.fema-house-num {
+  animation: pulse-glow 1.5s ease-in-out infinite !important;
+}
+
 /* ============================================================
    LEAD DETAIL SLIDE-OVER
    ============================================================ */
@@ -2370,30 +2379,43 @@ select option {
 /* Offset map controls so they clear the floating sidebar + topbar
    App padding (12px) + sidebar width (240px) + gap (12px) + control margin */
 .storm-map-fullbleed .map-top-bar {
-  left: calc(var(--space-md) + 240px + var(--space-md) + var(--space-lg));
-  top: calc(var(--space-md) + 56px + var(--space-md) + var(--space-lg));
+  left: calc(var(--space-md) + 240px + var(--space-md));
+  top: calc(56px + 24px);
 }
 
 .storm-map-fullbleed .map-controls__layers {
-  left: calc(var(--space-md) + 240px + var(--space-md) + var(--space-lg));
-  top: calc(var(--space-md) + 56px + var(--space-md) + var(--space-lg) + 52px);
+  left: calc(var(--space-md) + 240px + var(--space-md));
+  top: calc(56px + 24px + 52px);
+}
+
+.map-transparency-bar {
+  top: calc(var(--space-lg) + 48px + 6px);
+  right: var(--space-lg);
+}
+
+.storm-map-fullbleed .map-transparency-bar {
+  top: calc(56px + 24px + 44px + 8px);
+}
+
+.sidebar--collapsed ~ .storm-map-fullbleed .map-transparency-bar {
+  /* follows the same right edge — no left override needed */
 }
 
 .storm-map-fullbleed .map-legends {
-  left: calc(var(--space-md) + 240px + var(--space-md) + var(--space-lg));
+  left: calc(var(--space-md) + 240px + var(--space-md));
 }
 
 /* When sidebar is collapsed, reduce the offset */
 .sidebar--collapsed ~ .storm-map-fullbleed .map-top-bar {
-  left: calc(var(--space-md) + 68px + var(--space-md) + var(--space-lg));
+  left: calc(var(--space-md) + 68px + var(--space-md));
 }
 
 .sidebar--collapsed ~ .storm-map-fullbleed .map-controls__layers {
-  left: calc(var(--space-md) + 68px + var(--space-md) + var(--space-lg));
+  left: calc(var(--space-md) + 68px + var(--space-md));
 }
 
 .sidebar--collapsed ~ .storm-map-fullbleed .map-legends {
-  left: calc(var(--space-md) + 68px + var(--space-md) + var(--space-lg));
+  left: calc(var(--space-md) + 68px + var(--space-md));
 }
 
 .storm-map-container {
@@ -3288,13 +3310,9 @@ select option {
   background: transparent !important;
 }
 
-/* Arrow tail — apply glass effect to the parent with clip-path so backdrop-filter works */
+/* Arrow tail — hide the InfoWindow triangle pointer entirely */
 .gm-style .gm-style-iw-tc {
-  filter: none !important;
-  background: oklch(0.15 0.015 260 / 0.45) !important;
-  backdrop-filter: blur(24px) saturate(1.4) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(1.4) !important;
-  clip-path: polygon(0 0, 50% 100%, 100% 0) !important;
+  display: none !important;
 }
 .gm-style .gm-style-iw-tc::after {
   display: none !important;

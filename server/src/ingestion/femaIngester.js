@@ -11,11 +11,24 @@ const RATE_LIMIT_MS = 300;
  */
 export async function fetchByBbox(bbox) {
   const { xmin, ymin, xmax, ymax } = bbox;
-  // NSI bbox is a closed polygon ring: sw, nw, ne, se, sw
-  const bboxParam = `${xmin},${ymin},${xmin},${ymax},${xmax},${ymax},${xmax},${ymin},${xmin},${ymin}`;
-  const url = `${NSI_API}?bbox=${bboxParam}&fmt=fc`;
+  // FEMA NSI API switched to POST-only — convert bbox to polygon geometry
+  const body = {
+    type: 'FeatureCollection',
+    features: [{
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [[[xmin, ymin], [xmin, ymax], [xmax, ymax], [xmax, ymin], [xmin, ymin]]],
+      },
+      properties: {},
+    }],
+  };
 
-  const res = await fetch(url);
+  const res = await fetch(`${NSI_API}?fmt=fc`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
   if (!res.ok) {
     throw new Error(`FEMA NSI API error: ${res.status} ${res.statusText}`);
   }
@@ -37,7 +50,7 @@ export async function fetchByPolygon(geojson) {
     }],
   };
 
-  const res = await fetch(NSI_API, {
+  const res = await fetch(`${NSI_API}?fmt=fc`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -60,7 +73,7 @@ export function filterTexasResidential(features) {
     const fips = p.cbfips || '';
     if (!fips.startsWith('48')) return false;
     // Residential damage category or RES occupancy type
-    const isResidential = p.st_damcat === 'Residential' ||
+    const isResidential = p.st_damcat === 'RES' || p.st_damcat === 'Residential' ||
       (p.occtype && p.occtype.startsWith('RES'));
     return isResidential;
   });

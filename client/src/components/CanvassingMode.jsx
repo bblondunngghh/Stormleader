@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { loadGoogleMaps } from '../lib/googleMaps';
 import { getCanvassPins, createCanvassPin, updateCanvassPin, convertCanvassPin, getCanvassStats } from '../api/crm';
-import useIsMobile from '../hooks/useIsMobile';
 import { MapPinIcon, XMarkIcon, CheckIcon, MapIcon } from '@heroicons/react/24/outline';
 import TerritoryManager from './TerritoryManager';
 
@@ -37,7 +36,7 @@ export default function CanvassingMode() {
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
-  const isMobile = useIsMobile();
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
 
   const [pins, setPins] = useState([]);
   const [stats, setStats] = useState({ total: 0, outcomes: [] });

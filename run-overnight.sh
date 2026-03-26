@@ -119,10 +119,18 @@ Backend: server/ (Node/Express + PostgreSQL)
 CRITICAL CONSTRAINTS:
 1. ZERO paid APIs. Only free public data sources (NOAA, FEMA NSI).
 2. ZERO bulk geocoding. Google geocoding API costs real money.
-3. ZERO bulk DB writes. Production DB is Neon free tier.
+3. ZERO bulk DB writes. Production DB is Neon free tier (0.5 GB storage limit).
 4. Follow existing patterns: oklch colors, .glass class, dark-mode-first, pool.query() from ../db/pool.js
 5. Build check after EVERY change: cd /c/Projects/stormleads/client && npx vite build
 6. Commit after EVERY completed task with a descriptive message.
+
+DATABASE STORAGE RULES (NEON FREE TIER = 0.5 GB):
+- Do NOT import bulk historical data (NOAA Storm Events CSVs, SPC SVRGIS archive, etc.)
+- Do NOT create tables that store large datasets (millions of geometry rows, weather history, etc.)
+- All storm/weather data must be fetched ON-DEMAND from free APIs, never pre-loaded into our DB
+- Only store user-generated data in our DB: leads, estimates, tasks, notes, etc.
+- If a feature needs external data, query the external API at runtime and cache briefly in memory
+- Before creating ANY new migration, estimate the row count and avg row size — reject if total > 50 MB
 
 WEB TOOLS:
 - Use ONLY the firecrawl CLI for ALL web operations (search, scrape, browse).
@@ -233,6 +241,12 @@ PRIORITY ORDER:
 - Features from the nav-consolidation spec that haven't been built yet
 - Features recommended by previous overnight runs
 
+EXCLUDED — DO NOT BUILD THESE:
+- Historical storm data import (NOAA Storm Events CSVs, SPC SVRGIS archive) — too much DB storage
+- Bulk data ingestion pipelines — violates Neon free tier 0.5 GB limit
+- Any feature that pre-loads large external datasets into our database
+- Instead: if a feature needs external data, build it as an on-demand API proxy (fetch from source at runtime)
+
 You must make AT LEAST 3 commits of real feature work. Do not stop after 1 quick fix.
 Keep building until you've exhausted high-priority missing features or hit the turn limit.
 
@@ -341,24 +355,31 @@ PART A — FEMA PROPERTY PERFORMANCE FIX:
 5. Build check: cd /c/Projects/stormleads/client && npx vite build
 6. Commit: git commit -m "perf(map): [description]"
 
-PART B — FREE DATA SOURCES RESEARCH:
-Do EXTENSIVE web research to find free data sources for roofing companies:
-- Free roof measurement / building footprint data
-- Free property records (roof age, material, owner info, permits)
-- Free weather/hail damage data beyond NOAA
-- Free aerial/satellite imagery APIs
+PART B — FREE DATA SOURCES RESEARCH (ON-DEMAND APIs ONLY):
+Do EXTENSIVE web research to find free REST APIs for roofing companies.
+CRITICAL: Only research APIs that can be queried ON-DEMAND (per-property or per-area lookups).
+Do NOT recommend bulk data downloads, CSV imports, or anything that would be stored in our DB.
+Our production DB is Neon free tier (0.5 GB) — all external data must stay external.
+
+Research categories:
+- Free building footprint APIs (query by lat/lng, not bulk download)
+- Free property data APIs (roof age, material, owner info — per-address lookup)
+- Free weather/hail damage APIs beyond NOAA (per-location queries)
+- Free aerial/satellite imagery tile APIs
 - Search: "free APIs for roofing contractors", "free GIS data layers roofing"
 - Search: "free building footprint API", "free property data API"
-- Look at what competitors use and find free alternatives
+- Look at what competitors use and find free API alternatives
 
 Write findings to docs/free-data-sources.md with:
 - Source name and URL
 - What data it provides
-- Whether it's truly free
+- Whether it's truly free (rate limits, auth required?)
+- API format: REST endpoint pattern, response format
+- Implementation: on-demand query (YES) or bulk download (SKIP)
 - Implementation difficulty (easy/medium/hard)
 - Recommendation
 
-Commit: git commit -m "docs: research free data sources for storm map"
+Commit: git commit -m "docs: research free on-demand data APIs for storm map"
 
 DELIVERABLE: At least 1 commit for perf fix, 1 commit for data source research.
 STAGE4
@@ -425,7 +446,8 @@ YOUR TASK: Write the overnight report and update history. This is your ONLY task
 
    ## Product Recommendations
    Top 5 high-impact features to build next.
-   Free data sources to integrate.
+   Free on-demand APIs to integrate (must be runtime queries, NOT bulk DB imports).
+   Remember: Neon free tier = 0.5 GB. All external data stays external.
 
    ## Still Needs Attention
    What couldn't be fixed and why. Priorities for next session.

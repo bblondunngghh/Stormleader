@@ -513,34 +513,122 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 </div>
               )}
             </div>
-            {/* Lead Score Badge */}
+            {/* Lead Score Badge + Factor Breakdown */}
             {lead && (
-              <button
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  try {
-                    const resp = await client.post(`/crm/leads/${leadId}/score`);
-                    setLead(prev => ({ ...prev, lead_score: resp.data.score, lead_score_factors: resp.data.factors }));
-                  } catch {}
-                }}
-                title={lead.lead_score != null ? `Score: ${lead.lead_score}/100 — Click to refresh` : 'Click to compute lead score'}
-                style={{
-                  background: lead.lead_score >= 80 ? 'oklch(0.35 0.12 145 / 0.4)'
-                    : lead.lead_score >= 60 ? 'oklch(0.35 0.1 85 / 0.4)'
-                    : lead.lead_score >= 40 ? 'oklch(0.35 0.1 60 / 0.4)'
-                    : lead.lead_score >= 20 ? 'oklch(0.35 0.1 30 / 0.4)'
-                    : 'oklch(0.25 0.05 260 / 0.3)',
-                  color: lead.lead_score >= 80 ? 'oklch(0.85 0.18 145)'
-                    : lead.lead_score >= 60 ? 'oklch(0.85 0.15 85)'
-                    : lead.lead_score >= 40 ? 'oklch(0.85 0.15 60)'
-                    : lead.lead_score >= 20 ? 'oklch(0.75 0.15 30)'
-                    : 'var(--text-muted)',
-                  border: 'none', borderRadius: 'var(--radius-pill)', padding: '4px 10px',
-                  fontSize: 11, fontWeight: 700, cursor: 'pointer',
-                }}
-              >
-                {lead.lead_score != null ? `⚡ ${lead.lead_score}` : '⚡ Score'}
-              </button>
+              <div style={{ position: 'relative' }}>
+                <button
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    if (lead.lead_score != null && lead.lead_score_factors) {
+                      setLead(prev => ({
+                        ...prev,
+                        _showScoreBreakdown: !prev._showScoreBreakdown,
+                        _scoreBtnRect: { top: rect.bottom + 6, left: Math.max(8, rect.right - 240) },
+                      }));
+                      return;
+                    }
+                    try {
+                      const resp = await client.post(`/crm/leads/${leadId}/score`);
+                      setLead(prev => ({
+                        ...prev,
+                        lead_score: resp.data.score,
+                        lead_score_factors: resp.data.factors,
+                        _showScoreBreakdown: true,
+                        _scoreBtnRect: { top: rect.bottom + 6, left: Math.max(8, rect.right - 240) },
+                      }));
+                    } catch (err) {
+                      console.error('Score failed:', err?.response?.status, err?.response?.data?.error);
+                    }
+                  }}
+                  title={lead.lead_score != null ? `Score: ${lead.lead_score}/100 — Click to see breakdown` : 'Click to compute lead score'}
+                  style={{
+                    background: lead.lead_score >= 80 ? 'oklch(0.35 0.12 145 / 0.4)'
+                      : lead.lead_score >= 60 ? 'oklch(0.35 0.1 85 / 0.4)'
+                      : lead.lead_score >= 40 ? 'oklch(0.35 0.1 60 / 0.4)'
+                      : lead.lead_score >= 20 ? 'oklch(0.35 0.1 30 / 0.4)'
+                      : 'oklch(0.25 0.05 260 / 0.3)',
+                    color: lead.lead_score >= 80 ? 'oklch(0.85 0.18 145)'
+                      : lead.lead_score >= 60 ? 'oklch(0.85 0.15 85)'
+                      : lead.lead_score >= 40 ? 'oklch(0.85 0.15 60)'
+                      : lead.lead_score >= 20 ? 'oklch(0.75 0.15 30)'
+                      : 'var(--text-muted)',
+                    border: 'none', borderRadius: 'var(--radius-pill)', padding: '4px 10px',
+                    fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                  }}
+                >
+                  {lead.lead_score != null ? `⚡ ${lead.lead_score}` : '⚡ Score'}
+                </button>
+              </div>
+            )}
+            {lead?._showScoreBreakdown && lead?.lead_score_factors && lead?._scoreBtnRect && createPortal(
+              (() => {
+                const f = lead.lead_score_factors;
+                const pos = lead._scoreBtnRect;
+                const scoreColor = (val, max) => {
+                  const pct = val / max;
+                  if (pct >= 0.7) return 'oklch(0.75 0.18 145)';
+                  if (pct >= 0.4) return 'oklch(0.75 0.15 85)';
+                  if (pct > 0) return 'oklch(0.75 0.15 60)';
+                  return 'var(--text-muted)';
+                };
+                const bar = (val, max) => `${Math.round((val / max) * 100)}%`;
+                const factorList = [
+                  { label: 'Storm Damage', score: f.stormDamageScore || 0, max: 20 },
+                  { label: 'Hail Risk (10yr)', score: f.hailRiskScore || 0, max: 15 },
+                  { label: 'FEMA Disaster Zone', score: f.disasterZoneScore || 0, max: 10 },
+                  { label: 'Property Profile', score: f.propertyProfileScore || 0, max: 15 },
+                  { label: 'Recency', score: f.recencyScore || 0, max: 15 },
+                  { label: 'Engagement', score: f.engagementScore || 0, max: 15 },
+                  { label: 'Data Quality', score: f.dataQualityScore || 0, max: 10 },
+                ];
+                return (
+                  <>
+                    <div onClick={() => setLead(prev => ({ ...prev, _showScoreBreakdown: false }))}
+                      style={{ position: 'fixed', inset: 0, zIndex: 9998 }} />
+                    <div style={{
+                      position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999,
+                      background: 'oklch(0.18 0.02 260)', border: '1px solid oklch(1 0 0 / 0.1)',
+                      borderRadius: 10, padding: '12px 14px', width: 240, backdropFilter: 'blur(20px)',
+                      boxShadow: '0 8px 24px oklch(0 0 0 / 0.4)',
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>Score Breakdown</span>
+                        <button onClick={async (e) => {
+                          e.stopPropagation();
+                          try {
+                            const resp = await client.post(`/crm/leads/${leadId}/score`);
+                            setLead(prev => ({ ...prev, lead_score: resp.data.score, lead_score_factors: resp.data.factors }));
+                          } catch {}
+                        }} style={{ background: 'none', border: 'none', color: 'oklch(0.70 0.15 230)', fontSize: 10, cursor: 'pointer', fontWeight: 600 }}>↻ Refresh</button>
+                      </div>
+                      {factorList.map(({ label, score: s, max }) => (
+                        <div key={label} style={{ marginBottom: 6 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginBottom: 2 }}>
+                            <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
+                            <span style={{ color: scoreColor(s, max), fontWeight: 600 }}>{s}/{max}</span>
+                          </div>
+                          <div style={{ height: 4, borderRadius: 2, background: 'oklch(0.25 0.01 260)' }}>
+                            <div style={{ height: '100%', borderRadius: 2, background: scoreColor(s, max), width: bar(s, max), transition: 'width 0.3s' }} />
+                          </div>
+                        </div>
+                      ))}
+                      {(f.hailRiskLevel || f.homeAge || f.ownerOccupiedRate != null || f.femaRiskScore != null) && (
+                        <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 6, borderTop: '1px solid oklch(1 0 0 / 0.06)', paddingTop: 6, lineHeight: 1.6 }}>
+                          {f.hailRiskLevel && (<div>Hail Risk: <span style={{ fontWeight: 600, textTransform: 'capitalize', color: f.hailRiskLevel === 'extreme' ? 'oklch(0.65 0.25 25)' : f.hailRiskLevel === 'high' ? 'oklch(0.70 0.20 40)' : 'var(--text-secondary)' }}>{f.hailRiskLevel}</span>
+                            {f.hailHistoryCount > 0 && ` · ${f.hailHistoryCount} events`}
+                            {f.maxHistoricalHailIn > 0 && ` · max ${f.maxHistoricalHailIn}"`}
+                          </div>)}
+                          {f.femaRiskScore != null && <div>FEMA Disaster: <span style={{ fontWeight: 600 }}>{f.femaRiskScore}/100</span></div>}
+                          {f.homeAge != null && <div>Neighborhood Age: <span style={{ fontWeight: 600 }}>{f.homeAge}yr</span> median</div>}
+                          {f.ownerOccupiedRate != null && <div>Owner-Occupied: <span style={{ fontWeight: 600 }}>{Math.round(f.ownerOccupiedRate * 100)}%</span></div>}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                );
+              })(),
+              document.body
             )}
           </div>
           <div className="slide-over__name">{name}</div>
@@ -675,13 +763,15 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
             </div>
           )}
 
+          {/* Action Buttons Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 12px', marginTop: 'var(--space-sm)' }}>
           {/* Street View Button */}
           {address !== '—' && (
             <button
               onClick={() => setShowStreetView(true)}
               className="icon-spin-btn"
               style={{
-                display: 'flex', alignItems: 'center', gap: 8, marginTop: 'var(--space-sm)',
+                display: 'flex', alignItems: 'center', gap: 8,
                 padding: '6px 0', fontSize: 12, fontWeight: 600,
                 background: 'none', border: 'none',
                 color: 'var(--accent-blue)', cursor: 'pointer',
@@ -697,7 +787,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
 
           {/* Measure Roof Button */}
           {leadId && lead.property_id && (
-            <div style={{ marginTop: 'var(--space-sm)' }}>
+            <div>
               <button
                 onClick={() => {
                   if (localStorage.getItem('billing_dismiss_measure')) {
@@ -759,7 +849,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
 
           {/* Run Trace Button */}
           {leadId && lead.property_id && (
-            <div style={{ marginTop: 'var(--space-sm)' }}>
+            <div>
               <button
                 onClick={() => {
                   if (localStorage.getItem('billing_dismiss_trace')) {
@@ -792,7 +882,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
 
           {/* Storm History Button */}
           {leadId && lead.property_id && (
-            <div style={{ marginTop: 'var(--space-sm)' }}>
+            <div>
               <button
                 onClick={fetchWeatherHistory}
                 disabled={weatherLoading}
@@ -815,6 +905,8 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
               {weatherError && <div style={{ fontSize: 11, color: 'var(--accent-red)', marginTop: 4 }}>{weatherError}</div>}
             </div>
           )}
+
+          </div>{/* end Action Buttons Grid */}
 
           {/* Disaster Declarations Button */}
           {leadId && (lead?.state || lead?.property_state) && lead?.property_county && (

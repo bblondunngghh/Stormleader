@@ -4,7 +4,7 @@ import { QuestionMarkCircleIcon, BellIcon, CheckBadgeIcon } from '@heroicons/rea
 import * as notificationsApi from '../api/notifications';
 import * as searchApi from '../api/search';
 import client from '../api/client';
-import axios from 'axios';
+
 
 const viewTitles = {
   dashboard: 'Dashboard',
@@ -370,10 +370,11 @@ function ImportProgress() {
   const animRef = useRef(null);
 
   useEffect(() => {
+    if (!localStorage.getItem('token')) return;
     let active = true;
     const poll = async () => {
       try {
-        const { data } = await axios.get('/api/properties/import-progress');
+        const { data } = await client.get('/properties/import-progress');
         if (active) {
           setProgress(data.active ? data : null);
           if (data.active) targetRef.current = data.propertiesImported;

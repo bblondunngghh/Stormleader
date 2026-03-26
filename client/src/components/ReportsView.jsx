@@ -7,7 +7,6 @@ import {
   getRevenueReport, getPipelineReport, getConversionReport,
   getRepPerformanceReport, getStageDurationReport, getLeadSourcesReport,
 } from '../api/crm';
-import useIsMobile from '../hooks/useIsMobile';
 
 // Recharts renders via SVG attributes (not CSS properties), so oklch() may not
 // work in all browsers for SVG fill/stroke. These hex values approximate the
@@ -342,7 +341,7 @@ const PRESETS = [
 ];
 
 export default function ReportsView() {
-  const isMobile = useIsMobile();
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
   const [preset, setPreset] = useState('year');
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');

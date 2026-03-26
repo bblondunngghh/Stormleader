@@ -3,7 +3,6 @@ import { getTasks, createTask, updateTask } from '../api/crm';
 import { IconCheckSquare, IconX } from './Icons';
 import CustomSelect from './CustomSelect';
 import DatePicker from './DatePicker';
-import useIsMobile from '../hooks/useIsMobile';
 
 import { ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
 
@@ -14,7 +13,7 @@ const priorityColors = {
 };
 
 export default function TasksView() {
-  const isMobile = useIsMobile();
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('pending'); // pending | completed | all
   const [showCreate, setShowCreate] = useState(false);

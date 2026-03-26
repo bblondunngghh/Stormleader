@@ -7,7 +7,6 @@ import CustomSelect from './CustomSelect';
 import DatePicker from './DatePicker';
 import { showToast } from './Toast';
 import { BanknotesIcon, TagIcon, FunnelIcon } from '@heroicons/react/24/outline';
-import useIsMobile from '../hooks/useIsMobile';
 
 const CATEGORIES = [
   { value: 'materials', label: 'Materials' },
@@ -221,7 +220,7 @@ export default function ExpensesView() {
   const [showModal, setShowModal] = useState(false);
   const [editingExpense, setEditingExpense] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
-  const isMobile = useIsMobile();
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
 
   const fetchExpenses = useCallback(async () => {
     setLoading(true);

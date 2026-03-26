@@ -7,7 +7,6 @@ import { IconPlusCircle, IconArrowLeft, IconSend, IconEye, IconX, IconTrash } fr
 import { DocumentTextIcon, PencilSquareIcon, ClockIcon, CheckBadgeIcon } from '@heroicons/react/24/outline';
 import CustomSelect from './CustomSelect';
 import { showToast } from './Toast';
-import useIsMobile from '../hooks/useIsMobile';
 
 const statusColors = {
   draft: 'var(--text-muted)',
@@ -72,7 +71,7 @@ export default function ContractsView() {
     }
   }, [searchParams]);
 
-  const isMobile = useIsMobile();
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
 
   const handleNew = () => {
     setEditingContract(null);

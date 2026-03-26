@@ -15,6 +15,7 @@ const layerToggles = [
   { id: 'tornado', label: 'Tornadoes', color: '#ff2d55' },
   { id: 'thunderstorm', label: 'Thunderstorms', color: '#ff9500' },
   { id: 'properties', label: 'Properties', color: '#00d4aa' },
+  { id: 'honeyHoles', label: 'Honey Holes (Hail History)', color: '#ff6b35' },
 ];
 
 export function TimeFilter({ timeRange, onTimeRangeChange }) {

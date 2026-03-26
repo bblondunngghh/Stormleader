@@ -18,13 +18,14 @@ router.use(tenantScope);
 // GET /api/crm/leads — Enhanced lead list with filters, search, pagination
 router.get('/leads', async (req, res, next) => {
   try {
-    const { stage, priority, source, assigned_rep_id, search, sort_by, sort_dir, limit = '50', offset = '0' } = req.query;
+    const { stage, priority, source, assigned_rep_id, search, sort_by, sort_dir, min_score, limit = '50', offset = '0' } = req.query;
     const result = await crmService.getLeads(req.tenantId, {
       stage: stage || undefined,
       priority: priority || undefined,
       source: source || undefined,
       assignedRepId: assigned_rep_id || undefined,
       search: search || undefined,
+      min_score: min_score || undefined,
       sortBy: sort_by || undefined,
       sortDir: sort_dir || undefined,
       limit: parseInt(limit, 10),
@@ -94,6 +95,11 @@ router.post('/leads', async (req, res, next) => {
       source,
     }).catch(err => logger.error({ err }, 'Automation trigger failed'));
 
+    // Auto-score the new lead (fire-and-forget)
+    import('../services/leadScoringService.js').then(({ scoreLead }) => {
+      scoreLead(req.tenantId, rows[0].id).catch(err => logger.warn({ err }, 'Auto-score failed'));
+    });
+
     res.status(201).json(rows[0]);
   } catch (err) {
     next(err);
@@ -130,6 +136,11 @@ router.post('/leads/quick', async (req, res, next) => {
       leadId: rows[0].id,
       source: source || 'manual',
     }).catch(err => logger.error({ err }, 'Automation trigger failed'));
+
+    // Auto-score the new lead (fire-and-forget)
+    import('../services/leadScoringService.js').then(({ scoreLead }) => {
+      scoreLead(req.tenantId, rows[0].id).catch(err => logger.warn({ err }, 'Auto-score failed'));
+    });
 
     res.status(201).json(rows[0]);
   } catch (err) {
@@ -171,6 +182,14 @@ router.patch('/leads/:id', async (req, res, next) => {
         fromStage: oldStage,
         toStage: req.body.stage,
       }).catch(err => logger.error({ err }, 'Automation trigger failed'));
+    }
+
+    // Re-score on meaningful updates (fire-and-forget)
+    const scoreRelevant = ['stage', 'storm_event_id', 'property_id', 'insurance_company', 'contact_phone', 'contact_email', 'hail_size_in'];
+    if (scoreRelevant.some(k => req.body[k] !== undefined)) {
+      import('../services/leadScoringService.js').then(({ scoreLead }) => {
+        scoreLead(req.tenantId, req.params.id).catch(err => logger.warn({ err }, 'Auto re-score failed'));
+      });
     }
 
     res.json(lead);

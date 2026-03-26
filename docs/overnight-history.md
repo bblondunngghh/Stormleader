@@ -186,7 +186,7 @@ and what should be prioritized next. Future agents MUST read this before startin
 ### What should be done next run
 1. **NOAA SWDI Integration** — "Honey Hole Finder" using 10+ years of on-demand radar hail history. No DB storage.
 2. **Automated Lead Scoring** — Composite score from Census ACS + FEMA declarations + SWDI hail frequency. All on-demand API queries.
-3. **USGS Aerial Imagery Layer** — One-line tile URL integration for free 60cm satellite imagery on the storm map.
+3. ~~USGS Aerial Imagery Layer~~ — **REJECTED**: USGS NAIP tiles max out at zoom 15-16 (no roof-level detail). EagleView/Nearmap use 5-10cm aircraft imagery, not 60cm satellite. No free alternative exists at the resolution roofers need. Google satellite already on the map is better.
 4. **Census Geocoder** — Replace Google Geocoding with free Census API for CSV imports. Eliminates the biggest variable cost.
 5. **QuickBooks OAuth** — Begin integration with QB free API tier for invoice sync.
 

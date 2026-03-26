@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import useIsMobile from '../hooks/useIsMobile';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import * as dashboardApi from '../api/dashboard';
@@ -291,10 +290,10 @@ function MiniStormMap({ storms, navigate }) {
         return;
       }
       m.addSource('storm-pts', { type: 'geojson', data });
-      // oklch-inspired colors: tornado=red(0.68 0.22 25), hail=amber(0.78 0.17 85), wind=purple(0.70 0.18 330)
-      const tornadoColor = 'oklch(0.60 0.25 25)';
-      const hailColor = 'oklch(0.75 0.15 85)';
-      const windColor = 'oklch(0.55 0.20 300)';
+      // Mapbox GL JS only supports hex/rgb/hsl — not oklch
+      const tornadoColor = '#d93527';
+      const hailColor = '#c89520';
+      const windColor = '#8b3fa0';
 
       m.addLayer({
         id: 'storm-glow', type: 'circle', source: 'storm-pts',
@@ -308,7 +307,7 @@ function MiniStormMap({ storms, navigate }) {
         paint: {
           'circle-radius': 5,
           'circle-color': ['match', ['get', 'type'], 'tornado', tornadoColor, 'hail', hailColor, windColor],
-          'circle-stroke-width': 1.5, 'circle-stroke-color': 'oklch(0 0 0 / 0.3)',
+          'circle-stroke-width': 1.5, 'circle-stroke-color': 'rgba(0, 0, 0, 0.3)',
         },
       });
       m.on('click', 'storm-dots', (e) => {
@@ -331,6 +330,7 @@ function MiniStormMap({ storms, navigate }) {
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
   const [stats, setStats] = useState(emptyStats);
   const [funnel, setFunnel] = useState([]);
   const [activity, setActivity] = useState([]);
@@ -383,8 +383,6 @@ export default function Dashboard() {
 
   const overdueTasks = tasksToday.filter(t => t.due_date && new Date(t.due_date) < new Date());
   const todayStr = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-
-  const isMobile = useIsMobile();
 
   const stormTypeBadge = {
     hail: { color: 'oklch(0.75 0.15 85)', bg: 'oklch(0.75 0.15 85 / 0.1)', border: 'oklch(0.75 0.15 85 / 0.2)' },

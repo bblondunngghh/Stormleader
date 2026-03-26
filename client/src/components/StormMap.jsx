@@ -3,12 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 import Supercluster from 'supercluster';
 import { loadGoogleMaps } from '../lib/googleMaps';
 import { cacheProperties, loadCachedProperties, cacheTileKeys, loadCachedTileKeys, clearPropertyCache } from '../lib/propertyCache';
-import { getSwaths, getPropertiesInSwath, getSwathPropertyCount, createProperty, fetchFemaData, getFemaLiveProperties, getFemaByPolygon } from '../api/storms';
+import { getSwaths, getPropertiesInSwath, getSwathPropertyCount, createProperty, fetchFemaData, getFemaLiveProperties, getFemaByPolygon, getStormHistory, getHailHeatmap } from '../api/storms';
 import { addPropertyToPipeline, createManualLead } from '../api/crm';
+import client from '../api/client';
 import { TimeFilter, LayerPanel } from './MapControls';
 import AddressSearch from './AddressSearch';
 import SwathPopup from './SwathPopup';
-import useIsMobile from '../hooks/useIsMobile';
 
 import { SignalIcon, BoltIcon } from '@heroicons/react/24/outline';
 
@@ -234,7 +234,7 @@ function PropertyLegend() {
 
 export default function StormMap() {
   const [searchParams] = useSearchParams();
-  const isMobile = useIsMobile();
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
   const infoRef = useRef(null);
@@ -276,11 +276,116 @@ export default function StormMap() {
   });
   const showFemaRef = useRef(showFema);
   showFemaRef.current = showFema;
+  const [swathOpacity, setSwathOpacity] = useState(0.35);
+  const swathOpacityRef = useRef(swathOpacity);
+  swathOpacityRef.current = swathOpacity;
   // Persist layer/filter selections in sessionStorage (survives navigation, cleared on new session)
   useEffect(() => { sessionStorage.setItem('stormMapLayers', JSON.stringify(layers)); }, [layers]);
   useEffect(() => { sessionStorage.setItem('stormMapImprovedOnly', JSON.stringify(improvedOnly)); }, [improvedOnly]);
   useEffect(() => { sessionStorage.setItem('stormMapShowCounty', JSON.stringify(showCounty)); }, [showCounty]);
   useEffect(() => { sessionStorage.setItem('stormMapShowFema', JSON.stringify(showFema)); }, [showFema]);
+
+  // Re-style swaths when transparency slider changes
+  useEffect(() => {
+    const dl = dataLayersRef.current;
+    if (!dl) return;
+    for (const key of ['hail', 'wind', 'tornado', 'thunderstorm', 'drift']) {
+      const layer = dl[key];
+      if (layer) layer.setStyle(layer.getStyle()); // force restyle via existing style function
+    }
+  }, [swathOpacity]);
+
+
+  // Toggle Honey Holes — aggregated hail frequency circles via Google Maps
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // Clear existing circles
+    for (const c of heatmapCirclesRef.current) c.setMap(null);
+    heatmapCirclesRef.current = [];
+
+    if (!layers.honeyHoles) {
+      clearTimeout(heatmapDebounceRef.current);
+      return;
+    }
+
+    const loadHoneyHoles = async () => {
+      const bounds = map.getBounds();
+      if (!bounds) return;
+      const sw = bounds.getSouthWest();
+      const ne = bounds.getNorthEast();
+
+      let points;
+      try {
+        const { data } = await getHailHeatmap(sw.lng(), sw.lat(), ne.lng(), ne.lat());
+        points = data.points || [];
+      } catch { return; }
+
+      // Clear old circles
+      for (const c of heatmapCirclesRef.current) c.setMap(null);
+      heatmapCirclesRef.current = [];
+
+      if (!points.length) return;
+
+      // Aggregate points into grid cells based on zoom level
+      const zoom = map.getZoom();
+      const cellSize = zoom >= 14 ? 0.005 : zoom >= 12 ? 0.02 : zoom >= 10 ? 0.05 : 0.1;
+      const grid = new Map();
+      for (const p of points) {
+        const key = `${Math.round(p.lat / cellSize)}:${Math.round(p.lng / cellSize)}`;
+        const cell = grid.get(key);
+        if (cell) {
+          cell.count++;
+          cell.maxSize = Math.max(cell.maxSize, p.weight || 0.5);
+          cell.totalSize += p.weight || 0.5;
+        } else {
+          grid.set(key, {
+            lat: Math.round(p.lat / cellSize) * cellSize,
+            lng: Math.round(p.lng / cellSize) * cellSize,
+            count: 1,
+            maxSize: p.weight || 0.5,
+            totalSize: p.weight || 0.5,
+          });
+        }
+      }
+
+      // Render aggregated circles
+      const maxCount = Math.max(...[...grid.values()].map(c => c.count), 1);
+      for (const cell of grid.values()) {
+        const intensity = cell.count / maxCount;
+        const sc = hailSeverityColor(cell.maxSize);
+        const radiusMeters = zoom >= 14 ? 200 : zoom >= 12 ? 500 : zoom >= 10 ? 1500 : 4000;
+
+        const circle = new google.maps.Circle({
+          center: { lat: cell.lat, lng: cell.lng },
+          radius: radiusMeters * (0.5 + intensity * 0.5),
+          fillColor: sc.fill,
+          fillOpacity: 0.15 + intensity * 0.25,
+          strokeColor: sc.stroke,
+          strokeWeight: 0,
+          clickable: false,
+          map,
+          zIndex: 1,
+        });
+        heatmapCirclesRef.current.push(circle);
+      }
+    };
+
+    loadHoneyHoles();
+
+    const idleListener = map.addListener('idle', () => {
+      clearTimeout(heatmapDebounceRef.current);
+      heatmapDebounceRef.current = setTimeout(loadHoneyHoles, 2000);
+    });
+
+    return () => {
+      google.maps.event.removeListener(idleListener);
+      clearTimeout(heatmapDebounceRef.current);
+      for (const c of heatmapCirclesRef.current) c.setMap(null);
+      heatmapCirclesRef.current = [];
+    };
+  }, [layers.honeyHoles]);
 
   // Rebuild cluster index when Houses Only, County, or FEMA filter changes
   useEffect(() => {
@@ -299,6 +404,8 @@ export default function StormMap() {
   const propFeaturesRef = useRef([]);
   const clusterIndexRef = useRef(null);
   const showPropertyPopupRef = useRef(null);
+  const heatmapCirclesRef = useRef([]); // Google Maps Circle objects for honey holes
+  const heatmapDebounceRef = useRef(null);
   const swathPropCacheRef = useRef(new Map()); // stormEventId -> Feature[]
   const swathLoadedRef = useRef(new Set()); // fully loaded swath IDs
   const swathAbortRef = useRef(null); // AbortController for current loading session
@@ -873,13 +980,16 @@ export default function StormMap() {
         if (gType === 'Polygon' || gType === 'GeometryCollection') {
           if (found) return;
           // Collect all polygon rings — Polygon has one, GeometryCollection (MultiPolygon) has many
+          const filterFiniteLatLngs = (arr) => arr.filter(ll => Number.isFinite(ll.lat()) && Number.isFinite(ll.lng()));
           const polysToCheck = [];
           if (gType === 'Polygon') {
-            polysToCheck.push(new google.maps.Polygon({ paths: geom.getAt(0).getArray() }));
+            const paths = filterFiniteLatLngs(geom.getAt(0).getArray());
+            if (paths.length >= 3) polysToCheck.push(new google.maps.Polygon({ paths }));
           } else {
             geom.getArray().forEach((subGeom) => {
               if (subGeom.getType() === 'Polygon') {
-                polysToCheck.push(new google.maps.Polygon({ paths: subGeom.getAt(0).getArray() }));
+                const paths = filterFiniteLatLngs(subGeom.getAt(0).getArray());
+                if (paths.length >= 3) polysToCheck.push(new google.maps.Polygon({ paths }));
               }
             });
           }
@@ -941,7 +1051,11 @@ export default function StormMap() {
         if (!sf.geometry?.coordinates) continue;
         const ring = sf.geometry.coordinates[0];
         if (!ring) continue;
-        const poly = new google.maps.Polygon({ paths: ring.map(c => ({ lat: c[1], lng: c[0] })) });
+        const validPaths = ring
+          .filter(c => Array.isArray(c) && c.length >= 2 && Number.isFinite(c[0]) && Number.isFinite(c[1]))
+          .map(c => ({ lat: c[1], lng: c[0] }));
+        if (validPaths.length < 3) continue;
+        const poly = new google.maps.Polygon({ paths: validPaths });
         if (google.maps.geometry.poly.containsLocation(pos, poly)) {
           p.storm_event_id = sf.id || sf.properties?.storm_event_id;
           if (!p.storm_date && sf.properties?.event_start) p.storm_date = sf.properties.event_start;
@@ -1064,6 +1178,11 @@ export default function StormMap() {
         },
         styles: [
           { featureType: 'administrative.province', elementType: 'geometry.stroke', stylers: [{ color: '#000000' }, { weight: 3 }, { visibility: 'on' }] },
+          { featureType: 'poi.business', stylers: [{ visibility: 'off' }] },
+          { featureType: 'poi.attraction', stylers: [{ visibility: 'off' }] },
+          { featureType: 'poi.sports_complex', stylers: [{ visibility: 'off' }] },
+          { featureType: 'poi.place_of_worship', stylers: [{ visibility: 'off' }] },
+          { featureType: 'road', elementType: 'labels', stylers: [{ visibility: 'on' }] },
         ],
       });
       mapRef.current = map;
@@ -1158,13 +1277,13 @@ export default function StormMap() {
             const sc = hailSeverityColor(hailSize);
             return {
               fillColor: sc.fill,
-              fillOpacity: 0.35,
+              fillOpacity: swathOpacityRef.current,
               strokeColor: sc.stroke,
               strokeWeight: 1.5,
-              strokeOpacity: 0.6,
+              strokeOpacity: Math.min(swathOpacityRef.current + 0.25, 1),
             };
           }
-          const fillOpacity = key === 'tornado' ? 0.15 : key === 'drift' ? 0.08 : 0.10;
+          const fillOpacity = key === 'tornado' ? swathOpacityRef.current * 0.43 : key === 'drift' ? swathOpacityRef.current * 0.23 : swathOpacityRef.current * 0.29;
           return {
             fillColor: c.fill,
             fillOpacity,
@@ -1519,7 +1638,7 @@ export default function StormMap() {
             <div class="swath-popup__sv" style="width:100%;height:150px;border-radius:6px;margin-bottom:8px;overflow:hidden;background:oklch(0.12 0.02 260);display:none;"></div>
             <div class="swath-popup__row">
               <span class="swath-popup__label">Address</span>
-              <span class="swath-popup__value swath-popup__address">${isFema && !p.address_line1 ? '<button class="resolve-addr-btn" style="background:none;border:1px solid oklch(0.70 0.18 300 / 0.4);color:oklch(0.70 0.18 300);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;font-weight:600;">Lookup Address</button>' : formatFullAddr(p.address_line1, p.city, p.state, p.zip)}</span>
+              <span class="swath-popup__value swath-popup__address">${isFema && !p.address_line1 ? '<button class="resolve-addr-btn" style="background:none;border:1px solid oklch(0.70 0.18 300 / 0.4);color:oklch(0.70 0.18 300);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer;font-weight:600;">Enter Address #</button>' : formatFullAddr(p.address_line1, p.city, p.state, p.zip)}</span>
             </div>
             ${owner ? `<div class="swath-popup__row"><span class="swath-popup__label">Owner <span style="color:oklch(0.60 0.01 260);font-size:9px;font-weight:400;">· Public records</span></span><span class="swath-popup__value">${owner}</span></div>` : ''}
             ${p.year_built ? `<div class="swath-popup__row"><span class="swath-popup__label">Year Built</span><span class="swath-popup__value">${p.year_built}</span></div>` : ''}
@@ -1542,6 +1661,11 @@ export default function StormMap() {
               ${p._stormCertainty ? `<div class="swath-popup__row"><span class="swath-popup__label">Certainty</span><span class="swath-popup__value">${p._stormCertainty}</span></div>` : ''}
               ${p._stormArea ? `<div class="swath-popup__row"><span class="swath-popup__label">Area</span><span class="swath-popup__value">${p._stormArea}</span></div>` : ''}
             </div>` : ''}
+            <div class="storm-history-slot" data-lat="${posLat}" data-lng="${posLng}" style="border-top:1px solid oklch(1 0 0 / 0.08);margin:6px 0;padding-top:6px;">
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);padding:4px 0;">
+                <div class="storm-map-loading__spinner" style="width:12px;height:12px;border-width:2px;"></div>Loading hail risk score…
+              </div>
+            </div>
             <button class="add-to-pipeline-btn" data-property-id="${propertyId}" ${stormId ? `data-storm-id="${stormId}"` : ''} ${isFema ? 'data-fema="true"' : ''} data-lat="${posLat}" data-lng="${posLng}" style="
               width:100%;margin-top:8px;padding:8px 12px;
               background:oklch(0.65 0.18 230);color:oklch(1 0 0);border:none;border-radius:6px;
@@ -1634,37 +1758,123 @@ export default function StormMap() {
           })();
         }
 
-        // Reverse geocode FEMA properties — only on button click
+        // Reverse geocode FEMA properties — get street/city/state/zip, let roofer type house number
         const resolveBtn = container.querySelector('.resolve-addr-btn');
         if (resolveBtn) {
-          resolveBtn.addEventListener('click', () => {
+          resolveBtn.addEventListener('click', async () => {
             const addrEl = container.querySelector('.swath-popup__address');
             if (!addrEl) return;
             resolveBtn.disabled = true;
-            resolveBtn.textContent = 'Resolving…';
-            const geocoder = new google.maps.Geocoder();
-            geocoder.geocode({ location: { lat: posLat, lng: posLng } }, (results, status) => {
-              if (status === 'OK' && results[0]) {
-                const components = results[0].address_components || [];
-                const get = (type) => components.find(c => c.types.includes(type))?.long_name || '';
-                const getShort = (type) => components.find(c => c.types.includes(type))?.short_name || '';
-                const streetNum = get('street_number');
-                const route = get('route');
-                const city = get('locality') || get('sublocality');
-                const state = getShort('administrative_area_level_1');
-                const zip = get('postal_code');
-                const street = [streetNum, route].filter(Boolean).join(' ');
-                addrEl.innerHTML = formatFullAddr(street, city, state, zip);
-                // Cache the resolved address on the feature
-                p.address_line1 = street;
-                p.city = city;
-                p.state = state;
-                p.zip = zip;
+            resolveBtn.textContent = 'Looking up street…';
+            try {
+              const { data } = await client.get('/properties/reverse-geocode', { params: { lat: posLat, lng: posLng } });
+              if (data.matched) {
+                // Extract street name without house number
+                const streetName = (data.address || '').replace(/^\d+\s*/, '').trim();
+                const cityLine = [data.city, data.state, data.zip].filter(Boolean).join(', ');
+
+                addrEl.innerHTML = `
+                  <div style="display:flex;flex-direction:column;gap:4px;">
+                    <div style="display:flex;align-items:center;gap:4px;">
+                      <input class="fema-house-num" type="text" placeholder="#" style="
+                        width:52px;padding:3px 6px;font-size:12px;font-weight:700;
+                        background:oklch(0.15 0.02 260);color:oklch(0.95 0 0);
+                        border:1.5px solid oklch(0.70 0.18 300);border-radius:4px;
+                        outline:none;text-align:center;
+                      " />
+                      <span style="font-size:12px;color:var(--text-primary);">${titleCase(streetName)}</span>
+                    </div>
+                    <span style="font-size:11px;color:var(--text-secondary);">${cityLine}</span>
+                    <span style="font-size:9px;color:oklch(0.70 0.18 300);">↑ Type the house # from the map</span>
+                  </div>
+                `;
+
+                // Focus the input and pan map down so address number label is visible below the popup
+                const numInput = addrEl.querySelector('.fema-house-num');
+                if (numInput) {
+                  setTimeout(() => {
+                    numInput.focus();
+                    // Pan map up so the property (and its number label) is visible below the InfoWindow
+                    if (mapRef.current) mapRef.current.panBy(0, -80);
+                  }, 150);
+
+                  // When they type and press Enter or blur, save the full address
+                  const saveAddress = () => {
+                    const num = numInput.value.trim();
+                    if (num) {
+                      const fullStreet = `${num} ${titleCase(streetName)}`;
+                      p.address_line1 = fullStreet;
+                      p.city = data.city || '';
+                      p.state = data.state || '';
+                      p.zip = data.zip || '';
+                      addrEl.innerHTML = formatFullAddr(fullStreet, data.city, data.state, data.zip);
+                    }
+                  };
+                  numInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveAddress(); });
+                  numInput.addEventListener('blur', saveAddress);
+                }
               } else {
                 addrEl.innerHTML = `<span style="color:var(--text-muted);">${posLat.toFixed(5)}, ${posLng.toFixed(5)}</span>`;
               }
-            });
+            } catch {
+              addrEl.innerHTML = `<span style="color:var(--text-muted);">${posLat.toFixed(5)}, ${posLng.toFixed(5)}</span>`;
+            }
           });
+        }
+
+        // Auto-load storm history from NOAA SWDI
+        const historySlot = container.querySelector('.storm-history-slot');
+        if (historySlot) {
+          (async () => {
+            try {
+              const hLat = parseFloat(historySlot.dataset.lat);
+              const hLng = parseFloat(historySlot.dataset.lng);
+              const res = await getStormHistory(hLat, hLng, { radius: 5, years: 10 });
+              const s = res.data?.summary;
+              if (!s || s.totalEvents === 0) {
+                historySlot.innerHTML = `
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                    <span class="swath-popup__title" style="color:oklch(0.75 0.15 170);font-size:12px;margin:0;">Hail Risk Score</span>
+                    <span style="color:oklch(0.72 0.19 150);font-size:11px;font-weight:600;">Low Risk</span>
+                  </div>
+                  <div style="font-size:11px;color:var(--text-muted);">No hail events detected within 5 miles in the last 10 years.</div>`;
+                return;
+              }
+              const riskColors = { low: 'oklch(0.72 0.19 150)', moderate: 'oklch(0.78 0.17 85)', high: 'oklch(0.70 0.20 40)', extreme: 'oklch(0.65 0.25 25)' };
+              const riskColor = riskColors[s.riskLevel] || riskColors.moderate;
+              // Build year-by-year mini bar chart
+              const years = Object.keys(s.byYear).sort();
+              const maxCount = Math.max(...Object.values(s.byYear), 1);
+              let barHtml = '';
+              if (years.length > 0) {
+                barHtml = '<div style="display:flex;align-items:flex-end;gap:2px;height:32px;margin-top:6px;">';
+                // Show last 10 years, fill gaps with 0
+                const endYear = new Date().getFullYear();
+                for (let y = endYear - 9; y <= endYear; y++) {
+                  const count = s.byYear[y] || 0;
+                  const pct = Math.max((count / maxCount) * 100, count > 0 ? 8 : 2);
+                  const barColor = count === 0 ? 'oklch(0.30 0.01 260)' : riskColor;
+                  barHtml += `<div title="${y}: ${count} events" style="flex:1;height:${pct}%;background:${barColor};border-radius:2px 2px 0 0;min-height:2px;transition:height 0.3s;"></div>`;
+                }
+                barHtml += '</div>';
+                barHtml += '<div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-muted);margin-top:2px;">';
+                barHtml += `<span>${endYear - 9}</span><span>${endYear}</span>`;
+                barHtml += '</div>';
+              }
+              historySlot.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                  <span class="swath-popup__title" style="color:${riskColor};font-size:12px;margin:0;">Hail Risk Score</span>
+                  <span style="color:${riskColor};font-size:11px;font-weight:700;text-transform:uppercase;">${s.riskLevel} Risk</span>
+                </div>
+                <div class="swath-popup__row"><span class="swath-popup__label">Hail Events</span><span class="swath-popup__value" style="color:${riskColor}">${s.hailCount}</span></div>
+                <div class="swath-popup__row"><span class="swath-popup__label">Tornado Events</span><span class="swath-popup__value">${s.tornadoCount}</span></div>
+                ${s.maxHailSizeInches ? `<div class="swath-popup__row"><span class="swath-popup__label">Max Hail Size</span><span class="swath-popup__value" style="color:${riskColor}">${s.maxHailSizeInches}"</span></div>` : ''}
+                <div class="swath-popup__row"><span class="swath-popup__label">Avg/Year</span><span class="swath-popup__value">${s.averageEventsPerYear}</span></div>
+                ${barHtml}`;
+            } catch {
+              historySlot.innerHTML = '<div style="font-size:11px;color:var(--text-muted);">Hail risk score unavailable</div>';
+            }
+          })();
         }
 
         info.setContent(container);
@@ -2360,6 +2570,22 @@ export default function StormMap() {
           <TimeFilter timeRange={timeRange} onTimeRangeChange={setTimeRange} />
           <AddressSearch onSelect={handleAddressSelect} isLoading={searchLoading} />
         </div>
+        {/* Swath Transparency — directly below search bar, right-aligned */}
+        <div className="map-transparency-bar glass" style={{
+          position: 'absolute',
+          display: 'flex', alignItems: 'center', gap: 10, padding: '6px 14px',
+          borderRadius: 16, zIndex: 12, fontSize: 12, fontWeight: 600,
+          color: 'var(--text-secondary)', whiteSpace: 'nowrap',
+        }}>
+          <span>Swath Transparency</span>
+          <input
+            type="range"
+            min="0" max="100" value={Math.round((1 - swathOpacity) * 100)}
+            onChange={(e) => setSwathOpacity(1 - parseInt(e.target.value) / 100)}
+            style={{ width: 120, accentColor: 'oklch(0.70 0.18 230)', cursor: 'pointer' }}
+          />
+          <span style={{ minWidth: 28, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{Math.round((1 - swathOpacity) * 100)}%</span>
+        </div>
         <LayerPanel
           layers={layers}
           onLayersChange={setLayers}
@@ -2386,6 +2612,7 @@ export default function StormMap() {
               <span>Fetching FEMA property records<span className="loading-dots"><span>.</span><span>.</span><span>.</span></span></span>
             </div>
           )}
+
           <div className="map-legends">
             <div className="map-legend glass">
               <div className="map-legend__title">Hail Severity</div>

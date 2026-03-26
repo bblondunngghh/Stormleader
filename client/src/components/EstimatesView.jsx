@@ -10,7 +10,6 @@ import { showToast } from './Toast';
 import { SRSCatalogModal } from './MaterialsView';
 import * as materialsApi from '../api/materials';
 import { CloudIcon, ClockIcon, CheckCircleIcon, BanknotesIcon, ClipboardDocumentListIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
-import useIsMobile from '../hooks/useIsMobile';
 
 function formatPhone(value) {
   const digits = value.replace(/\D/g, '').slice(0, 10);
@@ -53,7 +52,7 @@ export default function EstimatesView() {
 
   useEffect(() => { fetchEstimates(); }, [fetchEstimates]);
 
-  const isMobile = useIsMobile();
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
 
   const totalValue = estimates.reduce((s, e) => s + Number(e.total || 0), 0);
   const draftCount = estimates.filter(e => e.status === 'draft').length;

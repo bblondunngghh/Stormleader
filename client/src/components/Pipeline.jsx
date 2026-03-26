@@ -3,7 +3,6 @@ import { getLeads, getPipelineStages, updateLead, getTeamMembers } from '../api/
 import { showToast } from './Toast';
 import { IconRefresh, IconPlusCircle, IconPhone, IconCalendar, IconFilter, IconX, IconChevronDown, IconEyeOff, IconEye } from './Icons';
 import CustomSelect from './CustomSelect';
-import useIsMobile from '../hooks/useIsMobile';
 import { UserCircleIcon, FireIcon, SunIcon, CloudIcon } from '@heroicons/react/24/outline';
 const LeadDetail = lazy(() => import('./LeadDetail'));
 const CreateLeadModal = lazy(() => import('./CreateLeadModal'));
@@ -100,7 +99,7 @@ const fallbackColumns = [
 ];
 
 export default function Pipeline() {
-  const isMobile = useIsMobile();
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
   const [columns, setColumns] = useState(fallbackColumns);
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -103,6 +103,7 @@ export default function LeadList() {
   const [stageFilter, setStageFilter] = useState(searchParams.get('stage') || '');
   const [priorityFilter, setPriorityFilter] = useState(searchParams.get('priority') || '');
   const [sourceFilter, setSourceFilter] = useState(searchParams.get('source') || '');
+  const [scoreFilter, setScoreFilter] = useState(searchParams.get('min_score') || '');
   const [sortBy, setSortBy] = useState(searchParams.get('sort_by') || 'created_at');
   const [sortDir, setSortDir] = useState(searchParams.get('sort_dir') || 'DESC');
   const [page, setPage] = useState(Number(searchParams.get('page')) || 0);
@@ -123,12 +124,13 @@ export default function LeadList() {
     if (stageFilter) p.stage = stageFilter;
     if (priorityFilter) p.priority = priorityFilter;
     if (sourceFilter) p.source = sourceFilter;
+    if (scoreFilter) p.min_score = scoreFilter;
     if (sortBy !== 'created_at') p.sort_by = sortBy;
     if (sortDir !== 'DESC') p.sort_dir = sortDir;
     if (page > 0) p.page = String(page);
     if (pageSize !== 25) p.limit = String(pageSize);
     setSearchParams(p, { replace: true });
-  }, [search, stageFilter, priorityFilter, sourceFilter, sortBy, sortDir, page, pageSize, setSearchParams]);
+  }, [search, stageFilter, priorityFilter, sourceFilter, scoreFilter, sortBy, sortDir, page, pageSize, setSearchParams]);
 
   const fetchLeads = useCallback(async () => {
     setLoading(true);
@@ -143,6 +145,7 @@ export default function LeadList() {
       if (stageFilter) params.stage = stageFilter;
       if (priorityFilter) params.priority = priorityFilter;
       if (sourceFilter) params.source = sourceFilter;
+      if (scoreFilter) params.min_score = scoreFilter;
 
       const res = await getLeads(params);
       setLeads(res.data.leads || []);
@@ -152,7 +155,7 @@ export default function LeadList() {
     } finally {
       setLoading(false);
     }
-  }, [search, stageFilter, priorityFilter, sourceFilter, sortBy, sortDir, page, pageSize]);
+  }, [search, stageFilter, priorityFilter, sourceFilter, scoreFilter, sortBy, sortDir, page, pageSize]);
 
   useEffect(() => { fetchLeads(); }, [fetchLeads]);
 
@@ -278,6 +281,7 @@ export default function LeadList() {
   if (stageFilter) activeFilters.push({ key: 'stage', label: `Stage: ${stageLabels[stageFilter]}`, clear: () => setStageFilter('') });
   if (priorityFilter) activeFilters.push({ key: 'priority', label: `Priority: ${priorityLabels[priorityFilter] || priorityFilter}`, clear: () => setPriorityFilter('') });
   if (sourceFilter) activeFilters.push({ key: 'source', label: `Source: ${sourceLabels[sourceFilter] || sourceFilter}`, clear: () => setSourceFilter('') });
+  if (scoreFilter) activeFilters.push({ key: 'score', label: `Score: ${scoreFilter}+`, clear: () => setScoreFilter('') });
 
   const fromRow = total === 0 ? 0 : page * pageSize + 1;
   const toRow = Math.min((page + 1) * pageSize, total);
@@ -332,6 +336,20 @@ export default function LeadList() {
           placeholder="All Sources"
           options={[{ value: '', label: 'All Sources' }, ...Object.entries(sourceLabels).map(([k, v]) => ({ value: k, label: v }))]}
           style={{ flex: '0 0 auto', minWidth: 120 }}
+        />
+
+        <CustomSelect
+          value={scoreFilter}
+          onChange={(v) => { setScoreFilter(v); setPage(0); }}
+          placeholder="All Scores"
+          options={[
+            { value: '', label: 'All Scores' },
+            { value: '80', label: '⚡ 80+ Excellent' },
+            { value: '60', label: '⚡ 60+ Good' },
+            { value: '40', label: '⚡ 40+ Fair' },
+            { value: '20', label: '⚡ 20+ Low' },
+          ]}
+          style={{ flex: '0 0 auto', minWidth: 130 }}
         />
 
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 'var(--space-sm)', alignItems: 'center' }}>

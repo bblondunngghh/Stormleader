@@ -7,7 +7,7 @@ import logger from '../utils/logger.js';
 
 export async function getLeads(tenantId, filters = {}) {
   const {
-    stage, priority, source, assignedRepId, search,
+    stage, priority, source, assignedRepId, search, min_score,
     sortBy = 'created_at', sortDir = 'DESC',
     limit = 50, offset = 0,
   } = filters;
@@ -39,6 +39,10 @@ export async function getLeads(tenantId, filters = {}) {
       OR city ILIKE $${params.length}
       OR contact_email ILIKE $${params.length}
     )`);
+  }
+  if (min_score) {
+    params.push(parseInt(min_score));
+    conditions.push(`lead_score >= $${params.length}`);
   }
 
   const where = conditions.join(' AND ');
