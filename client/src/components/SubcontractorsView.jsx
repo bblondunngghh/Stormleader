@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import * as subApi from '../api/subcontractors';
 import { showToast } from './Toast';
+import CustomSelect from './CustomSelect';
 
 const SPECIALTIES = ['general', 'roofing', 'siding', 'gutters', 'painting', 'drywall', 'electrical', 'plumbing', 'hvac', 'landscaping', 'demolition', 'other'];
+const SPECIALTY_OPTIONS = [{ value: '', label: 'All' }, ...SPECIALTIES.map(s => ({ value: s, label: s.charAt(0).toUpperCase() + s.slice(1) }))];
+const STATUS_OPTIONS = [{ value: '', label: 'All' }, { value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }];
+const PAGE_SIZE_OPTIONS = [10, 25, 50].map(n => ({ value: String(n), label: `${n} / page` }));
 
 const specialtyColors = {
   general:     { bg: 'oklch(0.28 0.03 260 / 0.5)', color: 'var(--text-secondary)' },
@@ -88,20 +92,11 @@ export default function SubcontractorsView() {
         </div>
         <div className="form-group" style={{ gap: 'var(--space-xs)' }}>
           <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Specialty</label>
-          <select className="form-input" value={filter.specialty} onChange={e => { setFilter(f => ({ ...f, specialty: e.target.value })); setPage(0); }}
-            style={{ height: 36, borderRadius: 12, fontSize: 13 }}>
-            <option value="">All</option>
-            {SPECIALTIES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
-          </select>
+          <CustomSelect value={filter.specialty} onChange={v => { setFilter(f => ({ ...f, specialty: v })); setPage(0); }} options={SPECIALTY_OPTIONS} placeholder="All" />
         </div>
         <div className="form-group" style={{ gap: 'var(--space-xs)' }}>
           <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Status</label>
-          <select className="form-input" value={filter.status} onChange={e => { setFilter(f => ({ ...f, status: e.target.value })); setPage(0); }}
-            style={{ height: 36, borderRadius: 12, fontSize: 13 }}>
-            <option value="">All</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
+          <CustomSelect value={filter.status} onChange={v => { setFilter(f => ({ ...f, status: v })); setPage(0); }} options={STATUS_OPTIONS} placeholder="All" />
         </div>
       </div>
 
@@ -194,12 +189,7 @@ export default function SubcontractorsView() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 'var(--space-lg) 0' }}>
           <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Showing {showStart}–{showEnd} of {total}</span>
           <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'center' }}>
-            <select className="form-input" value={pageSize} onChange={e => { setPageSize(Number(e.target.value)); setPage(0); }}
-              style={{ height: 32, borderRadius: 'var(--radius-md)', fontSize: 12, width: 70 }}>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-            </select>
+            <CustomSelect value={String(pageSize)} onChange={v => { setPageSize(Number(v)); setPage(0); }} options={PAGE_SIZE_OPTIONS} style={{ width: 100 }} />
             <button className="quick-action-btn" disabled={page === 0} onClick={() => setPage(p => p - 1)} style={{ padding: '4px 12px', fontSize: 12 }}>Prev</button>
             <button className="quick-action-btn" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} style={{ padding: '4px 12px', fontSize: 12 }}>Next</button>
           </div>
@@ -284,47 +274,48 @@ function SubSlideOver({ sub, onClose, onSaved }) {
           <div className="form-group">
             <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Name *</label>
             <input type="text" className="form-input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              placeholder="Full name" style={{ height: 36, borderRadius: 12, fontSize: 13 }} />
+              placeholder="Full name" />
           </div>
           <div className="form-group">
             <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Company</label>
             <input type="text" className="form-input" value={form.company} onChange={e => setForm(f => ({ ...f, company: e.target.value }))}
-              placeholder="Company name" style={{ height: 36, borderRadius: 12, fontSize: 13 }} />
+              placeholder="Company name" />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)' }}>
             <div className="form-group">
               <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Phone</label>
-              <input type="tel" className="form-input" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                placeholder="(555) 123-4567" style={{ height: 36, borderRadius: 12, fontSize: 13 }} />
+              <input type="tel" className="form-input" value={form.phone}
+                onChange={e => {
+                  const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                  let formatted = digits;
+                  if (digits.length >= 7) formatted = `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+                  else if (digits.length >= 4) formatted = `(${digits.slice(0,3)}) ${digits.slice(3)}`;
+                  else if (digits.length > 0) formatted = `(${digits}`;
+                  setForm(f => ({ ...f, phone: formatted }));
+                }}
+                placeholder="(555) 123-4567" />
             </div>
             <div className="form-group">
               <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Email</label>
               <input type="email" className="form-input" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                placeholder="email@example.com" style={{ height: 36, borderRadius: 12, fontSize: 13 }} />
+                placeholder="email@example.com" />
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)' }}>
             <div className="form-group">
               <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Specialty</label>
-              <select className="form-input" value={form.specialty} onChange={e => setForm(f => ({ ...f, specialty: e.target.value }))}
-                style={{ height: 36, borderRadius: 12, fontSize: 13 }}>
-                {SPECIALTIES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
-              </select>
+              <CustomSelect value={form.specialty} onChange={v => setForm(f => ({ ...f, specialty: v }))} options={SPECIALTIES.map(s => ({ value: s, label: s.charAt(0).toUpperCase() + s.slice(1) }))} placeholder="Select specialty" />
             </div>
             <div className="form-group">
               <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Hourly Rate</label>
               <input type="number" className="form-input" value={form.hourly_rate} onChange={e => setForm(f => ({ ...f, hourly_rate: e.target.value }))}
-                placeholder="0.00" step="0.01" min="0" style={{ height: 36, borderRadius: 12, fontSize: 13 }} />
+                placeholder="0.00" step="0.01" min="0" />
             </div>
           </div>
           {sub && (
             <div className="form-group">
               <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Status</label>
-              <select className="form-input" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
-                style={{ height: 36, borderRadius: 12, fontSize: 13 }}>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
+              <CustomSelect value={form.status} onChange={v => setForm(f => ({ ...f, status: v }))} options={[{ value: 'active', label: 'Active' }, { value: 'inactive', label: 'Inactive' }]} placeholder="Status" />
             </div>
           )}
           <div className="form-group">

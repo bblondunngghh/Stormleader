@@ -526,6 +526,11 @@ router.get('/tenant-settings', async (req, res, next) => {
       planChangedAt: t.plan_changed_at,
       googlePlaceId: branding.google_place_id || '',
       reviewMessageTemplate: branding.review_message_template || '',
+      smtpHost: branding.smtp_host || '',
+      smtpPort: branding.smtp_port || 587,
+      smtpUser: branding.smtp_user || '',
+      smtpFrom: branding.smtp_from || '',
+      smtpConfigured: !!(branding.smtp_host && branding.smtp_pass),
     });
   } catch (err) { next(err); }
 });
@@ -536,17 +541,23 @@ router.put('/tenant-settings', async (req, res, next) => {
     if (req.user?.role !== 'admin' && req.user?.role !== 'super_admin') {
       return res.status(403).json({ error: 'Only admins can modify company settings' });
     }
-    const { senderEmail, companyPhone, companyWebsite, companyAddress, googlePlaceId, reviewMessageTemplate } = req.body;
+    const { senderEmail, companyPhone, companyWebsite, companyAddress, googlePlaceId, reviewMessageTemplate,
+            smtpHost, smtpPort, smtpUser, smtpPass, smtpFrom } = req.body;
 
-    // Update branding JSONB for review settings if provided
+    // Update branding JSONB for settings stored as JSON
     let brandingUpdate = '';
     const params = [senderEmail ?? null, companyPhone ?? null, companyWebsite ?? null, companyAddress ?? null, req.tenantId];
-    if (googlePlaceId !== undefined || reviewMessageTemplate !== undefined) {
+    const brandingPatch = {};
+    if (googlePlaceId !== undefined) brandingPatch.google_place_id = googlePlaceId;
+    if (reviewMessageTemplate !== undefined) brandingPatch.review_message_template = reviewMessageTemplate;
+    if (smtpHost !== undefined) brandingPatch.smtp_host = smtpHost;
+    if (smtpPort !== undefined) brandingPatch.smtp_port = Number(smtpPort) || 587;
+    if (smtpUser !== undefined) brandingPatch.smtp_user = smtpUser;
+    if (smtpPass !== undefined) brandingPatch.smtp_pass = smtpPass;
+    if (smtpFrom !== undefined) brandingPatch.smtp_from = smtpFrom;
+    if (Object.keys(brandingPatch).length > 0) {
       brandingUpdate = `,
          branding = branding || $6::jsonb`;
-      const brandingPatch = {};
-      if (googlePlaceId !== undefined) brandingPatch.google_place_id = googlePlaceId;
-      if (reviewMessageTemplate !== undefined) brandingPatch.review_message_template = reviewMessageTemplate;
       params.push(JSON.stringify(brandingPatch));
     }
 
@@ -569,8 +580,69 @@ router.put('/tenant-settings', async (req, res, next) => {
       companyPhone: t.company_phone, companyWebsite: t.company_website, companyAddress: t.company_address,
       googlePlaceId: branding.google_place_id || '',
       reviewMessageTemplate: branding.review_message_template || '',
+      smtpHost: branding.smtp_host || '',
+      smtpPort: branding.smtp_port || 587,
+      smtpUser: branding.smtp_user || '',
+      smtpFrom: branding.smtp_from || '',
+      smtpConfigured: !!(branding.smtp_host && branding.smtp_pass),
     });
   } catch (err) { next(err); }
+});
+
+// POST /api/crm/test-email — Send a test email to verify SMTP configuration
+router.post('/test-email', async (req, res, next) => {
+  try {
+    if (req.user?.role !== 'admin' && req.user?.role !== 'super_admin') {
+      return res.status(403).json({ error: 'Only admins can test email settings' });
+    }
+    const { to } = req.body;
+    if (!to) return res.status(400).json({ error: 'Recipient email required' });
+
+    // Load tenant SMTP config
+    const { rows } = await pool.query(
+      'SELECT branding, sender_email FROM tenants WHERE id = $1', [req.tenantId]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Tenant not found' });
+    const branding = rows[0].branding || {};
+
+    if (!branding.smtp_host || !branding.smtp_pass) {
+      return res.status(400).json({ error: 'SMTP not configured. Save your SMTP settings first.' });
+    }
+
+    const nodemailer = await import('nodemailer');
+    const transport = nodemailer.default.createTransport({
+      host: branding.smtp_host,
+      port: branding.smtp_port || 587,
+      secure: (branding.smtp_port || 587) === 465,
+      auth: branding.smtp_user ? { user: branding.smtp_user, pass: branding.smtp_pass } : undefined,
+    });
+
+    const from = branding.smtp_from || rows[0].sender_email || '"StormLeads" <noreply@stormleads.io>';
+    await transport.sendMail({
+      from,
+      to,
+      subject: 'StormLeads — Test Email',
+      html: `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; margin: 0 auto; padding: 32px;">
+        <h2 style="color: #1a1a2e; margin: 0 0 16px;">Email Configuration Working!</h2>
+        <p style="color: #555; font-size: 15px; line-height: 1.6;">
+          This test email confirms your SMTP settings are correctly configured in StormLeads.
+          Estimates, automations, and drip sequences will now send emails to your customers.
+        </p>
+        <div style="margin-top: 24px; padding: 16px; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #3b82f6;">
+          <p style="margin: 0; color: #1e40af; font-size: 13px;"><strong>SMTP Host:</strong> ${branding.smtp_host}</p>
+          <p style="margin: 4px 0 0; color: #1e40af; font-size: 13px;"><strong>From:</strong> ${from}</p>
+        </div>
+      </div>`,
+      text: 'StormLeads — Your email configuration is working!',
+    });
+
+    res.json({ success: true, message: `Test email sent to ${to}` });
+  } catch (err) {
+    if (err.code === 'ECONNREFUSED' || err.code === 'ESOCKET' || err.responseCode) {
+      return res.status(400).json({ error: `SMTP connection failed: ${err.message}` });
+    }
+    next(err);
+  }
 });
 
 // GET /api/crm/dashboard/properties-affected

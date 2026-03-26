@@ -61,6 +61,7 @@ const viewRoutes = {
   'content-studio': '/content-studio',
   contracts: '/contracts',
   expenses: '/expenses',
+  subcontractors: '/subcontractors',
   settings: '/settings',
   admin: '/admin',
 };

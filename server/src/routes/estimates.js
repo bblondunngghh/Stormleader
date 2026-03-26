@@ -139,4 +139,15 @@ router.post('/:id/duplicate', async (req, res, next) => {
   }
 });
 
+// Generate Good/Better/Best tiers from a single estimate
+router.post('/:id/generate-tiers', async (req, res, next) => {
+  try {
+    const tiers = await estimateService.generateTiers(req.tenantId, req.user.id, req.params.id);
+    if (!tiers) return res.status(404).json({ error: 'Estimate not found' });
+    res.status(201).json({ tiers });
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

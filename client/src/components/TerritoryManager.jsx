@@ -29,7 +29,7 @@ export default function TerritoryManager({ mapRef, mapsApi, onTerritoryPolygonsC
     try {
       const [tRes, mRes] = await Promise.all([getTerritories(), getTeamMembers()]);
       setTerritories(tRes.data || []);
-      setTeamMembers(mRes.data || []);
+      setTeamMembers(Array.isArray(mRes.data) ? mRes.data : mRes.data?.members || []);
     } catch { /* ignore */ }
     setLoading(false);
   }, []);
@@ -69,6 +69,10 @@ export default function TerritoryManager({ mapRef, mapsApi, onTerritoryPolygonsC
 
   const startDrawing = () => {
     if (!mapRef?.current || !mapsApi) return;
+    if (!mapsApi.drawing?.DrawingManager) {
+      showToast('Drawing tools not loaded — try again in a moment');
+      return;
+    }
 
     setDrawingMode(true);
     setDrawnCoords([]);
@@ -184,7 +188,7 @@ export default function TerritoryManager({ mapRef, mapsApi, onTerritoryPolygonsC
       position: 'absolute', top: 70, right: 12, width: 320, zIndex: 10,
       maxHeight: 'calc(100vh - 100px)', overflow: 'hidden', display: 'flex', flexDirection: 'column',
     }}>
-      <div className="glass" style={{ borderRadius: 'var(--radius-md)', padding: 16, overflow: 'auto' }}>
+      <div className="glass" style={{ borderRadius: 'var(--radius-md)', padding: 16, overflow: 'auto', background: 'oklch(0.14 0.015 260 / 0.85)', backdropFilter: 'blur(20px) saturate(1.4)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: 'var(--text-primary)' }}>Territories</h3>
           {!showForm && (

@@ -82,14 +82,13 @@ export default function CanvassingMode() {
       map = new maps.Map(mapContainer.current, {
         center: { lat: 32.7, lng: -97.3 },
         zoom: 15,
-        mapTypeId: 'roadmap',
+        mapTypeId: 'hybrid',
         gestureHandling: 'greedy',
         disableDefaultUI: true,
         zoomControl: !isMobile,
         mapTypeControl: false,
         streetViewControl: false,
         fullscreenControl: false,
-        styles: DARK_MAP_STYLES,
       });
       mapRef.current = map;
 
@@ -153,29 +152,36 @@ export default function CanvassingMode() {
   }, [pins]);
 
   // Drop pin flow
-  const handleDropPin = useCallback(() => {
-    setGeoError(null);
-    if (!navigator.geolocation) {
-      setGeoError('Geolocation is not supported by your browser');
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        setFormData({ lat: latitude, lng: longitude, address: '', outcome: null, notes: '' });
-        setSheetMode('create');
-        setSheetOpen(true);
+  const [pinDropMode, setPinDropMode] = useState(false);
+  const pinDropListenerRef = useRef(null);
 
-        // Center map on pin
-        if (mapRef.current) {
-          mapRef.current.panTo({ lat: latitude, lng: longitude });
-        }
-      },
-      (err) => {
-        setGeoError(`GPS error: ${err.message}`);
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
+  const handleDropPin = useCallback(() => {
+    if (!mapRef.current) return;
+    // Enter "click to place" mode
+    setPinDropMode(true);
+    mapRef.current.setOptions({ draggableCursor: 'crosshair' });
+
+    // Remove previous listener if any
+    if (pinDropListenerRef.current) {
+      pinDropListenerRef.current.remove();
+    }
+
+    // Listen for a single click on the map
+    pinDropListenerRef.current = mapRef.current.addListener('click', (e) => {
+      const lat = e.latLng.lat();
+      const lng = e.latLng.lng();
+      setFormData({ lat, lng, address: '', outcome: null, notes: '' });
+      setSheetMode('create');
+      setSheetOpen(true);
+
+      // Reset cursor and remove listener
+      mapRef.current.setOptions({ draggableCursor: null });
+      setPinDropMode(false);
+      if (pinDropListenerRef.current) {
+        pinDropListenerRef.current.remove();
+        pinDropListenerRef.current = null;
+      }
+    });
   }, []);
 
   // Save pin
@@ -231,12 +237,13 @@ export default function CanvassingMode() {
   const scheduledCount = stats.outcomes?.find(o => o.outcome === 'scheduled')?.count || 0;
 
   return (
-    <div className="main-content" style={{ padding: 0, overflow: 'hidden', position: 'relative', height: '100%' }}>
+    <div className="main-content" style={{ padding: 0, overflow: 'hidden', position: 'relative', height: '100%', borderRadius: '20px / 18px' }}>
       {/* Map */}
-      <div ref={mapContainer} style={{ position: 'absolute', inset: 0 }} />
+      <div ref={mapContainer} style={{ position: 'absolute', inset: 0, borderRadius: 'inherit' }} />
 
       {/* Stats bar */}
-      <div className="glass" style={styles.statsBar}>
+      <div style={{ position: 'absolute', top: 12, left: 0, right: 0, zIndex: 10, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
+      <div className="glass" style={{ ...styles.statsBar, position: 'relative', top: 'auto', left: 'auto', transform: 'none', pointerEvents: 'auto', background: 'oklch(0.14 0.015 260 / 0.85)', backdropFilter: 'blur(20px) saturate(1.4)' }}>
         <span style={styles.statItem}>
           <strong style={{ color: 'oklch(0.9 0 0)' }}>{stats.total}</strong> doors
         </span>
@@ -248,6 +255,7 @@ export default function CanvassingMode() {
         <span style={styles.statItem}>
           <strong style={{ color: 'oklch(0.7 0.15 220)' }}>{scheduledCount}</strong> scheduled
         </span>
+      </div>
       </div>
 
       {/* Territory toggle button */}
@@ -285,10 +293,28 @@ export default function CanvassingMode() {
 
       {/* Drop Pin FAB */}
       {!sheetOpen && (
-        <button onClick={handleDropPin} style={styles.fab} title="Drop Pin">
-          <MapPinIcon width={28} height={28} />
-          <span style={{ marginLeft: 8, fontWeight: 600 }}>Drop Pin</span>
-        </button>
+        <div style={{ position: 'absolute', bottom: 28, left: 0, right: 0, zIndex: 10, display: 'flex', justifyContent: 'center', gap: 10, pointerEvents: 'none' }}>
+          {pinDropMode ? (
+            <>
+              <div style={{ ...styles.fab, position: 'relative', bottom: 'auto', left: 'auto', transform: 'none', pointerEvents: 'auto', background: 'oklch(0.45 0.15 85)', cursor: 'default' }}>
+                <MapPinIcon width={28} height={28} />
+                <span style={{ marginLeft: 8, fontWeight: 600 }}>Tap the map to place pin</span>
+              </div>
+              <button onClick={() => {
+                setPinDropMode(false);
+                if (mapRef.current) mapRef.current.setOptions({ draggableCursor: null });
+                if (pinDropListenerRef.current) { pinDropListenerRef.current.remove(); pinDropListenerRef.current = null; }
+              }} style={{ ...styles.fab, position: 'relative', bottom: 'auto', left: 'auto', transform: 'none', pointerEvents: 'auto', background: 'oklch(0.40 0.12 25)', minWidth: 'auto', padding: '14px 20px' }}>
+                <XMarkIcon width={24} height={24} />
+              </button>
+            </>
+          ) : (
+            <button onClick={handleDropPin} style={{ ...styles.fab, position: 'relative', bottom: 'auto', left: 'auto', transform: 'none', pointerEvents: 'auto' }} title="Drop Pin">
+              <MapPinIcon width={28} height={28} />
+              <span style={{ marginLeft: 8, fontWeight: 600 }}>Drop Pin</span>
+            </button>
+          )}
+        </div>
       )}
 
       {/* Bottom Sheet */}
