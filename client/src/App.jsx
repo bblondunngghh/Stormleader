@@ -32,6 +32,7 @@ const ExpensesView = lazy(() => import('./components/ExpensesView'));
 const PublicContract = lazy(() => import('./components/PublicContract'));
 const ClientStatusPage = lazy(() => import('./components/ClientStatusPage'));
 const SubcontractorsView = lazy(() => import('./components/SubcontractorsView'));
+const StormCatalog = lazy(() => import('./components/StormCatalog'));
 
 function PageLoader() {
   return (
@@ -47,6 +48,7 @@ const viewRoutes = {
   pipeline: '/pipeline',
   leads: '/leads',
   'storm-map': '/storm-map',
+  'storm-catalog': '/storm-catalog',
   alerts: '/alerts',
   tasks: '/tasks',
   calendar: '/calendar',
@@ -90,6 +92,7 @@ function AppShell() {
           <Route path="/pipeline" element={<Pipeline />} />
           <Route path="/leads" element={<LeadList />} />
           <Route path="/storm-map" element={<StormMap />} />
+          <Route path="/storm-catalog" element={<StormCatalog />} />
           <Route path="/alerts" element={<AlertSettings />} />
           <Route path="/tasks" element={<TasksView />} />
           <Route path="/calendar" element={<CalendarView />} />

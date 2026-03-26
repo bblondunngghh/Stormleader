@@ -20,11 +20,13 @@ import {
   ChevronDownIcon,
   UserGroupIcon,
   ReceiptPercentIcon,
+  ArchiveBoxIcon,
 } from '@heroicons/react/24/outline';
 
 const topItems = [
   { id: 'dashboard', label: 'Dashboard', Icon: ChartBarSquareIcon },
   { id: 'storm-map', label: 'Storm Map', Icon: CloudIcon },
+  { id: 'storm-catalog', label: 'Storm Archive', Icon: ArchiveBoxIcon },
   { id: 'pipeline', label: 'Pipeline', Icon: UserCircleIcon },
   { id: 'leads', label: 'Leads', Icon: HomeModernIcon },
 ];
