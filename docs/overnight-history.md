@@ -220,3 +220,34 @@ and what should be prioritized next. Future agents MUST read this before startin
 - FEMA property data should never be persisted to IndexedDB — it's transient, on-demand data tied to visible storm swaths. Caching it caused stale dots to appear everywhere on map reload.
 - Third-party review sites (Capterra, GetApp) can have severely outdated pricing data. Always scrape the competitor's own pricing page as the authoritative source.
 - The Census Geocoder integration for CSV imports works well as a Google Geocoding replacement — free, no API key, handles batch addresses up to 10,000 rows.
+
+---
+
+## Run: 2026-03-26 (Run 2)
+
+### What was done
+- **Competitor UI Research**: Scraped HailTrace, JobNimbus, RoofLink, and Rooftops.ai via Firecrawl. Created comprehensive 8-area visual comparison document with specific UI patterns, screenshots references, and 10 prioritized improvements.
+- **App Inventory**: Full 39-page audit of every frontend page and backend route, cross-referenced against competitor features to identify actual gaps vs already-built features.
+- **Pipeline Conversion Rates** (vs HailTrace): Added color-coded conversion rate percentages between kanban stage columns showing where leads get stuck in the funnel.
+- **Dashboard Stat Card Indicators** (vs HailTrace): Added directional arrows and color-coded change badges (green/red) to all four dashboard stat cards.
+- **Work Order Photo Upload** (vs RoofLink): Replaced "coming soon" stub with full photo upload — file picker, mobile camera capture, thumbnail display, retake capability. Wired to existing document upload API.
+- **Drip Sequence Merge Fields + Modal** (vs JobNimbus): Replaced browser confirm() with glass-styled modal dialog. Added 10-field merge field toolbar for email personalization. Backend replaces tokens with lead data at send time.
+- Total: 5 commits (2 docs + 3 features), 4 files changed with 222 lines added
+
+### Competitor areas covered
+- Areas completed: Storm Map, Pipeline/CRM, Estimates, Content/Marketing, Work Orders/Production, Dashboard/Reports, Communication/Automation, Payment/Invoicing (all 8 areas researched and documented)
+- Features implemented: Pipeline conversion rates, dashboard indicators, work order photos, drip merge fields
+- Stopped at: All planned implementations complete
+- Next run should start at: Deal value on pipeline cards + column revenue totals (#1 priority gap)
+
+### What was skipped and why
+- Deal value on pipeline cards — highest priority gap but requires estimate-to-lead linking query work
+- Good/Better/Best estimate tiers — medium effort, needs multi-estimate UI redesign
+- Property Report Generator — medium effort, needs PDF/page generation from bundled data sources
+- QuickBooks sync — significant integration effort requiring OAuth flow
+- SMS/texting — requires Twilio account and real costs per message
+
+### Lessons learned
+- A structured competitor research → app inventory → gap prioritization → targeted implementation workflow is highly effective. Researching specific UI patterns before coding ensures changes are competitive, not arbitrary.
+- The app already has many features competitors charge extra for (photo annotation, territory management, financing, content generation) — the gaps are primarily in pipeline revenue visibility and production workflow polish, not missing categories.
+- Replacing browser confirm() dialogs with glass-styled modals is a quick win that significantly improves perceived quality across the entire app.
