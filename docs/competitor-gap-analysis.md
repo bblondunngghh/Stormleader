@@ -1,8 +1,8 @@
 # Competitor Gap Analysis — StormLeads vs JobNimbus + HailTrace + RoofLink + Rooftops.ai
 
-**Date:** 2026-03-25 (third update — re-validated all competitor sites via fresh Firecrawl scrapes)
+**Date:** 2026-03-26 (fourth update — re-validated all competitor sites via fresh Firecrawl scrapes)
 **Methodology:** Web research of competitor websites, review sites, press releases, and pricing pages
-**Last verified:** 2026-03-25 — all pricing and feature data confirmed current via live scrapes
+**Last verified:** 2026-03-26 — all pricing and feature data confirmed current via live scrapes
 
 ---
 
@@ -316,23 +316,24 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 
 ### Pricing (2026)
 
-**CORRECTION:** Multiple sources (GetApp, Capterra, SoftwareAdvice, SoftwareFinder) confirm RoofLink is **$120/user/month**. A prior version of this doc incorrectly listed $400/user/month. Discounts available for larger teams. Combined promo with SalesRabbit Pro: $160/user/month for both platforms.
+**RE-CORRECTION (2026-03-26):** RoofLink's own pricing page (rooflink.com/pricing/) now clearly states **$400/user/month**. Third-party sites (Capterra lists $39, GetApp listed $120) have stale data — likely from before the SalesRabbit/Roofle acquisition (Jan 2026) which significantly increased the platform's scope and price. The $400 figure is the authoritative current price. Volume discounts available for larger companies. Combined promo with SalesRabbit Pro may offer reduced rates.
 
 | Plan | Cost | Includes |
 |---|---|---|
-| **Flat Rate** | $120/user/month | Everything -- CRM, measurements, canvassing, production, estimates, territory management, payments, all integrations |
+| **Flat Rate** | $400/user/month | Everything -- CRM, measurements, canvassing, production, estimates, territory management, payments, all integrations |
 
 - No tiers, no feature gating, no add-on fees
 - No per-measurement costs (built-in satellite roof drawing tool)
 - Volume discounts available for larger companies
 - Setup fee based on complexity of each company (amount not published)
 - Developer API available at developers.rooflink.com for custom integrations
+- Post-acquisition promo: 50% OFF implementation + 50% OFF first 3 months
 
 | Team Size | Users | Monthly | Annual |
 |---|---|---|---|
-| Solo | 1 | **$120** | **$1,440** |
-| 5-person | 5 | **$600** | **$7,200** |
-| 10-person | 10 | **$1,200** | **$14,400** |
+| Solo | 1 | **$400** | **$4,800** |
+| 5-person | 5 | **$2,000** | **$24,000** |
+| 10-person | 10 | **$4,000** | **$48,000** |
 
 **Reported ROI (from RoofLink site):**
 - 70% efficiency increase within 6 months
@@ -346,6 +347,7 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 - "Lean back-office" design reduces office overhead dramatically
 - Close deals within 5-10 minutes of initial contact
 - **Roofle acquisition (Jan 2026):** adds instant online pricing widgets, AI-assisted financing, and e-commerce checkout — homeowners can get quotes without a sales visit
+- Price increased to $400/user/month post-acquisition (up from ~$120 pre-acquisition)
 - Combined bundle promo: 50% OFF implementation + 50% OFF first 3 months (post-acquisition offer)
 
 ---
@@ -572,9 +574,9 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 
 | Team Size | Monthly | Annual |
 |---|---|---|
-| Solo | **$120** | **$1,440** |
-| 5-person | **$600** | **$7,200** |
-| 10-person | **$1,200** | **$14,400** |
+| Solo | **$400** | **$4,800** |
+| 5-person | **$2,000** | **$24,000** |
+| 10-person | **$4,000** | **$48,000** |
 
 ### Rooftops.ai
 
@@ -607,7 +609,7 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 5. **Custom fields** -- free, vs JobNimbus requiring Premium/Established tier (~$550/mo base)
 6. **Online payments** -- Stripe integration free, vs JobNimbus charging $49-249/mo for Engage texting/payment
 7. **Work order kanban** -- 4-column visual board, better than JobNimbus's basic work orders
-8. **No per-user fees** -- flat pricing vs JobNimbus ($25-75/user), RoofLink ($120/user)
+8. **No per-user fees** -- flat pricing vs JobNimbus ($25-75/user), RoofLink ($400/user)
 9. **Weather history reports** -- free, vs HailTrace charging for this as a paid tier feature
 10. **Impacted asset alerts** -- free, vs HailTrace charging for impact tracking
 
@@ -676,9 +678,9 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 
 | Company Size | RoofLink | StormLeads | Monthly Savings | % Saved |
 |---|---|---|---|---|
-| Solo | $120/mo | $29/mo | **$91** | **76%** |
-| 5-person | $600/mo | $79/mo | **$521** | **87%** |
-| 10-person | $1,200/mo | $149/mo | **$1,051** | **88%** |
+| Solo | $400/mo | $29/mo | **$371** | **93%** |
+| 5-person | $2,000/mo | $79/mo | **$1,921** | **96%** |
+| 10-person | $4,000/mo | $149/mo | **$3,851** | **96%** |
 
 ---
 
@@ -708,18 +710,18 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 ## Key Marketing Messages
 
 1. **"One platform, not two"** -- CRM + storm data + canvassing in one app (competitors need JN + HailTrace)
-2. **"No per-user fees"** -- flat monthly price vs JobNimbus ($25-75/user) and RoofLink ($120/user)
+2. **"No per-user fees"** -- flat monthly price vs JobNimbus ($25-75/user) and RoofLink ($400/user)
 3. **"90% cheaper than JobNimbus + HailTrace combined"** -- $79/mo vs $769/mo for 5-person team
 4. **"Free storm data powered by NOAA"** -- same government data sources, zero markup
 5. **"Unlimited automations at every tier"** -- vs JobNimbus capping at 10-100
 6. **"All the features, none of the add-on fees"** -- estimates, e-sign, payments all included
 7. **"Switch from $769/mo to $79/mo"** -- for a typical 5-person team using JN + HailTrace
 8. **"They hide their pricing — we don't"** -- JobNimbus and HailTrace both require "request pricing" forms
-9. **"RoofLink now costs $160/user with SalesRabbit bundle"** -- 5-person team = $800/mo; StormLeads = $79/mo
+9. **"RoofLink charges $400/user/month"** -- 5-person team = $2,000/mo; StormLeads = $79/mo (96% savings)
 
 ## Competitive Landscape Shifts (March 2026)
 
-1. **RoofLink/SalesRabbit platform consolidation** — With the Roofle acquisition (Jan 2026), RoofLink's parent SalesRabbit now offers an end-to-end platform: online quoting (Roofle) → field sales (SalesRabbit) → production (RoofLink). This makes them a more direct competitor to StormLeads' "one platform" positioning. However, their per-user pricing ($120-160/user/mo) remains StormLeads' key advantage.
+1. **RoofLink/SalesRabbit platform consolidation + price increase** — With the Roofle acquisition (Jan 2026), RoofLink's parent SalesRabbit now offers an end-to-end platform: online quoting (Roofle) → field sales (SalesRabbit) → production (RoofLink). Their pricing page now shows **$400/user/month** (up from ~$120 pre-acquisition per third-party sites). This makes them the most expensive competitor by far: a 5-person team pays $2,000/mo vs StormLeads' $79/mo. Their premium pricing is StormLeads' strongest competitive advantage.
 
 2. **JobNimbus marketing expansion** — JN now offers both a managed marketing agency service (paid retainer, undisclosed pricing) and a built-in marketing automation system (beta). This pushes them further into the "all-in-one" space, though at significantly higher cost.
 
@@ -748,4 +750,6 @@ HailTrace does not publish exact pricing. Contact/demo required for all paid tie
 - [Hook Agency HailTrace vs Hail Recon Comparison](https://hookagency.com/blog/hail-trackers-for-roofing/) — includes Hail Recon pricing
 - [QuoteIQ Pricing & AI Tools](https://myquoteiq.com/pricing/) — emerging AI-first roofing CRM competitor
 - [RoofLink Developer API](https://developers.rooflink.com/docs/introduction)
-- Firecrawl scrapes of jobnimbus.com, hailtrace.com, rooflink.com, rooftops.ai (2026-03-25)
+- Firecrawl scrapes of jobnimbus.com, hailtrace.com, rooflink.com, rooftops.ai (2026-03-25, 2026-03-26)
+- RoofLink pricing page direct scrape confirming $400/user/month (2026-03-26)
+- Capterra RoofLink listing showing stale $39/user price (last updated 2026-03-13)
