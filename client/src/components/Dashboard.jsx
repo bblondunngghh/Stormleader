@@ -968,8 +968,15 @@ export default function Dashboard() {
       <div className="grid grid-cols-4 gap-[var(--space-md)]">
         {stats.map((stat) => (
           <GlassCard key={stat.label} onClick={() => navigate(stat.link)} className="group cursor-pointer p-5 flex flex-col gap-2 items-center text-center relative">
-            <span className="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full bg-[oklch(0.75_0.18_155/0.12)] text-[var(--accent-green)]">
-              {stat.change}
+            <span
+              className="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full"
+              style={{
+                color: stat.change?.startsWith?.('+') ? 'oklch(0.75 0.18 155)' : stat.change?.startsWith?.('-') ? 'oklch(0.68 0.22 25)' : 'var(--text-muted)',
+                background: stat.change?.startsWith?.('+') ? 'oklch(0.75 0.18 155 / 0.12)' : stat.change?.startsWith?.('-') ? 'oklch(0.68 0.22 25 / 0.12)' : 'oklch(0.55 0.02 260 / 0.1)',
+              }}
+              title="vs previous week"
+            >
+              {stat.change?.startsWith?.('+') ? '↑ ' : stat.change?.startsWith?.('-') ? '↓ ' : ''}{stat.change}
             </span>
             {(() => { const StatIcon = statIconMap[stat.icon]; return StatIcon ? <StatIcon width={28} height={28} className="opacity-85 transition-transform duration-300 ease-out group-hover:rotate-12" style={{ filter: `drop-shadow(0 0 6px oklch(0.50 0.10 ${stat.tint} / 0.3))` }} /> : null; })()}
             <div className="text-[28px] font-[820] tracking-[-0.04em] leading-none text-[var(--text-primary)]">

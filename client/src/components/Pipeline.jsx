@@ -970,12 +970,29 @@ export default function Pipeline() {
                 {/* Collapsed — header is the expand trigger, no extra button needed */}
               </div>
 
-              {/* Divider line */}
-              {idx < columns.length - 1 && !isCollapsed && (
-                <div className="shrink-0 w-[16px] self-stretch flex justify-center" style={{ marginTop: 52 }}>
-                  <div className="w-[2px] h-full" style={{ background: `linear-gradient(to bottom, color-mix(in oklch, ${col.color} 30%, transparent), color-mix(in oklch, ${col.color} 6%, transparent))` }} />
-                </div>
-              )}
+              {/* Divider line with conversion rate */}
+              {idx < columns.length - 1 && !isCollapsed && (() => {
+                const nextCol = columns[idx + 1];
+                const nextLeads = leads.filter(l => l.stage === nextCol.key);
+                const convRate = colLeads.length > 0 ? Math.round((nextLeads.length / colLeads.length) * 100) : 0;
+                return (
+                  <div className="shrink-0 w-[40px] self-stretch flex flex-col items-center" style={{ marginTop: 52 }}>
+                    {colLeads.length > 0 && nextLeads.length > 0 && (
+                      <span
+                        className="text-[9px] font-bold py-0.5 px-1.5 rounded-full mb-1 whitespace-nowrap"
+                        style={{
+                          color: convRate >= 50 ? 'oklch(0.75 0.18 155)' : convRate >= 25 ? 'oklch(0.78 0.17 85)' : 'oklch(0.68 0.22 25)',
+                          background: convRate >= 50 ? 'oklch(0.75 0.18 155 / 0.12)' : convRate >= 25 ? 'oklch(0.78 0.17 85 / 0.12)' : 'oklch(0.68 0.22 25 / 0.12)',
+                        }}
+                        title={`${convRate}% of ${col.label} leads are in ${nextCol.label}`}
+                      >
+                        {convRate}%
+                      </span>
+                    )}
+                    <div className="w-[2px] flex-1" style={{ background: `linear-gradient(to bottom, color-mix(in oklch, ${col.color} 30%, transparent), color-mix(in oklch, ${col.color} 6%, transparent))` }} />
+                  </div>
+                );
+              })()}
               {idx < columns.length - 1 && isCollapsed && (
                 <div className="shrink-0 w-[4px]" />
               )}
