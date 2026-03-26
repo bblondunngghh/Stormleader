@@ -195,3 +195,28 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Overture Maps REST API (via thatapicompany.com) provides the same Microsoft + Google + OSM building footprints that previously required bulk GeoParquet downloads — now queryable on-demand per lat/lng.
 - The Census Geocoder is a direct free replacement for Google Geocoding — handles both single addresses and 10,000-row batch CSVs with no API key and no per-request charge.
 - All 17 identified data sources can be queried at runtime, which is critical given the 0.5 GB Neon free tier constraint. The architecture decision to keep external data external is paying dividends.
+
+---
+
+## Run: 2026-03-26
+
+### What was done
+- **Competitor Pricing Validation**: Fresh Firecrawl scrapes confirmed RoofLink now charges $400/user/month (up from ~$120 pre-acquisition). Updated all pricing tables and savings comparisons in competitor gap analysis.
+- **CSV Lead Import**: Built full-featured ImportLeadsModal with drag-and-drop CSV upload, auto column mapping, preview table, and import results summary. Integrates with free US Census geocoding API — zero Google API costs. Added to LeadList toolbar.
+- **oklch Color Purge (Final)**: Converted every remaining hex color and rgba() shadow to oklch across 12 components and the main stylesheet. The entire application now uses a single oklch-based color system with no legacy formats.
+- **FEMA Map Performance Fix**: Fixed critical bug where FEMA property dots appeared everywhere on initial map load. Root cause: stale IndexedDB cache restoring FEMA data before swath polygons loaded. Fix: stopped persisting FEMA data to IndexedDB, filter stale entries on restore, purge on zoom-out.
+- Total: 5 commits
+
+### What should be done next run
+1. **NOAA SWDI "Honey Hole Finder"** — On-demand historical hail frequency overlay using free SWDI REST API. No DB storage needed.
+2. **Automated Lead Scoring** — Composite score from Census ACS + FEMA declarations + SWDI hail history. All on-demand API queries.
+3. **SMS/Texting via Twilio** — Basic appointment reminders and follow-ups (~$0.0075/msg).
+4. **QuickBooks Sync** — Free API tier, start with one-way invoice push.
+5. **AI Content Generation** — Cheap LLM integration for marketing copy, scripts, emails (~$0.01/request).
+6. **Update feature comparison matrix** — Territory assignment shows "Missing" but was built in a prior session; verify and update.
+7. **Dashboard loading skeleton** — Unified shimmer placeholders for initial load.
+
+### Lessons learned
+- FEMA property data should never be persisted to IndexedDB — it's transient, on-demand data tied to visible storm swaths. Caching it caused stale dots to appear everywhere on map reload.
+- Third-party review sites (Capterra, GetApp) can have severely outdated pricing data. Always scrape the competitor's own pricing page as the authoritative source.
+- The Census Geocoder integration for CSV imports works well as a Google Geocoding replacement — free, no API key, handles batch addresses up to 10,000 rows.
