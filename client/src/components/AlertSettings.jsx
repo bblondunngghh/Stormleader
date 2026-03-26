@@ -334,10 +334,10 @@ function ToggleSwitch({ checked, onChange }) {
     <Switch
       checked={!!checked}
       onChange={onChange}
-      onColor="#0072d5"
-      offColor="#2e3245"
-      onHandleColor="#ffffff"
-      offHandleColor="#ffffff"
+      onColor="oklch(0.55 0.19 250)"
+      offColor="oklch(0.22 0.03 260)"
+      onHandleColor="oklch(1 0 0)"
+      offHandleColor="oklch(1 0 0)"
       handleDiameter={18}
       uncheckedIcon={false}
       checkedIcon={false}

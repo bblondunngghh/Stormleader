@@ -36,7 +36,7 @@ export default function TopBar({ activeView, onNavigate }) {
 
       {/* Mobile: ROOF COMMAND branding */}
       <div className="topbar__mobile-brand show-mobile" style={{ display: 'none', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.02em', color: '#00e5ff', fontFamily: "'Space Grotesk', sans-serif" }}>
+        <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.02em', color: 'oklch(0.82 0.15 200)', fontFamily: "'Space Grotesk', sans-serif" }}>
           ROOF COMMAND
         </span>
       </div>

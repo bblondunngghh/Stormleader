@@ -195,7 +195,7 @@ export default function PhotoAnnotator({ imageUrl, onSave, onClose }) {
 
   return (
     <>
-      <div onClick={onClose}
+      <div className="modal-backdrop" onClick={onClose}
         style={{ position: 'fixed', inset: 0, background: 'oklch(0.03 0.02 260 / 0.85)', backdropFilter: 'blur(8px)', zIndex: 200 }} />
       <div style={{
         position: 'fixed', inset: 'var(--space-lg)', zIndex: 201,

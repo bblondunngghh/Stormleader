@@ -110,7 +110,7 @@ export default function DatePicker({ value, onChange, placeholder }) {
                 style={{
                   textAlign: 'center', padding: '6px 0', fontSize: 12, borderRadius: 6,
                   cursor: day ? 'pointer' : 'default',
-                  color: day === selectedDay ? '#fff' : day === todayDay ? 'var(--accent-blue)' : day ? 'var(--text-secondary)' : 'transparent',
+                  color: day === selectedDay ? 'oklch(1 0 0)' : day === todayDay ? 'var(--accent-blue)' : day ? 'var(--text-secondary)' : 'transparent',
                   background: day === selectedDay ? 'var(--accent-blue)' : 'transparent',
                   fontWeight: day === selectedDay || day === todayDay ? 700 : 400,
                 }}

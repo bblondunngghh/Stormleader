@@ -24,7 +24,7 @@ export default function SettingsView() {
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState(() => {
     const urlTab = searchParams.get('tab');
-    return ['profile', 'company', 'billing', 'payments', 'team', 'alerts', 'notifications', 'financing', 'automations', 'drip-sequences', 'custom-fields', 'contracts', 'reviews'].includes(urlTab) ? urlTab : 'profile';
+    return ['profile', 'company', 'billing', 'payments', 'team', 'alerts', 'notifications', 'email', 'financing', 'automations', 'drip-sequences', 'custom-fields', 'contracts', 'reviews'].includes(urlTab) ? urlTab : 'profile';
   });
 
   const tabs = [
@@ -35,6 +35,7 @@ export default function SettingsView() {
     { id: 'team', label: 'Team' },
     { id: 'alerts', label: 'Storm Alerts' },
     { id: 'notifications', label: 'Notifications' },
+    { id: 'email', label: 'Email / SMTP' },
     { id: 'financing', label: 'Financing' },
     { id: 'automations', label: 'Automations' },
     { id: 'drip-sequences', label: 'Drip Sequences' },
@@ -44,13 +45,20 @@ export default function SettingsView() {
   ];
 
   return (
-    <div className="main-content" style={{ gap: 0, maxWidth: 800, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-      {/* Tab Navigation — fixed at top, scrollable horizontally */}
-      <div style={{ display: 'flex', gap: 2, background: 'oklch(0.16 0.02 260 / 0.6)', borderRadius: 'var(--radius-md)', padding: 3, border: '1px solid var(--glass-border)', overflowX: 'auto', flexShrink: 0, scrollbarWidth: 'none', zIndex: 20 }}>
+    <div className="main-content" style={{ gap: 0, overflow: 'hidden', display: 'flex', flexDirection: 'row' }}>
+      {/* Tab Navigation — vertical sidebar on desktop */}
+      <div style={{
+        display: 'flex', flexDirection: 'column', gap: 2,
+        background: 'oklch(0.16 0.02 260 / 0.6)', borderRadius: 'var(--radius-md)',
+        padding: 6, border: '1px solid var(--glass-border)',
+        flexShrink: 0, width: 180, overflowY: 'auto', scrollbarWidth: 'none',
+        zIndex: 20, alignSelf: 'flex-start', position: 'sticky', top: 0,
+      }}>
         {tabs.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
             style={{
-              padding: '8px 12px', borderRadius: 'var(--radius-sm)', fontSize: 12, fontWeight: 600, border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
+              padding: '8px 12px', borderRadius: 'var(--radius-sm)', fontSize: 12, fontWeight: 600,
+              border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', textAlign: 'left',
               background: tab === t.id ? 'oklch(0.30 0.05 250 / 0.6)' : 'transparent',
               color: tab === t.id ? 'var(--accent-blue)' : 'var(--text-muted)',
               transition: 'all 0.15s var(--ease-out)',
@@ -60,8 +68,8 @@ export default function SettingsView() {
         ))}
       </div>
 
-      {/* Tab Content — scrollable */}
-      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)', paddingTop: 'var(--space-lg)' }}>
+      {/* Tab Content — scrollable, fills remaining width */}
+      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)', padding: '0 var(--space-lg) var(--space-lg) var(--space-lg)', minWidth: 0 }}>
       {tab === 'profile' && <ProfileTab user={user} />}
       {tab === 'company' && <CompanyTab />}
       {tab === 'billing' && <BillingTab />}
@@ -69,6 +77,7 @@ export default function SettingsView() {
       {tab === 'team' && <TeamTab currentUserId={user?.id} />}
       {tab === 'alerts' && <AlertsTab />}
       {tab === 'notifications' && <NotificationsTab />}
+      {tab === 'email' && <EmailSmtpTab />}
       {tab === 'financing' && <FinancingTab />}
       {tab === 'automations' && <AutomationSettings />}
       {tab === 'drip-sequences' && <DripSequences />}
@@ -1457,8 +1466,8 @@ function AddCardForm({ email, onSuccess }) {
       }}>
         <CardElement options={{
           style: {
-            base: { fontSize: '14px', color: '#e0e0e0', '::placeholder': { color: '#666' } },
-            invalid: { color: '#ef4444' },
+            base: { fontSize: '14px', color: 'oklch(0.90 0.01 260)', '::placeholder': { color: 'oklch(0.50 0.01 260)' } },
+            invalid: { color: 'oklch(0.68 0.22 25)' },
           },
         }} />
       </div>
