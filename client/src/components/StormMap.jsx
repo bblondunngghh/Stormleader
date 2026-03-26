@@ -513,6 +513,7 @@ export default function StormMap() {
 
       const dl = dataLayersRef.current;
       for (const key of ['hail', 'wind', 'tornado', 'thunderstorm', 'drift']) {
+        if (!mapRef.current) break; // component unmounted, stop
         const layer = dl[key];
         if (!layer) continue;
         layer.forEach(feat => layer.remove(feat));
@@ -523,6 +524,8 @@ export default function StormMap() {
             console.warn(`Failed to add ${key} GeoJSON:`, e);
           }
         }
+        // Yield to main thread between layer types so UI stays responsive
+        await new Promise(r => setTimeout(r, 0));
       }
       stormFeaturesRef.current = individualFeatures;
       stormsLoadedRef.current = true;
@@ -2075,6 +2078,14 @@ export default function StormMap() {
       for (const lbl of propLabelsRef.current) lbl.map = null;
       propLabelsRef.current = [];
       if (swathAbortRef.current) swathAbortRef.current.abort();
+      if (femaAbortRef.current) femaAbortRef.current.abort();
+      clearTimeout(swathDebounceRef.current);
+      clearTimeout(femaDebounceRef.current);
+      clearTimeout(rebuildTimerRef.current);
+      // Free large data structures
+      propFeaturesRef.current = [];
+      stormFeaturesRef.current = [];
+      clusterIndexRef.current = null;
       swathPropCacheRef.current.clear();
       swathLoadedRef.current.clear();
       propIdSetRef.current.clear();
