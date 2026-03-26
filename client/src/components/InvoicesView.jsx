@@ -215,6 +215,15 @@ export default function InvoicesView() {
                         background: `color-mix(in oklch, ${statusColors[inv.status]} 15%, transparent)`,
                         color: statusColors[inv.status], textTransform: 'uppercase', letterSpacing: '0.06em',
                       }}>{statusLabels[inv.status] || inv.status}</span>
+                      {inv.status === 'sent' && inv.due_date && new Date(inv.due_date) < new Date() && (
+                        <span style={{
+                          fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 6,
+                          background: 'oklch(0.30 0.12 30 / 0.4)', color: 'oklch(0.75 0.15 30)',
+                          marginLeft: 6,
+                        }}>
+                          OVERDUE
+                        </span>
+                      )}
                     </td>
                     <td style={{ fontWeight: 700 }}>${Number(inv.total).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                     <td style={{ color: 'oklch(0.75 0.18 145)' }}>${Number(inv.amount_paid || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>

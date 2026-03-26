@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import config from '../config/env.js';
 import logger from '../utils/logger.js';
+import pool from '../db/pool.js';
 
 let transporter = null;
 
@@ -23,6 +24,22 @@ function getTransporter() {
   });
 
   return transporter;
+}
+
+/**
+ * Create a transporter from tenant SMTP settings stored in branding JSONB.
+ * Falls back to the global env transporter if tenant SMTP is not configured.
+ */
+export function getTenantTransporter(branding) {
+  if (!branding?.smtp_host || !branding?.smtp_pass) {
+    return getTransporter();
+  }
+  return nodemailer.createTransport({
+    host: branding.smtp_host,
+    port: branding.smtp_port || 587,
+    secure: (branding.smtp_port || 587) === 465,
+    auth: branding.smtp_user ? { user: branding.smtp_user, pass: branding.smtp_pass } : undefined,
+  });
 }
 
 /**
@@ -128,4 +145,58 @@ export async function sendAutomationEmail(to, { subject, body, contactName }) {
   const result = await transport.sendMail({ from, to, subject, html, text: body });
   logger.info({ to, messageId: result.messageId }, 'Automation email sent');
   return result;
+}
+
+/**
+ * Send overdue invoice payment reminders.
+ * Finds invoices with status 'sent' that are past due and haven't been reminded in 7 days.
+ */
+export async function sendOverdueInvoiceReminders() {
+  const { rows: overdueInvoices } = await pool.query(`
+    SELECT i.*, t.name AS company_name, t.sender_email, t.branding,
+           l.contact_name, l.contact_email
+    FROM invoices i
+    JOIN tenants t ON t.id = i.tenant_id
+    LEFT JOIN leads l ON l.id = i.lead_id
+    WHERE i.status = 'sent'
+      AND i.due_date < NOW()
+      AND (i.last_reminder_at IS NULL OR i.last_reminder_at < NOW() - INTERVAL '7 days')
+      AND l.contact_email IS NOT NULL
+  `);
+
+  for (const inv of overdueInvoices) {
+    try {
+      const daysOverdue = Math.floor((Date.now() - new Date(inv.due_date).getTime()) / 86400000);
+      const companyName = inv.company_name || 'Your Contractor';
+      const transport = getTenantTransporter(inv.branding);
+      const from = inv.sender_email || config.SMTP_FROM || '"StormLeads" <noreply@stormleads.io>';
+
+      if (!transport) {
+        logger.info({ invoiceId: inv.id, to: inv.contact_email }, 'Overdue reminder (SMTP not configured, logging only)');
+        await pool.query('UPDATE invoices SET last_reminder_at = NOW() WHERE id = $1', [inv.id]);
+        continue;
+      }
+
+      await transport.sendMail({
+        from,
+        to: inv.contact_email,
+        subject: `Payment Reminder: Invoice ${inv.invoice_number} — ${daysOverdue} days overdue`,
+        html: `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 500px; margin: 0 auto; padding: 32px;">
+          <h2>Payment Reminder</h2>
+          <p>Hi ${inv.contact_name ? inv.contact_name.split(' ')[0] : 'there'},</p>
+          <p>This is a friendly reminder that invoice <strong>${inv.invoice_number}</strong> for
+          <strong>$${Number(inv.total || 0).toLocaleString()}</strong> was due on
+          ${new Date(inv.due_date).toLocaleDateString()} (${daysOverdue} days ago).</p>
+          <p>If you've already sent payment, please disregard this notice.</p>
+          <p>Thank you,<br/>${companyName}</p>
+        </div>`,
+        text: `Payment Reminder: Invoice ${inv.invoice_number} for $${Number(inv.total || 0).toLocaleString()} was due on ${new Date(inv.due_date).toLocaleDateString()} (${daysOverdue} days ago). If you've already sent payment, please disregard this notice. — ${companyName}`,
+      });
+
+      await pool.query('UPDATE invoices SET last_reminder_at = NOW() WHERE id = $1', [inv.id]);
+      logger.info({ invoiceId: inv.id, to: inv.contact_email }, `Sent overdue reminder for invoice ${inv.invoice_number}`);
+    } catch (err) {
+      logger.warn({ invoiceId: inv.id, err: err.message }, `Failed to send reminder for invoice ${inv.id}`);
+    }
+  }
 }

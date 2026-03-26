@@ -11,6 +11,7 @@ import { correctAllPending } from '../services/windDriftService.js';
 import { autoImportForStorms } from '../services/countyService.js';
 import { checkImpactedAssetsForEvents } from '../services/impactedAssetService.js';
 import { processScheduledSteps } from '../services/dripService.js';
+import { sendOverdueInvoiceReminders } from '../services/emailService.js';
 
 export function startScheduler() {
   if (config.NODE_ENV === 'test') {
@@ -123,7 +124,17 @@ export function startScheduler() {
     }
   });
 
-  logger.info('Ingestion scheduler started (MRMS: 30m, NWS: 1h, SPC: 2h, auto-import: 3x/day, drip: 15m, cleanup: 3am daily)');
+  // Overdue invoice payment reminders — daily at 9am
+  cron.schedule('0 9 * * *', async () => {
+    logger.info('Scheduler: checking for overdue invoice reminders');
+    try {
+      await sendOverdueInvoiceReminders();
+    } catch (err) {
+      logger.error({ err }, 'Overdue invoice reminders failed');
+    }
+  });
+
+  logger.info('Ingestion scheduler started (MRMS: 30m, NWS: 1h, SPC: 2h, auto-import: 3x/day, drip: 15m, invoices: 9am daily, cleanup: 3am daily)');
 
   // Run NWS + SPC ingestion immediately on startup (don't wait for first cron tick)
   setTimeout(async () => {
