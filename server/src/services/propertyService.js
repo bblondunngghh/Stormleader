@@ -96,7 +96,11 @@ export async function findPropertiesInSwathLight(stormEventId, options = {}) {
         COALESCE(p.year_built, p.fema_year_built) AS year_built,
         p.data_source,
         COALESCE(p.assessed_value, p.fema_replacement_value) AS assessed_value,
-        p.fema_bldg_type
+        p.fema_bldg_type,
+        p.address_line1, p.city, p.state, p.zip,
+        p.owner_first_name, p.owner_last_name,
+        COALESCE(p.property_sqft, p.fema_sqft) AS property_sqft,
+        p.roof_type, p.county_parcel_id
      FROM properties p
      JOIN storm_events se ON se.id = $1
      WHERE p.location && se.geom AND ST_Intersects(p.location, se.geom)
@@ -120,6 +124,15 @@ export async function findPropertiesInSwathLight(stormEventId, options = {}) {
         data_source: r.data_source,
         assessed_value: r.assessed_value,
         fema_bldg_type: r.fema_bldg_type,
+        address_line1: r.address_line1,
+        city: r.city,
+        state: r.state,
+        zip: r.zip,
+        owner_first_name: r.owner_first_name,
+        owner_last_name: r.owner_last_name,
+        property_sqft: r.property_sqft,
+        roof_type: r.roof_type,
+        county_parcel_id: r.county_parcel_id,
       },
     })),
   };
