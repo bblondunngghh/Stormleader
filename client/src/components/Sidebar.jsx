@@ -19,6 +19,7 @@ import {
   PresentationChartBarIcon,
   ChevronDownIcon,
   UserGroupIcon,
+  ReceiptPercentIcon,
 } from '@heroicons/react/24/outline';
 
 const topItems = [
@@ -44,7 +45,7 @@ const groups = [
     label: 'Finance',
     items: [
       { id: 'invoices', label: 'Invoices', Icon: BanknotesIcon },
-      { id: 'expenses', label: 'Expenses', Icon: BanknotesIcon },
+      { id: 'expenses', label: 'Expenses', Icon: ReceiptPercentIcon },
     ],
   },
   {

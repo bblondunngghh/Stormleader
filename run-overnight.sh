@@ -1,8 +1,8 @@
 #!/bin/bash
-# StormLeads Overnight Build Script — STAGED EXECUTION
-# Each stage runs as a separate claude invocation with validation gates.
-# The agent cannot short-circuit — each stage must produce real output
-# before the next stage begins.
+# StormLeads Overnight Build Script — COMPETITOR-DRIVEN IMPROVEMENT
+# Each stage runs as a separate claude invocation.
+# Stage 1: Inventory our app | Stage 2: Research competitors visually
+# Stage 3: Compare & improve features | Stage 4: UI consistency check | Stage 5: Report
 
 cd /c/Projects/stormleads
 
@@ -23,7 +23,7 @@ git tag -f "overnight-checkpoint-${TODAY}"
 git push origin HEAD --force-with-lease 2>/dev/null
 git push origin "pre-overnight-${TODAY}" --force 2>/dev/null
 
-log "=== STAGED OVERNIGHT RUN STARTING ==="
+log "=== OVERNIGHT RUN STARTING (competitor-driven) ==="
 
 # --- Ensure Firecrawl is available ---
 if ! command -v firecrawl &>/dev/null; then
@@ -33,20 +33,22 @@ fi
 firecrawl --status >> "$LOG" 2>&1
 
 # --- Start tunnel for local dev server ---
-# Firecrawl is cloud-based and cannot access localhost.
-# Start vite + localtunnel so Firecrawl can reach the dev server.
+cd /c/Projects/stormleads && npm run dev &>/dev/null &
+BACKEND_PID=$!
+sleep 3
+
 cd /c/Projects/stormleads/client && npx vite --host 0.0.0.0 &>/dev/null &
 VITE_PID=$!
 sleep 5
 
-# Start localtunnel
+# Start localtunnel so Firecrawl (cloud-based) can reach localhost
 npx -y localtunnel --port 5173 > /tmp/localtunnel-output.txt 2>&1 &
 TUNNEL_PID=$!
 sleep 10
 TUNNEL_URL=$(grep -oP 'https://[a-z0-9-]+\.loca\.lt' /tmp/localtunnel-output.txt | head -1)
 
 if [ -z "$TUNNEL_URL" ]; then
-  log "WARNING: Could not start tunnel. UI audit stage will be limited."
+  log "WARNING: Could not start tunnel. Firecrawl won't reach localhost."
   TUNNEL_URL="http://localhost:5173"
 else
   log "Tunnel active: $TUNNEL_URL"
@@ -55,16 +57,13 @@ fi
 cd /c/Projects/stormleads
 
 # --- Helper: run a stage with retry ---
-# Usage: run_stage <stage_name> <max_turns> <prompt_file>
-# Writes JSON output to claude-overnight-YYYYMMDD-<stage_name>.json
-# Sets STAGE_TURNS and STAGE_EXIT after completion
 run_stage() {
   local name="$1"
   local max_turns="$2"
   local prompt_file="$3"
   local out_file="claude-overnight-${TODAY}-${name}.json"
   local retries=3
-  local wait=300  # 5 min between retries
+  local wait=300
 
   log "--- STAGE: $name (max $max_turns turns) ---"
 
@@ -80,7 +79,6 @@ run_stage() {
 
     STAGE_EXIT=$?
 
-    # Check for rate limit
     if [ $STAGE_EXIT -ne 0 ] && grep -qi "rate.limit\|too many\|overloaded\|429" "$out_file" 2>/dev/null; then
       log "  Rate limited. Waiting ${wait}s..."
       sleep $wait
@@ -88,11 +86,9 @@ run_stage() {
       continue
     fi
 
-    # Extract stats
     STAGE_TURNS=$(node -e "try{const d=require('./$out_file');console.log(d.num_turns||0)}catch{console.log(0)}" 2>/dev/null)
     STAGE_COST=$(node -e "try{const d=require('./$out_file');console.log(d.total_cost_usd||0)}catch{console.log(0)}" 2>/dev/null)
     STAGE_STOP=$(node -e "try{const d=require('./$out_file');console.log(d.stop_reason||'unknown')}catch{console.log('unknown')}" 2>/dev/null)
-    STAGE_RESULT=$(node -e "try{const d=require('./$out_file');console.log((d.result||'').substring(0,200))}catch{console.log('')}" 2>/dev/null)
 
     TOTAL_TURNS=$((TOTAL_TURNS + STAGE_TURNS))
     TOTAL_COST=$(node -e "console.log(($TOTAL_COST + $STAGE_COST).toFixed(2))")
@@ -106,398 +102,418 @@ run_stage() {
   return 1
 }
 
-# --- Create stage prompt files ---
-# Each stage gets a focused, scoped prompt that can't be short-circuited.
-
-# PREAMBLE included in every stage
+# ============================================================
+# PREAMBLE — included in every stage
+# ============================================================
 cat > /tmp/overnight-preamble.txt << 'PREAMBLE'
 You are working on the StormLeads application — a roofing CRM and storm lead generation tool.
 Working directory: /c/Projects/stormleads
-Frontend: client/ (React + Vite at http://localhost:5173)
+Frontend: client/ (React + Vite)
 Backend: server/ (Node/Express + PostgreSQL)
 
 CRITICAL CONSTRAINTS:
-1. ZERO paid APIs. Only free public data sources (NOAA, FEMA NSI).
+1. ZERO paid APIs. Only free public data sources (NOAA, FEMA NSI, Census, etc.).
 2. ZERO bulk geocoding. Google geocoding API costs real money.
 3. ZERO bulk DB writes. Production DB is Neon free tier (0.5 GB storage limit).
 4. Follow existing patterns: oklch colors, .glass class, dark-mode-first, pool.query() from ../db/pool.js
 5. Build check after EVERY change: cd /c/Projects/stormleads/client && npx vite build
 6. Commit after EVERY completed task with a descriptive message.
+7. All external data must be queried ON-DEMAND at runtime — never bulk import into the database.
 
-DATABASE STORAGE RULES (NEON FREE TIER = 0.5 GB):
-- Do NOT import bulk historical data (NOAA Storm Events CSVs, SPC SVRGIS archive, etc.)
-- Do NOT create tables that store large datasets (millions of geometry rows, weather history, etc.)
-- All storm/weather data must be fetched ON-DEMAND from free APIs, never pre-loaded into our DB
-- Only store user-generated data in our DB: leads, estimates, tasks, notes, etc.
-- If a feature needs external data, query the external API at runtime and cache briefly in memory
-- Before creating ANY new migration, estimate the row count and avg row size — reject if total > 50 MB
-
-WEB TOOLS:
-- Use ONLY the firecrawl CLI for ALL web operations (search, scrape, browse).
+WEB/BROWSER TOOLS — USE FIRECRAWL FOR EVERYTHING:
+- Use ONLY the firecrawl skill/CLI for ALL web operations (search, scrape, screenshot, browse).
 - Do NOT use Chrome MCP tools (mcp__claude-in-chrome__*) or Playwright (mcp__plugin_playwright_playwright__*).
-- For web search: firecrawl search "query" -o .firecrawl/result.json
-- For scraping pages: firecrawl scrape <url> -o .firecrawl/page.md
-- For screenshots: firecrawl scrape <url> --format screenshot -o .firecrawl/screenshot.json
-- For interactive pages: firecrawl browser "open <url>" then firecrawl browser "snapshot"
+- For web search: firecrawl search "query"
+- For scraping pages: firecrawl scrape <url>
+- For screenshots: firecrawl scrape <url> --format screenshot
+- For interactive pages (login, clicking): firecrawl browser "open <url>", firecrawl browser "snapshot", etc.
 - Store all firecrawl outputs in .firecrawl/ directory.
 - Run independent scrapes in parallel with & and wait.
+
+DONE LIST — DO NOT REDO THESE. THEY ARE FINISHED:
+- Competitor research TEXT: docs/competitor-gap-analysis.md is comprehensive (updated 2026-03-26). DO NOT rewrite it. You may APPEND new findings only.
+- oklch color migration: DONE. DO NOT audit or "find remaining" hex values.
+- CSS animations system: DONE. --transition-fast/normal/slow/spring, modal-scale-in, etc.
+- Security audit: DONE. All routes authed, queries parameterized, rate limiting, hashed tokens. DO NOT re-audit.
+- Modal animations: DONE. All modals have modal-backdrop class and scale-in.
+- FEMA map properties: DO NOT TOUCH. This code is being actively worked on by the developer. ANY changes to FEMA property loading, filtering, IndexedDB caching, or storm swath intersection logic WILL BE REVERTED. Leave it alone completely.
+- Pricing recommendation: DONE. $29/$79/$149 tiers. DO NOT regenerate.
+- PWA manifest/service worker: DONE.
+- Photo annotation: DONE.
+- Canvassing territories: DONE.
+- Subcontractor management: DONE.
+- Google review request: DONE.
+- CSV Lead Import: DONE.
+- FEMA Disaster Declarations API: DONE.
+- Rate limiting + hashed tokens: DONE.
+- Honey Hole Finder (NOAA SWDI hail history): DONE. Full backend + frontend heat map overlay.
+- Lead Scoring: DONE. 7-factor algorithm, badges in LeadList + LeadDetail, score breakdown popup.
+- Census ACS Demographics: DONE. Full service with caching, integrated into lead scoring.
+- Drip Sequence Sending: DONE. 15-min cron, auto-enrollment, step progression, email sending.
+- Financing (Hearth): DONE. Full adapter, webhook handler, Settings tab.
+- Notifications: DONE. 10 categories, multi-channel, preferences, polling.
+
+If you find yourself about to re-do any of the above, STOP. Move on to real improvements.
 
 Read MEMORY.md at C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\MEMORY.md first.
 Read docs/overnight-history.md if it exists to understand prior work.
 
 RESUME SUPPORT:
 Check if C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\overnight_resume.md exists.
-If it does, read it — it contains notes from a previous run that hit its turn limit,
-describing what was already completed and where to pick up. Use it to skip finished work
-and continue from where the last run left off. After you finish (or are about to hit your
-turn limit), UPDATE that file with your current progress so the next run can resume.
-
-TURN LIMIT WARNING:
-You have a LIMITED number of turns. If you are running low on turns and cannot finish
-your full task, you MUST before your final turn:
-1. Commit any uncommitted work: git add -A && git commit -m "wip: [stage] partial progress"
-2. Write your progress to C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\overnight_resume.md
-   Include:
-   - Which stage you were working on
-   - What you completed
-   - What still needs to be done (be specific — list exact pages/features/files)
-   - Any context the next run needs to pick up seamlessly
-3. Update MEMORY.md index if the resume file is new
-This ensures NO work is lost between runs.
+If it does, read it — it has notes from a previous run about where to pick up.
+Before your final turn, UPDATE that file with your current progress so the next run can resume.
 PREAMBLE
 
-# STAGE 1: Competitor Research
-cat /tmp/overnight-preamble.txt > /tmp/stage-1-competitors.txt
-cat >> /tmp/stage-1-competitors.txt << 'STAGE1'
+# ============================================================
+# STAGE 1: APP INVENTORY — Know what we have
+# ============================================================
+cat /tmp/overnight-preamble.txt > /tmp/stage-1-inventory.txt
+cat >> /tmp/stage-1-inventory.txt << STAGE1
 
-YOUR TASK: Deep competitor research using Firecrawl. This is your ONLY task — do NOT implement features or fix UI.
+YOUR TASK: Do a complete functional inventory of the StormLeads app using Firecrawl.
+You must understand what every page does, what works, what's broken, and what's missing.
+This is NOT a visual polish session — it's a functional test.
 
-IMPORTANT: Use ONLY the firecrawl CLI for all web research. Do NOT use WebSearch, WebFetch, Chrome MCP, or Playwright.
+The app is accessible at: ${TUNNEL_URL}
+Login credentials: Email=brandon, Password=1234, Tenant=waterloo
 
-DO NOT STOP until you have completed ALL of the following:
+STEP 1: Read prior history
+- Read docs/overnight-history.md
+- Read docs/competitor-gap-analysis.md — focus on the Feature Comparison Matrix
+- Run: git log --oneline --since="7 days ago"
 
-1. Check if docs/competitor-gap-analysis.md exists and is recent (< 3 days old via git log).
-   - If recent: UPDATE it with any new findings. Still do the research below.
-   - If missing or stale: create it from scratch.
+STEP 2: Log into the app using Firecrawl browser
+- firecrawl browser "open ${TUNNEL_URL}"
+- firecrawl browser "snapshot"
+- Fill login form and submit
+- Verify you're logged in
 
-2. Create .firecrawl/competitor-research/ directory for storing results.
+STEP 3: Scrape and test every page
+For each page, use firecrawl to scrape it and note what exists:
 
-3. Research ALL 4 competitors using firecrawl search and scrape IN PARALLEL:
-   Run these in parallel with & and wait:
-   - firecrawl search "JobNimbus CRM features pricing 2026" --scrape -o .firecrawl/competitor-research/jobnimbus-search.json
-   - firecrawl search "HailTrace storm leads features pricing" --scrape -o .firecrawl/competitor-research/hailtrace-search.json
-   - firecrawl search "RoofLink rooflink.com roofing platform features" --scrape -o .firecrawl/competitor-research/rooflink-search.json
-   - firecrawl search "Rooftops.ai roofing AI features pricing" --scrape -o .firecrawl/competitor-research/rooftopsai-search.json
+firecrawl scrape "${TUNNEL_URL}/storm-map" --format screenshot &
+firecrawl scrape "${TUNNEL_URL}/pipeline" --format screenshot &
+firecrawl scrape "${TUNNEL_URL}/leads" --format screenshot &
+firecrawl scrape "${TUNNEL_URL}/estimates" --format screenshot &
+firecrawl scrape "${TUNNEL_URL}/invoices" --format screenshot &
+firecrawl scrape "${TUNNEL_URL}/work-orders" --format screenshot &
+firecrawl scrape "${TUNNEL_URL}/tasks" --format screenshot &
+firecrawl scrape "${TUNNEL_URL}/calendar" --format screenshot &
+firecrawl scrape "${TUNNEL_URL}/reports" --format screenshot &
+firecrawl scrape "${TUNNEL_URL}/canvassing" --format screenshot &
+firecrawl scrape "${TUNNEL_URL}/content-studio" --format screenshot &
+firecrawl scrape "${TUNNEL_URL}/settings" --format screenshot &
+wait
 
-4. Scrape each competitor's main pages directly (in parallel):
-   - firecrawl scrape "https://www.jobnimbus.com/features" -o .firecrawl/competitor-research/jobnimbus-features.md
-   - firecrawl scrape "https://www.jobnimbus.com/pricing" -o .firecrawl/competitor-research/jobnimbus-pricing.md
-   - firecrawl scrape "https://www.hailtrace.com" -o .firecrawl/competitor-research/hailtrace-main.md
-   - firecrawl scrape "https://rooflink.com" -o .firecrawl/competitor-research/rooflink-main.md
-   - firecrawl scrape "https://rooftops.ai" -o .firecrawl/competitor-research/rooftopsai-main.md
+For EACH page, note:
+- Does it load? What features are visible?
+- What data/sections does it show?
+- Any obvious broken elements or empty sections?
+- What feels incomplete compared to a competitor's equivalent?
 
-5. For EACH competitor, find EXACT pricing from the scraped data:
-   - Base price per month
-   - Per-user costs
-   - What a 5-person and 10-person roofing company actually pays total
-   - Add-on costs (texting, marketing, data, etc.)
+STEP 4: Write the inventory
+Create docs/app-inventory-$(date +%Y%m%d).md with a table:
+| Page | Features Present | Works? | Broken/Missing | Competitor Comparison Notes |
 
-6. Write a feature comparison table to docs/competitor-gap-analysis.md:
-   Feature | JobNimbus | HailTrace | RoofLink | Rooftops.ai | StormLeads | Status
+Cross-reference with the Feature Comparison Matrix from docs/competitor-gap-analysis.md.
+For each "Missing" or "Worse" item, note whether it's actually been built since the matrix was written.
 
-7. Write a pricing recommendation: what should StormLeads charge?
-   - 2-3 tiers with specific prices
-   - Savings vs competitors at each company size
+STEP 5: Identify the top improvement opportunities
+Based on your inventory, list the top 10 features/pages that need the most improvement
+to match competitors. Be specific: "Pipeline cards don't show revenue" not "Pipeline needs work."
 
-8. Commit your work: git add docs/competitor-gap-analysis.md && git commit -m "docs: update competitor analysis"
+Commit: git add docs/ && git commit -m "docs: app inventory $(date +%Y-%m-%d)"
 
-DELIVERABLE: docs/competitor-gap-analysis.md must exist with a complete feature table and pricing analysis.
-You are DONE when you have committed this file. Do not do anything else.
+DELIVERABLE: docs/app-inventory-$(date +%Y%m%d).md committed with complete inventory.
 STAGE1
 
-# STAGE 2: Feature Implementation
-cat /tmp/overnight-preamble.txt > /tmp/stage-2-features.txt
-cat >> /tmp/stage-2-features.txt << 'STAGE2'
+# ============================================================
+# STAGE 2: COMPETITOR VISUAL RESEARCH — Study what they look like
+# ============================================================
+cat /tmp/overnight-preamble.txt > /tmp/stage-2-competitors.txt
+cat >> /tmp/stage-2-competitors.txt << 'STAGE2'
 
-YOUR TASK: Implement missing or broken features. This is your ONLY task — do NOT do UI polish or research.
+YOUR TASK: Visually research how competitors implement their features using Firecrawl.
+The text analysis already exists in docs/competitor-gap-analysis.md — DO NOT rewrite it.
+Your job is to find VISUAL references: screenshots, UI patterns, layouts, workflows.
 
-1. Read docs/competitor-gap-analysis.md to see what's missing.
-2. Read docs/overnight-history.md to see what previous runs recommended for "next session."
-3. Read docs/superpowers/specs/2026-03-23-nav-consolidation-new-features-design.md for the current feature spec.
-4. Run: git log --oneline --since="7 days ago" to see what was already built recently.
+You MUST actually look at competitor UI, not just read text descriptions.
 
-5. For each feature that is BROKEN (exists but doesn't work):
-   - Fix it
-   - Test it compiles: cd /c/Projects/stormleads/client && npx vite build
-   - Commit with: git commit -m "fix: [description]"
+STEP 1: Read the app inventory
+- Read docs/app-inventory-*.md (most recent) to know what our app has
+- Read docs/competitor-gap-analysis.md for the feature list
 
-6. For each feature that is MISSING and can be built for free:
-   - Build it following existing patterns
-   - Test it compiles
-   - Commit with: git commit -m "feat: [description]"
+STEP 2: Research each competitor's UI with Firecrawl
+For each competitor, scrape their marketing/product/help pages to find UI screenshots and patterns:
 
-PRIORITY ORDER:
-- Features ALL competitors have that we're missing (table stakes)
-- Features from the nav-consolidation spec that haven't been built yet
-- Features recommended by previous overnight runs
+HailTrace (storm mapping gold standard):
+- firecrawl search "HailTrace storm map screenshot demo" --scrape
+- firecrawl search "HailTrace honey hole finder screenshot" --scrape
+- firecrawl search "HailTrace canvassing map demo" --scrape
+- firecrawl scrape "https://www.hailtrace.com"
+- firecrawl search "HailTrace tutorial YouTube 2025" --scrape
+- firecrawl scrape "https://help.hailtrace.com" (if exists — help sites have annotated screenshots)
 
-EXCLUDED — DO NOT BUILD THESE:
-- Historical storm data import (NOAA Storm Events CSVs, SPC SVRGIS archive) — too much DB storage
-- Bulk data ingestion pipelines — violates Neon free tier 0.5 GB limit
-- Any feature that pre-loads large external datasets into our database
-- Instead: if a feature needs external data, build it as an on-demand API proxy (fetch from source at runtime)
+JobNimbus (CRM gold standard):
+- firecrawl search "JobNimbus CRM pipeline screenshot demo" --scrape
+- firecrawl search "JobNimbus estimate builder screenshot" --scrape
+- firecrawl search "JobNimbus dashboard analytics screenshot" --scrape
+- firecrawl scrape "https://www.jobnimbus.com/features"
+- firecrawl scrape "https://www.jobnimbus.com/product"
+- firecrawl search "JobNimbus demo walkthrough YouTube 2025" --scrape
 
-You must make AT LEAST 3 commits of real feature work. Do not stop after 1 quick fix.
-Keep building until you've exhausted high-priority missing features or hit the turn limit.
+RoofLink (production workflow gold standard):
+- firecrawl search "RoofLink roofing CRM screenshot demo" --scrape
+- firecrawl search "RoofLink work order production screenshot" --scrape
+- firecrawl scrape "https://rooflink.com/features" (or similar product pages)
 
-DELIVERABLE: At least 3 new commits with real feature or fix work. Run this to verify:
-git log --oneline overnight-checkpoint-$(date +%Y%m%d)..HEAD | wc -l
+Rooftops.ai (AI content gold standard):
+- firecrawl search "Rooftops.ai AI creator studio screenshot" --scrape
+- firecrawl search "Rooftops.ai content generation demo" --scrape
+- firecrawl scrape "https://rooftops.ai/products"
+
+Also search review sites for UI descriptions:
+- firecrawl search "JobNimbus review screenshot Capterra G2" --scrape
+- firecrawl search "HailTrace review demo Capterra" --scrape
+
+STEP 3: Write a visual comparison document
+Create docs/competitor-ui-research.md with findings organized by feature area:
+
+## Storm Map (compare to HailTrace)
+- How HailTrace displays storm swaths (colors, labels, severity)
+- How their Honey Hole Finder looks
+- What their property popups show
+- What their layer controls look like
+
+## Pipeline/CRM (compare to JobNimbus)
+- What info JobNimbus kanban cards show
+- Revenue per stage? Lead counts? Conversion rates?
+- Card design and layout
+
+## Estimates (compare to JobNimbus SumoQuote + RoofLink)
+- How their estimate builders look
+- Line item editing UX
+- Template systems
+
+## Content/Marketing (compare to Rooftops.ai)
+- What their AI creator studio looks like
+- Content types available
+- Generation workflow
+
+## Work Orders/Production (compare to RoofLink)
+- Their 7-step workflow visualization
+- Milestone tracking UI
+- Checklist and photo documentation
+
+## Dashboard/Reports (compare to JobNimbus + RoofLink)
+- What KPIs they show
+- Chart types and layouts
+
+For each area, include:
+- What the competitor shows/does (be specific — describe the UI you found)
+- What our app currently shows/does
+- The specific gap to close
+- Recommended improvements (concrete, actionable)
+
+Commit: git add docs/ && git commit -m "docs: competitor UI research $(date +%Y-%m-%d)"
+
+DELIVERABLE: docs/competitor-ui-research.md committed with specific, actionable visual comparisons.
 STAGE2
 
-# STAGE 3: Visual UI Audit
-cat /tmp/overnight-preamble.txt > /tmp/stage-3-ui-audit.txt
-cat >> /tmp/stage-3-ui-audit.txt << STAGE3
+# ============================================================
+# STAGE 3: COMPARE & IMPROVE — The main event (most turns here)
+# ============================================================
+cat /tmp/overnight-preamble.txt > /tmp/stage-3-improve.txt
+cat >> /tmp/stage-3-improve.txt << STAGE3
 
-YOUR TASK: Visual UI audit and polish. This is your ONLY task — do NOT implement new features.
+YOUR TASK: Improve StormLeads features to match or exceed competitors. This is the main stage.
+You will read the research from previous stages and make real code changes.
 
-UI CONSISTENCY IS THE #1 PRIORITY. Every button, modal, input, card, and table must be
-identical across the entire app. Think like an Apple design reviewer.
+The app is accessible at: ${TUNNEL_URL}
 
-BROWSER TOOLS — USE FIRECRAWL ONLY:
-- Do NOT use Chrome MCP (mcp__claude-in-chrome__*) or Playwright (mcp__plugin_playwright_playwright__*)
-- Use firecrawl scrape and firecrawl browser for all page inspection
-- The dev server is accessible at: ${TUNNEL_URL}
-  (This is a cloudflared tunnel to localhost:5173)
+STEP 1: Read the research
+- Read docs/app-inventory-*.md (most recent) — what our app has
+- Read docs/competitor-ui-research.md — what competitors do better
+- Read docs/competitor-gap-analysis.md — the feature comparison matrix
 
-SETUP:
-- The dev server and tunnel are already running (started by the overnight script).
-- Log in using firecrawl browser:
-  firecrawl browser "open ${TUNNEL_URL}"
-  firecrawl browser "snapshot"
-  (Find and fill login form: Email=brandon, Password=1234, Tenant=waterloo)
-  firecrawl browser "fill @emailRef 'brandon'"
-  firecrawl browser "fill @passwordRef '1234'"
-  firecrawl browser "fill @tenantRef 'waterloo'"
-  firecrawl browser "click @loginButton"
+STEP 2: Work through feature areas in order
+For each area in docs/competitor-ui-research.md:
 
-STEP 1: ESTABLISH REFERENCE
-- Navigate to /estimates:
-  firecrawl browser "open ${TUNNEL_URL}/estimates"
-  firecrawl browser "snapshot"
-  firecrawl scrape "${TUNNEL_URL}/estimates" --format screenshot -o .firecrawl/ui-audit/estimates-reference.json
-- Read the snapshot output to identify glass cards, dropdowns, text inputs, buttons
-- Note the exact styles from the code: border-radius, padding, font-size, colors, backdrop-filter
-- These are the GOLD STANDARD. Everything else must match.
+A) Open our version with Firecrawl:
+   firecrawl scrape "${TUNNEL_URL}/[page]" --format screenshot
 
-STEP 2: AUDIT EVERY PAGE using firecrawl scrape for screenshots + firecrawl browser for interaction:
+B) Read what the competitor research found about this area
 
-Create .firecrawl/ui-audit/ directory first.
+C) Make concrete code changes to close the gap:
+   - Add missing data/fields/columns to views
+   - Improve layouts and information density
+   - Add missing interactions or workflows
+   - Build features competitors have that we don't
+   - Make our version more intuitive
 
-Pages to audit (scrape ALL in parallel first for screenshots):
-  firecrawl scrape "${TUNNEL_URL}/storm-map" --format screenshot -o .firecrawl/ui-audit/storm-map.json &
-  firecrawl scrape "${TUNNEL_URL}/pipeline" --format screenshot -o .firecrawl/ui-audit/pipeline.json &
-  firecrawl scrape "${TUNNEL_URL}/leads" --format screenshot -o .firecrawl/ui-audit/leads.json &
-  firecrawl scrape "${TUNNEL_URL}/estimates" --format screenshot -o .firecrawl/ui-audit/estimates.json &
-  firecrawl scrape "${TUNNEL_URL}/invoices" --format screenshot -o .firecrawl/ui-audit/invoices.json &
-  firecrawl scrape "${TUNNEL_URL}/reports" --format screenshot -o .firecrawl/ui-audit/reports.json &
-  firecrawl scrape "${TUNNEL_URL}/calendar" --format screenshot -o .firecrawl/ui-audit/calendar.json &
-  firecrawl scrape "${TUNNEL_URL}/work-orders" --format screenshot -o .firecrawl/ui-audit/work-orders.json &
-  firecrawl scrape "${TUNNEL_URL}/canvassing" --format screenshot -o .firecrawl/ui-audit/canvassing.json &
-  firecrawl scrape "${TUNNEL_URL}/tasks" --format screenshot -o .firecrawl/ui-audit/tasks.json &
-  firecrawl scrape "${TUNNEL_URL}/settings" --format screenshot -o .firecrawl/ui-audit/settings.json &
-  wait
+D) Build check: cd /c/Projects/stormleads/client && npx vite build
 
-Then for EACH page, also scrape the HTML to inspect styles:
-  firecrawl scrape "${TUNNEL_URL}/[page]" --format markdown -o .firecrawl/ui-audit/[page]-content.md
+E) Verify the improvement with Firecrawl:
+   firecrawl scrape "${TUNNEL_URL}/[page]" --format screenshot
 
-For EACH page:
-a) Review the screenshot and markdown content
-b) Check every button matches reference (same height, border-radius, padding, color)
-c) Check every input/select matches reference (same height, bg, border, font-size)
-d) Check spacing and alignment
-e) Use firecrawl browser to interact with modals: open them, take snapshots
-f) If ANYTHING doesn't match: fix the code, rebuild, re-scrape to verify
-g) Commit each fix: git commit -m "fix(ui): [page] [what was fixed]"
+F) Commit: git commit -m "feat/fix: [area] [what was improved]"
 
-STEP 3: CODE-LEVEL AUDIT (supplement visual checks)
-- Read the CSS/component source code directly for each page
-- Verify CSS custom properties exist: --transition-fast, --transition-normal, --transition-slow
-- Check buttons have hover/active transitions
-- Check modals have open/close animations
-- Cross-reference code styles against the reference page styles
-- Add any missing animations
+PRIORITY ORDER:
+1. Storm Map improvements (vs HailTrace) — EXCEPT FEMA property code, DO NOT TOUCH
+2. Pipeline/CRM improvements (vs JobNimbus)
+3. Estimates/Invoices improvements (vs SumoQuote/RoofLink)
+4. Work Orders improvements (vs RoofLink)
+5. Dashboard/Reports improvements (vs JobNimbus)
+6. Content Studio improvements (vs Rooftops.ai)
+7. Build net-new missing features:
+   - QuickBooks sync (OAuth scaffolding + Settings Integrations tab + invoice push)
+   - SMS/Twilio two-way messaging (messages table, chat UI in LeadDetail, Twilio scaffolding)
+   - Dashboard loading skeleton
+   - Any other gaps you can close
 
-You must scrape AT LEAST 11 pages for screenshots.
-You must make AT LEAST 2 commits fixing UI inconsistencies.
-Do NOT stop after checking 2-3 pages — check ALL pages listed above.
+RULES:
+- You MUST make at least 5 commits with real code changes
+- You MUST improve at least 3 different feature areas
+- Every change must be motivated by a specific competitor comparison
+- Test every change in the browser via Firecrawl before committing
+- Do NOT re-do anything on the Done List (oklch, security, FEMA, animations, etc.)
+- Quality over quantity — a deeply improved pipeline is better than shallow tweaks to 8 areas
+- If you run out of turns, note where you stopped in overnight_resume.md
 
-DELIVERABLE: All pages visually audited via firecrawl, inconsistencies fixed and committed.
+DELIVERABLE: At least 5 commits with real improvements across 3+ feature areas.
 STAGE3
 
-# STAGE 4: Storm Map Performance + Data Sources
-cat /tmp/overnight-preamble.txt > /tmp/stage-4-stormmap.txt
-cat >> /tmp/stage-4-stormmap.txt << 'STAGE4'
+# ============================================================
+# STAGE 4: UI CONSISTENCY CHECK — Only changed pages
+# ============================================================
+cat /tmp/overnight-preamble.txt > /tmp/stage-4-ui-check.txt
+cat >> /tmp/stage-4-ui-check.txt << STAGE4
 
-YOUR TASK: Fix storm map performance and research new free data sources. This is your ONLY task.
+YOUR TASK: Quick UI consistency check on pages that were modified in Stage 3.
+This is NOT a full-app audit. Only check pages with new commits.
 
-PART A — FEMA PROPERTY PERFORMANCE FIX:
-1. Read client/src/components/StormMap.jsx
-2. Read any related API endpoints in server/src/routes/
-3. FEMA properties are currently loading EVERYWHERE on the map, not just within storm swaths.
-   This causes massive lag. Fix it:
-   - Properties must ONLY load within storm swath polygon boundaries
-   - If no storm swaths are visible, do NOT fetch any FEMA properties
-   - Use spatial intersection (point-in-polygon check)
-4. Additional perf optimizations:
-   - Debounce map move/zoom events
-   - Only render properties in current viewport
-   - Optimize Supercluster rebuilds
-5. Build check: cd /c/Projects/stormleads/client && npx vite build
-6. Commit: git commit -m "perf(map): [description]"
+The app is accessible at: ${TUNNEL_URL}
 
-PART B — FREE DATA SOURCES RESEARCH (ON-DEMAND APIs ONLY):
-Do EXTENSIVE web research to find free REST APIs for roofing companies.
-CRITICAL: Only research APIs that can be queried ON-DEMAND (per-property or per-area lookups).
-Do NOT recommend bulk data downloads, CSV imports, or anything that would be stored in our DB.
-Our production DB is Neon free tier (0.5 GB) — all external data must stay external.
+STEP 1: Find what changed
+Run: git log --oneline overnight-checkpoint-$(date +%Y%m%d)..HEAD
+Identify which pages/components were modified.
 
-Research categories:
-- Free building footprint APIs (query by lat/lng, not bulk download)
-- Free property data APIs (roof age, material, owner info — per-address lookup)
-- Free weather/hail damage APIs beyond NOAA (per-location queries)
-- Free aerial/satellite imagery tile APIs
-- Search: "free APIs for roofing contractors", "free GIS data layers roofing"
-- Search: "free building footprint API", "free property data API"
-- Look at what competitors use and find free API alternatives
+STEP 2: For each modified page
+- firecrawl scrape "${TUNNEL_URL}/[page]" --format screenshot
+- Also scrape the reference page for comparison:
+  firecrawl scrape "${TUNNEL_URL}/estimates" --format screenshot
+- Compare: Do new elements match the existing glassmorphism style?
+  - oklch colors (no hex or rgba in new CSS)
+  - .glass class on panels
+  - .form-input class on all form elements
+  - Consistent button styling
+  - Proper spacing and alignment
+- Check the code directly: read the component file, verify CSS patterns
+- Fix any inconsistencies
 
-Write findings to docs/free-data-sources.md with:
-- Source name and URL
-- What data it provides
-- Whether it's truly free (rate limits, auth required?)
-- API format: REST endpoint pattern, response format
-- Implementation: on-demand query (YES) or bulk download (SKIP)
-- Implementation difficulty (easy/medium/hard)
-- Recommendation
+STEP 3: Check for console errors
+- Read the component code for obvious issues
+- Verify the build passes: cd /c/Projects/stormleads/client && npx vite build
 
-Commit: git commit -m "docs: research free on-demand data APIs for storm map"
+Commit any fixes: git commit -m "fix(ui): [page] [consistency fix]"
 
-DELIVERABLE: At least 1 commit for perf fix, 1 commit for data source research.
+Spend NO MORE than 20 minutes here. If it matches the style, move on.
+
+DELIVERABLE: Modified pages verified for style consistency, fixes committed if needed.
 STAGE4
 
-# STAGE 5: Security + Error States + Polish
-cat /tmp/overnight-preamble.txt > /tmp/stage-5-security-polish.txt
-cat >> /tmp/stage-5-security-polish.txt << 'STAGE5'
-
-YOUR TASK: Security review, error/empty states, and final polish. This is your ONLY task.
-
-PART A — SECURITY REVIEW:
-1. Check EVERY route in server/src/routes/ — does each use auth middleware?
-2. Does tenant isolation (tenantScope) apply to ALL data queries?
-3. Are all DB queries parameterized (pool.query with $1, $2)? Check for SQL injection.
-4. Are there API keys or secrets in client-side code?
-5. Are passwords hashed? Do JWTs expire?
-6. Fix any vulnerabilities found. Commit each fix.
-7. Write findings to docs/security-audit-$(date +%Y%m%d).md
-
-PART B — ERROR & EMPTY STATES:
-For each major page (/leads, /pipeline, /estimates, /invoices, /tasks, /work-orders):
-1. What does it look like with zero data? Is there a helpful empty state message?
-2. If no empty state exists, add one with a message and call-to-action button
-3. Do pages show loading spinners while data loads?
-4. Commit each improvement.
-
-PART C — PERFORMANCE:
-1. Check bundle: are new views lazy-loaded in App.jsx?
-2. Check for N+1 query patterns in list endpoints
-3. Check for missing database indexes on frequently queried columns
-4. Fix what you find, commit each fix.
-
-DELIVERABLE: Security audit doc committed, at least 1 empty state improvement committed.
-STAGE5
-
-# STAGE 6: Report Writing
-cat /tmp/overnight-preamble.txt > /tmp/stage-6-report.txt
-cat >> /tmp/stage-6-report.txt << 'STAGE6'
+# ============================================================
+# STAGE 5: REPORT — What was improved and where we stopped
+# ============================================================
+cat /tmp/overnight-preamble.txt > /tmp/stage-5-report.txt
+cat >> /tmp/stage-5-report.txt << 'STAGE5'
 
 YOUR TASK: Write the overnight report and update history. This is your ONLY task.
 
 1. Review ALL work done tonight:
    git log --oneline overnight-checkpoint-$(date +%Y%m%d)..HEAD
 
-2. Read docs/competitor-gap-analysis.md for competitor findings.
-3. Read docs/free-data-sources.md for data source findings.
+2. Read docs/app-inventory-*.md and docs/competitor-ui-research.md for context.
 
-4. Create OVERNIGHT-REPORT.md with these sections:
+3. Create OVERNIGHT-REPORT.md with these sections:
 
    ## Executive Summary
-   2-3 sentence overview of tonight's work.
+   2-3 sentences: what features were improved tonight, what competitors were studied.
 
-   ## Competitor Intelligence
-   Key findings, what they charge vs what we could charge.
+   ## Competitor Comparisons & Improvements Made
+   For EACH feature area you improved:
+   - What competitor you studied and what you found
+   - What our version looked like before
+   - What you changed to match/exceed them
+   - Where to see it in the app
 
-   ## Pricing Recommendation
-   Suggested tiers with prices, savings comparison.
+   ## New Features Built
+   For any net-new features (QuickBooks, SMS, etc.):
+   - What it does, where to find it, current status (working / needs API key)
 
-   ## New Features Added
-   For EACH new feature: what it does, WHERE to find it, WHY it matters.
+   ## Features Still Behind Competitors
+   - Which feature areas weren't reached yet
+   - Specific gaps remaining (not vague)
+   - Priority for next run
 
-   ## UI Improvements
-   For EACH visual fix: which page, what was wrong, what it looks like now.
+   ## Where I Stopped
+   - Which feature area was in progress when time ran out
+   - Next run should start here
 
-   ## Product Recommendations
-   Top 5 high-impact features to build next.
-   Free on-demand APIs to integrate (must be runtime queries, NOT bulk DB imports).
-   Remember: Neon free tier = 0.5 GB. All external data stays external.
-
-   ## Still Needs Attention
-   What couldn't be fixed and why. Priorities for next session.
+   DO NOT INCLUDE: Competitor pricing rehash, free API lists, gap analysis text,
+   anything from the Done List. Only report NEW work from tonight.
 
    Write it like a professional CEO briefing — NO code snippets, NO file paths.
 
-5. APPEND a summary to docs/overnight-history.md (create if needed, NEVER overwrite):
+4. APPEND to docs/overnight-history.md (NEVER overwrite):
+   ---
    ## Run: $(date +%Y-%m-%d)
    ### What was done
-   ### What should be done next run
+   - List each feature improved and what competitor it was compared to
+   - List any new features built
+   ### Competitor areas covered
+   - Areas completed: [list]
+   - Stopped at: [area]
+   - Next run should start at: [area]
+   ### What was skipped and why
    ### Lessons learned
+   ---
 
-6. Commit: git add OVERNIGHT-REPORT.md docs/overnight-history.md && git commit -m "docs: overnight report $(date +%Y-%m-%d)"
+5. Update overnight_resume.md with current progress for the next run.
+
+6. Commit: git add OVERNIGHT-REPORT.md docs/ && git commit -m "docs: overnight report $(date +%Y-%m-%d)"
 
 7. Final build check: cd /c/Projects/stormleads/client && npx vite build
 
-DELIVERABLE: OVERNIGHT-REPORT.md exists and is committed.
-STAGE6
+DELIVERABLE: OVERNIGHT-REPORT.md committed. History updated. Resume file updated.
+STAGE5
 
 # ============================================================
-# RUN ALL STAGES SEQUENTIALLY WITH VALIDATION
+# RUN ALL STAGES
 # ============================================================
 
-log "Stage 1: Competitor Research"
-run_stage "s1-competitors" 50 /tmp/stage-1-competitors.txt
+log "Stage 1: App Inventory"
+run_stage "s1-inventory" 40 /tmp/stage-1-inventory.txt
 COMMITS_AFTER_S1=$(git log --oneline "overnight-checkpoint-${TODAY}"..HEAD 2>/dev/null | wc -l)
 log "  Commits so far: $COMMITS_AFTER_S1"
 
-log "Stage 2: Feature Implementation"
-run_stage "s2-features" 50 /tmp/stage-2-features.txt
+log "Stage 2: Competitor Visual Research"
+run_stage "s2-competitors" 50 /tmp/stage-2-competitors.txt
 COMMITS_AFTER_S2=$(git log --oneline "overnight-checkpoint-${TODAY}"..HEAD 2>/dev/null | wc -l)
 log "  Commits so far: $COMMITS_AFTER_S2"
 
-log "Stage 3: Visual UI Audit"
-run_stage "s3-ui-audit" 50 /tmp/stage-3-ui-audit.txt
+log "Stage 3: Compare & Improve (main stage)"
+run_stage "s3-improve" 80 /tmp/stage-3-improve.txt
 COMMITS_AFTER_S3=$(git log --oneline "overnight-checkpoint-${TODAY}"..HEAD 2>/dev/null | wc -l)
 log "  Commits so far: $COMMITS_AFTER_S3"
 
-log "Stage 4: Storm Map + Data Sources"
-run_stage "s4-stormmap" 50 /tmp/stage-4-stormmap.txt
+log "Stage 4: UI Consistency Check"
+run_stage "s4-ui-check" 30 /tmp/stage-4-ui-check.txt
 COMMITS_AFTER_S4=$(git log --oneline "overnight-checkpoint-${TODAY}"..HEAD 2>/dev/null | wc -l)
 log "  Commits so far: $COMMITS_AFTER_S4"
 
-log "Stage 5: Security + Polish"
-run_stage "s5-security" 50 /tmp/stage-5-security-polish.txt
-COMMITS_AFTER_S5=$(git log --oneline "overnight-checkpoint-${TODAY}"..HEAD 2>/dev/null | wc -l)
-log "  Commits so far: $COMMITS_AFTER_S5"
-
-log "Stage 6: Report Writing"
-run_stage "s6-report" 50 /tmp/stage-6-report.txt
+log "Stage 5: Report"
+run_stage "s5-report" 30 /tmp/stage-5-report.txt
 FINAL_COMMITS=$(git log --oneline "overnight-checkpoint-${TODAY}"..HEAD 2>/dev/null | wc -l)
 log "  Final commit count: $FINAL_COMMITS"
 
@@ -546,7 +562,7 @@ const html = \`
   <div style=\"text-align:center;margin-bottom:32px;\">
     <h1 style=\"color:#0ea5e9;margin:0;font-size:28px;\">StormLeads Overnight Report</h1>
     <p style=\"color:#6b7280;margin:8px 0 0;font-size:14px;\">\${today}</p>
-    <p style=\"color:#22c55e;margin:4px 0 0;font-size:12px;\">STAGED EXECUTION (6 stages)</p>
+    <p style=\"color:#22c55e;margin:4px 0 0;font-size:12px;\">COMPETITOR-DRIVEN IMPROVEMENT (5 stages)</p>
     <div style=\"display:flex;justify-content:center;gap:24px;margin-top:12px;\">
       <div style=\"text-align:center;\">
         <div style=\"color:#22c55e;font-size:24px;font-weight:bold;\">\${totalTurns}</div>
@@ -599,8 +615,9 @@ fetch('https://api.resend.com/emails', {
 }).catch(e => console.error('Email send failed:', e.message));
 " "$GIT_SUMMARY" "$TODAY_PRETTY" "$TODAY" "$TOTAL_TURNS" "$TOTAL_COST" "$STAGE_RESULTS"
 
-# --- Cleanup tunnel and dev server ---
+# --- Cleanup ---
 [ -n "$TUNNEL_PID" ] && kill $TUNNEL_PID 2>/dev/null
 [ -n "$VITE_PID" ] && kill $VITE_PID 2>/dev/null
+[ -n "$BACKEND_PID" ] && kill $BACKEND_PID 2>/dev/null
 
 log "=== OVERNIGHT RUN FINISHED ==="

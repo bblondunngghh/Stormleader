@@ -308,15 +308,38 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   };
 
   const fetchDisasterDeclarations = async () => {
-    const st = lead?.state?.trim() || lead?.property_state?.trim();
-    const county = lead?.property_county?.trim() || '';
-    if (!st || !county) return;
+    let st = lead?.state?.trim() || lead?.property_state?.trim() || '';
+    let county = lead?.property_county?.trim() || '';
+
+    // If state/county missing but we have coordinates, reverse-geocode to get them
+    if ((!st || !county) && lead?.property_geometry?.coordinates) {
+      const [lng, lat] = lead.property_geometry.coordinates;
+      try {
+        const { data: geo } = await client.get('/properties/reverse-geocode', { params: { lat, lng } });
+        if (geo.matched) {
+          if (!st && geo.state) st = geo.state;
+          if (!county && geo.county) county = geo.county;
+        }
+      } catch {}
+    }
+
+    // Still try to extract state from address if missing (e.g. "Hardin, TX 77657")
+    if (!st) {
+      const addr = lead?.address || lead?.address_line1 || '';
+      const stMatch = addr.match(/,\s*([A-Z]{2})\s+\d{5}/);
+      if (stMatch) st = stMatch[1];
+    }
+
+    if (!st || !county) {
+      setDisasterData({ error: 'Could not determine state and county for this address.' });
+      return;
+    }
     setDisasterLoading(true);
     try {
       const { data } = await getDisasterDeclarations(st, county);
       setDisasterData(data);
     } catch {
-      // silently fail — not critical
+      setDisasterData({ error: 'Could not load disaster data.' });
     } finally {
       setDisasterLoading(false);
     }
@@ -909,7 +932,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
           </div>{/* end Action Buttons Grid */}
 
           {/* Disaster Declarations Button */}
-          {leadId && (lead?.state || lead?.property_state) && lead?.property_county && (
+          {leadId && (
             <div style={{ marginTop: 'var(--space-sm)' }}>
               <button
                 onClick={fetchDisasterDeclarations}
@@ -931,8 +954,13 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                   <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
                   <path d="M12 15.75h.007v.008H12v-.008z" />
                 </svg>
-                {disasterLoading ? 'Loading...' : disasterData ? `${disasterData.summary?.total || 0} Disaster Declarations` : 'FEMA Disaster History'}
+                {disasterLoading ? 'Loading...' : disasterData?.error ? 'FEMA Disaster History' : disasterData ? `${disasterData.summary?.total || 0} Disaster Declarations` : 'FEMA Disaster History'}
               </button>
+              {disasterData?.error && (
+                <div style={{ marginTop: 4, fontSize: 11, color: 'oklch(0.75 0.15 60)', lineHeight: 1.4 }}>
+                  {disasterData.error}
+                </div>
+              )}
               {disasterData && disasterData.summary?.total > 0 && (
                 <div style={{
                   marginTop: 6, padding: '8px 10px',

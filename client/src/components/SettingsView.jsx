@@ -226,11 +226,9 @@ function CompanyTab() {
         </div>
       </div>
 
-      <button type="submit" disabled={saving} style={{
-        padding: '12px 32px', borderRadius: 'var(--radius-md)', fontSize: 14, fontWeight: 700,
-        background: 'var(--accent-blue)', color: 'oklch(1 0 0)', border: 'none', cursor: 'pointer',
-        opacity: saving ? 0.6 : 1, alignSelf: 'flex-start',
-        transition: 'opacity 0.15s var(--ease-out)',
+      <button type="submit" className="auth-btn" disabled={saving} style={{
+        padding: '12px 32px', fontSize: 14, alignSelf: 'flex-start',
+        opacity: saving ? 0.6 : 1,
       }}>
         {saving ? 'Saving...' : 'Save Changes'}
       </button>
@@ -1472,10 +1470,8 @@ function AddCardForm({ email, onSuccess }) {
         }} />
       </div>
       {error && <div style={{ fontSize: 12, color: 'var(--accent-red)', marginBottom: 'var(--space-md)' }}>{error}</div>}
-      <button type="submit" disabled={!stripe || processing} style={{
-        padding: '10px 24px', borderRadius: 'var(--radius-md)', fontSize: 13, fontWeight: 700,
-        background: 'var(--accent-blue)', color: 'oklch(1 0 0)', border: 'none', cursor: 'pointer',
-        opacity: processing ? 0.6 : 1,
+      <button type="submit" className="auth-btn" disabled={!stripe || processing} style={{
+        padding: '10px 24px', opacity: processing ? 0.6 : 1,
       }}>
         {processing ? 'Saving...' : 'Add Payment Method'}
       </button>
@@ -1508,6 +1504,176 @@ function ToggleRow({ label, description, checked, onChange, disabled }) {
           transform: checked ? 'translateX(20px)' : 'translateX(0)',
         }} />
       </button>
+    </div>
+  );
+}
+
+// ============================================================
+// EMAIL / SMTP TAB
+// ============================================================
+function EmailSmtpTab() {
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState('');
+  const [testEmail, setTestEmail] = useState('');
+  const [testing, setTesting] = useState(false);
+  const [testMsg, setTestMsg] = useState('');
+  const [showPass, setShowPass] = useState(false);
+
+  useEffect(() => {
+    client.get('/crm/tenant-settings')
+      .then(({ data }) => setSettings({
+        smtpHost: data.smtpHost || '',
+        smtpPort: data.smtpPort || 587,
+        smtpUser: data.smtpUser || '',
+        smtpPass: '',
+        smtpFrom: data.smtpFrom || '',
+        smtpConfigured: data.smtpConfigured || false,
+      }))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const flash = (setter, msg) => { setter(msg); setTimeout(() => setter(''), 3000); };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const payload = {
+        smtpHost: settings.smtpHost,
+        smtpPort: settings.smtpPort,
+        smtpUser: settings.smtpUser,
+        smtpFrom: settings.smtpFrom,
+      };
+      if (settings.smtpPass) payload.smtpPass = settings.smtpPass;
+      const { data } = await client.put('/crm/tenant-settings', payload);
+      setSettings(prev => ({ ...prev, smtpConfigured: data.smtpConfigured, smtpPass: '' }));
+      flash(setSaveMsg, 'SMTP settings saved');
+    } catch {
+      flash(setSaveMsg, 'Error saving');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleTest = async () => {
+    if (!testEmail) return;
+    setTesting(true);
+    try {
+      const { data } = await client.post('/crm/test-email', { to: testEmail });
+      flash(setTestMsg, data.message || 'Test email sent!');
+    } catch (err) {
+      flash(setTestMsg, err.response?.data?.error || 'Failed to send test email');
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  if (loading) return <div style={{ color: 'var(--text-muted)', padding: 'var(--space-xl)' }}>Loading...</div>;
+  if (!settings) return <div style={{ color: 'var(--text-muted)', padding: 'var(--space-xl)' }}>Could not load email settings.</div>;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+      {/* Status */}
+      <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', marginBottom: 'var(--space-md)' }}>
+          <div style={{
+            width: 10, height: 10, borderRadius: '50%',
+            background: settings.smtpConfigured ? 'var(--accent-green)' : 'oklch(0.65 0.15 50)',
+          }} />
+          <span style={{ fontSize: 14, fontWeight: 600 }}>
+            {settings.smtpConfigured ? 'SMTP Configured' : 'SMTP Not Configured'}
+          </span>
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>
+          Configure your SMTP server to send estimates, drip sequence emails, and automation emails from your own domain.
+          Without SMTP, emails will be logged but not delivered.
+        </div>
+      </div>
+
+      {/* SMTP Settings Form */}
+      <form onSubmit={handleSave}>
+        <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-lg)' }}>
+            <div style={{ fontSize: 15, fontWeight: 700 }}>SMTP Server</div>
+            {saveMsg && <span style={{ fontSize: 12, fontWeight: 600, color: saveMsg.includes('Error') ? 'var(--accent-red)' : 'var(--accent-green)' }}>{saveMsg}</span>}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px', gap: 'var(--space-md)' }}>
+              <div className="form-group">
+                <label>SMTP Host</label>
+                <input className="form-input" placeholder="smtp.gmail.com"
+                  value={settings.smtpHost}
+                  onChange={e => setSettings(prev => ({ ...prev, smtpHost: e.target.value }))}
+                />
+              </div>
+              <div className="form-group">
+                <label>Port</label>
+                <input className="form-input" type="number" placeholder="587"
+                  value={settings.smtpPort}
+                  onChange={e => setSettings(prev => ({ ...prev, smtpPort: parseInt(e.target.value) || 587 }))}
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Username</label>
+              <input className="form-input" placeholder="you@yourcompany.com"
+                value={settings.smtpUser}
+                onChange={e => setSettings(prev => ({ ...prev, smtpUser: e.target.value }))}
+              />
+            </div>
+            <div className="form-group">
+              <label>Password</label>
+              <div style={{ position: 'relative' }}>
+                <input className="form-input" type={showPass ? 'text' : 'password'}
+                  placeholder={settings.smtpConfigured ? '••••••••  (leave blank to keep current)' : 'Enter SMTP password'}
+                  value={settings.smtpPass}
+                  onChange={e => setSettings(prev => ({ ...prev, smtpPass: e.target.value }))}
+                />
+                <button type="button" onClick={() => setShowPass(v => !v)}
+                  style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 11, cursor: 'pointer' }}>
+                  {showPass ? 'Hide' : 'Show'}
+                </button>
+              </div>
+            </div>
+            <div className="form-group">
+              <label>From Address</label>
+              <input className="form-input" placeholder='"Your Company" <noreply@yourcompany.com>'
+                value={settings.smtpFrom}
+                onChange={e => setSettings(prev => ({ ...prev, smtpFrom: e.target.value }))}
+              />
+            </div>
+          </div>
+          <div style={{ marginTop: 'var(--space-lg)' }}>
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? 'Saving...' : 'Save SMTP Settings'}
+            </button>
+          </div>
+        </div>
+      </form>
+
+      {/* Test Email */}
+      <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
+        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 'var(--space-md)' }}>Send Test Email</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 'var(--space-md)', lineHeight: 1.5 }}>
+          Verify your SMTP settings are working by sending a test email.
+        </div>
+        <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'flex-end' }}>
+          <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+            <label>Recipient Email</label>
+            <input className="form-input" type="email" placeholder="you@example.com"
+              value={testEmail} onChange={e => setTestEmail(e.target.value)}
+            />
+          </div>
+          <button type="button" className="btn btn-primary" disabled={testing || !testEmail || !settings.smtpConfigured}
+            onClick={handleTest} style={{ whiteSpace: 'nowrap', height: 38 }}>
+            {testing ? 'Sending...' : 'Send Test'}
+          </button>
+        </div>
+        {testMsg && <div style={{ marginTop: 'var(--space-sm)', fontSize: 12, fontWeight: 600, color: testMsg.includes('sent') ? 'var(--accent-green)' : 'var(--accent-red)' }}>{testMsg}</div>}
+      </div>
     </div>
   );
 }

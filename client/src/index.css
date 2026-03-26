@@ -449,8 +449,10 @@ ul, ol { list-style: none; }
 }
 
 .topbar__search input:focus {
-  border-color: oklch(0.55 0.12 250 / 0.4);
+  border-color: oklch(0.55 0.12 250 / 0.35);
   background: oklch(0.26 0.02 260 / 0.55);
+  box-shadow: 0 0 8px oklch(0.55 0.15 250 / 0.25);
+  outline: none;
 }
 
 .topbar__spacer { flex: 1; }
@@ -2246,8 +2248,10 @@ textarea.form-input {
 }
 
 .form-input:focus {
-  border-color: oklch(0.55 0.12 250 / 0.4);
+  border-color: oklch(0.55 0.12 250 / 0.35);
   background: oklch(0.26 0.02 260 / 0.55);
+  box-shadow: 0 0 8px oklch(0.55 0.15 250 / 0.25);
+  outline: none;
 }
 
 .form-input::placeholder {
@@ -2956,8 +2960,8 @@ select option {
 }
 
 .address-search__input-wrap:focus-within {
-  border-color: var(--accent-blue);
-  box-shadow: 0 0 0 2px oklch(0.65 0.20 250 / 0.15);
+  border-color: oklch(0.55 0.12 250 / 0.35);
+  box-shadow: 0 0 8px oklch(0.55 0.15 250 / 0.25);
 }
 
 .address-search__spinner {
@@ -3237,8 +3241,9 @@ select option {
 }
 
 .public-estimate-input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: oklch(0.55 0.12 250 / 0.35);
+  box-shadow: 0 0 8px oklch(0.55 0.15 250 / 0.25);
+  outline: none;
 }
 
 .public-estimate-btn {
@@ -4292,7 +4297,9 @@ input[type="checkbox"]:checked::after {
 }
 
 .content-studio__var-field input:focus {
-  border-color: oklch(0.70 0.18 330 / 0.5);
+  border-color: oklch(0.55 0.12 250 / 0.35);
+  box-shadow: 0 0 8px oklch(0.55 0.15 250 / 0.25);
+  outline: none;
 }
 
 .content-studio__batch-toggle {
@@ -4565,9 +4572,7 @@ button:not(.mapboxgl-ctrl button):not([class*="fc-"]):not(.nav-link):not(.nav-gr
   transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.form-input:focus {
-  box-shadow: 0 0 0 3px oklch(0.55 0.12 250 / 0.15);
-}
+/* form-input focus glow handled above */
 
 /* ---- Table row hover ---- */
 tr {
@@ -4603,16 +4608,19 @@ tr {
 
 /* ---- Focus ring ---- */
 :focus-visible {
-  outline: 2px solid oklch(0.72 0.19 250 / 0.6);
-  outline-offset: 2px;
+  outline: 1px solid oklch(0.55 0.12 250 / 0.3);
+  outline-offset: 1px;
   border-radius: var(--radius-sm);
 }
-
-button:focus-visible,
+.form-input:focus-visible,
 input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-  outline: 2px solid oklch(0.72 0.19 250 / 0.6);
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+
+button:focus-visible {
+  outline: 1px solid oklch(0.55 0.12 250 / 0.3);
   outline-offset: 2px;
 }
 
