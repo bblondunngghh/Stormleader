@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { getWorkOrders, createWorkOrder, createWorkOrderFromEstimate, updateWorkOrder, completeWorkOrder, getTeamMembers, getWorkOrderMilestones, updateWorkOrderMilestone } from '../api/crm';
+import { getWorkOrders, createWorkOrder, createWorkOrderFromEstimate, updateWorkOrder, completeWorkOrder, getTeamMembers, getWorkOrderMilestones, updateWorkOrderMilestone, addWorkOrderMilestone, deleteWorkOrderMilestone } from '../api/crm';
 import { getEstimates } from '../api/estimates';
 import { uploadDocument } from '../api/documents';
 import { showToast } from './Toast';
@@ -66,6 +66,7 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
   const [milestones, setMilestones] = useState([]);
   const [milestonesLoading, setMilestonesLoading] = useState(true);
   const [uploadingMilestoneId, setUploadingMilestoneId] = useState(null);
+  const [newMilestoneName, setNewMilestoneName] = useState('');
   const photoInputRef = useRef(null);
   const activeMilestoneRef = useRef(null);
 
@@ -128,6 +129,26 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
         m.id === milestone.id ? milestone : m
       ));
       showToast('Failed to update milestone', 'error');
+    }
+  };
+
+  const handleAddMilestone = async () => {
+    if (!newMilestoneName.trim() || !wo?.id) return;
+    try {
+      const { data } = await addWorkOrderMilestone(wo.id, newMilestoneName.trim());
+      setMilestones(prev => [...prev, data]);
+      setNewMilestoneName('');
+    } catch {
+      showToast('Failed to add milestone', 'error');
+    }
+  };
+
+  const handleDeleteMilestone = async (milestoneId) => {
+    try {
+      await deleteWorkOrderMilestone(wo.id, milestoneId);
+      setMilestones(prev => prev.filter(ms => ms.id !== milestoneId));
+    } catch {
+      showToast('Failed to remove milestone', 'error');
     }
   };
 
@@ -266,7 +287,7 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
           </label>
 
           {/* Milestones */}
-          {!milestonesLoading && milestones.length > 0 && (
+          {!milestonesLoading && (
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                 <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>
@@ -345,8 +366,30 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
                         <CameraIcon width={14} height={14} />
                       )}
                     </button>
+                    {!m.completed && (
+                      <button onClick={(e) => { e.stopPropagation(); handleDeleteMilestone(m.id); }}
+                        style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 14, padding: '0 4px', opacity: 0.5 }}
+                        title="Remove milestone">
+                        ×
+                      </button>
+                    )}
                   </div>
                 ))}
+              </div>
+              {/* Add milestone input */}
+              <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                <input
+                  className="form-input"
+                  placeholder="Add milestone..."
+                  value={newMilestoneName}
+                  onChange={e => setNewMilestoneName(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter' && newMilestoneName.trim()) handleAddMilestone(); }}
+                  style={{ flex: 1, fontSize: 12, padding: '6px 10px' }}
+                />
+                <button className="btn btn-primary" disabled={!newMilestoneName.trim()} onClick={handleAddMilestone}
+                  style={{ fontSize: 11, padding: '6px 12px' }}>
+                  Add
+                </button>
               </div>
             </div>
           )}

@@ -256,6 +256,12 @@ export const getWorkOrderMilestones = (woId) => client.get(`/crm/work-orders/${w
 export const updateWorkOrderMilestone = (woId, mId, data) =>
   client.patch(`/crm/work-orders/${woId}/milestones/${mId}`, data);
 
+export const addWorkOrderMilestone = (woId, name) =>
+  client.post(`/crm/work-orders/${woId}/milestones`, { name });
+
+export const deleteWorkOrderMilestone = (woId, milestoneId) =>
+  client.delete(`/crm/work-orders/${woId}/milestones/${milestoneId}`);
+
 // ============================================================
 // AI CONTENT STUDIO
 // ============================================================

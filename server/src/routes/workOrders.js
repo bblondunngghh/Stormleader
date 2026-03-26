@@ -2,6 +2,7 @@ import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
 import * as workOrderService from '../services/workOrderService.js';
+import pool from '../db/pool.js';
 
 const router = Router();
 router.use(authenticate);
@@ -88,6 +89,38 @@ router.get('/:id/milestones', async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+// Create a new milestone — tenant-scoped
+router.post('/:id/milestones', async (req, res, next) => {
+  try {
+    const { name } = req.body;
+    if (!name?.trim()) return res.status(400).json({ error: 'Milestone name required' });
+    const wo = await workOrderService.getWorkOrder(req.tenantId, req.params.id);
+    if (!wo) return res.status(404).json({ error: 'Work order not found' });
+    const { rows: [maxOrder] } = await pool.query(
+      'SELECT COALESCE(MAX(sort_order), 0) + 1 AS next_order FROM work_order_milestones WHERE work_order_id = $1',
+      [req.params.id]
+    );
+    const { rows: [milestone] } = await pool.query(
+      `INSERT INTO work_order_milestones (work_order_id, name, sort_order) VALUES ($1, $2, $3) RETURNING *`,
+      [req.params.id, name.trim(), maxOrder.next_order]
+    );
+    res.status(201).json(milestone);
+  } catch (err) { next(err); }
+});
+
+// Delete a milestone — tenant-scoped
+router.delete('/:woId/milestones/:milestoneId', async (req, res, next) => {
+  try {
+    const wo = await workOrderService.getWorkOrder(req.tenantId, req.params.woId);
+    if (!wo) return res.status(404).json({ error: 'Work order not found' });
+    await pool.query(
+      'DELETE FROM work_order_milestones WHERE id = $1 AND work_order_id = $2',
+      [req.params.milestoneId, req.params.woId]
+    );
+    res.json({ success: true });
+  } catch (err) { next(err); }
 });
 
 // Update a milestone (toggle complete, set photo) — tenant-scoped
