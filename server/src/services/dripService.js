@@ -279,7 +279,9 @@ async function executeStepAction(tenantId, leadId, step) {
   switch (step.action_type) {
     case 'send_email': {
       const { rows } = await pool.query(
-        `SELECT contact_email, contact_name FROM leads WHERE id = $1 AND tenant_id = $2`,
+        `SELECT contact_email, contact_name, contact_phone, address, city,
+                property_state, property_zip, stage, estimated_value
+         FROM leads WHERE id = $1 AND tenant_id = $2`,
         [leadId, tenantId]
       );
       const lead = rows[0];
@@ -287,9 +289,32 @@ async function executeStepAction(tenantId, leadId, step) {
         logger.warn({ leadId, tenantId }, 'Drip email skipped — no contact email');
         break;
       }
+      // Fetch company name for merge fields
+      const { rows: tenantRows } = await pool.query(
+        `SELECT company_name FROM tenants WHERE id = $1`, [tenantId]
+      );
+      const companyName = tenantRows[0]?.company_name || '';
+      // Replace merge fields in subject and body
+      const nameParts = (lead.contact_name || '').split(/\s+/);
+      const mergeMap = {
+        '{{first_name}}': nameParts[0] || '',
+        '{{last_name}}': nameParts.slice(1).join(' ') || '',
+        '{{full_name}}': lead.contact_name || '',
+        '{{email}}': lead.contact_email || '',
+        '{{phone}}': lead.contact_phone || '',
+        '{{address}}': lead.address || '',
+        '{{city}}': lead.city || '',
+        '{{company_name}}': companyName,
+        '{{estimated_value}}': lead.estimated_value ? `$${Number(lead.estimated_value).toLocaleString()}` : '',
+        '{{stage}}': (lead.stage || '').replace(/_/g, ' '),
+      };
+      const replaceMergeFields = (text) => {
+        if (!text) return text;
+        return Object.entries(mergeMap).reduce((t, [key, val]) => t.replaceAll(key, val), text);
+      };
       await sendAutomationEmail(lead.contact_email, {
-        subject: cfg.subject || 'Follow-up from StormLeads',
-        body: cfg.body || '',
+        subject: replaceMergeFields(cfg.subject) || 'Follow-up from StormLeads',
+        body: replaceMergeFields(cfg.body) || '',
         contactName: lead.contact_name,
       });
       break;

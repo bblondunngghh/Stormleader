@@ -72,6 +72,7 @@ export default function DripSequences() {
   const [expandedId, setExpandedId] = useState(null);
   const [enrollments, setEnrollments] = useState([]);
   const [enrollmentsLoading, setEnrollmentsLoading] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   useEffect(() => { load(); }, []);
 
@@ -91,7 +92,12 @@ export default function DripSequences() {
   }
 
   async function handleDelete(id) {
-    if (!confirm('Delete this drip sequence? All enrollments will be cancelled.')) return;
+    setDeleteConfirm(id);
+  }
+
+  async function confirmDelete() {
+    const id = deleteConfirm;
+    setDeleteConfirm(null);
     try {
       await deleteDripSequence(id);
       setSequences(prev => prev.filter(s => s.id !== id));
@@ -210,11 +216,8 @@ export default function DripSequences() {
           </div>
         </div>
         <button
+          className="auth-btn"
           onClick={() => { setShowForm(true); setEditId(null); setForm(getEmptyForm()); }}
-          style={{
-            padding: '8px 18px', borderRadius: 'var(--radius-sm)', fontSize: 13, fontWeight: 600,
-            border: 'none', cursor: 'pointer', background: 'var(--accent-blue)', color: 'oklch(1 0 0)',
-          }}
         >
           + New Sequence
         </button>
@@ -564,6 +567,86 @@ export default function DripSequences() {
           ))}
         </div>
       )}
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="modal-backdrop" onClick={() => setDeleteConfirm(null)}>
+          <div
+            className="glass modal-scale-in"
+            onClick={e => e.stopPropagation()}
+            style={{
+              borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)',
+              width: 380, maxWidth: '90vw',
+            }}
+          >
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>
+              Delete Sequence?
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 'var(--space-lg)', lineHeight: 1.5 }}>
+              This will permanently delete this drip sequence and cancel all active enrollments. This action cannot be undone.
+            </div>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                style={{
+                  padding: '8px 18px', borderRadius: 'var(--radius-sm)', fontSize: 13, fontWeight: 600,
+                  border: '1px solid var(--glass-border)', cursor: 'pointer',
+                  background: 'transparent', color: 'var(--text-muted)',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                style={{
+                  padding: '8px 18px', borderRadius: 'var(--radius-sm)', fontSize: 13, fontWeight: 600,
+                  border: 'none', cursor: 'pointer',
+                  background: 'oklch(0.55 0.22 25)', color: 'oklch(1 0 0)',
+                }}
+              >
+                Delete Sequence
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const MERGE_FIELDS = [
+  { token: '{{first_name}}', label: 'First Name' },
+  { token: '{{last_name}}', label: 'Last Name' },
+  { token: '{{full_name}}', label: 'Full Name' },
+  { token: '{{email}}', label: 'Email' },
+  { token: '{{phone}}', label: 'Phone' },
+  { token: '{{address}}', label: 'Address' },
+  { token: '{{city}}', label: 'City' },
+  { token: '{{company_name}}', label: 'Company' },
+  { token: '{{estimated_value}}', label: 'Est. Value' },
+  { token: '{{stage}}', label: 'Stage' },
+];
+
+function MergeFieldBar({ onInsert }) {
+  return (
+    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
+      <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', alignSelf: 'center', marginRight: 4 }}>
+        Insert:
+      </span>
+      {MERGE_FIELDS.map(f => (
+        <button
+          key={f.token}
+          type="button"
+          onClick={() => onInsert(f.token)}
+          style={{
+            padding: '2px 6px', borderRadius: 'var(--radius-sm)', fontSize: 10, fontWeight: 600,
+            border: '1px solid var(--glass-border)', cursor: 'pointer',
+            background: 'oklch(0.20 0.02 260 / 0.5)', color: 'oklch(0.72 0.19 250)',
+          }}
+          title={`Insert ${f.token}`}
+        >
+          {f.label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -575,17 +658,22 @@ function StepActionConfig({ actionType, config, onChange }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <input
             className="form-input"
-            placeholder="Email subject"
+            placeholder="Email subject — e.g. Hi {{first_name}}, following up on your roof"
             value={config.subject || ''}
             onChange={e => onChange('subject', e.target.value)}
           />
+          <MergeFieldBar onInsert={token => onChange('subject', (config.subject || '') + token)} />
           <textarea
             className="form-input"
-            style={{ height: 'auto', minHeight: 60, resize: 'vertical' }}
-            placeholder="Email body"
+            style={{ height: 'auto', minHeight: 80, resize: 'vertical' }}
+            placeholder="Email body — use merge fields like {{first_name}} to personalize"
             value={config.body || ''}
             onChange={e => onChange('body', e.target.value)}
           />
+          <MergeFieldBar onInsert={token => onChange('body', (config.body || '') + token)} />
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', fontStyle: 'italic' }}>
+            Merge fields like {'{{first_name}}'} will be replaced with actual lead data when the email is sent.
+          </div>
         </div>
       );
 
