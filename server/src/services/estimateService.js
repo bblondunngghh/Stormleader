@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { sendEstimateEmail } from './emailService.js';
 import config from '../config/env.js';
 import logger from '../utils/logger.js';
+import { createFromEstimate as createWorkOrderFromEstimate } from './workOrderService.js';
 
 // ============================================================
 // ESTIMATES CRUD
@@ -153,6 +154,20 @@ export async function updateEstimate(tenantId, estimateId, updates) {
   const estimate = rows[0];
   if (estimate && estimate.lead_id) {
     await syncLeadEstimatedValue(estimate.lead_id, tenantId);
+  }
+
+  // Auto-create work order when estimate is accepted via admin update
+  if (estimate && updates.status === 'accepted') {
+    try {
+      const { rows: existingWo } = await pool.query(
+        'SELECT id FROM work_orders WHERE estimate_id = $1', [estimate.id]
+      );
+      if (existingWo.length === 0) {
+        await createWorkOrderFromEstimate(tenantId, estimate.id);
+      }
+    } catch (err) {
+      logger.warn({ err, estimateId: estimate.id }, 'Auto work order creation failed');
+    }
   }
 
   return estimate || null;
@@ -317,6 +332,21 @@ export async function acceptEstimate(token, signerName, signatureData) {
   if (estimate && estimate.lead_id) {
     await syncLeadEstimatedValue(estimate.lead_id, estimate.tenant_id);
   }
+
+  // Auto-create work order when estimate is approved/signed
+  if (estimate) {
+    try {
+      const { rows: existingWo } = await pool.query(
+        'SELECT id FROM work_orders WHERE estimate_id = $1', [estimate.id]
+      );
+      if (existingWo.length === 0) {
+        await createWorkOrderFromEstimate(estimate.tenant_id, estimate.id);
+      }
+    } catch (err) {
+      logger.warn({ err, estimateId: estimate.id }, 'Auto work order creation failed');
+    }
+  }
+
   return estimate || null;
 }
 
