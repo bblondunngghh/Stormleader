@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import Supercluster from 'supercluster';
 import { loadGoogleMaps } from '../lib/googleMaps';
 import { cacheProperties, loadCachedProperties, cacheTileKeys, loadCachedTileKeys, clearPropertyCache } from '../lib/propertyCache';
-import { getSwaths, getPropertiesInSwath, getSwathPropertyCount, createProperty, fetchFemaData, getFemaLiveProperties, getFemaByPolygon, getStormHistory, getHailHeatmap } from '../api/storms';
+import { getSwaths, getPropertiesInSwath, getSwathPropertyCount, createProperty, fetchFemaData, getFemaByPolygon, getStormHistory, getHailHeatmap } from '../api/storms';
 import { addPropertyToPipeline, createManualLead } from '../api/crm';
 import client from '../api/client';
 import { TimeFilter, LayerPanel } from './MapControls';
@@ -849,7 +849,25 @@ export default function StormMap() {
     if (!layersRef.current.properties || !showFemaRef.current) return;
     const zoom = map.getZoom();
     // Only load FEMA at high zoom levels — zoom 14+ ensures tight area
-    if (zoom < 14) return;
+    if (zoom < 14) {
+      // Purge FEMA points from memory when zoomed out — they're transient and will
+      // be re-fetched when user zooms back in. Prevents stale dots at overview zoom.
+      if (femaCountRef.current > 0) {
+        propFeaturesRef.current = propFeaturesRef.current.filter(f => {
+          if (f.properties?.data_source === 'fema_nsi_live') {
+            const pid = f.id || f.properties?.id;
+            if (pid) propIdSetRef.current.delete(pid);
+            return false;
+          }
+          return true;
+        });
+        femaCountRef.current = 0;
+        femaLoadedTilesRef.current.clear();
+        rebuildClusterIndex();
+        if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
+      }
+      return;
+    }
     // Skip if no storm swaths loaded at all
     if (stormFeaturesRef.current.length === 0) return;
     // Global cap: don't load more than 10000 FEMA points total (prevents memory bloat)
@@ -937,12 +955,14 @@ export default function StormMap() {
     }
 
     // Single batch update — push in-place to avoid O(n) spread copy
+    // NOTE: FEMA properties are NOT cached to IndexedDB — they're transient, fetched
+    // on-demand from the FEMA NSI API per-swath. Caching them caused properties to
+    // appear everywhere on page reload (before swaths load) creating massive lag.
     if (allNewFema.length > 0) {
       for (const nf of allNewFema) propFeaturesRef.current.push(nf);
       femaCountRef.current += allNewFema.length;
       rebuildClusterIndex();
       if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
-      cacheProperties(allNewFema);
     }
 
     if (!femaAbort.signal.aborted) {
@@ -1913,20 +1933,20 @@ export default function StormMap() {
           loadCachedTileKeys(),
         ]);
         if (cachedFeatures.length > 0) {
-          propFeaturesRef.current = cachedFeatures;
-          let femaCount = 0;
-          for (const f of cachedFeatures) {
+          // Filter out FEMA properties from cache — they're transient and should only
+          // appear when actively loaded within visible swath polygons. Restoring them
+          // from cache caused dots to appear everywhere before swaths load.
+          const dbFeatures = cachedFeatures.filter(f => f.properties?.data_source !== 'fema_nsi_live');
+          propFeaturesRef.current = dbFeatures;
+          for (const f of dbFeatures) {
             const pid = f.id || f.properties?.id;
             if (pid) propIdSetRef.current.add(pid);
-            if (f.properties?.data_source === 'fema_nsi_live') femaCount++;
           }
-          femaCountRef.current = femaCount;
+          femaCountRef.current = 0;
           for (const key of cachedTiles) {
-            if (key.startsWith('fema:')) {
-              femaLoadedTilesRef.current.add(key);
-            } else {
-              loadedTilesRef.current.add(key);
-            }
+            // Skip FEMA tile keys — FEMA properties are re-fetched on demand
+            if (key.startsWith('fema-swath:') || key.startsWith('fema:')) continue;
+            loadedTilesRef.current.add(key);
           }
           rebuildClusterIndex(true);
           if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
