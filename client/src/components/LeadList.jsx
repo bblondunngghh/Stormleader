@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react'
 import { useSearchParams } from 'react-router-dom';
 import { getLeads, bulkAssign, bulkStatus } from '../api/crm';
 const LeadDetail = lazy(() => import('./LeadDetail'));
-import { IconSearch, IconDownload, IconFilter, IconX } from './Icons';
+import { IconSearch, IconDownload, IconFilter, IconX, IconUpload } from './Icons';
 import CustomSelect from './CustomSelect';
+import ImportLeadsModal from './ImportLeadsModal';
 
 function cleanAddr(str) {
   if (!str) return '';
@@ -116,6 +117,7 @@ export default function LeadList() {
   const [bulkSaving, setBulkSaving] = useState(false);
 
   const [exporting, setExporting] = useState(false);
+  const [showImport, setShowImport] = useState(false);
 
   // Sync state to URL
   useEffect(() => {
@@ -353,9 +355,13 @@ export default function LeadList() {
         />
 
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 'var(--space-sm)', alignItems: 'center' }}>
+          <button className="quick-action-btn" onClick={() => setShowImport(true)} title="Import leads from CSV" style={{ height: 36, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <IconUpload style={{ width: 14, height: 14 }} />
+            <span>Import</span>
+          </button>
           <button className="quick-action-btn" onClick={exportCSV} disabled={exporting} title="Export CSV" style={{ height: 36, display: 'flex', alignItems: 'center', gap: 6 }}>
             <IconDownload style={{ width: 14, height: 14 }} />
-            <span>CSV</span>
+            <span>Export</span>
           </button>
           <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
             {total} lead{total !== 1 ? 's' : ''}
@@ -648,6 +654,13 @@ export default function LeadList() {
             onUpdated={() => fetchLeads()}
           />
         </Suspense>
+      )}
+
+      {showImport && (
+        <ImportLeadsModal
+          onClose={() => setShowImport(false)}
+          onImported={() => fetchLeads()}
+        />
       )}
     </div>
   );

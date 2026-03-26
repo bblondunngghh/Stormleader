@@ -34,6 +34,11 @@ import {
   MinusIcon,
   PlusIcon,
   CheckIcon,
+  ArrowUpTrayIcon,
+  DocumentArrowUpIcon,
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
+  XCircleIcon,
 } from '@heroicons/react/24/outline';
 
 export function IconGrid({ width = 18, height = 18, ...props }) {
@@ -174,6 +179,26 @@ export function IconPlus({ width = 18, height = 18, ...props }) {
 
 export function IconCheck({ width = 18, height = 18, ...props }) {
   return <CheckIcon width={width} height={height} {...props} />;
+}
+
+export function IconUpload({ width = 18, height = 18, ...props }) {
+  return <ArrowUpTrayIcon width={width} height={height} {...props} />;
+}
+
+export function IconDocumentUpload({ width = 18, height = 18, ...props }) {
+  return <DocumentArrowUpIcon width={width} height={height} {...props} />;
+}
+
+export function IconWarning({ width = 18, height = 18, ...props }) {
+  return <ExclamationTriangleIcon width={width} height={height} {...props} />;
+}
+
+export function IconCheckCircle({ width = 18, height = 18, ...props }) {
+  return <CheckCircleIcon width={width} height={height} {...props} />;
+}
+
+export function IconXCircle({ width = 18, height = 18, ...props }) {
+  return <XCircleIcon width={width} height={height} {...props} />;
 }
 
 const iconMap = {
