@@ -609,12 +609,7 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
 
             <div style={{ marginBottom: 'var(--space-md)' }}>
               <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>Due Date</label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={e => setDueDate(e.target.value)}
-                className="form-input"
-              />
+              <DatePicker value={dueDate} onChange={v => setDueDate(v)} placeholder="Select due date" />
             </div>
 
             <div>

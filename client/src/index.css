@@ -103,6 +103,10 @@ ul, ol { list-style: none; }
   background: oklch(0.50 0.02 260 / 0.5);
 }
 
+/* Utility: hide scrollbar but keep scrolling */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
 /* ============================================================
    GLASS UTILITY
    ============================================================ */

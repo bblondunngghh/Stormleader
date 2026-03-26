@@ -185,7 +185,7 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
 
   return (
     <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="glass" onClick={e => e.stopPropagation()} style={{
+      <div className="glass no-scrollbar" onClick={e => e.stopPropagation()} style={{
         width: '100%', maxWidth: 580, maxHeight: '90vh', overflow: 'auto',
         borderRadius: 'var(--radius-xl)', padding: 'var(--space-xl)',
         boxShadow: '0 24px 80px oklch(0 0 0 / 0.5), inset 0 1px 0 oklch(1 0 0 / 0.06)',

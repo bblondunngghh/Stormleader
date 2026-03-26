@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import DatePicker from './DatePicker';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   PieChart, Pie, Cell, ResponsiveContainer,
@@ -368,19 +369,9 @@ export default function ReportsView() {
             ))}
           </div>
           <div className="reports-date-inputs">
-            <input
-              type="date"
-              value={start}
-              onChange={e => { setStart(e.target.value); setPreset(''); }}
-              className="form-input"
-            />
+            <DatePicker value={start} onChange={v => { setStart(v); setPreset(''); }} placeholder="Start date" />
             <span style={{ color: 'oklch(0.5 0 0)' }}>to</span>
-            <input
-              type="date"
-              value={end}
-              onChange={e => { setEnd(e.target.value); setPreset(''); }}
-              className="form-input"
-            />
+            <DatePicker value={end} onChange={v => { setEnd(v); setPreset(''); }} placeholder="End date" />
           </div>
         </div>
       </div>

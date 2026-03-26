@@ -93,7 +93,10 @@ export default function StormCatalog() {
     if (rd?.type === 'hail' || s.properties?.hail_size_max_in) return 'Hail';
     if (rd?.type === 'wind' || s.properties?.wind_speed_max_mph) return 'Wind';
     if (rd?.type === 'tornado') return 'Tornado';
-    return rd?.type || s.properties?.source || 'Storm';
+    if (rd?.type === 'severe_thunderstorm') return 'Severe Thunderstorm';
+    // Clean up any remaining underscored types
+    const raw = rd?.type || s.properties?.source || 'Storm';
+    return raw.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   };
 
   const typeColor = (s) => {
