@@ -99,6 +99,23 @@ export default function EstimatesView() {
     } catch { /* silent */ }
   };
 
+  const handleGenerateTiers = async (est) => {
+    try {
+      const { data } = await estimatesApi.generateTiers(est.id);
+      showToast(`Generated ${data.tiers?.length || 3} tier variants`, 'success');
+      fetchEstimates();
+    } catch {
+      showToast('Failed to generate tiers', 'error');
+    }
+  };
+
+  // Detect tier label from notes field (e.g. "[Good Tier] ...")
+  const getTierLabel = (est) => {
+    if (!est.notes) return null;
+    const m = est.notes.match(/^\[(Good|Better|Best) Tier\]/);
+    return m ? m[1] : null;
+  };
+
   if (showBuilder) {
     return <EstimateBuilder estimate={editingEstimate} onSave={handleSaved} onCancel={() => setShowBuilder(false)} />;
   }
@@ -380,6 +397,22 @@ export default function EstimatesView() {
                         letterSpacing: '0.1em',
                         textTransform: 'uppercase',
                       }}>{mobileStatusLabel(est.status)}</span>
+                      {getTierLabel(est) && (() => {
+                        const tl = getTierLabel(est);
+                        return (
+                          <span style={{
+                            fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 6,
+                            background: tl === 'Best' ? 'oklch(0.35 0.12 155 / 0.4)' :
+                                        tl === 'Better' ? 'oklch(0.35 0.12 250 / 0.4)' :
+                                        'oklch(0.35 0.08 260 / 0.4)',
+                            color: tl === 'Best' ? 'oklch(0.80 0.15 155)' :
+                                   tl === 'Better' ? 'oklch(0.80 0.15 250)' :
+                                   'oklch(0.70 0.05 260)',
+                          }}>
+                            {tl}
+                          </span>
+                        );
+                      })()}
                       <div style={{ display: 'flex', gap: 8 }}>
                         {est.status === 'draft' ? (
                           <>
@@ -549,11 +582,29 @@ export default function EstimatesView() {
                     <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{est.customer_address || est.lead_address || ''}</div>
                   </td>
                   <td>
-                    <span style={{
-                      fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 'var(--radius-pill)',
-                      background: `color-mix(in oklch, ${statusColors[est.status]} 15%, transparent)`,
-                      color: statusColors[est.status], textTransform: 'uppercase', letterSpacing: '0.06em',
-                    }}>{est.status}</span>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                      <span style={{
+                        fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 'var(--radius-pill)',
+                        background: `color-mix(in oklch, ${statusColors[est.status]} 15%, transparent)`,
+                        color: statusColors[est.status], textTransform: 'uppercase', letterSpacing: '0.06em',
+                      }}>{est.status}</span>
+                      {getTierLabel(est) && (() => {
+                        const tl = getTierLabel(est);
+                        return (
+                          <span style={{
+                            fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 6,
+                            background: tl === 'Best' ? 'oklch(0.35 0.12 155 / 0.4)' :
+                                        tl === 'Better' ? 'oklch(0.35 0.12 250 / 0.4)' :
+                                        'oklch(0.35 0.08 260 / 0.4)',
+                            color: tl === 'Best' ? 'oklch(0.80 0.15 155)' :
+                                   tl === 'Better' ? 'oklch(0.80 0.15 250)' :
+                                   'oklch(0.70 0.05 260)',
+                          }}>
+                            {tl}
+                          </span>
+                        );
+                      })()}
+                    </div>
                   </td>
                   <td style={{ fontWeight: 700, color: 'var(--accent-green)' }}>${Number(est.total).toLocaleString()}</td>
                   <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>
@@ -573,6 +624,11 @@ export default function EstimatesView() {
                       <button className="quick-action-btn" onClick={() => handleDuplicate(est)} style={{ padding: '8px 14px', fontSize: 11 }}>
                         Copy
                       </button>
+                      {!getTierLabel(est) && (
+                        <button className="quick-action-btn" onClick={(e) => { e.stopPropagation(); handleGenerateTiers(est); }} style={{ padding: '8px 14px', fontSize: 11 }}>
+                          Tiers
+                        </button>
+                      )}
                       {est.status === 'accepted' && (
                         <button className="quick-action-btn" onClick={() => { window.location.href = `/contracts?fromEstimate=${est.id}`; }} style={{ padding: '8px 14px', fontSize: 11, color: 'var(--accent-blue)' }}>
                           Contract
