@@ -251,3 +251,32 @@ and what should be prioritized next. Future agents MUST read this before startin
 - A structured competitor research → app inventory → gap prioritization → targeted implementation workflow is highly effective. Researching specific UI patterns before coding ensures changes are competitive, not arbitrary.
 - The app already has many features competitors charge extra for (photo annotation, territory management, financing, content generation) — the gaps are primarily in pipeline revenue visibility and production workflow polish, not missing categories.
 - Replacing browser confirm() dialogs with glass-styled modals is a quick win that significantly improves perceived quality across the entire app.
+
+---
+
+## Run: 2026-03-27
+
+### What was done
+- **Competitor Research Refresh**: Scraped HailTrace, JobNimbus, SumoQuote, RoofLink, and Rooftops.ai via Firecrawl. Updated all 8 feature area comparisons with specific UI patterns and prioritized top 10 improvements.
+- **Pipeline Board Tabs** (vs JobNimbus): Added Sales/Production/Billing tab switcher to Pipeline page, filtering kanban stages by workflow phase. Added days-in-stage badges on every card with color coding (green/gray/amber/red).
+- **Content Library** (vs Rooftops.ai): Added Library tab to Content Studio with save, search, filter, copy, and delete for generated AI content. Persistent localStorage-backed library with type/tone tagging.
+- **Dashboard Loading Skeletons** (vs JobNimbus/HailTrace): Added animated shimmer skeleton placeholders for stat cards, pipeline funnel, storm map panel, and activity feed during data loading.
+- Total: 4 commits (1 docs + 3 features), 4 files changed, 820 lines added
+
+### Competitor areas covered
+- Areas completed: All 8 areas researched (Storm Map, Pipeline/CRM, Estimates, Content/Marketing, Work Orders/Production, Dashboard/Reports, Communication/Automation, Payment/Invoicing)
+- Features implemented: Pipeline board tabs + days-in-stage, content library, dashboard skeletons
+- Stopped at: All planned implementations complete
+- Next run should start at: Deal value on pipeline cards + column revenue totals (#1 remaining gap)
+
+### What was skipped and why
+- Deal value on pipeline cards — #1 priority but requires estimate-to-lead join query work
+- Good/Better/Best estimate tiers — medium effort, needs multi-estimate UI redesign
+- Storm swath color graduation — medium effort, visual-only enhancement
+- PDF export for estimates/invoices — medium effort, needs server-side rendering
+- Online payment collection — significant integration effort
+
+### Lessons learned
+- The pipeline board tabs pattern (Sales/Production/Billing) is a simple filter on existing stage data — no schema change needed, just stage-to-board mapping in the frontend.
+- Days-in-stage badges are high-impact for very low effort — just calculate the difference between now and stage change timestamp that's already stored.
+- localStorage is sufficient for content library in an MVP — avoids adding database tables on the Neon free tier for non-critical data.
