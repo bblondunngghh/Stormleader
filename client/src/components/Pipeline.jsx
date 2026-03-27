@@ -37,6 +37,42 @@ function formatCurrency(val) {
   return `$${num}`;
 }
 
+function daysInStage(lead) {
+  // Use updated_at as proxy for last stage change; fallback to created_at
+  const ref = lead.updated_at || lead.created_at;
+  if (!ref) return null;
+  const now = new Date();
+  const then = new Date(ref);
+  return Math.max(0, Math.floor((now - then) / 86400000));
+}
+
+function daysInStageBadge(days) {
+  if (days === null || days === undefined) return null;
+  if (days >= 14) return { label: `${days}d`, color: 'oklch(0.68 0.22 25)', bg: 'oklch(0.68 0.22 25 / 0.12)' };
+  if (days >= 7) return { label: `${days}d`, color: 'oklch(0.78 0.17 85)', bg: 'oklch(0.78 0.17 85 / 0.12)' };
+  if (days >= 1) return { label: `${days}d`, color: 'oklch(0.55 0.02 260)', bg: 'oklch(0.55 0.02 260 / 0.12)' };
+  return { label: 'Today', color: 'oklch(0.75 0.18 155)', bg: 'oklch(0.75 0.18 155 / 0.12)' };
+}
+
+// Board definitions — Sales / Production / Billing (like JobNimbus)
+const BOARD_DEFS = {
+  sales: {
+    label: 'Sales',
+    icon: '💰',
+    stageKeys: ['new', 'contacted', 'appt_set', 'inspected', 'estimate_sent', 'negotiating', 'sold'],
+  },
+  production: {
+    label: 'Production',
+    icon: '🔨',
+    stageKeys: ['sold', 'in_production', 'material_ordered', 'scheduled', 'completed'],
+  },
+  billing: {
+    label: 'Billing',
+    icon: '📄',
+    stageKeys: ['completed', 'invoiced', 'paid', 'collections'],
+  },
+};
+
 function dueDateInfo(dateStr) {
   if (!dateStr) return null;
   const now = new Date();
@@ -100,9 +136,17 @@ const fallbackColumns = [
 
 export default function Pipeline() {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
-  const [columns, setColumns] = useState(fallbackColumns);
+  const [allColumns, setAllColumns] = useState(fallbackColumns);
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeBoard, setActiveBoard] = useState('sales');
+
+  // Filter columns by active board
+  const columns = useMemo(() => {
+    const boardDef = BOARD_DEFS[activeBoard];
+    if (!boardDef) return allColumns;
+    return allColumns.filter(col => boardDef.stageKeys.includes(col.key));
+  }, [allColumns, activeBoard]);
   const [selectedLeadId, setSelectedLeadId] = useState(null);
   const [dragState, setDragState] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -202,7 +246,7 @@ export default function Pipeline() {
 
       const stageData = stagesRes?.data?.stages || stagesRes?.data;
       if (Array.isArray(stageData) && stageData.length) {
-        setColumns(stageData.filter(s => s.key !== 'lost'));
+        setAllColumns(stageData.filter(s => s.key !== 'lost'));
       }
 
       setLeads(leadsRes.data.leads || []);
@@ -700,7 +744,25 @@ export default function Pipeline() {
         className="glass px-4 py-2.5 mt-[var(--space-lg)] flex items-center gap-3 shadow-[0_8px_32px_oklch(0_0_0/0.25),inset_0_1px_0_oklch(1_0_0/0.05)]"
         style={{ borderRadius: '20px / 18px', whiteSpace: 'nowrap', flexShrink: 0, zIndex: 20, position: 'relative' }}
       >
-        <h1 className="text-[15px] font-bold text-[var(--text-primary)] shrink-0">Sales Pipeline</h1>
+        {/* Board Tabs — Sales / Production / Billing (JobNimbus style) */}
+        <div className="flex items-center shrink-0" style={{ background: 'oklch(0.12 0.02 260 / 0.5)', borderRadius: 10, padding: 2 }}>
+          {Object.entries(BOARD_DEFS).map(([key, def]) => (
+            <button
+              key={key}
+              onClick={() => setActiveBoard(key)}
+              className="shrink-0"
+              style={{
+                padding: '5px 12px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                fontSize: 12, fontWeight: 700, letterSpacing: '0.02em',
+                transition: 'all 0.15s',
+                background: activeBoard === key ? 'var(--accent-cyan)' : 'transparent',
+                color: activeBoard === key ? 'oklch(0.15 0.04 200)' : 'var(--text-muted)',
+              }}
+            >
+              <span style={{ marginRight: 4 }}>{def.icon}</span>{def.label}
+            </button>
+          ))}
+        </div>
 
         {/* Separator */}
         <div className="shrink-0" style={{ width: 1, height: 22, background: 'var(--glass-border)' }} />
@@ -927,9 +989,22 @@ export default function Pipeline() {
                             </a>
                           )}
 
-                          {/* Footer: Hail + Due date + Rep */}
+                          {/* Footer: Days-in-stage + Hail + Due date + Rep */}
                           <div className="flex items-center justify-between mt-1 gap-1 flex-wrap">
                             <div className="flex items-center gap-1.5">
+                              {(() => {
+                                const days = daysInStage(lead);
+                                const badge = daysInStageBadge(days);
+                                return badge ? (
+                                  <span
+                                    className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                                    style={{ color: badge.color, background: badge.bg }}
+                                    title={`${days} day${days !== 1 ? 's' : ''} in this stage`}
+                                  >
+                                    {badge.label}
+                                  </span>
+                                ) : null;
+                              })()}
                               {lead.hail_size_in && (
                                 <span className="
                                   text-[11px] font-semibold px-2 py-0.5 rounded-full
