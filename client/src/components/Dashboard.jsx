@@ -86,6 +86,80 @@ function useCountUp(target, duration = 900, delay = 0) {
   return value;
 }
 
+/* ── Skeleton Pulse — loading placeholder ─────────────────── */
+function SkeletonPulse({ width = '100%', height = 20, borderRadius = 8, style: extraStyle }) {
+  return (
+    <div
+      style={{
+        width, height, borderRadius,
+        background: 'linear-gradient(90deg, oklch(0.18 0.02 260) 25%, oklch(0.22 0.02 260) 50%, oklch(0.18 0.02 260) 75%)',
+        backgroundSize: '200% 100%',
+        animation: 'skeleton-shimmer 1.5s ease-in-out infinite',
+        ...extraStyle,
+      }}
+    />
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <>
+      <style>{`
+        @keyframes skeleton-shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+      `}</style>
+      {/* Stat cards skeleton */}
+      <div className="grid grid-cols-4 gap-[var(--space-md)]">
+        {[0, 1, 2, 3].map(i => (
+          <GlassCard key={i} className="p-5 flex flex-col gap-3 items-center">
+            <SkeletonPulse width={28} height={28} borderRadius={14} />
+            <SkeletonPulse width={80} height={32} borderRadius={6} />
+            <SkeletonPulse width={60} height={10} borderRadius={4} />
+          </GlassCard>
+        ))}
+      </div>
+      {/* Row 2 skeleton */}
+      <div className="grid grid-cols-[3fr_4fr_3fr] gap-[var(--space-md)]" style={{ maxHeight: 420 }}>
+        <GlassCard className="p-5 flex flex-col gap-3">
+          <SkeletonPulse width={100} height={14} />
+          {[0, 1, 2, 3, 4].map(i => (
+            <div key={i} className="flex items-center gap-2">
+              <SkeletonPulse width={70} height={12} />
+              <SkeletonPulse height={18} borderRadius={6} />
+            </div>
+          ))}
+        </GlassCard>
+        <GlassCard className="p-5">
+          <SkeletonPulse width={100} height={14} />
+          <SkeletonPulse height={200} borderRadius={12} style={{ marginTop: 12 }} />
+        </GlassCard>
+        <GlassCard className="p-5 flex flex-col gap-2">
+          <SkeletonPulse width={120} height={14} />
+          {[0, 1, 2, 3].map(i => (
+            <div key={i} className="flex items-center gap-2" style={{ padding: '6px 0' }}>
+              <SkeletonPulse width={40} height={20} borderRadius={4} />
+              <SkeletonPulse height={14} />
+            </div>
+          ))}
+        </GlassCard>
+      </div>
+      {/* Row 3 skeleton */}
+      <div className="grid grid-cols-3 gap-[var(--space-md)]">
+        {[0, 1, 2].map(i => (
+          <GlassCard key={i} className="p-5 flex flex-col gap-3">
+            <SkeletonPulse width={120} height={14} />
+            <SkeletonPulse height={16} />
+            <SkeletonPulse height={16} style={{ width: '80%' }} />
+            <SkeletonPulse height={16} style={{ width: '60%' }} />
+          </GlassCard>
+        ))}
+      </div>
+    </>
+  );
+}
+
 /* ── Glass Card — pure CSS backdrop-filter ───────────────── */
 function GlassCard({ children, className = '', onClick, style }) {
   return (
@@ -964,6 +1038,10 @@ export default function Dashboard() {
         </div>
       </header>
 
+      {/* ── Loading Skeleton ── */}
+      {loading && <DashboardSkeleton />}
+
+      {!loading && <>
       {/* ── Stat Cards ── */}
       <div className="grid grid-cols-4 gap-[var(--space-md)]">
         {stats.map((stat) => (
@@ -1254,6 +1332,7 @@ export default function Dashboard() {
           </div>
         </Panel>
       )}
+      </>}
     </div>
   );
 }
