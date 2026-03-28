@@ -280,3 +280,36 @@ and what should be prioritized next. Future agents MUST read this before startin
 - The pipeline board tabs pattern (Sales/Production/Billing) is a simple filter on existing stage data — no schema change needed, just stage-to-board mapping in the frontend.
 - Days-in-stage badges are high-impact for very low effort — just calculate the difference between now and stage change timestamp that's already stored.
 - localStorage is sufficient for content library in an MVP — avoids adding database tables on the Neon free tier for non-critical data.
+
+---
+
+## Run: 2026-03-28
+
+### What was done
+- **Competitor UI Research (2nd pass)**: Fresh Firecrawl scrapes of HailTrace, JobNimbus, RoofLink, Rooftops.ai with deeper UI detail across all 8 feature areas. Created comprehensive visual comparison document.
+- **App Inventory**: Full 20-page + 39 backend module audit cross-referenced against competitor features.
+- **Pipeline Task Progress + Mobile List View** (vs JobNimbus): Added task completion badges to kanban cards, built out previously stubbed mobile list view with priority dots, days-in-stage, and deal value.
+- **Reports Comparison Periods** (vs JobNimbus): Added "Compare" toggle with previous-period data fetch, trend arrows (↑/↓/→), and percentage change badges on Revenue, Pipeline, and Conversion charts.
+- **Work Order Line Item Editing** (vs RoofLink): Replaced read-only line items with editable grid — add/remove items, running total, save on dirty state.
+- **Dashboard Monthly Revenue Goal** (vs JobNimbus): Revenue goal progress bar with inline target edit, on-track/behind indicator, localStorage storage.
+- **Saved Filter Presets for Leads** (vs JobNimbus): Bookmark-style named filter presets for lead list, localStorage storage.
+
+### Competitor areas covered
+- Areas completed: All 8 areas researched (Storm Map, Pipeline/CRM, Estimates, Content/Marketing, Work Orders/Production, Dashboard/Reports, Communication/Automation, Payment/Invoicing)
+- Features implemented: Pipeline task progress + mobile list, reports comparison, work order line editing, dashboard revenue goal, saved filter presets
+- Stopped at: All 5 planned implementations complete
+- Next run should start at: PDF export for estimates, inspection photo pages, in-app SMS threading
+
+### What was skipped and why
+- PDF export for estimates — medium effort, needs server-side pdfmake generation
+- Inspection photo pages in estimates — needs new estimate section type design
+- In-app SMS — requires Twilio account and real per-message costs
+- Content library cloud sync — needs new DB table, low priority vs other gaps
+- Chart drill-down in reports — needs route navigation integration
+- Milestone templates for work orders — needs template schema and UI
+
+### Lessons learned
+- The mobile pipeline list view was already toggled in the UI but rendered nothing — always verify stubs actually have implementations before marking features as "done."
+- localStorage continues to be the right zero-cost choice for user preferences (filter presets, revenue goals) — avoids Neon free tier row pressure for non-critical data.
+- Comparison period calculation (same duration shifted backward) is simple but high-impact — it's the #1 thing that makes reports feel professional vs. toy-like.
+- Task progress on pipeline cards required only a lateral subquery join in the existing getLeads service — no schema change, just a SQL enhancement.
