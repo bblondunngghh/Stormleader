@@ -120,28 +120,49 @@ function ExportButton({ data, filename }) {
 // REPORT CARDS
 // ============================================================
 
-function RevenueChart({ start, end }) {
+function RevenueChart({ start, end, compare }) {
   const [data, setData] = useState([]);
+  const [prevData, setPrevData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    getRevenueReport(start, end)
-      .then(r => setData(r.data.map(d => ({
+    const main = getRevenueReport(start, end)
+      .then(r => r.data.map(d => ({
         ...d,
         month: new Date(d.month).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
         estimated: Number(d.estimated),
         actual: Number(d.actual),
-      }))))
-      .catch(() => setData([]))
+      })));
+
+    const [pStart, pEnd] = compare ? getPreviousPeriod(start, end) : [null, null];
+    const prev = pStart ? getRevenueReport(pStart, pEnd)
+      .then(r => r.data.map(d => ({ estimated: Number(d.estimated), actual: Number(d.actual) })))
+      .catch(() => null) : Promise.resolve(null);
+
+    Promise.all([main, prev])
+      .then(([m, p]) => { setData(m); setPrevData(p); })
+      .catch(() => { setData([]); setPrevData(null); })
       .finally(() => setLoading(false));
-  }, [start, end]);
+  }, [start, end, compare]);
 
   if (loading) return <div className="report-card__loader">Loading...</div>;
   if (!data.length) return <div className="report-card__empty">No revenue data for this period</div>;
 
+  const totalEstimated = data.reduce((s, d) => s + d.estimated, 0);
+  const totalActual = data.reduce((s, d) => s + d.actual, 0);
+  const prevEstimated = prevData?.reduce((s, d) => s + d.estimated, 0);
+  const prevActual = prevData?.reduce((s, d) => s + d.actual, 0);
+
   return (
     <>
+    {compare && prevData && (
+      <ComparisonStats items={[
+        { label: 'Estimated', current: totalEstimated, previous: prevEstimated, format: 'dollar' },
+        { label: 'Actual', current: totalActual, previous: prevActual, format: 'dollar' },
+        { label: 'Deals', current: data.reduce((s, d) => s + Number(d.lead_count || 0), 0), previous: prevData.length, format: 'number' },
+      ]} />
+    )}
     <ExportButton data={data} filename="revenue_report" />
     <ResponsiveContainer width="100%" height={300}>
       <AreaChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
@@ -168,29 +189,49 @@ function RevenueChart({ start, end }) {
   );
 }
 
-function PipelineChart({ start, end }) {
+function PipelineChart({ start, end, compare }) {
   const [data, setData] = useState([]);
+  const [prevData, setPrevData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    getPipelineReport(start, end)
-      .then(r => setData(r.data.map(d => ({
+    const main = getPipelineReport(start, end)
+      .then(r => r.data.map(d => ({
         ...d,
         label: STAGE_LABELS[d.stage] || d.stage,
         count: Number(d.count),
         total_value: Number(d.total_value),
         fill: STAGE_COLORS[d.stage] || '#6b7280',
-      }))))
-      .catch(() => setData([]))
+      })));
+
+    const [pStart, pEnd] = compare ? getPreviousPeriod(start, end) : [null, null];
+    const prev = pStart ? getPipelineReport(pStart, pEnd)
+      .then(r => r.data.map(d => ({ count: Number(d.count), total_value: Number(d.total_value) })))
+      .catch(() => null) : Promise.resolve(null);
+
+    Promise.all([main, prev])
+      .then(([m, p]) => { setData(m); setPrevData(p); })
+      .catch(() => { setData([]); setPrevData(null); })
       .finally(() => setLoading(false));
-  }, [start, end]);
+  }, [start, end, compare]);
 
   if (loading) return <div className="report-card__loader">Loading...</div>;
   if (!data.length) return <div className="report-card__empty">No pipeline data for this period</div>;
 
+  const totalLeads = data.reduce((s, d) => s + d.count, 0);
+  const totalValue = data.reduce((s, d) => s + d.total_value, 0);
+  const prevLeads = prevData?.reduce((s, d) => s + d.count, 0);
+  const prevValue = prevData?.reduce((s, d) => s + d.total_value, 0);
+
   return (
     <>
+    {compare && prevData && (
+      <ComparisonStats items={[
+        { label: 'Total Leads', current: totalLeads, previous: prevLeads, format: 'number' },
+        { label: 'Pipeline Value', current: totalValue, previous: prevValue, format: 'dollar' },
+      ]} />
+    )}
     <ExportButton data={data} filename="pipeline_report" />
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={data} layout="vertical" margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
@@ -209,28 +250,51 @@ function PipelineChart({ start, end }) {
   );
 }
 
-function ConversionChart({ start, end }) {
+function ConversionChart({ start, end, compare }) {
   const [data, setData] = useState([]);
+  const [prevData, setPrevData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    getConversionReport(start, end)
-      .then(r => setData(r.data.map(d => ({
+    const main = getConversionReport(start, end)
+      .then(r => r.data.map(d => ({
         ...d,
         total: Number(d.total),
         sold: Number(d.sold),
         rate: d.total > 0 ? Math.round((d.sold / d.total) * 100) : 0,
-      }))))
-      .catch(() => setData([]))
+      })));
+
+    const [pStart, pEnd] = compare ? getPreviousPeriod(start, end) : [null, null];
+    const prev = pStart ? getConversionReport(pStart, pEnd)
+      .then(r => r.data.map(d => ({ total: Number(d.total), sold: Number(d.sold) })))
+      .catch(() => null) : Promise.resolve(null);
+
+    Promise.all([main, prev])
+      .then(([m, p]) => { setData(m); setPrevData(p); })
+      .catch(() => { setData([]); setPrevData(null); })
       .finally(() => setLoading(false));
-  }, [start, end]);
+  }, [start, end, compare]);
 
   if (loading) return <div className="report-card__loader">Loading...</div>;
   if (!data.length) return <div className="report-card__empty">No conversion data for this period</div>;
 
+  const totalAll = data.reduce((s, d) => s + d.total, 0);
+  const totalSold = data.reduce((s, d) => s + d.sold, 0);
+  const overallRate = totalAll > 0 ? Math.round((totalSold / totalAll) * 100) : 0;
+  const prevTotal = prevData?.reduce((s, d) => s + d.total, 0);
+  const prevSold = prevData?.reduce((s, d) => s + d.sold, 0);
+  const prevRate = prevTotal > 0 ? Math.round((prevSold / prevTotal) * 100) : 0;
+
   return (
     <>
+    {compare && prevData && (
+      <ComparisonStats items={[
+        { label: 'Total Leads', current: totalAll, previous: prevTotal, format: 'number' },
+        { label: 'Sold', current: totalSold, previous: prevSold, format: 'number' },
+        { label: 'Close Rate', current: overallRate, previous: prevRate, format: 'percent' },
+      ]} />
+    )}
     <ExportButton data={data} filename="conversion_report" />
     <ResponsiveContainer width="100%" height={300}>
       <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
@@ -253,7 +317,7 @@ function ConversionChart({ start, end }) {
   );
 }
 
-function RepLeaderboard({ start, end }) {
+function RepLeaderboard({ start, end, compare }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortKey, setSortKey] = useState('sold_value');
@@ -322,7 +386,7 @@ function RepLeaderboard({ start, end }) {
   );
 }
 
-function LeadSourcesPie({ start, end }) {
+function LeadSourcesPie({ start, end, compare }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -369,7 +433,7 @@ function LeadSourcesPie({ start, end }) {
   );
 }
 
-function StageDurationChart({ start, end }) {
+function StageDurationChart({ start, end, compare }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -427,11 +491,72 @@ const PRESETS = [
   { key: 'all', label: 'All Time' },
 ];
 
+// Calculate previous period dates for comparison
+function getPreviousPeriod(startStr, endStr) {
+  if (!startStr || !endStr) return [null, null];
+  const start = new Date(startStr + 'T00:00:00');
+  const end = new Date(endStr + 'T00:00:00');
+  const durationMs = end - start;
+  const prevEnd = new Date(start.getTime() - 86400000); // day before current start
+  const prevStart = new Date(prevEnd.getTime() - durationMs);
+  return [prevStart.toISOString().slice(0, 10), prevEnd.toISOString().slice(0, 10)];
+}
+
+function DeltaBadge({ current, previous, format = 'number', suffix = '' }) {
+  if (previous == null || previous === 0) return null;
+  const delta = ((current - previous) / previous) * 100;
+  const isUp = delta > 0;
+  const isNeutral = Math.abs(delta) < 0.5;
+  const color = isNeutral ? 'oklch(0.55 0.02 260)' : isUp ? 'oklch(0.75 0.18 155)' : 'oklch(0.68 0.22 25)';
+  const bg = isNeutral ? 'oklch(0.55 0.02 260 / 0.1)' : isUp ? 'oklch(0.75 0.18 155 / 0.12)' : 'oklch(0.68 0.22 25 / 0.12)';
+  const arrow = isNeutral ? '→' : isUp ? '↑' : '↓';
+  return (
+    <span style={{
+      fontSize: 11, fontWeight: 700, padding: '2px 6px', borderRadius: 999,
+      color, background: bg, display: 'inline-flex', alignItems: 'center', gap: 3,
+    }}>
+      {arrow} {Math.abs(delta).toFixed(0)}%{suffix}
+    </span>
+  );
+}
+
+function ComparisonStats({ items }) {
+  if (!items?.length) return null;
+  return (
+    <div style={{
+      display: 'flex', gap: 12, marginBottom: 12, flexWrap: 'wrap',
+    }}>
+      {items.map(({ label, current, previous, format }) => (
+        <div key={label} style={{
+          flex: '1 1 100px', minWidth: 80, padding: '8px 10px', borderRadius: 10,
+          background: 'oklch(0.14 0.01 260 / 0.6)', border: '1px solid oklch(0.25 0.01 260 / 0.3)',
+        }}>
+          <div style={{ fontSize: 10, fontWeight: 600, color: 'oklch(0.55 0.02 260)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>
+            {label}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>
+              {format === 'dollar' ? fmtDollars(current) : format === 'percent' ? `${current}%` : current}
+            </span>
+            <DeltaBadge current={current} previous={previous} />
+          </div>
+          {previous != null && (
+            <div style={{ fontSize: 10, color: 'oklch(0.50 0.02 260)', marginTop: 2 }}>
+              prev: {format === 'dollar' ? fmtDollars(previous) : format === 'percent' ? `${previous}%` : previous}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function ReportsView() {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
   const [preset, setPreset] = useState('year');
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
+  const [compare, setCompare] = useState(false);
 
   useEffect(() => {
     const [s, e] = getDatePreset(preset);
@@ -459,38 +584,55 @@ export default function ReportsView() {
             <span style={{ color: 'oklch(0.5 0 0)' }}>to</span>
             <DatePicker value={end} onChange={v => { setEnd(v); setPreset(''); }} placeholder="End date" />
           </div>
+          <button
+            onClick={() => setCompare(c => !c)}
+            style={{
+              padding: '6px 14px', borderRadius: 8, cursor: 'pointer',
+              fontSize: 12, fontWeight: 600, letterSpacing: '0.02em',
+              border: compare ? '1px solid oklch(0.72 0.19 250 / 0.5)' : '1px solid oklch(0.3 0.02 260)',
+              background: compare ? 'oklch(0.72 0.19 250 / 0.15)' : 'oklch(0.18 0.01 260 / 0.5)',
+              color: compare ? 'oklch(0.80 0.19 250)' : 'oklch(0.55 0.02 260)',
+              transition: 'all 0.15s',
+              display: 'flex', alignItems: 'center', gap: 5,
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /><polyline points="16 7 22 7 22 13" />
+            </svg>
+            {compare ? 'Comparing' : 'Compare'}
+          </button>
         </div>
       </div>
 
       <div className="reports-grid" style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }}>
         <div className="glass report-card">
           <h3 className="report-card__title">Revenue</h3>
-          <RevenueChart start={start} end={end} />
+          <RevenueChart start={start} end={end} compare={compare} />
         </div>
 
         <div className="glass report-card">
           <h3 className="report-card__title">Pipeline</h3>
-          <PipelineChart start={start} end={end} />
+          <PipelineChart start={start} end={end} compare={compare} />
         </div>
 
         <div className="glass report-card">
           <h3 className="report-card__title">Conversion by Source</h3>
-          <ConversionChart start={start} end={end} />
+          <ConversionChart start={start} end={end} compare={compare} />
         </div>
 
         <div className="glass report-card">
           <h3 className="report-card__title">Rep Leaderboard</h3>
-          <RepLeaderboard start={start} end={end} />
+          <RepLeaderboard start={start} end={end} compare={compare} />
         </div>
 
         <div className="glass report-card">
           <h3 className="report-card__title">Lead Sources</h3>
-          <LeadSourcesPie start={start} end={end} />
+          <LeadSourcesPie start={start} end={end} compare={compare} />
         </div>
 
         <div className="glass report-card">
           <h3 className="report-card__title">Stage Duration</h3>
-          <StageDurationChart start={start} end={end} />
+          <StageDurationChart start={start} end={end} compare={compare} />
         </div>
       </div>
     </div>
