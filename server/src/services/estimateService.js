@@ -375,22 +375,84 @@ export async function getTemplates(tenantId) {
   );
   // Auto-seed default templates if none exist for this tenant
   if (rows.length === 0) {
+    // SRS Austin, TX pricing — effective 04/15/2024
     const defaults = [
-      ['Tear Off & Replace', 'Remove existing shingles and install new', 'sq', 350.00, 'Roof', 0],
-      ['Architectural Shingles', 'GAF Timberline HDZ or equivalent', 'sq', 125.00, 'Roof', 1],
-      ['Underlayment', 'Synthetic underlayment', 'sq', 45.00, 'Roof', 2],
-      ['Ridge Cap', 'Hip and ridge cap shingles', 'lf', 6.50, 'Roof', 3],
-      ['Drip Edge', 'Aluminum drip edge', 'lf', 4.00, 'Roof', 4],
-      ['Ice & Water Shield', 'Self-adhering membrane at eaves/valleys', 'sq', 95.00, 'Roof', 5],
-      ['Pipe Boot', 'Replace pipe boot flashing', 'each', 45.00, 'Roof', 6],
-      ['Flashing', 'Step/counter flashing replacement', 'lf', 12.00, 'Roof', 7],
-      ['Ventilation', 'Ridge vent or box vent', 'each', 65.00, 'Roof', 8],
-      ['Skylights', 'Re-flash existing skylight', 'each', 250.00, 'Roof', 9],
-      ['Gutter Replacement', 'Seamless aluminum gutters', 'lf', 8.50, 'Gutters', 10],
-      ['Downspout', 'Aluminum downspout', 'lf', 6.00, 'Gutters', 11],
-      ['Fascia Board', 'Replace damaged fascia', 'lf', 10.00, 'Misc', 12],
-      ['Soffit Repair', 'Repair or replace soffit panels', 'lf', 12.00, 'Misc', 13],
-      ['Dumpster / Haul Off', 'Debris removal', 'each', 450.00, 'Misc', 14],
+      // Shingles
+      ['GAF Timberline HDZ', 'Architectural shingles', 'sq', 122.97, 'Shingles', 0],
+      ['GAF Timberline Natural Shadow', 'Architectural shingles', 'sq', 116.97, 'Shingles', 1],
+      ['OC Duration Tru Def', 'Owens Corning architectural', 'sq', 123.60, 'Shingles', 2],
+      ['CertainTeed Landmark AR', 'Architectural shingles', 'sq', 115.00, 'Shingles', 3],
+      ['CertainTeed Landmark MAX DEF', 'Architectural shingles', 'sq', 119.00, 'Shingles', 4],
+      ['IKO Cambridge', 'Architectural shingles', 'sq', 112.95, 'Shingles', 5],
+      ['IKO Dynasty', 'Premium architectural shingles', 'sq', 118.35, 'Shingles', 6],
+      ['Atlas Pinnacle Pristine', 'Architectural shingles', 'sq', 115.77, 'Shingles', 7],
+      ['GAF Armorshield II IR', 'Impact resistant shingles', 'sq', 154.98, 'Shingles', 8],
+      ['CertainTeed Landmark Climateflex IR', 'Impact resistant shingles', 'sq', 153.72, 'Shingles', 9],
+      ['Atlas Pinnacle Impact', 'Impact resistant shingles', 'sq', 140.10, 'Shingles', 10],
+      // Starter
+      ['GAF ProStart Starter', 'Starter strip (120 lf/bdl)', 'bdl', 52.80, 'Starter / Ridge', 11],
+      ['OC Starter Strip', 'Starter strip (100 lf/bdl)', 'bdl', 58.99, 'Starter / Ridge', 12],
+      ['CertainTeed Swift Starter', 'Starter strip (116 lf/bdl)', 'bdl', 52.91, 'Starter / Ridge', 13],
+      // Hip & Ridge
+      ['GAF Seal-a-Ridge', 'Hip & ridge (25 lf/bdl)', 'bdl', 67.13, 'Starter / Ridge', 14],
+      ['GAF Timbertex', 'Hip & ridge (20 lf/bdl)', 'bdl', 64.48, 'Starter / Ridge', 15],
+      ['GAF Z-Ridge', 'Hip & ridge (33 lf/bdl)', 'bdl', 71.00, 'Starter / Ridge', 16],
+      ['OC Pro Edge H&R', 'Hip & ridge (33 lf/bdl)', 'bdl', 77.77, 'Starter / Ridge', 17],
+      ['CertainTeed Cedar Crest H&R IR', 'Impact resistant (20 lf/bdl)', 'bdl', 75.38, 'Starter / Ridge', 18],
+      // Underlayment
+      ['SPEC Synthetic Underlay', 'Synthetic underlayment 10SQ roll', 'roll', 79.95, 'Underlayment', 19],
+      ['RhinoRoof U20 Synthetic', 'Synthetic underlayment 10SQ roll', 'roll', 83.44, 'Underlayment', 20],
+      ['GAF FeltBuster', 'Synthetic underlayment 10SQ roll', 'roll', 99.68, 'Underlayment', 21],
+      ['GAF Tiger Paw', 'Premium synthetic 10SQ roll', 'roll', 191.01, 'Underlayment', 22],
+      ['GAF Deck Armor', 'Premium breathable 10SQ roll', 'roll', 296.02, 'Underlayment', 23],
+      ['OC ProArmor Underlayment', 'Synthetic underlayment 10SQ roll', 'roll', 114.11, 'Underlayment', 24],
+      ['15# Felt / 30# Felt', '15# 4SQ or 30# 2SQ roll', 'roll', 22.98, 'Underlayment', 25],
+      // Ice & Water Shield
+      ['GAF StormGuard I&W', 'Ice & water shield 2SQ roll', 'roll', 105.75, 'Underlayment', 26],
+      ['MFM IB3 Ice Buster SA', 'Self-adhering I&W 2SQ roll', 'roll', 72.03, 'Underlayment', 27],
+      ['Carlisle WIP 300 High Temp', 'High temp I&W 2SQ roll', 'roll', 130.00, 'Underlayment', 28],
+      ['Carlisle WIP 250 High Temp', 'High temp I&W 2SQ roll', 'roll', 106.50, 'Underlayment', 29],
+      ['OC WeatherLock I&W', 'Ice & water shield 2SQ roll', 'roll', 115.04, 'Underlayment', 30],
+      // Ventilation
+      ['GAF Cobra Ridge Vent', '9" or 12" ridge vent', 'each', 14.71, 'Ventilation', 31],
+      ['Lomanco 550 Low Profile Vent', 'Static roof vent', 'each', 17.04, 'Ventilation', 32],
+      ['Lomanco 750 Slant Back Vent', 'Slant back static vent', 'each', 19.74, 'Ventilation', 33],
+      ['Butler VX25 Static Dome Vent', 'Dome static vent', 'each', 43.37, 'Ventilation', 34],
+      ['Lomanco 12" Turbine Vent', 'Wind-driven turbine vent', 'each', 79.73, 'Ventilation', 35],
+      ['Attic Breeze 35W Solar Vent', 'Solar powered attic vent', 'each', 590.21, 'Ventilation', 36],
+      ['Butler VX2414AM Power Vent', 'Electric power vent', 'each', 95.33, 'Ventilation', 37],
+      // Metal / Flashing
+      ['1.5"x1.5" Painted Drip Edge', 'Embossed drip edge', 'each', 5.55, 'Metal / Flashing', 38],
+      ['2"x2" Painted Drip Edge', 'Embossed or smooth drip edge', 'each', 6.95, 'Metal / Flashing', 39],
+      ['20"x50\' Valley Metal Roll', 'Pre-bent valley metal', 'roll', 64.98, 'Metal / Flashing', 40],
+      ['4"x4"x8" Step Flashing', 'Step flashing 100/bdl', 'bdl', 59.48, 'Metal / Flashing', 41],
+      ['4"x5"x10\' Headwall Flashing', 'Headwall flashing', 'each', 18.59, 'Metal / Flashing', 42],
+      ['4"x5"x10\' Turnback Flashing', 'Turnback flashing', 'each', 18.87, 'Metal / Flashing', 43],
+      // Pipe Boots
+      ['3n1 Pipe Boot', 'Standard pipe boot', 'each', 6.85, 'Pipe Boots', 44],
+      ['4" Pipe Boot', 'Standard 4" pipe boot', 'each', 10.71, 'Pipe Boots', 45],
+      ['1.5" Lead 2.5#', 'Lead pipe flashing', 'each', 18.27, 'Pipe Boots', 46],
+      ['2" Lead 2.5#', 'Lead pipe flashing', 'each', 19.56, 'Pipe Boots', 47],
+      ['3" Lead 2.5#', 'Lead pipe flashing', 'each', 25.69, 'Pipe Boots', 48],
+      ['4" Lead 2.5#', 'Lead pipe flashing', 'each', 34.25, 'Pipe Boots', 49],
+      ['1.5" Bullet Boot', 'Rubber pipe boot', 'each', 16.00, 'Pipe Boots', 50],
+      ['2" Bullet Boot', 'Rubber pipe boot', 'each', 18.00, 'Pipe Boots', 51],
+      ['3" Bullet Boot', 'Rubber pipe boot', 'each', 20.00, 'Pipe Boots', 52],
+      ['4" Bullet Boot', 'Rubber pipe boot', 'each', 34.95, 'Pipe Boots', 53],
+      ['0"-5-3/8" Split Boot', 'Split pipe boot', 'each', 39.70, 'Pipe Boots', 54],
+      // Fasteners
+      ['1" Plastic Caps', '2000/box', 'box', 18.00, 'Fasteners', 55],
+      ['1-1/4" Coil Nails', '7200/box', 'box', 49.95, 'Fasteners', 56],
+      ['3/4" Coil Nails', 'Coil roofing nails', 'box', 56.00, 'Fasteners', 57],
+      ['3/8" Staples', 'Staples', 'box', 7.99, 'Fasteners', 58],
+      // Accessories / Sealants
+      ['NP-1 Caulk', 'Polyurethane sealant', 'each', 7.71, 'Accessories', 59],
+      ['Geocel 2300 Clear', 'Clear sealant', 'each', 8.69, 'Accessories', 60],
+      ['Duralink 35 Caulk', 'Sealant', 'each', 7.71, 'Accessories', 61],
+      ['Geocel Spray Paint', 'Touch-up paint', 'each', 8.50, 'Accessories', 62],
+      // Delivery
+      ['Ground Drop Delivery', 'SRS ground delivery', 'each', 80.00, 'Delivery', 63],
+      ['Roof Load Delivery', 'SRS rooftop delivery', 'each', 100.00, 'Delivery', 64],
     ];
     for (const [name, desc, unit, price, section, pos] of defaults) {
       await pool.query(

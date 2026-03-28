@@ -2,6 +2,7 @@ import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
 import * as estimateService from '../services/estimateService.js';
+import pool from '../db/pool.js';
 
 const router = Router();
 
@@ -69,6 +70,62 @@ router.get('/templates', async (req, res, next) => {
   try {
     const templates = await estimateService.getTemplates(req.tenantId);
     res.json({ templates });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Create template
+router.post('/templates', async (req, res, next) => {
+  try {
+    const { name, description, unit, default_unit_price, section } = req.body;
+    if (!name) return res.status(400).json({ error: 'Name is required' });
+    const { rows } = await pool.query(
+      `INSERT INTO estimate_templates (tenant_id, name, description, unit, default_unit_price, section, position)
+       VALUES ($1, $2, $3, $4, $5, $6, (SELECT COALESCE(MAX(position), -1) + 1 FROM estimate_templates WHERE tenant_id = $1))
+       RETURNING *`,
+      [req.tenantId, name, description || '', unit || 'each', Number(default_unit_price) || 0, section || 'Roof']
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Update template
+router.patch('/templates/:id', async (req, res, next) => {
+  try {
+    const { name, description, unit, default_unit_price, section } = req.body;
+    const fields = [];
+    const vals = [];
+    let idx = 1;
+    if (name !== undefined) { fields.push(`name = $${idx++}`); vals.push(name); }
+    if (description !== undefined) { fields.push(`description = $${idx++}`); vals.push(description); }
+    if (unit !== undefined) { fields.push(`unit = $${idx++}`); vals.push(unit); }
+    if (default_unit_price !== undefined) { fields.push(`default_unit_price = $${idx++}`); vals.push(Number(default_unit_price)); }
+    if (section !== undefined) { fields.push(`section = $${idx++}`); vals.push(section); }
+    if (fields.length === 0) return res.status(400).json({ error: 'No fields to update' });
+    vals.push(req.params.id, req.tenantId);
+    const { rows } = await pool.query(
+      `UPDATE estimate_templates SET ${fields.join(', ')} WHERE id = $${idx++} AND tenant_id = $${idx} RETURNING *`,
+      vals
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Template not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Delete template
+router.delete('/templates/:id', async (req, res, next) => {
+  try {
+    const { rowCount } = await pool.query(
+      'DELETE FROM estimate_templates WHERE id = $1 AND tenant_id = $2',
+      [req.params.id, req.tenantId]
+    );
+    if (!rowCount) return res.status(404).json({ error: 'Template not found' });
+    res.json({ success: true });
   } catch (err) {
     next(err);
   }

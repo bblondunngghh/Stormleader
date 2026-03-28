@@ -43,10 +43,25 @@ router.post('/setup-payment', async (req, res, next) => {
     if (!paymentMethodId) return res.status(400).json({ error: 'paymentMethodId required' });
 
     const stripeService = await import('../services/stripeService.js');
-    await stripeService.getOrCreateCustomer(req.tenantId, email);
+
+    // Use provided email or look up admin email from DB
+    let customerEmail = email;
+    if (!customerEmail) {
+      const { rows } = await pool.query(
+        `SELECT u.email FROM users u WHERE u.tenant_id = $1 AND u.role = 'admin' LIMIT 1`,
+        [req.tenantId]
+      );
+      customerEmail = rows[0]?.email || 'noemail@stormleads.app';
+    }
+
+    await stripeService.getOrCreateCustomer(req.tenantId, customerEmail);
     const pm = await stripeService.attachPaymentMethod(req.tenantId, paymentMethodId);
     res.json(pm);
-  } catch (err) { next(err); }
+  } catch (err) {
+    console.error('[setup-payment] Error:', err.message, err.type || '', err.code || '');
+    const status = err.status || (err.type === 'StripeCardError' ? 402 : 500);
+    res.status(status).json({ error: err.message || 'Payment setup failed' });
+  }
 });
 
 // DELETE /api/skip-trace/payment-method

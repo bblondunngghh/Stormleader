@@ -3,7 +3,7 @@ import * as materialsApi from '../api/materials';
 import { IconSearch, IconX, IconPackage, IconShoppingCart, IconTruck, IconMinus, IconPlus, IconCheck, IconPlusCircle, IconArrowLeft } from './Icons';
 import { showToast } from './Toast';
 
-const CATEGORIES = ['All', 'Shingles', 'Underlayment', 'Flashing', 'Ventilation', 'Accessories', 'Ice & Water Shield'];
+const CATEGORIES = ['All', 'Shingles', 'Starter & Ridge', 'Hip & Ridge', 'Underlayment', 'Ice & Water Shield', 'Ventilation', 'Flashing & Metals', 'Pipe Boots', 'Fasteners', 'Accessories', 'Modified Bitumen', 'Coatings', 'Delivery'];
 
 const STATUS_COLORS = {
   draft: 'var(--text-muted)',
@@ -356,11 +356,18 @@ function CatalogTab({ products, loading, search, setSearch, category, setCategor
 function ProductCard({ product, onClick, onAddToCart }) {
   const categoryColors = {
     Shingles: '250',
+    'Starter & Ridge': '220',
+    'Hip & Ridge': '190',
     Underlayment: '155',
-    Flashing: '40',
-    Ventilation: '200',
-    Accessories: '330',
     'Ice & Water Shield': '280',
+    Ventilation: '200',
+    'Flashing & Metals': '40',
+    'Pipe Boots': '60',
+    Fasteners: '100',
+    Accessories: '330',
+    'Modified Bitumen': '350',
+    Coatings: '120',
+    Delivery: '80',
   };
   const hue = categoryColors[product.category] || '250';
 

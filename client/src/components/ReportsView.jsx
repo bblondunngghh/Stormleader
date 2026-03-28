@@ -3,6 +3,8 @@ import DatePicker from './DatePicker';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   PieChart, Pie, Cell, ResponsiveContainer,
+  AreaChart, Area, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  LineChart, Line, FunnelChart, Funnel, LabelList,
 } from 'recharts';
 import {
   getRevenueReport, getPipelineReport, getConversionReport,
@@ -65,6 +67,56 @@ const tooltipStyle = {
 };
 
 // ============================================================
+// CSV Export Utility
+// ============================================================
+function exportCSV(data, filename) {
+  if (!data?.length) return;
+  const keys = Object.keys(data[0]);
+  const header = keys.join(',');
+  const rows = data.map(row =>
+    keys.map(k => {
+      const v = row[k];
+      if (v == null) return '';
+      const s = String(v);
+      return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s;
+    }).join(',')
+  );
+  const csv = [header, ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${filename}_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function ExportButton({ data, filename }) {
+  if (!data?.length) return null;
+  return (
+    <button
+      onClick={() => exportCSV(data, filename)}
+      title="Export as CSV"
+      style={{
+        position: 'absolute', top: 16, right: 16,
+        background: 'oklch(0.22 0.02 260 / 0.5)', border: '1px solid oklch(0.35 0.02 260 / 0.3)',
+        borderRadius: 8, padding: '4px 10px', cursor: 'pointer',
+        fontSize: 11, fontWeight: 600, color: 'var(--text-muted)',
+        display: 'flex', alignItems: 'center', gap: 4,
+        transition: 'all 0.15s',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent-blue)'; e.currentTarget.style.borderColor = 'oklch(0.72 0.19 250 / 0.4)'; }}
+      onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'oklch(0.35 0.02 260 / 0.3)'; }}
+    >
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+      </svg>
+      CSV
+    </button>
+  );
+}
+
+// ============================================================
 // REPORT CARDS
 // ============================================================
 
@@ -89,17 +141,30 @@ function RevenueChart({ start, end }) {
   if (!data.length) return <div className="report-card__empty">No revenue data for this period</div>;
 
   return (
+    <>
+    <ExportButton data={data} filename="revenue_report" />
     <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+      <AreaChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+        <defs>
+          <linearGradient id="gradEstimated" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.4} />
+            <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.02} />
+          </linearGradient>
+          <linearGradient id="gradActual" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#22c55e" stopOpacity={0.4} />
+            <stop offset="100%" stopColor="#22c55e" stopOpacity={0.02} />
+          </linearGradient>
+        </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.3 0 0)" />
         <XAxis dataKey="month" tick={{ fill: 'oklch(0.7 0 0)', fontSize: 12 }} />
         <YAxis tick={{ fill: 'oklch(0.7 0 0)', fontSize: 12 }} tickFormatter={fmtDollars} />
         <Tooltip contentStyle={tooltipStyle} formatter={(v) => fmtDollars(v)} />
         <Legend wrapperStyle={{ color: 'oklch(0.8 0 0)', fontSize: 13 }} />
-        <Bar dataKey="estimated" name="Estimated" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="actual" name="Actual" fill="#22c55e" radius={[4, 4, 0, 0]} />
-      </BarChart>
+        <Area type="monotone" dataKey="estimated" name="Estimated" stroke="#3b82f6" strokeWidth={2} fill="url(#gradEstimated)" dot={{ r: 4, fill: '#3b82f6', strokeWidth: 0 }} activeDot={{ r: 6 }} />
+        <Area type="monotone" dataKey="actual" name="Actual" stroke="#22c55e" strokeWidth={2} fill="url(#gradActual)" dot={{ r: 4, fill: '#22c55e', strokeWidth: 0 }} activeDot={{ r: 6 }} />
+      </AreaChart>
     </ResponsiveContainer>
+    </>
   );
 }
 
@@ -125,6 +190,8 @@ function PipelineChart({ start, end }) {
   if (!data.length) return <div className="report-card__empty">No pipeline data for this period</div>;
 
   return (
+    <>
+    <ExportButton data={data} filename="pipeline_report" />
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={data} layout="vertical" margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.3 0 0)" />
@@ -138,6 +205,7 @@ function PipelineChart({ start, end }) {
         </Bar>
       </BarChart>
     </ResponsiveContainer>
+    </>
   );
 }
 
@@ -162,11 +230,13 @@ function ConversionChart({ start, end }) {
   if (!data.length) return <div className="report-card__empty">No conversion data for this period</div>;
 
   return (
+    <>
+    <ExportButton data={data} filename="conversion_report" />
     <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.3 0 0)" />
-        <XAxis dataKey="source" tick={{ fill: 'oklch(0.7 0 0)', fontSize: 12 }} />
-        <YAxis tick={{ fill: 'oklch(0.7 0 0)', fontSize: 12 }} />
+      <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
+        <PolarGrid stroke="oklch(0.3 0 0)" />
+        <PolarAngleAxis dataKey="source" tick={{ fill: 'oklch(0.7 0 0)', fontSize: 11 }} />
+        <PolarRadiusAxis tick={{ fill: 'oklch(0.5 0 0)', fontSize: 10 }} />
         <Tooltip
           contentStyle={tooltipStyle}
           formatter={(v, name, props) => {
@@ -175,10 +245,11 @@ function ConversionChart({ start, end }) {
           }}
         />
         <Legend wrapperStyle={{ color: 'oklch(0.8 0 0)', fontSize: 13 }} />
-        <Bar dataKey="total" name="Total" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="sold" name="Sold" fill="#22c55e" radius={[4, 4, 0, 0]} />
-      </BarChart>
+        <Radar name="Total" dataKey="total" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.2} strokeWidth={2} dot={{ r: 3, fill: '#3b82f6' }} />
+        <Radar name="Sold" dataKey="sold" stroke="#22c55e" fill="#22c55e" fillOpacity={0.2} strokeWidth={2} dot={{ r: 3, fill: '#22c55e' }} />
+      </RadarChart>
     </ResponsiveContainer>
+    </>
   );
 }
 
@@ -221,6 +292,8 @@ function RepLeaderboard({ start, end }) {
   if (!data.length) return <div className="report-card__empty">No rep data for this period</div>;
 
   return (
+    <>
+    <ExportButton data={sorted} filename="rep_leaderboard" />
     <div className="report-table-wrap">
       <table className="report-table">
         <thead>
@@ -245,6 +318,7 @@ function RepLeaderboard({ start, end }) {
         </tbody>
       </table>
     </div>
+    </>
   );
 }
 
@@ -269,6 +343,8 @@ function LeadSourcesPie({ start, end }) {
   if (!data.length) return <div className="report-card__empty">No source data for this period</div>;
 
   return (
+    <>
+    <ExportButton data={data} filename="lead_sources" />
     <ResponsiveContainer width="100%" height={300}>
       <PieChart>
         <Pie
@@ -289,6 +365,7 @@ function LeadSourcesPie({ start, end }) {
         <Tooltip contentStyle={tooltipStyle} formatter={(v, name) => [v, 'Leads']} />
       </PieChart>
     </ResponsiveContainer>
+    </>
   );
 }
 
@@ -313,19 +390,28 @@ function StageDurationChart({ start, end }) {
   if (!data.length) return <div className="report-card__empty">No stage duration data for this period</div>;
 
   return (
+    <>
+    <ExportButton data={data} filename="stage_duration" />
     <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+      <LineChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+        <defs>
+          <linearGradient id="gradDuration" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#8b5cf6" />
+            <stop offset="50%" stopColor="#ec4899" />
+            <stop offset="100%" stopColor="#f97316" />
+          </linearGradient>
+        </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.3 0 0)" />
         <XAxis dataKey="label" tick={{ fill: 'oklch(0.7 0 0)', fontSize: 11 }} angle={-30} textAnchor="end" height={60} />
         <YAxis tick={{ fill: 'oklch(0.7 0 0)', fontSize: 12 }} label={{ value: 'Days', angle: -90, position: 'insideLeft', fill: 'oklch(0.6 0 0)', fontSize: 12 }} />
         <Tooltip contentStyle={tooltipStyle} formatter={(v) => [`${v} days`, 'Avg Duration']} />
-        <Bar dataKey="avg_days" name="Avg Days">
-          {data.map((entry, i) => (
-            <Cell key={i} fill={entry.fill} />
-          ))}
-        </Bar>
-      </BarChart>
+        <Line type="monotone" dataKey="avg_days" name="Avg Days" stroke="url(#gradDuration)" strokeWidth={3} dot={(props) => {
+          const { cx, cy, payload } = props;
+          return <circle cx={cx} cy={cy} r={6} fill={payload.fill} stroke="oklch(0.15 0.01 260)" strokeWidth={2} />;
+        }} activeDot={{ r: 8 }} />
+      </LineChart>
     </ResponsiveContainer>
+    </>
   );
 }
 

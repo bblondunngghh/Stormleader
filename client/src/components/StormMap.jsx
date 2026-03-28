@@ -422,6 +422,7 @@ export default function StormMap() {
 
   // Load storms once for all of Texas (only ~389, stays on map permanently)
   const stormsLoadedRef = useRef(false);
+  const initialLoadDoneRef = useRef(false); // skip timeRange effect on first mount
   const loadStorms = useCallback(async (map) => {
     if (!map) return;
     const txViewport = { west: -106.65, south: 25.84, east: -93.51, north: 36.50 };
@@ -2026,6 +2027,7 @@ export default function StormMap() {
         // Force-trigger the idle handler's FEMA debounce now that swaths are loaded:
         clearTimeout(femaDebounceRef.current);
         femaDebounceRef.current = setTimeout(() => loadFemaProperties(map), 2000);
+        initialLoadDoneRef.current = true;
 
         // Restore saved popup from session
         try {
@@ -2096,10 +2098,16 @@ export default function StormMap() {
     };
   }, []);
 
-  // Reload storms and clear property cache when time filter changes
+  // Reload storms and clear property cache when time filter changes.
+  // Uses a ref to track the previous timeRange so it only fires on actual changes,
+  // not on initial mount (the idle-based init flow handles the first load).
+  const prevTimeRangeRef = useRef(timeRange);
   useEffect(() => {
+    if (prevTimeRangeRef.current === timeRange) return; // skip initial mount
+    prevTimeRangeRef.current = timeRange;
     if (mapRef.current) {
       if (swathAbortRef.current) swathAbortRef.current.abort();
+      if (femaAbortRef.current) femaAbortRef.current.abort();
       swathPropCacheRef.current.clear();
       swathLoadedRef.current.clear();
       propIdSetRef.current.clear();
@@ -2112,7 +2120,8 @@ export default function StormMap() {
       clusterIndexRef.current = null;
       loadStorms(mapRef.current);
     }
-  }, [timeRange, loadStorms]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeRange]);
 
   // Toggle layer visibility
   useEffect(() => {

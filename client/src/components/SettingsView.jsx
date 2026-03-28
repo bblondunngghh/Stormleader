@@ -18,13 +18,14 @@ import DripSequences from './DripSequences';
 import CustomSelect from './CustomSelect';
 import { getCustomFieldDefinitions, createCustomField, updateCustomField, deleteCustomField } from '../api/crm';
 import * as contractsApi from '../api/contracts';
+import * as estimatesApi from '../api/estimates';
 
 export default function SettingsView() {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState(() => {
     const urlTab = searchParams.get('tab');
-    return ['profile', 'company', 'billing', 'payments', 'team', 'alerts', 'notifications', 'email', 'financing', 'automations', 'drip-sequences', 'custom-fields', 'contracts', 'reviews'].includes(urlTab) ? urlTab : 'profile';
+    return ['profile', 'company', 'billing', 'payments', 'team', 'alerts', 'notifications', 'email', 'financing', 'automations', 'drip-sequences', 'custom-fields', 'contracts', 'reviews', 'pricing'].includes(urlTab) ? urlTab : 'profile';
   });
 
   const tabs = [
@@ -40,6 +41,7 @@ export default function SettingsView() {
     { id: 'automations', label: 'Automations' },
     { id: 'drip-sequences', label: 'Drip Sequences' },
     { id: 'custom-fields', label: 'Custom Fields' },
+    { id: 'pricing', label: 'Pricing / Line Items' },
     { id: 'contracts', label: 'Contracts' },
     { id: 'reviews', label: 'Reviews' },
   ];
@@ -82,6 +84,7 @@ export default function SettingsView() {
       {tab === 'automations' && <AutomationSettings />}
       {tab === 'drip-sequences' && <DripSequences />}
       {tab === 'custom-fields' && <CustomFieldsTab />}
+      {tab === 'pricing' && <PricingTab />}
       {tab === 'contracts' && <ContractTemplatesTab />}
       {tab === 'reviews' && <ReviewSettingsTab />}
       </div>
@@ -1449,7 +1452,8 @@ function AddCardForm({ email, onSuccess }) {
       const result = await skipTraceApi.setupPayment(paymentMethod.id, email);
       onSuccess(result);
     } catch (err) {
-      setError('Failed to save payment method. Please try again.');
+      const msg = err.response?.data?.error || err.message || 'Unknown error';
+      setError(`Failed to save payment method: ${msg}`);
     } finally {
       setProcessing(false);
     }
@@ -2554,6 +2558,264 @@ function ReviewSettingsTab() {
         <button onClick={handleSave} disabled={saving} className="auth-btn" style={{ width: '100%' }}>
           {saving ? 'Saving...' : 'Save Review Settings'}
         </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// PRICING / LINE ITEMS TAB
+// ============================================================
+const SECTION_OPTIONS = [
+  { value: 'Shingles', label: 'Shingles' },
+  { value: 'Starter / Ridge', label: 'Starter / Ridge' },
+  { value: 'Underlayment', label: 'Underlayment' },
+  { value: 'Ventilation', label: 'Ventilation' },
+  { value: 'Metal / Flashing', label: 'Metal / Flashing' },
+  { value: 'Pipe Boots', label: 'Pipe Boots' },
+  { value: 'Fasteners', label: 'Fasteners' },
+  { value: 'Accessories', label: 'Accessories' },
+  { value: 'Delivery', label: 'Delivery' },
+  { value: 'Gutters', label: 'Gutters' },
+  { value: 'Siding', label: 'Siding' },
+  { value: 'Interior', label: 'Interior' },
+  { value: 'Misc', label: 'Misc' },
+];
+
+const UNIT_OPTIONS = [
+  { value: 'sq', label: 'sq (square)' },
+  { value: 'bdl', label: 'bdl (bundle)' },
+  { value: 'roll', label: 'roll' },
+  { value: 'each', label: 'each' },
+  { value: 'box', label: 'box' },
+  { value: 'lf', label: 'lf (linear ft)' },
+  { value: 'sf', label: 'sf (sq ft)' },
+  { value: 'hour', label: 'hour' },
+  { value: 'day', label: 'day' },
+  { value: 'lot', label: 'lot' },
+];
+
+function PricingTab() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [editId, setEditId] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [showAdd, setShowAdd] = useState(false);
+  const [addForm, setAddForm] = useState({ name: '', description: '', unit: 'each', default_unit_price: '', section: 'Roof' });
+  const [saving, setSaving] = useState(false);
+
+  const fetchItems = async () => {
+    try {
+      const res = await estimatesApi.getTemplates();
+      setItems(res.data.templates || []);
+    } catch {
+      showToast('Failed to load pricing items', 'error');
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchItems(); }, []);
+
+  const handleAdd = async () => {
+    if (!addForm.name.trim()) { showToast('Item name is required', 'error'); return; }
+    setSaving(true);
+    try {
+      await client.post('/estimates/templates', {
+        name: addForm.name.trim(),
+        description: addForm.description.trim(),
+        unit: addForm.unit,
+        default_unit_price: Number(addForm.default_unit_price) || 0,
+        section: addForm.section,
+      });
+      showToast('Item added', 'success');
+      setShowAdd(false);
+      setAddForm({ name: '', description: '', unit: 'each', default_unit_price: '', section: 'Roof' });
+      fetchItems();
+    } catch {
+      showToast('Failed to add item', 'error');
+    }
+    setSaving(false);
+  };
+
+  const handleSave = async (id) => {
+    setSaving(true);
+    try {
+      await client.patch(`/estimates/templates/${id}`, {
+        name: editForm.name?.trim(),
+        description: editForm.description?.trim(),
+        unit: editForm.unit,
+        default_unit_price: Number(editForm.default_unit_price) || 0,
+        section: editForm.section,
+      });
+      showToast('Item updated', 'success');
+      setEditId(null);
+      fetchItems();
+    } catch {
+      showToast('Failed to update item', 'error');
+    }
+    setSaving(false);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await client.delete(`/estimates/templates/${id}`);
+      showToast('Item removed', 'success');
+      setItems(prev => prev.filter(i => i.id !== id));
+    } catch {
+      showToast('Failed to delete item', 'error');
+    }
+  };
+
+  const startEdit = (item) => {
+    setEditId(item.id);
+    setEditForm({
+      name: item.name,
+      description: item.description || '',
+      unit: item.unit,
+      default_unit_price: item.default_unit_price,
+      section: item.section || 'Roof',
+    });
+  };
+
+  // Group items by section
+  const grouped = {};
+  for (const item of items) {
+    const sec = item.section || 'Misc';
+    if (!grouped[sec]) grouped[sec] = [];
+    grouped[sec].push(item);
+  }
+
+  const inputStyle = { fontSize: 12, padding: '8px 10px' };
+
+  return (
+    <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-xl)', display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)' }}>
+      <div className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-lg)' }}>
+          <div>
+            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Pricing / Line Items</h2>
+            <p style={{ margin: '6px 0 0', fontSize: 13, color: 'var(--text-muted)' }}>
+              Manage your preset line items and default pricing. These appear as quick-add options when creating estimates and invoices.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowAdd(!showAdd)}
+            className="auth-btn"
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 12, flexShrink: 0 }}
+          >
+            + Add Item
+          </button>
+        </div>
+
+        {/* Add New Item Form */}
+        {showAdd && (
+          <div style={{
+            background: 'oklch(0.16 0.02 260 / 0.5)', borderRadius: 12, padding: 'var(--space-lg)',
+            border: '1px solid oklch(0.35 0.08 250 / 0.3)', marginBottom: 'var(--space-lg)',
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 'var(--space-md)', color: 'var(--accent-blue)' }}>New Line Item</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)' }}>
+              <div className="form-group">
+                <label>Item Name</label>
+                <input className="form-input" style={inputStyle} value={addForm.name} onChange={e => setAddForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Architectural Shingles" />
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <input className="form-input" style={inputStyle} value={addForm.description} onChange={e => setAddForm(f => ({ ...f, description: e.target.value }))} placeholder="Optional details" />
+              </div>
+              <div className="form-group">
+                <label>Default Price</label>
+                <input className="form-input" style={inputStyle} type="number" min="0" step="0.01" value={addForm.default_unit_price} onChange={e => setAddForm(f => ({ ...f, default_unit_price: e.target.value }))} placeholder="0.00" />
+              </div>
+              <div className="form-group">
+                <label>Unit</label>
+                <CustomSelect value={addForm.unit} onChange={v => setAddForm(f => ({ ...f, unit: v }))} options={UNIT_OPTIONS} />
+              </div>
+              <div className="form-group">
+                <label>Section</label>
+                <CustomSelect value={addForm.section} onChange={v => setAddForm(f => ({ ...f, section: v }))} options={SECTION_OPTIONS} />
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 'var(--space-sm)', marginTop: 'var(--space-md)' }}>
+              <button onClick={handleAdd} disabled={saving} className="auth-btn" style={{ padding: '8px 20px', fontSize: 12 }}>
+                {saving ? 'Saving...' : 'Add Item'}
+              </button>
+              <button onClick={() => setShowAdd(false)} className="quick-action-btn" style={{ padding: '8px 14px', fontSize: 12 }}>Cancel</button>
+            </div>
+          </div>
+        )}
+
+        {loading ? (
+          <div style={{ padding: 'var(--space-xl)', textAlign: 'center', color: 'var(--text-muted)' }}>Loading...</div>
+        ) : items.length === 0 ? (
+          <div style={{ padding: 'var(--space-xl)', textAlign: 'center', color: 'var(--text-muted)' }}>
+            No pricing items yet. Click "Add Item" to create your first one.
+          </div>
+        ) : (
+          Object.entries(grouped).map(([section, sectionItems]) => (
+            <div key={section} style={{ marginBottom: 'var(--space-lg)' }}>
+              <div style={{
+                fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em',
+                color: 'var(--text-muted)', marginBottom: 'var(--space-sm)', paddingBottom: 6,
+                borderBottom: '1px solid oklch(0.3 0.02 260 / 0.3)',
+              }}>
+                {section}
+              </div>
+
+              {sectionItems.map(item => (
+                <div key={item.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 'var(--space-md)',
+                  padding: '10px 0', borderBottom: '1px solid oklch(0.25 0.02 260 / 0.2)',
+                }}>
+                  {editId === item.id ? (
+                    /* Inline edit row */
+                    <>
+                      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr 90px 100px 100px', gap: 'var(--space-sm)', alignItems: 'center' }}>
+                        <input className="form-input" style={inputStyle} value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} />
+                        <input className="form-input" style={inputStyle} value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} placeholder="Description" />
+                        <input className="form-input" style={{ ...inputStyle, textAlign: 'right' }} type="number" min="0" step="0.01" value={editForm.default_unit_price} onChange={e => setEditForm(f => ({ ...f, default_unit_price: e.target.value }))} />
+                        <CustomSelect value={editForm.unit} onChange={v => setEditForm(f => ({ ...f, unit: v }))} options={UNIT_OPTIONS} />
+                        <CustomSelect value={editForm.section} onChange={v => setEditForm(f => ({ ...f, section: v }))} options={SECTION_OPTIONS} />
+                      </div>
+                      <button onClick={() => handleSave(item.id)} disabled={saving} className="quick-action-btn" style={{ padding: '6px 12px', fontSize: 11, color: 'var(--accent-green)' }}>
+                        Save
+                      </button>
+                      <button onClick={() => setEditId(null)} className="quick-action-btn" style={{ padding: '6px 12px', fontSize: 11 }}>
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    /* Display row */
+                    <>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{item.name}</div>
+                        {item.description && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{item.description}</div>}
+                      </div>
+                      <span style={{
+                        fontSize: 12, fontWeight: 700, color: 'var(--accent-green)',
+                        minWidth: 80, textAlign: 'right',
+                      }}>
+                        ${Number(item.default_unit_price).toFixed(2)}
+                      </span>
+                      <span style={{
+                        fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 6,
+                        background: 'oklch(0.25 0.02 260 / 0.5)', color: 'var(--text-muted)',
+                        minWidth: 40, textAlign: 'center',
+                      }}>
+                        {item.unit}
+                      </span>
+                      <button onClick={() => startEdit(item)} className="quick-action-btn" style={{ padding: '6px 10px', fontSize: 11 }}>
+                        Edit
+                      </button>
+                      <button onClick={() => handleDelete(item.id)} className="quick-action-btn" style={{ padding: '6px 10px', fontSize: 11, color: 'oklch(0.65 0.2 25)' }}>
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

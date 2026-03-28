@@ -4140,6 +4140,7 @@ input[type="checkbox"]:checked::after {
   padding: 20px;
   border-radius: 16px;
   min-height: 200px;
+  position: relative;
 }
 
 .report-card__title {

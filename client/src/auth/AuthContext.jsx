@@ -8,7 +8,7 @@ const AuthContext = createContext(null);
 
 const DEV_BYPASS = import.meta.env.VITE_DEV_BYPASS_AUTH === 'true';
 const DEV_USER = {
-  id: '93fb33ea-e7d8-461f-87e4-bba4e55acc9e', firstName: 'Brandon', lastName: 'Admin', email: 'brandon',
+  id: '93fb33ea-e7d8-461f-87e4-bba4e55acc9e', firstName: 'Brandon', lastName: 'Admin', email: 'brandon@accessvaletparking.com',
   role: 'super_admin', tenantId: '791bb51d-3293-4839-92e9-bd4d4f873af2',
 };
 

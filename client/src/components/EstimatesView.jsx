@@ -1583,7 +1583,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
 
           {/* TITLE SECTION */}
           {enabledSections.some(s => s.id === 'title') && (
-            <div ref={el => sectionRefs.current.title = el} className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)', overflow: 'visible', position: 'relative', zIndex: 30 }} onClick={() => setActiveSection('title')}>
+            <div ref={el => sectionRefs.current.title = el} className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)', position: 'relative' }} onClick={() => setActiveSection('title')}>
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 'var(--space-md)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Title</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)' }}>
                 <div className="form-group">
@@ -1680,7 +1680,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
 
           {/* ROOF COMPONENTS / LINE ITEMS SECTION */}
           {enabledSections.some(s => s.id === 'line_items') && (
-            <div ref={el => sectionRefs.current.line_items = el} className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)', overflow: 'visible', position: 'relative', zIndex: 20 }} onClick={() => setActiveSection('line_items')}>
+            <div ref={el => sectionRefs.current.line_items = el} className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)', position: 'relative' }} onClick={() => setActiveSection('line_items')}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
                 <div style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Roof Components</div>
                 <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
@@ -1813,7 +1813,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
 
           {/* QUOTE DETAILS SECTION — Discounts + Tax + Profit Margin + Summary */}
           {enabledSections.some(s => s.id === 'quote_details') && (
-            <div ref={el => sectionRefs.current.quote_details = el} className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)', overflow: 'visible', position: 'relative', zIndex: 10 }} onClick={() => setActiveSection('quote_details')}>
+            <div ref={el => sectionRefs.current.quote_details = el} className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)', position: 'relative' }} onClick={() => setActiveSection('quote_details')}>
               <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 'var(--space-lg)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Quote Details</div>
 
               {/* Discounts */}

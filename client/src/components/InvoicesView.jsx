@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import * as invoicesApi from '../api/invoices';
 import * as estimatesApi from '../api/estimates';
 import client from '../api/client';
-import { IconX, IconFileText, IconDollar, IconSend, IconPlusCircle, IconArrowLeft, IconTrash, IconCheck } from './Icons';
+import { IconX, IconFileText, IconDollar, IconSend, IconPlusCircle, IconArrowLeft, IconTrash, IconCheck, IconEye } from './Icons';
 import CustomSelect from './CustomSelect';
 import DatePicker from './DatePicker';
 import { showToast } from './Toast';
@@ -349,6 +350,79 @@ const TAX_OPTIONS = [
   { value: 0.1, label: '10.0%' },
 ];
 
+// Combobox input: shows dropdown suggestions from presets via portal, allows free typing
+function DescriptionCombobox({ value, onChange, onSelectPreset, presets }) {
+  const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState('');
+  const [pos, setPos] = useState({ top: 0, left: 0, width: 0 });
+  const inputRef = useRef(null);
+  const dropdownRef = useRef(null);
+
+  const filtered = presets.filter(p =>
+    !filter || p.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  const updatePos = useCallback(() => {
+    if (inputRef.current) {
+      const rect = inputRef.current.getBoundingClientRect();
+      setPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (e) => {
+      if (inputRef.current?.contains(e.target)) return;
+      if (dropdownRef.current?.contains(e.target)) return;
+      setOpen(false);
+    };
+    const timer = setTimeout(() => document.addEventListener('mousedown', handleClick, true), 0);
+    return () => { clearTimeout(timer); document.removeEventListener('mousedown', handleClick, true); };
+  }, [open]);
+
+  return (
+    <div>
+      <input
+        ref={inputRef}
+        type="text"
+        value={value}
+        onChange={e => { onChange(e.target.value); setFilter(e.target.value); if (!open) { updatePos(); setOpen(true); } }}
+        onFocus={() => { updatePos(); setOpen(true); }}
+        placeholder="Type or select item..."
+        className="form-input"
+      />
+      {open && filtered.length > 0 && createPortal(
+        <div ref={dropdownRef} style={{
+          position: 'fixed', top: pos.top, left: pos.left, width: pos.width, zIndex: 9999,
+          maxHeight: 220, overflowY: 'auto',
+          background: 'oklch(0.18 0.02 260)', border: '1px solid oklch(0.30 0.02 260)',
+          borderRadius: 10, padding: 4,
+          boxShadow: '0 8px 24px oklch(0 0 0 / 0.5)',
+        }}>
+          {filtered.map(p => (
+            <div
+              key={p.id}
+              onMouseDown={(e) => { e.preventDefault(); e.nativeEvent.stopImmediatePropagation(); onSelectPreset(p); setOpen(false); setFilter(''); }}
+              style={{
+                padding: '7px 12px', cursor: 'pointer', fontSize: 12, borderRadius: 6,
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'oklch(0.22 0.02 260)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{p.name}</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>
+                ${Number(p.default_unit_price).toFixed(2)}/{p.unit}
+              </span>
+            </div>
+          ))}
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+}
+
 function InvoiceBuilder({ invoice, onSave, onCancel }) {
   const isEdit = !!invoice;
 
@@ -364,6 +438,13 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
   const [leadName, setLeadName] = useState(invoice?.contact_name || '');
   const [saving, setSaving] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [presets, setPresets] = useState([]);
+
+  useEffect(() => {
+    estimatesApi.getTemplates()
+      .then(res => setPresets(res.data.templates || []))
+      .catch(() => {});
+  }, []);
 
   // Calculate totals
   const subtotal = lineItems.reduce((sum, item) => sum + (Number(item.quantity) || 0) * (Number(item.unit_price) || 0), 0);
@@ -463,6 +544,124 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
     }
   };
 
+  const [showPreview, setShowPreview] = useState(false);
+
+  if (showPreview) {
+    const fmtMoney = (v) => '$' + Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return (
+      <div className="main-content" style={{ gap: 'var(--space-lg)' }}>
+        {/* Preview Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
+          <button onClick={() => setShowPreview(false)} className="quick-action-btn" style={{ padding: '8px 12px', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+            <IconArrowLeft style={{ width: 14, height: 14 }} /> Back to Editor
+          </button>
+          <span style={{ fontSize: 15, fontWeight: 700 }}>Invoice Preview</span>
+          <div style={{ flex: 1 }} />
+          <button onClick={handleSave} disabled={saving} className="auth-btn" style={{ padding: '8px 18px', fontSize: 12, fontWeight: 600 }}>
+            {saving ? 'Saving...' : isEdit ? 'Update Invoice' : 'Create Invoice'}
+          </button>
+        </div>
+
+        {/* Preview Document */}
+        <div style={{ display: 'flex', justifyContent: 'center', padding: 'var(--space-md) 0' }}>
+          <div style={{
+            width: 680, background: 'oklch(0.98 0 0)', borderRadius: 12, padding: '48px 56px',
+            color: 'oklch(0.15 0 0)', boxShadow: '0 8px 40px oklch(0 0 0 / 0.35)',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          }}>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 40 }}>
+              <div>
+                <div style={{ fontSize: 28, fontWeight: 800, color: 'oklch(0.25 0.02 250)', letterSpacing: '-0.5px' }}>INVOICE</div>
+                <div style={{ fontSize: 12, color: 'oklch(0.5 0 0)', marginTop: 4 }}>
+                  {isEdit ? invoice.invoice_number : 'Draft'}
+                </div>
+              </div>
+              <div style={{ textAlign: 'right', fontSize: 12, color: 'oklch(0.45 0 0)', lineHeight: 1.8 }}>
+                <div style={{ fontWeight: 700, fontSize: 14, color: 'oklch(0.2 0 0)' }}>StormLeads</div>
+                {dueDate && <div>Due: {new Date(dueDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>}
+                <div>Date: {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+              </div>
+            </div>
+
+            {/* Bill To */}
+            {leadName && (
+              <div style={{ marginBottom: 32 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'oklch(0.55 0 0)', marginBottom: 6 }}>Bill To</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'oklch(0.2 0 0)' }}>{leadName}</div>
+              </div>
+            )}
+
+            {/* Line Items Table */}
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 32 }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid oklch(0.85 0 0)' }}>
+                  <th style={{ textAlign: 'left', padding: '10px 0', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'oklch(0.5 0 0)' }}>Description</th>
+                  <th style={{ textAlign: 'center', padding: '10px 0', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'oklch(0.5 0 0)', width: 60 }}>Qty</th>
+                  <th style={{ textAlign: 'right', padding: '10px 0', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'oklch(0.5 0 0)', width: 100 }}>Unit Price</th>
+                  <th style={{ textAlign: 'right', padding: '10px 0', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'oklch(0.5 0 0)', width: 100 }}>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {lineItems.map((item, idx) => {
+                  const lineTotal = (Number(item.quantity) || 0) * (Number(item.unit_price) || 0);
+                  return (
+                    <tr key={idx} style={{ borderBottom: '1px solid oklch(0.90 0 0)' }}>
+                      <td style={{ padding: '12px 0', fontSize: 13, fontWeight: 500, color: 'oklch(0.2 0 0)' }}>
+                        {item.description || 'Untitled item'}
+                      </td>
+                      <td style={{ padding: '12px 0', fontSize: 13, textAlign: 'center', color: 'oklch(0.35 0 0)' }}>
+                        {item.quantity}
+                      </td>
+                      <td style={{ padding: '12px 0', fontSize: 13, textAlign: 'right', color: 'oklch(0.35 0 0)' }}>
+                        {fmtMoney(item.unit_price)}
+                      </td>
+                      <td style={{ padding: '12px 0', fontSize: 13, textAlign: 'right', fontWeight: 600, color: 'oklch(0.2 0 0)' }}>
+                        {fmtMoney(lineTotal)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+            {/* Totals */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <div style={{ width: 240 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: 13, color: 'oklch(0.4 0 0)' }}>
+                  <span>Subtotal</span>
+                  <span style={{ fontWeight: 600 }}>{fmtMoney(subtotal)}</span>
+                </div>
+                {taxRate > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', fontSize: 13, color: 'oklch(0.4 0 0)' }}>
+                    <span>Tax ({(taxRate * 100).toFixed(2)}%)</span>
+                    <span style={{ fontWeight: 600 }}>{fmtMoney(taxAmount)}</span>
+                  </div>
+                )}
+                <div style={{
+                  display: 'flex', justifyContent: 'space-between', padding: '12px 0', fontSize: 18,
+                  borderTop: '2px solid oklch(0.25 0.02 250)', marginTop: 4,
+                  color: 'oklch(0.2 0 0)', fontWeight: 800,
+                }}>
+                  <span>Total</span>
+                  <span>{fmtMoney(total)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Notes */}
+            {notes && (
+              <div style={{ marginTop: 32, paddingTop: 20, borderTop: '1px solid oklch(0.90 0 0)' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'oklch(0.55 0 0)', marginBottom: 8 }}>Notes</div>
+                <div style={{ fontSize: 12, color: 'oklch(0.4 0 0)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{notes}</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="main-content" style={{ gap: 'var(--space-lg)' }}>
       {/* Header */}
@@ -482,6 +681,9 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
           }}>{statusLabels[invoice.status]}</span>
         )}
         <div style={{ flex: 1 }} />
+        <button onClick={() => setShowPreview(true)} className="quick-action-btn" style={{ padding: '8px 14px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 5 }}>
+          <IconEye style={{ width: 14, height: 14 }} /> Preview
+        </button>
         {isEdit && ['draft', 'sent', 'viewed'].includes(invoice.status) && (
           <button className="auth-btn" onClick={handleSend} style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'oklch(0.35 0.12 220)', border: 'none' }}>
             <IconSend style={{ width: 14, height: 14 }} /> Send Invoice
@@ -567,12 +769,15 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
             const lineTotal = (Number(item.quantity) || 0) * (Number(item.unit_price) || 0);
             return (
               <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 80px 100px 100px 40px', gap: 'var(--space-sm)', marginBottom: 'var(--space-sm)', alignItems: 'center' }}>
-                <input
-                  type="text"
+                <DescriptionCombobox
                   value={item.description}
-                  onChange={e => updateLineItem(idx, 'description', e.target.value)}
-                  placeholder="Item description"
-                  className="form-input"
+                  onChange={val => updateLineItem(idx, 'description', val)}
+                  onSelectPreset={p => {
+                    const updated = [...lineItems];
+                    updated[idx] = { ...updated[idx], description: p.name, unit_price: Number(p.default_unit_price) || 0 };
+                    setLineItems(updated);
+                  }}
+                  presets={presets}
                 />
                 <input
                   type="number"
