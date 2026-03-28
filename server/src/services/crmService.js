@@ -54,11 +54,18 @@ export async function getLeads(tenantId, filters = {}) {
 
   const { rows } = await pool.query(
     `SELECT lsv.*,
-       fa.status AS financing_status
+       fa.status AS financing_status,
+       tc.task_total,
+       tc.task_done
      FROM lead_summary_view lsv
      LEFT JOIN LATERAL (
        SELECT status FROM financing_applications WHERE lead_id = lsv.id ORDER BY created_at DESC LIMIT 1
      ) fa ON true
+     LEFT JOIN LATERAL (
+       SELECT COUNT(*)::int AS task_total,
+              COUNT(*) FILTER (WHERE completed = true)::int AS task_done
+       FROM tasks WHERE lead_id = lsv.id AND tenant_id = $1
+     ) tc ON true
      WHERE ${where}
      ORDER BY ${orderCol} ${orderDir}
      LIMIT $${params.length - 1} OFFSET $${params.length}`,

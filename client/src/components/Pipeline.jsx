@@ -505,8 +505,8 @@ export default function Pipeline() {
           })}
         </div>
 
-        {/* Lead Cards */}
-        <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {/* Lead Cards or List */}
+        <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: mobileViewMode === 'list' ? 2 : 16 }}>
           {stageLeads.length === 0 && (
             <div style={{
               textAlign: 'center',
@@ -517,7 +517,75 @@ export default function Pipeline() {
               No leads in this stage
             </div>
           )}
-          {stageLeads.map(lead => {
+          {mobileViewMode === 'list' ? (
+            /* ── COMPACT LIST VIEW ── */
+            stageLeads.map(lead => {
+              const days = daysInStage(lead);
+              const daysBadge = daysInStageBadge(days);
+              const displayName = lead.contact_name
+                ? formatOwner(lead.contact_name)
+                : (lead.address ? titleCase(cleanAddr(lead.address)) : 'Unknown Lead');
+              const stageCol = columns.find(c => c.key === lead.stage);
+
+              return (
+                <div
+                  key={lead.id}
+                  onClick={() => setSelectedLeadId(lead.id)}
+                  style={{
+                    background: 'var(--bg-surface)',
+                    borderRadius: 8,
+                    padding: '10px 12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    cursor: 'pointer',
+                    borderLeft: `3px solid ${stageCol?.color || 'var(--accent-cyan)'}`,
+                  }}
+                >
+                  {/* Priority dot */}
+                  <span style={{
+                    width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+                    background: lead.priority === 'hot' ? 'oklch(0.68 0.22 25)' : lead.priority === 'warm' ? 'oklch(0.78 0.17 85)' : 'oklch(0.55 0.02 260)',
+                  }} />
+                  {/* Name + address */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {displayName}
+                    </div>
+                    {lead.address && (
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {titleCase(cleanAddr(lead.address))}
+                      </div>
+                    )}
+                  </div>
+                  {/* Task progress */}
+                  {lead.task_total > 0 && (
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, flexShrink: 0,
+                      color: lead.task_done === lead.task_total ? 'oklch(0.75 0.18 155)' : 'oklch(0.65 0.12 250)',
+                    }}>
+                      ✓{lead.task_done}/{lead.task_total}
+                    </span>
+                  )}
+                  {/* Days badge */}
+                  {daysBadge && (
+                    <span style={{
+                      fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 999, flexShrink: 0,
+                      color: daysBadge.color, background: daysBadge.bg,
+                    }}>
+                      {daysBadge.label}
+                    </span>
+                  )}
+                  {/* Value */}
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent-cyan)', flexShrink: 0 }}>
+                    {lead.estimated_value ? formatCurrency(lead.estimated_value) : '—'}
+                  </span>
+                </div>
+              );
+            })
+          ) : (
+            /* ── BOARD/CARD VIEW (existing) ── */
+            stageLeads.map(lead => {
             const badge = mobilePriorityBadge(lead.priority);
             const city = lead.city?.trim() || '';
             const st = (lead.property_state || lead.state || '').trim();
@@ -676,7 +744,8 @@ export default function Pipeline() {
                 </div>
               </div>
             );
-          })}
+          })
+          )}
         </div>
 
         {/* FAB */}
@@ -923,12 +992,26 @@ export default function Pipeline() {
                           onDragEnd={handleDragEnd}
                           onClick={() => setSelectedLeadId(lead.id)}
                         >
-                          {/* Top Row: Priority + Value */}
+                          {/* Top Row: Priority + Tasks + Value */}
                           <div className="flex items-center justify-between">
-                            {PriorityIcon[lead.priority]
-                              ? React.createElement(PriorityIcon[lead.priority], { width: 16, height: 16, className: 'shrink-0' })
-                              : <span className={`w-2 h-2 rounded-full shrink-0 ${priorityClasses[lead.priority] || ''}`} />
-                            }
+                            <div className="flex items-center gap-1.5">
+                              {PriorityIcon[lead.priority]
+                                ? React.createElement(PriorityIcon[lead.priority], { width: 16, height: 16, className: 'shrink-0' })
+                                : <span className={`w-2 h-2 rounded-full shrink-0 ${priorityClasses[lead.priority] || ''}`} />
+                              }
+                              {lead.task_total > 0 && (
+                                <span
+                                  className="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-1"
+                                  style={{
+                                    color: lead.task_done === lead.task_total ? 'oklch(0.75 0.18 155)' : 'oklch(0.65 0.12 250)',
+                                    background: lead.task_done === lead.task_total ? 'oklch(0.75 0.18 155 / 0.12)' : 'oklch(0.65 0.12 250 / 0.12)',
+                                  }}
+                                  title={`${lead.task_done}/${lead.task_total} tasks completed`}
+                                >
+                                  ✓ {lead.task_done}/{lead.task_total}
+                                </span>
+                              )}
+                            </div>
                             {lead.estimated_value && (
                               <span className="text-[13px] font-bold text-[oklch(0.75_0.18_155)]">
                                 {formatCurrency(lead.estimated_value)}
