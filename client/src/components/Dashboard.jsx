@@ -398,6 +398,126 @@ function MiniStormMap({ storms, navigate }) {
   return <div ref={mapContainer} className="mini-storm-map w-full flex-1 min-h-[180px] max-h-[300px] rounded-xl overflow-hidden" />;
 }
 
+/* ── Revenue Goal Progress ────────────────────────────────── */
+function RevenueGoalBar({ stats }) {
+  const [goalTarget, setGoalTarget] = useState(() => {
+    try { return Number(localStorage.getItem('dashboard_revenue_goal')) || 0; } catch { return 0; }
+  });
+  const [editing, setEditing] = useState(false);
+  const [editValue, setEditValue] = useState('');
+
+  const pipelineStat = stats.find(s => s.label === 'Pipeline Value');
+  const rawValue = pipelineStat?.rawValue ?? pipelineStat?.value;
+  const currentRevenue = typeof rawValue === 'number' ? rawValue : parseInt(String(rawValue || '0').replace(/[$,KMk]/g, ''), 10) * (String(rawValue).includes('K') ? 1000 : String(rawValue).includes('M') ? 1000000 : 1);
+
+  const pct = goalTarget > 0 ? Math.min((currentRevenue / goalTarget) * 100, 100) : 0;
+  const isOnTrack = pct >= (new Date().getDate() / 30) * 100;
+
+  const handleSaveGoal = () => {
+    const num = parseInt(editValue.replace(/[^0-9]/g, ''), 10) || 0;
+    setGoalTarget(num);
+    localStorage.setItem('dashboard_revenue_goal', String(num));
+    setEditing(false);
+  };
+
+  if (!goalTarget && !editing) {
+    return (
+      <GlassCard className="px-5 py-3 flex items-center justify-between">
+        <span className="text-xs text-[var(--text-muted)]">Set a monthly revenue goal to track progress</span>
+        <button
+          onClick={() => { setEditing(true); setEditValue(''); }}
+          className="text-[11px] font-bold px-3 py-1.5 rounded-lg"
+          style={{
+            background: 'oklch(0.72 0.19 250 / 0.12)', border: '1px solid oklch(0.72 0.19 250 / 0.3)',
+            color: 'oklch(0.80 0.19 250)', cursor: 'pointer',
+          }}
+        >
+          Set Goal
+        </button>
+      </GlassCard>
+    );
+  }
+
+  if (editing) {
+    return (
+      <GlassCard className="px-5 py-3 flex items-center gap-3">
+        <span className="text-xs font-semibold text-[var(--text-muted)]">Monthly Goal: $</span>
+        <input
+          autoFocus
+          value={editValue}
+          onChange={e => setEditValue(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSaveGoal()}
+          placeholder="e.g. 50000"
+          className="form-input"
+          style={{ width: 140, fontSize: 13, height: 32, padding: '0 10px' }}
+        />
+        <button
+          onClick={handleSaveGoal}
+          className="text-[11px] font-bold px-3 py-1.5 rounded-lg"
+          style={{ background: 'oklch(0.75 0.18 155 / 0.15)', border: '1px solid oklch(0.75 0.18 155 / 0.3)', color: 'oklch(0.75 0.18 155)', cursor: 'pointer' }}
+        >
+          Save
+        </button>
+        <button
+          onClick={() => setEditing(false)}
+          className="text-[11px] font-semibold text-[var(--text-muted)]"
+          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          Cancel
+        </button>
+      </GlassCard>
+    );
+  }
+
+  const monthName = new Date().toLocaleString('en-US', { month: 'long' });
+
+  return (
+    <GlassCard className="px-5 py-3">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">{monthName} Revenue Goal</span>
+          <span
+            className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+            style={{
+              color: isOnTrack ? 'oklch(0.75 0.18 155)' : 'oklch(0.68 0.22 25)',
+              background: isOnTrack ? 'oklch(0.75 0.18 155 / 0.12)' : 'oklch(0.68 0.22 25 / 0.12)',
+            }}
+          >
+            {isOnTrack ? '✓ On Track' : '⚠ Behind'}
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-[820] text-[oklch(0.75_0.18_155)]">{formatCurrency(currentRevenue)}</span>
+          <span className="text-xs text-[var(--text-muted)]">of {formatCurrency(goalTarget)}</span>
+          <button
+            onClick={() => { setEditing(true); setEditValue(String(goalTarget)); }}
+            className="text-[10px] text-[var(--text-muted)] hover:text-[oklch(0.72_0.19_250)]"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.15s' }}
+          >
+            Edit
+          </button>
+        </div>
+      </div>
+      <div style={{
+        height: 8, borderRadius: 4, overflow: 'hidden',
+        background: 'oklch(0.12 0.015 265 / 0.5)',
+      }}>
+        <div style={{
+          height: '100%', borderRadius: 4,
+          width: `${pct}%`,
+          background: pct >= 100 ? 'oklch(0.75 0.18 155)' : pct >= 50 ? 'oklch(0.72 0.16 200)' : 'oklch(0.72 0.19 250)',
+          boxShadow: `0 0 12px ${pct >= 100 ? 'oklch(0.75 0.18 155 / 0.4)' : 'oklch(0.72 0.19 250 / 0.3)'}`,
+          transition: 'width 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+        }} />
+      </div>
+      <div className="flex justify-between mt-1">
+        <span className="text-[10px] text-[var(--text-muted)]">{pct.toFixed(0)}% complete</span>
+        <span className="text-[10px] text-[var(--text-muted)]">{formatCurrency(Math.max(goalTarget - currentRevenue, 0))} remaining</span>
+      </div>
+    </GlassCard>
+  );
+}
+
 /* ══════════════════════════════════════════════════════════════
    DASHBOARD
    ══════════════════════════════════════════════════════════════ */
@@ -1069,6 +1189,9 @@ export default function Dashboard() {
           </GlassCard>
         ))}
       </div>
+
+      {/* ── Revenue Goal Progress Bar ── */}
+      <RevenueGoalBar stats={stats} />
 
       {/* ── Row 2: Pipeline + Storm Map + Storm Feed ── */}
       <div className="grid grid-cols-[3fr_4fr_3fr] gap-[var(--space-md)]" style={{ maxHeight: 420 }}>
