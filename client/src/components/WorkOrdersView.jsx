@@ -180,7 +180,49 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
     setSaving(false);
   };
 
-  const lineItems = Array.isArray(wo.line_items) ? wo.line_items : [];
+  const [editLineItems, setEditLineItems] = useState(() => {
+    const items = Array.isArray(wo.line_items) ? wo.line_items : [];
+    return items.map((item, i) => ({ ...item, _id: i }));
+  });
+  const [lineItemsDirty, setLineItemsDirty] = useState(false);
+  const nextLineIdRef = useRef(editLineItems.length);
+
+  const handleLineItemChange = (idx, field, value) => {
+    setEditLineItems(prev => prev.map((item, i) =>
+      i === idx ? { ...item, [field]: value } : item
+    ));
+    setLineItemsDirty(true);
+  };
+
+  const handleAddLineItem = () => {
+    nextLineIdRef.current += 1;
+    setEditLineItems(prev => [...prev, {
+      _id: nextLineIdRef.current,
+      description: '',
+      quantity: 1,
+      unit_price: 0,
+    }]);
+    setLineItemsDirty(true);
+  };
+
+  const handleRemoveLineItem = (idx) => {
+    setEditLineItems(prev => prev.filter((_, i) => i !== idx));
+    setLineItemsDirty(true);
+  };
+
+  const handleSaveLineItems = async () => {
+    setSaving(true);
+    try {
+      const cleaned = editLineItems.map(({ _id, ...rest }) => rest);
+      await onSave(wo.id, { line_items: cleaned });
+      setLineItemsDirty(false);
+      showToast('Line items saved', 'success');
+    } catch {
+      showToast('Failed to save line items', 'error');
+    }
+    setSaving(false);
+  };
+
   const statusColor = STATUS_COLORS[wo.status] || STATUS_COLORS.pending;
 
   return (
@@ -258,27 +300,100 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
             </div>
           </div>
 
-          {/* Line Items (read-only) */}
-          {lineItems.length > 0 && (
-            <div>
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>Line Items</span>
-              <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {lineItems.map((item, i) => (
-                  <div key={i} style={{
-                    display: 'flex', justifyContent: 'space-between', padding: '6px 10px',
-                    borderRadius: 8, background: 'oklch(1 0 0 / 0.04)', fontSize: 13,
-                  }}>
-                    <span style={{ color: 'var(--text-primary)' }}>{item.description || item.name || `Item ${i + 1}`}</span>
-                    <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>
-                      {item.quantity && item.unit_price
-                        ? `${item.quantity} × $${Number(item.unit_price).toFixed(2)}`
-                        : item.total ? `$${Number(item.total).toFixed(2)}` : ''}
-                    </span>
-                  </div>
-                ))}
+          {/* Line Items (editable) */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>
+                Line Items ({editLineItems.length})
+              </span>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {lineItemsDirty && (
+                  <button
+                    onClick={handleSaveLineItems}
+                    disabled={saving}
+                    style={{
+                      padding: '3px 10px', borderRadius: 6, border: '1px solid oklch(0.75 0.18 155 / 0.4)',
+                      background: 'oklch(0.75 0.18 155 / 0.12)', color: 'oklch(0.75 0.18 155)',
+                      fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                    }}
+                  >
+                    Save Items
+                  </button>
+                )}
+                <button
+                  onClick={handleAddLineItem}
+                  style={{
+                    padding: '3px 10px', borderRadius: 6, border: '1px solid oklch(0.72 0.19 250 / 0.3)',
+                    background: 'oklch(0.72 0.19 250 / 0.12)', color: 'oklch(0.72 0.19 250)',
+                    fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                  }}
+                >
+                  + Add
+                </button>
               </div>
             </div>
-          )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {editLineItems.length === 0 && (
+                <div style={{ padding: '12px 10px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>
+                  No line items — click "+ Add" to create one
+                </div>
+              )}
+              {editLineItems.map((item, i) => (
+                <div key={item._id} style={{
+                  display: 'grid', gridTemplateColumns: '1fr 60px 80px auto', gap: 6, alignItems: 'center',
+                  padding: '6px 8px', borderRadius: 8, background: 'oklch(1 0 0 / 0.04)',
+                }}>
+                  <input
+                    value={item.description || item.name || ''}
+                    onChange={e => handleLineItemChange(i, 'description', e.target.value)}
+                    className="form-input"
+                    placeholder="Description"
+                    style={{ fontSize: 12, padding: '4px 8px', height: 30 }}
+                  />
+                  <input
+                    type="number"
+                    value={item.quantity || ''}
+                    onChange={e => handleLineItemChange(i, 'quantity', e.target.value)}
+                    className="form-input"
+                    placeholder="Qty"
+                    style={{ fontSize: 12, padding: '4px 6px', height: 30, textAlign: 'center' }}
+                    min="0"
+                    step="1"
+                  />
+                  <input
+                    type="number"
+                    value={item.unit_price || ''}
+                    onChange={e => handleLineItemChange(i, 'unit_price', e.target.value)}
+                    className="form-input"
+                    placeholder="Price"
+                    style={{ fontSize: 12, padding: '4px 6px', height: 30, textAlign: 'right' }}
+                    min="0"
+                    step="0.01"
+                  />
+                  <button
+                    onClick={() => handleRemoveLineItem(i)}
+                    title="Remove"
+                    style={{
+                      background: 'none', border: 'none', cursor: 'pointer', color: 'oklch(0.55 0.12 25)',
+                      padding: 2, display: 'flex', alignItems: 'center',
+                    }}
+                  >
+                    <IconX width={14} height={14} />
+                  </button>
+                </div>
+              ))}
+              {editLineItems.length > 0 && (
+                <div style={{
+                  display: 'flex', justifyContent: 'flex-end', padding: '4px 8px',
+                  fontSize: 13, fontWeight: 700, color: 'oklch(0.75 0.18 155)',
+                }}>
+                  Total: ${editLineItems.reduce((sum, item) =>
+                    sum + (Number(item.quantity) || 0) * (Number(item.unit_price) || 0), 0
+                  ).toFixed(2)}
+                </div>
+              )}
+            </div>
+          </div>
 
           <label style={labelStyle}>
             Notes
