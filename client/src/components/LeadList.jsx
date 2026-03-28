@@ -119,6 +119,49 @@ export default function LeadList() {
   const [exporting, setExporting] = useState(false);
   const [showImport, setShowImport] = useState(false);
 
+  // Saved filter presets (localStorage)
+  const [filterPresets, setFilterPresets] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('lead_filter_presets') || '[]'); } catch { return []; }
+  });
+  const [showSavePreset, setShowSavePreset] = useState(false);
+  const [presetName, setPresetName] = useState('');
+
+  const saveFilterPreset = () => {
+    if (!presetName.trim()) return;
+    const preset = {
+      id: Date.now(),
+      name: presetName.trim(),
+      filters: {
+        stage: stageFilter, priority: priorityFilter,
+        source: sourceFilter, min_score: scoreFilter, search,
+      },
+    };
+    const updated = [...filterPresets, preset];
+    setFilterPresets(updated);
+    localStorage.setItem('lead_filter_presets', JSON.stringify(updated));
+    setPresetName('');
+    setShowSavePreset(false);
+  };
+
+  const applyPreset = (preset) => {
+    const f = preset.filters;
+    setStageFilter(f.stage || '');
+    setPriorityFilter(f.priority || '');
+    setSourceFilter(f.source || '');
+    setScoreFilter(f.min_score || '');
+    if (f.search) { setSearchInput(f.search); setSearch(f.search); }
+    else { setSearchInput(''); setSearch(''); }
+    setPage(0);
+  };
+
+  const deletePreset = (id) => {
+    const updated = filterPresets.filter(p => p.id !== id);
+    setFilterPresets(updated);
+    localStorage.setItem('lead_filter_presets', JSON.stringify(updated));
+  };
+
+  const hasActiveFilters = stageFilter || priorityFilter || sourceFilter || scoreFilter || search;
+
   // Sync state to URL
   useEffect(() => {
     const p = {};
@@ -369,23 +412,91 @@ export default function LeadList() {
         </div>
       </div>
 
-      {/* Active Filter Pills */}
-      {activeFilters.length > 0 && (
-        <div style={{ display: 'flex', gap: 'var(--space-xs)', flexWrap: 'wrap', paddingLeft: 'var(--space-sm)' }}>
-          {activeFilters.map(f => (
-            <span key={f.key} className="filter-pill">
-              {f.label}
-              <button onClick={f.clear} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 0 0 6px', fontSize: 12, lineHeight: 1 }}>&times;</button>
-            </span>
-          ))}
-          {activeFilters.length > 1 && (
-            <button onClick={() => { setStageFilter(''); setPriorityFilter(''); setSourceFilter(''); setPage(0); }}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-red)', fontSize: 11, fontWeight: 600 }}>
-              Clear All
-            </button>
-          )}
-        </div>
-      )}
+      {/* Saved Filter Presets + Active Pills */}
+      <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap', paddingLeft: 'var(--space-sm)', alignItems: 'center' }}>
+        {/* Saved presets */}
+        {filterPresets.length > 0 && filterPresets.map(preset => (
+          <span
+            key={preset.id}
+            className="filter-pill"
+            style={{ cursor: 'pointer', background: 'oklch(0.72 0.19 250 / 0.08)', borderColor: 'oklch(0.72 0.19 250 / 0.2)' }}
+            onClick={() => applyPreset(preset)}
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.6 }}>
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+            </svg>
+            {preset.name}
+            <button
+              onClick={(e) => { e.stopPropagation(); deletePreset(preset.id); }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 0 0 4px', fontSize: 12, lineHeight: 1 }}
+            >&times;</button>
+          </span>
+        ))}
+
+        {/* Save current filter button */}
+        {hasActiveFilters && !showSavePreset && (
+          <button
+            onClick={() => setShowSavePreset(true)}
+            style={{
+              background: 'none', border: '1px dashed oklch(0.72 0.19 250 / 0.3)',
+              cursor: 'pointer', color: 'oklch(0.65 0.12 250)',
+              fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 999,
+              display: 'flex', alignItems: 'center', gap: 4,
+            }}
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+            </svg>
+            Save Filter
+          </button>
+        )}
+
+        {/* Save preset inline form */}
+        {showSavePreset && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <input
+              autoFocus
+              value={presetName}
+              onChange={e => setPresetName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && saveFilterPreset()}
+              placeholder="Preset name..."
+              className="form-input"
+              style={{ width: 140, fontSize: 11, height: 28, padding: '0 8px' }}
+            />
+            <button
+              onClick={saveFilterPreset}
+              style={{
+                background: 'oklch(0.75 0.18 155 / 0.15)', border: '1px solid oklch(0.75 0.18 155 / 0.3)',
+                color: 'oklch(0.75 0.18 155)', fontSize: 11, fontWeight: 700,
+                padding: '4px 8px', borderRadius: 6, cursor: 'pointer',
+              }}
+            >Save</button>
+            <button
+              onClick={() => { setShowSavePreset(false); setPresetName(''); }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11 }}
+            >Cancel</button>
+          </div>
+        )}
+
+        {/* Separator */}
+        {(filterPresets.length > 0 || hasActiveFilters) && activeFilters.length > 0 && (
+          <div style={{ width: 1, height: 16, background: 'oklch(0.3 0.02 260)', flexShrink: 0 }} />
+        )}
+
+        {/* Active filter pills */}
+        {activeFilters.map(f => (
+          <span key={f.key} className="filter-pill">
+            {f.label}
+            <button onClick={f.clear} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 0 0 6px', fontSize: 12, lineHeight: 1 }}>&times;</button>
+          </span>
+        ))}
+        {activeFilters.length > 1 && (
+          <button onClick={() => { setStageFilter(''); setPriorityFilter(''); setSourceFilter(''); setScoreFilter(''); setPage(0); }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-red)', fontSize: 11, fontWeight: 600 }}>
+            Clear All
+          </button>
+        )}
+      </div>
 
       {/* Bulk Action Bar */}
       {selected.size > 0 && (
