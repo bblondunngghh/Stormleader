@@ -153,6 +153,195 @@ function ContentCard({ item, index, onSave, onDelete, isSaved }) {
   );
 }
 
+// ============================================================
+// LIVE PREVIEW MOCKUPS (Rooftops.ai competitive feature)
+// ============================================================
+function SocialPostPreview({ content, variables, type }) {
+  const text = typeof content === 'string' ? content : formatContent(content);
+  const companyName = variables.company || 'Your Company';
+  const isFacebook = type === 'social_post' || type === 'ad_copy';
+
+  return (
+    <div style={{
+      background: 'oklch(0.98 0 0)', borderRadius: 12, overflow: 'hidden',
+      color: 'oklch(0.15 0 0)', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      boxShadow: '0 2px 12px oklch(0 0 0 / 0.08)',
+    }}>
+      {/* Post header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px' }}>
+        <div style={{
+          width: 40, height: 40, borderRadius: '50%',
+          background: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: 'white', fontSize: 16, fontWeight: 700,
+        }}>
+          {companyName[0]?.toUpperCase() || 'C'}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'oklch(0.15 0 0)' }}>{companyName}</div>
+          <div style={{ fontSize: 12, color: 'oklch(0.5 0 0)' }}>Just now · {isFacebook ? 'Public' : 'Sponsored'}</div>
+        </div>
+        <svg width={20} height={20} viewBox="0 0 24 24" fill="oklch(0.5 0 0)">
+          <circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" />
+        </svg>
+      </div>
+      {/* Post text */}
+      <div style={{ padding: '0 16px 12px', fontSize: 14, lineHeight: 1.5, color: 'oklch(0.2 0 0)', whiteSpace: 'pre-wrap' }}>
+        {text || 'Your content will appear here...'}
+      </div>
+      {/* Placeholder image */}
+      <div style={{
+        height: 200, background: 'linear-gradient(135deg, oklch(0.88 0.05 220), oklch(0.82 0.08 200))',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        color: 'oklch(0.5 0.05 220)', fontSize: 14, fontWeight: 500,
+      }}>
+        [Ad Image / Photo]
+      </div>
+      {/* Engagement bar */}
+      <div style={{ padding: '8px 16px', display: 'flex', justifyContent: 'space-between', borderTop: '1px solid oklch(0.9 0 0)' }}>
+        <span style={{ fontSize: 13, color: 'oklch(0.5 0 0)' }}>42 likes</span>
+        <span style={{ fontSize: 13, color: 'oklch(0.5 0 0)' }}>12 comments · 5 shares</span>
+      </div>
+      {/* Action bar */}
+      <div style={{ display: 'flex', borderTop: '1px solid oklch(0.9 0 0)', padding: '6px 0' }}>
+        {['Like', 'Comment', 'Share'].map(action => (
+          <button key={action} style={{
+            flex: 1, padding: '8px 0', border: 'none', background: 'none', cursor: 'default',
+            fontSize: 13, fontWeight: 600, color: 'oklch(0.45 0 0)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+          }}>
+            {action}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function EmailPreview({ content, variables }) {
+  const companyName = variables.company || 'Your Company';
+  let subject = '';
+  let body = '';
+  if (typeof content === 'object' && content?.subject) {
+    subject = content.subject;
+    body = content.body || '';
+  } else {
+    const text = typeof content === 'string' ? content : formatContent(content);
+    const match = text.match(/^SUBJECT:\s*(.+?)\n\n([\s\S]*)$/);
+    if (match) { subject = match[1]; body = match[2]; }
+    else { body = text; subject = 'Storm Damage? Free Roof Inspection'; }
+  }
+
+  return (
+    <div style={{
+      background: 'oklch(0.98 0 0)', borderRadius: 12, overflow: 'hidden',
+      color: 'oklch(0.15 0 0)', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      boxShadow: '0 2px 12px oklch(0 0 0 / 0.08)',
+    }}>
+      {/* Email header */}
+      <div style={{ padding: '16px', borderBottom: '1px solid oklch(0.9 0 0)' }}>
+        <div style={{ fontSize: 10, fontWeight: 600, color: 'oklch(0.5 0 0)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>From</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: 'oklch(0.2 0 0)', marginBottom: 8 }}>{companyName} &lt;info@{(variables.website || 'company.com').replace(/^www\./, '')}&gt;</div>
+        <div style={{ fontSize: 10, fontWeight: 600, color: 'oklch(0.5 0 0)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Subject</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: 'oklch(0.15 0 0)' }}>{subject || 'Email Subject Line'}</div>
+      </div>
+      {/* Email body */}
+      <div style={{ padding: '16px', fontSize: 14, lineHeight: 1.6, color: 'oklch(0.25 0 0)', whiteSpace: 'pre-wrap', minHeight: 120 }}>
+        {body || 'Your email content will appear here...'}
+      </div>
+    </div>
+  );
+}
+
+function DoorHangerPreview({ content, variables }) {
+  const companyName = variables.company || 'Your Company';
+  let front = '';
+  let back = '';
+  if (typeof content === 'object' && content?.front) {
+    front = content.front;
+    back = content.back || '';
+  } else {
+    const text = typeof content === 'string' ? content : formatContent(content);
+    const match = text.match(/^FRONT:\n([\s\S]*?)\n\nBACK:\n([\s\S]*)$/);
+    if (match) { front = match[1]; back = match[2]; }
+    else { front = text; }
+  }
+
+  return (
+    <div style={{ display: 'flex', gap: 12 }}>
+      {[{ label: 'Front', text: front }, { label: 'Back', text: back }].map(side => (
+        <div key={side.label} style={{
+          flex: 1, borderRadius: 10, overflow: 'hidden',
+          background: 'oklch(0.98 0 0)', boxShadow: '0 2px 12px oklch(0 0 0 / 0.08)',
+          color: 'oklch(0.15 0 0)', fontFamily: '-apple-system, sans-serif',
+        }}>
+          <div style={{
+            padding: '8px 12px', background: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
+            color: 'white', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em',
+            textAlign: 'center',
+          }}>{side.label}</div>
+          <div style={{ padding: '12px', fontSize: 12, lineHeight: 1.5, whiteSpace: 'pre-wrap', minHeight: 80 }}>
+            {side.text || `${side.label} content...`}
+          </div>
+          {side.label === 'Front' && (
+            <div style={{ padding: '6px 12px 12px', textAlign: 'center', fontSize: 11, fontWeight: 700, color: 'oklch(0.3 0.15 250)' }}>
+              {companyName} · {variables.phone || '(555) 123-4567'}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function GenericPreview({ content, type }) {
+  const text = typeof content === 'string' ? content : formatContent(content);
+  const typeLabel = CONTENT_TYPES.find(t => t.value === type)?.label || type;
+  return (
+    <div style={{
+      background: 'oklch(0.98 0 0)', borderRadius: 12, padding: 20,
+      color: 'oklch(0.15 0 0)', fontFamily: '-apple-system, sans-serif',
+      boxShadow: '0 2px 12px oklch(0 0 0 / 0.08)', minHeight: 120,
+    }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: 'oklch(0.5 0 0)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>
+        {typeLabel} Preview
+      </div>
+      <div style={{ fontSize: 14, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+        {text || 'Your content will appear here...'}
+      </div>
+    </div>
+  );
+}
+
+function LivePreviewPanel({ content, type, variables }) {
+  const previewMap = {
+    social_post: SocialPostPreview,
+    ad_copy: SocialPostPreview,
+    email_template: EmailPreview,
+    door_hanger: DoorHangerPreview,
+    blog_outline: GenericPreview,
+  };
+  const PreviewComponent = previewMap[type] || GenericPreview;
+
+  return (
+    <div style={{
+      padding: 16, borderRadius: 14,
+      background: 'oklch(0.14 0.01 260 / 0.6)',
+      border: '1px solid oklch(1 0 0 / 0.06)',
+    }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12,
+        fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em',
+      }}>
+        <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" />
+        </svg>
+        Live Preview
+      </div>
+      <PreviewComponent content={content} type={type} variables={variables} />
+    </div>
+  );
+}
+
 export default function ContentStudio() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('generate'); // 'generate' | 'library'
@@ -372,8 +561,17 @@ export default function ContentStudio() {
             </button>
           </div>
 
-          {/* Results panel */}
+          {/* Results + Live Preview panel */}
           <div className="content-studio__results">
+            {/* Live Preview for latest result */}
+            {results.length > 0 && (
+              <LivePreviewPanel
+                content={results[0]?.content}
+                type={type}
+                variables={variables}
+              />
+            )}
+
             {results.length === 0 && !loading && (
               <div className="content-studio__empty glass">
                 <SparklesIcon width={48} height={48} style={{ opacity: 0.3 }} />
