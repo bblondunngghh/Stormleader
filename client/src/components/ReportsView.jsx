@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import DatePicker from './DatePicker';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -189,7 +190,7 @@ function RevenueChart({ start, end, compare }) {
   );
 }
 
-function PipelineChart({ start, end, compare }) {
+function PipelineChart({ start, end, compare, onDrillDown }) {
   const [data, setData] = useState([]);
   const [prevData, setPrevData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -224,6 +225,12 @@ function PipelineChart({ start, end, compare }) {
   const prevLeads = prevData?.reduce((s, d) => s + d.count, 0);
   const prevValue = prevData?.reduce((s, d) => s + d.total_value, 0);
 
+  const handleBarClick = (entry) => {
+    if (onDrillDown && entry?.stage) {
+      onDrillDown({ type: 'stage', value: entry.stage, label: entry.label });
+    }
+  };
+
   return (
     <>
     {compare && prevData && (
@@ -232,14 +239,15 @@ function PipelineChart({ start, end, compare }) {
         { label: 'Pipeline Value', current: totalValue, previous: prevValue, format: 'dollar' },
       ]} />
     )}
+    {onDrillDown && <div style={{ fontSize: 10, color: 'oklch(0.55 0.12 250)', fontWeight: 600, marginBottom: 4, textAlign: 'right' }}>Click a bar to view leads</div>}
     <ExportButton data={data} filename="pipeline_report" />
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={data} layout="vertical" margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.3 0 0)" />
         <XAxis type="number" tick={{ fill: 'oklch(0.7 0 0)', fontSize: 12 }} />
         <YAxis dataKey="label" type="category" tick={{ fill: 'oklch(0.7 0 0)', fontSize: 12 }} width={100} />
-        <Tooltip contentStyle={tooltipStyle} />
-        <Bar dataKey="count" name="Leads">
+        <Tooltip contentStyle={tooltipStyle} formatter={(v, name, props) => [v, `${name} — click to view`]} />
+        <Bar dataKey="count" name="Leads" onClick={handleBarClick} style={{ cursor: 'pointer' }}>
           {data.map((entry, i) => (
             <Cell key={i} fill={entry.fill} />
           ))}
@@ -386,7 +394,7 @@ function RepLeaderboard({ start, end, compare }) {
   );
 }
 
-function LeadSourcesPie({ start, end, compare }) {
+function LeadSourcesPie({ start, end, compare, onDrillDown }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -406,8 +414,15 @@ function LeadSourcesPie({ start, end, compare }) {
   if (loading) return <div className="report-card__loader">Loading...</div>;
   if (!data.length) return <div className="report-card__empty">No source data for this period</div>;
 
+  const handleSliceClick = (entry) => {
+    if (onDrillDown && entry?.source) {
+      onDrillDown({ type: 'source', value: entry.source, label: entry.source });
+    }
+  };
+
   return (
     <>
+    {onDrillDown && <div style={{ fontSize: 10, color: 'oklch(0.55 0.12 250)', fontWeight: 600, marginBottom: 4, textAlign: 'right' }}>Click a slice to view leads</div>}
     <ExportButton data={data} filename="lead_sources" />
     <ResponsiveContainer width="100%" height={300}>
       <PieChart>
@@ -421,12 +436,14 @@ function LeadSourcesPie({ start, end, compare }) {
           innerRadius={50}
           label={({ source, percent }) => `${source} ${(percent * 100).toFixed(0)}%`}
           labelLine={{ stroke: 'oklch(0.5 0 0)' }}
+          onClick={handleSliceClick}
+          style={{ cursor: 'pointer' }}
         >
           {data.map((entry, i) => (
             <Cell key={i} fill={entry.fill} stroke="oklch(0.15 0.01 260)" strokeWidth={2} />
           ))}
         </Pie>
-        <Tooltip contentStyle={tooltipStyle} formatter={(v, name) => [v, 'Leads']} />
+        <Tooltip contentStyle={tooltipStyle} formatter={(v, name) => [v, 'Leads — click to view']} />
       </PieChart>
     </ResponsiveContainer>
     </>
@@ -552,11 +569,19 @@ function ComparisonStats({ items }) {
 }
 
 export default function ReportsView() {
+  const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
   const [preset, setPreset] = useState('year');
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
   const [compare, setCompare] = useState(false);
+
+  const handleDrillDown = useCallback(({ type, value }) => {
+    const params = new URLSearchParams();
+    if (type === 'stage') params.set('stage', value);
+    if (type === 'source') params.set('source', value);
+    navigate(`/leads?${params.toString()}`);
+  }, [navigate]);
 
   useEffect(() => {
     const [s, e] = getDatePreset(preset);
@@ -612,7 +637,7 @@ export default function ReportsView() {
 
         <div className="glass report-card">
           <h3 className="report-card__title">Pipeline</h3>
-          <PipelineChart start={start} end={end} compare={compare} />
+          <PipelineChart start={start} end={end} compare={compare} onDrillDown={handleDrillDown} />
         </div>
 
         <div className="glass report-card">
@@ -627,7 +652,7 @@ export default function ReportsView() {
 
         <div className="glass report-card">
           <h3 className="report-card__title">Lead Sources</h3>
-          <LeadSourcesPie start={start} end={end} compare={compare} />
+          <LeadSourcesPie start={start} end={end} compare={compare} onDrillDown={handleDrillDown} />
         </div>
 
         <div className="glass report-card">
