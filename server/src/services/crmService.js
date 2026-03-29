@@ -63,7 +63,7 @@ export async function getLeads(tenantId, filters = {}) {
      ) fa ON true
      LEFT JOIN LATERAL (
        SELECT COUNT(*)::int AS task_total,
-              COUNT(*) FILTER (WHERE completed = true)::int AS task_done
+              COUNT(*) FILTER (WHERE completed_at IS NOT NULL)::int AS task_done
        FROM tasks WHERE lead_id = lsv.id AND tenant_id = $1
      ) tc ON true
      WHERE ${where}
