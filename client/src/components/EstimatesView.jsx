@@ -34,6 +34,7 @@ export default function EstimatesView() {
   const [statusFilter, setStatusFilter] = useState('');
   const [editingEstimate, setEditingEstimate] = useState(null);
   const [showBuilder, setShowBuilder] = useState(false);
+  const [showCompare, setShowCompare] = useState(false);
 
   const fetchEstimates = useCallback(async () => {
     setLoading(true);
@@ -549,6 +550,23 @@ export default function EstimatesView() {
           style={{ minWidth: 160 }}
         />
         <span style={{ fontSize: 12, color: 'var(--text-muted)', flex: 1 }}>{total} estimate{total !== 1 ? 's' : ''}</span>
+        {/* Compare Tiers button — shows when there are tier estimates */}
+        {estimates.filter(e => getTierLabel(e)).length >= 2 && (
+          <button
+            onClick={() => setShowCompare(true)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              padding: '8px 14px', borderRadius: 10, border: '1px solid oklch(0.72 0.15 200 / 0.3)',
+              background: 'oklch(0.72 0.15 200 / 0.1)', color: 'oklch(0.72 0.15 200)',
+              fontSize: 12, fontWeight: 600, cursor: 'pointer',
+            }}
+          >
+            <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
+            </svg>
+            Compare Tiers
+          </button>
+        )}
         <button className="auth-btn" onClick={handleNew} style={{ display: 'flex', alignItems: 'center', gap: 5 }}><IconPlusCircle style={{ width: 14, height: 14 }} /> New Estimate</button>
       </div>
 
@@ -642,6 +660,191 @@ export default function EstimatesView() {
           </table>
         </div>
       </div>
+
+      {/* Tier Comparison Modal */}
+      {showCompare && (() => {
+        // Group tier estimates by lead
+        const tierEstimates = estimates.filter(e => getTierLabel(e));
+        // Group by lead_id — if no lead_id, group by customer name
+        const groups = {};
+        tierEstimates.forEach(est => {
+          const key = est.lead_id || est.customer_name || 'ungrouped';
+          if (!groups[key]) groups[key] = [];
+          groups[key].push(est);
+        });
+        // Use the largest group or first group with 2+ estimates
+        const tierGroup = Object.values(groups).find(g => g.length >= 2)
+          || Object.values(groups)[0]
+          || tierEstimates;
+
+        // Sort: Good, Better, Best
+        const tierOrder = { Good: 0, Better: 1, Best: 2 };
+        const sorted = [...tierGroup].sort((a, b) =>
+          (tierOrder[getTierLabel(a)] ?? 9) - (tierOrder[getTierLabel(b)] ?? 9)
+        );
+
+        // Collect all line items across tiers for comparison
+        const allItemDescriptions = new Set();
+        sorted.forEach(est => {
+          const items = Array.isArray(est.line_items) ? est.line_items : [];
+          items.forEach(item => {
+            if (item.description || item.name) allItemDescriptions.add(item.description || item.name);
+          });
+        });
+
+        const tierColors = {
+          Good: { bg: 'oklch(0.35 0.08 260 / 0.4)', color: 'oklch(0.70 0.05 260)', border: 'oklch(0.45 0.05 260 / 0.3)' },
+          Better: { bg: 'oklch(0.35 0.12 250 / 0.4)', color: 'oklch(0.80 0.15 250)', border: 'oklch(0.55 0.15 250 / 0.3)' },
+          Best: { bg: 'oklch(0.35 0.12 155 / 0.4)', color: 'oklch(0.80 0.15 155)', border: 'oklch(0.55 0.15 155 / 0.3)' },
+        };
+
+        return (
+          <div className="modal-backdrop" onClick={() => setShowCompare(false)} style={{
+            position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.6)', zIndex: 1000,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <div className="glass no-scrollbar" onClick={e => e.stopPropagation()} style={{
+              width: '95%', maxWidth: 900, maxHeight: '90vh', overflow: 'auto',
+              borderRadius: 'var(--radius-xl)', padding: 'var(--space-xl)',
+              boxShadow: '0 24px 80px oklch(0 0 0 / 0.5), inset 0 1px 0 oklch(1 0 0 / 0.06)',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <div>
+                  <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Compare Estimates</h2>
+                  <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '4px 0 0' }}>
+                    {sorted[0]?.customer_name || sorted[0]?.lead_name || 'Side-by-side tier comparison'}
+                  </p>
+                </div>
+                <button onClick={() => setShowCompare(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                  <IconX style={{ width: 20, height: 20 }} />
+                </button>
+              </div>
+
+              {/* Tier Summary Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: `repeat(${sorted.length}, 1fr)`, gap: 16, marginBottom: 24 }}>
+                {sorted.map(est => {
+                  const tier = getTierLabel(est) || 'Standard';
+                  const tc = tierColors[tier] || tierColors.Good;
+                  const items = Array.isArray(est.line_items) ? est.line_items : [];
+                  return (
+                    <div key={est.id} style={{
+                      padding: 20, borderRadius: 16,
+                      background: tc.bg, border: `1px solid ${tc.border}`,
+                      textAlign: 'center',
+                    }}>
+                      <div style={{
+                        fontSize: 11, fontWeight: 700, textTransform: 'uppercase',
+                        letterSpacing: '0.08em', color: tc.color, marginBottom: 8,
+                      }}>
+                        {tier} Tier
+                      </div>
+                      <div style={{ fontSize: 32, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 4 }}>
+                        ${Number(est.total || 0).toLocaleString()}
+                      </div>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                        {items.length} line item{items.length !== 1 ? 's' : ''}
+                      </div>
+                      <div style={{ fontSize: 11, marginTop: 8, padding: '3px 10px', borderRadius: 999, display: 'inline-block', background: `color-mix(in oklch, ${tc.color} 15%, transparent)`, color: tc.color, fontWeight: 600 }}>
+                        {est.status}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Line Item Comparison Table */}
+              {allItemDescriptions.size > 0 && (
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--text-muted)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', borderBottom: '1px solid oklch(1 0 0 / 0.06)' }}>
+                          Line Item
+                        </th>
+                        {sorted.map(est => {
+                          const tier = getTierLabel(est) || 'Standard';
+                          const tc = tierColors[tier] || tierColors.Good;
+                          return (
+                            <th key={est.id} style={{
+                              textAlign: 'right', padding: '10px 12px', color: tc.color,
+                              fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
+                              borderBottom: '1px solid oklch(1 0 0 / 0.06)',
+                            }}>
+                              {tier}
+                            </th>
+                          );
+                        })}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[...allItemDescriptions].map(desc => (
+                        <tr key={desc}>
+                          <td style={{ padding: '8px 12px', color: 'var(--text-primary)', borderBottom: '1px solid oklch(1 0 0 / 0.04)' }}>
+                            {desc}
+                          </td>
+                          {sorted.map(est => {
+                            const items = Array.isArray(est.line_items) ? est.line_items : [];
+                            const match = items.find(i => (i.description || i.name) === desc);
+                            const lineTotal = match ? (Number(match.quantity) || 1) * (Number(match.unit_price) || 0) : 0;
+                            return (
+                              <td key={est.id} style={{
+                                textAlign: 'right', padding: '8px 12px',
+                                borderBottom: '1px solid oklch(1 0 0 / 0.04)',
+                                color: match ? 'var(--text-primary)' : 'oklch(0.35 0 0)',
+                                fontWeight: match ? 600 : 400,
+                              }}>
+                                {match ? `$${lineTotal.toLocaleString()}` : '—'}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                      {/* Total row */}
+                      <tr>
+                        <td style={{ padding: '12px 12px', fontWeight: 700, color: 'var(--text-primary)', borderTop: '2px solid oklch(1 0 0 / 0.1)' }}>
+                          Total
+                        </td>
+                        {sorted.map(est => {
+                          const tier = getTierLabel(est) || 'Standard';
+                          const tc = tierColors[tier] || tierColors.Good;
+                          return (
+                            <td key={est.id} style={{
+                              textAlign: 'right', padding: '12px 12px',
+                              fontWeight: 800, fontSize: 15, color: tc.color,
+                              borderTop: '2px solid oklch(1 0 0 / 0.1)',
+                            }}>
+                              ${Number(est.total || 0).toLocaleString()}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* Action buttons */}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: 20 }}>
+                {sorted.map(est => {
+                  const tier = getTierLabel(est) || 'Standard';
+                  const tc = tierColors[tier] || tierColors.Good;
+                  return (
+                    <button key={est.id} onClick={() => { setShowCompare(false); handleEdit(est); }}
+                      style={{
+                        padding: '8px 16px', borderRadius: 10,
+                        border: `1px solid ${tc.border}`, background: tc.bg,
+                        color: tc.color, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                      }}
+                    >
+                      Edit {tier}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
