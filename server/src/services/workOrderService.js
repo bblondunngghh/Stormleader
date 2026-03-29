@@ -14,10 +14,140 @@ const DEFAULT_MILESTONES = [
   'Complete',
 ];
 
-export async function createMilestones(workOrderId) {
-  const placeholders = DEFAULT_MILESTONES.map((_, i) => `($1, $${i * 2 + 2}, $${i * 2 + 3})`);
+export const MILESTONE_TEMPLATES = {
+  default: {
+    label: 'General (Default)',
+    milestones: DEFAULT_MILESTONES,
+  },
+  shingle_replacement: {
+    label: 'Shingle Replacement',
+    milestones: [
+      'Permit Pulled',
+      'Materials Ordered',
+      'Materials Delivered',
+      'Dumpster Placed',
+      'Tear-off Complete',
+      'Inspect Decking',
+      'Install Underlayment',
+      'Install Shingles',
+      'Install Flashing & Vents',
+      'Install Ridge Cap',
+      'Cleanup & Debris Removal',
+      'Final Inspection',
+      'Homeowner Walk-through',
+    ],
+  },
+  metal_roof: {
+    label: 'Metal Roof Install',
+    milestones: [
+      'Permit Pulled',
+      'Materials Ordered',
+      'Materials Delivered',
+      'Tear-off Existing Roof',
+      'Inspect & Repair Decking',
+      'Install Underlayment',
+      'Install Metal Panels',
+      'Install Trim & Flashing',
+      'Seal All Penetrations',
+      'Cleanup & Debris Removal',
+      'Final Inspection',
+      'Homeowner Walk-through',
+    ],
+  },
+  gutter_install: {
+    label: 'Gutter Installation',
+    milestones: [
+      'Measure & Plan',
+      'Materials Ordered',
+      'Remove Old Gutters',
+      'Inspect Fascia Board',
+      'Repair Fascia (if needed)',
+      'Install New Gutters',
+      'Install Downspouts',
+      'Install Gutter Guards',
+      'Test Water Flow',
+      'Cleanup',
+      'Homeowner Walk-through',
+    ],
+  },
+  siding_replacement: {
+    label: 'Siding Replacement',
+    milestones: [
+      'Permit Pulled',
+      'Materials Ordered',
+      'Materials Delivered',
+      'Remove Existing Siding',
+      'Inspect Sheathing',
+      'Install House Wrap',
+      'Install Siding Panels',
+      'Install Trim & J-Channel',
+      'Caulk & Seal',
+      'Cleanup & Debris Removal',
+      'Final Inspection',
+      'Homeowner Walk-through',
+    ],
+  },
+  storm_damage_repair: {
+    label: 'Storm Damage Repair',
+    milestones: [
+      'Initial Inspection Photos',
+      'Insurance Claim Filed',
+      'Adjuster Meeting Scheduled',
+      'Adjuster Meeting Complete',
+      'Supplement Submitted (if needed)',
+      'Claim Approved',
+      'Materials Ordered',
+      'Materials Delivered',
+      'Emergency Tarp / Board-up',
+      'Tear-off Damaged Areas',
+      'Install Repairs',
+      'Final Inspection Photos',
+      'Cleanup',
+      'Homeowner Walk-through',
+      'Final Payment Collected',
+    ],
+  },
+  roof_inspection: {
+    label: 'Roof Inspection Only',
+    milestones: [
+      'Schedule Inspection',
+      'Exterior Photos (all sides)',
+      'Roof Access & Safety Setup',
+      'Inspect Shingles / Covering',
+      'Inspect Flashing & Vents',
+      'Inspect Gutters & Downspouts',
+      'Check Attic (if accessible)',
+      'Document Findings',
+      'Generate Report',
+      'Deliver Report to Homeowner',
+    ],
+  },
+  flat_roof: {
+    label: 'Flat / Low-Slope Roof',
+    milestones: [
+      'Permit Pulled',
+      'Materials Ordered',
+      'Materials Delivered',
+      'Remove Existing Membrane',
+      'Inspect & Repair Substrate',
+      'Install Insulation',
+      'Install Membrane (TPO/EPDM/PVC)',
+      'Seal Seams & Penetrations',
+      'Install Edge Metal & Flashing',
+      'Flood Test',
+      'Cleanup',
+      'Final Inspection',
+      'Homeowner Walk-through',
+    ],
+  },
+};
+
+export async function createMilestones(workOrderId, templateKey = 'default') {
+  const template = MILESTONE_TEMPLATES[templateKey] || MILESTONE_TEMPLATES.default;
+  const milestoneNames = template.milestones;
+  const placeholders = milestoneNames.map((_, i) => `($1, $${i * 2 + 2}, $${i * 2 + 3})`);
   const params = [workOrderId];
-  DEFAULT_MILESTONES.forEach((name, i) => { params.push(name, i + 1); });
+  milestoneNames.forEach((name, i) => { params.push(name, i + 1); });
   await pool.query(
     `INSERT INTO work_order_milestones (work_order_id, name, sort_order) VALUES ${placeholders.join(', ')}`,
     params
@@ -111,6 +241,7 @@ export async function createWorkOrder(tenantId, data) {
   const {
     title, description, lead_id, estimate_id, assigned_to, crew_name,
     scheduled_date, scheduled_time_start, scheduled_time_end, line_items = [], notes,
+    milestone_template,
   } = data;
 
   const { rows } = await pool.query(
@@ -129,7 +260,7 @@ export async function createWorkOrder(tenantId, data) {
   );
 
   const newWorkOrder = rows[0];
-  await createMilestones(newWorkOrder.id);
+  await createMilestones(newWorkOrder.id, milestone_template || 'default');
 
   return newWorkOrder;
 }

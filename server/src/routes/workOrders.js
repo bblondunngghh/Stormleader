@@ -8,6 +8,17 @@ const router = Router();
 router.use(authenticate);
 router.use(tenantScope);
 
+// List available milestone templates
+router.get('/milestone-templates', (req, res) => {
+  const templates = Object.entries(workOrderService.MILESTONE_TEMPLATES).map(([key, val]) => ({
+    key,
+    label: val.label,
+    milestones: val.milestones,
+    count: val.milestones.length,
+  }));
+  res.json({ templates });
+});
+
 // List work orders
 router.get('/', async (req, res, next) => {
   try {

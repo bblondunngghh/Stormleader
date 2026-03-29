@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { getWorkOrders, createWorkOrder, createWorkOrderFromEstimate, updateWorkOrder, completeWorkOrder, getTeamMembers, getWorkOrderMilestones, updateWorkOrderMilestone, addWorkOrderMilestone, deleteWorkOrderMilestone } from '../api/crm';
+import { getWorkOrders, createWorkOrder, createWorkOrderFromEstimate, updateWorkOrder, completeWorkOrder, getTeamMembers, getWorkOrderMilestones, updateWorkOrderMilestone, addWorkOrderMilestone, deleteWorkOrderMilestone, getWorkOrderMilestoneTemplates } from '../api/crm';
 import { getEstimates } from '../api/estimates';
 import { uploadDocument } from '../api/documents';
 import { showToast } from './Toast';
@@ -560,10 +560,28 @@ function CreateWorkOrderModal({ onClose, onCreate, teamMembers }) {
   const [form, setForm] = useState({
     title: '', description: '', lead_id: '', crew_name: '',
     scheduled_date: '', scheduled_time_start: '', scheduled_time_end: '',
+    milestone_template: 'default',
   });
   const [saving, setSaving] = useState(false);
+  const [templates, setTemplates] = useState([]);
+  const [previewTemplate, setPreviewTemplate] = useState(null);
 
-  const handleChange = (field, val) => setForm(f => ({ ...f, [field]: val }));
+  useEffect(() => {
+    getWorkOrderMilestoneTemplates()
+      .then(res => {
+        const tpls = res.data?.templates || [];
+        setTemplates(tpls);
+        setPreviewTemplate(tpls.find(t => t.key === 'default') || null);
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleChange = (field, val) => {
+    setForm(f => ({ ...f, [field]: val }));
+    if (field === 'milestone_template') {
+      setPreviewTemplate(templates.find(t => t.key === val) || null);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -581,8 +599,9 @@ function CreateWorkOrderModal({ onClose, onCreate, teamMembers }) {
 
   return (
     <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <form className="glass" onClick={e => e.stopPropagation()} onSubmit={handleSubmit} style={{
-        width: '100%', maxWidth: 480, borderRadius: 'var(--radius-xl)', padding: 'var(--space-xl)',
+      <form className="glass no-scrollbar" onClick={e => e.stopPropagation()} onSubmit={handleSubmit} style={{
+        width: '100%', maxWidth: 520, maxHeight: '90vh', overflow: 'auto',
+        borderRadius: 'var(--radius-xl)', padding: 'var(--space-xl)',
         boxShadow: '0 24px 80px oklch(0 0 0 / 0.5), inset 0 1px 0 oklch(1 0 0 / 0.06)',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
@@ -601,6 +620,48 @@ function CreateWorkOrderModal({ onClose, onCreate, teamMembers }) {
             Description
             <textarea value={form.description} onChange={e => handleChange('description', e.target.value)} rows={2} className="form-input" style={{ height: 'auto', minHeight: 60, marginTop: 4, resize: 'vertical' }} />
           </label>
+
+          {/* Milestone Template Selector */}
+          {templates.length > 0 && (
+            <div>
+              <span style={labelStyle}>Job Type Template</span>
+              <CustomSelect
+                value={form.milestone_template}
+                onChange={(v) => handleChange('milestone_template', v)}
+                options={templates.map(t => ({
+                  value: t.key,
+                  label: `${t.label} (${t.count} steps)`,
+                }))}
+                style={{ marginTop: 4 }}
+              />
+              {/* Template preview */}
+              {previewTemplate && (
+                <div style={{
+                  marginTop: 8, padding: '10px 14px', borderRadius: 10,
+                  background: 'oklch(1 0 0 / 0.04)', border: '1px solid oklch(1 0 0 / 0.06)',
+                  maxHeight: 160, overflowY: 'auto',
+                }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Checklist Preview
+                  </div>
+                  {previewTemplate.milestones.map((m, i) => (
+                    <div key={i} style={{
+                      display: 'flex', alignItems: 'center', gap: 8, padding: '3px 0',
+                      fontSize: 12, color: 'var(--text-secondary)',
+                    }}>
+                      <span style={{
+                        width: 16, height: 16, borderRadius: 4, flexShrink: 0,
+                        border: '1.5px solid oklch(1 0 0 / 0.15)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }} />
+                      <span>{m}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'end' }}>
             <div>
               <span style={labelStyle}>Assigned To</span>

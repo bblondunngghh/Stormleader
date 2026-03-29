@@ -238,6 +238,8 @@ export const getLeadSourcesReport = (start, end) =>
 // WORK ORDERS
 // ============================================================
 
+export const getWorkOrderMilestoneTemplates = () => client.get('/crm/work-orders/milestone-templates');
+
 export const getWorkOrders = (params) => client.get('/crm/work-orders', { params });
 
 export const getWorkOrder = (id) => client.get(`/crm/work-orders/${id}`);
