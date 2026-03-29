@@ -313,3 +313,38 @@ and what should be prioritized next. Future agents MUST read this before startin
 - localStorage continues to be the right zero-cost choice for user preferences (filter presets, revenue goals) — avoids Neon free tier row pressure for non-critical data.
 - Comparison period calculation (same duration shifted backward) is simple but high-impact — it's the #1 thing that makes reports feel professional vs. toy-like.
 - Task progress on pipeline cards required only a lateral subquery join in the existing getLeads service — no schema change, just a SQL enhancement.
+
+---
+
+## Run: 2026-03-29
+
+### What was done
+- **Competitor UI Research (3rd pass)**: Comprehensive Firecrawl research across 50+ sources (competitor sites, help centers, YouTube, Capterra, G2, integration partner sites). Created detailed visual comparison document covering all 8 feature areas with 16 prioritized improvements in 3 tiers.
+- **App Inventory**: Full audit of 22 pages (21 protected + 6 public routes), 38 backend route files (271 endpoints), cross-referenced against competitor gap analysis.
+- **Live Preview Panel for Content Studio** (vs Rooftops.ai): Platform-specific mockup previews — Facebook post chrome, email client, door hanger front/back, blog preview. Updates live as content generates.
+- **Estimate Tier Comparison View** (vs RoofLink): Side-by-side Good/Better/Best comparison modal with summary cards, line-by-line pricing table, per-tier totals. Auto-appears when tiers exist.
+- **Pipeline Lead Score + Source Badges** (vs JobNimbus): Color-coded lead score badges (80+/60+/40+ thresholds) and source labels on every desktop pipeline card for at-a-glance prioritization.
+- **Chart Drill-Down in Reports** (vs JobNimbus): Pipeline bars and Lead Sources pie slices now clickable — navigates to Leads page filtered by that stage or source.
+- **Work Order Milestone Templates** (vs RoofLink): 8 job type templates (Shingle Replacement, Metal Roof, Gutter Install, Siding, Storm Damage Repair, Roof Inspection, Flat Roof, Window/Door) with selector and live preview. Backend API + frontend modal.
+- **UI Consistency Fix**: Converted 2 hex gradients in ContentStudio preview to oklch during Stage 4 review.
+- Total: 8 commits (2 docs + 5 features + 1 UI fix), 10 files changed, 1,394 lines added
+
+### Competitor areas covered
+- Areas completed: All 8 areas researched (Storm Map, Pipeline/CRM, Estimates, Content/Marketing, Work Orders/Production, Dashboard/Reports, Canvassing/Territory, Mobile)
+- Features implemented from research: Content Studio preview (Rooftops.ai gap), estimate comparison (RoofLink gap), pipeline badges (JobNimbus gap), chart drill-down (JobNimbus gap), milestone templates (RoofLink gap)
+- Stopped at: All 5 planned Tier 1 implementations complete
+- Next run should start at: Server-side PDF estimates, Profit Tracker variance analysis, invoice aging buckets
+
+### What was skipped and why
+- Server-side PDF estimates — #1 remaining quality gap, needs pdfmake integration (medium effort)
+- Hail swath color graduation — visual enhancement for storm map, medium effort
+- AI-powered content generation — needs LLM integration (local Ollama or API), not attempted this run
+- Profit Tracker variance analysis — needs planned margin on estimates + actual cost comparison
+- In-app SMS — requires Twilio account and real per-message costs
+- Photo-required milestone hard stops — RoofLink feature, needs enforcement logic in stage advancement
+
+### Lessons learned
+- Platform-specific content previews (Facebook chrome, email client mockup) add significant perceived value to a content generator with zero backend change — it's purely a frontend UX enhancement.
+- The estimate tier comparison was identified as a gap in the very first competitor research but wasn't implemented until this run — systematic gap tracking with priority tiers ensures nothing falls through the cracks.
+- Chart drill-down in reports is high impact for very low effort — the implementation is just navigation with query parameters, using the existing Leads page filter system.
+- Milestone templates eliminate the biggest friction in work order creation — pre-populating 8-10 steps saves reps from manual entry on every job. The backend template API is stateless (no database storage for templates themselves).
