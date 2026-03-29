@@ -1072,7 +1072,7 @@ export default function Pipeline() {
                             </a>
                           )}
 
-                          {/* Footer: Days-in-stage + Hail + Due date + Rep */}
+                          {/* Footer: Days-in-stage + Score + Hail + Due date + Rep */}
                           <div className="flex items-center justify-between mt-1 gap-1 flex-wrap">
                             <div className="flex items-center gap-1.5">
                               {(() => {
@@ -1088,6 +1088,38 @@ export default function Pipeline() {
                                   </span>
                                 ) : null;
                               })()}
+                              {lead.lead_score != null && lead.lead_score > 0 && (
+                                <span
+                                  className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                                  style={{
+                                    color: lead.lead_score >= 80 ? 'oklch(0.85 0.18 145)'
+                                      : lead.lead_score >= 60 ? 'oklch(0.85 0.15 85)'
+                                      : lead.lead_score >= 40 ? 'oklch(0.85 0.15 60)'
+                                      : 'oklch(0.70 0.02 260)',
+                                    background: lead.lead_score >= 80 ? 'oklch(0.35 0.12 145 / 0.4)'
+                                      : lead.lead_score >= 60 ? 'oklch(0.35 0.1 85 / 0.4)'
+                                      : lead.lead_score >= 40 ? 'oklch(0.35 0.1 60 / 0.4)'
+                                      : 'oklch(0.25 0 0 / 0.3)',
+                                  }}
+                                  title={`Lead score: ${lead.lead_score}/100`}
+                                >
+                                  {lead.lead_score}
+                                </span>
+                              )}
+                              {lead.source && (
+                                <span
+                                  className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full"
+                                  style={{
+                                    color: 'oklch(0.6 0.02 260)',
+                                    background: 'oklch(0.2 0.01 260 / 0.5)',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.04em',
+                                  }}
+                                  title={`Source: ${lead.source}`}
+                                >
+                                  {lead.source.replace(/_/g, ' ')}
+                                </span>
+                              )}
                               {lead.hail_size_in && (
                                 <span className="
                                   text-[11px] font-semibold px-2 py-0.5 rounded-full
