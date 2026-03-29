@@ -171,7 +171,7 @@ function SocialPostPreview({ content, variables, type }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px' }}>
         <div style={{
           width: 40, height: 40, borderRadius: '50%',
-          background: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
+          background: 'linear-gradient(135deg, oklch(0.62 0.21 255), oklch(0.72 0.14 200))',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: 'white', fontSize: 16, fontWeight: 700,
         }}>
@@ -275,7 +275,7 @@ function DoorHangerPreview({ content, variables }) {
           color: 'oklch(0.15 0 0)', fontFamily: '-apple-system, sans-serif',
         }}>
           <div style={{
-            padding: '8px 12px', background: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
+            padding: '8px 12px', background: 'linear-gradient(135deg, oklch(0.62 0.21 255), oklch(0.72 0.14 200))',
             color: 'white', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em',
             textAlign: 'center',
           }}>{side.label}</div>
