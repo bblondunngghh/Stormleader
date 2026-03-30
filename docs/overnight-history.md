@@ -348,3 +348,38 @@ and what should be prioritized next. Future agents MUST read this before startin
 - The estimate tier comparison was identified as a gap in the very first competitor research but wasn't implemented until this run — systematic gap tracking with priority tiers ensures nothing falls through the cracks.
 - Chart drill-down in reports is high impact for very low effort — the implementation is just navigation with query parameters, using the existing Leads page filter system.
 - Milestone templates eliminate the biggest friction in work order creation — pre-populating 8-10 steps saves reps from manual entry on every job. The backend template API is stateless (no database storage for templates themselves).
+
+---
+
+## Run: 2026-03-30
+
+### What was done
+- **Dashboard Filter Controls** (vs JobNimbus Insights): Added rep, source, and time period filter dropdowns to Dashboard. Backend accepts filter params on all dashboard queries. Follow-up fix replaced native `<select>` with `CustomSelect` component.
+- **A/R Aging Summary** (vs JobNimbus): Added 5-bucket aging bar (Current, 1-30, 31-60, 61-90, 91+ days) with count and dollar totals to Invoices page.
+- **Photo-Required Milestone Stops** (vs RoofLink): Added `photo_required` flag to work order milestones with backend enforcement, camera badge UI, and database migration.
+- **Storm Catalog Severity Ratings + Filters** (vs HailTrace): Added 1-5 severity rating algorithm, type filter dropdown, and 5 sort options to Storm Catalog page.
+- **Content Studio Sidebar Link**: Added missing navigation entry so users can discover Content Studio.
+- **App Inventory Update**: Full audit of 22 pages, 37 backend files (264 endpoints), live API tests, updated competitor feature matrix.
+- **Competitor UI Research Update**: Refreshed all 8 feature area comparisons with top 10 prioritized improvements.
+- **LeadList Quick Filters Backend** (partial): Wrote `needs_followup`, `unassigned`, `source`, `score_min` query params in leads route/service — not committed.
+- Total: 8 commits (2 docs + 5 features + 1 UI fix), 13 files changed, 1,266 lines added
+
+### Competitor areas covered
+- Areas completed: All 8 areas researched and documented (Storm Map, Pipeline/CRM, Estimates, Content/Marketing, Work Orders/Production, Dashboard/Reports, Canvassing/Territory, Mobile)
+- Features implemented: Dashboard filters (JN gap), A/R aging (JN gap), photo-required milestones (RL gap), storm catalog severity (HT gap), sidebar link (discovery)
+- Stopped at: LeadList quick filters backend (code written, not committed)
+- Next run should start at: Test and commit quick filters, then server-side PDF estimates, then QuickBooks sync
+
+### What was skipped and why
+- Server-side PDF estimates — #1 remaining quality gap, needs pdfmake integration (large effort)
+- QuickBooks sync — #1 remaining integration gap, needs OAuth flow setup
+- Hail swath color graduation — visual enhancement, medium effort, lower priority than functional gaps
+- In-app SMS texting — requires Twilio account and real per-message costs
+- AI-powered content generation — needs LLM integration, medium effort
+- Calendar appointment scheduling — needs click-to-create UI design, medium effort
+
+### Lessons learned
+- Dashboard filter controls are a high-impact, moderate-effort feature — backend needs to thread filter params through every dashboard query, not just one.
+- The `photo_required` enforcement pattern (prevent milestone toggle without photos) is a clean way to add quality gates without changing the milestone data model significantly.
+- Storm severity ratings can be calculated client-side from existing hail size and wind speed data — no new API calls needed.
+- Always use the project's `CustomSelect` component for dropdowns, never native `<select>` — this was caught in the UI consistency pass and applies to all future work.
