@@ -536,6 +536,12 @@ export default function Dashboard() {
   const [conversionByStorm, setConversionByStorm] = useState([]);
   const [estimateSummary, setEstimateSummary] = useState(null);
   const [loading, setLoading] = useState(true);
+  // Dashboard filters (JN Insights-style)
+  const [dashRep, setDashRep] = useState('');
+  const [dashSource, setDashSource] = useState('');
+  const [dashPeriod, setDashPeriod] = useState(''); // '', '7d', '30d', '90d', 'ytd'
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [leadSources, setLeadSources] = useState([]);
 
   const fetchStorms = useCallback(async (range) => {
     try {
@@ -545,10 +551,27 @@ export default function Dashboard() {
     } catch { setStorms([]); }
   }, []);
 
+  // Build filter params for API calls
+  const dashFilters = (() => {
+    const f = {};
+    if (dashRep) f.rep = dashRep;
+    if (dashSource) f.source = dashSource;
+    if (dashPeriod) {
+      const now = new Date();
+      if (dashPeriod === 'ytd') f.date_from = `${now.getFullYear()}-01-01`;
+      else {
+        const days = dashPeriod === '7d' ? 7 : dashPeriod === '30d' ? 30 : 90;
+        const from = new Date(now.getTime() - days * 86400000);
+        f.date_from = from.toISOString().slice(0, 10);
+      }
+    }
+    return f;
+  })();
+
   const fetchAll = useCallback(async () => {
     try {
       const [statsRes, funnelRes, activityRes, leaderRes, tasksRes, followupsRes, convRes, estRes] = await Promise.allSettled([
-        dashboardApi.getStats(), dashboardApi.getFunnel(), dashboardApi.getActivity(),
+        dashboardApi.getStats(dashFilters), dashboardApi.getFunnel(dashFilters), dashboardApi.getActivity(dashFilters),
         dashboardApi.getLeaderboard(), dashboardApi.getTasksToday(), dashboardApi.getFollowups(),
         dashboardApi.getConversionByStorm(), dashboardApi.getEstimateSummary(),
       ]);
@@ -562,9 +585,20 @@ export default function Dashboard() {
       if (convRes.status === 'fulfilled' && convRes.value.data?.storms) setConversionByStorm(convRes.value.data.storms);
       if (estRes.status === 'fulfilled' && estRes.value.data) setEstimateSummary(estRes.value.data);
     } finally { setLoading(false); }
-  }, []);
+  }, [dashRep, dashSource, dashPeriod]);
 
   useEffect(() => { fetchAll(); fetchStorms(stormRange); }, [fetchAll, fetchStorms, stormRange]);
+
+  // Fetch team members and lead sources for filter dropdowns (once)
+  useEffect(() => {
+    import('../api/crm').then(({ getTeamMembers, getLeads }) => {
+      getTeamMembers().then(r => setTeamMembers(r.data?.members || r.data || [])).catch(() => {});
+      getLeads({ limit: 200 }).then(r => {
+        const sources = [...new Set((r.data?.leads || []).map(l => l.source).filter(Boolean))].sort();
+        setLeadSources(sources);
+      }).catch(() => {});
+    });
+  }, []);
 
   const maxFunnelValue = Math.max(...funnel.map(d => d.value), 1);
 
@@ -1157,6 +1191,68 @@ export default function Dashboard() {
           </GlassCard>
         </div>
       </header>
+
+      {/* ── Dashboard Filters (JN Insights-style) ── */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 'var(--space-sm)', flexWrap: 'wrap',
+        padding: '0 2px',
+      }}>
+        {/* Period pills */}
+        {[
+          { key: '', label: 'All Time' },
+          { key: '7d', label: '7 Days' },
+          { key: '30d', label: '30 Days' },
+          { key: '90d', label: '90 Days' },
+          { key: 'ytd', label: 'YTD' },
+        ].map(p => (
+          <button key={p.key} onClick={() => setDashPeriod(p.key)} style={{
+            padding: '4px 12px', borderRadius: 'var(--radius-pill)', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+            border: dashPeriod === p.key ? '1px solid oklch(0.72 0.15 250 / 0.4)' : '1px solid transparent',
+            background: dashPeriod === p.key ? 'oklch(0.72 0.15 250 / 0.12)' : 'transparent',
+            color: dashPeriod === p.key ? 'oklch(0.8 0.12 250)' : 'var(--text-muted)',
+          }}>{p.label}</button>
+        ))}
+        <span style={{ flex: 1 }} />
+        {/* Rep filter */}
+        {teamMembers.length > 0 && (
+          <select
+            value={dashRep}
+            onChange={e => setDashRep(e.target.value)}
+            className="form-input"
+            style={{ fontSize: 11, padding: '4px 8px', width: 'auto', minWidth: 100, height: 28 }}
+          >
+            <option value="">All Reps</option>
+            {teamMembers.map(m => (
+              <option key={m.id} value={m.id}>{[m.first_name, m.last_name].filter(Boolean).join(' ') || m.email}</option>
+            ))}
+          </select>
+        )}
+        {/* Source filter */}
+        {leadSources.length > 0 && (
+          <select
+            value={dashSource}
+            onChange={e => setDashSource(e.target.value)}
+            className="form-input"
+            style={{ fontSize: 11, padding: '4px 8px', width: 'auto', minWidth: 100, height: 28 }}
+          >
+            <option value="">All Sources</option>
+            {leadSources.map(s => (
+              <option key={s} value={s}>{s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</option>
+            ))}
+          </select>
+        )}
+        {/* Active filter indicator */}
+        {(dashRep || dashSource || dashPeriod) && (
+          <button
+            onClick={() => { setDashRep(''); setDashSource(''); setDashPeriod(''); }}
+            style={{
+              padding: '4px 10px', borderRadius: 'var(--radius-pill)', fontSize: 10, fontWeight: 700, cursor: 'pointer',
+              background: 'oklch(0.65 0.18 25 / 0.12)', color: 'oklch(0.65 0.18 25)',
+              border: '1px solid oklch(0.65 0.18 25 / 0.3)',
+            }}
+          >Clear Filters</button>
+        )}
+      </div>
 
       {/* ── Loading Skeleton ── */}
       {loading && <DashboardSkeleton />}

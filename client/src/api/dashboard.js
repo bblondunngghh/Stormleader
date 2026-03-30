@@ -1,8 +1,8 @@
 import client from './client';
 
-export const getStats = () => client.get('/crm/dashboard/stats');
-export const getFunnel = () => client.get('/crm/pipeline/metrics');
-export const getActivity = () => client.get('/crm/dashboard/activity');
+export const getStats = (filters) => client.get('/crm/dashboard/stats', { params: filters });
+export const getFunnel = (filters) => client.get('/crm/pipeline/metrics', { params: filters });
+export const getActivity = (filters) => client.get('/crm/dashboard/activity', { params: filters });
 export const getLeaderboard = () => client.get('/crm/dashboard/leaderboard');
 export const getTasksToday = () => client.get('/crm/dashboard/tasks-today');
 export const getPropertiesAffected = () => client.get('/crm/dashboard/properties-affected');
