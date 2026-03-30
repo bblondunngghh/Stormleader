@@ -64,6 +64,26 @@ export default function InvoicesView() {
   const outstandingValue = invoices.filter(i => ['sent', 'viewed', 'overdue'].includes(i.status)).reduce((s, inv) => s + Number(inv.total || 0) - Number(inv.amount_paid || 0), 0);
   const overdueCount = invoices.filter(i => i.status === 'overdue').length;
 
+  // A/R Aging buckets — JobNimbus-style cash flow management
+  const agingBuckets = (() => {
+    const now = new Date();
+    const buckets = { current: 0, days_1_30: 0, days_31_60: 0, days_61_90: 0, days_91_plus: 0 };
+    invoices
+      .filter(i => ['sent', 'viewed', 'overdue'].includes(i.status))
+      .forEach(inv => {
+        const balance = Number(inv.total || 0) - Number(inv.amount_paid || 0);
+        if (balance <= 0) return;
+        const due = inv.due_date ? new Date(inv.due_date) : null;
+        if (!due || due >= now) { buckets.current += balance; return; }
+        const daysOverdue = Math.floor((now - due) / (1000 * 60 * 60 * 24));
+        if (daysOverdue <= 30) buckets.days_1_30 += balance;
+        else if (daysOverdue <= 60) buckets.days_31_60 += balance;
+        else if (daysOverdue <= 90) buckets.days_61_90 += balance;
+        else buckets.days_91_plus += balance;
+      });
+    return buckets;
+  })();
+
   const handleNew = () => {
     setEditingInvoice(null);
     setShowBuilder(true);
@@ -130,6 +150,41 @@ export default function InvoicesView() {
           </div>
         ))}
       </div>
+
+      {/* A/R Aging Summary */}
+      {outstandingValue > 0 && (
+        <div className="glass" style={{
+          borderRadius: '20px / 18px', padding: isMobile ? 'var(--space-md)' : 'var(--space-md) var(--space-xl)',
+        }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Accounts Receivable Aging
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(3, 1fr)' : 'repeat(5, 1fr)', gap: 'var(--space-sm)' }}>
+            {[
+              { label: 'Current', value: agingBuckets.current, color: '145' },
+              { label: '1-30 days', value: agingBuckets.days_1_30, color: '220' },
+              { label: '31-60 days', value: agingBuckets.days_31_60, color: '55' },
+              { label: '61-90 days', value: agingBuckets.days_61_90, color: '25' },
+              { label: '91+ days', value: agingBuckets.days_91_plus, color: '0' },
+            ].map(b => (
+              <div key={b.label} style={{
+                textAlign: 'center', padding: '8px 4px', borderRadius: 12,
+                background: b.value > 0 ? `oklch(0.7 0.15 ${b.color} / 0.08)` : 'transparent',
+              }}>
+                <div style={{
+                  fontSize: 16, fontWeight: 800,
+                  color: b.value > 0 ? `oklch(0.7 0.15 ${b.color})` : 'var(--text-muted)',
+                }}>
+                  {formatValue(b.value)}
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600, marginTop: 2 }}>
+                  {b.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Filter + Actions */}
       <div className="glass" style={{
