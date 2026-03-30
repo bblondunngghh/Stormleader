@@ -18,16 +18,15 @@
     "setup": "npm run migrate -w server && npm run seed -w server"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "@playwright/test": "^1.58.2",
+    "concurrently": "^9.1.2",
+    "playwright": "^1.58.2"
   },
   "dependencies": {
     "@google/stitch-sdk": "^0.0.3",
-    "@heroicons/react": "^2.2.0",
-    "@tailwindcss/vite": "^4.2.2",
     "compression": "^1.8.1",
     "pdfmake": "^0.2.18",
     "sharp": "^0.34.5",
-    "stripe": "^20.4.1",
-    "tailwindcss": "^4.2.2"
+    "stripe": "^20.4.1"
   }
 }
