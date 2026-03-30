@@ -116,6 +116,11 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
 
   const toggleMilestone = async (milestone) => {
     const newCompleted = !milestone.completed;
+    // Block completion if photo required but not uploaded
+    if (newCompleted && milestone.photo_required && !milestone.photo_url) {
+      showToast('Upload a photo before completing this milestone', 'error');
+      return;
+    }
     // Optimistic update
     setMilestones(prev => prev.map(m =>
       m.id === milestone.id ? { ...m, completed: newCompleted, completed_at: newCompleted ? new Date().toISOString() : null } : m
@@ -123,12 +128,13 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
     try {
       const res = await updateWorkOrderMilestone(wo.id, milestone.id, { completed: newCompleted });
       setMilestones(prev => prev.map(m => m.id === milestone.id ? res.data : m));
-    } catch {
+    } catch (err) {
       // Revert
       setMilestones(prev => prev.map(m =>
         m.id === milestone.id ? milestone : m
       ));
-      showToast('Failed to update milestone', 'error');
+      const msg = err?.response?.data?.error || 'Failed to update milestone';
+      showToast(msg, 'error');
     }
   };
 
@@ -451,8 +457,16 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
                     <span style={{
                       flex: 1, fontSize: 13, color: 'var(--text-primary)', fontWeight: 500,
                       textDecoration: m.completed ? 'line-through' : 'none',
+                      display: 'flex', alignItems: 'center', gap: 6,
                     }}>
                       {m.name}
+                      {m.photo_required && !m.photo_url && !m.completed && (
+                        <span title="Photo required to complete" style={{
+                          fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 4,
+                          background: 'oklch(0.65 0.18 25 / 0.15)', color: 'oklch(0.65 0.18 25)',
+                          whiteSpace: 'nowrap',
+                        }}>PHOTO REQ</span>
+                      )}
                     </span>
                     {m.completed_at && (
                       <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>
@@ -465,13 +479,15 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
                       </a>
                     )}
                     <button
-                      title={m.photo_url ? 'Replace photo' : 'Upload milestone photo'}
+                      title={m.photo_required && !m.photo_url ? 'Photo required — upload before completing' : m.photo_url ? 'Replace photo' : 'Upload milestone photo'}
                       disabled={uploadingMilestoneId === m.id}
                       style={{
                         background: 'none', border: 'none', cursor: 'pointer',
-                        color: uploadingMilestoneId === m.id ? 'var(--accent-blue)' : m.photo_url ? 'oklch(0.75 0.18 155)' : 'var(--text-muted)',
+                        color: uploadingMilestoneId === m.id ? 'var(--accent-blue)'
+                          : m.photo_required && !m.photo_url && !m.completed ? 'oklch(0.65 0.18 25)'
+                          : m.photo_url ? 'oklch(0.75 0.18 155)' : 'var(--text-muted)',
                         display: 'flex', alignItems: 'center',
-                        opacity: uploadingMilestoneId === m.id ? 1 : 0.7, padding: 2,
+                        opacity: (m.photo_required && !m.photo_url && !m.completed) || uploadingMilestoneId === m.id ? 1 : 0.7, padding: 2,
                       }}
                       onClick={(e) => { e.stopPropagation(); handlePhotoUpload(m.id); }}
                     >
@@ -655,6 +671,9 @@ function CreateWorkOrderModal({ onClose, onCreate, teamMembers }) {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }} />
                       <span>{m}</span>
+                      {previewTemplate.photo_required?.[i] && (
+                        <CameraIcon width={11} height={11} style={{ color: 'oklch(0.65 0.18 25)', flexShrink: 0 }} />
+                      )}
                     </div>
                   ))}
                 </div>

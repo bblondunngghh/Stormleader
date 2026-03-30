@@ -13,7 +13,8 @@ router.get('/milestone-templates', (req, res) => {
   const templates = Object.entries(workOrderService.MILESTONE_TEMPLATES).map(([key, val]) => ({
     key,
     label: val.label,
-    milestones: val.milestones,
+    milestones: val.milestones.map(ms => typeof ms === 'string' ? ms : ms.name),
+    photo_required: val.milestones.map(ms => typeof ms === 'string' ? false : !!ms.photo_required),
     count: val.milestones.length,
   }));
   res.json({ templates });
@@ -154,6 +155,7 @@ router.patch('/:id/milestones/:milestoneId', async (req, res, next) => {
 
     res.json(milestone);
   } catch (err) {
+    if (err.status === 422) return res.status(422).json({ error: err.message });
     next(err);
   }
 });

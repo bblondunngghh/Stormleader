@@ -4,14 +4,18 @@ import pool from '../db/pool.js';
 // MILESTONES
 // ============================================================
 
+// Milestone definitions: { name, photo_required? }
+// photo_required milestones cannot be marked complete without a photo upload (RoofLink-style quality control)
+function m(name, photo_required = false) { return { name, photo_required }; }
+
 const DEFAULT_MILESTONES = [
-  'Permit Pulled',
-  'Materials Delivered',
-  'Tear-off',
-  'Install',
-  'Cleanup',
-  'Final Inspection',
-  'Complete',
+  m('Permit Pulled'),
+  m('Materials Delivered', true),
+  m('Tear-off', true),
+  m('Install', true),
+  m('Cleanup', true),
+  m('Final Inspection', true),
+  m('Complete'),
 ];
 
 export const MILESTONE_TEMPLATES = {
@@ -22,134 +26,134 @@ export const MILESTONE_TEMPLATES = {
   shingle_replacement: {
     label: 'Shingle Replacement',
     milestones: [
-      'Permit Pulled',
-      'Materials Ordered',
-      'Materials Delivered',
-      'Dumpster Placed',
-      'Tear-off Complete',
-      'Inspect Decking',
-      'Install Underlayment',
-      'Install Shingles',
-      'Install Flashing & Vents',
-      'Install Ridge Cap',
-      'Cleanup & Debris Removal',
-      'Final Inspection',
-      'Homeowner Walk-through',
+      m('Permit Pulled'),
+      m('Materials Ordered'),
+      m('Materials Delivered', true),
+      m('Dumpster Placed'),
+      m('Tear-off Complete', true),
+      m('Inspect Decking', true),
+      m('Install Underlayment'),
+      m('Install Shingles', true),
+      m('Install Flashing & Vents', true),
+      m('Install Ridge Cap', true),
+      m('Cleanup & Debris Removal', true),
+      m('Final Inspection', true),
+      m('Homeowner Walk-through'),
     ],
   },
   metal_roof: {
     label: 'Metal Roof Install',
     milestones: [
-      'Permit Pulled',
-      'Materials Ordered',
-      'Materials Delivered',
-      'Tear-off Existing Roof',
-      'Inspect & Repair Decking',
-      'Install Underlayment',
-      'Install Metal Panels',
-      'Install Trim & Flashing',
-      'Seal All Penetrations',
-      'Cleanup & Debris Removal',
-      'Final Inspection',
-      'Homeowner Walk-through',
+      m('Permit Pulled'),
+      m('Materials Ordered'),
+      m('Materials Delivered', true),
+      m('Tear-off Existing Roof', true),
+      m('Inspect & Repair Decking', true),
+      m('Install Underlayment'),
+      m('Install Metal Panels', true),
+      m('Install Trim & Flashing', true),
+      m('Seal All Penetrations', true),
+      m('Cleanup & Debris Removal', true),
+      m('Final Inspection', true),
+      m('Homeowner Walk-through'),
     ],
   },
   gutter_install: {
     label: 'Gutter Installation',
     milestones: [
-      'Measure & Plan',
-      'Materials Ordered',
-      'Remove Old Gutters',
-      'Inspect Fascia Board',
-      'Repair Fascia (if needed)',
-      'Install New Gutters',
-      'Install Downspouts',
-      'Install Gutter Guards',
-      'Test Water Flow',
-      'Cleanup',
-      'Homeowner Walk-through',
+      m('Measure & Plan'),
+      m('Materials Ordered'),
+      m('Remove Old Gutters', true),
+      m('Inspect Fascia Board', true),
+      m('Repair Fascia (if needed)'),
+      m('Install New Gutters', true),
+      m('Install Downspouts', true),
+      m('Install Gutter Guards'),
+      m('Test Water Flow', true),
+      m('Cleanup'),
+      m('Homeowner Walk-through'),
     ],
   },
   siding_replacement: {
     label: 'Siding Replacement',
     milestones: [
-      'Permit Pulled',
-      'Materials Ordered',
-      'Materials Delivered',
-      'Remove Existing Siding',
-      'Inspect Sheathing',
-      'Install House Wrap',
-      'Install Siding Panels',
-      'Install Trim & J-Channel',
-      'Caulk & Seal',
-      'Cleanup & Debris Removal',
-      'Final Inspection',
-      'Homeowner Walk-through',
+      m('Permit Pulled'),
+      m('Materials Ordered'),
+      m('Materials Delivered', true),
+      m('Remove Existing Siding', true),
+      m('Inspect Sheathing', true),
+      m('Install House Wrap'),
+      m('Install Siding Panels', true),
+      m('Install Trim & J-Channel', true),
+      m('Caulk & Seal'),
+      m('Cleanup & Debris Removal', true),
+      m('Final Inspection', true),
+      m('Homeowner Walk-through'),
     ],
   },
   storm_damage_repair: {
     label: 'Storm Damage Repair',
     milestones: [
-      'Initial Inspection Photos',
-      'Insurance Claim Filed',
-      'Adjuster Meeting Scheduled',
-      'Adjuster Meeting Complete',
-      'Supplement Submitted (if needed)',
-      'Claim Approved',
-      'Materials Ordered',
-      'Materials Delivered',
-      'Emergency Tarp / Board-up',
-      'Tear-off Damaged Areas',
-      'Install Repairs',
-      'Final Inspection Photos',
-      'Cleanup',
-      'Homeowner Walk-through',
-      'Final Payment Collected',
+      m('Initial Inspection Photos', true),
+      m('Insurance Claim Filed'),
+      m('Adjuster Meeting Scheduled'),
+      m('Adjuster Meeting Complete'),
+      m('Supplement Submitted (if needed)'),
+      m('Claim Approved'),
+      m('Materials Ordered'),
+      m('Materials Delivered', true),
+      m('Emergency Tarp / Board-up', true),
+      m('Tear-off Damaged Areas', true),
+      m('Install Repairs', true),
+      m('Final Inspection Photos', true),
+      m('Cleanup'),
+      m('Homeowner Walk-through'),
+      m('Final Payment Collected'),
     ],
   },
   roof_inspection: {
     label: 'Roof Inspection Only',
     milestones: [
-      'Schedule Inspection',
-      'Exterior Photos (all sides)',
-      'Roof Access & Safety Setup',
-      'Inspect Shingles / Covering',
-      'Inspect Flashing & Vents',
-      'Inspect Gutters & Downspouts',
-      'Check Attic (if accessible)',
-      'Document Findings',
-      'Generate Report',
-      'Deliver Report to Homeowner',
+      m('Schedule Inspection'),
+      m('Exterior Photos (all sides)', true),
+      m('Roof Access & Safety Setup'),
+      m('Inspect Shingles / Covering', true),
+      m('Inspect Flashing & Vents', true),
+      m('Inspect Gutters & Downspouts', true),
+      m('Check Attic (if accessible)'),
+      m('Document Findings'),
+      m('Generate Report'),
+      m('Deliver Report to Homeowner'),
     ],
   },
   flat_roof: {
     label: 'Flat / Low-Slope Roof',
     milestones: [
-      'Permit Pulled',
-      'Materials Ordered',
-      'Materials Delivered',
-      'Remove Existing Membrane',
-      'Inspect & Repair Substrate',
-      'Install Insulation',
-      'Install Membrane (TPO/EPDM/PVC)',
-      'Seal Seams & Penetrations',
-      'Install Edge Metal & Flashing',
-      'Flood Test',
-      'Cleanup',
-      'Final Inspection',
-      'Homeowner Walk-through',
+      m('Permit Pulled'),
+      m('Materials Ordered'),
+      m('Materials Delivered', true),
+      m('Remove Existing Membrane', true),
+      m('Inspect & Repair Substrate', true),
+      m('Install Insulation'),
+      m('Install Membrane (TPO/EPDM/PVC)', true),
+      m('Seal Seams & Penetrations', true),
+      m('Install Edge Metal & Flashing', true),
+      m('Flood Test', true),
+      m('Cleanup'),
+      m('Final Inspection', true),
+      m('Homeowner Walk-through'),
     ],
   },
 };
 
 export async function createMilestones(workOrderId, templateKey = 'default') {
   const template = MILESTONE_TEMPLATES[templateKey] || MILESTONE_TEMPLATES.default;
-  const milestoneNames = template.milestones;
-  const placeholders = milestoneNames.map((_, i) => `($1, $${i * 2 + 2}, $${i * 2 + 3})`);
+  const defs = template.milestones; // array of { name, photo_required }
+  const placeholders = defs.map((_, i) => `($1, $${i * 3 + 2}, $${i * 3 + 3}, $${i * 3 + 4})`);
   const params = [workOrderId];
-  milestoneNames.forEach((name, i) => { params.push(name, i + 1); });
+  defs.forEach((def, i) => { params.push(def.name, i + 1, def.photo_required || false); });
   await pool.query(
-    `INSERT INTO work_order_milestones (work_order_id, name, sort_order) VALUES ${placeholders.join(', ')}`,
+    `INSERT INTO work_order_milestones (work_order_id, name, sort_order, photo_required) VALUES ${placeholders.join(', ')}`,
     params
   );
 }
@@ -163,6 +167,20 @@ export async function getMilestones(workOrderId) {
 }
 
 export async function updateMilestone(workOrderId, milestoneId, { completed, photoUrl }) {
+  // Enforce photo-required: if marking complete, check if photo needed
+  if (completed === true) {
+    const { rows: existing } = await pool.query(
+      'SELECT photo_required, photo_url FROM work_order_milestones WHERE id = $1 AND work_order_id = $2',
+      [milestoneId, workOrderId]
+    );
+    const ms = existing[0];
+    if (ms && ms.photo_required && !ms.photo_url && !photoUrl) {
+      const err = new Error('Photo required before completing this milestone');
+      err.status = 422;
+      throw err;
+    }
+  }
+
   const { rows } = await pool.query(
     `UPDATE work_order_milestones
      SET completed = $3,
