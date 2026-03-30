@@ -6,6 +6,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import * as dashboardApi from '../api/dashboard';
 import * as stormsApi from '../api/storms';
 import { updateTask } from '../api/crm';
+import CustomSelect from './CustomSelect';
 
 import {
   CurrencyDollarIcon,
@@ -1215,31 +1216,35 @@ export default function Dashboard() {
         <span style={{ flex: 1 }} />
         {/* Rep filter */}
         {teamMembers.length > 0 && (
-          <select
+          <CustomSelect
             value={dashRep}
-            onChange={e => setDashRep(e.target.value)}
-            className="form-input"
-            style={{ fontSize: 11, padding: '4px 8px', width: 'auto', minWidth: 100, height: 28 }}
-          >
-            <option value="">All Reps</option>
-            {teamMembers.map(m => (
-              <option key={m.id} value={m.id}>{[m.first_name, m.last_name].filter(Boolean).join(' ') || m.email}</option>
-            ))}
-          </select>
+            onChange={setDashRep}
+            placeholder="All Reps"
+            style={{ fontSize: 11, minWidth: 100, height: 28 }}
+            options={[
+              { value: '', label: 'All Reps' },
+              ...teamMembers.map(m => ({
+                value: String(m.id),
+                label: [m.first_name, m.last_name].filter(Boolean).join(' ') || m.email,
+              })),
+            ]}
+          />
         )}
         {/* Source filter */}
         {leadSources.length > 0 && (
-          <select
+          <CustomSelect
             value={dashSource}
-            onChange={e => setDashSource(e.target.value)}
-            className="form-input"
-            style={{ fontSize: 11, padding: '4px 8px', width: 'auto', minWidth: 100, height: 28 }}
-          >
-            <option value="">All Sources</option>
-            {leadSources.map(s => (
-              <option key={s} value={s}>{s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</option>
-            ))}
-          </select>
+            onChange={setDashSource}
+            placeholder="All Sources"
+            style={{ fontSize: 11, minWidth: 100, height: 28 }}
+            options={[
+              { value: '', label: 'All Sources' },
+              ...leadSources.map(s => ({
+                value: s,
+                label: s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+              })),
+            ]}
+          />
         )}
         {/* Active filter indicator */}
         {(dashRep || dashSource || dashPeriod) && (
