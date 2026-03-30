@@ -432,7 +432,7 @@ export default function ContentStudio() {
   ];
 
   return (
-    <div className="content-studio">
+    <div className="main-content content-studio">
       {/* Header */}
       <div className="content-studio__header">
         <div className="content-studio__title">

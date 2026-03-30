@@ -1977,7 +1977,7 @@ export default function StormMap() {
           }
         }
 
-        // Restore DB properties immediately (they don't need swath context)
+        // Restore DB properties (they don't need swath context)
         if (dbFeatures.length > 0) {
           propFeaturesRef.current = dbFeatures;
           for (const f of dbFeatures) {
@@ -1988,6 +1988,8 @@ export default function StormMap() {
             if (key.startsWith('fema:')) continue; // FEMA tiles restored after swaths load
             loadedTilesRef.current.add(key);
           }
+          // Yield before heavy cluster rebuild so map renders first
+          await new Promise(r => setTimeout(r, 0));
           rebuildClusterIndex(true);
           if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
         }
@@ -1995,25 +1997,33 @@ export default function StormMap() {
 
         await loadStorms(map);
 
-        // Now that swaths are loaded, restore cached FEMA features that fall inside swaths
+        // Now that swaths are loaded, restore cached FEMA features that fall inside swaths.
+        // Process in chunks to avoid blocking the main thread (Chrome "page unresponsive").
         if (cachedFema.length > 0 && stormFeaturesRef.current.length > 0) {
-          const restoredFema = cachedFema.filter(f => {
-            const [fLng, fLat] = f.geometry?.coordinates || [];
-            return fLng != null && fLat != null && pointInsideAnySwath(fLng, fLat, stormFeaturesRef.current);
-          });
-          for (const f of restoredFema) {
-            const pid = f.id || f.properties?.id;
-            if (pid && !propIdSetRef.current.has(pid)) {
-              propIdSetRef.current.add(pid);
-              propFeaturesRef.current.push(f);
-              femaCountRef.current++;
+          const CHUNK = 500;
+          let restoredCount = 0;
+          for (let i = 0; i < cachedFema.length; i += CHUNK) {
+            const chunk = cachedFema.slice(i, i + CHUNK);
+            for (const f of chunk) {
+              const [fLng, fLat] = f.geometry?.coordinates || [];
+              if (fLng == null || fLat == null) continue;
+              if (!pointInsideAnySwath(fLng, fLat, stormFeaturesRef.current)) continue;
+              const pid = f.id || f.properties?.id;
+              if (pid && !propIdSetRef.current.has(pid)) {
+                propIdSetRef.current.add(pid);
+                propFeaturesRef.current.push(f);
+                femaCountRef.current++;
+                restoredCount++;
+              }
             }
+            // Yield to main thread between chunks so UI stays responsive
+            if (i + CHUNK < cachedFema.length) await new Promise(r => setTimeout(r, 0));
           }
           // Restore FEMA tile keys so tiles aren't re-fetched
           for (const key of cachedTiles) {
             if (key.startsWith('fema:')) femaLoadedTilesRef.current.add(key);
           }
-          if (restoredFema.length > 0) {
+          if (restoredCount > 0) {
             rebuildClusterIndex(true);
             if (canvasOverlayRef.current) canvasOverlayRef.current.requestDraw();
           }

@@ -86,32 +86,34 @@ function AppShell() {
   return (
     <div className="app">
       <Sidebar activeView={activeView} onNavigate={handleNavigate} />
-      <TopBar activeView={activeView} onNavigate={handleNavigate} />
-      <Suspense fallback={<PageLoader />}>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/pipeline" element={<Pipeline />} />
-          <Route path="/leads" element={<LeadList />} />
-          <Route path="/storm-map" element={<StormMap />} />
-          <Route path="/storm-catalog" element={<StormCatalog />} />
-          <Route path="/alerts" element={<AlertSettings />} />
-          <Route path="/tasks" element={<TasksView />} />
-          <Route path="/calendar" element={<CalendarView />} />
-          <Route path="/canvassing" element={<CanvassingMode />} />
-          <Route path="/estimates" element={<EstimatesView />} />
-          <Route path="/invoices" element={<InvoicesView />} />
-          <Route path="/reports" element={<ReportsView />} />
-          <Route path="/materials" element={<MaterialsView />} />
-          <Route path="/work-orders" element={<WorkOrdersView />} />
-          <Route path="/content-studio" element={<ContentStudio />} />
-          <Route path="/contracts" element={<ContractsView />} />
-          <Route path="/expenses" element={<ExpensesView />} />
-          <Route path="/subcontractors" element={<SubcontractorsView />} />
-          <Route path="/settings" element={<SettingsView />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
+      <div className="content-area no-scrollbar">
+        <TopBar activeView={activeView} onNavigate={handleNavigate} />
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/pipeline" element={<Pipeline />} />
+            <Route path="/leads" element={<LeadList />} />
+            <Route path="/storm-map" element={<StormMap />} />
+            <Route path="/storm-catalog" element={<StormCatalog />} />
+            <Route path="/alerts" element={<AlertSettings />} />
+            <Route path="/tasks" element={<TasksView />} />
+            <Route path="/calendar" element={<CalendarView />} />
+            <Route path="/canvassing" element={<CanvassingMode />} />
+            <Route path="/estimates" element={<EstimatesView />} />
+            <Route path="/invoices" element={<InvoicesView />} />
+            <Route path="/reports" element={<ReportsView />} />
+            <Route path="/materials" element={<MaterialsView />} />
+            <Route path="/work-orders" element={<WorkOrdersView />} />
+            <Route path="/content-studio" element={<ContentStudio />} />
+            <Route path="/contracts" element={<ContractsView />} />
+            <Route path="/expenses" element={<ExpensesView />} />
+            <Route path="/subcontractors" element={<SubcontractorsView />} />
+            <Route path="/settings" element={<SettingsView />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      </div>
       <BottomTabBar activeView={activeView} onNavigate={handleNavigate} />
     </div>
   );

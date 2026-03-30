@@ -1,9 +1,21 @@
-const CACHE_NAME = 'stormpipe-v2';
+const CACHE_NAME = 'stormpipe-v3';
 const STATIC_ASSETS = [
   '/',
   '/favicon.png',
   '/stormpipe-logo.png',
 ];
+
+// In development, unregister and skip all caching
+if (self.location.hostname === 'localhost') {
+  self.addEventListener('install', () => self.skipWaiting());
+  self.addEventListener('activate', (event) => {
+    event.waitUntil(
+      caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+    );
+    self.clients.claim();
+  });
+  // No fetch handler — let everything go straight to network
+} else {
 
 // Install: cache shell assets
 self.addEventListener('install', (event) => {
@@ -56,3 +68,5 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
+} // end production-only block

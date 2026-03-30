@@ -108,7 +108,7 @@ export default function StormCatalog() {
   };
 
   return (
-    <div style={{ padding: 'var(--space-xl)', overflow: 'auto', gridRow: '2 / -1' }}>
+    <div className="main-content" style={{ padding: 'var(--space-xl)' }}>
       <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 'var(--space-lg)' }}>Storm Archive</h1>
 
       <div style={{ display: 'flex', gap: 'var(--space-sm)', marginBottom: 'var(--space-lg)', flexWrap: 'wrap' }}>

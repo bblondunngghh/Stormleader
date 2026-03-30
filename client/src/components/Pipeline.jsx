@@ -807,7 +807,7 @@ export default function Pipeline() {
 
   // ─── DESKTOP LAYOUT ───
   return (
-    <div className="main-content pb-0 !overflow-hidden !gap-0" style={{ display: 'grid', gridTemplateRows: 'auto 1fr', padding: 0 }}>
+    <div className="main-content pb-0 !overflow-hidden !gap-0" style={{ padding: 0 }}>
       {/* Header: Single-line toolbar */}
       <div
         className="glass px-4 py-2.5 mt-[var(--space-lg)] flex items-center gap-3 shadow-[0_8px_32px_oklch(0_0_0/0.25),inset_0_1px_0_oklch(1_0_0/0.05)]"
@@ -904,7 +904,7 @@ export default function Pipeline() {
       <div
         ref={panRef}
         className="overflow-auto pb-4 pt-2"
-        style={{ gridRow: '2 / 3', cursor: 'grab', userSelect: 'none' }}
+        style={{ flex: 1, minHeight: 0, cursor: 'grab', userSelect: 'none' }}
         onMouseDown={handlePanDown}
       >
         <div className="flex items-stretch" style={{ minWidth: '100%' }}>

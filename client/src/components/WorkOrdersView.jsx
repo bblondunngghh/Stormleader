@@ -904,7 +904,7 @@ export default function WorkOrdersView() {
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr', height: '100%', overflow: 'hidden', padding: 0 }}>
+    <div className="main-content !gap-0" style={{ padding: 0 }}>
       {/* Top Bar */}
       <div className="glass" style={{
         display: 'flex', alignItems: 'center', gap: 12,

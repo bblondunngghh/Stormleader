@@ -137,12 +137,23 @@ ul, ol { list-style: none; }
 .app {
   display: grid;
   grid-template-columns: auto 1fr;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: 1fr;
   height: 100vh;
   overflow: hidden;
   position: relative;
   padding: var(--space-md);
   gap: var(--space-md);
+}
+
+/* Scrollable column that holds topbar + page content */
+.content-area {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  overflow-y: auto;
+  min-height: 0; /* allow flex child to shrink below content size */
 }
 
 /* ---- Sidebar ---- */
@@ -201,8 +212,7 @@ ul, ol { list-style: none; }
   padding: 0 var(--space-sm) var(--space-lg);
 }
 
-.sidebar--collapsed ~ .topbar,
-.sidebar--collapsed ~ .main-content {
+.sidebar--collapsed ~ .content-area {
   grid-column: 2;
 }
 
@@ -413,7 +423,9 @@ ul, ol { list-style: none; }
 
 /* ---- Top Bar ---- */
 .topbar {
-  position: relative;
+  position: sticky;
+  top: 0;
+  flex-shrink: 0;
   border-radius: 20px / 18px;
   padding: 0 var(--space-2xl);
   display: flex;
@@ -887,7 +899,8 @@ ul, ol { list-style: none; }
 
 /* ---- Main Content ---- */
 .main-content {
-  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -2438,7 +2451,7 @@ select option {
   top: calc(56px + 24px + 44px + 8px);
 }
 
-.sidebar--collapsed ~ .storm-map-fullbleed .map-transparency-bar {
+.sidebar--collapsed ~ .content-area .storm-map-fullbleed .map-transparency-bar {
   /* follows the same right edge — no left override needed */
 }
 
@@ -2447,15 +2460,15 @@ select option {
 }
 
 /* When sidebar is collapsed, reduce the offset */
-.sidebar--collapsed ~ .storm-map-fullbleed .map-top-bar {
+.sidebar--collapsed ~ .content-area .storm-map-fullbleed .map-top-bar {
   left: calc(var(--space-md) + 68px + var(--space-md));
 }
 
-.sidebar--collapsed ~ .storm-map-fullbleed .map-controls__layers {
+.sidebar--collapsed ~ .content-area .storm-map-fullbleed .map-controls__layers {
   left: calc(var(--space-md) + 68px + var(--space-md));
 }
 
-.sidebar--collapsed ~ .storm-map-fullbleed .map-legends {
+.sidebar--collapsed ~ .content-area .storm-map-fullbleed .map-legends {
   left: calc(var(--space-md) + 68px + var(--space-md));
 }
 
@@ -3440,11 +3453,15 @@ input[type="checkbox"]:checked::after {
 
   .app {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: 1fr;
     overflow: auto;
     height: auto;
     min-height: 100vh;
     padding: var(--space-sm);
+    gap: var(--space-sm);
+  }
+
+  .content-area {
     gap: var(--space-sm);
   }
 
@@ -3478,7 +3495,6 @@ input[type="checkbox"]:checked::after {
     padding: var(--space-lg);
     padding-bottom: 88px; /* space for bottom tab bar */
     gap: var(--space-lg);
-    overflow: visible;
   }
 
   /* -- Bottom Tab Bar -- */
@@ -4497,19 +4513,15 @@ input[type="checkbox"]:checked::after {
    ============================================================ */
 
 /* ---- Page transitions ---- */
-@keyframes page-fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.main-content > * {
-  animation: page-fade-in 250ms var(--ease-apple) both;
-}
+/* NOTE: removed .main-content > * animation — any animation on parent
+   elements creates a stacking context that breaks backdrop-filter on
+   child .glass elements. This was causing stat cards (and other glass
+   panels) to lose their blur/opacity on every navigation. */
 
 /* ---- Stagger children ---- */
 @keyframes stagger-fade-in {
   from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: none; }
 }
 
 /* ---- Modal animations ---- */
@@ -4520,11 +4532,11 @@ input[type="checkbox"]:checked::after {
 
 @keyframes modal-scale-in {
   from { opacity: 0; transform: scale(0.95) translateY(8px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
+  to   { opacity: 1; transform: none; }
 }
 
 @keyframes modal-scale-out {
-  from { opacity: 1; transform: scale(1) translateY(0); }
+  from { opacity: 1; transform: none; }
   to   { opacity: 0; transform: scale(0.95) translateY(8px); }
 }
 
