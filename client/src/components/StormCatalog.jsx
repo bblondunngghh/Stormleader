@@ -23,6 +23,8 @@ export default function StormCatalog() {
   const [timeRange, setTimeRange] = useState('30d');
   const [search, setSearch] = useState('');
   const [locations, setLocations] = useState({});
+  const [sortBy, setSortBy] = useState('date'); // date | severity | hail | wind
+  const [typeFilter, setTypeFilter] = useState(''); // '' | Hail | Wind | Tornado
   const geocodeCacheRef = useRef({});
 
   useEffect(() => {
@@ -81,11 +83,21 @@ export default function StormCatalog() {
   }, [storms]);
 
   const filtered = storms.filter(s => {
-    if (!search) return true;
     const p = s.properties || {};
     const rd = p.raw_data || {};
-    const text = `${rd.type || ''} ${p.source || ''} ${p.hail_size_max_in || ''} ${p.wind_speed_max_mph || ''} ${rd.location || ''} ${rd.county || ''} ${rd.state || ''} ${rd.areaDesc || ''}`.toLowerCase();
-    return text.includes(search.toLowerCase());
+    // Type filter
+    if (typeFilter && typeLabel(s) !== typeFilter) return false;
+    // Search filter
+    if (search) {
+      const text = `${rd.type || ''} ${p.source || ''} ${p.hail_size_max_in || ''} ${p.wind_speed_max_mph || ''} ${rd.location || ''} ${rd.county || ''} ${rd.state || ''} ${rd.areaDesc || ''}`.toLowerCase();
+      if (!text.includes(search.toLowerCase())) return false;
+    }
+    return true;
+  }).sort((a, b) => {
+    if (sortBy === 'severity') return severityRating(b) - severityRating(a);
+    if (sortBy === 'hail') return (parseFloat(b.properties?.hail_size_max_in) || 0) - (parseFloat(a.properties?.hail_size_max_in) || 0);
+    if (sortBy === 'wind') return (parseFloat(b.properties?.wind_speed_max_mph) || 0) - (parseFloat(a.properties?.wind_speed_max_mph) || 0);
+    return new Date(b.properties?.event_start || 0) - new Date(a.properties?.event_start || 0);
   });
 
   const typeLabel = (s) => {
@@ -107,11 +119,58 @@ export default function StormCatalog() {
     return 'oklch(0.75 0.10 200)';
   };
 
+  // Storm severity rating (1-5 stars) — HailTrace-style severity assessment
+  // Factors: hail size, wind speed, storm type, area coverage
+  const severityRating = (s) => {
+    const p = s.properties || {};
+    let score = 0;
+    const hail = parseFloat(p.hail_size_max_in) || 0;
+    const wind = parseFloat(p.wind_speed_max_mph) || 0;
+    const type = typeLabel(s);
+
+    // Hail size scoring (0-3 points)
+    if (hail >= 2.5) score += 3;
+    else if (hail >= 1.75) score += 2.5;
+    else if (hail >= 1.5) score += 2;
+    else if (hail >= 1.0) score += 1.5;
+    else if (hail >= 0.75) score += 1;
+    else if (hail > 0) score += 0.5;
+
+    // Wind speed scoring (0-2 points)
+    if (wind >= 80) score += 2;
+    else if (wind >= 65) score += 1.5;
+    else if (wind >= 58) score += 1;
+    else if (wind >= 40) score += 0.5;
+
+    // Type bonus
+    if (type === 'Tornado') score += 2;
+    else if (type === 'Severe Thunderstorm') score += 0.5;
+
+    // Clamp to 1-5 range
+    return Math.max(1, Math.min(5, Math.round(score)));
+  };
+
+  const severityLabel = (rating) => {
+    if (rating >= 5) return 'Extreme';
+    if (rating >= 4) return 'Severe';
+    if (rating >= 3) return 'Significant';
+    if (rating >= 2) return 'Moderate';
+    return 'Minor';
+  };
+
+  const severityColor = (rating) => {
+    if (rating >= 5) return 'oklch(0.60 0.25 30)';
+    if (rating >= 4) return 'oklch(0.65 0.20 40)';
+    if (rating >= 3) return 'oklch(0.72 0.18 55)';
+    if (rating >= 2) return 'oklch(0.75 0.15 85)';
+    return 'oklch(0.7 0.10 145)';
+  };
+
   return (
     <div className="main-content" style={{ padding: 'var(--space-xl)' }}>
       <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 'var(--space-lg)' }}>Storm Archive</h1>
 
-      <div style={{ display: 'flex', gap: 'var(--space-sm)', marginBottom: 'var(--space-lg)', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-sm)', marginBottom: 'var(--space-sm)', flexWrap: 'wrap' }}>
         {TIME_RANGES.map(tr => (
           <button key={tr.id}
             className={`btn ${timeRange === tr.id ? 'btn-primary' : 'btn-secondary'}`}
@@ -128,6 +187,38 @@ export default function StormCatalog() {
           onChange={e => setSearch(e.target.value)}
           style={{ flex: 1, minWidth: 180, fontSize: 13 }}
         />
+      </div>
+      {/* Type filter + sort controls */}
+      <div style={{ display: 'flex', gap: 'var(--space-sm)', marginBottom: 'var(--space-lg)', flexWrap: 'wrap', alignItems: 'center' }}>
+        {['', 'Hail', 'Wind', 'Tornado'].map(t => (
+          <button key={t}
+            onClick={() => setTypeFilter(t)}
+            style={{
+              padding: '4px 12px', borderRadius: 'var(--radius-pill)', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+              border: typeFilter === t ? '1px solid oklch(0.7 0.15 220 / 0.4)' : '1px solid transparent',
+              background: typeFilter === t ? 'oklch(0.7 0.15 220 / 0.12)' : 'transparent',
+              color: typeFilter === t ? 'oklch(0.8 0.12 220)' : 'var(--text-muted)',
+            }}
+          >{t || 'All Types'}</button>
+        ))}
+        <span style={{ flex: 1 }} />
+        <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>Sort:</span>
+        {[
+          { key: 'date', label: 'Date' },
+          { key: 'severity', label: 'Severity' },
+          { key: 'hail', label: 'Hail Size' },
+          { key: 'wind', label: 'Wind' },
+        ].map(opt => (
+          <button key={opt.key}
+            onClick={() => setSortBy(opt.key)}
+            style={{
+              padding: '4px 10px', borderRadius: 'var(--radius-pill)', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+              border: sortBy === opt.key ? '1px solid oklch(0.72 0.15 145 / 0.4)' : '1px solid transparent',
+              background: sortBy === opt.key ? 'oklch(0.72 0.15 145 / 0.12)' : 'transparent',
+              color: sortBy === opt.key ? 'oklch(0.8 0.12 145)' : 'var(--text-muted)',
+            }}
+          >{opt.label}</button>
+        ))}
       </div>
 
       <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 'var(--space-md)' }}>
@@ -155,11 +246,43 @@ export default function StormCatalog() {
                 onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: typeColor(s) }}>{typeLabel(s)}</span>
-                  <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{date} {time}</span>
-                </div>
-                {loc && <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{loc}</div>}
+                {(() => {
+                  const rating = severityRating(s);
+                  const sColor = severityColor(rating);
+                  return (
+                    <>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: typeColor(s) }}>{typeLabel(s)}</span>
+                          {/* Severity stars */}
+                          <span title={`${severityLabel(rating)} (${rating}/5)`} style={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                            {[1, 2, 3, 4, 5].map(i => (
+                              <svg key={i} width={12} height={12} viewBox="0 0 20 20" fill={i <= rating ? sColor : 'none'} stroke={sColor} strokeWidth={1.5}>
+                                <path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 14.35 5.06 16.7 6 11.21l-4-3.9 5.53-.8z" />
+                              </svg>
+                            ))}
+                          </span>
+                        </div>
+                        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{date} {time}</span>
+                      </div>
+                      {/* Severity label */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: loc ? 0 : 8 }}>
+                        <span style={{
+                          fontSize: 9, fontWeight: 800, padding: '1px 6px', borderRadius: 4,
+                          background: `color-mix(in oklch, ${sColor} 15%, transparent)`,
+                          color: sColor, textTransform: 'uppercase', letterSpacing: '0.05em',
+                        }}>{severityLabel(rating)}</span>
+                        {p.hail_size_max_in && parseFloat(p.hail_size_max_in) >= 1.5 && (
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 4,
+                            background: 'oklch(0.45 0.18 310 / 0.2)', color: 'oklch(0.70 0.22 310)',
+                          }}>DAMAGE LIKELY</span>
+                        )}
+                      </div>
+                    </>
+                  );
+                })()}
+                {loc && <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, marginTop: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{loc}</div>}
                 <div style={{ display: 'flex', gap: 'var(--space-lg)', fontSize: 12 }}>
                   {p.hail_size_max_in && (
                     <div>
