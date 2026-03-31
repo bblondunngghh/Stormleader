@@ -162,7 +162,7 @@ export async function generateLeadsFromStorm(tenantId, stormEventId, propertyIds
  * List leads for a tenant with optional filters.
  */
 export async function getLeads(tenantId, filters = {}) {
-  const { stage, priority, stormEventId, assignedRepId, limit = 50, offset = 0 } = filters;
+  const { stage, priority, stormEventId, assignedRepId, needsFollowup, unassigned, source, scoreMin, limit = 50, offset = 0 } = filters;
   const params = [tenantId];
   const conditions = ['l.tenant_id = $1'];
 
@@ -181,6 +181,25 @@ export async function getLeads(tenantId, filters = {}) {
   if (assignedRepId) {
     params.push(assignedRepId);
     conditions.push(`l.assigned_rep_id = $${params.length}`);
+  }
+  if (needsFollowup) {
+    // Leads with last outreach > 3 days ago or no outreach at all, excluding closed stages
+    conditions.push(`l.stage NOT IN ('closed_won', 'closed_lost', 'sold', 'lost')`);
+    conditions.push(`(
+      NOT EXISTS (SELECT 1 FROM outreach_log o WHERE o.lead_id = l.id)
+      OR (SELECT MAX(o2.created_at) FROM outreach_log o2 WHERE o2.lead_id = l.id) < NOW() - INTERVAL '3 days'
+    )`);
+  }
+  if (unassigned) {
+    conditions.push(`(l.assigned_rep_id IS NULL)`);
+  }
+  if (source) {
+    params.push(source);
+    conditions.push(`l.source = $${params.length}`);
+  }
+  if (scoreMin) {
+    params.push(scoreMin);
+    conditions.push(`COALESCE(l.lead_score, 0) >= $${params.length}`);
   }
 
   params.push(limit, offset);

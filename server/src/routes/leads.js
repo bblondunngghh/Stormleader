@@ -84,13 +84,17 @@ router.use(tenantScope);
 // GET /api/leads — List leads for tenant with filters
 router.get('/', async (req, res, next) => {
   try {
-    const { stage, priority, storm_event_id, assigned_rep_id, limit = '50', offset = '0' } = req.query;
+    const { stage, priority, storm_event_id, assigned_rep_id, needs_followup, unassigned, source, score_min, limit = '50', offset = '0' } = req.query;
 
     const result = await leadService.getLeads(req.tenantId, {
       stage: stage || undefined,
       priority: priority || undefined,
       stormEventId: storm_event_id || undefined,
       assignedRepId: assigned_rep_id || undefined,
+      needsFollowup: needs_followup === 'true' || undefined,
+      unassigned: unassigned === 'true' || undefined,
+      source: source || undefined,
+      scoreMin: score_min ? parseInt(score_min, 10) : undefined,
       limit: parseInt(limit, 10),
       offset: parseInt(offset, 10),
     });
