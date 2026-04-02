@@ -97,27 +97,81 @@ export default function SettingsView() {
 // ============================================================
 
 function ProfileTab({ user }) {
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    email: user?.email || '',
+  });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (user) setForm({ firstName: user.firstName || '', lastName: user.lastName || '', email: user.email || '' });
+  }, [user]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await client.patch('/auth/me', form);
+      showToast('Profile updated', 'success');
+      setEditing(false);
+    } catch {
+      showToast('Failed to update profile', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
-      <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 'var(--space-lg)' }}>Profile</div>
-      <div className="detail-grid">
-        <div className="detail-item">
-          <span className="detail-item__label">Name</span>
-          <span className="detail-item__value">{user?.firstName || ''} {user?.lastName || ''}</span>
-        </div>
-        <div className="detail-item">
-          <span className="detail-item__label">Email</span>
-          <span className="detail-item__value">{user?.email || '—'}</span>
-        </div>
-        <div className="detail-item">
-          <span className="detail-item__label">Role</span>
-          <span className="detail-item__value" style={{ textTransform: 'capitalize' }}>{user?.role || '—'}</span>
-        </div>
-        <div className="detail-item">
-          <span className="detail-item__label">Tenant ID</span>
-          <span className="detail-item__value" style={{ fontSize: 11, fontFamily: 'monospace' }}>{user?.tenantId || '—'}</span>
-        </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-lg)' }}>
+        <div style={{ fontSize: 15, fontWeight: 700 }}>Profile</div>
+        {!editing && (
+          <button className="quick-action-btn" style={{ fontSize: 12, padding: '6px 14px' }} onClick={() => setEditing(true)}>
+            Edit Profile
+          </button>
+        )}
       </div>
+
+      {editing ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)', maxWidth: 400 }}>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>First Name</label>
+            <input className="form-input" value={form.firstName} onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))} />
+          </div>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>Last Name</label>
+            <input className="form-input" value={form.lastName} onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))} />
+          </div>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>Email</label>
+            <input className="form-input" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+          </div>
+          <div style={{ display: 'flex', gap: 'var(--space-sm)', marginTop: 'var(--space-sm)' }}>
+            <button className="auth-btn" onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Save'}</button>
+            <button className="quick-action-btn" style={{ fontSize: 12, padding: '6px 14px' }} onClick={() => { setEditing(false); setForm({ firstName: user?.firstName || '', lastName: user?.lastName || '', email: user?.email || '' }); }}>Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <div className="detail-grid">
+          <div className="detail-item">
+            <span className="detail-item__label">Name</span>
+            <span className="detail-item__value">{user?.firstName || ''} {user?.lastName || ''}</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-item__label">Email</span>
+            <span className="detail-item__value">{user?.email || '—'}</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-item__label">Role</span>
+            <span className="detail-item__value" style={{ textTransform: 'capitalize' }}>{user?.role || '—'}</span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-item__label">Tenant ID</span>
+            <span className="detail-item__value" style={{ fontSize: 11, fontFamily: 'monospace' }}>{user?.tenantId || '—'}</span>
+          </div>
+        </div>
+      )}
 
       <div style={{ marginTop: 'var(--space-xl)', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
         <strong>StormPipe</strong> — Storm damage lead management platform.<br />

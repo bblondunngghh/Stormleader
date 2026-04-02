@@ -117,6 +117,29 @@ router.get('/me', authenticate, async (req, res, next) => {
   }
 });
 
+// PATCH /api/auth/me — update profile (name, email)
+router.patch('/me', authenticate, async (req, res, next) => {
+  try {
+    const { firstName, lastName, email } = req.body;
+    const sets = [];
+    const params = [];
+    if (firstName !== undefined) { params.push(firstName); sets.push(`first_name = $${params.length}`); }
+    if (lastName !== undefined) { params.push(lastName); sets.push(`last_name = $${params.length}`); }
+    if (email !== undefined) { params.push(email); sets.push(`email = $${params.length}`); }
+    if (sets.length === 0) return res.status(400).json({ error: 'No fields to update' });
+    params.push(req.user.id);
+    const { rows } = await pool.query(
+      `UPDATE users SET ${sets.join(', ')}, updated_at = NOW() WHERE id = $${params.length} RETURNING id, first_name, last_name, email, role`,
+      params
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
+    const u = rows[0];
+    res.json({ user: { id: u.id, firstName: u.first_name, lastName: u.last_name, email: u.email, role: u.role } });
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.post('/refresh', refreshLimiter, validate(refreshSchema), async (req, res, next) => {
   try {
     const result = await authService.refreshToken(req.body.refreshToken);
