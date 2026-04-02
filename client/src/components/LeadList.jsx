@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { getLeads, bulkAssign, bulkStatus } from '../api/crm';
+import { getLeads, bulkAssign, bulkStatus, getTeamMembers } from '../api/crm';
 const LeadDetail = lazy(() => import('./LeadDetail'));
 import { IconSearch, IconDownload, IconFilter, IconX, IconUpload } from './Icons';
 import CustomSelect from './CustomSelect';
@@ -118,6 +118,7 @@ export default function LeadList() {
 
   const [exporting, setExporting] = useState(false);
   const [showImport, setShowImport] = useState(false);
+  const [teamMembers, setTeamMembers] = useState([]);
 
   // Saved filter presets (localStorage)
   const [filterPresets, setFilterPresets] = useState(() => {
@@ -161,6 +162,11 @@ export default function LeadList() {
   };
 
   const hasActiveFilters = stageFilter || priorityFilter || sourceFilter || scoreFilter || search;
+
+  // Fetch team members for bulk assign dropdown
+  useEffect(() => {
+    getTeamMembers().then(r => setTeamMembers(r.data?.members || r.data || [])).catch(() => {});
+  }, []);
 
   // Sync state to URL
   useEffect(() => {
@@ -534,7 +540,13 @@ export default function LeadList() {
           )}
 
           {bulkAction === 'assign' && (
-            <input className="form-input" placeholder="Rep user ID" value={bulkValue} onChange={e => setBulkValue(e.target.value)} style={{ maxWidth: 200, fontSize: 12 }} />
+            <CustomSelect
+              value={bulkValue}
+              onChange={(v) => setBulkValue(v)}
+              placeholder="Select rep..."
+              options={[{ value: '', label: 'Select rep...' }, ...teamMembers.map(m => ({ value: m.id, label: `${m.first_name} ${m.last_name || ''}`.trim() }))]}
+              style={{ minWidth: 160 }}
+            />
           )}
 
           {bulkAction && bulkValue && (
