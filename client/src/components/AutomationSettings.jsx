@@ -61,6 +61,7 @@ export default function AutomationSettings() {
   const [editId, setEditId] = useState(null);
   const [teamMembers, setTeamMembers] = useState([]);
   const [form, setForm] = useState(getEmptyForm());
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
   function getEmptyForm() {
     return {
@@ -88,10 +89,10 @@ export default function AutomationSettings() {
   }
 
   async function handleDelete(id) {
-    if (!confirm('Delete this automation rule?')) return;
     try {
       await deleteAutomation(id);
       setAutomations(prev => prev.filter(a => a.id !== id));
+      setPendingDeleteId(null);
       showToast('Automation deleted');
     } catch { showToast('Failed to delete', 'error'); }
   }
@@ -293,14 +294,36 @@ export default function AutomationSettings() {
                 }}>
                 Edit
               </button>
-              <button onClick={() => handleDelete(auto.id)}
-                style={{
-                  padding: '6px 12px', borderRadius: 'var(--radius-sm)', fontSize: 12, fontWeight: 600,
-                  border: '1px solid oklch(0.55 0.2 25 / 0.3)', cursor: 'pointer',
-                  background: 'transparent', color: 'oklch(0.70 0.18 25)',
-                }}>
-                Delete
-              </button>
+              {pendingDeleteId === auto.id ? (
+                <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <span style={{ fontSize: 11, color: 'oklch(0.70 0.18 25)' }}>Delete?</span>
+                  <button onClick={() => handleDelete(auto.id)}
+                    style={{
+                      padding: '4px 10px', borderRadius: 'var(--radius-sm)', fontSize: 11, fontWeight: 700,
+                      border: '1px solid oklch(0.55 0.2 25 / 0.5)', cursor: 'pointer',
+                      background: 'oklch(0.35 0.15 25 / 0.3)', color: 'oklch(0.70 0.18 25)',
+                    }}>
+                    Yes
+                  </button>
+                  <button onClick={() => setPendingDeleteId(null)}
+                    style={{
+                      padding: '4px 10px', borderRadius: 'var(--radius-sm)', fontSize: 11, fontWeight: 600,
+                      border: '1px solid var(--glass-border)', cursor: 'pointer',
+                      background: 'transparent', color: 'var(--text-muted)',
+                    }}>
+                    No
+                  </button>
+                </span>
+              ) : (
+                <button onClick={() => setPendingDeleteId(auto.id)}
+                  style={{
+                    padding: '6px 12px', borderRadius: 'var(--radius-sm)', fontSize: 12, fontWeight: 600,
+                    border: '1px solid oklch(0.55 0.2 25 / 0.3)', cursor: 'pointer',
+                    background: 'transparent', color: 'oklch(0.70 0.18 25)',
+                  }}>
+                  Delete
+                </button>
+              )}
             </div>
           ))}
         </div>

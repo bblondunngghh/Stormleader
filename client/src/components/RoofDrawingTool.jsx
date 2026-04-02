@@ -7,6 +7,7 @@ import {
   polygonAreaSqFt, trueRoofArea, haversineDistanceFt as haversineFt,
   classifyEdges, snapToVertex, isNearFirstVertex, polygonCentroid,
 } from '../utils/roofPolygonUtils';
+import { showToast } from './Toast';
 
 if (!mapboxgl.accessToken) {
   mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN || '';
@@ -482,7 +483,7 @@ export default function RoofDrawingTool({ propertyId, lat, lng, address, roofPit
       onSave?.();
       onClose();
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to save measurements');
+      showToast(err.response?.data?.error || 'Failed to save measurements', 'error');
     } finally {
       setSaving(false);
     }

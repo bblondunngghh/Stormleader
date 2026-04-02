@@ -26,6 +26,7 @@ import {
   DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 import PhotoAnnotator from './PhotoAnnotator';
+import { showToast } from './Toast';
 
 function cleanAddr(str) {
   if (!str) return '';
@@ -1599,9 +1600,9 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                     const res = await client.post(`/leads/${leadId}/status-token`);
                     const fullUrl = `${window.location.origin}${res.data.url}`;
                     await navigator.clipboard.writeText(fullUrl);
-                    alert('Status page link copied to clipboard!');
+                    showToast('Status page link copied to clipboard!', 'success');
                   } catch {
-                    alert('Failed to generate status link');
+                    showToast('Failed to generate status link', 'error');
                   }
                 }}
               >
