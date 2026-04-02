@@ -383,3 +383,69 @@ and what should be prioritized next. Future agents MUST read this before startin
 - The `photo_required` enforcement pattern (prevent milestone toggle without photos) is a clean way to add quality gates without changing the milestone data model significantly.
 - Storm severity ratings can be calculated client-side from existing hail size and wind speed data — no new API calls needed.
 - Always use the project's `CustomSelect` component for dropdowns, never native `<select>` — this was caught in the UI consistency pass and applies to all future work.
+
+---
+
+## Run: 2026-03-31
+
+### What was done
+- **App Inventory Update**: Full audit of 23 protected + 6 public routes, 38 backend route files (187+ endpoints). No functional code changes — inventory-only run.
+
+### Competitor areas covered
+- Areas completed: None (docs-only run)
+- Stopped at: N/A
+- Next run should start at: Bugs and UX issues identified in app inventory
+
+### What was skipped and why
+- All feature work — run was scoped to inventory and documentation only
+
+### Lessons learned
+- Inventory-only runs are useful for identifying specific bugs and UX gaps that get missed during feature-focused runs.
+
+---
+
+## Run: 2026-04-01
+
+### What was done
+- **App Inventory Update**: Refreshed 23-page + 38 backend module inventory. Confirmed no functional changes since 2026-03-31 inventory. Identified 4 specific issues for next run: needs_followup 500 error, bulk assign rep UUID input, browser alert/confirm dialogs, read-only profile.
+
+### Competitor areas covered
+- Areas completed: None (docs-only run)
+- Stopped at: N/A
+- Next run should start at: Fix the 4 issues identified in inventory
+
+### What was skipped and why
+- All feature work — run was scoped to inventory and documentation only
+
+### Lessons learned
+- Two consecutive inventory-only runs confirmed the same 4 issues — the next run must fix them rather than re-auditing.
+
+---
+
+## Run: 2026-04-02
+
+### What was done
+- Fixed needs_followup filter 500 error — rewrote query to use activities table instead of nonexistent outreach_log table
+- Fixed bulk Assign Rep — replaced UUID text input with CustomSelect team member dropdown (vs JobNimbus/RoofLink)
+- Replaced 4 browser alert/confirm dialogs with Toast notifications and inline confirms (vs all competitors)
+- Added Profile edit form to Settings with backend PATCH endpoint (vs all competitors — table stakes feature)
+- Refreshed competitor UI research document with current Firecrawl scrapes
+- Verified all changes pass UI consistency check (oklch colors, glass panels, CustomSelect, form-input classes)
+
+### Competitor areas covered
+- Areas completed: UX polish across Leads, Settings, Lead Detail, Automations, Roof Drawing Tool
+- Stopped at: All 4 planned fixes completed
+- Next run should start at: Hail swath color graduation (#1 visual gap vs HailTrace)
+
+### What was skipped and why
+- Hail swath color graduation — #1 visual gap but requires significant map rendering work
+- Server-side PDF estimates — needs pdfmake integration, medium-large effort
+- QuickBooks sync — needs OAuth flow setup, large effort
+- In-app SMS — requires Twilio account and real costs
+- LLM content generation — needs API integration, medium effort
+
+### Lessons learned
+- The outreach_log table was referenced in code but never migrated to production — always verify that tables exist before writing queries against them.
+- Two consecutive inventory-only runs (March 31 + April 1) successfully identified the exact 4 issues that needed fixing — structured auditing before coding pays off.
+- Browser alert/confirm dialogs are easy to miss during development but instantly make the app feel unprofessional — a systematic audit catches them all at once.
+- Profile editing is such a basic feature that its absence stood out in every competitor comparison — never skip table-stakes features for flashy ones.

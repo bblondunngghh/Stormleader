@@ -1,107 +1,88 @@
-# Overnight Report — 2026-03-30
+# Overnight Report — 2026-04-02
 
 ## Executive Summary
 
-Tonight's run closed 5 competitor gaps identified in the updated app inventory and UI research. Dashboard filter controls (vs JobNimbus Insights), A/R invoice aging (vs JobNimbus), photo-required milestone stops (vs RoofLink), storm catalog severity ratings and filtering (vs HailTrace), and Content Studio sidebar discovery were all shipped. Backend work for LeadList quick filters is written but uncommitted.
+Tonight's run fixed 4 usability issues identified in the app inventory audit and competitor research. A broken "Needs Follow-up" filter was repaired, the unusable bulk "Assign Rep" text input was replaced with a team member dropdown (matching JobNimbus/RoofLink), all browser alert/confirm dialogs were replaced with in-app toast notifications and inline confirms, and a Profile edit form was added to Settings (every competitor has this). The competitor UI research document was also refreshed with current scrapes.
 
 ---
 
 ## Competitor Comparisons & Improvements Made
 
-### 1. Dashboard Filter Controls (vs JobNimbus Insights)
+### 1. Bulk Assign Rep Dropdown (vs JobNimbus / RoofLink)
 
-**Competitor studied:** JobNimbus Sales Dashboard filters all widgets by sales rep, job type, lead source, and date range. Managers use this to evaluate individual rep performance and source ROI.
+**Competitor studied:** Both JobNimbus and RoofLink allow bulk lead assignment via a dropdown that lists team members by name. Users select leads, pick a rep from a dropdown, and assign in one click.
 
-**Before:** Dashboard showed aggregate stats only. No way to slice data by rep, source, or time period. Managers had to mentally filter or export to Excel.
+**Before:** The bulk "Assign Rep" action in the Leads table opened a raw text input that expected users to paste a UUID. Completely unusable — no user would know their team member's UUID.
 
-**What changed:** Added three filter dropdowns to the dashboard header — Rep, Source, and Time Period. All stat cards, funnel, and activity widgets now respect these filters. Backend dashboard service accepts `rep_id`, `source`, and `period` query parameters and applies them to all queries.
+**What changed:** Replaced the UUID text input with a CustomSelect dropdown that fetches and displays all team member names. Selecting a rep and confirming assigns them to all checked leads.
 
-**Where to see it:** Dashboard page — filter bar below the page header.
-
-**Follow-up fix:** Native `<select>` elements were replaced with the project's `CustomSelect` component to maintain glassmorphism design consistency.
+**Where to see it:** Leads page — select multiple leads via checkbox, click "Assign Rep" in the bulk actions bar.
 
 ---
 
-### 2. A/R Aging Summary (vs JobNimbus)
+### 2. Toast Notifications Replace Browser Dialogs (vs All Competitors)
 
-**Competitor studied:** JobNimbus sorts overdue invoices into aging buckets (Current, 1-30, 31-60, 61-90, 91+ days) with summary totals. Standard accounting view that contractors and bookkeepers expect.
+**Competitor studied:** Every modern competitor (JobNimbus, RoofLink, Rooftops.ai) uses custom modals and toast notifications. None use browser-native alert() or confirm() dialogs.
 
-**Before:** Invoices page had overdue badges on individual invoices but no aging analysis or summary view.
+**Before:** Four places in the app used browser-native dialogs: AutomationSettings used confirm() for delete confirmation, LeadDetail used alert() twice for status page link feedback, and RoofDrawingTool used alert() for measurement errors. These dialogs blocked the UI thread and broke the glass aesthetic.
 
-**What changed:** Added an A/R aging summary bar with 5 buckets: Current, 1-30 Days, 31-60 Days, 61-90 Days, and 91+ Days. Each bucket shows count and dollar total, color-coded from green (current) to red (91+).
+**What changed:** AutomationSettings now uses an inline Yes/No confirm pattern. LeadDetail and RoofDrawingTool use showToast() for success and error feedback.
 
-**Where to see it:** Invoices page — aging summary appears above the invoice list.
-
----
-
-### 3. Photo-Required Milestone Stops (vs RoofLink)
-
-**Competitor studied:** RoofLink's production workflow blocks stage advancement if required photos haven't been uploaded. Crews can't mark "Install Complete" without install photos.
-
-**Before:** Work order milestones could be marked complete without any documentation.
-
-**What changed:** Added a `photo_required` flag to milestone templates. When enabled, the milestone cannot be toggled complete unless at least one photo has been uploaded. Camera icon badge on required milestones with warning on attempted completion without photos. Database migration adds the column, backend enforces the constraint.
-
-**Where to see it:** Work Orders — open any work order detail; milestones with the camera badge require photos before completion.
+**Where to see it:** Settings > Automations (delete an automation), Lead Detail (copy status page link), Roof Drawing Tool (measurement validation).
 
 ---
 
-### 4. Storm Catalog Severity Ratings, Type Filters, and Sorting (vs HailTrace)
+### 3. Profile Edit Form in Settings (vs All Competitors)
 
-**Competitor studied:** HailTrace uses a 1-5 star rating per storm based on affected properties, max hail size, and damage probability. They offer filtering by storm type and severity.
+**Competitor studied:** JobNimbus, RoofLink, and Rooftops.ai all provide editable user profiles where users can update their name and email. This is table stakes for any SaaS product.
 
-**Before:** Storm catalog was a flat, unsortable list of storm cards. No severity rating, no type filter, no sort options.
+**Before:** The Settings > Profile tab was completely read-only. Users could see their name and email but had no way to update them.
 
-**What changed:** Added a severity rating algorithm (1-5 scale) based on max hail size, wind speed, and tornado presence. Added type filter dropdown (All, Hail, Wind, Tornado). Added sort options (Newest, Oldest, Most Severe, Largest Hail, Highest Wind). Severity badges display as colored pills on each card.
+**What changed:** Added an Edit/Save/Cancel flow to the Profile tab. Users click Edit, modify their name or email, and Save. The backend PATCH /api/auth/me endpoint validates and updates the user record. The form uses the existing glass design system (`.glass`, `.form-input`, `auth-btn` classes).
 
-**Where to see it:** Storm Catalog page — filter and sort controls at the top, severity badges on each card.
-
----
-
-### 5. Content Studio Sidebar Link (Discovery Fix)
-
-**Before:** Content Studio was fully built but only accessible via direct URL `/content-studio`. Not discoverable.
-
-**What changed:** Added Content Studio to the sidebar navigation menu.
-
-**Where to see it:** Sidebar navigation.
+**Where to see it:** Settings > Profile tab — click the Edit button.
 
 ---
 
 ## New Features Built
 
-No net-new feature categories were built this session. All work was targeted gap-closing on existing pages based on the competitor research prioritization.
+No net-new features were built this run. All 4 commits were UX fixes and parity improvements identified from the app inventory audit.
+
+---
+
+## Bug Fixes
+
+### Needs Follow-up Filter 500 Error
+
+The "Needs Follow-up" quick filter button on the Leads page returned a server 500 error. Root cause: the filter queried an `outreach_log` table that was never migrated to production. The backend was rewritten to use the existing `activities` table instead, pulling direction from the metadata JSONB column. The same fix was applied to the dashboard's getActivity query.
 
 ---
 
 ## Features Still Behind Competitors
 
 ### High Priority
-1. **QuickBooks Sync** — JobNimbus and RoofLink both sync invoices. The #1 integration gap preventing adoption by established contractors. Free developer tier available.
-2. **Server-Side PDF Estimates** — Current "PDF" is browser print dialog. JobNimbus/SumoQuote generate branded multi-page PDFs with cover pages, photos, and terms. Most visible quality gap to customers.
-3. **In-App SMS Texting** — JobNimbus charges $49-249/mo for Engage. Twilio costs ~$0.0075/msg. Field teams' #1 requested feature.
-4. **Hail Swath Color Graduation** — HailTrace color-codes swaths by hail size. Our swaths are uniform color. Key visual credibility signal.
+1. **Hail swath color graduation** (vs HailTrace) — Storm swaths render in a single uniform color. HailTrace uses color-graduated severity zones ("Purple Zones") that help roofers instantly identify the highest-damage areas. This is the #1 visual credibility gap on the map.
+2. **Server-side PDF estimates** (vs JobNimbus/SumoQuote) — Estimates currently use browser print dialog. Competitors generate professional branded PDFs server-side. Needs pdfmake or similar integration.
+3. **QuickBooks sync** (vs JobNimbus/RoofLink) — No accounting integration. Both major competitors push invoices to QuickBooks. Needs OAuth flow setup.
 
 ### Medium Priority
-5. **Calendar Appointment Scheduling** — Calendar shows events but can't create appointments. Field teams need click-to-create.
-6. **AI-Powered Content Generation** — Content Studio uses templates, not LLM generation. Rooftops.ai and QuoteIQ both have AI content.
-7. **Profile Tab Edit Mode** — Settings > Profile is read-only. Users can't change name or password.
-8. **Receipt Upload on Expenses** — No file attachment. Contractors photograph receipts constantly.
+4. **In-app SMS threading** (vs JobNimbus Engage) — SMS currently opens the native phone app. JobNimbus has in-app two-way texting. Requires Twilio account and real per-message costs.
+5. **LLM-powered content generation** (vs Rooftops.ai) — Content Studio uses templates, not AI. Rooftops.ai has GPT-powered content generation. Needs cheap LLM integration.
+6. **Calendar appointment scheduling** (vs JobNimbus) — Calendar shows existing events but has no click-to-create or Google Calendar sync.
+7. **Custom dashboard widgets** (vs RoofLink) — Dashboard layout is fixed. RoofLink allows drag-to-rearrange widget positioning.
 
 ### Lower Priority
-9. **Recurring Tasks** — JobNimbus has daily/weekly/monthly recurrence.
-10. **Google Calendar Sync** — Complex OAuth but high value.
+8. **Per-layer opacity sliders on map** (vs HailTrace) — Single global opacity slider vs HailTrace's per-layer controls.
+9. **Receipt photo upload on expenses** — Expense tracking has no receipt attachment capability.
+10. **Recurring tasks** — Tasks are one-off only; no recurrence patterns.
 
 ---
 
 ## Where I Stopped
 
-### In Progress: LeadList Quick Filters Backend
+All 4 planned improvements from the app inventory were completed and committed. The competitor UI research document was refreshed. No work was left in progress.
 
-Backend code for `needs_followup`, `unassigned`, `source`, and `score_min` query parameters has been written in the leads route and service but is **not committed**. The `needs_followup` filter finds leads with no outreach or last outreach older than 3 days. The `unassigned` filter finds leads with no assigned rep.
-
-**Next run should:**
-1. Test the uncommitted quick filter changes, verify, and commit
-2. Wire frontend LeadList quick filter buttons to the new backend parameters
-3. Move to server-side PDF estimates (highest quality gap)
-4. Then QuickBooks sync (highest integration gap)
+**Next run should start at:**
+1. Hail swath color graduation (highest-impact visual gap vs HailTrace)
+2. Server-side PDF estimate generation (highest-impact professional quality gap)
+3. QuickBooks OAuth + invoice sync (highest-impact integration gap)
