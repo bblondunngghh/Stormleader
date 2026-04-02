@@ -186,8 +186,8 @@ export async function getLeads(tenantId, filters = {}) {
     // Leads with last outreach > 3 days ago or no outreach at all, excluding closed stages
     conditions.push(`l.stage NOT IN ('closed_won', 'closed_lost', 'sold', 'lost')`);
     conditions.push(`(
-      NOT EXISTS (SELECT 1 FROM outreach_log o WHERE o.lead_id = l.id)
-      OR (SELECT MAX(o2.created_at) FROM outreach_log o2 WHERE o2.lead_id = l.id) < NOW() - INTERVAL '3 days'
+      NOT EXISTS (SELECT 1 FROM activities a WHERE a.lead_id = l.id AND a.type IN ('call', 'email', 'text', 'door_knock'))
+      OR (SELECT MAX(a2.created_at) FROM activities a2 WHERE a2.lead_id = l.id AND a2.type IN ('call', 'email', 'text', 'door_knock')) < NOW() - INTERVAL '3 days'
     )`);
   }
   if (unassigned) {

@@ -105,9 +105,9 @@ export async function getActivity(tenantId, limit = 20, filters = {}) {
   }
   params.push(limit);
   const { rows } = await pool.query(
-    `SELECT o.id, o.type, o.direction, o.outcome, o.notes, o.created_at,
+    `SELECT o.id, o.type, o.metadata->>'direction' AS direction, o.outcome, o.notes, o.created_at,
             l.contact_name, l.address, l.id AS lead_id
-     FROM outreach_log o
+     FROM activities o
      JOIN leads l ON l.id = o.lead_id
      WHERE ${conditions.join(' AND ')}
      ORDER BY o.created_at DESC
@@ -118,7 +118,7 @@ export async function getActivity(tenantId, limit = 20, filters = {}) {
   return rows.map((r) => ({
     id: r.id,
     type: r.type,
-    direction: r.direction,
+    direction: r.direction || null,
     outcome: r.outcome,
     notes: r.notes,
     createdAt: r.created_at,
