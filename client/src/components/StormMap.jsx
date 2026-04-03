@@ -4,7 +4,7 @@ import Supercluster from 'supercluster';
 import { loadGoogleMaps } from '../lib/googleMaps';
 import { cacheProperties, loadCachedProperties, cacheTileKeys, loadCachedTileKeys, clearPropertyCache } from '../lib/propertyCache';
 import { getSwaths, getPropertiesInSwath, getSwathPropertyCount, createProperty, fetchFemaData, getFemaLiveProperties, getStormHistory, getHailHeatmap } from '../api/storms';
-import { addPropertyToPipeline, createManualLead } from '../api/crm';
+import { addPropertyToPipeline, createManualLead, createCanvassPin } from '../api/crm';
 import client from '../api/client';
 import { TimeFilter, LayerPanel } from './MapControls';
 import AddressSearch from './AddressSearch';
@@ -2667,9 +2667,28 @@ export default function StormMap() {
             {/* Generate Canvassing List Button */}
             <button
               style={mobileStyles.canvassingBtn}
-              onClick={() => {/* TODO: generate canvassing list */}}
+              onClick={async () => {
+                const features = propFeaturesRef.current;
+                if (!features.length) return;
+                const batch = features.slice(0, 50);
+                let created = 0;
+                for (const f of batch) {
+                  const p = f.properties || {};
+                  const [lng, lat] = f.geometry?.coordinates || [];
+                  if (!lat || !lng) continue;
+                  const street = p.address_line1 ? cleanAddr(p.address_line1) : '';
+                  const city = p.city || '';
+                  const state = p.state || '';
+                  const addr = [street, city, state].filter(Boolean).join(', ');
+                  try {
+                    await createCanvassPin({ lat, lng, address: addr || null, outcome: null, notes: `Storm property — ${p.hail_size_max_in ? p.hail_size_max_in + '" hail' : ''} ${p.wind_speed_max_mph ? p.wind_speed_max_mph + 'mph wind' : ''}`.trim() });
+                    created++;
+                  } catch { /* skip duplicates */ }
+                }
+                alert(`${created} canvassing pins created from ${batch.length} properties. View them in Canvassing mode.`);
+              }}
             >
-              Generate Canvassing List
+              Generate Canvassing List ({Math.min(propFeaturesRef.current.length, 50)} properties)
             </button>
           </aside>
 

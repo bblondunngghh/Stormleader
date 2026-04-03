@@ -1521,7 +1521,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
                 <div>
                   <div style={{ fontWeight: 700, fontSize: 20 }}>{form.estimate_name || 'ESTIMATE'}</div>
-                  <div style={{ fontSize: 13, color: 'oklch(0.55 0 0)' }}>{estimate?.estimate_number || 'EST-XXX'}</div>
+                  <div style={{ fontSize: 13, color: 'oklch(0.55 0 0)' }}>{estimate?.estimate_number || 'Draft'}</div>
                 </div>
                 <div style={{ textAlign: 'right', fontSize: 13, color: 'oklch(0.55 0 0)' }}>
                   <div>Date: {form.estimate_date ? new Date(form.estimate_date + 'T00:00:00').toLocaleDateString() : new Date().toLocaleDateString()}</div>
