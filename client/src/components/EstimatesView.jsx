@@ -100,6 +100,23 @@ export default function EstimatesView() {
     } catch { /* silent */ }
   };
 
+  const handleDownloadPdf = async (est) => {
+    try {
+      const response = await client.get(`/api/estimates/${est.id}/pdf`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${est.estimate_number || 'estimate'}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      showToast('PDF downloaded', 'success');
+    } catch {
+      showToast('Failed to generate PDF', 'error');
+    }
+  };
+
   const handleGenerateTiers = async (est) => {
     try {
       const { data } = await estimatesApi.generateTiers(est.id);
@@ -421,11 +438,19 @@ export default function EstimatesView() {
                               className="material-symbols-outlined"
                               onClick={() => handleEdit(est)}
                               style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
+                              title="Edit"
                             >edit</span>
+                            <span
+                              className="material-symbols-outlined"
+                              onClick={() => handleDownloadPdf(est)}
+                              style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
+                              title="Download PDF"
+                            >picture_as_pdf</span>
                             <span
                               className="material-symbols-outlined"
                               onClick={() => handleDelete(est)}
                               style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
+                              title="Delete"
                             >delete</span>
                           </>
                         ) : est.status === 'sent' || est.status === 'viewed' ? (
@@ -434,24 +459,34 @@ export default function EstimatesView() {
                               className="material-symbols-outlined"
                               onClick={() => handleEdit(est)}
                               style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
+                              title="View"
                             >visibility</span>
+                            <span
+                              className="material-symbols-outlined"
+                              onClick={() => handleDownloadPdf(est)}
+                              style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
+                              title="Download PDF"
+                            >picture_as_pdf</span>
                             <span
                               className="material-symbols-outlined"
                               onClick={() => handleSend(est)}
                               style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
+                              title="Resend"
                             >mail</span>
                           </>
                         ) : (
                           <>
                             <span
                               className="material-symbols-outlined"
-                              onClick={() => handleEdit(est)}
+                              onClick={() => handleDownloadPdf(est)}
                               style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
-                            >file_download</span>
+                              title="Download PDF"
+                            >picture_as_pdf</span>
                             <span
                               className="material-symbols-outlined"
                               onClick={() => handleDuplicate(est)}
                               style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
+                              title="Duplicate"
                             >assignment</span>
                           </>
                         )}
@@ -1491,6 +1526,10 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
           <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'center' }}>
             <button className="quick-action-btn" onClick={() => window.print()} style={{ padding: '6px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }} title="Print">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            </button>
+            <button className="quick-action-btn" onClick={() => editingEstimate?.id && handleDownloadPdf(editingEstimate)} style={{ padding: '6px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }} title="Download PDF">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+              PDF
             </button>
             <button className="quick-action-btn" onClick={handleSave} disabled={saving} style={{ padding: '6px 18px', fontSize: 12 }}>
               Sign Now
