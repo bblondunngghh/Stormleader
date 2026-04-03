@@ -536,6 +536,8 @@ export default function Dashboard() {
   const [followups, setFollowups] = useState([]);
   const [conversionByStorm, setConversionByStorm] = useState([]);
   const [estimateSummary, setEstimateSummary] = useState(null);
+  const [arSummary, setArSummary] = useState(null);
+  const [estConversion, setEstConversion] = useState(null);
   const [loading, setLoading] = useState(true);
   // Dashboard filters (JN Insights-style)
   const [dashRep, setDashRep] = useState('');
@@ -571,10 +573,11 @@ export default function Dashboard() {
 
   const fetchAll = useCallback(async () => {
     try {
-      const [statsRes, funnelRes, activityRes, leaderRes, tasksRes, followupsRes, convRes, estRes] = await Promise.allSettled([
+      const [statsRes, funnelRes, activityRes, leaderRes, tasksRes, followupsRes, convRes, estRes, arRes, estConvRes] = await Promise.allSettled([
         dashboardApi.getStats(dashFilters), dashboardApi.getFunnel(dashFilters), dashboardApi.getActivity(dashFilters),
         dashboardApi.getLeaderboard(), dashboardApi.getTasksToday(), dashboardApi.getFollowups(),
         dashboardApi.getConversionByStorm(), dashboardApi.getEstimateSummary(),
+        dashboardApi.getArSummary(), dashboardApi.getEstimatingConversion(),
       ]);
       if (statsRes.status === 'fulfilled' && statsRes.value.data?.stats)
         setStats(statsRes.value.data.stats.map((s, i) => ({ ...s, tint: emptyStats[i]?.tint, link: emptyStats[i]?.link || '/leads' })));
@@ -585,6 +588,8 @@ export default function Dashboard() {
       if (followupsRes.status === 'fulfilled' && followupsRes.value.data?.followups) setFollowups(followupsRes.value.data.followups);
       if (convRes.status === 'fulfilled' && convRes.value.data?.storms) setConversionByStorm(convRes.value.data.storms);
       if (estRes.status === 'fulfilled' && estRes.value.data) setEstimateSummary(estRes.value.data);
+      if (arRes.status === 'fulfilled' && arRes.value.data) setArSummary(arRes.value.data);
+      if (estConvRes.status === 'fulfilled' && estConvRes.value.data) setEstConversion(estConvRes.value.data);
     } finally { setLoading(false); }
   }, [dashRep, dashSource, dashPeriod]);
 
@@ -1521,7 +1526,76 @@ export default function Dashboard() {
         </Panel>
       </div>
 
-      {/* ── Row 5: Leaderboard ── */}
+      {/* ── Row 5: A/R Aging + Estimating Conversion ── */}
+      <div className="grid grid-cols-2 gap-[var(--space-md)]">
+        {/* A/R Aging Summary */}
+        <Panel title="Accounts Receivable" action={() => navigate('/invoices')} actionLabel="View Invoices">
+          {!arSummary ? (
+            <div className="text-xs text-[var(--text-muted)] py-5 text-center">No invoice data yet</div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <div className="flex gap-4">
+                <div className="flex-1 text-center">
+                  <span className="block text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Outstanding</span>
+                  <span className="text-xl font-[820] tracking-tight" style={{ color: 'oklch(0.72 0.19 250)' }}>{formatCurrency(arSummary.outstanding_total)}</span>
+                  <span className="block text-[10px] text-[var(--text-muted)]">{arSummary.outstanding_count} invoices</span>
+                </div>
+                <div className="flex-1 text-center">
+                  <span className="block text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Overdue</span>
+                  <span className="text-xl font-[820] tracking-tight" style={{ color: Number(arSummary.overdue_total) > 0 ? 'oklch(0.68 0.22 25)' : 'oklch(0.75 0.18 155)' }}>{formatCurrency(arSummary.overdue_total)}</span>
+                  <span className="block text-[10px] text-[var(--text-muted)]">{arSummary.overdue_count} invoices</span>
+                </div>
+              </div>
+              {/* Aging buckets */}
+              <div className="flex gap-2 pt-3 border-t border-[oklch(0.22_0.015_265/0.12)]">
+                {[
+                  { label: '0–30 days', val: arSummary.due_30, color: 'oklch(0.75 0.18 155)' },
+                  { label: '30–60 days', val: arSummary.due_60, color: 'oklch(0.78 0.17 85)' },
+                  { label: '60+ days', val: arSummary.due_90_plus, color: 'oklch(0.68 0.22 25)' },
+                ].map(bucket => (
+                  <div key={bucket.label} className="flex-1 text-center">
+                    <span className="block text-lg font-[820] tracking-tight" style={{ color: Number(bucket.val) > 0 ? bucket.color : 'var(--text-muted)' }}>{formatCurrency(bucket.val)}</span>
+                    <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">{bucket.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </Panel>
+
+        {/* Estimating Conversion */}
+        <Panel title="Estimating Conversion" action={() => navigate('/estimates')} actionLabel="View Estimates">
+          {!estConversion ? (
+            <div className="text-xs text-[var(--text-muted)] py-5 text-center">No estimate data yet</div>
+          ) : (
+            <div className="flex flex-col gap-4 items-center">
+              {/* Big conversion rate */}
+              <div className="text-center">
+                <span className="text-4xl font-[820] tracking-tight" style={{ color: Number(estConversion.conversion_rate) >= 50 ? 'oklch(0.75 0.18 155)' : Number(estConversion.conversion_rate) >= 25 ? 'oklch(0.78 0.17 85)' : 'oklch(0.68 0.22 25)' }}>{estConversion.conversion_rate}%</span>
+                <span className="block text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider mt-1">Acceptance Rate</span>
+              </div>
+              {/* Progress bar */}
+              <div className="w-full">
+                <div className="h-[6px] rounded-full overflow-hidden" style={{ background: 'oklch(0.12 0.015 265 / 0.5)' }}>
+                  <div className="h-full rounded-full transition-all duration-700" style={{
+                    width: `${estConversion.conversion_rate}%`,
+                    background: Number(estConversion.conversion_rate) >= 50 ? 'oklch(0.75 0.18 155)' : Number(estConversion.conversion_rate) >= 25 ? 'oklch(0.78 0.17 85)' : 'oklch(0.68 0.22 25)',
+                    boxShadow: `0 0 8px ${Number(estConversion.conversion_rate) >= 50 ? 'oklch(0.75 0.18 155 / 0.4)' : 'oklch(0.78 0.17 85 / 0.4)'}`,
+                  }} />
+                </div>
+              </div>
+              {/* Stats row */}
+              <div className="flex gap-6 text-center pt-2 border-t border-[oklch(0.22_0.015_265/0.12)] w-full justify-center">
+                <div><span className="block text-lg font-[820] tracking-tight text-[oklch(0.72_0.19_250)]">{estConversion.total_sent}</span><span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Sent</span></div>
+                <div><span className="block text-lg font-[820] tracking-tight text-[oklch(0.75_0.18_155)]">{estConversion.accepted}</span><span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Accepted</span></div>
+                <div><span className="block text-lg font-[820] tracking-tight text-[oklch(0.68_0.22_25)]">{estConversion.declined}</span><span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Declined</span></div>
+              </div>
+            </div>
+          )}
+        </Panel>
+      </div>
+
+      {/* ── Row 6: Leaderboard ── */}
       {leaderboard.length > 0 && (
         <Panel title="Team Leaderboard">
           <div style={{ overflowX: 'auto' }}>

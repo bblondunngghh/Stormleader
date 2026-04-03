@@ -10,3 +10,5 @@ export const listPropertiesAffected = (params) => client.get('/crm/dashboard/pro
 export const getFollowups = () => client.get('/crm/dashboard/followups');
 export const getConversionByStorm = () => client.get('/crm/dashboard/conversion-by-storm');
 export const getEstimateSummary = () => client.get('/crm/dashboard/estimate-summary');
+export const getArSummary = () => client.get('/crm/dashboard/ar-summary');
+export const getEstimatingConversion = () => client.get('/crm/dashboard/estimating-conversion');

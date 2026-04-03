@@ -701,6 +701,42 @@ router.get('/dashboard/estimate-summary', async (req, res, next) => {
   }
 });
 
+// GET /api/crm/dashboard/ar-summary — Accounts Receivable aging
+router.get('/dashboard/ar-summary', async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT
+        COUNT(*) FILTER (WHERE status IN ('sent','viewed'))::int AS outstanding_count,
+        COALESCE(SUM(total - amount_paid) FILTER (WHERE status IN ('sent','viewed')), 0)::numeric AS outstanding_total,
+        COUNT(*) FILTER (WHERE status = 'overdue' OR (due_date < CURRENT_DATE AND status IN ('sent','viewed')))::int AS overdue_count,
+        COALESCE(SUM(total - amount_paid) FILTER (WHERE status = 'overdue' OR (due_date < CURRENT_DATE AND status IN ('sent','viewed'))), 0)::numeric AS overdue_total,
+        COALESCE(SUM(total - amount_paid) FILTER (WHERE due_date >= CURRENT_DATE AND due_date < CURRENT_DATE + 30 AND status IN ('sent','viewed')), 0)::numeric AS due_30,
+        COALESCE(SUM(total - amount_paid) FILTER (WHERE due_date >= CURRENT_DATE + 30 AND due_date < CURRENT_DATE + 60 AND status IN ('sent','viewed')), 0)::numeric AS due_60,
+        COALESCE(SUM(total - amount_paid) FILTER (WHERE due_date >= CURRENT_DATE + 60 AND status IN ('sent','viewed')), 0)::numeric AS due_90_plus
+      FROM invoices WHERE tenant_id = $1
+    `, [req.tenantId]);
+    res.json(rows[0] || {});
+  } catch (err) { next(err); }
+});
+
+// GET /api/crm/dashboard/estimating-conversion — Estimate acceptance rate
+router.get('/dashboard/estimating-conversion', async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT
+        COUNT(*) FILTER (WHERE status IN ('sent','viewed','accepted','declined','expired'))::int AS total_sent,
+        COUNT(*) FILTER (WHERE status = 'accepted')::int AS accepted,
+        COUNT(*) FILTER (WHERE status = 'declined')::int AS declined,
+        CASE WHEN COUNT(*) FILTER (WHERE status IN ('sent','viewed','accepted','declined','expired')) > 0
+          THEN ROUND(COUNT(*) FILTER (WHERE status = 'accepted')::numeric / COUNT(*) FILTER (WHERE status IN ('sent','viewed','accepted','declined','expired')) * 100, 1)
+          ELSE 0
+        END AS conversion_rate
+      FROM estimates WHERE tenant_id = $1
+    `, [req.tenantId]);
+    res.json(rows[0] || {});
+  } catch (err) { next(err); }
+});
+
 // GET /api/crm/dashboard/leaderboard
 router.get('/dashboard/leaderboard', async (req, res, next) => {
   try {
