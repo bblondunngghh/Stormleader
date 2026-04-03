@@ -378,7 +378,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch {
-      // silent
+      showToast('Failed to download weather history', 'error');
     }
   };
 
@@ -394,7 +394,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
       await uploadDocument(formData);
       const res = await getDocuments({ lead_id: leadId, limit: 50 });
       setDocuments(res.data.documents || []);
-    } catch { /* silent */ } finally {
+    } catch { showToast('Failed to upload document', 'error'); } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
@@ -404,7 +404,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
     try {
       await deleteDocument(docId);
       setDocuments(prev => prev.filter(d => d.id !== docId));
-    } catch { /* silent */ }
+    } catch { showToast('Failed to delete document', 'error'); }
   };
 
   const doUpdate = async (updates) => {
@@ -417,7 +417,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
       setActivities(res.data.activities || []);
       onUpdated?.();
     } catch {
-      // silent
+      showToast('Failed to save changes', 'error');
     } finally {
       setSaving(false);
     }
@@ -433,7 +433,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
       setActivities(res.data.activities || []);
       onUpdated?.();
     } catch {
-      // silent
+      showToast('Failed to log activity', 'error');
     } finally {
       setSaving(false);
       if (!keepModal) setActiveModal(null);
@@ -942,7 +942,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                     const url = URL.createObjectURL(res.data);
                     window.open(url, '_blank');
                     setTimeout(() => URL.revokeObjectURL(url), 60000);
-                  } catch {}
+                  } catch { showToast('Failed to generate property report', 'error'); }
                 }}
                 className="icon-spin-btn"
                 style={{
