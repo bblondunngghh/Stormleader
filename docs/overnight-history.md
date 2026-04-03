@@ -449,3 +449,67 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Two consecutive inventory-only runs (March 31 + April 1) successfully identified the exact 4 issues that needed fixing — structured auditing before coding pays off.
 - Browser alert/confirm dialogs are easy to miss during development but instantly make the app feel unprofessional — a systematic audit catches them all at once.
 - Profile editing is such a basic feature that its absence stood out in every competitor comparison — never skip table-stakes features for flashy ones.
+
+---
+
+## Run: 2026-04-03
+
+### What was done
+- **Complete Functional Inventory**: Full code-based analysis of all 22 protected routes, 6 public routes, 38 backend route files (248 endpoints). Documented every feature, API call, interactive element, and bug per page.
+- **Competitor Matrix Cross-Reference**: Found 5 features marked "Missing" in the 2026-03-25 gap analysis that have actually been built since: Honey Hole Finder, Territory Assignment, Review Requests, Photo Annotation, Subcontractor Management, AI Content Studio.
+- **Top 10 Improvement Opportunities**: Ranked by competitive impact — QuickBooks sync (#1), SMS/texting (#2), Calendar click-to-create (#3), Storm Map canvassing list stub (#4), Mobile task checkbox bug (#5), Pipeline deal values (#6), Server-side PDF estimates (#7), Error handling (#8), Hail swath color graduation (#9), Email inbox (#10).
+- **Bugs Discovered**: Mobile task checkbox hardcoded `checked={false}` (TasksView.jsx line 735), EST-XXX placeholder in EstimatesView, empty Generate Canvassing List handler in StormMap.
+- Note: Localtunnel was 503 during this run — inventory was code-based rather than live-UI-based.
+- Total: 1 commit (docs)
+
+### Competitor areas covered
+- Cross-referenced all entries in Feature Comparison Matrix against actual code
+- Updated status for 5 features that were built but matrix still showed as "Missing"
+
+### What was skipped and why
+- All feature/fix work — run was scoped to inventory only
+- Live UI testing — localtunnel was unavailable (503)
+
+### What should be done next run
+1. **Fix mobile task checkbox bug** — one-line fix in TasksView.jsx line 735
+2. **Fix Generate Canvassing List stub** — connect storm map properties to canvassing workflow
+3. **Calendar click-to-create** — task creation from calendar time slot click
+4. **Pipeline deal values** — estimated_value on cards + column revenue totals
+5. **QuickBooks sync** — OAuth flow + invoice push (biggest integration gap)
+6. **SMS/texting** — Twilio adapter (biggest communication gap)
+7. **Server-side PDF estimates** — pdfmake endpoint
+
+### Lessons learned
+- The competitor gap analysis matrix from 2026-03-25 was significantly out of date — 5 features listed as "Missing" had been built in subsequent sessions. Regular matrix updates prevent wasted effort on already-completed work.
+- Code-based inventory is actually more thorough than live UI testing for identifying stubs and silent error handling — you can see empty catch blocks and TODO comments that wouldn't be visible in screenshots.
+- The app has ~18,000+ lines of frontend page code across 22 protected routes — the codebase has grown substantially and would benefit from component splitting (LeadDetail at 2,922 lines is the largest).
+
+---
+
+## Run: 2026-04-03 (Implementation)
+
+### What was done
+- **Fixed 3 bugs** discovered during prior inventory run: task checkbox hardcoded to false, EST-XXX placeholder in estimates, Generate Canvassing List stub connected to real property data
+- **Wind + tornado severity color graduation** on storm map (vs HailTrace) — 5-step wind color scale by MPH, EF0-EF5 tornado color scale, contextual legend bars in layer panel
+- **Dashboard A/R aging + estimating conversion cards** (vs JobNimbus) — outstanding/overdue totals with 30/60/90+ day buckets, estimate acceptance rate with progress bar, backed by new SQL endpoints
+- **Server-side PDF estimate generation** (vs SumoQuote) — pdfmake endpoint producing branded PDFs with header, customer info, grouped line items, discounts, tax, totals, terms, warranty, signature block
+- **Content Studio database persistence** (vs Rooftops.ai) — GET/POST/DELETE endpoints for content_library table, auto-migration from localStorage on first load
+- Total: 5 feature commits + 1 bug fix commit + 2 docs commits = 7 new commits, 1,809 lines added across 13 files
+
+### Competitor areas covered
+- Areas completed: Storm Map color graduation (HailTrace), Dashboard analytics (JobNimbus), PDF estimates (SumoQuote), Content persistence (Rooftops.ai)
+- All 5 Tier 1 action items from competitor-ui-research.md completed
+- Stopped at: End of Tier 1 — all high-priority items done
+- Next run should start at: Pipeline deal values + column totals (Tier 2 item #1)
+
+### What was skipped and why
+- Pipeline deal values — Tier 2, deferred to next run (pure frontend, quick win)
+- Storm calendar picker — Tier 2, requires date-based storm query changes
+- QuickBooks sync — large effort, needs OAuth flow setup
+- In-app SMS — requires Twilio account and real per-message costs
+- Two-column Content Studio layout — medium priority UI improvement
+
+### Lessons learned
+- Running a dedicated research/inventory session first (earlier today) and then an implementation session second worked extremely well — all 5 Tier 1 items were clearly scoped and could be built without further research.
+- The "fix bugs first, then features" approach prevented context-switching: the 3 bug fixes took ~15 minutes total and cleared the backlog cleanly.
+- pdfmake works well for server-side PDF generation without any paid API — a good pattern for future document generation needs (invoices, work orders).
