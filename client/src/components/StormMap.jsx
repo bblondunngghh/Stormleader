@@ -132,6 +132,29 @@ function hailSeverityColor(sizeIn) {
   return { fill: '#af52de', stroke: '#8a3db8' };                                   // purple — extreme
 }
 
+// Wind severity color by speed (mph) — 5-step scale from blue to deep purple
+function windSeverityColor(speedMph) {
+  const spd = Number(speedMph) || 0;
+  if (spd < 58)  return { fill: '#7c8cf5', stroke: '#5a6ad0' };   // light blue — sub-severe
+  if (spd < 70)  return { fill: '#6c5ce7', stroke: '#4a3ab8' };   // indigo — severe threshold
+  if (spd < 85)  return { fill: '#8b3fd4', stroke: '#6a2faa' };   // purple
+  if (spd < 100) return { fill: '#a52ec0', stroke: '#7e228f' };   // magenta
+  return { fill: '#d41872', stroke: '#a3135a' };                   // hot pink — extreme
+}
+
+// Tornado severity color by EF scale
+function tornadoSeverityColor(feature) {
+  const raw = feature.getProperty('raw_data');
+  const ef = raw?.tor_f_scale || raw?.ef_rating || '';
+  if (ef.includes('5')) return { fill: '#990000', stroke: '#660000' };   // EF5 — dark red
+  if (ef.includes('4')) return { fill: '#cc0000', stroke: '#990000' };   // EF4
+  if (ef.includes('3')) return { fill: '#ff2d55', stroke: '#cc1a3e' };   // EF3
+  if (ef.includes('2')) return { fill: '#ff5e3a', stroke: '#cc4a2e' };   // EF2
+  if (ef.includes('1')) return { fill: '#ff8c42', stroke: '#cc7035' };   // EF1
+  if (ef.includes('0')) return { fill: '#ffb347', stroke: '#cc8f39' };   // EF0
+  return { fill: '#ff2d55', stroke: '#b3001e' };                        // default — red
+}
+
 // Layer colors
 const COLORS = {
   hail: { fill: '#dcb428', stroke: '#9a7d0e' },
@@ -1325,12 +1348,35 @@ export default function StormMap() {
               strokeOpacity: Math.min(swathOpacityRef.current + 0.25, 1),
             };
           }
-          const fillOpacity = key === 'tornado' ? swathOpacityRef.current * 0.43 : key === 'drift' ? swathOpacityRef.current * 0.23 : swathOpacityRef.current * 0.29;
+          // Wind severity graduation — colored by wind speed (mph)
+          if (key === 'wind') {
+            const windSpeed = feature.getProperty('wind_speed_max_mph');
+            const sc = windSeverityColor(windSpeed);
+            return {
+              fillColor: sc.fill,
+              fillOpacity: swathOpacityRef.current * 0.29,
+              strokeColor: sc.stroke,
+              strokeWeight: 1.5,
+              strokeOpacity: 0.85,
+            };
+          }
+          // Tornado severity graduation — colored by EF scale
+          if (key === 'tornado') {
+            const sc = tornadoSeverityColor(feature);
+            return {
+              fillColor: sc.fill,
+              fillOpacity: swathOpacityRef.current * 0.43,
+              strokeColor: sc.stroke,
+              strokeWeight: 3,
+              strokeOpacity: 0.85,
+            };
+          }
+          const fillOpacity = key === 'drift' ? swathOpacityRef.current * 0.23 : swathOpacityRef.current * 0.29;
           return {
             fillColor: c.fill,
             fillOpacity,
             strokeColor: c.stroke,
-            strokeWeight: key === 'tornado' ? 3 : key === 'drift' ? 1.5 : key === 'wind' ? 1.5 : 2.5,
+            strokeWeight: key === 'drift' ? 1.5 : 2.5,
             strokeOpacity: key === 'drift' ? 0.6 : 0.85,
           };
         });
