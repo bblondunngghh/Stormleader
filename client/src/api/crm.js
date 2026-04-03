@@ -274,3 +274,8 @@ export const getContentTemplates = (type, tone) =>
   client.get('/crm/content/templates', { params: { type, tone } });
 
 export const generateContentBatch = (data) => client.post('/crm/content/generate-batch', data);
+
+// Content Library — persist saved content to DB
+export const getContentLibrary = (params) => client.get('/crm/content/library', { params });
+export const saveContentToLibrary = (data) => client.post('/crm/content/library', data);
+export const deleteContentFromLibrary = (id) => client.delete(`/crm/content/library/${id}`);

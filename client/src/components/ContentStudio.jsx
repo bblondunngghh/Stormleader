@@ -1,6 +1,6 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
-import { generateContent, generateContentBatch } from '../api/crm';
+import { generateContent, generateContentBatch, getContentLibrary, saveContentToLibrary, deleteContentFromLibrary } from '../api/crm';
 import { showToast } from './Toast';
 import CustomSelect from './CustomSelect';
 import { SparklesIcon, ClipboardDocumentIcon, ArrowPathIcon, BookmarkIcon, FolderOpenIcon, TrashIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
@@ -363,11 +363,59 @@ export default function ContentStudio() {
   const [loading, setLoading] = useState(false);
   const [batchMode, setBatchMode] = useState(false);
 
-  // Library state
-  const [library, setLibrary] = useState(loadLibrary);
+  // Library state — persisted to DB, with localStorage fallback for migration
+  const [library, setLibrary] = useState([]);
   const [librarySearch, setLibrarySearch] = useState('');
   const [libraryTypeFilter, setLibraryTypeFilter] = useState('');
   const [savedIds, setSavedIds] = useState(new Set());
+
+  // Load library from DB on mount; migrate localStorage items if any
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await getContentLibrary({ limit: 500 });
+        if (cancelled) return;
+        const dbItems = (data.items || []).map(i => ({
+          id: i.id,
+          content: typeof i.content === 'string' ? JSON.parse(i.content) : i.content,
+          type: i.content_type,
+          tone: i.tone,
+          savedAt: i.saved_at,
+        }));
+        setLibrary(dbItems);
+
+        // Migrate localStorage items to DB (one-time)
+        const localRaw = localStorage.getItem(LIBRARY_KEY);
+        if (localRaw) {
+          try {
+            const localItems = JSON.parse(localRaw);
+            if (Array.isArray(localItems) && localItems.length > 0) {
+              for (const item of localItems) {
+                await saveContentToLibrary({ content: item.content, content_type: item.type, tone: item.tone });
+              }
+              localStorage.removeItem(LIBRARY_KEY);
+              // Re-fetch after migration
+              const { data: refreshed } = await getContentLibrary({ limit: 500 });
+              if (!cancelled) {
+                setLibrary((refreshed.items || []).map(i => ({
+                  id: i.id,
+                  content: typeof i.content === 'string' ? JSON.parse(i.content) : i.content,
+                  type: i.content_type,
+                  tone: i.tone,
+                  savedAt: i.saved_at,
+                })));
+              }
+            }
+          } catch { /* localStorage parse error — ignore */ }
+        }
+      } catch {
+        // DB unavailable — fall back to localStorage
+        setLibrary(loadLibrary());
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const filteredLibrary = useMemo(() => {
     let items = library;
@@ -404,26 +452,36 @@ export default function ContentStudio() {
     }
   };
 
-  const handleSaveToLibrary = (item) => {
-    const entry = {
-      id: Date.now() + '_' + Math.random().toString(36).slice(2, 8),
-      content: item.content,
-      type: item.type || type,
-      tone: item.tone || tone,
-      savedAt: new Date().toISOString(),
-    };
-    const updated = [entry, ...library];
-    setLibrary(updated);
-    saveLibrary(updated);
-    setSavedIds(prev => new Set(prev).add(item._idx));
-    showToast('Saved to library', 'success');
+  const handleSaveToLibrary = async (item) => {
+    try {
+      const { data: saved } = await saveContentToLibrary({
+        content: item.content,
+        content_type: item.type || type,
+        tone: item.tone || tone,
+      });
+      const entry = {
+        id: saved.id,
+        content: typeof saved.content === 'string' ? JSON.parse(saved.content) : saved.content,
+        type: saved.content_type,
+        tone: saved.tone,
+        savedAt: saved.saved_at,
+      };
+      setLibrary(prev => [entry, ...prev]);
+      setSavedIds(prev => new Set(prev).add(item._idx));
+      showToast('Saved to library', 'success');
+    } catch {
+      showToast('Failed to save', 'error');
+    }
   };
 
-  const handleDeleteFromLibrary = (item) => {
-    const updated = library.filter(i => i.id !== item.id);
-    setLibrary(updated);
-    saveLibrary(updated);
-    showToast('Removed from library', 'success');
+  const handleDeleteFromLibrary = async (item) => {
+    try {
+      await deleteContentFromLibrary(item.id);
+      setLibrary(prev => prev.filter(i => i.id !== item.id));
+      showToast('Removed from library', 'success');
+    } catch {
+      showToast('Failed to delete', 'error');
+    }
   };
 
   const libraryTypeOptions = [
