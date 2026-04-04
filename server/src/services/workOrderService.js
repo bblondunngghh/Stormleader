@@ -193,13 +193,43 @@ export async function updateMilestone(workOrderId, milestoneId, { completed, pho
   return rows[0] || null;
 }
 
+// Pipeline stage progression order for auto-advance
+const STAGE_ORDER = ['new', 'contacted', 'appt_set', 'inspected', 'estimate_sent', 'negotiating', 'sold', 'in_production'];
+
 export async function checkAndCompleteWorkOrder(workOrderId) {
   const milestones = await getMilestones(workOrderId);
   if (milestones.length > 0 && milestones.every(m => m.completed)) {
-    await pool.query(
-      "UPDATE work_orders SET status = 'completed', completed_at = NOW(), updated_at = NOW() WHERE id = $1 AND status != 'completed'",
+    const { rows } = await pool.query(
+      "UPDATE work_orders SET status = 'completed', completed_at = NOW(), updated_at = NOW() WHERE id = $1 AND status != 'completed' RETURNING lead_id, tenant_id",
       [workOrderId]
     );
+
+    // Auto-advance pipeline stage when all milestones complete
+    const wo = rows[0];
+    if (wo?.lead_id && wo?.tenant_id) {
+      try {
+        const { rows: settingRows } = await pool.query(
+          "SELECT value FROM tenant_settings WHERE tenant_id = $1 AND key = 'auto_advance_pipeline'",
+          [wo.tenant_id]
+        );
+        const autoAdvance = settingRows[0]?.value === 'true';
+        if (autoAdvance) {
+          const { rows: leadRows } = await pool.query(
+            'SELECT stage FROM leads WHERE id = $1 AND tenant_id = $2',
+            [wo.lead_id, wo.tenant_id]
+          );
+          const currentStage = leadRows[0]?.stage;
+          const currentIdx = STAGE_ORDER.indexOf(currentStage);
+          if (currentIdx >= 0 && currentIdx < STAGE_ORDER.length - 1) {
+            const nextStage = STAGE_ORDER[currentIdx + 1];
+            await pool.query(
+              'UPDATE leads SET stage = $1, updated_at = NOW() WHERE id = $2 AND tenant_id = $3',
+              [nextStage, wo.lead_id, wo.tenant_id]
+            );
+          }
+        }
+      } catch { /* non-critical — don't fail milestone completion */ }
+    }
   }
 }
 
