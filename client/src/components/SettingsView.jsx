@@ -1425,6 +1425,7 @@ function NotificationsTab() {
     storm_alert: 'Storm Alert',
     new_storm_leads: 'New Storm Leads',
     mention: 'Mentioned in Note',
+    stale_lead: 'Stale Lead Alert',
   };
 
   if (loading) return <div style={{ color: 'var(--text-muted)', padding: 'var(--space-xl)' }}>Loading...</div>;

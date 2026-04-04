@@ -119,7 +119,8 @@ export async function getPreferences(userId) {
   const types = [
     'lead_assigned', 'lead_status_changed', 'task_due_soon',
     'task_overdue', 'estimate_viewed', 'estimate_accepted',
-    'estimate_declined', 'storm_alert', 'new_storm_leads', 'mention'
+    'estimate_declined', 'storm_alert', 'new_storm_leads', 'mention',
+    'stale_lead'
   ];
 
   const values = types.map((_, i) => `($1, $${i + 2}, true, true)`).join(', ');
@@ -163,4 +164,67 @@ export async function updatePreference(userId, notificationType, updates) {
   );
 
   return rows[0];
+}
+
+// ============================================================
+// STALE LEAD ALERTS (RoofLink pattern — 3/7 day untouched)
+// ============================================================
+
+export async function checkStaleLeads() {
+  // Find leads not updated in 3+ days that are in active sales stages
+  // Only alert once per threshold by checking for existing recent notifications
+  const activeStages = ['new', 'contacted', 'appt_set', 'inspected', 'estimate_sent', 'negotiating'];
+
+  const { rows: staleLeads } = await pool.query(
+    `SELECT l.id, l.tenant_id, l.assigned_rep_id, l.contact_name, l.address,
+            l.stage, l.updated_at,
+            EXTRACT(DAY FROM NOW() - l.updated_at)::int AS days_stale
+     FROM leads l
+     WHERE l.deleted_at IS NULL
+       AND l.stage = ANY($1)
+       AND l.updated_at < NOW() - INTERVAL '3 days'
+       AND NOT EXISTS (
+         SELECT 1 FROM notifications n
+         WHERE n.reference_type = 'lead'
+           AND n.reference_id = l.id::text
+           AND n.type = 'stale_lead'
+           AND n.created_at > NOW() - INTERVAL '4 days'
+       )
+     ORDER BY l.updated_at ASC
+     LIMIT 50`,
+    [activeStages]
+  );
+
+  let created = 0;
+  for (const lead of staleLeads) {
+    const days = lead.days_stale;
+    const name = lead.contact_name || lead.address || 'Lead';
+    const title = days >= 7
+      ? `Lead untouched for ${days} days`
+      : `Lead inactive for ${days} days`;
+    const body = `"${name}" in ${lead.stage.replace(/_/g, ' ')} hasn't been updated in ${days} days.`;
+
+    if (lead.assigned_rep_id) {
+      await createNotification(lead.tenant_id, lead.assigned_rep_id, {
+        type: 'stale_lead',
+        title,
+        body,
+        reference_type: 'lead',
+        reference_id: String(lead.id),
+      });
+      created++;
+    } else {
+      // No assigned rep — broadcast to all tenant users
+      const result = await broadcastNotification(lead.tenant_id, {
+        type: 'stale_lead',
+        title,
+        body,
+        reference_type: 'lead',
+        reference_id: String(lead.id),
+      });
+      created += result.length;
+    }
+  }
+
+  return { checked: staleLeads.length, notificationsCreated: created };
 }

@@ -12,6 +12,7 @@ import { autoImportForStorms } from '../services/countyService.js';
 import { checkImpactedAssetsForEvents } from '../services/impactedAssetService.js';
 import { processScheduledSteps } from '../services/dripService.js';
 import { sendOverdueInvoiceReminders } from '../services/emailService.js';
+import { checkStaleLeads } from '../services/notificationService.js';
 
 export function startScheduler() {
   if (config.NODE_ENV === 'test') {
@@ -134,7 +135,18 @@ export function startScheduler() {
     }
   });
 
-  logger.info('Ingestion scheduler started (MRMS: 30m, NWS: 1h, SPC: 2h, auto-import: 3x/day, drip: 15m, invoices: 9am daily, cleanup: 3am daily)');
+  // Stale lead alerts — daily at 8am (before overdue invoices at 9am)
+  cron.schedule('0 8 * * *', async () => {
+    logger.info('Scheduler: checking for stale leads');
+    try {
+      const result = await checkStaleLeads();
+      logger.info(result, 'Stale lead check complete');
+    } catch (err) {
+      logger.error({ err }, 'Stale lead check failed');
+    }
+  });
+
+  logger.info('Ingestion scheduler started (MRMS: 30m, NWS: 1h, SPC: 2h, auto-import: 3x/day, drip: 15m, invoices: 9am, stale-leads: 8am, cleanup: 3am)');
 
   // Run NWS + SPC ingestion immediately on startup (don't wait for first cron tick)
   setTimeout(async () => {
