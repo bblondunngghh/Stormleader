@@ -12,6 +12,8 @@ const CONTENT_TYPES = [
   { value: 'email_template', label: 'Email Templates' },
   { value: 'blog_outline', label: 'Blog Outlines' },
   { value: 'ad_copy', label: 'Ad Copy' },
+  { value: 'cold_call_script', label: 'Cold Call Scripts' },
+  { value: 'landing_page', label: 'Landing Pages' },
 ];
 
 const TONES = [
@@ -293,6 +295,103 @@ function DoorHangerPreview({ content, variables }) {
   );
 }
 
+function ColdCallScriptPreview({ content, variables }) {
+  const text = typeof content === 'string' ? content : formatContent(content);
+  // Parse script sections (OPENING, HOOK, ASK, OBJECTION, CLOSE, VALUE)
+  const sections = [];
+  const lines = text.split('\n');
+  let current = null;
+  for (const line of lines) {
+    const match = line.match(/^(OPENING|HOOK|ASK|OBJECTION[^:]*|CLOSE|VALUE):\s*(.*)/);
+    if (match) {
+      current = { label: match[1], text: match[2] };
+      sections.push(current);
+    } else if (current && line.trim()) {
+      current.text += '\n' + line;
+    }
+  }
+  const sectionColors = {
+    OPENING: 'oklch(0.72 0.19 250)',
+    HOOK: 'oklch(0.78 0.17 85)',
+    ASK: 'oklch(0.75 0.18 155)',
+    CLOSE: 'oklch(0.68 0.22 25)',
+    VALUE: 'oklch(0.70 0.15 200)',
+  };
+  return (
+    <div style={{
+      background: 'oklch(0.12 0.02 260)', borderRadius: 12, padding: 20,
+      color: 'oklch(0.90 0 0)', fontFamily: '-apple-system, sans-serif',
+      boxShadow: '0 2px 12px oklch(0 0 0 / 0.2)', minHeight: 120,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+        <span style={{ fontSize: 18 }}>📞</span>
+        <span style={{ fontSize: 14, fontWeight: 700 }}>Cold Call Script — {variables.company || 'Your Company'}</span>
+      </div>
+      {sections.length > 0 ? sections.map((sec, i) => {
+        const baseLabel = sec.label.startsWith('OBJECTION') ? 'OBJECTION' : sec.label;
+        const color = sectionColors[baseLabel] || 'oklch(0.65 0.10 260)';
+        return (
+          <div key={i} style={{ marginBottom: 12, paddingLeft: 12, borderLeft: `3px solid ${color}` }}>
+            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color, marginBottom: 4 }}>{sec.label}</div>
+            <div style={{ fontSize: 13, lineHeight: 1.6, whiteSpace: 'pre-wrap', color: 'oklch(0.85 0 0)' }}>{sec.text.replace(/^"|"$/g, '')}</div>
+          </div>
+        );
+      }) : (
+        <div style={{ fontSize: 14, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{text || 'Your script will appear here...'}</div>
+      )}
+    </div>
+  );
+}
+
+function LandingPagePreview({ content, variables }) {
+  const companyName = variables.company || 'Your Company';
+  let headline = '', subheadline = '', cta = '', body = '', testimonial = '';
+  if (typeof content === 'object' && content?.headline) {
+    headline = content.headline;
+    subheadline = content.subheadline || '';
+    cta = content.cta || 'Get Started';
+    body = content.body || '';
+    testimonial = content.testimonial || '';
+  } else {
+    body = typeof content === 'string' ? content : formatContent(content);
+  }
+  return (
+    <div style={{
+      background: 'linear-gradient(180deg, oklch(0.15 0.04 250), oklch(0.10 0.02 260))',
+      borderRadius: 12, overflow: 'hidden',
+      boxShadow: '0 2px 12px oklch(0 0 0 / 0.2)', minHeight: 120,
+      fontFamily: '-apple-system, sans-serif',
+    }}>
+      {/* Hero section */}
+      <div style={{ padding: '32px 24px 24px', textAlign: 'center' }}>
+        <div style={{ fontSize: 11, fontWeight: 600, color: 'oklch(0.72 0.19 250)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>{companyName}</div>
+        <h2 style={{ fontSize: 22, fontWeight: 800, color: 'oklch(0.95 0 0)', margin: '0 0 8px', lineHeight: 1.3 }}>{headline || 'Your Headline Here'}</h2>
+        {subheadline && <p style={{ fontSize: 14, color: 'oklch(0.70 0 0)', margin: '0 0 16px', lineHeight: 1.5 }}>{subheadline}</p>}
+        <button style={{
+          padding: '10px 24px', fontSize: 14, fontWeight: 700, borderRadius: 8, border: 'none',
+          background: 'oklch(0.72 0.19 250)', color: 'white', cursor: 'default',
+        }}>{cta || 'Get Started'}</button>
+      </div>
+      {/* Body */}
+      {body && (
+        <div style={{ padding: '0 24px 20px', fontSize: 13, lineHeight: 1.7, color: 'oklch(0.80 0 0)', whiteSpace: 'pre-wrap' }}>
+          {body.split('\n').map((line, i) => {
+            if (line.startsWith('**') && line.endsWith('**')) return <div key={i} style={{ fontWeight: 700, color: 'oklch(0.92 0 0)', marginTop: 12, marginBottom: 4 }}>{line.replace(/\*\*/g, '')}</div>;
+            if (line.startsWith('✅') || line.startsWith('-')) return <div key={i} style={{ paddingLeft: 8 }}>{line}</div>;
+            return <div key={i}>{line}</div>;
+          })}
+        </div>
+      )}
+      {/* Testimonial */}
+      {testimonial && (
+        <div style={{ padding: '16px 24px', background: 'oklch(0.18 0.03 250)', borderTop: '1px solid oklch(0.25 0.02 260)' }}>
+          <p style={{ fontSize: 12, fontStyle: 'italic', color: 'oklch(0.70 0 0)', margin: 0, lineHeight: 1.5 }}>{testimonial}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function GenericPreview({ content, type }) {
   const text = typeof content === 'string' ? content : formatContent(content);
   const typeLabel = CONTENT_TYPES.find(t => t.value === type)?.label || type;
@@ -319,6 +418,8 @@ function LivePreviewPanel({ content, type, variables }) {
     email_template: EmailPreview,
     door_hanger: DoorHangerPreview,
     blog_outline: GenericPreview,
+    cold_call_script: ColdCallScriptPreview,
+    landing_page: LandingPagePreview,
   };
   const PreviewComponent = previewMap[type] || GenericPreview;
 

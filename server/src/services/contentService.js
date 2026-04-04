@@ -586,6 +586,70 @@ const templates = {
       },
     ],
   },
+
+  // ========================================================================
+  // COLD CALL SCRIPTS (Rooftops.ai competitor feature)
+  // ========================================================================
+  cold_call_script: {
+    urgent: [
+      `OPENING: "Hi {first_name}, this is [Your Name] with {company}. I'm calling because your neighborhood in {city} was hit by {hail_size}" hail on {storm_date}, and we're offering free storm damage inspections to homeowners in your area."\n\nHOOK: "Many of your neighbors have already found damage they didn't know about — hail that size can crack shingles and dent flashing without being visible from the ground."\n\nASK: "Would you be open to a quick 15-minute inspection? We'll check your roof, document any damage with photos, and give you a full report — completely free, no obligation."\n\nOBJECTION (Already checked): "That's great that you're staying on top of it! Did they provide a written report with photos? We often find damage that other inspectors miss, especially on the north-facing slopes."\n\nOBJECTION (Not interested): "I completely understand. Just so you know, insurance claims have a time limit after storm damage. If you change your mind, we're at {phone}. Can I leave you our info?"\n\nCLOSE: "Great! I can get you on the schedule as early as [DATE]. What time works best — morning or afternoon?"`,
+      `OPENING: "Hi {first_name}, this is [Your Name] from {company} in {city}. I hope I'm not catching you at a bad time — I'm reaching out because the {storm_date} storm dropped {hail_size}" hail in your area."\n\nHOOK: "We've been inspecting roofs in your neighborhood all week, and about 7 out of 10 homes we've checked have damage that qualifies for an insurance claim. The homeowners had no idea."\n\nASK: "I'd love to swing by and take a quick look at yours — takes about 15 minutes, and if there's no damage, I'll tell you that too. Free either way."\n\nOBJECTION (Insurance will go up): "That's a common concern, but in {state}, your premium can't go up for a weather-related claim — it's a natural disaster, not an at-fault claim."\n\nCLOSE: "Perfect. I have availability [DATE] morning and [DATE] afternoon. Which works better for your schedule?"`,
+      `OPENING: "Good [morning/afternoon], is this {first_name}? Hi, I'm [Your Name] with {company}. Quick question — have you had your roof checked since the {storm_date} hailstorm?"\n\nHOOK: "We've found that {hail_size}" hail — which is what hit {city} — causes damage that won't leak right away but leads to serious problems within 6-12 months if not addressed."\n\nASK: "We're doing free inspections this week for homeowners in your area. Can I put you on the schedule?"\n\nOBJECTION (Using another company): "No problem at all! Smart to get it checked. Just make sure they're providing a full photo report and checking all penetrations — vents, skylights, pipe boots. Those are the spots most roofers miss."\n\nCLOSE: "Sounds good! I'll pencil you in for [DATE]. You'll get a text confirmation from us at this number. Is this the best number to reach you?"`,
+    ],
+    professional: [
+      `OPENING: "Hello {first_name}, this is [Your Name] with {company}. We're a local {service} contractor here in {city}, and I'm reaching out because we're currently scheduling free roof assessments in your area."\n\nHOOK: "With the recent weather patterns in {city}, many homeowners are finding that their roofs have sustained damage that isn't immediately visible. We've been helping homeowners navigate the insurance process and get their roofs restored."\n\nASK: "Would you be interested in a complimentary roof assessment? It typically takes about 20 minutes, and we'll provide you with a detailed photo report of our findings."\n\nOBJECTION (I rent): "I understand. Would you happen to have the property owner's contact information? We'd love to help protect their investment."\n\nCLOSE: "Excellent. I have availability on [DATE] at [TIME]. Shall I confirm that appointment for you? You can reach us anytime at {phone}."`,
+      `OPENING: "Good [morning/afternoon] {first_name}, my name is [Your Name] and I'm with {company}, a licensed roofing contractor serving {city} and the surrounding area."\n\nHOOK: "I'm contacting homeowners in your neighborhood because we specialize in {service}, and we've noticed this area may be due for maintenance or storm-related repairs."\n\nASK: "We offer a no-cost, no-obligation roof inspection. If everything looks good, we'll let you know. If we find issues, we'll provide a detailed report with photos and your options."\n\nVALUE: "What sets us apart is that we handle the entire process — from inspection to insurance coordination to final installation. Our goal is to make it as hassle-free as possible for you."\n\nCLOSE: "Can I schedule a 20-minute window to come out and take a look? Our next available opening is [DATE]."`,
+    ],
+    friendly: [
+      `OPENING: "Hey {first_name}! This is [Your Name] from {company} — we're a local roofing crew right here in {city}. How are you doing today?"\n\nHOOK: "So here's the deal — we've been out in your neighborhood checking on roofs after the recent weather, and honestly, a lot of folks are surprised by what we're finding up there. Nothing scary, but definitely stuff worth knowing about."\n\nASK: "Would you mind if we popped over for a quick look at yours? It's totally free, takes about 15 minutes, and worst case, you get peace of mind knowing your roof is solid."\n\nOBJECTION (Too busy): "Totally get it! You don't even need to be home — we just need access to the roof. We'll send you the photos and report by email. Would that work?"\n\nCLOSE: "Awesome! How does [DATE] look? Morning or afternoon — whatever's easier for you. And save our number: {phone}. I'm [Your Name], easy to reach!"`,
+      `OPENING: "Hi there {first_name}! It's [Your Name] with {company} here in {city}. I know cold calls aren't everyone's favorite thing, so I'll keep this quick!"\n\nHOOK: "We've been helping a bunch of your neighbors get their roofs sorted out, and I just wanted to make sure you're covered too. A lot of people don't realize their roof needs attention until they see a water stain on the ceiling — and by then it's a way bigger fix."\n\nASK: "Any chance you'd be up for a free roof checkup? No sales pitch, promise — just honest info about what's going on up there."\n\nCLOSE: "Sweet! I'll put you down for [DATE]. You'll get a text from us to confirm. If you need to reschedule, no worries at all — just give us a ring at {phone}."`,
+    ],
+    seasonal: [
+      `OPENING: "Hi {first_name}, this is [Your Name] with {company} in {city}. I'm reaching out because {season} is actually the perfect time to get your roof inspected."\n\nHOOK: "Most homeowners wait until they see a problem, but {season} is when we catch things early — before the next storm season hits. Think of it like a checkup for your house."\n\nASK: "We're scheduling free {season} roof checkups in your area. Would you like us to add you to the schedule?"\n\nVALUE: "We check everything — shingles, flashing, gutters, ventilation. You'll get a full photo report, and if we find anything, we'll walk you through your options and help with insurance if needed."\n\nCLOSE: "Sounds great, {first_name}! I'll get you on the books for [DATE]. Is morning or afternoon better? And we're always reachable at {phone}."`,
+    ],
+  },
+
+  // ========================================================================
+  // LANDING PAGE COPY (Rooftops.ai competitor feature)
+  // ========================================================================
+  landing_page: {
+    urgent: [
+      {
+        headline: `{city} Storm Damage? Get Your FREE Roof Inspection Today`,
+        subheadline: `{hail_size}" hail hit {city} on {storm_date}. Your roof may be damaged — and your insurance will cover the repair.`,
+        cta: `Schedule My Free Inspection`,
+        body: `The {storm_date} hailstorm brought {hail_size}" hail to {city}, {state} — large enough to crack shingles, dent metal flashing, and compromise your roof's waterproofing.\n\n**Why act now?**\n- Insurance claims have a deadline — don't miss your window\n- Hidden damage gets worse (and more expensive) over time\n- 7 out of 10 homes we inspect have claimable damage\n\n**What you get:**\n✅ Free 20-minute roof inspection\n✅ Detailed photo report of all findings\n✅ Help filing your insurance claim\n✅ Quality {service} if repairs are needed\n\n**{company}** — {city}'s trusted storm damage experts. Call {phone} or visit {website}.`,
+        testimonial: `"After the storm, {company} found damage on my roof I never would have seen. They handled everything with my insurance company and I got a brand new roof at no out-of-pocket cost." — Satisfied {city} Homeowner`,
+      },
+    ],
+    professional: [
+      {
+        headline: `Professional {service} in {city}, {state}`,
+        subheadline: `Licensed, insured, and trusted by {city} homeowners. Get a free estimate from {company} today.`,
+        cta: `Request Your Free Estimate`,
+        body: `**{company}** provides expert {service} for residential and commercial properties in {city} and the surrounding {state} area.\n\n**Our Services:**\n- Storm damage repair & insurance claims\n- Full roof replacement (shingle, metal, tile)\n- Roof inspections & maintenance\n- Gutter installation & repair\n- Emergency leak repair\n\n**Why Choose {company}?**\n✅ Licensed & fully insured\n✅ Free detailed estimates with photos\n✅ Insurance claim assistance\n✅ Manufacturer-certified installers\n✅ Workmanship warranty included\n\nCall {phone} or visit {website} to schedule your consultation.`,
+        testimonial: `"Professional from start to finish. {company} gave us a detailed estimate, worked directly with our insurance, and completed the job on time and on budget." — {city} Homeowner`,
+      },
+    ],
+    friendly: [
+      {
+        headline: `Hey {city}! Need a New Roof? We've Got You Covered 🏠`,
+        subheadline: `{company} makes roofing easy — from free inspections to final cleanup, we handle everything.`,
+        cta: `Get My Free Quote`,
+        body: `Let's face it — dealing with roof problems isn't anyone's idea of fun. That's why {company} makes it as painless as possible.\n\n**Here's how it works:**\n1. 📞 Give us a call at {phone} or fill out the form\n2. 🔍 We come out for a free inspection (takes 15-20 min)\n3. 📋 You get a detailed photo report\n4. 💰 We help with insurance paperwork if needed\n5. 🔨 Our crew handles the {service} while you relax\n6. ✨ Final walkthrough to make sure you love it\n\n**No pressure, no gimmicks** — just honest roofing from a local {city} company that cares about doing it right.\n\nCall {phone} or visit {website}!`,
+        testimonial: `"Best experience I've ever had with a contractor! The crew from {company} was friendly, fast, and left my yard cleaner than they found it." — Happy {city} Customer`,
+      },
+    ],
+    seasonal: [
+      {
+        headline: `{season} Roofing Special in {city} — Book Now & Save`,
+        subheadline: `{company} is offering {season} pricing on {service} for {city}, {state} homeowners.`,
+        cta: `Claim My {season} Discount`,
+        body: `**{season} is the best time to address your roof.**\n\nWeather conditions are ideal for installation, and {company} is offering special {season} pricing for {city} homeowners.\n\n**{season} Special Includes:**\n✅ Free comprehensive roof inspection\n✅ Detailed photo report & estimate\n✅ {season} pricing on materials & labor\n✅ Priority scheduling\n✅ Full manufacturer warranty\n\nWhether you need storm damage repair, a complete {service}, or just want peace of mind that your roof is ready for the next season — we're here to help.\n\n📞 {phone} | 🌐 {website}`,
+        testimonial: `"We took advantage of {company}'s {season} special and saved over $1,000 on our new roof. Couldn't be happier!" — {city} Homeowner`,
+      },
+    ],
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -672,5 +736,5 @@ export function generateContentBatch(type, tone, variables = {}, count = 5) {
 }
 
 /** Available content types and tones for the frontend */
-export const CONTENT_TYPES = ['social_post', 'door_hanger', 'email_template', 'blog_outline', 'ad_copy'];
+export const CONTENT_TYPES = ['social_post', 'door_hanger', 'email_template', 'blog_outline', 'ad_copy', 'cold_call_script', 'landing_page'];
 export const TONES = ['professional', 'friendly', 'urgent', 'seasonal'];
