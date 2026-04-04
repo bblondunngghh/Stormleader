@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef, lazy, Suspense } from 'react';
-import { getLeads, getPipelineStages, updateLead, getTeamMembers } from '../api/crm';
+import { getLeads, getLeadDetail, getPipelineStages, updateLead, getTeamMembers } from '../api/crm';
+import { getActivities } from '../api/crm';
 import { showToast } from './Toast';
-import { IconRefresh, IconPlusCircle, IconPhone, IconCalendar, IconFilter, IconX, IconChevronDown, IconEyeOff, IconEye } from './Icons';
+import { IconRefresh, IconPlusCircle, IconPhone, IconCalendar, IconFilter, IconX, IconChevronDown, IconEyeOff, IconEye, IconMail } from './Icons';
 import CustomSelect from './CustomSelect';
-import { UserCircleIcon, FireIcon, SunIcon, CloudIcon } from '@heroicons/react/24/outline';
+import { UserCircleIcon, FireIcon, SunIcon, CloudIcon, ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
 const LeadDetail = lazy(() => import('./LeadDetail'));
 const CreateLeadModal = lazy(() => import('./CreateLeadModal'));
 
@@ -134,6 +135,296 @@ const fallbackColumns = [
   { key: 'sold', label: 'Sold', color: 'oklch(0.75 0.18 155)', position: 6 },
 ];
 
+// ─── SIDEBAR PREVIEW (JobNimbus-style click-to-preview) ───
+function SidebarPreview({ leadId, allColumns, onClose, onOpenFull, onStageChange, onLeadUpdated }) {
+  const [lead, setLead] = useState(null);
+  const [activities, setActivities] = useState([]);
+  const [loadingDetail, setLoadingDetail] = useState(true);
+  const panelRef = useRef(null);
+
+  useEffect(() => {
+    if (!leadId) return;
+    setLoadingDetail(true);
+    Promise.all([
+      getLeadDetail(leadId).then(r => r.data?.lead || r.data),
+      getActivities(leadId, { limit: 5 }).then(r => r.data?.activities || r.data || []).catch(() => []),
+    ]).then(([leadData, actData]) => {
+      setLead(leadData);
+      setActivities(Array.isArray(actData) ? actData : []);
+    }).catch(() => {
+      showToast('Failed to load lead details', 'error');
+    }).finally(() => setLoadingDetail(false));
+  }, [leadId]);
+
+  // Close on Escape
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  // Close on click outside
+  useEffect(() => {
+    const handler = (e) => {
+      if (panelRef.current && !panelRef.current.contains(e.target)) {
+        onClose();
+      }
+    };
+    // Delay to avoid the click that opened the panel
+    const timer = setTimeout(() => document.addEventListener('mousedown', handler), 100);
+    return () => { clearTimeout(timer); document.removeEventListener('mousedown', handler); };
+  }, [onClose]);
+
+  const handleStageChange = async (newStage) => {
+    if (!lead || lead.stage === newStage) return;
+    const oldStage = lead.stage;
+    setLead(prev => ({ ...prev, stage: newStage }));
+    try {
+      await updateLead(leadId, { stage: newStage });
+      const toLabel = allColumns.find(c => c.key === newStage)?.label || newStage;
+      showToast(`Moved to ${toLabel}`, 'success');
+      onStageChange(leadId, newStage, oldStage);
+    } catch {
+      setLead(prev => ({ ...prev, stage: oldStage }));
+      showToast('Failed to update stage', 'error');
+    }
+  };
+
+  const stageColor = allColumns.find(c => c.key === lead?.stage)?.color || 'var(--text-muted)';
+
+  return (
+    <>
+      {/* Backdrop overlay */}
+      <div style={{
+        position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.4)',
+        zIndex: 90, backdropFilter: 'blur(2px)',
+      }} />
+      {/* Sidebar panel */}
+      <div
+        ref={panelRef}
+        style={{
+          position: 'fixed', top: 0, right: 0, bottom: 0,
+          width: 400, maxWidth: '90vw', zIndex: 91,
+          background: 'oklch(0.13 0.02 260)', borderLeft: '1px solid oklch(0.25 0.02 260)',
+          display: 'flex', flexDirection: 'column', overflow: 'hidden',
+          animation: 'slideInRight 0.2s ease-out',
+          boxShadow: '-8px 0 32px oklch(0 0 0 / 0.5)',
+        }}
+      >
+        {/* Header */}
+        <div style={{
+          padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          borderBottom: '1px solid oklch(0.25 0.02 260)',
+          background: 'oklch(0.15 0.02 260)',
+        }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>Lead Preview</span>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button
+              onClick={() => onOpenFull(leadId)}
+              title="Open full detail"
+              style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                padding: '5px 12px', fontSize: 11, fontWeight: 600,
+                borderRadius: 8, border: '1px solid oklch(0.72 0.19 250 / 0.3)',
+                background: 'oklch(0.72 0.19 250 / 0.12)', color: 'oklch(0.72 0.19 250)',
+                cursor: 'pointer',
+              }}
+            >
+              <ArrowsPointingOutIcon width={13} height={13} />
+              Full Detail
+            </button>
+            <button
+              onClick={onClose}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                color: 'var(--text-muted)', padding: 4, display: 'flex',
+              }}
+            >
+              <IconX width={16} height={16} />
+            </button>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
+          {loadingDetail ? (
+            <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)', fontSize: 13 }}>Loading...</div>
+          ) : lead ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* Name + Address */}
+              <div>
+                <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.3 }}>
+                  {lead.contact_name ? formatOwner(lead.contact_name) : (lead.address ? titleCase(cleanAddr(lead.address)) : 'Unnamed Lead')}
+                </h3>
+                {lead.address && (
+                  <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--text-secondary)' }}>
+                    {titleCase(cleanAddr(lead.address))}
+                    {lead.city && `, ${titleCase(lead.city)}`}
+                    {(lead.property_state || lead.state) && ` ${lead.property_state || lead.state}`}
+                  </p>
+                )}
+              </div>
+
+              {/* Stage selector */}
+              <div>
+                <label style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>
+                  Pipeline Stage
+                </label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {allColumns.map(col => (
+                    <button
+                      key={col.key}
+                      onClick={() => handleStageChange(col.key)}
+                      style={{
+                        padding: '4px 10px', fontSize: 11, fontWeight: 600,
+                        borderRadius: 6, cursor: 'pointer',
+                        border: lead.stage === col.key ? `2px solid ${col.color}` : '1px solid oklch(0.30 0.02 260)',
+                        background: lead.stage === col.key ? `color-mix(in oklch, ${col.color} 15%, transparent)` : 'oklch(0.18 0.02 260)',
+                        color: lead.stage === col.key ? col.color : 'var(--text-muted)',
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      {col.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quick stats grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                <div className="glass" style={{ padding: '10px 12px', borderRadius: 12 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: 2 }}>Value</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: 'oklch(0.75 0.18 155)' }}>
+                    {lead.estimated_value ? formatCurrency(lead.estimated_value) : '$0'}
+                  </div>
+                </div>
+                <div className="glass" style={{ padding: '10px 12px', borderRadius: 12 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: 2 }}>Lead Score</div>
+                  <div style={{
+                    fontSize: 18, fontWeight: 700,
+                    color: (lead.lead_score >= 80) ? 'oklch(0.85 0.18 145)' :
+                           (lead.lead_score >= 60) ? 'oklch(0.85 0.15 85)' :
+                           (lead.lead_score >= 40) ? 'oklch(0.85 0.15 60)' : 'oklch(0.70 0.02 260)',
+                  }}>
+                    {lead.lead_score ?? '—'}<span style={{ fontSize: 11, color: 'var(--text-muted)' }}>/100</span>
+                  </div>
+                </div>
+                <div className="glass" style={{ padding: '10px 12px', borderRadius: 12 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: 2 }}>Priority</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: lead.priority === 'hot' ? 'oklch(0.68 0.22 25)' : lead.priority === 'warm' ? 'oklch(0.78 0.17 85)' : 'oklch(0.72 0.19 250)', textTransform: 'capitalize' }}>
+                    {lead.priority || 'None'}
+                  </div>
+                </div>
+                <div className="glass" style={{ padding: '10px 12px', borderRadius: 12 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: 2 }}>Source</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', textTransform: 'capitalize' }}>
+                    {(lead.source || 'Unknown').replace(/_/g, ' ')}
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact info */}
+              {(lead.contact_phone || lead.contact_email) && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Contact</div>
+                  {lead.contact_phone && (
+                    <a href={`tel:${lead.contact_phone}`} style={{
+                      display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none',
+                      fontSize: 13, color: 'oklch(0.72 0.19 250)',
+                    }}>
+                      <IconPhone width={14} height={14} /> {lead.contact_phone}
+                    </a>
+                  )}
+                  {lead.contact_email && (
+                    <a href={`mailto:${lead.contact_email}`} style={{
+                      display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none',
+                      fontSize: 13, color: 'oklch(0.72 0.19 250)',
+                    }}>
+                      <IconMail width={14} height={14} /> {lead.contact_email}
+                    </a>
+                  )}
+                </div>
+              )}
+
+              {/* Storm / hail info */}
+              {(lead.hail_size_in || lead.storm_date) && (
+                <div className="glass" style={{ padding: '10px 14px', borderRadius: 12 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: 6 }}>Storm Data</div>
+                  <div style={{ display: 'flex', gap: 16, fontSize: 13 }}>
+                    {lead.hail_size_in && <span style={{ color: 'var(--text-primary)' }}>🧊 {lead.hail_size_in}" hail</span>}
+                    {lead.storm_date && <span style={{ color: 'var(--text-secondary)' }}>📅 {new Date(lead.storm_date).toLocaleDateString()}</span>}
+                    {lead.wind_speed_mph && <span style={{ color: 'var(--text-secondary)' }}>💨 {lead.wind_speed_mph} mph</span>}
+                  </div>
+                </div>
+              )}
+
+              {/* Assigned rep */}
+              {lead.assigned_rep_name && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{
+                    width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'oklch(0.35 0.08 250 / 0.5)', border: '1px solid oklch(0.50 0.10 250 / 0.2)',
+                    fontSize: 11, fontWeight: 700, color: 'oklch(0.72 0.19 250)',
+                  }}>
+                    {(lead.assigned_rep_name || '')[0]?.toUpperCase() || '?'}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>Assigned Rep</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{lead.assigned_rep_name}</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Recent activity */}
+              {activities.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: 8 }}>Recent Activity</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {activities.slice(0, 5).map((act, i) => (
+                      <div key={act.id || i} style={{
+                        padding: '8px 10px', borderRadius: 8,
+                        background: 'oklch(0.18 0.02 260)', fontSize: 12,
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      }}>
+                        <span style={{ color: 'var(--text-primary)', textTransform: 'capitalize' }}>
+                          {(act.type || act.activity_type || '').replace(/_/g, ' ')}
+                        </span>
+                        <span style={{ color: 'var(--text-muted)', fontSize: 11 }}>
+                          {act.created_at ? new Date(act.created_at).toLocaleDateString() : ''}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Notes excerpt */}
+              {lead.notes && (
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: 4 }}>Notes</div>
+                  <p style={{ margin: 0, fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5, maxHeight: 60, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {lead.notes}
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)', fontSize: 13 }}>Lead not found</div>
+          )}
+        </div>
+      </div>
+
+      {/* Animation keyframe */}
+      <style>{`
+        @keyframes slideInRight {
+          from { transform: translateX(100%); }
+          to { transform: translateX(0); }
+        }
+      `}</style>
+    </>
+  );
+}
+
 export default function Pipeline() {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
   const [allColumns, setAllColumns] = useState(fallbackColumns);
@@ -148,6 +439,7 @@ export default function Pipeline() {
     return allColumns.filter(col => boardDef.stageKeys.includes(col.key));
   }, [allColumns, activeBoard]);
   const [selectedLeadId, setSelectedLeadId] = useState(null);
+  const [previewLeadId, setPreviewLeadId] = useState(null);
   const [dragState, setDragState] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedStage, setSelectedStage] = useState(null);
@@ -990,7 +1282,7 @@ export default function Pipeline() {
                           draggable
                           onDragStart={(e) => handleDragStart(e, lead)}
                           onDragEnd={handleDragEnd}
-                          onClick={() => setSelectedLeadId(lead.id)}
+                          onClick={() => setPreviewLeadId(lead.id)}
                         >
                           {/* Top Row: Priority + Tasks + Value */}
                           <div className="flex items-center justify-between">
@@ -1189,6 +1481,20 @@ export default function Pipeline() {
         })}
         </div>
       </div>
+
+      {/* Sidebar preview — JobNimbus-style click-to-preview */}
+      {previewLeadId && (
+        <SidebarPreview
+          leadId={previewLeadId}
+          allColumns={allColumns}
+          onClose={() => setPreviewLeadId(null)}
+          onOpenFull={(id) => { setPreviewLeadId(null); setSelectedLeadId(id); }}
+          onStageChange={(id, newStage, oldStage) => {
+            setLeads(prev => prev.map(l => l.id === id ? { ...l, stage: newStage } : l));
+          }}
+          onLeadUpdated={handleLeadUpdated}
+        />
+      )}
 
       {selectedLeadId && (
         <Suspense fallback={null}>
