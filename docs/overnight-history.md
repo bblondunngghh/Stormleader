@@ -513,3 +513,33 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Running a dedicated research/inventory session first (earlier today) and then an implementation session second worked extremely well — all 5 Tier 1 items were clearly scoped and could be built without further research.
 - The "fix bugs first, then features" approach prevented context-switching: the 3 bug fixes took ~15 minutes total and cleared the backlog cleanly.
 - pdfmake works well for server-side PDF generation without any paid API — a good pattern for future document generation needs (invoices, work orders).
+
+---
+
+## Run: 2026-04-04
+
+### What was done
+- **Updated app inventory** (docs/app-inventory-20260404.md) and **competitor UI research** (docs/competitor-ui-research.md) with 5 parallel Firecrawl research agents covering HailTrace, JobNimbus, RoofLink, Rooftops.ai, and review sites
+- **Pipeline card sidebar preview** (vs JobNimbus) — click any pipeline card to open a right-side preview panel with lead summary, quick stage change, storm data, recent activity, and "Full Detail" button. 310-line addition to Pipeline.jsx.
+- **Stale lead alerts** (vs RoofLink) — daily 8am cron checks for leads untouched 3+ days in active sales stages, creates stale_lead notifications for assigned rep or broadcasts to tenant. Added to notification preferences in Settings.
+- **Content Studio: cold call scripts + landing pages** (vs Rooftops.ai) — two new content types with 4 tone variants each, structured preview components (ColdCallScriptPreview, LandingPagePreview), backend templates in contentService.js.
+- **In-person estimate signing** (vs SumoQuote) — backend function written (signEstimateInPerson in estimateService.js) but NOT committed; needs API route and frontend integration.
+- Total: 3 feature commits + 2 docs commits, 1,767 lines added across 8 files
+
+### Competitor areas covered
+- Areas completed: Pipeline UX (JobNimbus), Dashboard alerts (RoofLink), Content generation (Rooftops.ai)
+- Stopped at: In-person estimate signing (backend done, frontend not started)
+- Next run should start at: Finish in-person estimate signing, then automated invoice reminders
+
+### What was skipped and why
+- Automated invoice reminders — planned but deprioritized in favor of pipeline sidebar (higher user impact)
+- Storm severity star rating — medium effort, deferred
+- More hail swath color stops (10 levels vs current 4) — map rendering changes deferred
+- Multi-page estimate proposals — large effort, needs design decisions
+- Profit Tracker dashboard — large effort, needs cost model design
+
+### Lessons learned
+- The pipeline sidebar preview was the single highest-impact UX change of any overnight run — it fundamentally changes how users interact with the board and was the #1 recommendation from competitor research.
+- Research-then-implement cadence continues to work well: the competitor UI research doc (482 lines, 12 sections) provided clear targets for all three features built tonight.
+- Stale lead alerts reused the existing notification infrastructure (notificationService.js + scheduler.js), making it a ~80-line addition rather than a new system — building on existing patterns keeps features small.
+- Content Studio expansion (cold call scripts + landing pages) was straightforward because the content type/template architecture was designed to be extensible — adding new types is mostly template data + a preview component.
