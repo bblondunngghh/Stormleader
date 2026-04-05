@@ -111,6 +111,23 @@ export default function ContractsView() {
     }
   };
 
+  const handleDownloadPdf = async (c) => {
+    try {
+      const res = await contractsApi.downloadContractPdf(c.id);
+      const blob = new Blob([res.data], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `contract-${c.id?.substring(0, 8) || 'draft'}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      showToast('Failed to generate PDF', 'error');
+    }
+  };
+
   if (showBuilder) {
     return (
       <ContractBuilder
@@ -217,6 +234,9 @@ export default function ContractsView() {
                     <div style={{ display: 'flex', gap: 'var(--space-xs)', justifyContent: 'center' }}>
                       <button className="quick-action-btn" onClick={() => handleEdit(c)} style={{ padding: '8px 14px', fontSize: 11 }}>
                         View
+                      </button>
+                      <button className="quick-action-btn" onClick={() => handleDownloadPdf(c)} style={{ padding: '8px 14px', fontSize: 11, color: 'oklch(0.7 0.12 280)' }}>
+                        PDF
                       </button>
                       {(c.status === 'draft') && (
                         <button className="quick-action-btn" onClick={() => handleSend(c)} style={{ padding: '8px 14px', fontSize: 11, color: 'var(--accent-blue)' }}>
@@ -434,6 +454,24 @@ function ContractBuilder({ contract, fromEstimateId, leadId: initialLeadId, onSa
         <button onClick={() => setShowPreview(!showPreview)} className="quick-action-btn" style={{ padding: '8px 14px', fontSize: 12 }}>
           <IconEye style={{ width: 14, height: 14 }} /> {showPreview ? 'Editor' : 'Preview'}
         </button>
+        {contract && (
+          <button onClick={async () => {
+            try {
+              const res = await contractsApi.downloadContractPdf(contract.id);
+              const blob = new Blob([res.data], { type: 'application/pdf' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `contract-${contract.id?.substring(0, 8) || 'draft'}.pdf`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            } catch { showToast('Failed to generate PDF', 'error'); }
+          }} className="quick-action-btn" style={{ padding: '8px 14px', fontSize: 12, color: 'oklch(0.7 0.12 280)' }}>
+            PDF
+          </button>
+        )}
         <button onClick={() => handleSave(false)} disabled={saving} className="quick-action-btn" style={{ padding: '8px 14px', fontSize: 12 }}>
           {saving ? 'Saving...' : 'Save Draft'}
         </button>

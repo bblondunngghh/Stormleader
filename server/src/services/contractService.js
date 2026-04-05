@@ -44,10 +44,12 @@ export async function listContracts(tenantId, filters = {}) {
 export async function getContract(tenantId, id) {
   const { rows } = await pool.query(
     `SELECT c.*, l.contact_name, l.address, l.contact_phone, l.contact_email,
-            e.estimate_number, e.total AS estimate_total
+            e.estimate_number, e.total AS estimate_total,
+            t.name AS company_name
      FROM contracts c
      LEFT JOIN leads l ON l.id = c.lead_id
      LEFT JOIN estimates e ON e.id = c.estimate_id
+     JOIN tenants t ON t.id = c.tenant_id
      WHERE c.id = $1 AND c.tenant_id = $2`,
     [id, tenantId]
   );
