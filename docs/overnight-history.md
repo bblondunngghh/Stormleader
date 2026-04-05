@@ -543,3 +543,34 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Research-then-implement cadence continues to work well: the competitor UI research doc (482 lines, 12 sections) provided clear targets for all three features built tonight.
 - Stale lead alerts reused the existing notification infrastructure (notificationService.js + scheduler.js), making it a ~80-line addition rather than a new system — building on existing patterns keeps features small.
 - Content Studio expansion (cold call scripts + landing pages) was straightforward because the content type/template architecture was designed to be extensible — adding new types is mostly template data + a preview component.
+
+---
+
+## Run: 2026-04-05
+
+### What was done
+- **In-person estimate signing** (vs SumoQuote) — wired previously-written backend function to API route, built signature canvas modal in EstimatesView with touch/mouse drawing, clear, and submit. Signs estimate, updates lead value, auto-creates work order.
+- **Calendar click-to-create task modal** (vs JobNimbus scheduling) — dateClick handler opens pre-filled task creation modal with all fields (title, description, priority, lead, due date/time). Added calendar empty state.
+- **Contract PDF generation** (vs SumoQuote) — server-side pdfmake endpoint producing branded PDFs with company info, customer details, scope/terms, line items, signature blocks, warranty. Download button on contract cards.
+- **Enhanced payment recording modal** (vs JobNimbus) — rebuilt stub into full modal with payment method selector (6 types), quick-fill balance, reference number, notes field, glass styling.
+- **App inventory** — 779-line functional audit identifying 81% feature completeness (47/58 features), 3 stubs, ~40 silent error handlers, hardcoded test credentials.
+- **UI consistency check** — verified all 4 modified components pass glass/oklch/CustomSelect/DatePicker/modal-backdrop standards. No fixes needed.
+
+### Competitor areas covered
+- Areas completed: Estimates (SumoQuote signing + contract PDFs), Scheduling (JobNimbus calendar), Invoicing (JobNimbus payment recording)
+- Stopped at: All 4 planned quick-win implementations complete
+- Next run should start at: Automated invoice reminders, then QuickBooks sync, then SMS/texting
+
+### What was skipped and why
+- QuickBooks sync — largest integration gap but requires OAuth flow setup (high effort)
+- SMS/texting — UI exists but needs Twilio account and real costs
+- Automated invoice reminders — low effort but deprioritized behind the 4 quick wins
+- Multi-page estimate proposals — medium effort, needs page type design decisions
+- AI chat assistant — needs LLM integration, medium effort
+- Insurance-specific estimate fields — domain-specific, needs contractor input on field layout
+
+### Lessons learned
+- The "inventory first, then implement quick wins" approach from the prior run (2026-04-03) continues to pay off — all 4 features tonight were identified as top-3 quick wins in the inventory audit.
+- Finishing partially-built features (in-person signing had backend done but no route/frontend) is consistently the highest-ROI work — the backend was already designed and tested, needing only the wiring.
+- The pdfmake pattern established for estimate PDFs made contract PDF generation trivial — same library, same branded layout structure, just different content fields. Reusable patterns compound.
+- Running a UI consistency check as a separate stage after all features are built catches issues more reliably than checking during development — tonight it confirmed zero issues across all 4 components.

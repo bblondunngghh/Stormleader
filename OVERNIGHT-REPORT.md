@@ -1,86 +1,89 @@
-# Overnight Report — 2026-04-04
+# Overnight Report — 2026-04-05
 
 ## Executive Summary
 
-Tonight's run built 3 competitive features after completing a fresh round of competitor UI research across HailTrace, JobNimbus, RoofLink, and Rooftops.ai. The headline addition is a pipeline card sidebar preview matching JobNimbus's best UX pattern, followed by stale lead alerts (matching RoofLink) and two new Content Studio content types (matching Rooftops.ai). A fourth feature — in-person estimate signing — was started but not committed. Total: 3 feature commits, 2 docs commits, 1,767 lines added across 8 files.
+Tonight's run completed 4 competitive features identified as top quick wins in the app inventory audit: in-person estimate signing (finishing work started on 2026-04-04), calendar click-to-create task scheduling, contract PDF generation, and an enhanced payment recording modal. All four features directly close gaps against SumoQuote and JobNimbus. A UI consistency check confirmed all changes pass the project's glass/oklch/component standards. Total: 4 feature commits + 1 docs commit, 1,435 lines added across 10 files.
 
 ---
 
 ## Competitor Comparisons & Improvements Made
 
-### 1. Pipeline Card Sidebar Preview (vs JobNimbus)
+### 1. In-Person Estimate Signing (vs SumoQuote)
 
-**What we found:** JobNimbus's kanban board lets users click any pipeline card to open a right-side preview panel showing job details, status controls, and a "Full Page" link. Users can triage dozens of leads without ever leaving the board view. Our pipeline required opening a full-page LeadDetail modal for every card, breaking flow.
+**What we found:** SumoQuote allows contractors to present estimates on a tablet and have customers sign on-screen immediately, avoiding the delay of emailing a link and waiting. Our estimate signing flow required sending a link to the customer — no in-person option existed despite the backend function being coded in a prior session.
 
-**What changed:** Clicking a pipeline card now opens a right-side slide-in panel showing lead summary (name, phone, email, address), a stage selector for quick stage changes, storm data, recent activity, notes, and a "Full Detail" button that opens the existing LeadDetail modal. The panel closes with Escape or click-outside. This is a 310-line addition to Pipeline.jsx that fundamentally changes how users interact with the board.
+**What changed:** Wired the previously-uncommitted backend function to a proper API route. Built a full "Sign Now" modal in EstimatesView with a canvas-based signature pad (draw with mouse or touch), clear button, and submit flow. On signature submission, the estimate is marked as signed, the lead's estimated value updates, and a work order is auto-created. The modal uses glass styling with modal-backdrop animation.
 
-**Where to see it:** Pipeline page — click any lead card to open the sidebar.
+**Where to see it:** Estimates page — click any sent estimate, then hit the "Sign Now" button. A signature canvas modal opens for on-screen signing.
 
-### 2. Stale Lead Alerts (vs RoofLink)
+### 2. Calendar Click-to-Create Task (vs JobNimbus Scheduling)
 
-**What we found:** RoofLink triggers notifications when jobs haven't been touched in 3 or 7 days, keeping reps accountable and preventing leads from falling through the cracks. We had no aging alerts — leads could sit untouched indefinitely without anyone being notified.
+**What we found:** JobNimbus lets users click any calendar date or time slot to instantly create a task or appointment. Our calendar displayed existing tasks but had no click-to-create — users had to leave the calendar, navigate to Tasks, and create a task there, then return to verify the date.
 
-**What changed:** Added a daily cron job (8am) that scans leads in active sales stages (new_lead through estimate_sent) for those untouched for 3+ days. Creates stale_lead notifications for the assigned rep, or broadcasts to all tenant users if unassigned. Includes 4-day deduplication to prevent notification spam. Added "Stale Lead Alerts" to the notification preferences in Settings.
+**What changed:** Added a dateClick handler that opens a pre-filled task creation modal when any calendar date is clicked. The modal pre-populates the due date from the clicked date and includes all fields (title, description, priority, lead assignment, due date/time) using the project's CustomSelect and DatePicker components. Also added an illustrated empty state guiding users to click a date to get started.
 
-**Where to see it:** Notifications bell — stale lead alerts appear automatically. Settings > Notifications to toggle the category.
+**Where to see it:** Calendar page — click any date cell to open the new task creation modal.
 
-### 3. Content Studio — Cold Call Scripts & Landing Pages (vs Rooftops.ai)
+### 3. Contract PDF Generation (vs SumoQuote)
 
-**What we found:** Rooftops.ai's Creator Studio includes cold call script generation and landing page building as two of its eight content tools. Our Content Studio had 10 content types (emails, social posts, door hangers, etc.) but lacked these two categories that sales teams use daily.
+**What we found:** SumoQuote generates polished, branded PDF documents for contracts and proposals. Our contracts existed only as on-screen records with no download or print capability — contractors had no way to produce a professional document for customers or email attachments.
 
-**What changed:** Added two new content types with full template libraries:
-- **Cold Call Scripts:** 4 tone variants (Professional, Urgent, Friendly, Consultative) with 1-3 templates each. Each script has structured sections — Opening, Hook, Ask, Objection Handling, Close — rendered with color-coded section labels and a phone icon in the preview.
-- **Landing Pages:** 4 tone variants with headline, subheadline, CTA, body copy, and testimonial fields. Preview renders as a realistic dark-themed page with hero section, formatted body content, and testimonial strip.
+**What changed:** Built a server-side PDF generation endpoint using pdfmake (matching the pattern established for estimate PDFs). The generated contract PDF includes company branding, customer information, contract scope/terms, line items with pricing, signature blocks for both parties, and warranty language. Frontend adds a "Download PDF" button on each contract card.
 
-Backend: New templates and CONTENT_TYPES entries in contentService.js. Frontend: Two new preview components (ColdCallScriptPreview, LandingPagePreview) with updated type dropdown and preview routing.
+**Where to see it:** Contracts page — click the download button on any contract to generate and download a branded PDF.
 
-**Where to see it:** Content Studio > Generate tab — select "Cold Call Script" or "Landing Page" from the type dropdown.
+### 4. Enhanced Payment Recording Modal (vs JobNimbus)
+
+**What we found:** JobNimbus has a comprehensive payment recording interface with payment method selection (check, credit card, cash, financing), partial payment tracking, and payment notes. Our invoice payment modal was a bare-bones stub that didn't capture how payment was received or allow notes.
+
+**What changed:** Rebuilt the payment recording modal with a payment method selector (check, credit card, cash, ACH, financing, other), quick-fill button to auto-populate the remaining balance, editable amount field, reference number for checks/ACH, and a notes field. The modal uses glass styling with modal-scale-in animation, and all form inputs use the project's standard classes and components.
+
+**Where to see it:** Invoices page — click "Record Payment" on any invoice to see the enhanced modal.
 
 ---
 
 ## New Features Built
 
-All three features above were net-new additions to the application. No standalone new modules were built tonight — all work extended existing pages and services.
+All four features extended existing pages rather than creating new modules. The contract PDF endpoint is the only net-new backend route, complementing the existing estimate PDF generation endpoint.
 
 ---
 
 ## Features Still Behind Competitors
 
-### High Priority (Next Run)
+### High Priority
 
-- **In-person estimate signing** — SumoQuote and RoofLink allow customers to sign estimates on-screen immediately (tablet/phone) rather than waiting for an emailed link. Backend function is written (uncommitted in estimateService.js) but needs the frontend "Sign Now" button and signature canvas integration in the estimate review mode.
+- **QuickBooks sync** — JobNimbus and RoofLink both offer direct QuickBooks integration for invoice and expense sync. This is the #1 integration gap. Requires OAuth flow setup.
 
-- **Automated invoice reminders** — JobNimbus sends automatic follow-ups for overdue invoices at 3/7/14 days. Low effort with existing drip sequence cron infrastructure. Not started.
+- **SMS/texting** — JobNimbus, RoofLink, and Rooftops.ai all have built-in SMS. Our SMS composer UI exists in LeadDetail but sends nothing. Requires Twilio account (~$0.0075/msg).
 
-- **Storm severity star rating** — HailTrace rates storms 1-5 stars based on max hail size, impacted structures, and damage probability. We have severity data but don't aggregate it into a simple rating. Would display on Storm Archive cards and map popups.
+- **Automated invoice reminders** — JobNimbus auto-sends follow-ups for overdue invoices at configurable intervals. Low effort with existing cron infrastructure from drip sequences.
 
-- **More hail swath color stops** — HailTrace uses 10 levels per quarter-inch. We use 4 color steps. Expanding to 8-10 stops would match their granularity.
+- **Multi-page estimate proposals** — SumoQuote offers 8 page types (cover, intro, inspection photos, scope, options, terms, warranty, acceptance). Our estimates are a single continuous builder. A cover page would be the biggest visual upgrade.
 
 ### Medium Priority
 
-- **Multi-page estimate proposals** — SumoQuote has 8 page types (cover, intro, inspection photos, terms, warranty, etc.). We have a single continuous builder. Adding a cover page with company logo and customer home photo would be the biggest visual upgrade.
+- **Insurance-specific estimate fields** — RoofLink has ACV, recoverable depreciation, insurance proceeds, and O&P fields. Critical for storm restoration contractors.
 
-- **Insurance-specific estimate fields** — RoofLink has ACV, recoverable depreciation, insurance proceeds, and overhead & profit fields. Critical for storm restoration contractors.
+- **Pipeline invoice/outstanding column totals** — JobNimbus shows financial totals per pipeline column. We show estimated_value sums but not invoice data.
 
-- **Profit Tracker dashboard section** — JobNimbus has detailed planned vs actual cost tracking with variance analysis and commission payouts. We track per-lead expenses but have no aggregated profit view.
+- **Storm severity star rating** — HailTrace rates each storm 1-5 stars. We have severity data but no aggregated star rating on storm cards.
 
-- **Pipeline invoice/outstanding column totals** — JobNimbus shows Estimate Total, Invoice Total, and Outstanding per pipeline column. We only show estimated_value sums.
+- **AI chat assistant** — Both JobNimbus (Scout) and Rooftops.ai offer AI assistants for quick answers and content generation.
 
 ### Lower Priority
 
-- **Action-typed work order milestones** — RoofLink has schedule, upload, checkbox, and document action types. We only have toggle and photo-required.
-- **Crew role with limited visibility** — RoofLink charges $30/mo for crew logins that hide profit/cost data. We show everything to all users.
-- **AI chat assistant** — Both JobNimbus (Scout) and Rooftops.ai offer AI assistants. Lightweight implementation possible with GPT-4o-mini.
+- **Crew role with limited visibility** — RoofLink hides profit/cost data from crew logins.
+- **Action-typed work order milestones** — RoofLink has schedule, upload, checkbox, and document action types.
+- **Good/Better/Best estimate comparison** — SumoQuote's side-by-side tier comparison is more polished than ours.
 
 ---
 
 ## Where I Stopped
 
-In-person estimate signing was in progress when the run ended. The backend function (`signEstimateInPerson`) is written in estimateService.js but not committed. It handles the database update, lead value sync, and auto work order creation. What remains:
+All four planned implementations from the inventory quick-wins list are complete. The UI consistency check (Stage 4) confirmed all changes pass glass/oklch/component standards with no fixes needed. The build is green.
 
-1. Add the API route (POST endpoint in estimates routes)
-2. Build the frontend "Sign Now" button in the estimate review toolbar
-3. Open the existing signature canvas component inline (not via email link)
-4. Test the full flow: review estimate > sign now > signature captured > status updated > work order auto-created
-
-**Next run should start here**, then move to automated invoice reminders and storm severity star rating.
+**Next run should start at:**
+1. Automated invoice reminders (low effort — reuse drip sequence cron pattern)
+2. QuickBooks sync (high effort — OAuth flow, but biggest integration gap)
+3. SMS/texting via Twilio adapter (medium effort — UI already exists, needs backend)
+4. Multi-page estimate proposals with cover page (medium effort — extends existing builder)
