@@ -1224,6 +1224,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   const [footerNotes, setFooterNotes] = useState('');
   const [autoSaveStatus, setAutoSaveStatus] = useState(''); // '', 'saving', 'saved'
   const [showSendModal, setShowSendModal] = useState(false);
+  const [showSignModal, setShowSignModal] = useState(false);
   const [financingEnabled, setFinancingEnabled] = useState(estimate?.financing_enabled || false);
   const [selectedPlanIds, setSelectedPlanIds] = useState(estimate?.financing_plan_ids || []);
   const [availablePlans, setAvailablePlans] = useState([]);
@@ -1531,7 +1532,19 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
               PDF
             </button>
-            <button className="quick-action-btn" onClick={handleSave} disabled={saving} style={{ padding: '6px 18px', fontSize: 12 }}>
+            <button className="quick-action-btn" onClick={async () => {
+              if (!estimate) {
+                // Save first, then open signing
+                setSaving(true);
+                try {
+                  const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds };
+                  await estimatesApi.createEstimate(payload);
+                  showToast('Estimate saved', 'success');
+                } catch { showToast('Failed to save estimate', 'error'); setSaving(false); return; }
+                setSaving(false);
+              }
+              setShowSignModal(true);
+            }} disabled={saving} style={{ padding: '6px 18px', fontSize: 12 }}>
               Sign Now
             </button>
             <button className="quick-action-btn" onClick={() => { setReviewMode(false); setShowSendModal(true); }} style={{
@@ -2403,6 +2416,154 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
           }}
         />
       )}
+
+      {showSignModal && estimate && (
+        <InPersonSignModal
+          estimateId={estimate.id}
+          customerName={form.customer_name}
+          onClose={() => setShowSignModal(false)}
+          onSigned={() => {
+            setShowSignModal(false);
+            showToast('Estimate signed in person', 'success');
+            onSave();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// IN-PERSON SIGN MODAL — SumoQuote on-the-spot signing pattern
+// ============================================================
+
+function InPersonSignModal({ estimateId, customerName, onClose, onSigned }) {
+  const [signerName, setSignerName] = useState(customerName || '');
+  const [signing, setSigning] = useState(false);
+  const canvasRef = useRef(null);
+  const drawingRef = useRef(false);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }, []);
+
+  const startDraw = (e) => {
+    drawingRef.current = true;
+    const ctx = canvasRef.current.getContext('2d');
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = (e.clientX || e.touches?.[0]?.clientX) - rect.left;
+    const y = (e.clientY || e.touches?.[0]?.clientY) - rect.top;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
+
+  const draw = (e) => {
+    if (!drawingRef.current) return;
+    e.preventDefault();
+    const ctx = canvasRef.current.getContext('2d');
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = (e.clientX || e.touches?.[0]?.clientX) - rect.left;
+    const y = (e.clientY || e.touches?.[0]?.clientY) - rect.top;
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = '#1a1a1a';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+  };
+
+  const stopDraw = () => { drawingRef.current = false; };
+
+  const clearSignature = () => {
+    const ctx = canvasRef.current.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+  };
+
+  const handleSign = async () => {
+    if (!signerName.trim()) { showToast('Enter signer name', 'error'); return; }
+    setSigning(true);
+    try {
+      const signatureData = canvasRef.current.toDataURL('image/png');
+      await estimatesApi.signInPerson(estimateId, {
+        signer_name: signerName.trim(),
+        signature_data: signatureData,
+      });
+      onSigned();
+    } catch {
+      showToast('Failed to sign estimate', 'error');
+    } finally {
+      setSigning(false);
+    }
+  };
+
+  return (
+    <div className="modal-backdrop" style={{
+      position: 'fixed', inset: 0, zIndex: 9999,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(8px)',
+    }} onClick={onClose}>
+      <div className="glass modal-scale-in" onClick={e => e.stopPropagation()} style={{
+        borderRadius: 20, padding: 'var(--space-xl)', width: 480, maxWidth: '95vw',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-lg)' }}>
+          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Sign Estimate In Person</h3>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+            <IconX style={{ width: 18, height: 18 }} />
+          </button>
+        </div>
+
+        <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 'var(--space-md)' }}>
+          Hand the device to the customer to sign. Their signature will be captured and the estimate marked as accepted.
+        </div>
+
+        <div className="form-group" style={{ marginBottom: 'var(--space-md)' }}>
+          <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>Signer Name</label>
+          <input
+            className="form-input"
+            value={signerName}
+            onChange={e => setSignerName(e.target.value)}
+            placeholder="Customer full name"
+          />
+        </div>
+
+        <div style={{ marginBottom: 'var(--space-md)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>Signature</label>
+            <button onClick={clearSignature} className="quick-action-btn" style={{ padding: '4px 10px', fontSize: 11 }}>Clear</button>
+          </div>
+          <canvas
+            ref={canvasRef}
+            width={420}
+            height={150}
+            onMouseDown={startDraw}
+            onMouseMove={draw}
+            onMouseUp={stopDraw}
+            onMouseLeave={stopDraw}
+            onTouchStart={startDraw}
+            onTouchMove={draw}
+            onTouchEnd={stopDraw}
+            style={{
+              width: '100%', height: 150, borderRadius: 12,
+              border: '1px solid var(--glass-border)', cursor: 'crosshair',
+              background: 'oklch(0.98 0 0)', touchAction: 'none',
+            }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', gap: 'var(--space-sm)', justifyContent: 'flex-end' }}>
+          <button className="quick-action-btn" onClick={onClose} style={{ padding: '10px 20px', fontSize: 13 }}>Cancel</button>
+          <button className="auth-btn" onClick={handleSign} disabled={signing || !signerName.trim()} style={{
+            padding: '10px 24px', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6,
+          }}>
+            <IconCheck style={{ width: 14, height: 14 }} /> {signing ? 'Signing...' : 'Accept & Sign'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

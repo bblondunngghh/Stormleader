@@ -390,6 +390,21 @@ router.get('/:id/pdf', async (req, res, next) => {
   }
 });
 
+// In-person signing (SumoQuote on-the-spot pattern)
+router.post('/:id/sign-in-person', async (req, res, next) => {
+  try {
+    const { signer_name, signature_data } = req.body;
+    if (!signer_name) return res.status(400).json({ error: 'signer_name required' });
+    const estimate = await estimateService.signEstimateInPerson(
+      req.tenantId, req.params.id, signer_name, signature_data || null
+    );
+    if (!estimate) return res.status(404).json({ error: 'Estimate not found or already resolved' });
+    res.json(estimate);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Generate Good/Better/Best tiers from a single estimate
 router.post('/:id/generate-tiers', async (req, res, next) => {
   try {

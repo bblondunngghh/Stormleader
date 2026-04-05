@@ -8,4 +8,5 @@ export const sendEstimate = (id) => client.post(`/estimates/${id}/send`);
 export const duplicateEstimate = (id) => client.post(`/estimates/${id}/duplicate`);
 export const generateTiers = (id) => client.post(`/estimates/${id}/generate-tiers`);
 export const deleteEstimate = (id) => client.delete(`/estimates/${id}`);
+export const signInPerson = (id, data) => client.post(`/estimates/${id}/sign-in-person`, data);
 export const getTemplates = () => client.get('/estimates/templates');
