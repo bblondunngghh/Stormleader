@@ -1,0 +1,1286 @@
+{
+  "config": {
+    "configFile": "C:\\Projects\\stormleads\\playwright.config.js",
+    "rootDir": "C:/Projects/stormleads/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {},
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Projects/stormleads/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {},
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Projects/stormleads/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "tests/report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "tests/results.json"
+        }
+      ],
+      [
+        "list",
+        null
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 12,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "nightly-audit.spec.js",
+      "file": "nightly-audit.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Nightly UI Audit",
+          "file": "nightly-audit.spec.js",
+          "line": 81,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Sidebar nav links route correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d96b1992e63fe2b3672e-7412e129e85d9b3727c4",
+              "file": "nightly-audit.spec.js",
+              "line": 154,
+              "column": 7
+            },
+            {
+              "title": "All open modals use centering flex layout",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d96b1992e63fe2b3672e-11d47250b1fdbc9b5d62",
+              "file": "nightly-audit.spec.js",
+              "line": 469,
+              "column": 7
+            },
+            {
+              "title": "No routes return 404 or crash",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d96b1992e63fe2b3672e-81e7b8fe9e0500c3ec5c",
+              "file": "nightly-audit.spec.js",
+              "line": 511,
+              "column": 7
+            }
+          ],
+          "suites": [
+            {
+              "title": "Route Loading",
+              "file": "nightly-audit.spec.js",
+              "line": 92,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "Dashboard loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-9661d9b13d3c23181d56",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Pipeline loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-a0e7752471429ddf3c15",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Leads loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-d99b1e7e2561238bd8d1",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Storm Map loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-61986921c9bf92f6d23b",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Storm Catalog loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-3b5b98348a0ff1d3fdfc",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Alerts loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-de807d177b6cf62ee9b3",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Tasks loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-645d5ae1f52c2861311d",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Calendar loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-2df0999da74f80347a7b",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Canvassing loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-ce07ade9bdb0594dfede",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Estimates loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-6fac630efaea9fd2b6aa",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Invoices loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-6b9cf63ed8f0b8213ba4",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Reports loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-c88f922c0e2038fc9f25",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Materials loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-be14f6772ad8903b51ea",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Work Orders loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-3a82c16c8bba89edf9ba",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Content Studio loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-9ea01b38d0de979169f1",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Contracts loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-6c85163d2698af8fb359",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Expenses loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-c1af05a4357dff8c03c3",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Subcontractors loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-bb8fd30cb29743f7c250",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                },
+                {
+                  "title": "Settings loads without errors",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-c284aa89245a76e42bca",
+                  "file": "nightly-audit.spec.js",
+                  "line": 94,
+                  "column": 11
+                }
+              ]
+            },
+            {
+              "title": "Liquid Glass Styling",
+              "file": "nightly-audit.spec.js",
+              "line": 124,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "Dashboard has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-248a96ad26e712409d79",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Pipeline has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-eeabc62c00c416354b16",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Leads has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-e93e2f58c66d24c39b53",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Storm Map has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-a50d1ef338179e2f6e7e",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Storm Catalog has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-c2019f28fd6135d18a8c",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Alerts has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-52ba79918eb0a2197c45",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Tasks has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-bb86ba40f4cb45c4a2ae",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Calendar has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-db7272c67b8a36541412",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Canvassing has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-ad6f30ff0ba98998a12a",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Estimates has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-89544612d822fed38ce3",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Invoices has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-4c1e31baabfb2095d933",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Reports has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-879cd6861672bae5e26f",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Materials has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-d7434739bcd97082c150",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Work Orders has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-4404d2059ca1f6295db4",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Content Studio has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-dfc35bfd60e6c6f3788e",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Contracts has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-be133b754b5dc341ec3d",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Expenses has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-2a93c10258bd5790619b",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Subcontractors has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-f63d25431c669258c535",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                },
+                {
+                  "title": "Settings has glass panels",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-13ec5d92e49154a07e08",
+                  "file": "nightly-audit.spec.js",
+                  "line": 126,
+                  "column": 11
+                }
+              ]
+            },
+            {
+              "title": "Modal Centering",
+              "file": "nightly-audit.spec.js",
+              "line": 177,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "Create Lead modal is centered",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-090d3edb23c6046fedf8",
+                  "file": "nightly-audit.spec.js",
+                  "line": 178,
+                  "column": 9
+                },
+                {
+                  "title": "Work Order modal is centered",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-d62777ecd9adbf760404",
+                  "file": "nightly-audit.spec.js",
+                  "line": 196,
+                  "column": 9
+                },
+                {
+                  "title": "Invoice modal is centered",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-57cb1672ce4cf0862fee",
+                  "file": "nightly-audit.spec.js",
+                  "line": 216,
+                  "column": 9
+                },
+                {
+                  "title": "Estimate modal is centered",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-70ec8f64ef12598b5245",
+                  "file": "nightly-audit.spec.js",
+                  "line": 234,
+                  "column": 9
+                },
+                {
+                  "title": "Materials modal is centered",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-aab21e0ad1a07ceedc65",
+                  "file": "nightly-audit.spec.js",
+                  "line": 252,
+                  "column": 9
+                },
+                {
+                  "title": "Expense modal is centered",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-78df3613b8be3e99a089",
+                  "file": "nightly-audit.spec.js",
+                  "line": 270,
+                  "column": 9
+                },
+                {
+                  "title": "Settings modals are centered",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-737be6ebacae611e3995",
+                  "file": "nightly-audit.spec.js",
+                  "line": 288,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Button Functionality",
+              "file": "nightly-audit.spec.js",
+              "line": 310,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "Dashboard stat cards and actions work",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-55c85acbd0e476fe0cd1",
+                  "file": "nightly-audit.spec.js",
+                  "line": 311,
+                  "column": 9
+                },
+                {
+                  "title": "Pipeline kanban drag handles exist",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-bd80ba287cc2ce5cf26d",
+                  "file": "nightly-audit.spec.js",
+                  "line": 330,
+                  "column": 9
+                },
+                {
+                  "title": "Leads — import and export buttons exist",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-d97195c2631a2da426db",
+                  "file": "nightly-audit.spec.js",
+                  "line": 341,
+                  "column": 9
+                },
+                {
+                  "title": "Tasks — add task button works",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-be182f5701087b464b84",
+                  "file": "nightly-audit.spec.js",
+                  "line": 360,
+                  "column": 9
+                },
+                {
+                  "title": "Settings tabs are clickable",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-4d6154c43c3adcd3eb9a",
+                  "file": "nightly-audit.spec.js",
+                  "line": 374,
+                  "column": 9
+                },
+                {
+                  "title": "Reports — filter controls work",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-ee9f982e7c666239fa0c",
+                  "file": "nightly-audit.spec.js",
+                  "line": 396,
+                  "column": 9
+                },
+                {
+                  "title": "Calendar view switcher works",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-eeef5cecfc2cb5e4f189",
+                  "file": "nightly-audit.spec.js",
+                  "line": 415,
+                  "column": 9
+                },
+                {
+                  "title": "Content Studio tabs work",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-5e830953ece0125f37a3",
+                  "file": "nightly-audit.spec.js",
+                  "line": 428,
+                  "column": 9
+                },
+                {
+                  "title": "Estimates — new estimate flow starts",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-2f1fd8ab9028da049665",
+                  "file": "nightly-audit.spec.js",
+                  "line": 441,
+                  "column": 9
+                },
+                {
+                  "title": "Subcontractors — add button works",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [],
+                      "status": "skipped"
+                    }
+                  ],
+                  "id": "d96b1992e63fe2b3672e-944ad4f3e8e9faa83187",
+                  "file": "nightly-audit.spec.js",
+                  "line": 453,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-03-30T05:05:46.877Z",
+    "duration": 31.25,
+    "expected": 0,
+    "skipped": 58,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

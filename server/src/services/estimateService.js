@@ -350,6 +350,37 @@ export async function acceptEstimate(token, signerName, signatureData) {
   return estimate || null;
 }
 
+// In-person signing (SumoQuote on-the-spot pattern) — works by ID + tenant
+export async function signEstimateInPerson(tenantId, estimateId, signerName, signatureData) {
+  const { rows } = await pool.query(
+    `UPDATE estimates
+     SET status = 'accepted', signed_at = now(), signer_name = $3, signature_data = $4
+     WHERE id = $1 AND tenant_id = $2 AND status IN ('draft', 'sent', 'viewed')
+     RETURNING *`,
+    [estimateId, tenantId, signerName, signatureData]
+  );
+  const estimate = rows[0];
+  if (estimate && estimate.lead_id) {
+    await syncLeadEstimatedValue(estimate.lead_id, estimate.tenant_id);
+  }
+
+  // Auto-create work order
+  if (estimate) {
+    try {
+      const { rows: existingWo } = await pool.query(
+        'SELECT id FROM work_orders WHERE estimate_id = $1', [estimate.id]
+      );
+      if (existingWo.length === 0) {
+        await createWorkOrderFromEstimate(estimate.tenant_id, estimate.id);
+      }
+    } catch (err) {
+      logger.warn({ err, estimateId: estimate.id }, 'Auto work order creation from in-person sign failed');
+    }
+  }
+
+  return estimate || null;
+}
+
 export async function declineEstimate(token) {
   const { rows } = await pool.query(
     `UPDATE estimates SET status = 'declined'
