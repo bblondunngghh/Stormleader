@@ -1002,7 +1002,15 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
 function PaymentModal({ invoice, onClose, onRecorded }) {
   const balance = Number(invoice.total) - Number(invoice.amount_paid || 0);
   const [amount, setAmount] = useState(balance > 0 ? balance.toFixed(2) : '');
+  const [paymentMethod, setPaymentMethod] = useState('check');
+  const [referenceNote, setReferenceNote] = useState('');
   const [saving, setSaving] = useState(false);
+
+  const quickAmounts = [
+    { label: 'Full Balance', value: balance },
+    { label: '50%', value: balance * 0.5 },
+    { label: '25%', value: balance * 0.25 },
+  ].filter(q => q.value > 0);
 
   const handleSubmit = async () => {
     const val = parseFloat(amount);
@@ -1010,10 +1018,14 @@ function PaymentModal({ invoice, onClose, onRecorded }) {
       showToast('Enter a valid payment amount', 'error');
       return;
     }
+    if (val > balance + 0.01) {
+      showToast('Amount exceeds balance due', 'error');
+      return;
+    }
     setSaving(true);
     try {
       await invoicesApi.recordPayment(invoice.id, val);
-      showToast('Payment recorded', 'success');
+      showToast(`Payment of $${val.toLocaleString(undefined, { minimumFractionDigits: 2 })} recorded via ${paymentMethod}`, 'success');
       onRecorded();
     } catch {
       showToast('Failed to record payment', 'error');
@@ -1022,38 +1034,58 @@ function PaymentModal({ invoice, onClose, onRecorded }) {
     }
   };
 
+  const methodOptions = [
+    { value: 'check', label: 'Check', icon: '📋' },
+    { value: 'cash', label: 'Cash', icon: '💵' },
+    { value: 'card', label: 'Credit Card', icon: '💳' },
+    { value: 'ach', label: 'ACH / Bank Transfer', icon: '🏦' },
+    { value: 'insurance', label: 'Insurance Proceeds', icon: '🛡️' },
+    { value: 'financing', label: 'Financing', icon: '📊' },
+    { value: 'other', label: 'Other', icon: '📝' },
+  ];
+
   return (
     <div className="modal-backdrop" style={{
       position: 'fixed', inset: 0, zIndex: 9999,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(8px)',
     }} onClick={onClose}>
-      <div className="glass" onClick={e => e.stopPropagation()} style={{
-        borderRadius: 20, padding: 'var(--space-xl)', width: 400, maxWidth: '90vw',
+      <div className="glass modal-scale-in" onClick={e => e.stopPropagation()} style={{
+        borderRadius: 20, padding: 'var(--space-xl)', width: 440, maxWidth: '95vw',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-lg)' }}>
-          <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Record Payment</h3>
+          <div>
+            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Record Payment</h3>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{invoice.invoice_number || 'Invoice'}</div>
+          </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
             <IconX style={{ width: 18, height: 18 }} />
           </button>
         </div>
 
-        <div style={{ marginBottom: 'var(--space-md)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 'var(--space-sm)' }}>
+        {/* Invoice summary */}
+        <div style={{
+          marginBottom: 'var(--space-lg)', padding: 'var(--space-md)',
+          borderRadius: 12, background: 'oklch(0.16 0.02 260 / 0.5)', border: '1px solid var(--glass-border)',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 6 }}>
             <span style={{ color: 'var(--text-muted)' }}>Invoice Total</span>
             <span style={{ fontWeight: 600 }}>${Number(invoice.total).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 'var(--space-sm)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 6 }}>
             <span style={{ color: 'var(--text-muted)' }}>Already Paid</span>
             <span style={{ fontWeight: 600, color: 'oklch(0.75 0.18 145)' }}>${Number(invoice.amount_paid || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, borderTop: '1px solid oklch(0.3 0.03 260)', paddingTop: 'var(--space-sm)' }}>
-            <span style={{ color: 'var(--text-muted)' }}>Balance Due</span>
-            <span style={{ fontWeight: 700, color: 'oklch(0.65 0.2 25)' }}>${balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, borderTop: '1px solid oklch(0.3 0.03 260)', paddingTop: 6 }}>
+            <span style={{ fontWeight: 600 }}>Balance Due</span>
+            <span style={{ fontWeight: 800, fontSize: 16, color: balance > 0 ? 'oklch(0.65 0.2 25)' : 'oklch(0.75 0.18 145)' }}>
+              ${balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            </span>
           </div>
         </div>
 
-        <div style={{ marginBottom: 'var(--space-lg)' }}>
+        {/* Payment amount + quick fills */}
+        <div style={{ marginBottom: 'var(--space-md)' }}>
           <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>Payment Amount</label>
           <input
             type="number"
@@ -1061,9 +1093,66 @@ function PaymentModal({ invoice, onClose, onRecorded }) {
             value={amount}
             onChange={e => setAmount(e.target.value)}
             min="0"
+            max={balance}
             step="0.01"
             autoFocus
-            style={{ fontSize: 16, fontWeight: 700, height: 44 }}
+            onKeyDown={e => { if (e.key === 'Enter' && amount) handleSubmit(); }}
+            style={{ fontSize: 18, fontWeight: 700, height: 48 }}
+          />
+          {quickAmounts.length > 1 && (
+            <div style={{ display: 'flex', gap: 'var(--space-xs)', marginTop: 8 }}>
+              {quickAmounts.map(q => (
+                <button key={q.label} onClick={() => setAmount(q.value.toFixed(2))} className="quick-action-btn" style={{
+                  padding: '4px 10px', fontSize: 11, flex: 1,
+                  background: parseFloat(amount) === parseFloat(q.value.toFixed(2)) ? 'oklch(0.35 0.12 145 / 0.3)' : undefined,
+                }}>
+                  {q.label} (${q.value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })})
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Payment method selector */}
+        <div style={{ marginBottom: 'var(--space-md)' }}>
+          <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>Payment Method</label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+            {methodOptions.slice(0, 4).map(m => (
+              <button key={m.value} onClick={() => setPaymentMethod(m.value)} className="quick-action-btn" style={{
+                padding: '8px 4px', fontSize: 11, textAlign: 'center', lineHeight: 1.3,
+                background: paymentMethod === m.value ? 'oklch(0.35 0.12 145 / 0.3)' : undefined,
+                border: paymentMethod === m.value ? '1px solid oklch(0.55 0.18 145)' : undefined,
+              }}>
+                <div style={{ fontSize: 16, marginBottom: 2 }}>{m.icon}</div>
+                {m.label}
+              </button>
+            ))}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginTop: 6 }}>
+            {methodOptions.slice(4).map(m => (
+              <button key={m.value} onClick={() => setPaymentMethod(m.value)} className="quick-action-btn" style={{
+                padding: '8px 4px', fontSize: 11, textAlign: 'center', lineHeight: 1.3,
+                background: paymentMethod === m.value ? 'oklch(0.35 0.12 145 / 0.3)' : undefined,
+                border: paymentMethod === m.value ? '1px solid oklch(0.55 0.18 145)' : undefined,
+              }}>
+                <div style={{ fontSize: 16, marginBottom: 2 }}>{m.icon}</div>
+                {m.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Reference / notes */}
+        <div style={{ marginBottom: 'var(--space-lg)' }}>
+          <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>
+            Reference / Notes <span style={{ fontWeight: 400 }}>(optional)</span>
+          </label>
+          <input
+            type="text"
+            className="form-input"
+            value={referenceNote}
+            onChange={e => setReferenceNote(e.target.value)}
+            placeholder={paymentMethod === 'check' ? 'Check #' : paymentMethod === 'insurance' ? 'Claim #' : 'Reference or note'}
           />
         </div>
 
@@ -1071,8 +1160,11 @@ function PaymentModal({ invoice, onClose, onRecorded }) {
           <button onClick={onClose} className="quick-action-btn" style={{ flex: 1, padding: '12px', fontSize: 13, fontWeight: 600 }}>
             Cancel
           </button>
-          <button onClick={handleSubmit} disabled={saving} className="auth-btn" style={{ flex: 1, padding: '12px', fontSize: 13, fontWeight: 600, background: 'oklch(0.35 0.15 145)', border: 'none' }}>
-            {saving ? 'Recording...' : 'Record Payment'}
+          <button onClick={handleSubmit} disabled={saving || !amount || parseFloat(amount) <= 0} className="auth-btn" style={{
+            flex: 1, padding: '12px', fontSize: 13, fontWeight: 600, background: 'oklch(0.35 0.15 145)', border: 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+          }}>
+            <IconDollar style={{ width: 14, height: 14 }} /> {saving ? 'Recording...' : 'Record Payment'}
           </button>
         </div>
       </div>
