@@ -7,13 +7,13 @@ import { SparklesIcon, ClipboardDocumentIcon, ArrowPathIcon, BookmarkIcon, Folde
 import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid';
 
 const CONTENT_TYPES = [
-  { value: 'social_post', label: 'Social Posts' },
-  { value: 'door_hanger', label: 'Door Hangers' },
-  { value: 'email_template', label: 'Email Templates' },
-  { value: 'blog_outline', label: 'Blog Outlines' },
-  { value: 'ad_copy', label: 'Ad Copy' },
-  { value: 'cold_call_script', label: 'Cold Call Scripts' },
-  { value: 'landing_page', label: 'Landing Pages' },
+  { value: 'social_post', label: 'Social Posts', icon: 'share', description: 'Facebook, Instagram, LinkedIn posts' },
+  { value: 'door_hanger', label: 'Door Hangers', icon: 'doorbell', description: 'Leave-behind flyers for neighborhoods' },
+  { value: 'email_template', label: 'Email Templates', icon: 'mail', description: 'Follow-ups, drip campaigns, outreach' },
+  { value: 'blog_outline', label: 'Blog Outlines', icon: 'article', description: 'SEO-friendly blog post structures' },
+  { value: 'ad_copy', label: 'Ad Copy', icon: 'campaign', description: 'Google Ads, Facebook Ads headlines' },
+  { value: 'cold_call_script', label: 'Cold Call Scripts', icon: 'call', description: 'Phone scripts with objection handling' },
+  { value: 'landing_page', label: 'Landing Pages', icon: 'web', description: 'Storm response landing page copy' },
 ];
 
 const TONES = [
@@ -655,12 +655,62 @@ export default function ContentStudio() {
 
             <div className="content-studio__field">
               <label>Content Type</label>
-              <CustomSelect
-                value={type}
-                onChange={setType}
-                options={CONTENT_TYPES}
-                style={{ width: '100%' }}
-              />
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+                gap: 'var(--space-sm)',
+              }}>
+                {CONTENT_TYPES.map((ct) => {
+                  const selected = type === ct.value;
+                  return (
+                    <button
+                      key={ct.value}
+                      type="button"
+                      onClick={() => setType(ct.value)}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-start',
+                        gap: 6,
+                        padding: 'var(--space-md)',
+                        background: 'oklch(0.16 0.02 260 / 0.4)',
+                        border: `1px solid ${selected ? 'var(--accent-blue)' : 'var(--glass-border)'}`,
+                        borderRadius: 'var(--radius-md)',
+                        cursor: 'pointer',
+                        boxShadow: selected ? '0 0 12px oklch(0.72 0.19 250 / 0.2)' : 'none',
+                        transition: 'all 0.15s ease',
+                        textAlign: 'left',
+                      }}
+                    >
+                      <span
+                        className="material-symbols-outlined"
+                        style={{
+                          fontSize: 22,
+                          color: selected ? 'var(--accent-blue)' : 'var(--text-muted)',
+                          transition: 'color 0.15s ease',
+                        }}
+                      >
+                        {ct.icon}
+                      </span>
+                      <span style={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: selected ? 'var(--text-primary)' : 'var(--text-secondary)',
+                        lineHeight: 1.2,
+                      }}>
+                        {ct.label}
+                      </span>
+                      <span style={{
+                        fontSize: 10,
+                        color: 'var(--text-muted)',
+                        lineHeight: 1.3,
+                      }}>
+                        {ct.description}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="content-studio__field">
