@@ -757,6 +757,48 @@ router.get('/dashboard/tasks-today', async (req, res, next) => {
   }
 });
 
+// GET /api/crm/dashboard/days-in-stage
+router.get('/dashboard/days-in-stage', async (req, res, next) => {
+  try {
+    const stageLabels = {
+      new: 'New', new_lead: 'New', contacted: 'Contacted', appt_set: 'Appt Set',
+      inspection: 'Inspection', inspected: 'Inspection', estimate_sent: 'Estimate Sent',
+      negotiation: 'Negotiation', negotiating: 'Negotiation', sold: 'Sold',
+      in_production: 'Production', material_ordered: 'Material Ordered',
+      work_scheduled: 'Scheduled', work_in_progress: 'In Progress',
+      work_complete: 'Complete', invoiced: 'Invoiced', paid: 'Paid',
+    };
+
+    const { rows } = await pool.query(
+      `SELECT
+         stage,
+         ROUND(AVG(EXTRACT(EPOCH FROM (NOW() - updated_at)) / 86400), 1) as avg_days,
+         COUNT(*) as lead_count,
+         COUNT(*) FILTER (WHERE updated_at < NOW() - INTERVAL '7 days') as stuck_leads
+       FROM leads
+       WHERE tenant_id = $1
+         AND stage NOT IN ('closed_won', 'closed_lost')
+         AND updated_at IS NOT NULL
+         AND deleted_at IS NULL
+       GROUP BY stage
+       ORDER BY avg_days DESC`,
+      [req.tenantId]
+    );
+
+    const stages = rows.map(r => ({
+      stage: r.stage,
+      label: stageLabels[r.stage] || r.stage,
+      avg_days: parseFloat(r.avg_days),
+      lead_count: parseInt(r.lead_count, 10),
+      stuck_leads: parseInt(r.stuck_leads, 10),
+    }));
+
+    res.json({ stages });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ============================================================
 // PROSPECT LISTS
 // ============================================================

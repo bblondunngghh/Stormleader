@@ -538,6 +538,7 @@ export default function Dashboard() {
   const [estimateSummary, setEstimateSummary] = useState(null);
   const [arSummary, setArSummary] = useState(null);
   const [estConversion, setEstConversion] = useState(null);
+  const [daysInStage, setDaysInStage] = useState([]);
   const [loading, setLoading] = useState(true);
   // Dashboard filters (JN Insights-style)
   const [dashRep, setDashRep] = useState('');
@@ -573,11 +574,12 @@ export default function Dashboard() {
 
   const fetchAll = useCallback(async () => {
     try {
-      const [statsRes, funnelRes, activityRes, leaderRes, tasksRes, followupsRes, convRes, estRes, arRes, estConvRes] = await Promise.allSettled([
+      const [statsRes, funnelRes, activityRes, leaderRes, tasksRes, followupsRes, convRes, estRes, arRes, estConvRes, daysRes] = await Promise.allSettled([
         dashboardApi.getStats(dashFilters), dashboardApi.getFunnel(dashFilters), dashboardApi.getActivity(dashFilters),
         dashboardApi.getLeaderboard(), dashboardApi.getTasksToday(), dashboardApi.getFollowups(),
         dashboardApi.getConversionByStorm(), dashboardApi.getEstimateSummary(),
         dashboardApi.getArSummary(), dashboardApi.getEstimatingConversion(),
+        dashboardApi.getDaysInStage(),
       ]);
       if (statsRes.status === 'fulfilled' && statsRes.value.data?.stats)
         setStats(statsRes.value.data.stats.map((s, i) => ({ ...s, tint: emptyStats[i]?.tint, link: emptyStats[i]?.link || '/leads' })));
@@ -590,6 +592,7 @@ export default function Dashboard() {
       if (estRes.status === 'fulfilled' && estRes.value.data) setEstimateSummary(estRes.value.data);
       if (arRes.status === 'fulfilled' && arRes.value.data) setArSummary(arRes.value.data);
       if (estConvRes.status === 'fulfilled' && estConvRes.value.data) setEstConversion(estConvRes.value.data);
+      if (daysRes.status === 'fulfilled' && daysRes.value.data?.stages) setDaysInStage(daysRes.value.data.stages);
     } finally { setLoading(false); }
   }, [dashRep, dashSource, dashPeriod]);
 
@@ -1595,7 +1598,39 @@ export default function Dashboard() {
         </Panel>
       </div>
 
-      {/* ── Row 6: Leaderboard ── */}
+      {/* ── Row 6: Days in Stage (vs JobNimbus Insights) ── */}
+      {daysInStage.length > 0 && (
+        <Panel title="Days in Stage" action={() => navigate('/pipeline')} actionLabel="View Pipeline">
+          <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${Math.min(daysInStage.length, 6)}, 1fr)` }}>
+            {daysInStage.map((s) => {
+              const days = Number(s.avg_days) || 0;
+              const stuck = Number(s.stuck_leads) || 0;
+              const isWarning = days > 14;
+              const isCritical = days > 30;
+              const barColor = isCritical ? 'oklch(0.68 0.22 25)' : isWarning ? 'oklch(0.78 0.17 85)' : 'oklch(0.72 0.19 250)';
+              const barPct = Math.min((days / 45) * 100, 100);
+              return (
+                <div key={s.stage} className="flex flex-col items-center text-center cursor-pointer rounded-lg py-3 px-2 transition-colors hover:bg-[oklch(1_0_0/0.03)]" onClick={() => navigate(`/leads?stage=${s.stage}`)}>
+                  <span className="text-2xl font-[820] tracking-tight" style={{ color: barColor }}>{days.toFixed(1)}</span>
+                  <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider mt-0.5 mb-2">{s.label}</span>
+                  <div className="w-full h-[4px] rounded-sm bg-[oklch(0.12_0.015_265/0.5)] mb-1.5">
+                    <div className="h-full rounded-sm transition-[width] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]" style={{
+                      width: `${barPct}%`, background: barColor,
+                      boxShadow: isCritical ? `0 0 8px oklch(0.68 0.22 25 / 0.4)` : 'none',
+                    }} />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] text-[var(--text-secondary)]">{s.lead_count} lead{s.lead_count !== 1 ? 's' : ''}</span>
+                    {stuck > 0 && <span className="text-[9px] font-bold px-1 py-0.5 rounded" style={{ color: 'oklch(0.68 0.22 25)', background: 'oklch(0.68 0.22 25 / 0.12)' }}>{stuck} stuck</span>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Panel>
+      )}
+
+      {/* ── Row 7: Leaderboard ── */}
       {leaderboard.length > 0 && (
         <Panel title="Team Leaderboard">
           <div style={{ overflowX: 'auto' }}>

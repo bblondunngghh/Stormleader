@@ -12,3 +12,4 @@ export const getConversionByStorm = () => client.get('/crm/dashboard/conversion-
 export const getEstimateSummary = () => client.get('/crm/dashboard/estimate-summary');
 export const getArSummary = () => client.get('/crm/dashboard/ar-summary');
 export const getEstimatingConversion = () => client.get('/crm/dashboard/estimating-conversion');
+export const getDaysInStage = () => client.get('/crm/dashboard/days-in-stage');
