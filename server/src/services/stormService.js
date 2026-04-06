@@ -58,7 +58,7 @@ function makeWavy(geometry) {
 }
 
 
-export async function listEvents({ source, limit = 50, offset = 0, timeRange }) {
+export async function listEvents({ source, limit = 50, offset = 0, timeRange, dateFrom, dateTo }) {
   const params = [];
   const conditions = [];
 
@@ -67,7 +67,12 @@ export async function listEvents({ source, limit = 50, offset = 0, timeRange }) 
     conditions.push(`source = $${params.length}`);
   }
 
-  if (timeRange) {
+  if (dateFrom && dateTo) {
+    // Custom date range overrides timeRange
+    params.push(dateFrom, dateTo);
+    conditions.push(`event_start >= $${params.length - 1}::date`);
+    conditions.push(`event_start < ($${params.length}::date + INTERVAL '1 day')`);
+  } else if (timeRange) {
     const intervals = { '12h': '12 hours', '24h': '24 hours', '3d': '3 days', '7d': '7 days', '14d': '14 days', '30d': '30 days' };
     const interval = intervals[timeRange];
     if (interval) {

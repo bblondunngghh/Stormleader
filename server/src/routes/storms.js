@@ -7,12 +7,14 @@ router.use(authenticate);
 
 router.get('/', async (req, res, next) => {
   try {
-    const { source, limit = '50', offset = '0', timeRange } = req.query;
+    const { source, limit = '50', offset = '0', timeRange, dateFrom, dateTo } = req.query;
     const result = await stormService.listEvents({
       source: source || undefined,
       limit: parseInt(limit, 10),
       offset: parseInt(offset, 10),
       timeRange: timeRange || undefined,
+      dateFrom: dateFrom || undefined,
+      dateTo: dateTo || undefined,
     });
     res.json(result);
   } catch (err) {

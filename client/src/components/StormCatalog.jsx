@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { getStorms } from '../api/storms';
 import client from '../api/client';
+import DatePicker from './DatePicker';
 
 const TIME_RANGES = [
   { id: '24h', label: '24 Hours' },
@@ -21,15 +22,48 @@ export default function StormCatalog() {
   const [storms, setStorms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState('30d');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [search, setSearch] = useState('');
   const [locations, setLocations] = useState({});
   const [sortBy, setSortBy] = useState('date'); // date | severity | hail | wind
   const [typeFilter, setTypeFilter] = useState(''); // '' | Hail | Wind | Tornado
   const geocodeCacheRef = useRef({});
 
+  const isCustomRange = !!(dateFrom && dateTo);
+
+  const handlePillClick = (id) => {
+    setTimeRange(id);
+    setDateFrom('');
+    setDateTo('');
+  };
+
+  const handleDateFromChange = (val) => {
+    setDateFrom(val);
+    if (val && dateTo) setTimeRange('');
+  };
+
+  const handleDateToChange = (val) => {
+    setDateTo(val);
+    if (dateFrom && val) setTimeRange('');
+  };
+
+  const clearDateRange = () => {
+    setDateFrom('');
+    setDateTo('');
+    setTimeRange('30d');
+  };
+
   useEffect(() => {
     setLoading(true);
-    getStorms({ timeRange, limit: 200 })
+    const params = { limit: 200 };
+    if (isCustomRange) {
+      params.dateFrom = dateFrom;
+      params.dateTo = dateTo;
+    } else if (timeRange) {
+      params.timeRange = timeRange;
+    }
+    getStorms(params)
       .then(({ data }) => {
         const features = data?.features || [];
         setStorms(features.sort((a, b) =>
@@ -38,7 +72,7 @@ export default function StormCatalog() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [timeRange]);
+  }, [timeRange, dateFrom, dateTo]);
 
   // Lazy reverse-geocode storms that don't have location in raw_data
   useEffect(() => {
@@ -170,16 +204,81 @@ export default function StormCatalog() {
     <div className="main-content" style={{ padding: 'var(--space-xl)' }}>
       <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 'var(--space-lg)' }}>Storm Archive</h1>
 
-      <div style={{ display: 'flex', gap: 'var(--space-sm)', marginBottom: 'var(--space-sm)', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-sm)', marginBottom: 'var(--space-sm)', flexWrap: 'wrap', alignItems: 'center' }}>
         {TIME_RANGES.map(tr => (
           <button key={tr.id}
-            className={`btn ${timeRange === tr.id ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setTimeRange(tr.id)}
+            className={`btn ${timeRange === tr.id && !isCustomRange ? 'btn-primary' : 'btn-secondary'}`}
+            onClick={() => handlePillClick(tr.id)}
             style={{ fontSize: 12, padding: '6px 14px' }}
           >
             {tr.label}
           </button>
         ))}
+
+        {/* Separator */}
+        <div style={{ width: 1, height: 24, background: 'var(--glass-border)', flexShrink: 0 }} />
+
+        {/* Custom pill - active when date range is set */}
+        <button
+          className={`btn ${isCustomRange ? 'btn-primary' : 'btn-secondary'}`}
+          style={{ fontSize: 12, padding: '6px 14px' }}
+          onClick={() => {
+            if (!isCustomRange) {
+              // Pre-fill with a reasonable default: last 30 days
+              const now = new Date();
+              const from = new Date(now);
+              from.setDate(from.getDate() - 30);
+              const fmt = (d) => d.toISOString().slice(0, 10);
+              setDateFrom(fmt(from));
+              setDateTo(fmt(now));
+              setTimeRange('');
+            }
+          }}
+        >
+          Custom
+        </button>
+
+        {/* Date range pickers */}
+        {isCustomRange && (
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, whiteSpace: 'nowrap' }}>From</span>
+              <div style={{ width: 130 }}>
+                <DatePicker
+                  value={dateFrom}
+                  onChange={handleDateFromChange}
+                  placeholder="Start date"
+                />
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, whiteSpace: 'nowrap' }}>To</span>
+              <div style={{ width: 130 }}>
+                <DatePicker
+                  value={dateTo}
+                  onChange={handleDateToChange}
+                  placeholder="End date"
+                />
+              </div>
+            </div>
+            <button
+              onClick={clearDateRange}
+              title="Clear date range"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: 28, height: 28, borderRadius: 'var(--radius-pill)',
+                background: 'oklch(0.35 0.05 30 / 0.3)', border: '1px solid oklch(0.55 0.15 30 / 0.3)',
+                color: 'oklch(0.75 0.12 30)', cursor: 'pointer', flexShrink: 0,
+                fontSize: 14, lineHeight: 1, padding: 0,
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </>
+        )}
+
         <input
           className="form-input"
           placeholder="Search storms..."
