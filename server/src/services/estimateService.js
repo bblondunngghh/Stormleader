@@ -24,6 +24,7 @@ export async function createEstimate(tenantId, userId, data) {
     line_items = [], tax_rate = 0, discount_type = 'flat', discount_value = 0,
     scope_of_work, terms, warranty_info, notes, valid_until,
     financing_enabled = false, financing_plan_ids = [],
+    insurance_details = {}, upgrades = [],
   } = data;
 
   const { subtotal, tax_amount, total } = calculateTotals(line_items, tax_rate, discount_type, discount_value);
@@ -34,8 +35,9 @@ export async function createEstimate(tenantId, userId, data) {
       customer_name, customer_address, customer_phone, customer_email,
       line_items, subtotal, tax_rate, tax_amount, discount_type, discount_value, total,
       scope_of_work, terms, warranty_info, notes, valid_until,
-      financing_enabled, financing_plan_ids
-    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
+      financing_enabled, financing_plan_ids,
+      insurance_details, upgrades
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25)
     RETURNING *`,
     [
       tenantId, userId, lead_id || null, estimate_number, public_token,
@@ -43,6 +45,7 @@ export async function createEstimate(tenantId, userId, data) {
       JSON.stringify(line_items), subtotal, tax_rate, tax_amount, discount_type, discount_value, total,
       scope_of_work || null, terms || null, warranty_info || null, notes || null, valid_until || null,
       financing_enabled, JSON.stringify(financing_plan_ids),
+      JSON.stringify(insurance_details), JSON.stringify(upgrades),
     ]
   );
 
@@ -113,6 +116,7 @@ export async function updateEstimate(tenantId, estimateId, updates) {
     'line_items', 'tax_rate', 'discount_type', 'discount_value',
     'scope_of_work', 'terms', 'warranty_info', 'notes', 'valid_until', 'status',
     'financing_enabled', 'financing_plan_ids',
+    'insurance_details', 'upgrades',
   ];
 
   const setClauses = [];
@@ -120,7 +124,8 @@ export async function updateEstimate(tenantId, estimateId, updates) {
 
   for (const field of allowedFields) {
     if (updates[field] !== undefined) {
-      const val = (field === 'line_items' || field === 'financing_plan_ids') ? JSON.stringify(updates[field]) : updates[field];
+      const jsonFields = ['line_items', 'financing_plan_ids', 'insurance_details', 'upgrades'];
+      const val = jsonFields.includes(field) ? JSON.stringify(updates[field]) : updates[field];
       params.push(val);
       setClauses.push(`${field} = $${params.length}`);
     }

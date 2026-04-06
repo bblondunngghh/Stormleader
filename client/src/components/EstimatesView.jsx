@@ -1229,6 +1229,12 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   const [selectedPlanIds, setSelectedPlanIds] = useState(estimate?.financing_plan_ids || []);
   const [availablePlans, setAvailablePlans] = useState([]);
   const [hasLender, setHasLender] = useState(false);
+  const [insuranceDetails, setInsuranceDetails] = useState({
+    insurance_company: '', claim_number: '', date_of_loss: '',
+    acv: '', rcv: '', depreciation: '', deductible: '', overhead_profit: '', proceeds_received: '',
+  });
+  const [insuranceEnabled, setInsuranceEnabled] = useState(false);
+  const [upgrades, setUpgrades] = useState([]);
   const sectionImageInputRef = useRef(null);
   const [imageUploadTarget, setImageUploadTarget] = useState(null); // section id
   const editorRef = useRef(null);
@@ -1267,6 +1273,13 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
       }
       if (estimate.profit_margin != null) {
         setProfitMargin(Number(estimate.profit_margin));
+      }
+      if (estimate.insurance_details && Object.keys(estimate.insurance_details).length > 0) {
+        setInsuranceDetails(prev => ({ ...prev, ...estimate.insurance_details }));
+        setInsuranceEnabled(true);
+      }
+      if (estimate.upgrades && Array.isArray(estimate.upgrades) && estimate.upgrades.length > 0) {
+        setUpgrades(estimate.upgrades);
       }
     }
   }, [estimate]);
@@ -1468,7 +1481,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds };
+      const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades };
       if (estimate) {
         await estimatesApi.updateEstimate(estimate.id, payload);
       } else {
@@ -1486,7 +1499,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   const handleSaveAndSend = async () => {
     setSending(true);
     try {
-      const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds };
+      const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades };
       let est;
       if (estimate) {
         await estimatesApi.updateEstimate(estimate.id, payload);
@@ -1537,7 +1550,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                 // Save first, then open signing
                 setSaving(true);
                 try {
-                  const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds };
+                  const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades };
                   await estimatesApi.createEstimate(payload);
                   showToast('Estimate saved', 'success');
                 } catch { showToast('Failed to save estimate', 'error'); setSaving(false); return; }
@@ -2213,6 +2226,176 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
               </div>
             </div>
           )}
+
+          {/* INSURANCE DETAILS SECTION (vs RoofLink) */}
+          <div className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: insuranceEnabled ? 'var(--space-md)' : 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--accent-blue)' }}>shield</span>
+                <span style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Insurance Claim</span>
+              </div>
+              <button onClick={() => setInsuranceEnabled(!insuranceEnabled)}
+                style={{
+                  width: 42, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', position: 'relative',
+                  background: insuranceEnabled ? 'oklch(0.55 0.18 250)' : 'oklch(0.3 0.02 260)',
+                  transition: 'background 0.15s',
+                }}>
+                <span style={{
+                  position: 'absolute', top: 3, left: insuranceEnabled ? 21 : 3,
+                  width: 18, height: 18, borderRadius: '50%', background: 'oklch(1 0 0)',
+                  transition: 'left 0.15s',
+                }} />
+              </button>
+            </div>
+            {insuranceEnabled && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-md)' }}>
+                  <div className="form-group">
+                    <label>Insurance Company</label>
+                    <input className="form-input" value={insuranceDetails.insurance_company} onChange={e => setInsuranceDetails(p => ({ ...p, insurance_company: e.target.value }))} placeholder="e.g. State Farm" />
+                  </div>
+                  <div className="form-group">
+                    <label>Claim Number</label>
+                    <input className="form-input" value={insuranceDetails.claim_number} onChange={e => setInsuranceDetails(p => ({ ...p, claim_number: e.target.value }))} placeholder="CLM-12345" />
+                  </div>
+                  <div className="form-group" style={{ overflow: 'visible' }}>
+                    <label>Date of Loss</label>
+                    <DatePicker value={insuranceDetails.date_of_loss} onChange={v => setInsuranceDetails(p => ({ ...p, date_of_loss: v }))} placeholder="Select date" />
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-md)' }}>
+                  <div className="form-group">
+                    <label>RCV (Replacement Cost)</label>
+                    <div style={{ position: 'relative' }}>
+                      <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 13, pointerEvents: 'none' }}>$</span>
+                      <input className="form-input" type="number" step="0.01" value={insuranceDetails.rcv} onChange={e => setInsuranceDetails(p => ({ ...p, rcv: e.target.value }))} placeholder="0.00" style={{ paddingLeft: 22 }} />
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label>ACV (Actual Cash Value)</label>
+                    <div style={{ position: 'relative' }}>
+                      <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 13, pointerEvents: 'none' }}>$</span>
+                      <input className="form-input" type="number" step="0.01" value={insuranceDetails.acv} onChange={e => setInsuranceDetails(p => ({ ...p, acv: e.target.value }))} placeholder="0.00" style={{ paddingLeft: 22 }} />
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label>Depreciation</label>
+                    <div style={{ position: 'relative' }}>
+                      <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 13, pointerEvents: 'none' }}>$</span>
+                      <input className="form-input" type="number" step="0.01" value={insuranceDetails.depreciation} onChange={e => setInsuranceDetails(p => ({ ...p, depreciation: e.target.value }))} placeholder="0.00" style={{ paddingLeft: 22 }} />
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-md)' }}>
+                  <div className="form-group">
+                    <label>Deductible</label>
+                    <div style={{ position: 'relative' }}>
+                      <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 13, pointerEvents: 'none' }}>$</span>
+                      <input className="form-input" type="number" step="0.01" value={insuranceDetails.deductible} onChange={e => setInsuranceDetails(p => ({ ...p, deductible: e.target.value }))} placeholder="0.00" style={{ paddingLeft: 22 }} />
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label>O&P (Overhead & Profit)</label>
+                    <div style={{ position: 'relative' }}>
+                      <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 13, pointerEvents: 'none' }}>$</span>
+                      <input className="form-input" type="number" step="0.01" value={insuranceDetails.overhead_profit} onChange={e => setInsuranceDetails(p => ({ ...p, overhead_profit: e.target.value }))} placeholder="0.00" style={{ paddingLeft: 22 }} />
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label>Proceeds Received</label>
+                    <div style={{ position: 'relative' }}>
+                      <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 13, pointerEvents: 'none' }}>$</span>
+                      <input className="form-input" type="number" step="0.01" value={insuranceDetails.proceeds_received} onChange={e => setInsuranceDetails(p => ({ ...p, proceeds_received: e.target.value }))} placeholder="0.00" style={{ paddingLeft: 22 }} />
+                    </div>
+                  </div>
+                </div>
+                {/* Insurance summary bar */}
+                {(Number(insuranceDetails.rcv) > 0 || Number(insuranceDetails.acv) > 0) && (
+                  <div style={{
+                    background: 'oklch(0.16 0.02 260 / 0.5)', borderRadius: '14px / 12px',
+                    border: '1px solid var(--glass-border)', padding: 'var(--space-md)',
+                    display: 'flex', gap: 'var(--space-lg)', justifyContent: 'center', flexWrap: 'wrap',
+                  }}>
+                    {[
+                      { label: 'RCV', val: insuranceDetails.rcv, color: 'var(--accent-blue)' },
+                      { label: 'ACV', val: insuranceDetails.acv, color: 'var(--accent-cyan)' },
+                      { label: 'Depr.', val: insuranceDetails.depreciation, color: 'var(--accent-amber)' },
+                      { label: 'Deductible', val: insuranceDetails.deductible, color: 'var(--accent-red)' },
+                      { label: 'O&P', val: insuranceDetails.overhead_profit, color: 'var(--accent-green)' },
+                      { label: 'Balance Due', val: (Number(insuranceDetails.rcv || 0) - Number(insuranceDetails.proceeds_received || 0)).toFixed(2), color: 'var(--accent-purple)' },
+                    ].filter(x => Number(x.val) > 0).map(item => (
+                      <div key={item.label} style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: 15, fontWeight: 800, color: item.color }}>${Number(item.val).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+                        <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>{item.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* UPGRADES / UPSELL SECTION (vs SumoQuote — $2,078 avg upsell) */}
+          <div className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--accent-amber)' }}>upgrade</span>
+                <span style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Optional Upgrades</span>
+              </div>
+              <button className="quick-action-btn" onClick={() => setUpgrades(prev => [...prev, { name: '', description: '', price: '', selected: false }])}
+                style={{ fontSize: 11, padding: '4px 12px', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ fontSize: 16, lineHeight: 1 }}>+</span> Add Upgrade
+              </button>
+            </div>
+            {upgrades.length === 0 ? (
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', textAlign: 'center', padding: 'var(--space-md)' }}>
+                No upgrades yet. Add optional upsells that customers can select when signing.
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
+                {upgrades.map((upg, idx) => (
+                  <div key={idx} style={{
+                    display: 'flex', alignItems: 'center', gap: 'var(--space-sm)',
+                    padding: '10px 12px', background: 'oklch(0.16 0.02 260 / 0.4)',
+                    borderRadius: 'var(--radius-sm)', border: upg.selected ? '1px solid oklch(0.75 0.18 155 / 0.3)' : '1px solid transparent',
+                  }}>
+                    <input type="checkbox" checked={upg.selected}
+                      onChange={() => setUpgrades(prev => prev.map((u, i) => i === idx ? { ...u, selected: !u.selected } : u))}
+                      style={{ accentColor: 'oklch(0.6 0.18 155)', width: 16, height: 16, cursor: 'pointer' }} />
+                    <input className="form-input" value={upg.name} placeholder="Upgrade name"
+                      onChange={e => setUpgrades(prev => prev.map((u, i) => i === idx ? { ...u, name: e.target.value } : u))}
+                      style={{ flex: 2, fontSize: 12, padding: '6px 8px' }} />
+                    <input className="form-input" value={upg.description} placeholder="Description (optional)"
+                      onChange={e => setUpgrades(prev => prev.map((u, i) => i === idx ? { ...u, description: e.target.value } : u))}
+                      style={{ flex: 3, fontSize: 12, padding: '6px 8px' }} />
+                    <div style={{ position: 'relative', flexShrink: 0 }}>
+                      <span style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 12, pointerEvents: 'none' }}>$</span>
+                      <input className="form-input" type="number" step="0.01" value={upg.price} placeholder="0.00"
+                        onChange={e => setUpgrades(prev => prev.map((u, i) => i === idx ? { ...u, price: e.target.value } : u))}
+                        style={{ width: 100, fontSize: 12, padding: '6px 8px 6px 20px', textAlign: 'right' }} />
+                    </div>
+                    <button onClick={() => setUpgrades(prev => prev.filter((_, i) => i !== idx))}
+                      style={{ color: 'var(--accent-red)', background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center' }}>
+                      <IconX style={{ width: 14, height: 14 }} />
+                    </button>
+                  </div>
+                ))}
+                {/* Upgrades total */}
+                {upgrades.some(u => u.selected && Number(u.price) > 0) && (
+                  <div style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '10px 14px', background: 'oklch(0.75 0.18 155 / 0.08)',
+                    borderRadius: 'var(--radius-sm)', marginTop: 'var(--space-xs)',
+                  }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)' }}>Selected Upgrades Total</span>
+                    <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--accent-green)' }}>
+                      +${upgrades.filter(u => u.selected).reduce((sum, u) => sum + (Number(u.price) || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* FINANCING SECTION */}
           {hasLender && (
