@@ -574,3 +574,36 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Finishing partially-built features (in-person signing had backend done but no route/frontend) is consistently the highest-ROI work — the backend was already designed and tested, needing only the wiring.
 - The pdfmake pattern established for estimate PDFs made contract PDF generation trivial — same library, same branded layout structure, just different content fields. Reusable patterns compound.
 - Running a UI consistency check as a separate stage after all features are built catches issues more reliably than checking during development — tonight it confirmed zero issues across all 4 components.
+
+---
+
+## Run: 2026-04-06
+
+### What was done
+- **Days-in-Stage dashboard cards** (vs JobNimbus Insights) — avg days per pipeline stage with stuck-lead indicators, clickable drill-down to filtered lead list. New backend endpoint.
+- **Calendar-based storm search** (vs HailTrace) — custom date range picker in Storm Catalog using DatePicker component, backend dateFrom/dateTo params on storms API.
+- **Insurance claim fields + optional upgrades on estimates** (vs RoofLink + SumoQuote) — toggleable insurance panel (company, claim#, date of loss, RCV, ACV, depreciation, deductible, O&P, proceeds) with balance due calculation. Upgrades section for optional add-ons with running total. New JSONB columns on estimates table.
+- **Stale lead alerts on dashboard** (vs RoofLink) — dashboard panel showing leads untouched 3+ days with color-coded severity badges (red >14d, amber >7d, blue 3-7d), clickable rows. New backend endpoint.
+- **Content Studio visual grid layout** (vs Rooftops.ai) — replaced content type dropdown with visual card grid showing Material Symbols icons and descriptions per type. Glass-styled cards with selection glow.
+- **UI consistency check** — reviewed all 4 modified components (StormCatalog, ContentStudio, Dashboard, EstimatesView). All pass glass/oklch/DatePicker/CustomSelect standards. No fixes needed.
+- **App inventory** and **competitor UI research** refreshed (2 docs commits)
+- Total: 5 feature commits + 2 docs commits, ~566 lines added across 9 files
+
+### Competitor areas covered
+- Areas completed: Dashboard analytics (JobNimbus), Storm search (HailTrace), Estimates insurance/upgrades (RoofLink + SumoQuote), Dashboard alerts (RoofLink), Content UX (Rooftops.ai)
+- Stopped at: All 5 planned implementations complete + UI consistency verified
+- Next run should start at: Multi-page estimate structure (#1 quality gap), then SMS/Twilio, then canvassing pins
+
+### What was skipped and why
+- Multi-page estimate proposals — #1 remaining gap, high effort (page type system + cover page + terms page)
+- In-app SMS texting — UI exists but needs Twilio account and real costs
+- QuickBooks sync — needs OAuth flow, large effort
+- Customizable canvassing pins + visit counter — medium effort, deferred
+- Canvassing leaderboard — medium effort, deferred
+- Profit Tracker dashboard — high effort, needs cost model design
+
+### Lessons learned
+- The insurance claim fields are critical for storm restoration contractors — every competitor at the $100+/user price point includes them. Adding these closes one of the most domain-specific gaps.
+- SumoQuote's $2,078 average upsell stat validates that the optional upgrades section has real revenue impact — it's not just a UX enhancement.
+- Replacing a dropdown with a visual card grid significantly improves feature discoverability at zero backend cost — a pattern worth applying to other selection UIs.
+- The 5-session overnight pipeline (research → inventory → implementation → UI check → report) is now a proven workflow that consistently produces high-quality, competitor-informed features.
