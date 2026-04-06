@@ -799,6 +799,33 @@ router.get('/dashboard/days-in-stage', async (req, res, next) => {
   }
 });
 
+// GET /api/crm/dashboard/stale-leads
+router.get('/dashboard/stale-leads', async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT
+         l.id,
+         l.contact_name,
+         l.stage,
+         u.name AS assigned_to,
+         EXTRACT(DAY FROM NOW() - l.updated_at)::int AS days_stale,
+         l.updated_at AS last_activity
+       FROM leads l
+       LEFT JOIN users u ON u.id = l.assigned_to_user_id
+       WHERE l.tenant_id = $1
+         AND l.updated_at < NOW() - INTERVAL '3 days'
+         AND l.stage NOT IN ('closed_won', 'closed_lost')
+         AND l.deleted_at IS NULL
+       ORDER BY days_stale DESC
+       LIMIT 10`,
+      [req.tenantId]
+    );
+    res.json({ stale_leads: rows });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ============================================================
 // PROSPECT LISTS
 // ============================================================

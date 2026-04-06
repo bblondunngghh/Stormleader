@@ -17,6 +17,7 @@ import {
   HomeModernIcon,
   SignalIcon,
   HomeIcon,
+  ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 
 /* ── Helpers ──────────────────────────────────────────────── */
@@ -539,6 +540,7 @@ export default function Dashboard() {
   const [arSummary, setArSummary] = useState(null);
   const [estConversion, setEstConversion] = useState(null);
   const [daysInStage, setDaysInStage] = useState([]);
+  const [staleLeads, setStaleLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   // Dashboard filters (JN Insights-style)
   const [dashRep, setDashRep] = useState('');
@@ -574,12 +576,12 @@ export default function Dashboard() {
 
   const fetchAll = useCallback(async () => {
     try {
-      const [statsRes, funnelRes, activityRes, leaderRes, tasksRes, followupsRes, convRes, estRes, arRes, estConvRes, daysRes] = await Promise.allSettled([
+      const [statsRes, funnelRes, activityRes, leaderRes, tasksRes, followupsRes, convRes, estRes, arRes, estConvRes, daysRes, staleRes] = await Promise.allSettled([
         dashboardApi.getStats(dashFilters), dashboardApi.getFunnel(dashFilters), dashboardApi.getActivity(dashFilters),
         dashboardApi.getLeaderboard(), dashboardApi.getTasksToday(), dashboardApi.getFollowups(),
         dashboardApi.getConversionByStorm(), dashboardApi.getEstimateSummary(),
         dashboardApi.getArSummary(), dashboardApi.getEstimatingConversion(),
-        dashboardApi.getDaysInStage(),
+        dashboardApi.getDaysInStage(), dashboardApi.getStaleLeads(),
       ]);
       if (statsRes.status === 'fulfilled' && statsRes.value.data?.stats)
         setStats(statsRes.value.data.stats.map((s, i) => ({ ...s, tint: emptyStats[i]?.tint, link: emptyStats[i]?.link || '/leads' })));
@@ -593,6 +595,7 @@ export default function Dashboard() {
       if (arRes.status === 'fulfilled' && arRes.value.data) setArSummary(arRes.value.data);
       if (estConvRes.status === 'fulfilled' && estConvRes.value.data) setEstConversion(estConvRes.value.data);
       if (daysRes.status === 'fulfilled' && daysRes.value.data?.stages) setDaysInStage(daysRes.value.data.stages);
+      if (staleRes.status === 'fulfilled' && staleRes.value.data?.stale_leads) setStaleLeads(staleRes.value.data.stale_leads);
     } finally { setLoading(false); }
   }, [dashRep, dashSource, dashPeriod]);
 
@@ -1597,6 +1600,71 @@ export default function Dashboard() {
           )}
         </Panel>
       </div>
+
+      {/* ── Stale Leads Alert (vs RoofLink stale job alerts) ── */}
+      {staleLeads.length > 0 && (
+        <Panel
+          title={<><ExclamationTriangleIcon style={{ width: 16, height: 16, color: 'var(--accent-amber)' }} /> Stale Leads</>}
+          action={() => navigate('/leads?sort=updated_at')}
+          actionLabel="View All"
+        >
+          <div className="flex flex-col gap-1">
+            {staleLeads.map((lead) => {
+              const days = Number(lead.days_stale) || 0;
+              const badgeColor = days > 14 ? 'var(--accent-red)' : days > 7 ? 'var(--accent-amber)' : 'var(--accent-blue)';
+              return (
+                <div
+                  key={lead.id}
+                  onClick={() => navigate(`/leads/${lead.id}`)}
+                  className="flex items-center gap-3 px-3 py-2 rounded-[10px] cursor-pointer transition-colors hover:bg-[oklch(1_0_0/0.04)]"
+                >
+                  {/* Days stale badge */}
+                  <span
+                    style={{
+                      fontSize: 11, fontWeight: 800, color: badgeColor,
+                      background: `color-mix(in oklch, ${badgeColor} 12%, transparent)`,
+                      border: `1px solid color-mix(in oklch, ${badgeColor} 20%, transparent)`,
+                      borderRadius: 6, padding: '3px 8px', minWidth: 48, textAlign: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {days}d
+                  </span>
+                  {/* Contact name */}
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {lead.contact_name || 'Unknown'}
+                  </span>
+                  {/* Stage badge */}
+                  <span
+                    style={{
+                      fontSize: 10, fontWeight: 700, color: 'var(--text-secondary)',
+                      background: 'oklch(0.22 0.015 265 / 0.5)', borderRadius: 5,
+                      padding: '2px 7px', flexShrink: 0, textTransform: 'uppercase', letterSpacing: '0.04em',
+                    }}
+                  >
+                    {stageLabels[lead.stage] || lead.stage}
+                  </span>
+                  {/* Assigned rep */}
+                  <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', flexShrink: 0, maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {lead.assigned_to || 'Unassigned'}
+                  </span>
+                  {/* Contact button */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); navigate(`/leads/${lead.id}`); }}
+                    style={{
+                      fontSize: 11, fontWeight: 600, color: 'oklch(0.72 0.19 250)',
+                      background: 'oklch(0.72 0.19 250 / 0.1)', border: '1px solid oklch(0.72 0.19 250 / 0.2)',
+                      borderRadius: 6, padding: '3px 10px', cursor: 'pointer', flexShrink: 0,
+                    }}
+                  >
+                    Contact
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </Panel>
+      )}
 
       {/* ── Row 6: Days in Stage (vs JobNimbus Insights) ── */}
       {daysInStage.length > 0 && (
