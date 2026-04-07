@@ -334,7 +334,7 @@ export default function CanvassingMode() {
           {OUTCOME_OPTIONS.map(opt => (
             <div key={opt.key} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
               <svg width="14" height="20" viewBox="-8 -14 16 24">
-                <path d={TEARDROP_PATH} fill={opt.color} stroke="rgba(255,255,255,0.5)" strokeWidth="1" />
+                <path d={TEARDROP_PATH} fill={opt.color} stroke="oklch(1 0 0 / 0.5)" strokeWidth="1" />
               </svg>
               <span style={{ fontSize: 12, color: 'oklch(0.85 0 0)', flex: 1 }}>{opt.label}</span>
               <span style={{ fontSize: 11, color: opt.color, fontWeight: 600, minWidth: 20, textAlign: 'right' }}>
