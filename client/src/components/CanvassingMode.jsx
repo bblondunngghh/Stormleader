@@ -1,19 +1,22 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { loadGoogleMaps } from '../lib/googleMaps';
 import { getCanvassPins, createCanvassPin, updateCanvassPin, convertCanvassPin, getCanvassStats } from '../api/crm';
-import { MapPinIcon, XMarkIcon, CheckIcon, MapIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, XMarkIcon, CheckIcon, MapIcon, EyeIcon } from '@heroicons/react/24/outline';
 import TerritoryManager from './TerritoryManager';
 
 const OUTCOME_OPTIONS = [
-  { key: 'not_home', label: 'Not Home', color: 'oklch(0.6 0 0)' },
-  { key: 'interested', label: 'Interested', color: 'oklch(0.75 0.18 145)' },
-  { key: 'not_interested', label: 'Not Interested', color: 'oklch(0.65 0.2 25)' },
-  { key: 'scheduled', label: 'Scheduled', color: 'oklch(0.7 0.15 220)' },
-  { key: 'follow_up', label: 'Follow Up', color: 'oklch(0.75 0.15 55)' },
-  { key: 'already_customer', label: 'Already Customer', color: 'oklch(0.7 0.12 280)' },
+  { key: 'not_home', label: 'Not Home', color: 'oklch(0.6 0.12 55)', emoji: '🏠' },
+  { key: 'interested', label: 'Interested', color: 'oklch(0.72 0.19 145)', emoji: '✅' },
+  { key: 'not_interested', label: 'Not Interested', color: 'oklch(0.62 0.22 25)', emoji: '✗' },
+  { key: 'scheduled', label: 'Scheduled', color: 'oklch(0.65 0.2 250)', emoji: '📅' },
+  { key: 'follow_up', label: 'Follow Up', color: 'oklch(0.78 0.16 85)', emoji: '🔄' },
+  { key: 'already_customer', label: 'Already Customer', color: 'oklch(0.65 0.14 280)', emoji: '⭐' },
 ];
 
 const OUTCOME_COLORS = Object.fromEntries(OUTCOME_OPTIONS.map(o => [o.key, o.color]));
+
+// Teardrop SVG path for map pins (like HailTrace's pin markers)
+const TEARDROP_PATH = 'M 0,-12 C -4,-12 -7,-9 -7,-5 C -7,0 0,8 0,8 C 0,8 7,0 7,-5 C 7,-9 4,-12 0,-12 Z';
 
 function todayStr() {
   return new Date().toISOString().split('T')[0];
@@ -49,6 +52,7 @@ export default function CanvassingMode() {
   const [geoError, setGeoError] = useState(null);
   const [toast, setToast] = useState(null);
   const [showTerritories, setShowTerritories] = useState(false);
+  const [showLegend, setShowLegend] = useState(false);
   const [mapsApi, setMapsApi] = useState(null);
   const territoryPolygonsRef = useRef([]);
 
@@ -127,18 +131,21 @@ export default function CanvassingMode() {
     pins.forEach((pin) => {
       if (pin.lat == null || pin.lng == null) return;
       const color = OUTCOME_COLORS[pin.outcome] || 'oklch(0.6 0 0)';
+      const isConverted = !!pin.lead_id;
       const marker = new window.google.maps.Marker({
         position: { lat: parseFloat(pin.lat), lng: parseFloat(pin.lng) },
         map: mapRef.current,
         icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          scale: 10,
+          path: TEARDROP_PATH,
+          scale: 1.8,
           fillColor: color,
-          fillOpacity: 0.9,
-          strokeColor: 'rgba(255,255,255,0.4)',
-          strokeWeight: 2,
+          fillOpacity: 0.92,
+          strokeColor: isConverted ? '#FFD700' : 'rgba(255,255,255,0.5)',
+          strokeWeight: isConverted ? 2.5 : 1.5,
+          anchor: new window.google.maps.Point(0, 8),
         },
-        title: pin.outcome || 'Pin',
+        title: `${OUTCOME_OPTIONS.find(o => o.key === pin.outcome)?.label || pin.outcome}${isConverted ? ' (Converted)' : ''}`,
+        zIndex: pin.outcome === 'interested' ? 10 : pin.outcome === 'scheduled' ? 9 : 5,
       });
 
       marker.addListener('click', () => {
@@ -236,6 +243,17 @@ export default function CanvassingMode() {
   const interestedCount = stats.outcomes?.find(o => o.outcome === 'interested')?.count || 0;
   const scheduledCount = stats.outcomes?.find(o => o.outcome === 'scheduled')?.count || 0;
 
+  // Canvassing analytics (vs HailTrace/RoofLink analytics features)
+  const outcomeCounts = useMemo(() => {
+    const map = {};
+    OUTCOME_OPTIONS.forEach(o => { map[o.key] = 0; });
+    (stats.outcomes || []).forEach(o => { map[o.outcome] = parseInt(o.count) || 0; });
+    return map;
+  }, [stats.outcomes]);
+  const conversionRate = stats.total > 0
+    ? ((interestedCount + scheduledCount) / stats.total * 100).toFixed(0)
+    : 0;
+
   return (
     <div className="main-content" style={{ padding: 0, overflow: 'hidden', position: 'relative', height: '100%', borderRadius: '20px / 18px' }}>
       {/* Map */}
@@ -255,24 +273,44 @@ export default function CanvassingMode() {
         <span style={styles.statItem}>
           <strong style={{ color: 'oklch(0.7 0.15 220)' }}>{scheduledCount}</strong> scheduled
         </span>
+        <span style={styles.statDivider} />
+        <span style={styles.statItem}>
+          <strong style={{ color: conversionRate >= 30 ? 'oklch(0.72 0.19 145)' : conversionRate >= 15 ? 'oklch(0.78 0.16 85)' : 'oklch(0.62 0.22 25)' }}>{conversionRate}%</strong> conv
+        </span>
       </div>
       </div>
 
-      {/* Territory toggle button */}
-      <button
-        onClick={() => setShowTerritories(s => !s)}
-        title="Manage Territories"
-        style={{
-          position: 'absolute', top: 12, right: 12, zIndex: 10,
-          width: 40, height: 40, borderRadius: 'var(--radius-sm)',
-          border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: showTerritories ? 'oklch(0.55 0.2 250)' : 'oklch(0.2 0.02 260 / 0.8)',
-          color: 'oklch(0.95 0 0)', backdropFilter: 'blur(12px)',
-          boxShadow: '0 2px 8px oklch(0 0 0 / 0.3)', transition: 'background 0.15s',
-        }}
-      >
-        <MapIcon style={{ width: 20, height: 20 }} />
-      </button>
+      {/* Top-right button group */}
+      <div style={{ position: 'absolute', top: 12, right: 12, zIndex: 10, display: 'flex', gap: 8 }}>
+        {/* Legend toggle (vs RoofLink's pin color legend button) */}
+        <button
+          onClick={() => setShowLegend(s => !s)}
+          title="Pin Legend"
+          style={{
+            width: 40, height: 40, borderRadius: 'var(--radius-sm)',
+            border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: showLegend ? 'oklch(0.55 0.2 250)' : 'oklch(0.2 0.02 260 / 0.8)',
+            color: 'oklch(0.95 0 0)', backdropFilter: 'blur(12px)',
+            boxShadow: '0 2px 8px oklch(0 0 0 / 0.3)', transition: 'background 0.15s',
+          }}
+        >
+          <EyeIcon style={{ width: 20, height: 20 }} />
+        </button>
+        {/* Territory toggle */}
+        <button
+          onClick={() => setShowTerritories(s => !s)}
+          title="Manage Territories"
+          style={{
+            width: 40, height: 40, borderRadius: 'var(--radius-sm)',
+            border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: showTerritories ? 'oklch(0.55 0.2 250)' : 'oklch(0.2 0.02 260 / 0.8)',
+            color: 'oklch(0.95 0 0)', backdropFilter: 'blur(12px)',
+            boxShadow: '0 2px 8px oklch(0 0 0 / 0.3)', transition: 'background 0.15s',
+          }}
+        >
+          <MapIcon style={{ width: 20, height: 20 }} />
+        </button>
+      </div>
 
       {/* Territory Manager Panel */}
       {showTerritories && (
@@ -281,6 +319,36 @@ export default function CanvassingMode() {
           mapsApi={mapsApi}
           onTerritoryPolygonsChange={(polys) => { territoryPolygonsRef.current = polys; }}
         />
+      )}
+
+      {/* Pin Color Legend (inspired by RoofLink's legend button) */}
+      {showLegend && (
+        <div className="glass" style={{
+          position: 'absolute', top: 60, right: 12, zIndex: 15,
+          padding: '12px 14px', borderRadius: 12, minWidth: 180,
+          background: 'oklch(0.14 0.015 260 / 0.88)', backdropFilter: 'blur(20px) saturate(1.4)',
+        }}>
+          <div style={{ fontSize: 11, color: 'oklch(0.55 0 0)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
+            Pin Legend
+          </div>
+          {OUTCOME_OPTIONS.map(opt => (
+            <div key={opt.key} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
+              <svg width="14" height="20" viewBox="-8 -14 16 24">
+                <path d={TEARDROP_PATH} fill={opt.color} stroke="rgba(255,255,255,0.5)" strokeWidth="1" />
+              </svg>
+              <span style={{ fontSize: 12, color: 'oklch(0.85 0 0)', flex: 1 }}>{opt.label}</span>
+              <span style={{ fontSize: 11, color: opt.color, fontWeight: 600, minWidth: 20, textAlign: 'right' }}>
+                {outcomeCounts[opt.key] || 0}
+              </span>
+            </div>
+          ))}
+          <div style={{ borderTop: '1px solid oklch(0.3 0 0 / 0.4)', marginTop: 8, paddingTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: 11, color: 'oklch(0.55 0 0)' }}>Conversion</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: conversionRate >= 30 ? 'oklch(0.72 0.19 145)' : conversionRate >= 15 ? 'oklch(0.78 0.16 85)' : 'oklch(0.62 0.22 25)' }}>
+              {conversionRate}%
+            </span>
+          </div>
+        </div>
       )}
 
       {/* GPS Error */}
