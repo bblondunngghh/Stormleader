@@ -1,569 +1,711 @@
 # Competitor UI Research — Visual Comparison & Actionable Gaps
 
-**Date:** 2026-04-06 (refreshed — builds on April 3-4 research with updated app inventory cross-reference)
-**Method:** Firecrawl scrapes of competitor websites, help centers, YouTube tutorials, review sites (Capterra, G2, Software Advice), and integration partner pages. Cross-referenced with `.firecrawl/` archives (April 2-4 research) and `docs/app-inventory-20260406.md`.
-**Companion doc:** `docs/competitor-gap-analysis.md` has the full text/feature analysis. This document focuses on **visual UI patterns, layouts, and actionable design gaps**.
+**Date:** 2026-04-07 (comprehensive refresh — incorporates fresh Firecrawl scrapes + CDN screenshot analysis + prior research)
+**Method:** Firecrawl scrapes of competitor websites, help centers, CDN marketing images, YouTube tutorials, App Store metadata, review sites (Capterra, G2, Software Advice), integration partner pages, and CSS inspection. Cross-referenced with `docs/app-inventory-20260407.md` and `docs/competitor-gap-analysis.md`.
+**Research files:** `.firecrawl/hailtrace-ui-research.md`, `.firecrawl/jobnimbus-ui-research.md`, `.firecrawl/rooflink-ui-research.md`, `.firecrawl/rooftopsai-ui-research.md`, `.firecrawl/quoteiq-reviews-ui-research.md`
+**Companion doc:** `docs/competitor-gap-analysis.md` has the full text/feature/pricing analysis. This document focuses on **visual UI patterns, layouts, and actionable design gaps**.
 
 ---
 
 ## 1. Storm Map (StormLeads vs HailTrace)
 
-### What HailTrace Shows
+### HailTrace Map Interface (from CDN screenshots + help docs)
 
-**Map is the entire product.** Full-screen interactive map with storm swath polygons overlaid. Key visual elements:
+**Layout:** Full-screen map with left sidebar panel (~300px wide).
 
-- **Color graduation for hail severity:** Light/pale colors for smaller hail, progressively darker/more intense for larger. Gradient makes severity scannable at a glance without reading labels.
-- **Hatched-pattern overlay:** Unique cross-hatch pattern on isolated storm swaths to distinguish from confirmed/larger swaths. No other competitor does this.
-- **Star rating badges (1-5):** Every storm rated by: properties impacted, max hail size, probability of damage. Free users see only 1-star storms.
-- **Multiple map layers toggled independently:**
-  - Meteorologist Hail Maps (hand-drawn, primary)
-  - Algorithm Hail Maps (computer-generated, secondary)
-  - Wind Speed Maps (58+ MPH areas)
-  - Tornado Path Maps (with EF rating)
-  - NOAA Reports (dark icons, hover for details)
-  - Social Media Images (camera icons at photo location)
-- **Layer control panel:** Gear button → toggle satellite/hybrid, NOAA reports, social media images. Separate icon for saved events.
-- **Storm finding — 3 methods:**
-  1. Recent storms list (chronological)
-  2. Calendar picker (year → month → day)
-  3. Radius filter search (adjustable radius, filter by hail size, wind speed, tornado EF, star level)
-- **Multi-swath overlay ("Honey Holes"):** Load multiple storm dates onto same map. Overlapping areas = zones hit by multiple storms = highest damage probability.
-- **Storm listing page (`/hail-maps`):** Cards with CDN thumbnail, date, affected states, top 5 cities, "Hail"/"Wind"/"Tornado" badges, "More Info" link.
+**Left Sidebar:**
+- Search bar at top: "Enter your keywords" placeholder, magnifying glass icon
+- Address display in bold black text
+- 5-tab icon navigation row: Maps (green), Campaigns (yellow), Assets (blue), Address (pink), Canvassing (purple)
+- Contact name displayed prominently (e.g., "George Fleeson")
+- Google Street View thumbnail of property
+- "Create Asset" green CTA button (full-width, #009344)
+- Expandable section: "WEATHER IMPACT HISTORY (23)" — shows all historical weather events at address
+- Property details section: Home Owner Confirmed (Yes/No), Length of Residence, Gender, Home Value ($615K), etc.
 
-**Image references:**
-- Dashboard: `cdn.hailtrace.com/images/home/dashboards.png`
-- Hail maps: `cdn.hailtrace.com/images/home/hail-maps.png`
-- Territory Mapping: `lirp.cdn-website.com/074b5fee/dms3rep/multi/opt/Territory+Mapping-1920w.png`
+**Map Area:**
+- Satellite/hybrid base map (Google Maps)
+- Hail swath overlay: large semi-transparent polygonal shapes
+- **Color gradient for algorithm hail maps:** Yellow-to-green
+  - Outer edges: pale yellow/tan (lower intensity)
+  - Middle areas: olive/yellow-green
+  - Core/center: darker green-yellow with brownish tones
+  - Multiple concentric intensity zones within each swath (like topographic heat map)
+  - Semi-transparent (~40-50% opacity), underlying satellite imagery visible
+- **Color scheme for meteorologist maps (from integration docs):**
+  - Light colors = smaller storm activity
+  - Darker colors = severe impact
+  - "Purple Zones" = highest severity
+- **Weather Events popup** (white tooltip floating over map):
+  - Title: "Weather Events (March 1, 2023)"
+  - Three data rows with colored circle icons:
+    - Green circle: "Algorithm Hail Size — 1.25" — 29,422 houses"
+    - Green circle: "Meteorologist Hail Size — 1.25" — 4 Minutes — 26,573 houses"
+    - Blue/teal circle: "Meteorologist Wind Speed — 55 MPH — 4 Minutes — 26,573 houses"
+- Map markers: green shield icons (storm events), blue arrows, yellow triangle warnings
 
-### What StormLeads Currently Shows (as of 2026-04-06)
+**Map Controls:**
+- Search button (top right on mobile): three tabs — Maps, Campaigns, Assets
+- Calendar button: select dates to pull weather events
+- Radius filter: adjustable mile radius with circle overlay
+- Map Layers button: toggle meteorologist/algorithm/NOAA/social media layers
+- Map icon: view saved/downloaded weather events
+- Map Settings: change base map (standard vs satellite)
+- Filters: by hail size (e.g., 1.5"+), star level, radius
+- Reticle/Inspector icon: tap to inspect weather event + quick access to Lead Lists
+- Lead List button: draw polygon (3+ points) to generate lead list
 
-- Google Maps with NOAA-sourced hail/wind/tornado/thunderstorm polygons ✅
-- Hail severity color graduation (green→yellow→orange→red by size) ✅
-- Wind severity color graduation (blue→green→orange→red by mph) ✅
-- Tornado severity color graduation (yellow→orange→red→purple by EF) ✅
-- 6-layer toggle panel (hail/wind/tornado/tstorm/drift/properties) ✅
-- Transparency slider ✅
-- FEMA NSI property overlay with Supercluster ✅
-- Honey Hole heatmap (NOAA SWDI historical circles) ✅
-- Time range filter (24h/3d/7d/14d/30d) ✅
-- Address search bar ✅
-- Storm Archive catalog with 5-star ratings and severity badges ✅
-- "DAMAGE LIKELY" badge for hail >= 1.5" ✅
-- Generate Canvassing List (50 pins from storm properties) ✅
+**Star Rating System:** 1-5 stars per storm based on properties impacted, max hail size, damage probability. Free tier = 1-star maps only.
 
-### Gaps to Close
+**Brand Colors:** Primary Green #16B55F (buttons/active), Brand Green #009344 (marketing), Yellow #FEAD11 (warning), Red #DA1717 (error/lost), Blue #3E87F4 (info). Font: Roboto. Background: #F6F7F9.
 
-| Gap | HailTrace Has | StormLeads Status | Effort | Priority |
-|-----|---------------|-------------------|--------|----------|
-| Hatched pattern for isolated swaths | Cross-hatch overlay | Not implemented | Medium | Low |
-| Social media/photo icons on map | Camera icons at locations | Not implemented | High (data source needed) | Low |
-| Calendar-based storm search | Year→month→day drill-down | Time range pills only | Medium | Medium |
-| Storm preview thumbnails | CDN static map images per storm | Text-only storm cards | Medium | Medium |
-| Multi-swath overlay UX | Explicit "load multiple dates" | Heatmap only | Medium | Medium |
+### StormLeads Storm Map Comparison
 
-### Recommended Improvements
+**What We Have:**
+- Google Maps with hail/wind/tornado/tstorm swath polygons
+- Severity color graduations (green→yellow→orange→red) for hail, wind, tornado
+- Swath transparency slider (0-100%)
+- 6-layer toggle panel
+- FEMA NSI property overlay with Supercluster clustering
+- Address search, Honey Hole heatmap, property popup with "Add to Pipeline"
+- Storm history per location (5-mile, 10-year SWDI window)
+- Time range filter (24h/3d/7d/14d/30d), Generate Canvassing List button
 
-1. **Calendar-based storm search** in StormCatalog — date picker, queries existing storms API.
-2. **Static storm preview thumbnails** — use Mapbox Static Images API (free tier: 50k/month) when storms load.
-3. **Improve Honey Hole UX** — allow "pinning" multiple storm dates to see overlapping swath polygons (vs current heatmap).
+**Key Gaps:**
 
----
+| Gap | HailTrace Has | Priority | Effort |
+|-----|---------------|----------|--------|
+| Property sidebar with owner details | Left panel showing name, home value, residence length, weather history count, Street View, "Create Asset" button | High | Medium — we have FEMA data but don't show it in a persistent sidebar |
+| Weather event popup with structure counts | "29,422 houses" affected per swath with algorithm vs meteorologist breakdown | High | Low — count FEMA NSI points within swath polygon |
+| Draw-polygon lead generation | Draw 3+ points to create custom area, generate lead list | Medium | Medium — PostGIS infrastructure exists |
+| Multiple data layer types | 4 independent layer types (meteorologist, algorithm, NOAA, social media) each toggleable | Low | N/A — we use NOAA SPC only (free) |
+| Calendar-based storm search on map | Calendar button to search by date directly on map | Low | Already in Storm Archive |
 
-## 2. Pipeline / CRM (StormLeads vs JobNimbus)
-
-### What JobNimbus Shows
-
-**Navigation:** Top nav bar (NOT sidebar) — Home, Contacts, Jobs, Calendar, Boards, Insights. Reviewers describe the web app as "functional but dated."
-
-**Three separate board types (same kanban UI):**
-1. **Sales Boards** — New Inquiry → Estimate Sent → Signed Contract → Job Won
-2. **Production Boards** — Material Order → Scheduled → In Production → Quality Check → Complete
-3. **Billing Boards** — completed jobs through payment collection
-
-**Board card details:**
-- At-a-glance status info
-- Lead source tags (Facebook, Billboard, Google Ads)
-- Connected to full job folder (photos, notes, docs, timeline)
-- Drag-and-drop across stages
-- Estimated totals per column
-- Count per column
-- Custom sub-statuses within stages
-
-**Canonical workflow stages:** Lead → Estimating → Sold → Production → A/R → Completed
-
-**Quick actions button** in nav — add jobs/tasks from anywhere.
-
-**Image references:**
-- Board view: `images.g2crowd.com/uploads/attachment/file/1319946/jobnimbus-board-softwaresuggest.png`
-- Home UI: `connecteam.com/wp-content/uploads/2025/06/Home-UI.png`
-- Mobile: `cdn.prod.website-files.com/.../Group%201077242793.avif` (3 phones: board, photo annotation, calendar)
-
-### What StormLeads Currently Shows
-
-- 3 board tabs (Sales/Production/Billing) ✅
-- Drag-and-drop kanban with optimistic updates ✅
-- Deal value on cards + column revenue totals ✅
-- Lead score badges (color-coded 80+/60+/40+) ✅
-- Source labels, task progress badges, days-in-stage badges ✅
-- Conversion rate between columns ✅
-- Column collapse toggle (localStorage-persisted) ✅
-- Priority/Source/Rep filter dropdowns with active pills ✅
-- Mobile list view with deal values + priority dots ✅
-- Sidebar lead preview with stage change + activity feed ✅
-- CreateLeadModal ✅
-
-### Gaps to Close
-
-| Gap | JobNimbus Has | StormLeads Status | Effort | Priority |
-|-----|---------------|-------------------|--------|----------|
-| Custom workflow stages per job type | Separate workflows for residential vs insurance | Stages are global | High | Medium |
-| Sub-statuses within stages | "Door Knock #1", "Followup", etc. | Single stage assignment | Medium | Medium |
-| Photo thumbnail on cards | From CompanyCam | No photo on cards | Medium | Low |
-
-### Assessment
-
-**StormLeads pipeline is already competitive.** We show MORE data per card than JobNimbus (score badges, days-in-stage, task progress, conversion rates between columns). Our glass design is significantly more modern than JN's dated web UI. Consider custom stage workflows per job type as a future enhancement.
+**Recommended Actions:**
+1. Add structure count to storm swath tooltips (query FEMA NSI points within polygon)
+2. Add persistent left sidebar for selected property (show FEMA data, census demographics, storm history, "Add to Pipeline" — currently popup-only)
+3. Add draw-polygon tool for custom lead list generation
 
 ---
 
-## 3. Estimates (StormLeads vs JobNimbus/SumoQuote + RoofLink)
+## 2. Honey Hole Finder (StormLeads vs HailTrace)
 
-### What JobNimbus/SumoQuote Shows
+### HailTrace Honey Hole Finder
 
-**Multi-page document builder with drag-and-drop page ordering:**
-1. **Cover Page** — customer name, date, primary home photo, certification badges, auto-populated CRM data
-2. **Introduction** — About Us, testimonials, scope. Rich text. Saveable as template
-3. **Inspection** — photos and notes (CompanyCam)
-4. **Estimate Details** — pricing/line items (see below)
-5. **Signing & Upgrades** — signature + optional upgrade pricing
-6. **Terms and Conditions**
-7. **Warranty**
-8. **Custom Pages**
+**How it works:** Load multiple historical storm swaths simultaneously. Visually identify where swath polygons overlap — these overlapping zones are "honey holes" with higher damage probability.
 
-**Estimate Details page:**
-- Up to 3 tabs for Good/Better/Best or multi-trade
-- Sections with editable names
-- Line items from Products & Services catalog
-- Drag-and-drop reorder (6-dot handle)
-- Add Item / Section / Discount buttons
-- Tax rate + **profit margin slider** (drag to adjust %)
-- Override Total Price link
-- Save as Template
+**Visual:** Overlapping swath polygons in different colors/dates. Intersection areas appear as darker layered zones. Each swath retains its metadata (date, size, severity).
 
-**Stats:** $2,078 avg upgrades per signed quote, 64% close rate increase.
+### StormLeads Honey Hole Finder
 
-### What RoofLink Shows
+**Our approach:** NOAA SWDI heatmap overlay showing historical hail event density as a gradient layer. Toggle on/off from layer panel. Instant visual density without manual swath loading.
 
-**"3 Estimates in 3 Minutes":**
-- Drawing roof auto-generates estimate + material order + work order
-- Toggle categories: Work Doing / Work Not Doing / Supplements / Change Orders / Discounts / Upgrades
-- **Real-time Gross Profit always visible** — material + labor costs separate
-- Profit margin selector shows how discounts affect commission
-- Up to **6 estimate options** per job (renamable)
-- **Side-by-side comparison table**
-- Multi-page branded PDF: cover → per-estimate pages → "Compare Estimates" summary
-- Insurance-specific: ACV, depreciation, O&P fields
+**Assessment:** Our implementation is **different and arguably better** — we show a proper heatmap density visualization vs. requiring users to manually stack swaths. HailTrace's approach gives date-specific granularity; ours gives instant spatial density.
 
-### What StormLeads Currently Shows
-
-- Estimate list with KPI stats (Total/Draft/Sent/Accepted) ✅
-- Rich multi-section editor with drag-and-drop line items ✅
-- Rich text editor (bold, italic, underline, lists, links) ✅
-- Section image uploader ✅
-- Tax rate + discounts, multi-signer, profit margin input ✅
-- Financing toggle (Hearth), template system ✅
-- Review mode with live preview ✅
-- Send for signing (email) ✅
-- SRS Catalog material selection ✅
-- **AI tier generation (Good/Better/Best)** ✅
-- **Tier comparison modal (side-by-side)** ✅
-- Estimate-to-invoice conversion ✅
-- **Server-side PDF generation (pdfmake branded)** ✅
-- **In-person signing (canvas modal, auto-creates work order)** ✅
-
-### Gaps to Close
-
-| Gap | Competitors Have | StormLeads Status | Effort | Priority |
-|-----|------------------|-------------------|--------|----------|
-| Multi-page document (cover, intro, inspection, terms, warranty) | SumoQuote: 7+ page types | Single-page estimate | High | **High** |
-| Cover page with property photo + branding | JN auto-populates | Not implemented | Medium | **High** |
-| Signing & Upgrades page (upsells at signing) | SumoQuote dedicated page | No upsell section | Medium | **High** |
-| Insurance-specific fields (depreciation, ACV, O&P) | RoofLink full insurance flow | Not implemented | Medium | **High** |
-| Profit margin slider (interactive) | Both JN and RoofLink | Static input field | Low | Medium |
-| Change order management | JobNimbus | Not implemented | Medium | Medium |
-
-### Recommended Improvements
-
-1. **Multi-page estimate structure** — Cover Page (logo, property photo, date) + Scope + Estimate Details (current builder) + Terms + Signing. Biggest gap vs SumoQuote.
-2. **Upgrades section** below main estimate — optional add-ons at signing time. SumoQuote claims $2,078 avg upsell.
-3. **Insurance fields** — ACV, depreciation, O&P, insurance proceeds. Critical for storm restoration.
-4. **Interactive profit margin slider** instead of text input.
+**Enhancement:** Add click-on-heatmap-hotspot to show contributing historical events (date, hail size, source).
 
 ---
 
-## 4. Content / Marketing (StormLeads vs Rooftops.ai)
+## 3. Canvassing (StormLeads vs HailTrace + RoofLink)
 
-### What Rooftops.ai Shows
+### HailTrace Canvassing (from CDN screenshots)
 
-**AI Creator Studio — tool-picker grid layout:**
-- Social Media Ads, Landing Page Builder, Cold Call Scripts, Email Marketing, Translate Anything (80+ languages), Legal Docs, Meeting Strategies, Website Generator
-- AI Social Media Manager (schedules posts, tracks engagement)
-- Interface: grid of tool cards, each opening its own generation module
+**Pin System:** 3-color teardrop pins on satellite imagery:
+- **Red pins** (most numerous): "Not Interested" / "No Answer"
+- **Green pins**: "Interested" / "Sold"
+- **Yellow/Gold pins**: "Follow Up" / "Callback"
+- Pins placed precisely on individual rooftops (property-level, not block-level)
+- Dense coverage — nearly every house in visible neighborhoods has a pin
 
-**AI Roof Reports:**
-- Address search + Google Places autocomplete
-- Satellite imagery at 640×640
-- Report sections: General Metrics (facets, squares, area, sunshine, panels) → Roof Pitch (angle, %) → Building Details
-- Material selection: 5 horizontal image-backed buttons (Asphalt, Premium Asphalt, Clay, Metal, Wood Shake)
-- Measuring tool, PDF export
-- Processing status rotates phrases ("Gathering property details...")
+**Map Sidebar (dark teal/green background):**
+- Contact name + address in white text
+- Vertical icon nav: Maps (green), Campaigns (yellow), Assets (blue), Contacts (pink), Canvassing (purple), Opportunities (teal)
+- Property details: Gender, Potential Amount ($84), sales count ("7 sales")
+- "CREATE CONTACT" button (green)
+- "Find Maps" button to discover storms at this location
+- GPS verification: pins must be within 50 feet of property
 
-**Solar Analysis (embedded in report):**
-- Panel count, specs (watts, dimensions), annual savings
-- 20-year projections: cost without solar vs with solar
+**Territory Assignment:** Managers freehand-draw polygon areas on map, assign to reps/teams. Clear visual boundaries prevent overlap. Activity feed shows where reps worked.
 
-**AI Employees (Q2 2026):** Marcus (Sales), Aisha (Marketing), Elena (Estimating), Ryan (Insurance). $169/month tier.
+### RoofLink Canvassing
 
-**Pricing:** Free → Pro $25/mo → Business $84/mo → AI Employee Pro $169/mo
+**Color-Coded Pin System (with legend button):**
+- **Green** = Approved jobs
+- **Purple** = Prospects/leads
+- **Orange** = Denied insurance claims
+- **Blue** = Completed/paid ("our favorite color")
+- **Gray** = Deleted/unqualified
+- All reps see each other's dots (visibility) but can't access job details (commissions, profits)
 
-### What StormLeads Currently Shows
+**Click-on-Any-House Data (County Appraisal District):**
+- Homeowner name, market value, square footage, sale date, years of residence
+- Lead statuses customizable; gray = dead leads (separate category, reactivatable)
 
-- Content Studio: 7 types (social, door hangers, emails, blog, ad copy, scripts, landing pages) ✅
-- 10 variable inputs (company, city, storm date, hail size, etc.) ✅
-- Batch mode (8 variations) ✅
-- Live preview panel (Facebook, email, door hanger, blog mockups) ✅
-- Results grid with copy/save/delete ✅
-- Library with search/filter + database persistence ✅
+**Bulk Communication from Map:** Filter by ZIP + status → send bulk email/SMS with pre-made templates
 
-### Gaps to Close
+**SalesRabbit Bundle ($160/user/month):** DataGrid AI buyer propensity scores (1-10), credit score estimates, route optimization, historical canvassing results
 
-| Gap | Rooftops.ai Has | StormLeads Status | Effort | Priority |
-|-----|-----------------|-------------------|--------|----------|
-| AI roof reports (satellite) | Core product, 300/mo | Not implemented | Very High | Medium |
-| Solar analysis | Embedded in reports | Not implemented | Medium (Google Solar API free tier) | Medium |
-| Social post scheduling | Schedules posts, tracks engagement | Generation only | High | Low |
-| Tool-picker grid layout | Visual grid of content types | Dropdown selector | Low | Low |
+### StormLeads Canvassing Comparison
 
-### Assessment
+**What We Have:**
+- Google Maps dark hybrid view
+- Stats bar (Total doors, Interested, Scheduled) as glass card overlay
+- Drop Pin mode with crosshair cursor
+- Bottom sheet modal (slide-up create/view)
+- GPS coordinates, outcome quick-select (6 options, 2-column grid), notes
+- Convert to Lead button
+- Territory Manager: CRUD with PostGIS polygon drawing, color-coded, assignee
 
-**StormLeads Content Studio is already competitive** — 7 content types with batch mode, live preview, and storm-specific variables. Rooftops.ai has more types but lacks our storm context. Convert type selector to visual grid for better discoverability. Solar analysis is achievable with Google Solar API free tier.
+**Key Gaps:**
 
----
+| Gap | Competitors Have | Priority | Effort |
+|-----|-----------------|----------|--------|
+| Color-coded pins by outcome | HailTrace: red/green/yellow. RoofLink: green/purple/orange/blue/gray | **High** | Low — add color mapping to pin markers |
+| Property owner details on map | RoofLink: CAD data (name, value, sqft) on click | Medium | Low — already have FEMA data, surface in popup |
+| Canvassing analytics | HailTrace: performance reports (pins, territories, outcomes) | Medium | Low — aggregate existing pin data |
+| Nearby Jobs indicator | RoofLink: shows jobs within configurable radius | Medium | Medium — spatial query on leads |
+| Pin outcome tracking visualization | Dense red/green/yellow coverage showing where rep worked | Medium | Low — already have pins, just add colors |
+| Lead status legend button | RoofLink: visible legend explaining color meanings | Low | Trivial |
 
-## 5. Work Orders / Production (StormLeads vs RoofLink)
-
-### What RoofLink Shows
-
-**7-step linear workflow (NOT kanban):**
-Target → Measure → Estimate → Approve → Order → Install → Collect
-
-**Marketing:** Tab-based interactive section — each step clickable with screenshot. Blueprint page: step number, monochrome icon, "Old Way" vs "RoofLink Way."
-
-**In-app vertical checklist IS the workflow:**
-- ~15 steps from "Send welcome email" to "Submit warranties / close out job"
-- Color indicator on completion
-- Step action types: scheduling (calendar), uploading (requires photo), checkbox, document creation (e-signable)
-- **Hard stops** — cannot advance without required photos (tear-off, underlayment, nail pattern)
-- Contextual hints about next action
-
-**Work orders:**
-- Auto-generated from approved estimate
-- Auto-separated by trade (roofing, gutters)
-- Crew login ($30/mo) — photos/notes/calendar/work orders only, no profit visibility
-- Smart crew assignment by availability
-- SRS Distribution one-click ordering
-
-**Map pin colors:** Green=approved, Purple=prospects, Orange=denied, Blue=completed, Gray=deleted
-
-### What StormLeads Currently Shows
-
-- 4-column kanban (Pending/Scheduled/In Progress/Completed) ✅
-- Cards with milestone progress bar ✅
-- Detail modal (full CRUD) ✅
-- Milestone checklist (add/delete/toggle) ✅
-- Photo upload per milestone with camera badge ✅
-- **Photo-required enforcement** ✅
-- Editable line items with running total ✅
-- 8 milestone templates ✅
-- Create from estimate (EstimatePicker) ✅
-- Team member assignment ✅
-
-### Gaps to Close
-
-| Gap | RoofLink Has | StormLeads Status | Effort | Priority |
-|-----|-------------|-------------------|--------|----------|
-| Linear progress visualization (7-step) | Vertical checklist with hard stops | Kanban + milestone checklist | Medium | Medium |
-| Step-type variety (schedule/upload/checkbox/doc) | Different UI per action type | All steps = checkbox + optional photo | Medium | Medium |
-| Crew-limited login | Separate role, no cost visibility | Everyone sees everything | Medium | Medium |
-| Auto-separation by trade | Work orders split by trade | Single work order per job | Medium | Low |
-| Contextual next-step hints | Shows what to do next | No guidance | Low | Low |
-
-### Recommended Improvements
-
-1. **Horizontal step indicator** on work orders (Target→Estimate→Approve→Order→Install→Collect). Complements existing kanban.
-2. **Enhance step types** — each milestone can be: checkbox, photo-required, schedule-pick, or document-generation.
-3. **Crew role** with limited visibility — field workers see only work orders, photos, notes, calendar.
+**Recommended Actions:**
+1. **Color-code canvassing pins by outcome** — green (interested), red (not interested), orange (not home), yellow (follow up), blue (scheduled), gray (converted). High visual impact, low effort.
+2. **Add pin color legend** — small floating panel explaining what each color means.
+3. **Add canvassing analytics** — conversion rate, pins per rep, outcome breakdown (reuse stats bar pattern).
 
 ---
 
-## 6. Dashboard / Reports (StormLeads vs JobNimbus + RoofLink)
+## 4. Pipeline/CRM (StormLeads vs JobNimbus)
 
-### What JobNimbus Insights Shows
+### JobNimbus Pipeline (from help docs + CDN screenshots)
 
-**Business Overview:**
-- 4 stat cards: Leads, Sold, Close Rates, Estimating Conversion
-- 3 filter dropdowns: Sales Rep, Lead Source, Job Type
-- 4 charts: Top 5 Lead Sources (bar), Top 5 Reps (bar), Lead Flow (line, YoY), Historical Sales (line, YoY)
+**Navigation:** Top-positioned horizontal nav bar (unusual for SaaS) — Home, Contacts, Jobs, Calendar, Boards, Insights. Plus separate left sidebar within app.
 
-**Sub-sections (sidebar nav):**
-- Leads/Close Rate — charts, scorecards by Rep/Source/Type, "Leads by Area" map
-- Estimating Conversion — rate %, breakdowns
-- Sales Pipeline — funnel by stage, outstanding estimates with $
-- **Workflow Dashboard** — "Days in Stage" cards (avg days per stage, clickable green numbers for drill-down)
-- Accounts Receivable — outstanding, overdue, by category
-- **Profit Tracker** — Planned vs Actual Gross/Net, Revenue Trending, Variance by Salesperson/Type, Commissions
+**Three Board Types (all kanban):**
+1. Sales Boards — leads through sales pipeline with estimated totals
+2. Production Boards — jobs through production stages
+3. Billing Boards — completed jobs through payment collection
 
-**UI patterns:** Eye icon for column customization, three-dot menu for export, raw data tables at bottom of every section.
+**Board Layout:**
+- Horizontal columns per stage
+- "Main Flow" dropdown in top-left to switch boards
+- Column headers: stage name, item count, financial totals
 
-### What RoofLink Shows
+**Card Design (SPECIFIC):**
+- White rectangular boxes in each column
+- **Top portion (configurable):** Title line via short-codes (address, contact name), up to 3 customizable content rows (contact type, status, invoice totals, balance due)
+- **Fixed bottom row (5 elements, left to right):**
+  1. Days in current status (numeric badge)
+  2. Completed tasks ratio (e.g., "2/5")
+  3. Attachment count (paperclip icon + number)
+  4. Due date
+  5. Assignee (initials circle or photo + team count)
+- **No thumbnails/photos** on kanban cards
+- **No color-coded priority indicators**
+- **No inline progress bars**
 
-- Widget-based, fully customizable grid with renamable tabs
-- Role-based dashboard templates (6+ roles)
-- ~150 pre-built reports + custom builder
-- Stale job alerts (3/7 day triggers)
+**Column Totals:** Configurable summaries — Estimate Total, Invoice Total, Outstanding Invoice Total. Permission-controlled visibility.
 
-### What StormLeads Currently Shows
+**Board Sidebar (click-to-preview):** Right-side sliding panel with job name, address, status change dropdown, description, assignees, custom fields, activity. "Open In" link for full page.
 
-- 4 KPI stat cards (Pipeline Value, New Leads, Close Rate, Avg Days to Close) ✅
-- Revenue goal progress bar ✅
-- Pipeline conversion funnel ✅
-- Mini storm map with live radar ✅
-- Tasks due today + Follow-ups ✅
-- Activity feed ✅
-- Team leaderboard (8 columns, clickable) ✅
-- Conversion by storm, Estimate summary, A/R aging (5 buckets) ✅
-- Estimating conversion cards ✅
-- Filter dropdowns (Rep, Source, Period) with comparison period + trend arrows ✅
-- **Reports (6 types):** Revenue (area), Pipeline (bar), Conversion (radar), Leaderboard, Lead Sources (donut), Stage Duration (line) ✅
-- CSV export on all charts ✅
-- Chart drill-down to filtered leads ✅
+**Default Stages:** Lead → Estimating → Sold → Production → A/R → Completed
 
-### Gaps to Close
+**Design Language:** Navy blue #152152, electric blue #3968C6, light blue #ebf0fa. Plus Jakarta Sans font. White cards on light-gray backgrounds. Known complaint: "too much blue" — visual monotony.
 
-| Gap | Competitors Have | StormLeads Status | Effort | Priority |
-|-----|------------------|-------------------|--------|----------|
-| Days-in-Stage cards (dashboard) | JN: avg days per stage, drill-down | Stage Duration chart in Reports only | Low | **Medium** |
-| Profit summary dashboard | JN: Planned vs Actual, Variance | Per-lead profit only | High | Medium |
-| Stale job alerts | RoofLink: 3/7 day triggers | Not implemented | Low | **Medium** |
-| Year-over-year comparison | JN: this year vs last year lines | Current vs prior period | Medium | Low |
-| Customizable widget layout | RoofLink: drag-and-drop | Fixed layout | High | Low |
+### HailTrace Pipeline (from CDN screenshot)
 
-### Recommended Improvements
+**Layout:** White background, clean flat design. Three visible panels:
 
-1. **Days-in-Stage cards** on dashboard — avg time per pipeline stage, clickable to drill into stuck jobs. Low effort, high insight.
-2. **Stale job alerts** — notify when a lead untouched for X days. Simple cron + existing notification system.
-3. **StormLeads dashboard is already strong** — we show more than JN's default Home (they show only Tasks, Jobs, Contacts). Our mini storm map is unique.
+**Opportunity Pipeline:** 4 stage columns — Lead (green badge), Prospect (yellow badge), Closed (blue badge), Lost (red badge). Dollar totals per column (e.g., "$75.0k", "$122.1k"). Individual opportunity cards with green "View" buttons.
 
----
+**Leaderboard:** List with circular avatar icons (blue circles), user name, deal count, dollar amount.
 
-## 7. Canvassing (StormLeads vs HailTrace + RoofLink)
+**Gross Revenue:** Line chart with green/teal line trending over time. Date range tabs (D/W/M).
 
-### What HailTrace Shows (Enterprise Tier)
+### StormLeads Pipeline Comparison
 
-**Canvassing mode:**
-- Row of customizable marker buttons at bottom
-- Drop markers on rooftops (satellite view)
-- **Custom status colors + icons:** Gray=Unknown (auto-downloads contact info), Yellow #1=No Answer (1st), Yellow #2=No Answer (2nd), custom: New Roof, Interested, etc.
-- Visit numbers increment per attempt
-- **Contact popup** — tapping Unknown marker auto-shows homeowner name, cell, email. Toggleable "heads-up display"
-- "Track Me" GPS mode
-- Notes per marker with full history
-- Campaigns with territory assignment
-- GPS verification (50ft)
+**What We Have (and what's BETTER):**
+- 3 board tabs (Sales/Production/Billing) — matches JobNimbus
+- Deal value on cards + column revenue totals
+- Lead score badges (80+/60+/40+) — **JobNimbus has none**
+- Source labels on cards — **JobNimbus has none**
+- Task progress badges (completion %) — **better than JN's "2/5" text**
+- Days-in-stage badges (color-coded: green/gray/amber/red) — **better than JN's plain number**
+- Conversion rate between columns — **unique to StormLeads**
+- Column collapse toggle
+- Priority/Source/Rep filter dropdowns
+- Mobile list view
+- Sidebar lead preview with activity feed
 
-**Canvassing leaderboard:** Per-rep stats (markers, contacts, prospects, leads, qualified, sales), date-filterable, location verification.
+**Remaining Gaps:**
 
-### What RoofLink Shows
+| Gap | JobNimbus Has | Priority | Effort |
+|-----|--------------|----------|--------|
+| Configurable card content | Users choose which 3 fields appear on cards via short-codes | Low | Medium |
+| Attachment count on cards | Paperclip icon + number | Low | Low |
+| Cover photo on job detail | Upload area for job photo | Low | Low |
+| Board templates for quick setup | Pre-configured board layouts | Low | Low |
 
-- Color-coded pins with legend (green/purple/orange/blue/gray)
-- Freehand territory polygons with rep assignment, overlap prevention
-- County boundary overlay
-- On-click property data (name, value, sqft, sale date)
-- Bulk email/SMS from map by ZIP + status
-- Weather overlay: hail dots with **diameter inside dot**, wind dots, "T" markers
-
-### What StormLeads Currently Shows
-
-- Google Maps dark/hybrid ✅
-- Stats bar (doors, interested, scheduled) ✅
-- Drop Pin mode (crosshair, tap to place) ✅
-- Bottom sheet modal ✅
-- GPS coordinates, 6 outcome options, notes ✅
-- Convert to Lead ✅
-- Territory Manager (polygon drawing, color, assignee) ✅
-- Marker click → details ✅
-
-### Gaps to Close
-
-| Gap | Competitors Have | StormLeads Status | Effort | Priority |
-|-----|------------------|-------------------|--------|----------|
-| Auto-contact-data on pin | HailTrace: name, cell, email | No contact data | Very High (data source) | High |
-| Custom pin statuses | HailTrace: unlimited colors/icons | 6 fixed outcomes | Medium | Medium |
-| Visit counter (1st/2nd/3rd) | HailTrace: increments | Single outcome per pin | Medium | Medium |
-| Canvassing leaderboard | HailTrace: per-rep metrics | No canvassing reporting | Medium | Medium |
-| Weather overlay on canvassing | RoofLink: storm data toggle | Separate from storm map | Medium | Medium |
-
-### Recommended Improvements
-
-1. **Customizable pin statuses** — user-defined labels, colors, icons.
-2. **Visit counter** — increment attempt number on re-visits.
-3. **Canvassing leaderboard** — per-rep stats using existing leaderboard pattern.
-4. **Storm data toggle** on canvassing map — show swaths alongside pins.
+**Assessment:** Our pipeline is **significantly better** than JobNimbus. Our color-coded badges, conversion rates between columns, and multi-criteria scoring surpass their plain text indicators. No major gaps to close here.
 
 ---
 
-## 8. Communication (StormLeads vs JobNimbus)
+## 5. Estimates (StormLeads vs JobNimbus SumoQuote + RoofLink)
 
-### What JobNimbus Shows
+### JobNimbus SumoQuote Estimate Builder (DETAILED from help docs)
 
-- Shared SMS inbox (multiple numbers, Twilio-powered)
-- Automated texting + emailing with triggers/delays
-- Caller ID (iOS/Android), @mentions in notes
-- Review request automation on completion
-- Job share (live customer status link)
-- **Engage pricing:** $49-249/mo
+**Multi-Page Structure (8 page types, each toggleable and reorderable via left sidebar with drag-and-drop):**
 
-### What StormLeads Currently Shows
+1. **Cover Page** — Company logo, primary image (650x414px recommended, typically customer's home photo), customer name, date, certification images, save as template
+2. **Introduction** — Rich text editor with Insert Token dropdown for shortcodes ({{ACCOUNT_NAME}}, {{CONTACT_PHONE}}), template selector, save as template
+3. **Inspection** — Photo sections with layout style picker (multiple arrangement options as popup thumbnails), drag-and-drop photo reorder, add from device/Job/Contact, editable section titles
+4. **Estimate Details** — Up to 3 estimate tabs (Good/Better/Best), sections with eye icon (hide/show), trash icon (delete), up/down arrows (collapse), line items synced from Products catalog with 6-dot drag handle, Add Item/Section/Discount buttons, tax rate field, **profit margin slider** (horizontal slider for margin %), Override Total Price link, total breakdown (expandable), notes field
+5. **Signing & Upgrades** — Signature capture (auto-populated contact), up to 4 additional signers, disclaimers, upgrade line items with separate profit margin slider, deposit request toggle (amount + description), product selections (e.g., shingle color), footer notes
+6. **Terms and Conditions** — Rich text or PDF upload, require customer acknowledgment toggle
+7. **Warranty** — Start date, details text, thank-you note, company signature upload, signee name/title
+8. **Custom Pages** — PDFs from Job/Contact records, sales PDFs from library, single-use upload, text pages with token auto-fill
 
-- Activity logging (Call, Email, SMS, Visit, Insurance) ✅
-- SMS → `window.open('sms:...')` (native device, not in-app) ⚠️
-- Drip sequences with auto-enrollment + email sending ✅
-- Google review request link generation ✅
-- Client status page (shareable) ✅
-- Notifications (10 categories, multi-channel) ✅
+**Layout System:** Pre-configured collections of page templates. Layout Library with filter and preview. Set default layout, edit/copy, "Explore" for samples.
 
-### Gaps
+**Sending:** "Review and Share" generates PDF preview. Send for e-signatures or sign on spot. Must be "Approved" or "Marked as Signed" before converting to Invoice/Work Order.
 
-| Gap | Effort | Priority |
-|-----|--------|----------|
-| In-app SMS (Twilio) — UI exists, needs wiring | Medium | **High** |
-| Email inbox/thread view | High | High |
-| Automated review requests (on stage change) | Low | **Medium** |
-| @mentions in activity notes | Medium | Low |
+### RoofLink Estimate Builder
 
----
+**Auto-Generation:** Draw roof → select supplier template → system generates estimate + material order + work order simultaneously. Real-time Gross Profit calculation from SRS pricing + labor rates.
 
-## 9. Profit Tracking (StormLeads vs JobNimbus)
+**Multiple Estimates:** Up to 6 options per job (vs SumoQuote's 3). Rename options (e.g., "Silver/Gold/Platinum"). Side-by-side comparison table. "Set as Primary" required before material/work orders can submit. Export button compiles selected estimates into single PDF.
 
-### What JobNimbus Shows
+**Estimate Options PDF Output:** Page 1 = company logo + cover. Pages 2-7 = one per estimate (logo, option name, bid type, total, work doing, payment). Final page = "Compare Estimates" summary with all options side by side.
 
-- **Per-job tab:** Revenue, Planned Total, Actual Total, Gross Margin, Net Margin
-- Drag-and-drop metric card favorites (top 5)
-- Grouped cost items (Material vs Labor auto-sort)
-- Import from Estimates, Material Orders, Work Orders
-- Commission tracking (revenue %, profit %, flat fee)
-- **Dashboard:** Planned vs Actual graphs, Variance Analysis, Commissions report
+**Line Item Categories:** Work Doing, Work Not Doing, Supplements (insurance), Change Orders, Discounts, Upgrades — toggleable via dropdown.
 
-### What StormLeads Shows
+**Insurance Fields:** Insurance proceeds (ACV), recoverable depreciation, O&P input, auto-calculated customer cost.
 
-- Estimate total - expenses = profit (LeadDetail) ✅
-- Expenses tracking (category, amount, date, notes) ✅
+### StormLeads Estimate Builder Comparison
 
-### Gaps
+**What We Have:**
+- Estimate list with KPI stats (Total, Draft, Sent, Accepted counts/values)
+- Rich multi-section builder, line items with drag-and-drop
+- Rich text editor, section image uploader
+- Tax rate, discounts, multi-signer, profit margin input
+- Financing toggle (Hearth), template system, review/preview mode
+- SRS Catalog material selection, duplicate estimate
+- AI tier generation (Good/Better/Best), tier comparison modal
+- Estimate-to-invoice, server-side PDF (pdfmake), in-person signing
+- Insurance details toggle (company, claim #, date of loss)
+- Optional upgrades section
 
-1. No Planned vs Actual comparison
-2. No commission tracking
-3. No Material vs Labor cost breakdown
-4. No dashboard-level profit summary
-5. No variance analysis
+**Key Gaps:**
 
-### Recommendations
+| Gap | Competitors Have | Priority | Effort |
+|-----|-----------------|----------|--------|
+| Cover page | SumoQuote: logo + property photo + customer name + date page | **High** | Medium — add as optional first page to PDF |
+| Multi-page PDF structure | SumoQuote: 8 page types (cover, intro, inspection photos, estimate, signing, T&C, warranty, custom) | Medium | High — significant PDF restructure |
+| Photo sections with layout picker | SumoQuote: embed inspection photos with configurable arrangements | Medium | Medium |
+| Profit margin slider (visual) | SumoQuote: horizontal slider. RoofLink: always-visible GP calculation | Medium | Low — we have input, make it a slider |
+| Insurance auto-calculations | RoofLink: ACV → depreciation → customer out-of-pocket auto-calc | Medium | Low — add computed fields |
+| Up to 6 estimates per job | RoofLink: 6 options. SumoQuote: 3 tabs | Low | We have AI tiers, this is comparable |
+| Token/shortcode system | SumoQuote: {{ACCOUNT_NAME}}, {{CONTACT_PHONE}} auto-fill | Low | Medium |
+| Side-by-side comparison export | RoofLink: "Compare Estimates" final page in PDF | Low | Medium |
+| Fix dead measurement button | "LAUNCH MEASUREMENT TOOL" has no onClick handler | **Trivial** | Trivial — wire to RoofDrawingTool or remove |
 
-1. **"Planned Cost" field on expenses** — budget vs actual per line item.
-2. **Profit summary on dashboard** — aggregate total revenue, cost, gross margin %.
-3. Commission tracking as future feature.
-
----
-
-## 10. Mobile (StormLeads vs All)
-
-### Competitors
-
-- **JobNimbus:** Native iOS + Android, 4.8 stars, kanban/photo annotation/calendar
-- **HailTrace:** Native apps, full map + canvassing + GPS tracking
-- **RoofLink:** Mobile-first, crew login, work orders on phone
-
-### StormLeads
-
-- Mobile responsive layout ✅
-- Bottom tab bar (5 tabs) ✅
-- Mobile list/mission views ✅
-- PWA manifest + service worker ✅
-- No native app ❌
-
-### Recommendation
-
-Continue PWA approach. Focus on excellent mobile web UX rather than native apps. Cost of native development doesn't align with "affordable alternative" mission.
+**Recommended Actions:**
+1. Fix dead "LAUNCH MEASUREMENT TOOL" button — wire to RoofDrawingTool or remove
+2. Add cover page option to estimate PDF (company logo, property photo, customer name, date)
+3. Add insurance auto-calculations: ACV input → depreciation → customer out-of-pocket
+4. Make profit margin input a visual slider (higher engagement than text input)
 
 ---
 
-## Summary: Top 10 Actionable Improvements (Prioritized by Impact)
+## 6. Dashboard/Reports (StormLeads vs JobNimbus + RoofLink)
 
-| # | Improvement | Competitor Reference | Effort | Impact |
-|---|-------------|---------------------|--------|--------|
-| 1 | **Multi-page estimate structure** (cover + scope + details + terms + signing) | SumoQuote 7+ pages | High | Very High |
-| 2 | **Upgrades/upsell section** on estimates | SumoQuote ($2,078 avg upsell) | Medium | High |
-| 3 | **Insurance estimate fields** (ACV, depreciation, O&P) | RoofLink | Medium | High |
-| 4 | **In-app SMS via Twilio** (UI exists, needs backend) | JobNimbus Engage | Medium | High |
-| 5 | **Days-in-Stage cards** on dashboard | JobNimbus Insights | Low | Medium |
-| 6 | **Stale job alerts** (lead untouched X days) | RoofLink | Low | Medium |
-| 7 | **Customizable canvassing pins + visit counter** | HailTrace | Medium | Medium |
-| 8 | **Interactive profit margin slider** on estimates | JN + RoofLink | Low | Medium |
-| 9 | **Calendar-based storm search** in Archive | HailTrace | Low | Medium |
-| 10 | **Canvassing leaderboard** (per-rep stats) | HailTrace | Medium | Medium |
+### JobNimbus Insights Dashboard (DETAILED from help docs)
 
-### Where StormLeads Already Wins
+**Access:** Left nav "Insights" tab → hamburger menu opens slide-out sidebar with 6 sections:
 
-- **Pipeline UI** — more data per card than JN (score badges, days-in-stage, task progress, conversion rates)
-- **Modern design** — glass/oklch system is far more contemporary than JN's dated UI or RoofLink's traditional SaaS
-- **Storm + CRM in one app** — no competitor combines both
-- **Content Studio** — 7 types, batch mode, live preview, storm-specific variables
-- **Pricing** — $29-149/mo vs JN $349-1,254/mo vs RoofLink $400/user/mo
-- **Work order milestones** — photo-required, 8 templates
-- **A/R aging** — 5-bucket on dashboard + invoices
-- **Free storm data** — NOAA/SWDI at $0 vs HailTrace $50-300+/mo
-- **Mini storm map on dashboard** — unique feature no competitor offers
+**1. Business Overview:**
+- Filter bar: Sales Rep, Lead Source, Job Type dropdowns
+- 4 stat cards: Leads count, Sold count, Close Rate %, Estimating Conversion Rate %
+- 4 charts in 2x2 grid: Top 5 Lead Sources (horizontal bar), Top 5 Sales Reps (horizontal bar), Lead Flow (line/bar, this year vs last year), Historical Sales (line, YoY comparison)
+- Click any bar → "drill down to next level"
+- Three-dot menu per chart for export
+
+**2. Sales (5 sub-tabs):**
+- Leads/Close Rate: lead flow graphs, lead mix by source, scorecards by rep/source/type, "Leads by Area" geographic map
+- Estimating Conversion: rate %, estimated jobs count, conversion scorecards
+- Sales: historical trending, leaderboard, breakdowns by rep/area/source/type
+- Sales Pipeline: jobs per stage (bar/funnel), outstanding estimates by status with dollar amounts
+- Sales Data: raw table with configurable columns (eye icon), export
+
+**3. Workflow:**
+- 5 "Time in Stage" cards (Lead, Estimating, Sold, Production, A/R) — each showing green number (avg days)
+- Clickable green numbers drill into contributing jobs
+- Time in Stage by Sales Rep table, by Job Type table, by Status
+- Filter: Date Range, Sales Rep, Job Type, Lead Source
+
+**4. Accounts Receivable:**
+- Outstanding Invoices total (large number)
+- Overdue by date range: 1-30 days, 91+ days, not overdue
+- A/R + Completed Jobs data table
+
+**5. Completed:**
+- 3 charts: Completed by Job Type (MoM bar), by Sales Rep (bar, revenue), by Lead Source (bar)
+- 3 scorecard tables with average revenue per category
+
+**6. Profit Tracker (4 sub-tabs):**
+- Profitability Summary: Planned vs Actual Gross/Net, 4 charts (margins, revenue trends, costs), by Lead Source
+- Profit & Loss: planned and actual charts
+- Variance Analysis: variance summary, by salesperson, by job type
+- Sales & Commissions: salesperson profitability bar graph, commissions paid/due, commission % of revenue/profit
+
+### JobNimbus Profit Tracker (Per-Job)
+
+- Tab within each Job record (alongside Activity, Tasks, Photos, etc.)
+- Top metrics bar: revenue, cost, profit displayed horizontally
+- "View More" button opens sidebar with drag-and-drop metric cards (customize which 5 appear as "Favorites")
+- Cost section: grouped line items (Manual Section or Material vs Labor auto-sort), drag-and-drop reorder
+- Import from: Estimates, Material Orders, Work Orders
+- Commissions Panel: Planned Revenue/Profit/Flat Fee types, rate entry, assign to salesperson
+
+### RoofLink Dashboard (from webinar walkthrough)
+
+**Widget-Based, Fully Customizable:**
+- Multiple groups (tabbed sections) displayed as horizontal tabs
+- Groups are reorderable, renamable, addable, removable
+- "Save as Template" duplicates layout to other roles
+- Two UI modes: Standard (checklist-driven) and "Boxy" (widget grid with Nearby Jobs, Recently Accessed, Star Jobs, Reports, Statistics)
+
+**Dashboard Groups (7):**
+1. Sales Pipeline: signed contracts, filed claims (clickable cards)
+2. Lead Generation: lead source tracking breakdown
+3. Production: jobs approved vs in production, roofs scheduled/not, work orders completed/not
+4. Insurance: supplementing, depreciation tracking
+5. Job Closeout: warranties to submit, jobs to close, unpaid jobs
+6. Revenue: this month vs all time, retail vs insurance
+7. Leaderboard: by gross profit, filterable Weekly/Monthly/All Time
+
+**Role-Based Templates:** Different default dashboards for Sales Rep, Marketing Rep, Team Leader, RSM, Project Manager, Office/Admin.
+
+**Reports:** ~150 pre-built + fully custom builder. Export to CSV, Excel, HTML, PDF. Email reports directly. Stale job alerts (3/7 day triggers).
+
+### StormLeads Dashboard Comparison
+
+**What We Have (17+ sections):**
+- 4 KPI stat cards (Pipeline Value, New Leads, Close Rate, Avg Days to Close)
+- Revenue goal progress bar with on-track/behind indicator (**unique**)
+- Pipeline conversion funnel chart
+- Mini storm map with live radar (**unique**)
+- Tasks due today, follow-ups, activity feed
+- Team leaderboard (8 columns)
+- Conversion by storm chart (**unique**)
+- Estimate summary (accepted/pending/declined)
+- A/R aging summary (5 buckets)
+- Estimating conversion cards
+- Filter dropdowns (Rep, Source, Period) with comparison period data
+- Loading skeletons
+- Days-in-stage cards (**NEW** — matches JN's Workflow dashboard)
+- Stale lead alerts (**NEW** — matches RoofLink's stale job alerts)
+
+**Assessment:** Our dashboard is **one of the most comprehensive** in the industry. We have unique features (mini storm map, revenue goal, conversion by storm) that no competitor offers.
+
+**Remaining Gaps:**
+
+| Gap | Competitors Have | Priority | Effort |
+|-----|-----------------|----------|--------|
+| Geographic lead distribution map | JN: "Leads by Area" map in Sales section | Medium | Medium — plot leads on mini map |
+| Speed to Lead metric | RoofLink + Roofr: response time tracking | Medium | Low — lead.created_at vs first activity timestamp |
+| Retail vs Insurance breakdown | RoofLink: revenue split by job type | Medium | Low — if lead has insurance fields |
+| Customizable dashboard layout | RoofLink: add/remove/reorder widget groups | Medium | High — significant refactor |
+| Role-based dashboards | RoofLink: 6 role templates | Low | Medium |
+| Profit Tracker per job | JN: dedicated tab with drag-and-drop metrics, commissions | Low | We have profit tracking in LeadDetail |
+| YoY comparison charts | JN: this year vs last year overlays | Low | Medium |
+
+**Recommended Actions:**
+1. Add "Speed to Lead" metric — time from lead creation to first activity (data already exists)
+2. Add "Leads by Area" mini-map or geographic distribution chart
+3. Add proposal aging — highlight estimates sent 7+ days without response
 
 ---
 
-## Appendix: Image Reference URLs
+## 7. Content/Marketing (StormLeads vs Rooftops.ai)
 
-### HailTrace
-- Dashboard: `https://cdn.hailtrace.com/images/home/dashboards.png`
-- Hail maps: `https://cdn.hailtrace.com/images/home/hail-maps.png`
-- Flexibility: `https://cdn.hailtrace.com/images/home/flexibility.png`
-- Weather Radar: `https://lirp.cdn-website.com/074b5fee/dms3rep/multi/opt/Weather+Radar-1920w.png`
-- Territory Mapping: `https://lirp.cdn-website.com/074b5fee/dms3rep/multi/opt/Territory+Mapping-1920w.png`
-- Storm Reports: `https://lirp.cdn-website.com/074b5fee/dms3rep/multi/opt/Storm+Reports-1920w.png`
-- HailTrace vs Hail Recon: `https://useproline.com/wp-content/uploads/2025/10/image-3-1024x574.jpeg`
+### Rooftops.ai Creator Studio (from app inspection + resources site)
 
-### JobNimbus
-- Board view: `https://images.g2crowd.com/uploads/attachment/file/1319946/jobnimbus-board-softwaresuggest.png`
-- Insights: `https://images.g2crowd.com/uploads/attachment/file/1319954/Insights.png`
-- Home UI: `https://connecteam.com/wp-content/uploads/2025/06/Home-UI.png`
-- Mobile: `https://cdn.prod.website-files.com/6787de296c2d0f1df5b0c942/67fcf8a6852d5264ccdd1e68_Group%201077242793.avif`
+**Tech Stack:** Next.js React SPA, workspace-based routing (`/[locale]/[workspaceid]/`), dark/light/system theme toggle, toast notifications (top-center, 3.5s, max 3 visible).
 
-### RoofLink
-- Tab-based 7-step interactive sections on marketing site
-- Blueprint page: monochrome icons per step
-- Color-coded map pins: green/purple/orange/blue/gray
+**Command Interface:** Uses special character prompts: `/` for prompts, `@` for files, `#` for tools.
 
-### Rooftops.ai
-- Satellite reports at 640x640 resolution
-- Material selection: 5 horizontal image-backed buttons
-- 4-tier pricing cards with monthly/annual toggle
-- Dark/light mode toggle
+**14 Content Tools:**
+1. Social Media Ads, 2. Email Marketing, 3. Landing Page Builder, 4. Cold Call Scripts, 5. Legal Documents, 6. Translation (80+ languages), 7. AI Image Generation (DALL-E), 8. SEO Optimizer (coming soon), 9. Content Calendar (coming soon), 10. Strategy Documents, 11. Training Manuals, 12. Website Generator, 13. Meeting Strategies, 14. Video Editing (coming soon)
+
+**Social Media Manager:** Auto-scheduling, engagement metrics, AI content ideas, "Creator Library" with stored content + negative trend identification. "30 days of social media posts in seconds."
+
+**Design Language:** Montserrat (headings), Inter (body), Caveat Brush (accent/handwritten). Black text on white backgrounds. Dark/light mode toggle. Material estimate cards with photographic backgrounds.
+
+### StormLeads Content Studio Comparison
+
+**What We Have:** 7 content types (social, door hangers, emails, blog outlines, ad copy, cold call scripts, landing pages), 10 storm-specific variable inputs, batch mode (up to 5), live preview panel, card-based results grid, database-backed library.
+
+**Assessment:** We cover the **most valuable content types** for storm restoration. Rooftops.ai has more types (14 vs 7) but many are tangential to the core workflow (legal docs, training manuals, meeting strategies).
+
+**Key Gaps:**
+
+| Gap | Rooftops.ai Has | Priority | Effort |
+|-----|----------------|----------|--------|
+| AI Image Generation | DALL-E powered images for social posts | Medium | Low — API call (~$0.02/image) |
+| Content scheduling | Calendar for planning when to post/send | Medium | Medium |
+| Command interface (/ @ #) | Slash commands for quick content creation | Low | Medium |
+| Translation (80+ languages) | Multi-language output | Low | Low — add to prompt |
+
+**Recommended Actions:**
+1. Add content scheduling/calendar — plan when to use generated content
+2. Consider AI image generation for social media posts
+3. Add storm-specific types: insurance claim letters, supplement request templates
 
 ---
 
-*Sources: hailtrace.com, jobnimbus.com, rooflink.com, rooftops.ai, help.hailtrace.com, support.jobnimbus.com, sumoquote.com, learn.hailtrace.com, Capterra, G2, Software Advice, App Store, Knockbase integration docs, ProLine comparison articles, YouTube tutorials (2025-2026), SalesRabbit/Roofle acquisition docs, .firecrawl/ research archives (April 2-6, 2026)*
+## 8. AI Roof Reports (StormLeads vs Rooftops.ai)
+
+### Rooftops.ai Report Interface (DETAILED)
+
+**Generation Flow:** Address search → AI pulls satellite imagery → ~30 seconds processing with 18 rotating status messages → report displays.
+
+**Report Layout (top to bottom):**
+1. **Header:** Property address + building icon, imagery quality badge, overhead satellite image, Google Street View photo(s)
+2. **General Metrics:** Roof facets, total roof area (sq ft), ground area, max sunshine hours/year, max panel count, max array area, yearly energy DC kWh
+3. **Roof Pitch Analysis:** Fractions (e.g., "5/12"), per-facet breakdown with area % and square footage, individual facet cards
+4. **Building Details:** Roof area (with tilt), ground footprint, roofing squares (100 sq ft units)
+5. **Material Estimate Cards:** 5 options with photographic backgrounds (Asphalt, Premium Asphalt, Clay Tile, Metal, Wood Shake), each with "Estimate" button → loading → material + labor cost breakdown
+6. **Solar Insights:** Upfront cost, lifetime utility bills, 20-year net savings, yearly energy, **Solar Insight Scale** (horizontal bar: Red=Bad Fit → Yellow=Good Fit → Green=Great Fit, with dynamic caret indicator)
+7. **Actions Bar:** Export PDF, Ask AI (opens GPT with property data), copy-to-clipboard, save/bookmark, Generate AI Content (links to Creator Studio with context)
+
+### StormLeads Property Data Comparison
+
+**What We Have:** FEMA NSI data, Census demographics, Street View + Satellite (Mapbox), roof measurement tools (drawing + manual), solar potential (Google Solar API), weather/storm history with PDF export, skip trace, FEMA disaster declarations.
+
+**Assessment:** Different but complementary. Rooftops.ai = satellite roof analysis + instant estimates. StormLeads = storm damage history + lead qualification. The combination is powerful.
+
+**Potential Enhancement:** Integrate Rooftops.ai-style roof report using Google Solar API's buildingInsights endpoint (we already use this for solar data — extend to include facet counts, pitch analysis, area calculations).
+
+---
+
+## 9. Work Orders/Production (StormLeads vs RoofLink)
+
+### RoofLink 7-Step Workflow (DETAILED from webinar)
+
+**Core Insight:** The pipeline is NOT a kanban board. Jobs advance **automatically** when checklist milestones complete. "Most other CRMs have boards that customers manually move to and from, basically replicating digital post-it notes."
+
+**Checklist Step Types (4 different action widgets):**
+1. **Scheduling step** — opens calendar picker with rep availability checking
+2. **Uploading step** — requires file/photo upload before marking complete
+3. **Checkbox step** — simple toggle completion
+4. **Document creation step** — generates and sends a document
+
+**Standard Checklist (~15 steps from webinar):**
+1. Send welcome email (automated template)
+2. Schedule inspection (calendar + rep availability)
+3. Complete inspection form (customizable, photo capture)
+4. File insurance claim (company, claim #, deductible, loss date)
+5. Upload insurance scope
+6. Schedule adjuster meeting
+7. Create pre-contract/contingency agreement (e-signable)
+8. Measure roof (drawing tool or third-party)
+9. Create estimate (from measurement + template)
+10. Customer approval / contract signing
+11. Material ordering (one-click to SRS)
+12. Schedule install
+13. Installation checklist (photo verification)
+14. Final collection / payment
+15. Submit warranties / close out
+
+**"Hard Stops" Enforcement:** Rep CANNOT mark a stage complete until required photos are uploaded and checklist items checked off. "If the photo isn't there, the rep doesn't get paid."
+
+**Production Dashboard:** Roofs scheduled vs not (clickable counts), work orders completed vs not, insurance supplementing status, job closeout status.
+
+**Crew Portal (~$30/month):** View work orders, upload photos, add notes, view calendar. Cannot see profits, commissions, or admin settings.
+
+### StormLeads Work Orders Comparison
+
+**What We Have:**
+- 4-column kanban (Pending/Scheduled/In Progress/Completed)
+- Cards with milestone progress bar
+- Detail modal with full CRUD
+- Milestone checklist with photo upload per milestone
+- Photo-required enforcement (prevents completion without photo)
+- 8 milestone templates, create from estimate, team assignment
+
+**Key Gaps:**
+
+| Gap | RoofLink Has | Priority | Effort |
+|-----|-------------|----------|--------|
+| Auto-advancement | Jobs move automatically when milestones complete | Medium | Low — add option to auto-advance |
+| Checklist step types | 4 types (scheduling, uploading, checkbox, document) | Medium | Medium |
+| Timestamp audit trail | Every checklist item logged with completion timestamp | Medium | Trivial — add `completed_at` column |
+| Work order PDF export | Generate homeowner-ready PDF with organized photos | **High** | Medium — reuse pdfmake |
+| Crew-only portal | Limited access for field crews | Medium | Medium — viewer role restriction |
+| Trade separation | Work orders separated by roofing/gutters/siding | Low | Low — add category field |
+| Welcome email automation | Auto-send template email on job creation | Low | Low — use existing drip infrastructure |
+
+**Recommended Actions:**
+1. Add work order PDF export with organized photos (reuse pdfmake from estimates)
+2. Add auto-advance option: when all milestones complete → auto-move to next column
+3. Add completion timestamp to milestones (trivial `completed_at` column)
+4. Consider crew-limited view using existing viewer role
+
+---
+
+## 10. Job Detail View (StormLeads vs JobNimbus)
+
+### JobNimbus Job Detail (from help docs)
+
+**Header:** Job name + primary contact (name, phone, email). Quick-action buttons for: financial documents, notes, emails, tasks, text messages.
+
+**Right Sidebar (always visible):**
+- Cover photo upload area
+- Address with Directions/Copy/Edit links
+- Job overview with custom fields
+- Status indicators: current status, days in status, job type, lead source, assigned users, location, dates, sales rep, subcontractors, synced integrations
+- Tags section
+- Related contacts list
+
+**Left Navigation (12+ tabs):**
+Dashboard, Activity, Fields, Tasks, Photos, Documents, Estimates, Material & Work Orders, Payments & Invoices, Profit Tracker, Forms, Custom Documents
+
+### StormLeads LeadDetail Comparison
+
+**What We Have (2,921 lines — comprehensive):**
+Lead info header, lead scoring (7-factor), roof details, property info (FEMA), financing (Hearth), contracts, expenses/profit, activities, documents with photo annotation, weather/storm history, roof measurement tools, custom fields, review request, client status page, skip trace, FEMA disasters, census demographics, Street View + Satellite
+
+**Assessment:** Our LeadDetail is **very comprehensive** — arguably more data-rich than JobNimbus's job view. We have storm-specific data (weather history, FEMA, census, hail scores) that they don't.
+
+**Minor Gaps:**
+- Cover photo upload — JN has prominent job cover photo. We could add a "hero image" to LeadDetail.
+- Forms feature — JN has standardized inspection forms. We have custom fields but not templated forms.
+
+---
+
+## 11. Communication (StormLeads vs JobNimbus Engage)
+
+### JobNimbus Engage (Texting) — VISUAL DETAILS
+
+**Compose Area:** Text input field with 4 action buttons: image attachment (MMS), message templates, schedule (presets: This Afternoon, Tomorrow Morning, Tomorrow Afternoon, Custom Time), emoji picker. Character counter (160 chars standard, 70 chars with emojis).
+
+**Conversation Thread:** Chat-style message bubbles. Scheduled messages show edit/delete on hover. Single shared inbox for all messages.
+
+**Text-to-Pay:** Requires both Engage AND Payments subscriptions. Two-click payment link texting → customer clicks → secure payment page (green-themed).
+
+**Cost:** $49/mo (Basic), $149/mo (Standard), $249/mo (Premium) + $20 setup. NOT included in base CRM.
+
+### JobNimbus AssistAI (AI Receptionist)
+
+**Interface:** Left sidebar — Dashboard, Contacts, Logs, Settings.
+- Dashboard: metrics panel (Minutes Saved, Calls Answered, Appointments Booked, Booking Rate), latest calls feed
+- Logs: data table with time frame selector (7-90 days), wrap lines toggle, filters, CSV/JSON export
+- Agent types: Appointment Scheduler (books into JN calendar) and Message Taker
+
+**Cost:** $298/agent/month + $0.15/minute.
+
+### StormLeads Communication Status
+
+**What We Have:** SMS composer uses `window.open('sms:...')` — native device pass-through, no in-app sending. Email via SMTP configuration. Drip sequences with auto-sending.
+
+**Assessment:** This is our biggest UX gap. Twilio integration for real SMS would cost ~$20-50/month but would match a feature JobNimbus charges $49-249/month for. However, per project constraints, this involves real costs.
+
+---
+
+## 12. Emerging Threat: QuoteIQ
+
+### QuoteIQ UI Details (from myquoteiq.com + fresh scrapes)
+
+**Brand:** Primary Blue #2872FA, Dark Navy #192A3D. Feature cards in 3-column grid, 8px border radius, system fonts, 40px minimum input height.
+
+**AI Estimator:** Upload up to 5 photos → AI analyzes property size, conditions, obstacles → description scoring with real-time feedback → dynamic question generation → before/after AI image preview → upsell recommendation cards → professional estimate output. Automated follow-up scheduling built into flow.
+
+**MapMeasure Pro:** Interactive satellite map with overlay drawing tools for measurement boundaries. Drop pins for sq ft / linear ft measurement. Pricing auto-calculates from contractor rates. Screenshots attach directly to estimates (March 2026 update).
+
+**InstaQuote (Self-Service Widget, 5-step):**
+1. Service selection with real-time pricing display
+2. Quote delivery via email AND SMS automatically
+3. Customer approves with e-signature
+4. InstaSchedule shows contractor's real-time availability
+5. Customer picks date, job drops onto calendar
+
+**Options Estimates:** 3-tab Good/Better/Best with line items and pricing per tier.
+
+**Pricing Threat:** $29.99/mo includes full AI suite. Claims 91% savings ($31,500+/year) vs stacking competitor tools.
+
+**StormLeads Moat:** QuoteIQ has **NO storm data, NO weather mapping, NO hail tracking**. Our NOAA/FEMA storm intelligence is the differentiator they can't match cheaply.
+
+---
+
+## 13. Industry-Wide UI Patterns (Cross-Competitor Analysis)
+
+### Dashboard Design Consensus
+- **Card-based KPI layouts** (5-7 core KPIs recommended)
+- **Role-based views:** CSR/Sales, Technician/Crew, Financial
+- **Visual job boards** (Kanban) showing status + progress
+- **Pipeline visualization** with stage-based revenue breakdowns
+- Charts: bar for stage duration, line for trends, funnels for conversion
+
+### Estimate Builder Consensus
+- **Good/Better/Best format** is industry standard (3-tier pricing)
+- Each tier shows: material costs, labor, permits, disposal, monthly financing
+- E-signature integration is table stakes
+- Photo annotations and satellite imagery attachment trending
+- Two approaches: 3 independent documents (isolated prices) vs combined single estimate
+
+### Navigation Consensus
+- **Sidebar navigation** (collapsible) is most common pattern
+- **Tab-based content switching** for sub-sections
+- **Bottom tab bar** for mobile apps
+- **Sticky headers** with hamburger for mobile web
+
+### AI Integration Trends (2026)
+- Photo-based AI estimating (QuoteIQ leads)
+- AI voice notes and transcription (Zuper)
+- AI-generated before/after images (QuoteIQ unique)
+- Natural language CRM control (QuoteIQ Autopilot, JN Scout)
+- AI dispatch and scheduling (ServiceTitan)
+- Auto-organized photo documentation (Zuper AI Walkthrough)
+- Self-service quote widgets trending (QuoteIQ InstaQuote, SkyQuote, Roofr)
+
+---
+
+## 14. Priority Improvement Roadmap
+
+### Tier 1 — High Impact, Low-Medium Effort (do next)
+
+| # | Improvement | Inspired By | Effort | Impact |
+|---|-------------|-------------|--------|--------|
+| 1 | **Color-coded canvassing pins** by outcome (green/red/orange/yellow/blue/gray) | HailTrace + RoofLink | Low | High — instant visual improvement |
+| 2 | **Fix dead measurement button** in EstimatesView | N/A (bug) | Trivial | Medium — removes dead UI |
+| 3 | **Storm structure count** in swath tooltips (FEMA NSI points within polygon) | HailTrace | Low | High — adds data value |
+| 4 | **Work order PDF export** with organized photos | RoofLink | Medium | High — customer deliverable |
+| 5 | **Speed-to-Lead metric** on dashboard (created_at vs first activity) | RoofLink + Roofr | Low | Medium — sales coaching |
+| 6 | **Milestone completion timestamps** on work orders | RoofLink | Trivial | Medium — audit trail |
+
+### Tier 2 — Medium Impact, Medium Effort (plan for)
+
+| # | Improvement | Inspired By | Effort | Impact |
+|---|-------------|-------------|--------|--------|
+| 7 | **Estimate cover page** (logo, property photo, customer name) | SumoQuote | Medium | High — professional presentation |
+| 8 | **Insurance auto-calculations** (ACV → depreciation → out-of-pocket) | RoofLink | Low-Med | Medium — insurance workflow |
+| 9 | **Property sidebar on map** (persistent panel with FEMA data, Street View, owner details) | HailTrace | Medium | High — reduces clicks |
+| 10 | **Auto-advance work orders** when milestones complete | RoofLink | Low-Med | Medium — reduces manual work |
+| 11 | **Canvassing analytics** (conversion rate, pins per rep, outcomes) | HailTrace | Low | Medium — rep coaching |
+| 12 | **Profit margin slider** (visual slider instead of text input) | SumoQuote + RoofLink | Low | Low-Med — better UX |
+
+### Tier 3 — Nice-to-Have (backlog)
+
+| # | Improvement | Inspired By | Effort | Impact |
+|---|-------------|-------------|--------|--------|
+| 13 | Proposal aging alerts (estimates sent 7+ days) | Industry standard | Low | Low |
+| 14 | Draw-polygon lead generation on storm map | HailTrace | Medium | Medium |
+| 15 | Content scheduling/calendar | Rooftops.ai | Medium | Low |
+| 16 | Leads-by-area geographic distribution | JobNimbus | Medium | Low |
+| 17 | Customizable dashboard widget layout | RoofLink | High | Medium |
+| 18 | AI image generation for social content | Rooftops.ai | Low | Low |
+| 19 | Pin color legend button on canvassing | RoofLink | Trivial | Low |
+
+---
+
+*This document complements `docs/competitor-gap-analysis.md` (feature/pricing analysis) with visual/UX-specific research. Both should be consulted when planning UI improvements. Raw Firecrawl data available in `.firecrawl/` directory.*
