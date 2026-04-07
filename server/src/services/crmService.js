@@ -520,6 +520,20 @@ export async function getDashboardStats(tenantId) {
     [tenantId]
   );
 
+  // Speed to Lead: avg minutes from lead creation to first activity (vs RoofLink/Roofr)
+  const { rows: speedRows } = await pool.query(
+    `SELECT COALESCE(AVG(EXTRACT(EPOCH FROM first_touch.first_at - l.created_at) / 60), 0) AS avg_minutes
+     FROM leads l
+     JOIN LATERAL (
+       SELECT MIN(a.created_at) AS first_at
+       FROM activities a WHERE a.lead_id = l.id
+     ) first_touch ON first_touch.first_at IS NOT NULL
+     WHERE l.tenant_id = $1 AND l.deleted_at IS NULL
+       AND l.created_at >= now() - interval '30 days'`,
+    [tenantId]
+  );
+  const avgSpeedMinutes = Math.round(parseFloat(speedRows[0]?.avg_minutes) || 0);
+
   const r = rows[0];
   const p = prevRows[0];
   const pipelineValue = parseFloat(r.pipeline_value);
@@ -578,6 +592,17 @@ export async function getDashboardStats(tenantId) {
         change: avgDays > 0 ? `${avgDays}d` : '—',
         icon: 'clock',
         color: 'oklch(0.70 0.18 330)',
+      },
+      {
+        label: 'Speed to Lead',
+        value: avgSpeedMinutes > 0
+          ? (avgSpeedMinutes >= 60 ? `${Math.round(avgSpeedMinutes / 60)}h` : `${avgSpeedMinutes}m`)
+          : '—',
+        change: avgSpeedMinutes > 0
+          ? (avgSpeedMinutes <= 5 ? 'Excellent' : avgSpeedMinutes <= 30 ? 'Good' : 'Slow')
+          : '—',
+        icon: 'speed',
+        color: 'oklch(0.72 0.20 180)',
       },
     ],
   };

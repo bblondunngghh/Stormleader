@@ -57,9 +57,10 @@ const emptyStats = [
   { label: 'New Leads', value: '0', change: '—', icon: 'leads', color: 'oklch(0.72 0.19 250)', tint: '250', link: '/leads' },
   { label: 'Close Rate', value: '0%', change: '—', icon: 'target', color: 'oklch(0.78 0.17 85)', tint: '85', link: '/leads?stage=closed_won' },
   { label: 'Avg Days to Close', value: '0', change: '—', icon: 'clock', color: 'oklch(0.70 0.18 330)', tint: '330', link: '/leads?stage=closed_won' },
+  { label: 'Speed to Lead', value: '—', change: '—', icon: 'speed', color: 'oklch(0.72 0.20 180)', tint: '180', link: '/leads' },
 ];
 
-const statIconMap = { dollar: CurrencyDollarIcon, leads: PlusCircleIcon, target: CheckBadgeIcon, clock: BanknotesIcon };
+const statIconMap = { dollar: CurrencyDollarIcon, leads: PlusCircleIcon, target: CheckBadgeIcon, clock: BanknotesIcon, speed: SignalIcon };
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -113,8 +114,8 @@ function DashboardSkeleton() {
         }
       `}</style>
       {/* Stat cards skeleton */}
-      <div className="grid grid-cols-4 gap-[var(--space-md)]">
-        {[0, 1, 2, 3].map(i => (
+      <div className="grid grid-cols-5 gap-[var(--space-md)]">
+        {[0, 1, 2, 3, 4].map(i => (
           <GlassCard key={i} className="p-5 flex flex-col gap-3 items-center">
             <SkeletonPulse width={28} height={28} borderRadius={14} />
             <SkeletonPulse width={80} height={32} borderRadius={6} />
@@ -1275,16 +1276,16 @@ export default function Dashboard() {
 
       {!loading && <>
       {/* ── Stat Cards ── */}
-      <div className="grid grid-cols-4 gap-[var(--space-md)]">
+      <div className="grid grid-cols-5 gap-[var(--space-md)]">
         {stats.map((stat) => (
           <GlassCard key={stat.label} onClick={() => navigate(stat.link)} className="group cursor-pointer p-5 flex flex-col gap-2 items-center text-center relative">
             <span
               className="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full"
               style={{
-                color: stat.change?.startsWith?.('+') ? 'oklch(0.75 0.18 155)' : stat.change?.startsWith?.('-') ? 'oklch(0.68 0.22 25)' : 'var(--text-muted)',
-                background: stat.change?.startsWith?.('+') ? 'oklch(0.75 0.18 155 / 0.12)' : stat.change?.startsWith?.('-') ? 'oklch(0.68 0.22 25 / 0.12)' : 'oklch(0.55 0.02 260 / 0.1)',
+                color: stat.change === 'Excellent' ? 'oklch(0.75 0.18 155)' : stat.change === 'Slow' ? 'oklch(0.68 0.22 25)' : stat.change === 'Good' ? 'oklch(0.78 0.17 85)' : stat.change?.startsWith?.('+') ? 'oklch(0.75 0.18 155)' : stat.change?.startsWith?.('-') ? 'oklch(0.68 0.22 25)' : 'var(--text-muted)',
+                background: stat.change === 'Excellent' ? 'oklch(0.75 0.18 155 / 0.12)' : stat.change === 'Slow' ? 'oklch(0.68 0.22 25 / 0.12)' : stat.change === 'Good' ? 'oklch(0.78 0.17 85 / 0.12)' : stat.change?.startsWith?.('+') ? 'oklch(0.75 0.18 155 / 0.12)' : stat.change?.startsWith?.('-') ? 'oklch(0.68 0.22 25 / 0.12)' : 'oklch(0.55 0.02 260 / 0.1)',
               }}
-              title="vs previous week"
+              title={stat.icon === 'speed' ? 'Avg response time (30d)' : 'vs previous week'}
             >
               {stat.change?.startsWith?.('+') ? '↑ ' : stat.change?.startsWith?.('-') ? '↓ ' : ''}{stat.change}
             </span>
