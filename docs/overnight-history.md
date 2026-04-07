@@ -607,3 +607,35 @@ and what should be prioritized next. Future agents MUST read this before startin
 - SumoQuote's $2,078 average upsell stat validates that the optional upgrades section has real revenue impact — it's not just a UX enhancement.
 - Replacing a dropdown with a visual card grid significantly improves feature discoverability at zero backend cost — a pattern worth applying to other selection UIs.
 - The 5-session overnight pipeline (research → inventory → implementation → UI check → report) is now a proven workflow that consistently produces high-quality, competitor-informed features.
+
+---
+
+## Run: 2026-04-07
+
+### What was done
+- **Color-coded teardrop canvassing pins with legend** (vs HailTrace/RoofLink) — upgraded plain circles to color-coded teardrop SVG markers per outcome (red/amber/green/blue/gold), floating legend panel with per-outcome counts and conversion rate, z-index priority ordering for interested/scheduled pins.
+- **Insurance auto-calculations on estimates** (vs RoofLink/SumoQuote) — auto-compute depreciation (RCV - ACV), "Ins. Pays" and "Customer Owes" computed fields, full insurance summary breakdown. Fixed dead measurement tool button to show guidance toast.
+- **Speed-to-Lead dashboard metric** (vs RoofLink/Roofr) — 5th KPI stat card showing avg minutes to first activity over 30-day window, color-coded badge (green ≤5m, amber ≤30m, red >30m), new backend LATERAL join query.
+- **UI consistency fix** — CanvassingMode legend SVG stroke rgba→oklch.
+- **App inventory** and **competitor UI research** refreshed (2 docs commits).
+- **Work order PDF export** started (uncommitted) — backend pdfmake endpoint, frontend download button, milestone timestamp display.
+- Total: 4 feature commits + 1 UI fix + 2 docs commits, ~280 lines across 4 components + 1 service.
+
+### Competitor areas covered
+- Areas completed: Canvassing visualization (HailTrace/RoofLink), Estimate insurance workflow (RoofLink/SumoQuote), Dashboard response-time analytics (RoofLink/Roofr)
+- Stopped at: Work order PDF export (in progress, uncommitted)
+- Next run should start at: Commit work order PDF, then multi-page estimate proposals (#1 quality gap), then QuickBooks sync or SMS
+
+### What was skipped and why
+- Multi-page estimate proposals — #1 remaining gap but high effort (page type system, cover page, terms page)
+- QuickBooks sync — needs OAuth flow setup, large effort
+- SMS/texting — needs Twilio account and billing
+- Property sidebar on storm map — medium effort, deferred
+- Draw-polygon lead generation — medium effort, deferred
+- Canvassing leaderboard — medium effort, deferred
+
+### Lessons learned
+- The canvassing pin upgrade had the highest visual impact relative to code size (~100 lines of SVG/color logic transformed the entire canvassing experience).
+- Insurance auto-calculations are table-stakes for storm restoration CRMs — computing depreciation and insurance-pays fields automatically prevents manual math errors that contractors make daily.
+- Speed-to-Lead is a metric contractors rarely track but strongly correlates with close rate — surfacing it prominently on the dashboard creates behavioral incentive to respond faster.
+- The overnight pipeline continues to work well: 3 competitor-informed features implemented, 1 UI fix, and work in progress on a 4th feature, all guided by the refreshed competitor research doc.
