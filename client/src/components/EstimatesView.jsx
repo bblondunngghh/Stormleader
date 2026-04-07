@@ -522,6 +522,7 @@ export default function EstimatesView() {
               Upload site photos or aerial measurements to generate instant tactical estimates using our ROOF-X AI core. Accuracy rated at 98.4%.
             </p>
             <button
+              onClick={() => showToast('Open a lead from Pipeline → use Roof Measurement tool to generate measurements, then create an estimate from there.', 'info')}
               onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-cyan)'; e.currentTarget.style.color = 'oklch(0.25 0.06 200)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--accent-cyan)'; }}
               style={{
@@ -2268,18 +2269,32 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                     <label>RCV (Replacement Cost)</label>
                     <div style={{ position: 'relative' }}>
                       <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 13, pointerEvents: 'none' }}>$</span>
-                      <input className="form-input" type="number" step="0.01" value={insuranceDetails.rcv} onChange={e => setInsuranceDetails(p => ({ ...p, rcv: e.target.value }))} placeholder="0.00" style={{ paddingLeft: 22 }} />
+                      <input className="form-input" type="number" step="0.01" value={insuranceDetails.rcv} onChange={e => {
+                        const rcv = e.target.value;
+                        setInsuranceDetails(p => {
+                          const acv = Number(p.acv) || 0;
+                          const dep = rcv && acv ? (Number(rcv) - acv).toFixed(2) : p.depreciation;
+                          return { ...p, rcv, depreciation: Number(rcv) > 0 && acv > 0 ? dep : p.depreciation };
+                        });
+                      }} placeholder="0.00" style={{ paddingLeft: 22 }} />
                     </div>
                   </div>
                   <div className="form-group">
                     <label>ACV (Actual Cash Value)</label>
                     <div style={{ position: 'relative' }}>
                       <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 13, pointerEvents: 'none' }}>$</span>
-                      <input className="form-input" type="number" step="0.01" value={insuranceDetails.acv} onChange={e => setInsuranceDetails(p => ({ ...p, acv: e.target.value }))} placeholder="0.00" style={{ paddingLeft: 22 }} />
+                      <input className="form-input" type="number" step="0.01" value={insuranceDetails.acv} onChange={e => {
+                        const acv = e.target.value;
+                        setInsuranceDetails(p => {
+                          const rcv = Number(p.rcv) || 0;
+                          const dep = rcv && acv ? (rcv - Number(acv)).toFixed(2) : p.depreciation;
+                          return { ...p, acv, depreciation: rcv > 0 && Number(acv) > 0 ? dep : p.depreciation };
+                        });
+                      }} placeholder="0.00" style={{ paddingLeft: 22 }} />
                     </div>
                   </div>
                   <div className="form-group">
-                    <label>Depreciation</label>
+                    <label>Depreciation <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 400 }}>(auto-calculated)</span></label>
                     <div style={{ position: 'relative' }}>
                       <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 13, pointerEvents: 'none' }}>$</span>
                       <input className="form-input" type="number" step="0.01" value={insuranceDetails.depreciation} onChange={e => setInsuranceDetails(p => ({ ...p, depreciation: e.target.value }))} placeholder="0.00" style={{ paddingLeft: 22 }} />
@@ -2316,14 +2331,25 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                     border: '1px solid var(--glass-border)', padding: 'var(--space-md)',
                     display: 'flex', gap: 'var(--space-lg)', justifyContent: 'center', flexWrap: 'wrap',
                   }}>
-                    {[
-                      { label: 'RCV', val: insuranceDetails.rcv, color: 'var(--accent-blue)' },
-                      { label: 'ACV', val: insuranceDetails.acv, color: 'var(--accent-cyan)' },
-                      { label: 'Depr.', val: insuranceDetails.depreciation, color: 'var(--accent-amber)' },
-                      { label: 'Deductible', val: insuranceDetails.deductible, color: 'var(--accent-red)' },
-                      { label: 'O&P', val: insuranceDetails.overhead_profit, color: 'var(--accent-green)' },
-                      { label: 'Balance Due', val: (Number(insuranceDetails.rcv || 0) - Number(insuranceDetails.proceeds_received || 0)).toFixed(2), color: 'var(--accent-purple)' },
-                    ].filter(x => Number(x.val) > 0).map(item => (
+                    {(() => {
+                      const rcv = Number(insuranceDetails.rcv) || 0;
+                      const acv = Number(insuranceDetails.acv) || 0;
+                      const deductible = Number(insuranceDetails.deductible) || 0;
+                      const op = Number(insuranceDetails.overhead_profit) || 0;
+                      const proceeds = Number(insuranceDetails.proceeds_received) || 0;
+                      const insurancePays = Math.max(0, acv - deductible + op);
+                      const customerOwes = Math.max(0, rcv + op - insurancePays);
+                      return [
+                        { label: 'RCV', val: insuranceDetails.rcv, color: 'var(--accent-blue)' },
+                        { label: 'ACV', val: insuranceDetails.acv, color: 'var(--accent-cyan)' },
+                        { label: 'Depr.', val: insuranceDetails.depreciation, color: 'var(--accent-amber)' },
+                        { label: 'Deductible', val: insuranceDetails.deductible, color: 'var(--accent-red)' },
+                        { label: 'O&P', val: insuranceDetails.overhead_profit, color: 'var(--accent-green)' },
+                        { label: 'Ins. Pays', val: insurancePays > 0 ? insurancePays.toFixed(2) : '', color: 'oklch(0.72 0.19 145)' },
+                        { label: 'Customer Owes', val: customerOwes > 0 ? customerOwes.toFixed(2) : '', color: 'var(--accent-red)' },
+                        { label: 'Balance Due', val: (rcv - proceeds).toFixed(2), color: 'var(--accent-purple)' },
+                      ];
+                    })().filter(x => Number(x.val) > 0).map(item => (
                       <div key={item.label} style={{ textAlign: 'center' }}>
                         <div style={{ fontSize: 15, fontWeight: 800, color: item.color }}>${Number(item.val).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
                         <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>{item.label}</div>
