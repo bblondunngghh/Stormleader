@@ -6,6 +6,34 @@ import logger from '../utils/logger.js';
 import { createFromEstimate as createWorkOrderFromEstimate } from './workOrderService.js';
 
 // ============================================================
+// TOKEN / MERGE FIELD REPLACEMENT
+// ============================================================
+
+const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+const fmtCurrency = (v) => `$${Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+export function replaceTokens(text, estimate) {
+  if (!text || typeof text !== 'string') return text;
+  const tokens = {
+    '{{customer_name}}': estimate.customer_name || '',
+    '{{customer_phone}}': estimate.customer_phone || '',
+    '{{customer_email}}': estimate.customer_email || '',
+    '{{customer_address}}': estimate.customer_address || '',
+    '{{estimate_number}}': estimate.estimate_number || '',
+    '{{estimate_date}}': fmtDate(estimate.created_at),
+    '{{valid_until}}': fmtDate(estimate.valid_until),
+    '{{company_name}}': estimate.company_name || 'StormLeads',
+    '{{total}}': fmtCurrency(estimate.total),
+    '{{subtotal}}': fmtCurrency(estimate.subtotal),
+  };
+  let result = text;
+  for (const [token, value] of Object.entries(tokens)) {
+    result = result.replaceAll(token, value);
+  }
+  return result;
+}
+
+// ============================================================
 // ESTIMATES CRUD
 // ============================================================
 

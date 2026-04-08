@@ -949,9 +949,24 @@ function ToggleSwitch({ checked, onChange }) {
 // RICH TEXT EDITOR — contentEditable WYSIWYG
 // ============================================================
 
-function RichTextEditor({ value, onChange, placeholder, minHeight = 80 }) {
+const ESTIMATE_TOKENS = [
+  { label: 'Customer Name', token: '{{customer_name}}' },
+  { label: 'Customer Phone', token: '{{customer_phone}}' },
+  { label: 'Customer Email', token: '{{customer_email}}' },
+  { label: 'Customer Address', token: '{{customer_address}}' },
+  { label: 'Estimate #', token: '{{estimate_number}}' },
+  { label: 'Estimate Date', token: '{{estimate_date}}' },
+  { label: 'Valid Until', token: '{{valid_until}}' },
+  { label: 'Company Name', token: '{{company_name}}' },
+  { label: 'Total', token: '{{total}}' },
+  { label: 'Subtotal', token: '{{subtotal}}' },
+];
+
+function RichTextEditor({ value, onChange, placeholder, minHeight = 80, tokens }) {
   const editorDiv = useRef(null);
   const isInternalChange = useRef(false);
+  const [showTokenMenu, setShowTokenMenu] = useState(false);
+  const tokenBtnRef = useRef(null);
 
   useEffect(() => {
     if (editorDiv.current && !isInternalChange.current) {
@@ -1005,6 +1020,55 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = 80 }) {
         <button type="button" style={btnStyle()} onMouseDown={e => { e.preventDefault(); handleLink(); }} title="Insert Link">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
         </button>
+        {tokens && tokens.length > 0 && (
+          <>
+            <div style={{ width: 1, margin: '4px 4px', background: 'var(--glass-border)' }} />
+            <div style={{ position: 'relative' }}>
+              <button
+                ref={tokenBtnRef}
+                type="button"
+                style={{ ...btnStyle(showTokenMenu), fontSize: 10, fontWeight: 700, width: 'auto', padding: '0 8px', gap: 3, letterSpacing: '0.02em' }}
+                onMouseDown={e => { e.preventDefault(); setShowTokenMenu(v => !v); }}
+                title="Insert merge field"
+              >
+                <span style={{ fontSize: 14, lineHeight: 1 }}>{'{ }'}</span>
+                <span>Token</span>
+              </button>
+              {showTokenMenu && (
+                <div style={{
+                  position: 'absolute', top: '100%', left: 0, marginTop: 4, zIndex: 50,
+                  background: 'oklch(0.18 0.02 260)', border: '1px solid var(--glass-border)',
+                  borderRadius: 10, padding: 4, minWidth: 180,
+                  boxShadow: '0 8px 24px oklch(0 0 0 / 0.5)',
+                }}>
+                  {tokens.map(t => (
+                    <button
+                      key={t.token}
+                      type="button"
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 8,
+                        width: '100%', padding: '6px 10px', border: 'none', borderRadius: 6,
+                        background: 'transparent', color: 'var(--text-secondary)',
+                        fontSize: 12, cursor: 'pointer', textAlign: 'left',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'oklch(0.25 0.03 250 / 0.4)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                      onMouseDown={e => {
+                        e.preventDefault();
+                        editorDiv.current?.focus();
+                        document.execCommand('insertText', false, t.token);
+                        setShowTokenMenu(false);
+                      }}
+                    >
+                      <span style={{ fontFamily: 'monospace', fontSize: 10, color: 'oklch(0.72 0.19 250)', flexShrink: 0 }}>{t.token}</span>
+                      <span style={{ color: 'var(--text-muted)', fontSize: 10 }}>{t.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
       {/* Editable area */}
       <div
@@ -1930,7 +1994,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
             <div ref={el => sectionRefs.current.introduction = el} className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)' }} onClick={() => setActiveSection('introduction')}>
               <SectionHeader title="Introduction" sectionId="introduction" onRemove={hideSection} />
               <div className="form-group">
-                <RichTextEditor value={form.introduction} onChange={v => updateField('introduction', v)} placeholder="Write an introduction for your estimate..." />
+                <RichTextEditor value={form.introduction} onChange={v => updateField('introduction', v)} placeholder="Write an introduction for your estimate..." tokens={ESTIMATE_TOKENS} />
                 <SectionImageBar sectionId="introduction" images={sectionImages.introduction} onAdd={addSectionImage} onRemove={removeSectionImage} />
               </div>
             </div>
@@ -1941,7 +2005,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
             <div ref={el => sectionRefs.current.scope = el} className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)' }} onClick={() => setActiveSection('scope')}>
               <SectionHeader title="Scope of Work" sectionId="scope" onRemove={hideSection} />
               <div className="form-group">
-                <RichTextEditor value={form.scope_of_work} onChange={v => updateField('scope_of_work', v)} placeholder="Describe the work to be performed..." />
+                <RichTextEditor value={form.scope_of_work} onChange={v => updateField('scope_of_work', v)} placeholder="Describe the work to be performed..." tokens={ESTIMATE_TOKENS} />
                 <SectionImageBar sectionId="scope" images={sectionImages.scope} onAdd={addSectionImage} onRemove={removeSectionImage} />
               </div>
             </div>
@@ -2529,7 +2593,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
             <div ref={el => sectionRefs.current.terms = el} className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)' }} onClick={() => setActiveSection('terms')}>
               <SectionHeader title="Terms & Conditions" sectionId="terms" onRemove={hideSection} />
               <div className="form-group">
-                <RichTextEditor value={form.terms} onChange={v => updateField('terms', v)} placeholder="Enter terms and conditions..." />
+                <RichTextEditor value={form.terms} onChange={v => updateField('terms', v)} placeholder="Enter terms and conditions..." tokens={ESTIMATE_TOKENS} />
               </div>
             </div>
           )}
@@ -2539,7 +2603,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
             <div ref={el => sectionRefs.current.warranty = el} className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)' }} onClick={() => setActiveSection('warranty')}>
               <SectionHeader title="Warranty" sectionId="warranty" onRemove={hideSection} />
               <div className="form-group">
-                <RichTextEditor value={form.warranty_info} onChange={v => updateField('warranty_info', v)} placeholder="Manufacturer warranty details, coverage period, exclusions..." minHeight={60} />
+                <RichTextEditor value={form.warranty_info} onChange={v => updateField('warranty_info', v)} placeholder="Manufacturer warranty details, coverage period, exclusions..." minHeight={60} tokens={ESTIMATE_TOKENS} />
               </div>
             </div>
           )}

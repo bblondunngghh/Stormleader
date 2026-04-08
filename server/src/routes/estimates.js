@@ -308,10 +308,10 @@ router.get('/:id/pdf', async (req, res, next) => {
       },
     ];
 
-    // Scope of work
+    // Scope of work (with token replacement)
     if (estimate.scope_of_work) {
       content.push({ text: 'Scope of Work', style: 'sectionHeader' });
-      content.push({ text: estimate.scope_of_work, fontSize: 9, marginBottom: 10 });
+      content.push({ text: estimateService.replaceTokens(estimate.scope_of_work, estimate), fontSize: 9, marginBottom: 10 });
     }
 
     // Line items
@@ -327,11 +327,11 @@ router.get('/:id/pdf', async (req, res, next) => {
     // Terms & warranty
     if (estimate.terms) {
       content.push({ text: 'Terms & Conditions', style: 'sectionHeader', marginTop: 20 });
-      content.push({ text: estimate.terms, fontSize: 8, color: '#555' });
+      content.push({ text: estimateService.replaceTokens(estimate.terms, estimate), fontSize: 8, color: '#555' });
     }
     if (estimate.warranty_info) {
       content.push({ text: 'Warranty Information', style: 'sectionHeader', marginTop: 10 });
-      content.push({ text: estimate.warranty_info, fontSize: 8, color: '#555' });
+      content.push({ text: estimateService.replaceTokens(estimate.warranty_info, estimate), fontSize: 8, color: '#555' });
     }
 
     // Signature block
