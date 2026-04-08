@@ -1752,7 +1752,19 @@ export default function StormMap() {
             ${hasStorm ? `<div style="border-top:1px solid rgba(255,255,255,0.08);margin:6px 0;padding-top:6px;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
                 <span class="swath-popup__title" style="color:${p._swathColor || 'oklch(0.78 0.17 85)'};font-size:12px;margin:0;">Weather Event</span>
-                <span style="color:${p._swathColor || 'oklch(0.78 0.17 85)'};font-size:12px;font-weight:600;">${eventTypeLabel}</span>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <span style="display:inline-flex;gap:1px;">${(() => {
+                    let sc = 0;
+                    const hs = Number(p.storm_hail_size || 0);
+                    if (hs >= 2) sc += 5; else if (hs >= 1.5) sc += 4; else if (hs >= 1) sc += 3; else if (hs >= 0.75) sc += 2; else if (hs > 0) sc += 1;
+                    const ws = Number(p.storm_wind_speed || 0);
+                    if (ws >= 90) sc += 3; else if (ws >= 70) sc += 2; else if (ws >= 58) sc += 1;
+                    if (eventTypeLabel.includes('Tornado')) sc += 2;
+                    const stars = Math.max(1, Math.min(5, Math.round(sc * 5 / 10)));
+                    return [1,2,3,4,5].map(i => `<svg width="11" height="11" viewBox="0 0 20 20"><path d="M10 1l2.5 5.5L18 7.5l-4 4 1 5.5L10 14.5 5 17l1-5.5-4-4 5.5-1z" fill="${i <= stars ? 'oklch(0.78 0.17 85)' : 'oklch(0.25 0.02 260)'}"/></svg>`).join('');
+                  })()}</span>
+                  <span style="color:${p._swathColor || 'oklch(0.78 0.17 85)'};font-size:12px;font-weight:600;">${eventTypeLabel}</span>
+                </div>
               </div>
               ${stormDate ? `<div class="swath-popup__row"><span class="swath-popup__label">Date</span><span class="swath-popup__value">${stormDate}</span></div>` : ''}
               <div class="swath-popup__row"><span class="swath-popup__label">Hail Size</span><span class="swath-popup__value" style="color:${p.storm_hail_size ? (p._swathColor || 'oklch(0.78 0.17 85)') : 'var(--text-muted)'}">${p.storm_hail_size ? p.storm_hail_size + '"' : 'N/A'}</span></div>

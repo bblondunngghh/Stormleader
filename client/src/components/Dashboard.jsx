@@ -218,6 +218,37 @@ function PipelineBars({ funnel, onStageClick }) {
 }
 
 /* ── Storm Row ────────────────────────────────────────────── */
+function stormStarRating(p) {
+  let score = 0;
+  const hail = Number(p.hail_size_max_in || p.raw_data?.size || 0);
+  if (hail >= 2.0) score += 5;
+  else if (hail >= 1.5) score += 4;
+  else if (hail >= 1.0) score += 3;
+  else if (hail >= 0.75) score += 2;
+  else if (hail > 0) score += 1;
+  const wind = Number(p.wind_speed_max_mph || p.raw_data?.speed || 0);
+  if (wind >= 90) score += 3;
+  else if (wind >= 70) score += 2;
+  else if (wind >= 58) score += 1;
+  const sev = (p.raw_data?.severity || '').toLowerCase();
+  if (sev === 'severe' || sev === 'extreme') score += 1;
+  const rawType = (p.raw_data?.type || '').toLowerCase();
+  if (rawType === 'tornado') score += 2;
+  return Math.max(1, Math.min(5, Math.round(score * 5 / 10)));
+}
+
+function StarRating({ stars }) {
+  return (
+    <span className="flex items-center gap-px" title={`${stars}/5 severity`}>
+      {[1, 2, 3, 4, 5].map(i => (
+        <svg key={i} width="10" height="10" viewBox="0 0 20 20" fill={i <= stars ? 'oklch(0.78 0.17 85)' : 'oklch(0.25 0.02 260)'}>
+          <path d="M10 1l2.5 5.5L18 7.5l-4 4 1 5.5L10 14.5 5 17l1-5.5-4-4 5.5-1z" />
+        </svg>
+      ))}
+    </span>
+  );
+}
+
 function StormRow({ storm, navigate }) {
   const p = storm.properties || {};
   const rawType = (p.raw_data?.type || '').toLowerCase();
@@ -274,7 +305,10 @@ function StormRow({ storm, navigate }) {
         {typeLabel}
       </span>
       <div className="flex-1 min-w-0 flex flex-col gap-px">
-        <span className="text-xs font-[620] text-[var(--text-primary)] truncate">{location}</span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-[620] text-[var(--text-primary)] truncate">{location}</span>
+          <StarRating stars={stormStarRating(p)} />
+        </div>
         <span className="text-[10px] text-[var(--text-muted)] truncate">
           {[hailSize, windSpeed, source, p.raw_data?.severity].filter(Boolean).join(' · ')}
         </span>
