@@ -14,3 +14,4 @@ export const getArSummary = () => client.get('/crm/dashboard/ar-summary');
 export const getEstimatingConversion = () => client.get('/crm/dashboard/estimating-conversion');
 export const getDaysInStage = () => client.get('/crm/dashboard/days-in-stage');
 export const getStaleLeads = () => client.get('/crm/dashboard/stale-leads');
+export const getLeadSourceRevenue = () => client.get('/crm/dashboard/lead-source-revenue');

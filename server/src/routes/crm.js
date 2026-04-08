@@ -826,6 +826,33 @@ router.get('/dashboard/stale-leads', async (req, res, next) => {
   }
 });
 
+// GET /api/crm/dashboard/lead-source-revenue — Revenue breakdown by lead source
+router.get('/dashboard/lead-source-revenue', async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT
+         COALESCE(source, 'unknown') AS source,
+         COUNT(*)::int AS lead_count,
+         COUNT(*) FILTER (WHERE stage = 'sold')::int AS sold_count,
+         COALESCE(SUM(CASE WHEN stage = 'sold' THEN estimated_value ELSE 0 END), 0)::numeric AS revenue,
+         ROUND(
+           COUNT(*) FILTER (WHERE stage = 'sold')::numeric /
+           NULLIF(COUNT(*), 0) * 100,
+           1
+         ) AS close_rate
+       FROM leads
+       WHERE tenant_id = $1 AND deleted_at IS NULL
+       GROUP BY source
+       ORDER BY revenue DESC
+       LIMIT 10`,
+      [req.tenantId]
+    );
+    res.json({ sources: rows.map(r => ({ ...r, revenue: parseFloat(r.revenue), close_rate: parseFloat(r.close_rate) || 0 })) });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // ============================================================
 // PROSPECT LISTS
 // ============================================================

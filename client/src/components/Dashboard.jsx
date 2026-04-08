@@ -542,6 +542,7 @@ export default function Dashboard() {
   const [estConversion, setEstConversion] = useState(null);
   const [daysInStage, setDaysInStage] = useState([]);
   const [staleLeads, setStaleLeads] = useState([]);
+  const [leadSourceRevenue, setLeadSourceRevenue] = useState([]);
   const [loading, setLoading] = useState(true);
   // Dashboard filters (JN Insights-style)
   const [dashRep, setDashRep] = useState('');
@@ -577,12 +578,13 @@ export default function Dashboard() {
 
   const fetchAll = useCallback(async () => {
     try {
-      const [statsRes, funnelRes, activityRes, leaderRes, tasksRes, followupsRes, convRes, estRes, arRes, estConvRes, daysRes, staleRes] = await Promise.allSettled([
+      const [statsRes, funnelRes, activityRes, leaderRes, tasksRes, followupsRes, convRes, estRes, arRes, estConvRes, daysRes, staleRes, srcRevRes] = await Promise.allSettled([
         dashboardApi.getStats(dashFilters), dashboardApi.getFunnel(dashFilters), dashboardApi.getActivity(dashFilters),
         dashboardApi.getLeaderboard(), dashboardApi.getTasksToday(), dashboardApi.getFollowups(),
         dashboardApi.getConversionByStorm(), dashboardApi.getEstimateSummary(),
         dashboardApi.getArSummary(), dashboardApi.getEstimatingConversion(),
         dashboardApi.getDaysInStage(), dashboardApi.getStaleLeads(),
+        dashboardApi.getLeadSourceRevenue(),
       ]);
       if (statsRes.status === 'fulfilled' && statsRes.value.data?.stats)
         setStats(statsRes.value.data.stats.map((s, i) => ({ ...s, tint: emptyStats[i]?.tint, link: emptyStats[i]?.link || '/leads' })));
@@ -597,6 +599,7 @@ export default function Dashboard() {
       if (estConvRes.status === 'fulfilled' && estConvRes.value.data) setEstConversion(estConvRes.value.data);
       if (daysRes.status === 'fulfilled' && daysRes.value.data?.stages) setDaysInStage(daysRes.value.data.stages);
       if (staleRes.status === 'fulfilled' && staleRes.value.data?.stale_leads) setStaleLeads(staleRes.value.data.stale_leads);
+      if (srcRevRes.status === 'fulfilled' && srcRevRes.value.data?.sources) setLeadSourceRevenue(srcRevRes.value.data.sources);
     } finally { setLoading(false); }
   }, [dashRep, dashSource, dashPeriod]);
 
@@ -1532,6 +1535,48 @@ export default function Dashboard() {
           )}
         </Panel>
       </div>
+
+      {/* ── Lead Source Revenue (vs JobNimbus top-5 revenue sources) ── */}
+      {leadSourceRevenue.length > 0 && (() => {
+        const maxRev = Math.max(...leadSourceRevenue.map(s => Number(s.revenue)), 1);
+        const sourceColors = [
+          'oklch(0.72 0.19 250)', 'oklch(0.75 0.18 155)', 'oklch(0.78 0.17 85)',
+          'oklch(0.68 0.22 25)', 'oklch(0.55 0.20 300)', 'oklch(0.70 0.15 195)',
+          'oklch(0.65 0.18 130)', 'oklch(0.72 0.16 45)', 'oklch(0.60 0.12 280)', 'oklch(0.68 0.15 60)',
+        ];
+        return (
+          <Panel title="Revenue by Lead Source" action={() => navigate('/leads')} actionLabel="View Leads">
+            <div className="flex flex-col gap-1.5">
+              {leadSourceRevenue.map((src, idx) => {
+                const barPct = (Number(src.revenue) / maxRev) * 100;
+                const color = sourceColors[idx % sourceColors.length];
+                return (
+                  <div key={src.source} className="py-2 border-b border-[oklch(0.22_0.015_265/0.10)] last:border-b-0">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <span className="w-[8px] h-[8px] rounded-full shrink-0" style={{ background: color, boxShadow: `0 0 6px ${color}` }} />
+                        <span className="text-xs font-[620] text-[var(--text-primary)] truncate capitalize">{(src.source || 'unknown').replace(/_/g, ' ')}</span>
+                      </div>
+                      <span className="text-xs font-[750] text-[oklch(0.75_0.18_155)] shrink-0 ml-2">{formatCurrency(src.revenue)}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 h-[5px] rounded-sm bg-[oklch(0.08_0.01_265/0.4)] overflow-hidden">
+                        <div className="h-full rounded-sm transition-[width] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]" style={{
+                          width: `${barPct}%`, background: color,
+                          boxShadow: barPct > 50 ? `0 0 8px ${color.replace(')', ' / 0.4)')}` : 'none',
+                        }} />
+                      </div>
+                      <span className="text-[10px] text-[var(--text-muted)] shrink-0 min-w-[70px] text-right">
+                        {src.sold_count}/{src.lead_count} sold · {src.close_rate}%
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Panel>
+        );
+      })()}
 
       {/* ── Row 5: A/R Aging + Estimating Conversion ── */}
       <div className="grid grid-cols-2 gap-[var(--space-md)]">
