@@ -116,31 +116,12 @@ export default function StormCatalog() {
     return () => { cancelled = true; };
   }, [storms]);
 
-  const filtered = storms.filter(s => {
-    const p = s.properties || {};
-    const rd = p.raw_data || {};
-    // Type filter
-    if (typeFilter && typeLabel(s) !== typeFilter) return false;
-    // Search filter
-    if (search) {
-      const text = `${rd.type || ''} ${p.source || ''} ${p.hail_size_max_in || ''} ${p.wind_speed_max_mph || ''} ${rd.location || ''} ${rd.county || ''} ${rd.state || ''} ${rd.areaDesc || ''}`.toLowerCase();
-      if (!text.includes(search.toLowerCase())) return false;
-    }
-    return true;
-  }).sort((a, b) => {
-    if (sortBy === 'severity') return severityRating(b) - severityRating(a);
-    if (sortBy === 'hail') return (parseFloat(b.properties?.hail_size_max_in) || 0) - (parseFloat(a.properties?.hail_size_max_in) || 0);
-    if (sortBy === 'wind') return (parseFloat(b.properties?.wind_speed_max_mph) || 0) - (parseFloat(a.properties?.wind_speed_max_mph) || 0);
-    return new Date(b.properties?.event_start || 0) - new Date(a.properties?.event_start || 0);
-  });
-
   const typeLabel = (s) => {
     const rd = s.properties?.raw_data;
     if (rd?.type === 'hail' || s.properties?.hail_size_max_in) return 'Hail';
     if (rd?.type === 'wind' || s.properties?.wind_speed_max_mph) return 'Wind';
     if (rd?.type === 'tornado') return 'Tornado';
     if (rd?.type === 'severe_thunderstorm') return 'Severe Thunderstorm';
-    // Clean up any remaining underscored types
     const raw = rd?.type || s.properties?.source || 'Storm';
     return raw.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
   };
@@ -153,8 +134,6 @@ export default function StormCatalog() {
     return 'oklch(0.75 0.10 200)';
   };
 
-  // Storm severity rating (1-5 stars) — HailTrace-style severity assessment
-  // Factors: hail size, wind speed, storm type, area coverage
   const severityRating = (s) => {
     const p = s.properties || {};
     let score = 0;
@@ -162,7 +141,6 @@ export default function StormCatalog() {
     const wind = parseFloat(p.wind_speed_max_mph) || 0;
     const type = typeLabel(s);
 
-    // Hail size scoring (0-3 points)
     if (hail >= 2.5) score += 3;
     else if (hail >= 1.75) score += 2.5;
     else if (hail >= 1.5) score += 2;
@@ -170,17 +148,14 @@ export default function StormCatalog() {
     else if (hail >= 0.75) score += 1;
     else if (hail > 0) score += 0.5;
 
-    // Wind speed scoring (0-2 points)
     if (wind >= 80) score += 2;
     else if (wind >= 65) score += 1.5;
     else if (wind >= 58) score += 1;
     else if (wind >= 40) score += 0.5;
 
-    // Type bonus
     if (type === 'Tornado') score += 2;
     else if (type === 'Severe Thunderstorm') score += 0.5;
 
-    // Clamp to 1-5 range
     return Math.max(1, Math.min(5, Math.round(score)));
   };
 
@@ -199,6 +174,22 @@ export default function StormCatalog() {
     if (rating >= 2) return 'oklch(0.75 0.15 85)';
     return 'oklch(0.7 0.10 145)';
   };
+
+  const filtered = storms.filter(s => {
+    const p = s.properties || {};
+    const rd = p.raw_data || {};
+    if (typeFilter && typeLabel(s) !== typeFilter) return false;
+    if (search) {
+      const text = `${rd.type || ''} ${p.source || ''} ${p.hail_size_max_in || ''} ${p.wind_speed_max_mph || ''} ${rd.location || ''} ${rd.county || ''} ${rd.state || ''} ${rd.areaDesc || ''}`.toLowerCase();
+      if (!text.includes(search.toLowerCase())) return false;
+    }
+    return true;
+  }).sort((a, b) => {
+    if (sortBy === 'severity') return severityRating(b) - severityRating(a);
+    if (sortBy === 'hail') return (parseFloat(b.properties?.hail_size_max_in) || 0) - (parseFloat(a.properties?.hail_size_max_in) || 0);
+    if (sortBy === 'wind') return (parseFloat(b.properties?.wind_speed_max_mph) || 0) - (parseFloat(a.properties?.wind_speed_max_mph) || 0);
+    return new Date(b.properties?.event_start || 0) - new Date(a.properties?.event_start || 0);
+  });
 
   return (
     <div className="main-content" style={{ padding: 'var(--space-xl)' }}>

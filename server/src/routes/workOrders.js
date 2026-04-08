@@ -160,4 +160,155 @@ router.patch('/:id/milestones/:milestoneId', async (req, res, next) => {
   }
 });
 
+// GET /:id/pdf — Generate work order PDF with milestones and photos (vs RoofLink)
+router.get('/:id/pdf', async (req, res, next) => {
+  try {
+    const wo = await workOrderService.getWorkOrder(req.tenantId, req.params.id);
+    if (!wo) return res.status(404).json({ error: 'Work order not found' });
+
+    const milestones = await workOrderService.getMilestones(wo.id);
+
+    const { createRequire } = await import('module');
+    const require = createRequire(import.meta.url);
+    const PdfPrinter = require('pdfmake');
+    const fonts = {
+      Helvetica: {
+        normal: 'Helvetica',
+        bold: 'Helvetica-Bold',
+        italics: 'Helvetica-Oblique',
+        bolditalics: 'Helvetica-BoldOblique',
+      },
+    };
+    const printer = new PdfPrinter(fonts);
+
+    const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—';
+    const fmtTime = (t) => {
+      if (!t) return '';
+      const [h, m] = t.split(':');
+      const hr = parseInt(h, 10);
+      return `${hr % 12 || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
+    };
+    const fmtCurrency = (v) => `$${Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const statusLabel = { pending: 'Pending', scheduled: 'Scheduled', in_progress: 'In Progress', completed: 'Completed' };
+    const lineItems = Array.isArray(wo.line_items) ? wo.line_items : [];
+
+    // Build milestone checklist
+    const milestoneRows = milestones.map(m => ([
+      { text: m.completed ? '☑' : '☐', fontSize: 14, alignment: 'center' },
+      { text: m.name, fontSize: 10 },
+      { text: m.completed_at ? fmtDate(m.completed_at) : '—', fontSize: 9, color: '#666' },
+      { text: m.photo_required ? 'Yes' : 'No', fontSize: 9, alignment: 'center' },
+    ]));
+
+    // Build line items table
+    const lineItemBody = lineItems.length > 0 ? [
+      [
+        { text: 'Description', style: 'tableHeader' },
+        { text: 'Qty', style: 'tableHeader', alignment: 'center' },
+        { text: 'Unit Price', style: 'tableHeader', alignment: 'right' },
+        { text: 'Total', style: 'tableHeader', alignment: 'right' },
+      ],
+      ...lineItems.map(item => ([
+        { text: item.description || '', fontSize: 9 },
+        { text: String(item.quantity || 1), alignment: 'center', fontSize: 9 },
+        { text: fmtCurrency(item.unit_price), alignment: 'right', fontSize: 9 },
+        { text: fmtCurrency((item.quantity || 1) * (item.unit_price || 0)), alignment: 'right', fontSize: 9 },
+      ])),
+    ] : null;
+
+    const totalCost = lineItems.reduce((sum, it) => sum + ((it.quantity || 1) * (it.unit_price || 0)), 0);
+    const completedCount = milestones.filter(m => m.completed).length;
+
+    const content = [
+      { text: 'WORK ORDER', style: 'title' },
+      { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1, lineColor: '#2563EB' }], marginBottom: 10 },
+      {
+        columns: [
+          { width: '50%', stack: [
+            { text: wo.title || 'Untitled', fontSize: 16, bold: true, marginBottom: 4 },
+            wo.address ? { text: wo.address, fontSize: 10, color: '#444' } : null,
+            wo.crew_name ? { text: `Crew: ${wo.crew_name}`, fontSize: 10, color: '#444', marginTop: 2 } : null,
+          ].filter(Boolean) },
+          { width: '50%', alignment: 'right', stack: [
+            { text: `Status: ${statusLabel[wo.status] || wo.status}`, fontSize: 10, bold: true },
+            { text: `Date: ${wo.scheduled_date ? fmtDate(wo.scheduled_date) : '—'}`, fontSize: 10 },
+            wo.scheduled_time_start ? { text: `Time: ${fmtTime(wo.scheduled_time_start)}${wo.scheduled_time_end ? ' – ' + fmtTime(wo.scheduled_time_end) : ''}`, fontSize: 10 } : null,
+            totalCost > 0 ? { text: `Total: ${fmtCurrency(totalCost)}`, fontSize: 12, bold: true, marginTop: 4 } : null,
+          ].filter(Boolean) },
+        ],
+        marginBottom: 16,
+      },
+    ];
+
+    if (wo.description) {
+      content.push({ text: 'Description', style: 'sectionHeader' });
+      content.push({ text: wo.description, fontSize: 10, marginBottom: 12 });
+    }
+
+    // Milestones checklist
+    if (milestoneRows.length > 0) {
+      content.push({ text: `Milestones (${completedCount}/${milestones.length})`, style: 'sectionHeader' });
+      content.push({
+        table: {
+          headerRows: 1,
+          widths: [24, '*', 80, 50],
+          body: [
+            [
+              { text: '✓', style: 'tableHeader', alignment: 'center' },
+              { text: 'Milestone', style: 'tableHeader' },
+              { text: 'Completed', style: 'tableHeader' },
+              { text: 'Photo', style: 'tableHeader', alignment: 'center' },
+            ],
+            ...milestoneRows,
+          ],
+        },
+        layout: 'lightHorizontalLines',
+        marginBottom: 12,
+      });
+    }
+
+    // Line items
+    if (lineItemBody) {
+      content.push({ text: 'Line Items', style: 'sectionHeader' });
+      content.push({
+        table: { headerRows: 1, widths: ['*', 50, 80, 80], body: lineItemBody },
+        layout: 'lightHorizontalLines',
+        marginBottom: 4,
+      });
+      content.push({ text: `Total: ${fmtCurrency(totalCost)}`, fontSize: 12, bold: true, alignment: 'right', marginBottom: 12 });
+    }
+
+    if (wo.notes) {
+      content.push({ text: 'Notes', style: 'sectionHeader' });
+      content.push({ text: wo.notes, fontSize: 10 });
+    }
+
+    const docDefinition = {
+      pageSize: 'LETTER',
+      pageMargins: [40, 40, 40, 40],
+      defaultStyle: { font: 'Helvetica' },
+      content,
+      styles: {
+        title: { fontSize: 22, bold: true, color: '#1e3a5f', marginBottom: 4 },
+        sectionHeader: { fontSize: 12, bold: true, color: '#1e3a5f', marginTop: 10, marginBottom: 6 },
+        tableHeader: { fontSize: 9, bold: true, color: '#333', fillColor: '#f0f4f8' },
+      },
+      footer: (currentPage, pageCount) => ({
+        columns: [
+          { text: `Generated ${new Date().toLocaleDateString()}`, fontSize: 8, color: '#999', margin: [40, 0, 0, 0] },
+          { text: `Page ${currentPage} of ${pageCount}`, fontSize: 8, color: '#999', alignment: 'right', margin: [0, 0, 40, 0] },
+        ],
+      }),
+    };
+
+    const pdfDoc = printer.createPdfKitDocument(docDefinition);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="work-order-${wo.id.slice(0, 8)}.pdf"`);
+    pdfDoc.pipe(res);
+    pdfDoc.end();
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

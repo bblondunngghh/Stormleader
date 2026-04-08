@@ -21,7 +21,6 @@ import {
   UserGroupIcon,
   ReceiptPercentIcon,
   ArchiveBoxIcon,
-  PaintBrushIcon,
 } from '@heroicons/react/24/outline';
 
 const topItems = [
@@ -60,7 +59,6 @@ const groups = [
       { id: 'canvassing', label: 'Canvassing', Icon: MapPinIcon },
       { id: 'subcontractors', label: 'Subcontractors', Icon: UserGroupIcon },
       { id: 'reports', label: 'Reports', Icon: PresentationChartBarIcon },
-      { id: 'content-studio', label: 'Content Studio', Icon: PaintBrushIcon },
     ],
   },
 ];

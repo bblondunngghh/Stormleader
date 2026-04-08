@@ -26,7 +26,6 @@ const PublicEstimate = lazy(() => import('./components/PublicEstimate'));
 const CanvassingMode = lazy(() => import('./components/CanvassingMode'));
 const ReportsView = lazy(() => import('./components/ReportsView'));
 const WorkOrdersView = lazy(() => import('./components/WorkOrdersView'));
-const ContentStudio = lazy(() => import('./components/ContentStudio'));
 const ContractsView = lazy(() => import('./components/ContractsView'));
 const ExpensesView = lazy(() => import('./components/ExpensesView'));
 const PublicContract = lazy(() => import('./components/PublicContract'));
@@ -58,7 +57,6 @@ const viewRoutes = {
   reports: '/reports',
   materials: '/materials',
   'work-orders': '/work-orders',
-  'content-studio': '/content-studio',
   contracts: '/contracts',
   expenses: '/expenses',
   subcontractors: '/subcontractors',
@@ -104,7 +102,6 @@ function AppShell() {
             <Route path="/reports" element={<ReportsView />} />
             <Route path="/materials" element={<MaterialsView />} />
             <Route path="/work-orders" element={<WorkOrdersView />} />
-            <Route path="/content-studio" element={<ContentStudio />} />
             <Route path="/contracts" element={<ContractsView />} />
             <Route path="/expenses" element={<ExpensesView />} />
             <Route path="/subcontractors" element={<SubcontractorsView />} />

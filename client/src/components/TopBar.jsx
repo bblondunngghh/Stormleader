@@ -22,7 +22,6 @@ const viewTitles = {
   reports: 'Reports',
   materials: 'Materials',
   'work-orders': 'Work Orders',
-  'content-studio': 'Content Studio',
   subcontractors: 'Subcontractors',
   settings: 'Settings',
   admin: 'Admin',

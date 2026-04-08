@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { getWorkOrders, createWorkOrder, createWorkOrderFromEstimate, updateWorkOrder, completeWorkOrder, getTeamMembers, getWorkOrderMilestones, updateWorkOrderMilestone, addWorkOrderMilestone, deleteWorkOrderMilestone, getWorkOrderMilestoneTemplates } from '../api/crm';
+import { getWorkOrders, createWorkOrder, createWorkOrderFromEstimate, updateWorkOrder, completeWorkOrder, getTeamMembers, getWorkOrderMilestones, updateWorkOrderMilestone, addWorkOrderMilestone, deleteWorkOrderMilestone, getWorkOrderMilestoneTemplates, downloadWorkOrderPdf } from '../api/crm';
 import { getEstimates } from '../api/estimates';
 import { uploadDocument } from '../api/documents';
 import { showToast } from './Toast';
@@ -469,8 +469,8 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
                       )}
                     </span>
                     {m.completed_at && (
-                      <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>
-                        {formatDate(m.completed_at)}
+                      <span title={new Date(m.completed_at).toLocaleString()} style={{ fontSize: 10, color: 'oklch(0.75 0.18 145 / 0.8)', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
+                        {formatDate(m.completed_at)} {new Date(m.completed_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
                       </span>
                     )}
                     {m.photo_url && (
@@ -545,6 +545,26 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
 
         {/* Actions */}
         <div style={{ display: 'flex', gap: 'var(--space-md)', marginTop: 'var(--space-lg)', justifyContent: 'flex-end' }}>
+          <button onClick={async () => {
+            try {
+              const res = await downloadWorkOrderPdf(wo.id);
+              const blob = new Blob([res.data], { type: 'application/pdf' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `work-order-${(wo.title || wo.id).replace(/[^a-zA-Z0-9]/g, '-').substring(0, 40)}.pdf`;
+              a.click();
+              URL.revokeObjectURL(url);
+              showToast('PDF downloaded');
+            } catch { showToast('Failed to generate PDF', 'error'); }
+          }} style={{
+            ...btnStyle,
+            background: 'oklch(0.6 0.12 55 / 0.15)',
+            color: 'oklch(0.78 0.16 85)',
+            border: '1px solid oklch(0.78 0.16 85 / 0.25)',
+          }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>picture_as_pdf</span> Export PDF
+          </button>
           {wo.status !== 'completed' && (
             <button onClick={handleComplete} disabled={saving} style={{
               ...btnStyle,

@@ -264,18 +264,6 @@ export const addWorkOrderMilestone = (woId, name) =>
 export const deleteWorkOrderMilestone = (woId, milestoneId) =>
   client.delete(`/crm/work-orders/${woId}/milestones/${milestoneId}`);
 
-// ============================================================
-// AI CONTENT STUDIO
-// ============================================================
+export const downloadWorkOrderPdf = (woId) =>
+  client.get(`/crm/work-orders/${woId}/pdf`, { responseType: 'blob' });
 
-export const generateContent = (data) => client.post('/crm/content/generate', data);
-
-export const getContentTemplates = (type, tone) =>
-  client.get('/crm/content/templates', { params: { type, tone } });
-
-export const generateContentBatch = (data) => client.post('/crm/content/generate-batch', data);
-
-// Content Library — persist saved content to DB
-export const getContentLibrary = (params) => client.get('/crm/content/library', { params });
-export const saveContentToLibrary = (data) => client.post('/crm/content/library', data);
-export const deleteContentFromLibrary = (id) => client.delete(`/crm/content/library/${id}`);
