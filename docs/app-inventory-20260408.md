@@ -140,6 +140,10 @@
 | Mobile list view | Yes | With deal value, priority dots |
 | Create Lead button | Yes | Opens CreateLeadModal |
 | Sidebar lead preview | Yes | Stage change UI, activity feed |
+| **Due date badges (NEW from refactor)** | Yes | Urgent/today/upcoming styling on cards |
+| **Mobile priority badges (NEW from refactor)** | Yes | Visual indicator mapping for mobile list view |
+| **Active filter pills (NEW from refactor)** | Yes | Shows applied filters with clear option |
+| **Financing badge on mobile (NEW from refactor)** | Yes | Visible in mobile list view |
 
 **Issues:** 4 silent catch blocks. HTML5 drag API (limited mobile touch support, not @dnd-kit).
 
