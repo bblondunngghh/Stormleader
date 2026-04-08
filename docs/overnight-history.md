@@ -639,3 +639,35 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Insurance auto-calculations are table-stakes for storm restoration CRMs — computing depreciation and insurance-pays fields automatically prevents manual math errors that contractors make daily.
 - Speed-to-Lead is a metric contractors rarely track but strongly correlates with close rate — surfacing it prominently on the dashboard creates behavioral incentive to respond faster.
 - The overnight pipeline continues to work well: 3 competitor-informed features implemented, 1 UI fix, and work in progress on a 4th feature, all guided by the refreshed competitor research doc.
+
+---
+
+## Run: 2026-04-08
+
+### What was done
+- **Storm severity star rating (1-5)** (vs HailTrace) — algorithm based on hail size, wind speed, and report count. Gold star icons on Dashboard storm panel and map popups. 2 files, 48 lines.
+- **Lead source revenue chart** (vs JobNimbus Insights) — horizontal bar chart showing closed-won revenue by lead source. New backend aggregation endpoint. 3 files, 74 lines.
+- **Token/merge field insertion for estimates** (vs SumoQuote) — 8 merge tokens (customer name, address, phone, email, total, date, company name) insertable from editor toolbar. Backend token resolution service. 3 files, 101 lines.
+- **Deposit/progress payment fields on estimates** (vs SumoQuote) — toggleable deposit section with fixed/percentage amount, progress milestone, and balance-due calculation. 1 file, 71 lines.
+- **UI consistency check** — all 4 modified components (Dashboard, StormMap, EstimatesView, api/dashboard.js) verified against glass/oklch/form-element standards. Zero fixes needed.
+- **App inventory** and **competitor UI research** refreshed (2 docs commits).
+- Total: 4 feature commits + 2 docs commits, ~294 lines added across 9 files.
+
+### Competitor areas covered
+- Areas completed: Storm severity visualization (HailTrace), Dashboard revenue analytics (JobNimbus), Estimate merge fields (SumoQuote), Estimate payment structure (SumoQuote)
+- Stopped at: All 4 planned implementations complete + UI consistency verified
+- Next run should start at: QuickBooks sync, then SMS/Twilio, then automated invoice reminders
+
+### What was skipped and why
+- QuickBooks sync — largest integration gap but requires OAuth flow setup (high effort)
+- SMS/texting — needs Twilio account and real messaging costs
+- Multi-page estimate proposals — high effort, needs page type system design
+- Weather History PDF per address — medium effort, needs pdfmake template
+- Draw-to-select polygon tool — medium effort, needs Leaflet drawing plugin
+- Automated invoice reminders — migration 044 exists, needs cron job + email templates
+
+### Lessons learned
+- The storm star rating is a high-impact, low-effort feature — a simple algorithm with visual star icons transforms how users prioritize storms, matching HailTrace's core differentiator.
+- Merge field tokens in estimates eliminate a tedious manual step contractors repeat on every estimate. SumoQuote charges $59+/mo for this; we added it for free.
+- Revenue attribution by lead source is the kind of analytics that helps contractors make data-driven decisions about where to canvass — a feature that justifies switching from competitors that lack it.
+- The overnight pipeline (research → inventory → implement → UI check → report) completed its 4th consecutive successful run, consistently producing 3-5 competitor-informed features per session.

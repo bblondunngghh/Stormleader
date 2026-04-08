@@ -1,70 +1,71 @@
-# Overnight Report — 2026-04-07
+# Overnight Report — 2026-04-08
 
 ## Executive Summary
 
-Tonight's run focused on three feature areas identified from competitor research: canvassing pin visualization (vs HailTrace/RoofLink), estimate insurance workflow (vs RoofLink/SumoQuote), and dashboard response-time analytics (vs RoofLink/Roofr). Four feature commits were landed plus a UI consistency fix, totaling ~280 lines of production code across 4 components and 1 backend service. Work order PDF export was started but not committed.
+Tonight's run delivered four competitor-informed feature improvements: storm severity star ratings on the dashboard and map (vs HailTrace), a lead source revenue chart on the dashboard (vs JobNimbus Insights), token/merge field insertion for the estimate editor (vs SumoQuote), and deposit/progress payment fields on estimate authorization (vs SumoQuote). Competitor research and app inventory docs were refreshed. A UI consistency check confirmed all new code follows glass/oklch standards with zero fixes needed.
 
 ## Competitor Comparisons & Improvements Made
 
-### 1. Canvassing Pin Visualization (vs HailTrace / RoofLink)
+### 1. Storm Severity Star Rating (vs HailTrace)
 
-**Competitor benchmark:** HailTrace uses a 3-color pin system (green/yellow/red) with visual distinction between pin outcomes. RoofLink includes a toggle-able legend panel showing pin categories.
+**What we studied:** HailTrace rates every storm swath on a 1-to-5 star scale based on property count impacted, max hail size, and probability of finding damage. Their free tier only shows 1-star storms — the star system doubles as a paywall gate and a prioritization tool.
 
-**Before:** StormLeads canvassing pins were plain same-colored circles with no visual differentiation between outcomes (not home, not interested, interested, scheduled, converted).
+**Before:** Storm swaths appeared on the dashboard and map popups with raw size/speed data but no visual severity indicator. Users had to mentally interpret hail diameter numbers to decide which storms were worth canvassing.
 
-**After:** Pins are now color-coded teardrop shapes — red for not interested, amber for not home, green for interested, blue for scheduled, gold-stroked for converted leads. A floating legend panel (toggled via eye icon) shows per-outcome counts and overall conversion rate. High-priority pins (interested/scheduled) render on top via z-index ordering. A conversion rate metric was added to the analytics stats bar.
+**What changed:** Added a 1-5 star rating algorithm that factors in max hail size, wind speed, and report count. Stars display as gold-filled icons on both the Dashboard storm activity panel and individual map popup cards. Users can instantly scan which storms deserve attention without interpreting raw weather data.
 
-**Where to see it:** Canvassing mode (accessible from Storm Map sidebar).
+**Where to see it:** Dashboard storm activity section and any storm swath popup on the Storm Map.
 
-### 2. Estimate Insurance Auto-Calculations (vs RoofLink / SumoQuote)
+### 2. Lead Source Revenue Chart (vs JobNimbus Insights)
 
-**Competitor benchmark:** RoofLink's estimate builder auto-calculates depreciation, insurance pays, and customer owes fields. SumoQuote reports an average $2,078 upsell per estimate from their insurance workflow.
+**What we studied:** JobNimbus provides revenue attribution dashboards that show which lead sources (door knock, referral, storm map, etc.) generate the most closed revenue. This helps contractors decide where to invest canvassing time and marketing dollars.
 
-**Before:** The insurance section (added in the prior run) had input fields for RCV, ACV, depreciation, deductible, and O&P, but depreciation was manual-entry only and there was no computed "Insurance Pays" or "Customer Owes" summary.
+**Before:** The dashboard showed pipeline stage counts and activity feeds but had no revenue attribution by source. Users couldn't answer "which lead source is most profitable?"
 
-**After:** Depreciation now auto-calculates as RCV minus ACV when both values are entered. Two new computed fields — "Ins. Pays" (RCV minus deductible plus O&P) and "Customer Owes" (deductible minus insurance proceeds, if applicable) — provide a complete insurance breakdown. The measurement tool button (previously dead UI) now launches a guidance toast explaining integration options.
+**What changed:** Added a horizontal bar chart showing total revenue by lead source, pulled from closed-won leads. New backend endpoint aggregates revenue grouped by source with a single SQL query. The chart uses the existing glass Panel component and oklch color palette.
 
-**Where to see it:** Estimates page, open any estimate with the Insurance toggle enabled.
+**Where to see it:** Dashboard, below the existing stat cards.
 
-### 3. Speed-to-Lead Dashboard Metric (vs RoofLink / Roofr)
+### 3. Token/Merge Field Insertion for Estimates (vs SumoQuote)
 
-**Competitor benchmark:** RoofLink tracks first-response time prominently. Roofr markets "instant response" as a key differentiator for contractor leads, citing industry data that 78% of customers go with the first responder.
+**What we studied:** SumoQuote's estimate builder supports merge tokens — placeholders like {{customer_name}}, {{property_address}}, {{total}} — that auto-populate when generating the customer-facing estimate. This eliminates manual copy-paste of customer details into every estimate.
 
-**Before:** Dashboard had 4 KPI stat cards (Pipeline Value, New Leads, Close Rate, Avg Days to Close) with no response-time tracking.
+**Before:** The estimate rich text editor required manually typing all customer and project details. No way to insert dynamic fields that resolve at render time.
 
-**After:** A 5th stat card — "Speed to Lead" — shows average minutes from lead creation to first logged activity over a rolling 30-day window. Color-coded performance badge: green "Excellent" at 5 minutes or under, amber "Good" at 30 minutes or under, red "Slow" above 30 minutes. Backend uses a LATERAL join query for efficient calculation.
+**What changed:** Added a merge field insertion menu to the estimate editor toolbar. Users can insert tokens for customer name, address, phone, email, estimate total, date, and company name. Backend service resolves tokens when generating the customer-facing estimate. Eight token types available at launch.
 
-**Where to see it:** Dashboard, top stat cards row (5th card on the right).
+**Where to see it:** Estimate builder editor toolbar — new "Insert Field" button.
 
-### 4. UI Consistency Fix
+### 4. Deposit & Progress Payment Fields (vs SumoQuote)
 
-The canvassing mode legend panel had one SVG stroke using rgba color syntax instead of oklch. Fixed for design system consistency.
+**What we studied:** SumoQuote includes a dedicated authorization section on estimates where contractors can define deposit requirements, progress payment milestones, and payment terms. This is standard in construction estimating — customers expect to see payment structure before signing.
+
+**Before:** Estimates showed a total amount and signature block but had no structured deposit or progress payment section. Contractors would have to manually type payment terms into the estimate body text.
+
+**What changed:** Added a toggleable deposit/progress payment section to the estimate authorization area. Includes deposit amount (fixed or percentage), progress payment milestone field, and balance-due calculation. The toggle uses consistent glass styling and form-input classes.
+
+**Where to see it:** Estimate builder, authorization section — toggle "Include Deposit Requirements."
 
 ## New Features Built
 
-No net-new features were built this run — all work was enhancement of existing features to close competitor gaps.
-
-## Work In Progress (Uncommitted)
-
-Work order PDF export was started — backend pdfmake endpoint, frontend download button with glass styling, and milestone completion timestamps with time display. This code is in the working tree but was not committed as it was still being tested.
+No net-new standalone features were built tonight. All four improvements enhanced existing components (Dashboard and EstimatesView).
 
 ## Features Still Behind Competitors
 
-### High Priority
-- **Multi-page estimate proposals** — SumoQuote and RoofLink offer cover pages, multiple sections, and terms pages. Our estimates are single-page only. This is the #1 quality gap in the estimating workflow.
-- **QuickBooks sync** — JobNimbus, RoofLink, and SumoQuote all offer QuickBooks integration. Requires OAuth flow setup.
-- **In-app SMS texting** — RoofLink and JobNimbus include SMS for appointment reminders and lead follow-up. Our UI framework exists but needs a provider (Twilio or similar).
+1. **QuickBooks/Xero Sync** — JobNimbus and RoofLink both offer QuickBooks integration for invoice syncing. We have no accounting integration. This is the single largest operational gap for contractors who manage billing.
 
-### Medium Priority
-- **Property sidebar on storm map** — HailTrace shows a persistent left sidebar with owner details, home value, Street View, and weather history when a property is selected. We show a popup only.
-- **Draw-polygon lead generation on map** — HailTrace lets users draw a custom polygon to generate a lead list from all properties inside it.
-- **Profit Tracker dashboard** — JobNimbus Insights shows per-job and per-rep profitability. We track per-job profit in Lead Detail but lack the aggregate dashboard.
-- **Canvassing leaderboard** — HailTrace shows team canvassing stats. We have team leaderboard for overall sales but not canvassing-specific.
+2. **SMS/Texting** — RoofLink and Roofr offer in-app SMS messaging. We have drip email sequences but no text messaging capability. SMS has significantly higher open rates for appointment confirmations and follow-ups.
 
-### Lower Priority
-- **AI chat assistant** — Rooftops.ai and QuoteIQ offer AI-powered features. Our Content Studio generates templates but has no conversational AI.
-- **React Query migration** — All data fetching uses raw useEffect. Not user-facing but affects code quality and loading states.
+3. **Multi-Page Estimate Proposals** — SumoQuote generates multi-page branded proposals with cover pages, scope of work sections, and terms pages. Our estimates are single-section documents. This is the biggest remaining quality gap in the estimating workflow.
+
+4. **Weather History PDF per Address** — HailTrace generates a 14+ year weather history PDF for any address, used as evidence for insurance claims. We show storm history on-screen but don't export it as a shareable document.
+
+5. **Draw-to-Select Polygon Tool** — HailTrace allows drawing custom polygons on the map to select properties within an area. We only support swath-based or canvassing list selection.
+
+6. **Automated Invoice Reminders** — Database migration exists (044) but cron job and email templates haven't been built yet.
 
 ## Where I Stopped
 
-The work order PDF export feature was in progress — backend endpoint is written, frontend download button is wired, but the code was not committed. The next run should either finish testing and commit this, or start on multi-page estimate proposals, which is the #1 remaining quality gap identified in competitor research.
+The UI consistency check (Stage 4) was completed — all four modified components passed glass/oklch/form-element standards with no fixes needed. The five-stage overnight pipeline (research → inventory → implementation → UI check → report) is fully complete for this run.
+
+Next run should start with: QuickBooks sync adapter (largest competitive gap), then SMS/Twilio integration, then automated invoice reminder cron job.
