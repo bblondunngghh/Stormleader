@@ -1300,6 +1300,8 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   });
   const [insuranceEnabled, setInsuranceEnabled] = useState(false);
   const [upgrades, setUpgrades] = useState([]);
+  const [depositEnabled, setDepositEnabled] = useState(false);
+  const [deposit, setDeposit] = useState({ amount: '', description: 'Due upon signing', type: 'flat' });
   const sectionImageInputRef = useRef(null);
   const [imageUploadTarget, setImageUploadTarget] = useState(null); // section id
   const editorRef = useRef(null);
@@ -1345,6 +1347,10 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
       }
       if (estimate.upgrades && Array.isArray(estimate.upgrades) && estimate.upgrades.length > 0) {
         setUpgrades(estimate.upgrades);
+      }
+      if (estimate.deposit && estimate.deposit.amount) {
+        setDeposit(prev => ({ ...prev, ...estimate.deposit }));
+        setDepositEnabled(true);
       }
     }
   }, [estimate]);
@@ -1546,7 +1552,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades };
+      const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null };
       if (estimate) {
         await estimatesApi.updateEstimate(estimate.id, payload);
       } else {
@@ -1564,7 +1570,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   const handleSaveAndSend = async () => {
     setSending(true);
     try {
-      const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades };
+      const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null };
       let est;
       if (estimate) {
         await estimatesApi.updateEstimate(estimate.id, payload);
@@ -1615,7 +1621,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                 // Save first, then open signing
                 setSaving(true);
                 try {
-                  const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades };
+                  const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null };
                   await estimatesApi.createEstimate(payload);
                   showToast('Estimate saved', 'success');
                 } catch { showToast('Failed to save estimate', 'error'); setSaving(false); return; }
@@ -2584,6 +2590,68 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                     </div>
                   </div>
                 ))}
+              </div>
+
+              {/* Deposit / Progress Payment */}
+              <div style={{ marginTop: 'var(--space-lg)', paddingTop: 'var(--space-md)', borderTop: '1px solid var(--glass-border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: depositEnabled ? 'var(--space-md)' : 0 }}>
+                  <button
+                    type="button"
+                    onClick={() => setDepositEnabled(!depositEnabled)}
+                    style={{
+                      width: 36, height: 20, borderRadius: 10, border: 'none', cursor: 'pointer',
+                      background: depositEnabled ? 'oklch(0.72 0.19 250)' : 'oklch(0.30 0.02 260)',
+                      position: 'relative', transition: 'background 0.2s',
+                    }}
+                  >
+                    <span style={{
+                      position: 'absolute', top: 2, left: depositEnabled ? 18 : 2,
+                      width: 16, height: 16, borderRadius: '50%', background: 'white',
+                      transition: 'left 0.2s', boxShadow: '0 1px 3px oklch(0 0 0 / 0.3)',
+                    }} />
+                  </button>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>Require deposit upon signing</span>
+                </div>
+                {depositEnabled && (
+                  <div style={{
+                    background: 'oklch(0.16 0.02 260 / 0.4)', borderRadius: '14px / 12px',
+                    border: '1px solid var(--glass-border)', padding: 'var(--space-md)',
+                  }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-sm)' }}>
+                      <div className="form-group">
+                        <label style={{ fontSize: 11 }}>Deposit Amount</label>
+                        <div style={{ display: 'flex', gap: 4 }}>
+                          <input
+                            className="form-input"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={deposit.amount}
+                            onChange={e => setDeposit(d => ({ ...d, amount: e.target.value }))}
+                            placeholder={deposit.type === 'percent' ? '50' : '500.00'}
+                            style={{ fontSize: 12, padding: '8px 10px', flex: 1 }}
+                          />
+                          <div style={{ display: 'flex', borderRadius: 8, overflow: 'hidden', border: '1px solid var(--glass-border)' }}>
+                            <button type="button" onClick={() => setDeposit(d => ({ ...d, type: 'flat' }))}
+                              style={{ padding: '6px 10px', fontSize: 11, fontWeight: 700, border: 'none', cursor: 'pointer', background: deposit.type === 'flat' ? 'oklch(0.72 0.19 250 / 0.3)' : 'transparent', color: deposit.type === 'flat' ? 'oklch(0.72 0.19 250)' : 'var(--text-muted)' }}>$</button>
+                            <button type="button" onClick={() => setDeposit(d => ({ ...d, type: 'percent' }))}
+                              style={{ padding: '6px 10px', fontSize: 11, fontWeight: 700, border: 'none', cursor: 'pointer', background: deposit.type === 'percent' ? 'oklch(0.72 0.19 250 / 0.3)' : 'transparent', color: deposit.type === 'percent' ? 'oklch(0.72 0.19 250)' : 'var(--text-muted)' }}>%</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                        <label style={{ fontSize: 11 }}>Description</label>
+                        <input
+                          className="form-input"
+                          value={deposit.description}
+                          onChange={e => setDeposit(d => ({ ...d, description: e.target.value }))}
+                          placeholder="e.g., Due upon signing, 50% upfront"
+                          style={{ fontSize: 12, padding: '8px 10px' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
