@@ -119,8 +119,7 @@ export async function getPreferences(userId) {
   const types = [
     'lead_assigned', 'lead_status_changed', 'task_due_soon',
     'task_overdue', 'estimate_viewed', 'estimate_accepted',
-    'estimate_declined', 'storm_alert', 'new_storm_leads', 'mention',
-    'stale_lead'
+    'estimate_declined', 'storm_alert', 'new_storm_leads', 'mention'
   ];
 
   const values = types.map((_, i) => `($1, $${i + 2}, true, true)`).join(', ');
