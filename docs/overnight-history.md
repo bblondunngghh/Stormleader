@@ -671,3 +671,34 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Merge field tokens in estimates eliminate a tedious manual step contractors repeat on every estimate. SumoQuote charges $59+/mo for this; we added it for free.
 - Revenue attribution by lead source is the kind of analytics that helps contractors make data-driven decisions about where to canvass — a feature that justifies switching from competitors that lack it.
 - The overnight pipeline (research → inventory → implement → UI check → report) completed its 4th consecutive successful run, consistently producing 3-5 competitor-informed features per session.
+
+---
+
+## QA Run: 2026-04-09
+
+### Test Results
+- Pages tested: 20
+- API endpoints tested: 130+
+- Bugs found: 6
+- Bugs fixed: 6
+- UI inconsistencies found: 0
+- UI inconsistencies fixed: 0
+
+### Fixes Made
+- CRM dashboard endpoints (days-in-stage, stale-leads, customer-storm-alerts) — wrong enum values and column names causing 500s (b6ca3fa)
+- Quick lead creation — INSERT included nonexistent columns property_state, property_zip (19dc947)
+- Estimate creation — INSERT included nonexistent columns insurance_details, upgrades (19dc947)
+- Public financing/contract routes — CRM auth middleware blocking public no-auth endpoints (2a3ece7)
+- Notification preferences — auto-seed included invalid enum value stale_lead (2b7ac36)
+- Estimate tax calculation — rate treated as multiplier instead of percentage (337b1b1)
+
+### UI Consistency Fixes
+- None needed — all components pass icon, button, form, spacing, modal, and glass/oklch audits
+
+### Known Issues Remaining
+- Admin panel requires super_admin role to test (current user is admin)
+- Pipeline drag-and-drop not exercised
+- CSV export/import not verified end-to-end
+- Email send requires SMTP configuration
+- Calendar event creation not tested
+- QuickBooks, Twilio, Stripe integrations not implemented
