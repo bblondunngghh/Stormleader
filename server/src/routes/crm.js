@@ -777,7 +777,7 @@ router.get('/dashboard/days-in-stage', async (req, res, next) => {
          COUNT(*) FILTER (WHERE updated_at < NOW() - INTERVAL '7 days') as stuck_leads
        FROM leads
        WHERE tenant_id = $1
-         AND stage NOT IN ('closed_won', 'closed_lost')
+         AND stage NOT IN ('sold', 'lost')
          AND updated_at IS NOT NULL
          AND deleted_at IS NULL
        GROUP BY stage
@@ -807,14 +807,14 @@ router.get('/dashboard/stale-leads', async (req, res, next) => {
          l.id,
          l.contact_name,
          l.stage,
-         u.name AS assigned_to,
+         CONCAT(u.first_name, ' ', u.last_name) AS assigned_to,
          EXTRACT(DAY FROM NOW() - l.updated_at)::int AS days_stale,
          l.updated_at AS last_activity
        FROM leads l
-       LEFT JOIN users u ON u.id = l.assigned_to_user_id
+       LEFT JOIN users u ON u.id = l.assigned_rep_id
        WHERE l.tenant_id = $1
          AND l.updated_at < NOW() - INTERVAL '3 days'
-         AND l.stage NOT IN ('closed_won', 'closed_lost')
+         AND l.stage NOT IN ('sold', 'lost')
          AND l.deleted_at IS NULL
        ORDER BY days_stale DESC
        LIMIT 10`,
@@ -837,16 +837,10 @@ router.get('/dashboard/customer-storm-alerts', async (req, res, next) => {
          l.address,
          l.stage,
          l.estimated_value,
-         se.event_type AS storm_type,
+         se.source AS storm_type,
          se.event_start AS storm_date,
-         COALESCE(
-           (se.raw_data->>'hailSize')::numeric,
-           (se.raw_data->>'size')::numeric
-         ) AS hail_size,
-         COALESCE(
-           (se.raw_data->>'windSpeed')::numeric,
-           (se.raw_data->>'speed')::numeric
-         ) AS wind_speed
+         se.hail_size_max_in AS hail_size,
+         se.wind_speed_max_mph AS wind_speed
        FROM leads l
        JOIN properties p ON p.id = l.property_id
        JOIN storm_events se ON p.location && se.geom
