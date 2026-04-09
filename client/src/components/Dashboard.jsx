@@ -577,6 +577,7 @@ export default function Dashboard() {
   const [daysInStage, setDaysInStage] = useState([]);
   const [staleLeads, setStaleLeads] = useState([]);
   const [leadSourceRevenue, setLeadSourceRevenue] = useState([]);
+  const [customerStormAlerts, setCustomerStormAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   // Dashboard filters (JN Insights-style)
   const [dashRep, setDashRep] = useState('');
@@ -612,13 +613,13 @@ export default function Dashboard() {
 
   const fetchAll = useCallback(async () => {
     try {
-      const [statsRes, funnelRes, activityRes, leaderRes, tasksRes, followupsRes, convRes, estRes, arRes, estConvRes, daysRes, staleRes, srcRevRes] = await Promise.allSettled([
+      const [statsRes, funnelRes, activityRes, leaderRes, tasksRes, followupsRes, convRes, estRes, arRes, estConvRes, daysRes, staleRes, srcRevRes, custAlertRes] = await Promise.allSettled([
         dashboardApi.getStats(dashFilters), dashboardApi.getFunnel(dashFilters), dashboardApi.getActivity(dashFilters),
         dashboardApi.getLeaderboard(), dashboardApi.getTasksToday(), dashboardApi.getFollowups(),
         dashboardApi.getConversionByStorm(), dashboardApi.getEstimateSummary(),
         dashboardApi.getArSummary(), dashboardApi.getEstimatingConversion(),
         dashboardApi.getDaysInStage(), dashboardApi.getStaleLeads(),
-        dashboardApi.getLeadSourceRevenue(),
+        dashboardApi.getLeadSourceRevenue(), dashboardApi.getCustomerStormAlerts(),
       ]);
       if (statsRes.status === 'fulfilled' && statsRes.value.data?.stats)
         setStats(statsRes.value.data.stats.map((s, i) => ({ ...s, tint: emptyStats[i]?.tint, link: emptyStats[i]?.link || '/leads' })));

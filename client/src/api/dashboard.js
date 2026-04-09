@@ -15,3 +15,4 @@ export const getEstimatingConversion = () => client.get('/crm/dashboard/estimati
 export const getDaysInStage = () => client.get('/crm/dashboard/days-in-stage');
 export const getStaleLeads = () => client.get('/crm/dashboard/stale-leads');
 export const getLeadSourceRevenue = () => client.get('/crm/dashboard/lead-source-revenue');
+export const getCustomerStormAlerts = () => client.get('/crm/dashboard/customer-storm-alerts');

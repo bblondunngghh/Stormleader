@@ -826,6 +826,46 @@ router.get('/dashboard/stale-leads', async (req, res, next) => {
   }
 });
 
+// GET /api/crm/dashboard/customer-storm-alerts — Existing leads in recent storm swaths
+router.get('/dashboard/customer-storm-alerts', async (req, res, next) => {
+  try {
+    const days = parseInt(req.query.days, 10) || 30;
+    const { rows } = await pool.query(
+      `SELECT DISTINCT ON (l.id)
+         l.id AS lead_id,
+         l.contact_name,
+         l.address,
+         l.stage,
+         l.estimated_value,
+         se.event_type AS storm_type,
+         se.event_start AS storm_date,
+         COALESCE(
+           (se.raw_data->>'hailSize')::numeric,
+           (se.raw_data->>'size')::numeric
+         ) AS hail_size,
+         COALESCE(
+           (se.raw_data->>'windSpeed')::numeric,
+           (se.raw_data->>'speed')::numeric
+         ) AS wind_speed
+       FROM leads l
+       JOIN properties p ON p.id = l.property_id
+       JOIN storm_events se ON p.location && se.geom
+         AND ST_Intersects(p.location, se.geom)
+         AND ST_GeometryType(se.geom) != 'ST_Point'
+       WHERE l.tenant_id = $1
+         AND l.deleted_at IS NULL
+         AND l.stage NOT IN ('sold', 'lost')
+         AND se.event_start >= NOW() - ($2 || ' days')::interval
+       ORDER BY l.id, se.event_start DESC
+       LIMIT 20`,
+      [req.tenantId, days]
+    );
+    res.json({ alerts: rows });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /api/crm/dashboard/lead-source-revenue — Revenue breakdown by lead source
 router.get('/dashboard/lead-source-revenue', async (req, res, next) => {
   try {

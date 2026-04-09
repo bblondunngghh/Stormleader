@@ -1,377 +1,47 @@
 You are working on the StormLeads application — a roofing CRM and storm lead generation tool.
-Your job each night is to make this app measurably better by improving existing features
-to match or exceed what competitors offer, building missing features, and fixing bugs.
+Working directory: /c/Projects/stormleads
+Frontend: client/ (React + Vite)
+Backend: server/ (Node/Express + PostgreSQL)
 
-YOUR APPROACH: For every feature in this app, you will:
-1. Look at how OUR app does it (screenshot, test it, understand it)
-2. Look at how COMPETITORS do it (find screenshots, demos, marketing pages, YouTube videos)
-3. Compare: What do they do better? What are we missing? What's our advantage?
-4. IMPROVE ours to match or exceed theirs — then move to the next feature
+YOUR JOB: You are a QA engineer. Your ONLY goal is to systematically test every feature
+in this application, verify it works correctly, and fix anything that is broken.
 
-This is competitor-driven development. You are not guessing what to build.
-You are studying what the best roofing software looks like and making ours better.
+YOU ARE NOT BUILDING NEW FEATURES. YOU ARE NOT RESEARCHING COMPETITORS.
+YOU ARE NOT ADDING ENHANCEMENTS OR IMPROVEMENTS.
 
-CRITICAL CONSTRAINTS — VIOLATING THESE IS A HARD FAILURE:
+If something works — move on. If something is broken — fix it and move on.
+
+CRITICAL CONSTRAINTS:
 1. ZERO paid APIs. Only free public data sources (NOAA, FEMA NSI, Census, etc.).
-2. ZERO bulk geocoding. Google geocoding API costs real money. All geocode calls must be user-initiated, one-at-a-time, triggered by button click only.
-3. ZERO bulk DB writes. All data writes must be gated behind explicit user actions. Production DB is Neon free tier (0.5 GB).
-4. Follow existing patterns: oklch colors, .glass class for panels, dark-mode-first, pool.query() from ../db/pool.js, axios client from ../api/client.
-5. Build check after EVERY change: cd /c/Projects/stormleads/client && npx vite build — fix any errors before committing.
-6. Commit after EVERY completed task with a descriptive message.
-7. All external data must be queried ON-DEMAND at runtime — never bulk import into the database.
+2. ZERO bulk geocoding. Google geocoding API costs real money.
+3. ZERO bulk DB writes. Production DB is Neon free tier (0.5 GB storage limit).
+4. Follow existing patterns: oklch colors, .glass class, dark-mode-first, pool.query() from ../db/pool.js
+5. Build check after EVERY fix: cd /c/Projects/stormleads/client && npx vite build
+6. Commit after EVERY fix with a descriptive message starting with "fix:"
+7. DO NOT refactor, improve, or enhance working features. If it works, leave it alone.
 
-IMPORTANT: DO NOT SHORT-CIRCUIT. DO NOT SKIP SECTIONS. DO NOT FINISH EARLY.
-You must complete ALL sections below in order. Each section is MANDATORY.
+FEMA MAP PROPERTIES: DO NOT TOUCH. This code is being actively worked on by the developer.
+ANY changes to FEMA property loading, filtering, IndexedDB caching, or storm swath
+intersection logic WILL BE REVERTED.
 
-MINIMUM EXPECTATIONS:
-- You MUST make at least 5 commits with real code changes
-- You MUST improve at least 3 features based on competitor comparison
-- You MUST visually audit every page you changed using browser tools
-- If you finish in under 300 turns, you skipped something
-- NEVER claim something is "done" without testing it in the browser
+ICON LIBRARY: @heroicons/react — 24/outline variant ONLY.
+Every icon in the app must come from '@heroicons/react/24/outline'. No solid variants,
+no Font Awesome, no Lucide, no inline SVGs used as icons. If you find any icon not
+from this library, replace it with the correct Heroicon equivalent.
 
-===========================================================================
-DONE LIST — DO NOT REDO THESE. THEY ARE FINISHED.
-===========================================================================
+BROWSER TESTING TOOL: Use Playwright MCP tools for ALL browser interaction.
+- mcp__plugin_playwright_playwright__browser_navigate — go to pages
+- mcp__plugin_playwright_playwright__browser_snapshot — get page accessibility tree
+- mcp__plugin_playwright_playwright__browser_take_screenshot — visual screenshots
+- mcp__plugin_playwright_playwright__browser_click — click elements
+- mcp__plugin_playwright_playwright__browser_fill_form — fill forms
+- mcp__plugin_playwright_playwright__browser_evaluate — run JS to inspect DOM/styles
+- mcp__plugin_playwright_playwright__browser_console_messages — check for errors
+DO NOT use Firecrawl for local app testing. Playwright runs locally and can inspect the DOM.
 
-The following items have been completed in prior runs. DO NOT touch, re-implement,
-re-research, or "fix" these unless something is genuinely broken (error in console,
-visible bug in browser). "Improving" something that already works is NOT acceptable
-UNLESS you found a specific competitor feature we're missing (with evidence).
+Read MEMORY.md at C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\MEMORY.md first.
 
-COMPLETED — OFF LIMITS:
-- Competitor research TEXT: docs/competitor-gap-analysis.md is comprehensive and current (updated 2026-03-26). DO NOT rewrite the gap analysis. DO NOT regenerate the pricing recommendation. You SHOULD still look at competitor SCREENSHOTS and UI, but don't rewrite the text analysis.
-- oklch color migration: DONE. Every hex and rgba color has been converted to oklch. DO NOT audit colors. DO NOT "find remaining" hex values. This is finished.
-- CSS animations system: DONE. --transition-fast/normal/slow/spring, modal-scale-in, page fade-in, button press, card hover — all implemented globally in index.css.
-- Security audit: DONE. All routes authenticated, all queries parameterized, tenant isolation verified, rate limiting on auth, hashed refresh tokens. DO NOT re-audit.
-- Modal animations: DONE. All modals have modal-backdrop class and scale-in animation.
-- FEMA map properties: DO NOT TOUCH. This code is being actively worked on by the developer. Any changes to FEMA property loading, filtering, IndexedDB caching, or storm swath intersection logic will be reverted. Leave it alone completely.
-- Pricing recommendation: DONE in the gap analysis. $29/$79/$149 tiers. DO NOT regenerate.
-- Empty states: Most pages done. Only improve if you find a competitor does it significantly better.
-- PWA manifest/service worker: DONE.
-
-===========================================================================
-SECTION 1: KNOW YOUR APP — FUNCTIONAL INVENTORY
-===========================================================================
-
-Before improving anything, you need to know exactly what exists. Do a complete
-inventory of every feature in the app. This is NOT a visual audit — it's a
-functional test of every feature.
-
-SETUP:
-1. Start the dev servers if not running:
-   - Backend: cd /c/Projects/stormleads && npm run dev &
-   - Frontend: cd /c/Projects/stormleads/client && npm run dev &
-   - Wait 5 seconds for them to start
-2. Create a new browser tab and navigate to http://localhost:5173
-3. Log in with: Email=brandon, Password=1234, Tenant=waterloo
-
-STEP 1: Read prior history
-   - Read docs/overnight-history.md — understand what was built before
-   - Read docs/competitor-gap-analysis.md — specifically the Feature Comparison Matrix
-   - Run: git log --oneline --since="7 days ago" to see recent commits
-
-STEP 2: Test every feature area and take ONE screenshot per page
-   For each page, note: what works, what's broken, what feels incomplete.
-
-   /storm-map — Do storm swaths load? Does the layer panel work? Test each toggle.
-     Does Honey Holes (hail history) layer show data? Test the address search.
-   /pipeline — Can you drag leads between stages? Do cards show useful info?
-   /leads — Does the table load? Do filters work? Does CSV export work? CSV import?
-     Does lead scoring show? Can you sort by score?
-   /leads/:id (Lead Detail) — Test every tab. Does score breakdown work?
-     Does the weather history button work? Documents upload? Activity logging?
-     SMS quick action? Photo annotation?
-   /estimates — Can you create an estimate? Does the builder work end-to-end?
-     Templates? E-signature? PDF generation?
-   /invoices — Create an invoice? Payment recording? Estimate-to-invoice conversion?
-   /work-orders — Kanban board? Create a work order? Milestones? Crew assignment?
-   /tasks — Create, toggle, filter tasks? Due date reminders?
-   /calendar — Does it render events? Can you click/interact?
-   /reports — Do charts load? Date range picker? Different report types?
-   /canvassing — Map works? Pin dropping? Territory management?
-   /content-studio — Does it generate content? (Currently template-based, no LLM)
-   /settings — Test EVERY tab: Profile, Company, Billing, Payments, Team, Alerts,
-     Notifications, Email/SMTP, Financing, Automations, Drip Sequences, Custom Fields,
-     Contracts, Reviews
-   /drip-sequences — Can you create a sequence? Add steps? Enroll a lead?
-
-   Write a brief inventory: what works, what's broken, what's missing.
-   This inventory is your roadmap for the rest of the session.
-
-DO NOT spend more than 45 minutes on Section 1.
-
-===========================================================================
-SECTION 2: COMPETITOR-DRIVEN IMPROVEMENT — THE MAIN EVENT (60%+ of time)
-===========================================================================
-
-Now the real work begins. For each major feature area below, you will:
-
-A) STUDY THE COMPETITOR — Search for screenshots, demo videos, marketing pages
-   of how competitors implement this feature. Use web search and Firecrawl to find:
-   - "[Competitor] [feature] screenshot"
-   - "[Competitor] [feature] demo"
-   - "[Competitor] [feature] tutorial"
-   - YouTube demo videos showing the feature in action
-   Save the competitor reference images/descriptions for comparison.
-
-B) COMPARE TO OURS — Open our version of the same feature in the browser.
-   Screenshot it. Ask yourself:
-   - Does ours have the same capabilities?
-   - Does ours look as polished?
-   - What information does theirs show that ours doesn't?
-   - What UX patterns do they use that work better?
-   - What do WE do that THEY don't? (preserve our advantages)
-
-C) IMPROVE OURS — Make concrete code changes to close the gap. This could mean:
-   - Adding missing data/fields to a view
-   - Improving the layout or information density
-   - Adding a missing interaction or workflow
-   - Building a feature they have that we don't
-   - Making our version more intuitive or faster
-
-D) TEST AND COMMIT — Verify in the browser, screenshot the result, commit.
-
-HOW TO DO THE COMPETITOR COMPARISON (tool instructions):
-
-To research COMPETITOR apps, use Firecrawl for everything:
-1. Scrape competitor websites: hailtrace.com, jobnimbus.com, rooflink.com, rooftops.ai
-   - Their feature pages, product tours, help docs, knowledge bases
-   - These pages have screenshots and descriptions of their UI
-2. Search for competitor UI: "HailTrace storm map demo", "JobNimbus pipeline screenshot"
-   - Marketing pages, blog posts, and review sites show real UI screenshots
-3. Scrape competitor help/support sites — they have annotated screenshots of every feature
-4. Search YouTube descriptions: "[Competitor] demo 2025" for feature walkthroughs
-5. Check review sites (Capterra, G2) — user reviews often describe UI details
-
-Firecrawl returns clean markdown with image descriptions, which is exactly what you
-need to understand how competitors lay out their UI, what info they show, and what
-UX patterns they use.
-
-To screenshot OUR app, also use Firecrawl:
-1. Scrape http://localhost:5173 pages with Firecrawl to capture our UI
-2. Compare what you see in our app vs what Firecrawl found on competitor sites
-
-IMPORTANT: You MUST actually research competitor UI, not just re-read the gap analysis.
-The gap analysis TEXT already exists. What's missing is understanding HOW competitors
-present their features — layout, info density, UX patterns, workflows. Firecrawl their
-product pages and help docs to see this. That's what drives the improvements.
-
-=== FEATURE AREAS TO COMPARE AND IMPROVE (work through these in order) ===
-
-AREA 1: STORM MAP — Compare to HailTrace
-   Competitor: HailTrace is the gold standard for storm mapping.
-   Research:
-   - Search "HailTrace storm map screenshot", "HailTrace hail map demo"
-   - Search "HailTrace honey hole finder screenshot", "HailTrace canvassing map"
-   - Find YouTube: "HailTrace demo 2025" or "HailTrace tutorial"
-   - Look at their marketing page screenshots on hailtrace.com
-   Compare our /storm-map:
-   - How do they display storm swaths vs ours? (colors, labels, severity indicators)
-   - How does their Honey Hole Finder look vs our Honey Holes layer?
-   - What info shows in their property popups vs ours?
-   - How do they handle the layer panel and controls?
-   - What about their storm severity ratings / star system?
-   Improve: Make our storm map experience match or exceed HailTrace's.
-   REMINDER: DO NOT TOUCH FEMA property loading code. Everything else is fair game.
-
-AREA 2: CRM PIPELINE — Compare to JobNimbus
-   Competitor: JobNimbus has the most mature CRM pipeline.
-   Research:
-   - Search "JobNimbus pipeline screenshot", "JobNimbus kanban board"
-   - Search "JobNimbus CRM demo 2025", "JobNimbus board customization"
-   - Look at their marketing screenshots showing pipeline views
-   Compare our /pipeline:
-   - What info do their kanban cards show vs ours?
-   - How do they handle drag-and-drop? Card actions?
-   - Do they show revenue per stage? Lead counts? Conversion rates?
-   - How does their card design compare to ours?
-   Improve: Make our pipeline cards and workflow match JobNimbus quality.
-
-AREA 3: LEAD MANAGEMENT — Compare to JobNimbus + HailTrace
-   Research:
-   - Search "JobNimbus contact management screenshot"
-   - Search "JobNimbus lead detail page", "HailTrace lead management"
-   - How do they organize lead information?
-   Compare our /leads and Lead Detail:
-   - What columns/fields do they show in list view?
-   - What does their detail page look like? Tabs? Sections?
-   - How do they display activity timeline?
-   - Lead scoring — how does ours compare? Is the breakdown useful?
-   Improve: Make our lead experience as good or better.
-
-AREA 4: ESTIMATES & INVOICES — Compare to JobNimbus (SumoQuote) + RoofLink
-   Research:
-   - Search "JobNimbus estimate builder screenshot", "SumoQuote demo"
-   - Search "RoofLink estimate screenshot", "RoofLink auto estimate"
-   - How do their estimate builders look and work?
-   Compare our /estimates and /invoices:
-   - Line item editing — is ours as smooth?
-   - Template system — how does theirs work vs ours?
-   - PDF output — how does our estimate PDF compare to theirs?
-   - Invoice-to-payment flow — is ours complete?
-   Improve: Close any gaps in the estimating/invoicing workflow.
-
-AREA 5: CONTENT & MARKETING — Compare to Rooftops.ai
-   Competitor: Rooftops.ai specializes in AI content for roofers.
-   Research:
-   - Search "Rooftops.ai AI creator studio screenshot"
-   - Search "Rooftops.ai content generation demo"
-   - What content types do they generate? How does the UI look?
-   Compare our /content-studio:
-   - Ours is currently template-based (no actual LLM). That's fine for now.
-   - But does the UI and workflow match the quality of Rooftops.ai?
-   - Are we offering the same content types roofers need?
-   - If OPENAI_API_KEY or ANTHROPIC_API_KEY is in .env, wire up real LLM generation.
-     If not, improve the template system and UI to be as polished as possible.
-   Improve: Make Content Studio look and feel professional.
-
-AREA 6: WORK ORDERS & PRODUCTION — Compare to RoofLink
-   Research:
-   - Search "RoofLink production management screenshot"
-   - Search "RoofLink work order workflow", "RoofLink installation checklist"
-   - RoofLink has a 7-step workflow: Target → Measure → Estimate → Approve → Order → Install → Collect
-   Compare our /work-orders:
-   - Do we have milestone tracking as good as theirs?
-   - Crew assignment? Checklist items?
-   - Photo documentation per work order step?
-   Improve: Make our production workflow competitive with RoofLink.
-
-AREA 7: REPORTS & DASHBOARD — Compare to JobNimbus + RoofLink
-   Research:
-   - Search "JobNimbus dashboard screenshot", "JobNimbus reports"
-   - Search "RoofLink analytics dashboard"
-   - What KPIs do they show? How do their charts look?
-   Compare our /reports and Dashboard:
-   - Are we showing the metrics roofers care about?
-   - Revenue, close rate, response time, team performance?
-   - Does our dashboard load with a skeleton or does it flash?
-   Improve: Add any missing KPIs. Build a dashboard loading skeleton if needed.
-
-AREA 8: FEATURES WE DON'T HAVE YET
-   After improving existing features, check the competitor gap analysis for features
-   marked "Missing" that haven't been built yet. Focus on ones that CAN be built
-   for free:
-   - QuickBooks sync (free API tier) — Settings > Integrations tab, OAuth flow, invoice push
-   - SMS/Twilio two-way messaging — messages table, chat UI in LeadDetail, Twilio scaffolding
-   - Any other gaps you can close in the remaining time
-   For these, study how competitors implement them, then build our version.
-
-=== END OF FEATURE AREAS ===
-
-You don't have to finish every area in one night. Work through them in order,
-spending real time on each. Quality over quantity — a deeply improved storm map
-is better than shallow changes across 8 areas.
-
-When you move to the next area, note in your report where you stopped so the
-next run picks up there.
-
-===========================================================================
-SECTION 3: UI CONSISTENCY CHECK ON CHANGED PAGES
-===========================================================================
-
-After making improvements, do a quick consistency check ONLY on pages you changed.
-
-For each modified page:
-1. Screenshot the page
-2. Compare to /estimates or /pipeline (the reference pages) — do new elements match?
-3. Check: oklch colors, .glass class, .form-input on form elements, consistent buttons
-4. Fix any inconsistencies
-5. Check browser console for errors
-
-Spend no more than 20 minutes here. If it matches the existing style, move on.
-
-===========================================================================
-SECTION 4: WRITE THE OVERNIGHT REPORT
-===========================================================================
-
-Create OVERNIGHT-REPORT.md as a professional email briefing.
-
-REQUIRED SECTIONS:
-
-## Executive Summary
-- 2-3 sentences: what features were improved tonight and what competitors you studied
-
-## Competitor Comparisons & Improvements Made
-For EACH feature you improved:
-- What competitor you studied and what you found (include screenshot URLs if possible)
-- What our version looked like before
-- What you changed to match/exceed the competitor
-- Where to see it in the app
-- Screenshot of the result
-
-## Features Still Behind Competitors
-- Which feature areas you didn't get to yet
-- What the gap looks like (specific, not vague)
-- Recommended priority for next run
-
-## New Features Built (if any)
-- For any net-new features (like QuickBooks, SMS, etc.)
-
-## Bugs Found & Fixed
-- Anything broken you discovered during the inventory
-
-## Where I Stopped
-- Which feature area number you were on when time ran out
-- Next run should start here
-
-DO NOT INCLUDE:
-- Competitor pricing (already documented)
-- Lists of free APIs (already documented)
-- Rehashed gap analysis text
-
-===========================================================================
-SECTION 5: UPDATE HISTORY AND COMMIT
-===========================================================================
-
-1. APPEND to docs/overnight-history.md:
-   ---
-   ## Run: [TODAY'S DATE]
-   ### What was done
-   - List each feature improved and what competitor it was compared to
-   - List any new features built
-   - List any bugs fixed
-   ### Competitor areas covered
-   - Areas completed: [list by number]
-   - Stopped at: Area [N]
-   - Next run should start at: Area [N] or [N+1]
-   ### What was skipped and why
-   ### Lessons learned
-   ---
-
-2. Final build check: cd /c/Projects/stormleads/client && npx vite build
-3. Final commit with all remaining changes
-4. Run: git log --oneline --since="12 hours ago" to verify at least 5 commits
-
-SELF-CHECK before finishing:
-- Did I study at least 3 competitor features with real screenshots/demos?
-- Did I make concrete improvements based on what I found?
-- Did I commit at least 5 times with real code changes?
-- Can I point to specific before/after improvements?
-- Did I avoid re-doing anything on the Done List?
-
-===========================================================================
-INSTRUCTIONS (read these before starting)
-===========================================================================
-
-1. Read MEMORY.md at C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\MEMORY.md
-2. Read ALL memory files in C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\
-3. CREATE A SAFETY CHECKPOINT:
-   a) Run: git add -A && git commit -m "checkpoint: pre-overnight-run $(date +%Y-%m-%d)" --allow-empty
-   b) Run: git tag -f "pre-overnight-$(date +%Y%m%d)"
-   c) Run: git push origin HEAD --force-with-lease
-4. Read docs/overnight-history.md — know what was done before
-5. Read the DONE LIST above — know what NOT to redo
-6. Do Section 1 (App Inventory — 45 min max)
-7. Do Section 2 (Competitor-Driven Improvement — 60%+ of your time)
-8. Do Section 3 (UI Consistency Check — 20 min max)
-9. Do Section 4 (Write report)
-10. Do Section 5 (Update history, final commits)
-
-BROWSER/SCRAPING TOOL:
-Use Firecrawl for ALL web interaction — both competitor sites and our own app at localhost.
-Firecrawl is your primary tool for viewing pages, capturing UI, and comparing features.
-
-LOGIN: Email=brandon, Password=1234, Tenant=waterloo
-APP URL: http://localhost:5173
-BUILD CHECK: cd /c/Projects/stormleads/client && npx vite build
+RESUME SUPPORT:
+Check if C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\overnight_resume.md exists.
+If it does, read it — it has notes from a previous run about where to pick up.
+Before your final turn, UPDATE that file with your current progress so the next run can resume.

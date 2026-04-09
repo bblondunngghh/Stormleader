@@ -1,8 +1,8 @@
 #!/bin/bash
-# StormLeads Overnight Build Script — COMPETITOR-DRIVEN IMPROVEMENT
-# Each stage runs as a separate claude invocation.
-# Stage 1: Inventory our app | Stage 2: Research competitors visually
-# Stage 3: Compare & improve features | Stage 4: UI consistency check | Stage 5: Report
+# StormLeads Overnight QA Script — TEST & FIX
+# Each stage runs as a separate claude invocation using Playwright for browser testing.
+# Stage 1: Backend API testing | Stage 2: Frontend feature testing
+# Stage 3: UI consistency audit | Stage 4: Fix & re-verify | Stage 5: Report
 
 cd /c/Projects/stormleads
 
@@ -23,16 +23,9 @@ git tag -f "overnight-checkpoint-${TODAY}"
 git push origin HEAD --force-with-lease 2>/dev/null
 git push origin "pre-overnight-${TODAY}" --force 2>/dev/null
 
-log "=== OVERNIGHT RUN STARTING (competitor-driven) ==="
+log "=== OVERNIGHT QA RUN STARTING ==="
 
-# --- Ensure Firecrawl is available ---
-if ! command -v firecrawl &>/dev/null; then
-  log "ERROR: firecrawl CLI not found. Run: npm install -g firecrawl-cli"
-  exit 1
-fi
-firecrawl --status >> "$LOG" 2>&1
-
-# --- Start tunnel for local dev server ---
+# --- Start dev servers ---
 cd /c/Projects/stormleads && npm run dev &>/dev/null &
 BACKEND_PID=$!
 sleep 3
@@ -40,19 +33,6 @@ sleep 3
 cd /c/Projects/stormleads/client && npx vite --host 0.0.0.0 &>/dev/null &
 VITE_PID=$!
 sleep 5
-
-# Start localtunnel so Firecrawl (cloud-based) can reach localhost
-npx -y localtunnel --port 5173 > /tmp/localtunnel-output.txt 2>&1 &
-TUNNEL_PID=$!
-sleep 10
-TUNNEL_URL=$(grep -oP 'https://[a-z0-9-]+\.loca\.lt' /tmp/localtunnel-output.txt | head -1)
-
-if [ -z "$TUNNEL_URL" ]; then
-  log "WARNING: Could not start tunnel. Firecrawl won't reach localhost."
-  TUNNEL_URL="http://localhost:5173"
-else
-  log "Tunnel active: $TUNNEL_URL"
-fi
 
 cd /c/Projects/stormleads
 
@@ -105,383 +85,372 @@ run_stage() {
 # ============================================================
 # PREAMBLE — included in every stage
 # ============================================================
-cat > /tmp/overnight-preamble.txt << 'PREAMBLE'
-You are working on the StormLeads application — a roofing CRM and storm lead generation tool.
-Working directory: /c/Projects/stormleads
-Frontend: client/ (React + Vite)
-Backend: server/ (Node/Express + PostgreSQL)
-
-CRITICAL CONSTRAINTS:
-1. ZERO paid APIs. Only free public data sources (NOAA, FEMA NSI, Census, etc.).
-2. ZERO bulk geocoding. Google geocoding API costs real money.
-3. ZERO bulk DB writes. Production DB is Neon free tier (0.5 GB storage limit).
-4. Follow existing patterns: oklch colors, .glass class, dark-mode-first, pool.query() from ../db/pool.js
-5. Build check after EVERY change: cd /c/Projects/stormleads/client && npx vite build
-6. Commit after EVERY completed task with a descriptive message.
-7. All external data must be queried ON-DEMAND at runtime — never bulk import into the database.
-
-WEB/BROWSER TOOLS — USE FIRECRAWL FOR EVERYTHING:
-- Use ONLY the firecrawl skill/CLI for ALL web operations (search, scrape, screenshot, browse).
-- Do NOT use Chrome MCP tools (mcp__claude-in-chrome__*) or Playwright (mcp__plugin_playwright_playwright__*).
-- For web search: firecrawl search "query"
-- For scraping pages: firecrawl scrape <url>
-- For screenshots: firecrawl scrape <url> --format screenshot
-- For interactive pages (login, clicking): firecrawl browser "open <url>", firecrawl browser "snapshot", etc.
-- Store all firecrawl outputs in .firecrawl/ directory.
-- Run independent scrapes in parallel with & and wait.
-
-DONE LIST — DO NOT REDO THESE. THEY ARE FINISHED:
-- Competitor research TEXT: docs/competitor-gap-analysis.md is comprehensive (updated 2026-03-26). DO NOT rewrite it. You may APPEND new findings only.
-- oklch color migration: DONE. DO NOT audit or "find remaining" hex values.
-- CSS animations system: DONE. --transition-fast/normal/slow/spring, modal-scale-in, etc.
-- Security audit: DONE. All routes authed, queries parameterized, rate limiting, hashed tokens. DO NOT re-audit.
-- Modal animations: DONE. All modals have modal-backdrop class and scale-in.
-- FEMA map properties: DO NOT TOUCH. This code is being actively worked on by the developer. ANY changes to FEMA property loading, filtering, IndexedDB caching, or storm swath intersection logic WILL BE REVERTED. Leave it alone completely.
-- Pricing recommendation: DONE. $29/$79/$149 tiers. DO NOT regenerate.
-- PWA manifest/service worker: DONE.
-- Photo annotation: DONE.
-- Canvassing territories: DONE.
-- Subcontractor management: DONE.
-- Google review request: DONE.
-- CSV Lead Import: DONE.
-- FEMA Disaster Declarations API: DONE.
-- Rate limiting + hashed tokens: DONE.
-- Honey Hole Finder (NOAA SWDI hail history): DONE. Full backend + frontend heat map overlay.
-- Lead Scoring: DONE. 7-factor algorithm, badges in LeadList + LeadDetail, score breakdown popup.
-- Census ACS Demographics: DONE. Full service with caching, integrated into lead scoring.
-- Drip Sequence Sending: DONE. 15-min cron, auto-enrollment, step progression, email sending.
-- Financing (Hearth): DONE. Full adapter, webhook handler, Settings tab.
-- Notifications: DONE. 10 categories, multi-channel, preferences, polling.
-
-If you find yourself about to re-do any of the above, STOP. Move on to real improvements.
-
-Read MEMORY.md at C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\MEMORY.md first.
-Read docs/overnight-history.md if it exists to understand prior work.
-
-RESUME SUPPORT:
-Check if C:\Users\brand\.claude\projects\C--Projects-stormleads\memory\overnight_resume.md exists.
-If it does, read it — it has notes from a previous run about where to pick up.
-Before your final turn, UPDATE that file with your current progress so the next run can resume.
-PREAMBLE
+PREAMBLE=$(cat /c/Projects/stormleads/overnight-plan.txt)
 
 # ============================================================
-# STAGE 1: APP INVENTORY — Know what we have
+# STAGE 1: BACKEND API TESTING
 # ============================================================
-cat /tmp/overnight-preamble.txt > /tmp/stage-1-inventory.txt
-cat >> /tmp/stage-1-inventory.txt << STAGE1
+cat > /tmp/stage-1-api-test.txt << STAGE1
+${PREAMBLE}
 
-YOUR TASK: Do a complete functional inventory of the StormLeads app using Firecrawl.
-You must understand what every page does, what works, what's broken, and what's missing.
-This is NOT a visual polish session — it's a functional test.
+YOUR TASK: Systematically test every backend API endpoint. Verify each one returns
+correct data, handles errors properly, and doesn't crash.
 
-The app is accessible at: ${TUNNEL_URL}
-Login credentials: Email=brandon, Password=1234, Tenant=waterloo
+STEP 1: Inventory all API routes
+- Read server/src/routes/*.js to find every endpoint
+- Read server/src/index.js or server/src/app.js to see how routes are mounted
+- Make a complete list of every route: method, path, what it does
 
-STEP 1: Read prior history
-- Read docs/overnight-history.md
-- Read docs/competitor-gap-analysis.md — focus on the Feature Comparison Matrix
-- Run: git log --oneline --since="7 days ago"
+STEP 2: Start testing each endpoint
+Use curl to hit every endpoint. The backend runs on http://localhost:3000.
 
-STEP 2: Log into the app using Firecrawl browser
-- firecrawl browser "open ${TUNNEL_URL}"
-- firecrawl browser "snapshot"
-- Fill login form and submit
-- Verify you're logged in
+First, get an auth token:
+curl -s -X POST http://localhost:3000/api/auth/login \\
+  -H 'Content-Type: application/json' \\
+  -d '{"email":"brandon","password":"1234","tenant":"waterloo"}' | node -e "process.stdin.on('data',d=>console.log(JSON.parse(d).token))"
 
-STEP 3: Scrape and test every page
-For each page, use firecrawl to scrape it and note what exists:
+Then test each endpoint with that token:
+curl -s http://localhost:3000/api/[route] -H 'Authorization: Bearer [TOKEN]'
 
-firecrawl scrape "${TUNNEL_URL}/storm-map" --format screenshot &
-firecrawl scrape "${TUNNEL_URL}/pipeline" --format screenshot &
-firecrawl scrape "${TUNNEL_URL}/leads" --format screenshot &
-firecrawl scrape "${TUNNEL_URL}/estimates" --format screenshot &
-firecrawl scrape "${TUNNEL_URL}/invoices" --format screenshot &
-firecrawl scrape "${TUNNEL_URL}/work-orders" --format screenshot &
-firecrawl scrape "${TUNNEL_URL}/tasks" --format screenshot &
-firecrawl scrape "${TUNNEL_URL}/calendar" --format screenshot &
-firecrawl scrape "${TUNNEL_URL}/reports" --format screenshot &
-firecrawl scrape "${TUNNEL_URL}/canvassing" --format screenshot &
-firecrawl scrape "${TUNNEL_URL}/content-studio" --format screenshot &
-firecrawl scrape "${TUNNEL_URL}/settings" --format screenshot &
-wait
+For each endpoint, verify:
+- Does it return a 200 (or appropriate status)?
+- Does the response have the expected shape/fields?
+- Does it handle missing/bad params gracefully (400, not 500)?
+- Test POST/PUT/PATCH endpoints with valid data
+- Test with missing required fields — should return 400, not crash
 
-For EACH page, note:
-- Does it load? What features are visible?
-- What data/sections does it show?
-- Any obvious broken elements or empty sections?
-- What feels incomplete compared to a competitor's equivalent?
+STEP 3: Document results
+Create /tmp/api-test-results.txt with:
+| Endpoint | Method | Status | Result | Issue |
+For broken endpoints, note the exact error.
 
-STEP 4: Write the inventory
-Create docs/app-inventory-$(date +%Y%m%d).md with a table:
-| Page | Features Present | Works? | Broken/Missing | Competitor Comparison Notes |
+STEP 4: Fix broken endpoints
+For each endpoint that returns 500, crashes, or returns wrong data:
+- Read the route handler code
+- Identify the bug
+- Fix it
+- Re-test to verify the fix
+- Commit: git commit -m "fix(api): [endpoint] [what was wrong]"
 
-Cross-reference with the Feature Comparison Matrix from docs/competitor-gap-analysis.md.
-For each "Missing" or "Worse" item, note whether it's actually been built since the matrix was written.
+DO NOT add new endpoints. DO NOT refactor working code. Only fix what's broken.
 
-STEP 5: Identify the top improvement opportunities
-Based on your inventory, list the top 10 features/pages that need the most improvement
-to match competitors. Be specific: "Pipeline cards don't show revenue" not "Pipeline needs work."
-
-Commit: git add docs/ && git commit -m "docs: app inventory $(date +%Y-%m-%d)"
-
-DELIVERABLE: docs/app-inventory-$(date +%Y%m%d).md committed with complete inventory.
+DELIVERABLE: All API endpoints tested. Broken ones fixed and committed.
 STAGE1
 
 # ============================================================
-# STAGE 2: COMPETITOR VISUAL RESEARCH — Study what they look like
+# STAGE 2: FRONTEND FEATURE TESTING
 # ============================================================
-cat /tmp/overnight-preamble.txt > /tmp/stage-2-competitors.txt
-cat >> /tmp/stage-2-competitors.txt << 'STAGE2'
+cat > /tmp/stage-2-frontend-test.txt << STAGE2
+${PREAMBLE}
 
-YOUR TASK: Visually research how competitors implement their features using Firecrawl.
-The text analysis already exists in docs/competitor-gap-analysis.md — DO NOT rewrite it.
-Your job is to find VISUAL references: screenshots, UI patterns, layouts, workflows.
+YOUR TASK: Systematically test every frontend page and feature using Playwright.
+Verify each page renders correctly, handles user interactions, and has no console errors.
 
-You MUST actually look at competitor UI, not just read text descriptions.
+The app is at: http://localhost:5173
+Login: Email=brandon, Password=1234, Tenant=waterloo
 
-STEP 1: Read the app inventory
-- Read docs/app-inventory-*.md (most recent) to know what our app has
-- Read docs/competitor-gap-analysis.md for the feature list
+STEP 1: Log into the app with Playwright
+- browser_navigate to http://localhost:5173
+- browser_snapshot to see the login form
+- browser_fill_form to enter credentials
+- browser_click to submit
+- browser_snapshot to verify you're on the dashboard
 
-STEP 2: Research each competitor's UI with Firecrawl
-For each competitor, scrape their marketing/product/help pages to find UI screenshots and patterns:
+STEP 2: Test each page systematically
+For EACH page below:
+  a) browser_navigate to the page
+  b) browser_snapshot — verify all elements rendered
+  c) browser_console_messages — check for errors/warnings
+  d) browser_take_screenshot — save visual evidence
+  e) Test interactions: click buttons, open modals, fill forms, submit
+  f) Document what works and what's broken
 
-HailTrace (storm mapping gold standard):
-- firecrawl search "HailTrace storm map screenshot demo" --scrape
-- firecrawl search "HailTrace honey hole finder screenshot" --scrape
-- firecrawl search "HailTrace canvassing map demo" --scrape
-- firecrawl scrape "https://www.hailtrace.com"
-- firecrawl search "HailTrace tutorial YouTube 2025" --scrape
-- firecrawl scrape "https://help.hailtrace.com" (if exists — help sites have annotated screenshots)
+PAGES TO TEST (in order):
 
-JobNimbus (CRM gold standard):
-- firecrawl search "JobNimbus CRM pipeline screenshot demo" --scrape
-- firecrawl search "JobNimbus estimate builder screenshot" --scrape
-- firecrawl search "JobNimbus dashboard analytics screenshot" --scrape
-- firecrawl scrape "https://www.jobnimbus.com/features"
-- firecrawl scrape "https://www.jobnimbus.com/product"
-- firecrawl search "JobNimbus demo walkthrough YouTube 2025" --scrape
+/dashboard — Do stat cards show real data? Funnel chart? Activity feed?
+  Tasks due today? Team leaderboard? Click on stat cards — do they navigate?
 
-RoofLink (production workflow gold standard):
-- firecrawl search "RoofLink roofing CRM screenshot demo" --scrape
-- firecrawl search "RoofLink work order production screenshot" --scrape
-- firecrawl scrape "https://rooflink.com/features" (or similar product pages)
+/storm-map — Does the map render? Storm swaths load? Layer panel toggle each layer.
+  Address search works? Honey Holes layer? DO NOT test FEMA properties.
 
-Rooftops.ai (AI content gold standard):
-- firecrawl search "Rooftops.ai AI creator studio screenshot" --scrape
-- firecrawl search "Rooftops.ai content generation demo" --scrape
-- firecrawl scrape "https://rooftops.ai/products"
+/pipeline — Kanban board renders with stages? Lead cards present?
+  Drag a card between stages. Click a card — does detail open?
 
-Also search review sites for UI descriptions:
-- firecrawl search "JobNimbus review screenshot Capterra G2" --scrape
-- firecrawl search "HailTrace review demo Capterra" --scrape
+/leads — Table renders? Test each filter (status, source, date).
+  Search works? CSV export? Pagination? Sort columns?
 
-STEP 3: Write a visual comparison document
-Create docs/competitor-ui-research.md with findings organized by feature area:
+/leads/:id — Detail page loads? Test every tab.
+  Edit a field and save. Open activity modal. Score breakdown popup.
 
-## Storm Map (compare to HailTrace)
-- How HailTrace displays storm swaths (colors, labels, severity)
-- How their Honey Hole Finder looks
-- What their property popups show
-- What their layer controls look like
+/estimates — List loads? Create new estimate. Builder renders?
+  Add line items. Live preview updates? Save works?
 
-## Pipeline/CRM (compare to JobNimbus)
-- What info JobNimbus kanban cards show
-- Revenue per stage? Lead counts? Conversion rates?
-- Card design and layout
+/invoices — List loads? Create invoice. Record payment.
 
-## Estimates (compare to JobNimbus SumoQuote + RoofLink)
-- How their estimate builders look
-- Line item editing UX
-- Template systems
+/work-orders — Kanban renders? Create work order. Milestones? Checklists?
 
-## Content/Marketing (compare to Rooftops.ai)
-- What their AI creator studio looks like
-- Content types available
-- Generation workflow
+/tasks — List loads? Create task. Filter tabs. Toggle complete.
 
-## Work Orders/Production (compare to RoofLink)
-- Their 7-step workflow visualization
-- Milestone tracking UI
-- Checklist and photo documentation
+/calendar — Renders? Events shown? Click date/event?
 
-## Dashboard/Reports (compare to JobNimbus + RoofLink)
-- What KPIs they show
-- Chart types and layouts
+/reports — Charts render? Date range picker? Report type switching?
 
-For each area, include:
-- What the competitor shows/does (be specific — describe the UI you found)
-- What our app currently shows/does
-- The specific gap to close
-- Recommended improvements (concrete, actionable)
+/canvassing — Map renders? Pin dropping? Territories?
 
-Commit: git add docs/ && git commit -m "docs: competitor UI research $(date +%Y-%m-%d)"
+/content-studio — Page loads? Content type selection? Generation?
 
-DELIVERABLE: docs/competitor-ui-research.md committed with specific, actionable visual comparisons.
+/settings — Test EVERY tab:
+  Profile, Company, Team, Storm Alerts, Notifications,
+  Email/SMTP, Financing, Integrations, Drip Sequences,
+  Custom Fields, Contracts, Reviews
+
+STEP 3: Fix broken features as you find them
+For each broken feature:
+- Read the component code
+- Identify the bug
+- Fix it
+- Build check: cd /c/Projects/stormleads/client && npx vite build
+- Re-test with Playwright
+- Commit: git commit -m "fix(ui): [page] [what was wrong]"
+
+DO NOT add new features. DO NOT improve working features. Only fix what's broken.
+
+DELIVERABLE: All pages tested. Broken features fixed and committed.
 STAGE2
 
 # ============================================================
-# STAGE 3: COMPARE & IMPROVE — The main event (most turns here)
+# STAGE 3: UI CONSISTENCY AUDIT
 # ============================================================
-cat /tmp/overnight-preamble.txt > /tmp/stage-3-improve.txt
-cat >> /tmp/stage-3-improve.txt << STAGE3
+cat > /tmp/stage-3-ui-audit.txt << STAGE3
+${PREAMBLE}
 
-YOUR TASK: Improve StormLeads features to match or exceed competitors. This is the main stage.
-You will read the research from previous stages and make real code changes.
+YOUR TASK: Perform a detailed UI consistency audit across the entire app using Playwright.
+You are checking that every visual element follows the same standards everywhere.
+Fix any inconsistencies you find.
 
-The app is accessible at: ${TUNNEL_URL}
+The app is at: http://localhost:5173
+You should already be logged in from the previous stage. If not, log in first.
 
-STEP 1: Read the research
-- Read docs/app-inventory-*.md (most recent) — what our app has
-- Read docs/competitor-ui-research.md — what competitors do better
-- Read docs/competitor-gap-analysis.md — the feature comparison matrix
+=== AUDIT 1: ICON CONSISTENCY ===
 
-STEP 2: Work through feature areas in order
-For each area in docs/competitor-ui-research.md:
+The app uses @heroicons/react/24/outline EXCLUSIVELY.
+No other icon library, no solid variants, no inline SVGs used as icons.
 
-A) Open our version with Firecrawl:
-   firecrawl scrape "${TUNNEL_URL}/[page]" --format screenshot
+Code check:
+- Read every component file in client/src/components/
+- Verify every icon import is from '@heroicons/react/24/outline'
+- Flag any icon from '@heroicons/react/24/solid' or any other library
+- Flag any inline <svg> being used as a UI icon (decorative SVGs in maps are OK)
 
-B) Read what the competitor research found about this area
+Browser check with Playwright on every page:
+- browser_evaluate: document.querySelectorAll('svg') — count SVG icons
+- Verify they all come from Heroicons (check class names, viewBox patterns)
+- Flag any FontAwesome classes (fa-*), Material Icons, or other foreign icons
 
-C) Make concrete code changes to close the gap:
-   - Add missing data/fields/columns to views
-   - Improve layouts and information density
-   - Add missing interactions or workflows
-   - Build features competitors have that we don't
-   - Make our version more intuitive
+Fix: Replace any non-Heroicon icons with the correct @heroicons/react/24/outline equivalent.
 
-D) Build check: cd /c/Projects/stormleads/client && npx vite build
+=== AUDIT 2: BUTTON CONSISTENCY ===
 
-E) Verify the improvement with Firecrawl:
-   firecrawl scrape "${TUNNEL_URL}/[page]" --format screenshot
+Every button in the app should have consistent sizing, padding, and styling.
 
-F) Commit: git commit -m "feat/fix: [area] [what was improved]"
+Browser check on EVERY page with Playwright browser_evaluate:
+- Collect all <button> elements and their computed styles:
+  height, padding, fontSize, borderRadius, fontWeight
+- Group buttons by apparent purpose:
+  - Primary action buttons (submit, save, create)
+  - Secondary buttons (cancel, back)
+  - Icon-only buttons (toolbar actions)
+  - Danger buttons (delete, remove)
+- Flag any button that deviates from the majority in its group
+- Check: Do all primary buttons use the same background color?
+- Check: Do all buttons have the same border-radius?
+- Check: Do all buttons have consistent padding?
 
-PRIORITY ORDER:
-1. Storm Map improvements (vs HailTrace) — EXCEPT FEMA property code, DO NOT TOUCH
-2. Pipeline/CRM improvements (vs JobNimbus)
-3. Estimates/Invoices improvements (vs SumoQuote/RoofLink)
-4. Work Orders improvements (vs RoofLink)
-5. Dashboard/Reports improvements (vs JobNimbus)
-6. Content Studio improvements (vs Rooftops.ai)
-7. Build net-new missing features:
-   - QuickBooks sync (OAuth scaffolding + Settings Integrations tab + invoice push)
-   - SMS/Twilio two-way messaging (messages table, chat UI in LeadDetail, Twilio scaffolding)
-   - Dashboard loading skeleton
-   - Any other gaps you can close
+Also check the code:
+- Read the CSS (client/src/index.css or similar) for button class definitions
+- Verify components use the standard button classes, not one-off inline styles
 
-RULES:
-- You MUST make at least 5 commits with real code changes
-- You MUST improve at least 3 different feature areas
-- Every change must be motivated by a specific competitor comparison
-- Test every change in the browser via Firecrawl before committing
-- Do NOT re-do anything on the Done List (oklch, security, FEMA, animations, etc.)
-- Quality over quantity — a deeply improved pipeline is better than shallow tweaks to 8 areas
-- If you run out of turns, note where you stopped in overnight_resume.md
+Fix: Standardize any outlier buttons to match the established pattern.
 
-DELIVERABLE: At least 5 commits with real improvements across 3+ feature areas.
+=== AUDIT 3: TOOLBAR & HEADER BAR CONSISTENCY ===
+
+Every page should have a consistent top toolbar/header pattern.
+
+Browser check on every page:
+- browser_navigate to each page, browser_snapshot
+- Check: Does every page have a header/toolbar?
+- Check: Is the header height the same on every page?
+- Check: Is the header layout consistent (title left, actions right)?
+- Check: Do action buttons in headers use the same styling?
+- browser_evaluate to measure header heights across pages — they should match
+
+Fix: Standardize any inconsistent headers.
+
+=== AUDIT 4: SIDEBAR & NAVIGATION CONSISTENCY ===
+
+Check the sidebar navigation:
+- browser_snapshot on multiple pages — is sidebar consistent?
+- Are active states styled the same way?
+- Do all nav items have icons? Are they all Heroicons outline?
+- Is spacing between nav items consistent?
+- Does collapse/expand work correctly?
+
+=== AUDIT 5: FORM ELEMENT CONSISTENCY ===
+
+Every form element must use the .form-input class and match the glassmorphism style.
+
+Browser check on pages with forms (settings, estimates, lead detail, etc.):
+- browser_evaluate: collect all <input>, <select>, <textarea> elements
+- Check computed styles: height, padding, background, border, borderRadius
+- Verify they all use the .form-input class (or equivalent standard class)
+- Flag any native <select> elements — should use CustomSelect component
+- Flag any native <input type="date"> — should use DatePicker component
+- Check label styling is consistent
+
+Fix: Replace non-standard form elements with the project's standard components.
+
+=== AUDIT 6: SPACING & ALIGNMENT ===
+
+Check consistent spacing between sections, cards, and elements:
+- browser_evaluate to measure gaps between cards, sections, form fields
+- Check: Is the gap between cards consistent across pages?
+- Check: Are section headers styled the same way everywhere?
+- Check: Is content padding consistent inside .glass panels?
+
+=== AUDIT 7: MODAL CONSISTENCY ===
+
+Open every modal in the app and verify:
+- All modals use the modal-backdrop class
+- All modals have the scale-in animation
+- Modal header styling is consistent
+- Close button (X) is positioned consistently
+- Modal widths are appropriate and consistent for similar types
+
+=== DOCUMENTING FINDINGS ===
+
+Create /tmp/ui-audit-results.txt with a table:
+| Page | Issue Type | Element | Expected | Actual | Fixed? |
+
+For each fix:
+- Build check: cd /c/Projects/stormleads/client && npx vite build
+- Re-verify with Playwright
+- Commit: git commit -m "fix(ui): [page] [consistency fix description]"
+
+DELIVERABLE: Complete UI audit. All inconsistencies documented. Fixes committed.
 STAGE3
 
 # ============================================================
-# STAGE 4: UI CONSISTENCY CHECK — Only changed pages
+# STAGE 4: REGRESSION VERIFICATION
 # ============================================================
-cat /tmp/overnight-preamble.txt > /tmp/stage-4-ui-check.txt
-cat >> /tmp/stage-4-ui-check.txt << STAGE4
+cat > /tmp/stage-4-verify.txt << STAGE4
+${PREAMBLE}
 
-YOUR TASK: Quick UI consistency check on pages that were modified in Stage 3.
-This is NOT a full-app audit. Only check pages with new commits.
+YOUR TASK: Re-verify all fixes from previous stages and test edge cases.
 
-The app is accessible at: ${TUNNEL_URL}
+STEP 1: Check what was fixed
+Run: git log --oneline overnight-checkpoint-\$(date +%Y%m%d)..HEAD
+Read each commit to understand what was fixed.
 
-STEP 1: Find what changed
-Run: git log --oneline overnight-checkpoint-$(date +%Y%m%d)..HEAD
-Identify which pages/components were modified.
+STEP 2: Re-test every fix with Playwright
+For each fix commit:
+- Navigate to the affected page
+- browser_snapshot and browser_take_screenshot
+- Verify the fix actually works visually
+- browser_console_messages — no new errors
+- Test related functionality to make sure the fix didn't break something else
 
-STEP 2: For each modified page
-- firecrawl scrape "${TUNNEL_URL}/[page]" --format screenshot
-- Also scrape the reference page for comparison:
-  firecrawl scrape "${TUNNEL_URL}/estimates" --format screenshot
-- Compare: Do new elements match the existing glassmorphism style?
-  - oklch colors (no hex or rgba in new CSS)
-  - .glass class on panels
-  - .form-input class on all form elements
-  - Consistent button styling
-  - Proper spacing and alignment
-- Check the code directly: read the component file, verify CSS patterns
-- Fix any inconsistencies
+STEP 3: Test edge cases
+- Empty states: What happens with no leads? No estimates? No tasks?
+- Form validation: Submit forms with empty required fields
+- Navigation: All sidebar links work? Browser back/forward?
+- Responsive: browser_resize to mobile width (375px) — does it degrade gracefully?
+- Build check: cd /c/Projects/stormleads/client && npx vite build
 
-STEP 3: Check for console errors
-- Read the component code for obvious issues
-- Verify the build passes: cd /c/Projects/stormleads/client && npx vite build
+STEP 4: Fix any remaining issues
+- Same process: identify bug, fix, build check, test, commit
+- Commit: git commit -m "fix: [what was wrong]"
 
-Commit any fixes: git commit -m "fix(ui): [page] [consistency fix]"
+STEP 5: Final build verification
+- cd /c/Projects/stormleads/client && npx vite build
+- If it fails, fix until it passes
 
-Spend NO MORE than 20 minutes here. If it matches the style, move on.
-
-DELIVERABLE: Modified pages verified for style consistency, fixes committed if needed.
+DELIVERABLE: All fixes verified. Edge cases tested. Build passes clean.
 STAGE4
 
 # ============================================================
-# STAGE 5: REPORT — What was improved and where we stopped
+# STAGE 5: QA REPORT
 # ============================================================
-cat /tmp/overnight-preamble.txt > /tmp/stage-5-report.txt
-cat >> /tmp/stage-5-report.txt << 'STAGE5'
+cat > /tmp/stage-5-report.txt << 'STAGE5'
+${PREAMBLE}
 
-YOUR TASK: Write the overnight report and update history. This is your ONLY task.
+YOUR TASK: Write the QA test report and send it via email. This is your ONLY task.
 
 1. Review ALL work done tonight:
    git log --oneline overnight-checkpoint-$(date +%Y%m%d)..HEAD
 
-2. Read docs/app-inventory-*.md and docs/competitor-ui-research.md for context.
+2. Read /tmp/api-test-results.txt, /tmp/frontend-test-results.txt,
+   and /tmp/ui-audit-results.txt if they exist.
 
 3. Create OVERNIGHT-REPORT.md with these sections:
 
-   ## Executive Summary
-   2-3 sentences: what features were improved tonight, what competitors were studied.
+   ## QA Test Summary
+   Total pages tested, total API endpoints tested, total bugs found, total bugs fixed.
 
-   ## Competitor Comparisons & Improvements Made
-   For EACH feature area you improved:
-   - What competitor you studied and what you found
-   - What our version looked like before
-   - What you changed to match/exceed them
-   - Where to see it in the app
+   ## Backend API Test Results
+   For each endpoint category (auth, CRM, estimates, etc.):
+   - How many endpoints tested
+   - How many passed / failed
+   - What was fixed (with commit hashes)
 
-   ## New Features Built
-   For any net-new features (QuickBooks, SMS, etc.):
-   - What it does, where to find it, current status (working / needs API key)
+   ## Frontend Feature Test Results
+   For each page:
+   - What was tested
+   - What passed
+   - What was broken and how it was fixed
+   - What still needs attention (if anything)
 
-   ## Features Still Behind Competitors
-   - Which feature areas weren't reached yet
-   - Specific gaps remaining (not vague)
-   - Priority for next run
+   ## UI Consistency Audit Results
+   For each audit category:
+   - Icons: Any non-Heroicon icons found? Fixed?
+   - Buttons: Any sizing/styling inconsistencies? Fixed?
+   - Toolbars/Headers: Consistent across pages?
+   - Sidebar/Nav: Any issues?
+   - Forms: Any non-standard elements? Fixed?
+   - Spacing: Any alignment issues? Fixed?
+   - Modals: All consistent?
 
-   ## Where I Stopped
-   - Which feature area was in progress when time ran out
-   - Next run should start here
+   ## Bugs Fixed (numbered list)
+   1. [Page/Endpoint] — [Bug description] — [How fixed]
 
-   DO NOT INCLUDE: Competitor pricing rehash, free API lists, gap analysis text,
-   anything from the Done List. Only report NEW work from tonight.
+   ## Known Issues (Not Fixed)
+   Anything broken but couldn't be fixed (needs API key, DB migration, design decision).
 
-   Write it like a professional CEO briefing — NO code snippets, NO file paths.
+   ## Test Coverage Gaps
+   Any areas that couldn't be fully tested and why.
+
+   Write it like a professional QA report — clear, factual, no fluff.
 
 4. APPEND to docs/overnight-history.md (NEVER overwrite):
    ---
-   ## Run: $(date +%Y-%m-%d)
-   ### What was done
-   - List each feature improved and what competitor it was compared to
-   - List any new features built
-   ### Competitor areas covered
-   - Areas completed: [list]
-   - Stopped at: [area]
-   - Next run should start at: [area]
-   ### What was skipped and why
-   ### Lessons learned
+   ## QA Run: $(date +%Y-%m-%d)
+   ### Test Results
+   - Pages tested: [count]
+   - API endpoints tested: [count]
+   - Bugs found: [count]
+   - Bugs fixed: [count]
+   - UI inconsistencies found: [count]
+   - UI inconsistencies fixed: [count]
+   ### Fixes Made
+   - [list each fix]
+   ### UI Consistency Fixes
+   - [list each UI fix]
+   ### Known Issues Remaining
+   - [list any unfixed issues]
    ---
 
-5. Update overnight_resume.md with current progress for the next run.
+5. Update overnight_resume.md with current progress.
 
-6. Commit: git add OVERNIGHT-REPORT.md docs/ && git commit -m "docs: overnight report $(date +%Y-%m-%d)"
+6. Commit: git add OVERNIGHT-REPORT.md docs/ && git commit -m "docs: QA report $(date +%Y-%m-%d)"
 
 7. Final build check: cd /c/Projects/stormleads/client && npx vite build
 
@@ -492,27 +461,27 @@ STAGE5
 # RUN ALL STAGES
 # ============================================================
 
-log "Stage 1: App Inventory"
-run_stage "s1-inventory" 40 /tmp/stage-1-inventory.txt
+log "Stage 1: Backend API Testing"
+run_stage "s1-api-test" 50 /tmp/stage-1-api-test.txt
 COMMITS_AFTER_S1=$(git log --oneline "overnight-checkpoint-${TODAY}"..HEAD 2>/dev/null | wc -l)
 log "  Commits so far: $COMMITS_AFTER_S1"
 
-log "Stage 2: Competitor Visual Research"
-run_stage "s2-competitors" 50 /tmp/stage-2-competitors.txt
+log "Stage 2: Frontend Feature Testing"
+run_stage "s2-frontend-test" 80 /tmp/stage-2-frontend-test.txt
 COMMITS_AFTER_S2=$(git log --oneline "overnight-checkpoint-${TODAY}"..HEAD 2>/dev/null | wc -l)
 log "  Commits so far: $COMMITS_AFTER_S2"
 
-log "Stage 3: Compare & Improve (main stage)"
-run_stage "s3-improve" 80 /tmp/stage-3-improve.txt
+log "Stage 3: UI Consistency Audit"
+run_stage "s3-ui-audit" 60 /tmp/stage-3-ui-audit.txt
 COMMITS_AFTER_S3=$(git log --oneline "overnight-checkpoint-${TODAY}"..HEAD 2>/dev/null | wc -l)
 log "  Commits so far: $COMMITS_AFTER_S3"
 
-log "Stage 4: UI Consistency Check"
-run_stage "s4-ui-check" 30 /tmp/stage-4-ui-check.txt
+log "Stage 4: Regression Verification"
+run_stage "s4-verify" 40 /tmp/stage-4-verify.txt
 COMMITS_AFTER_S4=$(git log --oneline "overnight-checkpoint-${TODAY}"..HEAD 2>/dev/null | wc -l)
 log "  Commits so far: $COMMITS_AFTER_S4"
 
-log "Stage 5: Report"
+log "Stage 5: QA Report"
 run_stage "s5-report" 30 /tmp/stage-5-report.txt
 FINAL_COMMITS=$(git log --oneline "overnight-checkpoint-${TODAY}"..HEAD 2>/dev/null | wc -l)
 log "  Final commit count: $FINAL_COMMITS"
@@ -560,9 +529,9 @@ const commitCount = commits.split('\\n').filter(l => l.trim()).length;
 const html = \`
 <div style=\"font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:700px;margin:0 auto;background:#111827;color:#d1d5db;padding:40px;border-radius:16px;\">
   <div style=\"text-align:center;margin-bottom:32px;\">
-    <h1 style=\"color:#0ea5e9;margin:0;font-size:28px;\">StormLeads Overnight Report</h1>
+    <h1 style=\"color:#0ea5e9;margin:0;font-size:28px;\">StormLeads QA Report</h1>
     <p style=\"color:#6b7280;margin:8px 0 0;font-size:14px;\">\${today}</p>
-    <p style=\"color:#22c55e;margin:4px 0 0;font-size:12px;\">COMPETITOR-DRIVEN IMPROVEMENT (5 stages)</p>
+    <p style=\"color:#22c55e;margin:4px 0 0;font-size:12px;\">OVERNIGHT QA TEST & FIX RUN (5 stages)</p>
     <div style=\"display:flex;justify-content:center;gap:24px;margin-top:12px;\">
       <div style=\"text-align:center;\">
         <div style=\"color:#22c55e;font-size:24px;font-weight:bold;\">\${totalTurns}</div>
@@ -570,7 +539,7 @@ const html = \`
       </div>
       <div style=\"text-align:center;\">
         <div style=\"color:#f59e0b;font-size:24px;font-weight:bold;\">\${commitCount}</div>
-        <div style=\"color:#6b7280;font-size:11px;text-transform:uppercase;\">Commits</div>
+        <div style=\"color:#6b7280;font-size:11px;text-transform:uppercase;\">Fixes</div>
       </div>
       <div style=\"text-align:center;\">
         <div style=\"color:#ef4444;font-size:24px;font-weight:bold;\">\$\${totalCost}</div>
@@ -607,7 +576,7 @@ fetch('https://api.resend.com/emails', {
   body: JSON.stringify({
     from: 'StormLeads <reports@accessvaletparking.com>',
     to: ['brandon@accessvaletparking.com'],
-    subject: 'StormLeads Overnight Report — ' + totalTurns + ' turns, ' + commitCount + ' commits — ' + today,
+    subject: 'StormLeads QA Report \u2014 ' + commitCount + ' fixes \u2014 ' + today,
     html: html
   })
 }).then(r => r.json()).then(d => {
@@ -616,8 +585,7 @@ fetch('https://api.resend.com/emails', {
 " "$GIT_SUMMARY" "$TODAY_PRETTY" "$TODAY" "$TOTAL_TURNS" "$TOTAL_COST" "$STAGE_RESULTS"
 
 # --- Cleanup ---
-[ -n "$TUNNEL_PID" ] && kill $TUNNEL_PID 2>/dev/null
 [ -n "$VITE_PID" ] && kill $VITE_PID 2>/dev/null
 [ -n "$BACKEND_PID" ] && kill $BACKEND_PID 2>/dev/null
 
-log "=== OVERNIGHT RUN FINISHED ==="
+log "=== OVERNIGHT QA RUN FINISHED ==="
