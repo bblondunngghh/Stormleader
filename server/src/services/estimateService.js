@@ -563,7 +563,7 @@ function calculateTotals(lineItems, taxRate, discountType, discountValue) {
   }
 
   const taxable = Math.max(0, subtotal - discount);
-  const tax_amount = taxable * (Number(taxRate) || 0);
+  const tax_amount = taxable * ((Number(taxRate) || 0) / 100);
   const total = taxable + tax_amount;
 
   return {
