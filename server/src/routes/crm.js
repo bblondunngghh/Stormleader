@@ -120,14 +120,14 @@ router.post('/leads/quick', async (req, res, next) => {
         tenant_id, assigned_rep_id,
         stage, priority, estimated_value, source,
         contact_name, contact_phone, contact_email,
-        address, city, property_state, property_zip
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+        address, city
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
       RETURNING *`,
       [
         req.tenantId, req.body.assigned_rep_id || null,
         stage || 'new', priority || 'warm', ev, source || 'manual',
         contact_name || null, contact_phone || null, contact_email || null,
-        address || null, city || null, state || null, zip || null,
+        address || null, city || null,
       ]
     );
 
