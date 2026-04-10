@@ -702,3 +702,40 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Email send requires SMTP configuration
 - Calendar event creation not tested
 - QuickBooks, Twilio, Stripe integrations not implemented
+
+---
+
+## QA Run: 2026-04-10
+
+### Test Results
+- Pages tested: 5 (SettingsView, WorkOrdersView, ImportLeadsModal, StormCatalog, LeadDetail)
+- API endpoints tested: ~190
+- Bugs found: 6
+- Bugs fixed: 6
+- UI inconsistencies found: 9
+- UI inconsistencies fixed: 9
+
+### Fixes Made
+- GET /api/storms/:id — 500 on invalid UUID, added regex validation (ebf30cf)
+- PATCH /api/crm/leads/:id — 500 on invalid priority/stage enums, added whitelist validation (ebf30cf)
+- PATCH /api/notifications/preferences — 500 on invalid notification_type, added enum validation (ebf30cf)
+- POST /api/crm/work-orders — 500 on missing title, added required field check (ebf30cf)
+- Replaced undefined btn/btn-primary/btn-secondary classes with auth-btn/quick-action-btn across 4 components (0d76364)
+- Replaced native date input with DatePicker component in LeadDetail custom fields (0d76364)
+
+### UI Consistency Fixes
+- SettingsView SMTP: btn btn-primary -> auth-btn on save + test buttons
+- SettingsView Financing: inline-styled inputs -> form-input class on API key + merchant ID
+- WorkOrdersView: btn btn-primary -> auth-btn on add milestone button
+- ImportLeadsModal: btn-primary -> auth-btn on import + done buttons
+- StormCatalog: btn/btn-primary/btn-secondary -> auth-btn/quick-action-btn on time range pills
+- LeadDetail: native date input -> DatePicker component for custom date fields
+- LeadDetail: inline-styled text/number inputs -> form-input class for custom fields
+
+### Known Issues Remaining
+- Admin panel requires super_admin role to test
+- Pipeline drag-and-drop not exercised (no browser automation)
+- CSV export/import not verified end-to-end
+- Email send requires SMTP configuration
+- Calendar event creation not tested via browser
+- QuickBooks, Twilio, Stripe integrations not implemented
