@@ -66,6 +66,10 @@ router.patch('/preferences', async (req, res, next) => {
   try {
     const { notification_type, ...updates } = req.body;
     if (!notification_type) return res.status(400).json({ error: 'notification_type required' });
+    const validTypes = ['lead_assigned', 'lead_status_changed', 'task_due_soon', 'task_overdue', 'estimate_viewed', 'estimate_accepted', 'estimate_declined', 'storm_alert', 'new_storm_leads', 'mention'];
+    if (!validTypes.includes(notification_type)) {
+      return res.status(400).json({ error: `notification_type must be one of: ${validTypes.join(', ')}` });
+    }
     const pref = await notificationService.updatePreference(req.user.id, notification_type, updates);
     res.json(pref);
   } catch (err) {

@@ -50,6 +50,9 @@ router.get('/:id', async (req, res, next) => {
 // Create work order
 router.post('/', async (req, res, next) => {
   try {
+    if (!req.body.title) {
+      return res.status(400).json({ error: 'title is required' });
+    }
     const wo = await workOrderService.createWorkOrder(req.tenantId, req.body);
     res.status(201).json(wo);
   } catch (err) {

@@ -162,6 +162,14 @@ router.get('/leads/:id', async (req, res, next) => {
 // PATCH /api/crm/leads/:id — Update lead
 router.patch('/leads/:id', async (req, res, next) => {
   try {
+    const validPriorities = ['hot', 'warm', 'cold'];
+    if (req.body.priority && !validPriorities.includes(req.body.priority)) {
+      return res.status(400).json({ error: `priority must be one of: ${validPriorities.join(', ')}` });
+    }
+    const validStages = ['new', 'contacted', 'appt_set', 'inspected', 'estimate_sent', 'sold', 'lost', 'negotiating', 'in_production', 'on_hold'];
+    if (req.body.stage && !validStages.includes(req.body.stage)) {
+      return res.status(400).json({ error: `stage must be one of: ${validStages.join(', ')}` });
+    }
     // Fetch old stage before update for automation triggers
     let oldStage = null;
     if (req.body.stage) {
