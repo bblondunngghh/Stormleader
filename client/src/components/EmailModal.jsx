@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { logActivity } from '../api/crm';
 import { IconX } from './Icons';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 const tones = [
   { key: 'friendly', label: 'Friendly' },
@@ -213,9 +214,7 @@ function ToneDropdown({ tone, onChange }) {
           }}
         >
           {selected?.label || 'Select tone'}
-          <svg style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)' }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="oklch(0.55 0.01 260)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
+          <ChevronDownIcon style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', width: 12, height: 12, color: 'oklch(0.55 0.01 260)', strokeWidth: 2.5 }} />
         </button>
         {open && (
           <div style={{

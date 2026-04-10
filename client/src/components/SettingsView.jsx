@@ -13,6 +13,7 @@ import client from '../api/client';
 import * as onboardingApi from '../api/onboarding';
 import * as paymentsApi from '../api/payments';
 import { showToast } from './Toast';
+import { CheckIcon, ArrowRightIcon, CreditCardIcon, WalletIcon, PlusIcon } from '@heroicons/react/24/outline';
 import AutomationSettings from './AutomationSettings';
 import DripSequences from './DripSequences';
 import CustomSelect from './CustomSelect';
@@ -505,11 +506,7 @@ function BillingTab() {
                 </div>
                 {plan.features?.map((f, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-xs)' }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)"
-                      strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                      style={{ flexShrink: 0, marginTop: 2 }}>
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
+                    <CheckIcon style={{ width: 12, height: 12, flexShrink: 0, marginTop: 2, stroke: 'var(--accent-green)', strokeWidth: 2.5 }} />
                     <span style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.4 }}>{f}</span>
                   </div>
                 ))}
@@ -750,9 +747,7 @@ function BillingTab() {
                   <div style={{ fontSize: 16, fontWeight: 700, textTransform: 'capitalize' }}>{oldPlan?.name || currentTier}</div>
                   <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>${oldPrice}/mo</div>
                 </div>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
-                </svg>
+                <ArrowRightIcon style={{ width: 20, height: 20, color: 'var(--text-muted)' }} />
                 <div style={{ flex: 1, textAlign: 'center' }}>
                   <div style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>New</div>
                   <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--accent-blue)', textTransform: 'capitalize' }}>{newPlan.name}</div>
@@ -926,9 +921,7 @@ function PaymentsTab() {
                 background: 'oklch(0.75 0.18 145 / 0.15)', border: '1px solid oklch(0.75 0.18 145 / 0.3)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="oklch(0.75 0.18 145)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
+                <CheckIcon style={{ width: 20, height: 20, color: 'oklch(0.75 0.18 145)', strokeWidth: 2.5 }} />
               </div>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: 'oklch(0.75 0.18 145)' }}>Stripe Connected</div>
@@ -965,10 +958,7 @@ function PaymentsTab() {
                 width: 'auto', padding: '12px 28px', fontSize: 14, fontWeight: 700,
                 background: 'oklch(0.55 0.15 270)', display: 'flex', alignItems: 'center', gap: 8,
               }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-                <line x1="1" y1="10" x2="23" y2="10" />
-              </svg>
+              <CreditCardIcon style={{ width: 18, height: 18 }} />
               {onboarding ? 'Opening Stripe...' : 'Connect with Stripe'}
             </button>
           </div>
@@ -984,10 +974,7 @@ function PaymentsTab() {
             background: 'oklch(0.14 0.02 260 / 0.5)', border: '1px solid var(--glass-border)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 'var(--space-md)' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="oklch(0.70 0.15 250)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-                <line x1="1" y1="10" x2="23" y2="10" />
-              </svg>
+              <CreditCardIcon style={{ width: 18, height: 18, color: 'oklch(0.70 0.15 250)' }} />
               <div style={{ fontSize: 13, fontWeight: 700, color: 'oklch(0.70 0.15 250)' }}>Credit Card</div>
             </div>
             <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)' }}>2.9% + $0.25</div>
@@ -998,11 +985,7 @@ function PaymentsTab() {
             background: 'oklch(0.14 0.02 260 / 0.5)', border: '1px solid var(--glass-border)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 'var(--space-md)' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="oklch(0.75 0.18 145)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
-                <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
-                <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
-              </svg>
+              <WalletIcon style={{ width: 18, height: 18, color: 'oklch(0.75 0.18 145)' }} />
               <div style={{ fontSize: 13, fontWeight: 700, color: 'oklch(0.75 0.18 145)' }}>ACH / Bank Transfer</div>
             </div>
             <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)' }}>0.8%</div>
@@ -1170,7 +1153,7 @@ function TeamTab({ currentUserId }) {
                 border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
               }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <PlusIcon style={{ width: 14, height: 14, strokeWidth: 2.5 }} />
               Add Member
             </button>
           )}

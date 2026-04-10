@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react'
 import { useSearchParams } from 'react-router-dom';
 import { getLeads, bulkAssign, bulkStatus, getTeamMembers } from '../api/crm';
 const LeadDetail = lazy(() => import('./LeadDetail'));
-import { IconSearch, IconDownload, IconFilter, IconX, IconUpload } from './Icons';
+import { IconSearch, IconDownload, IconFilter, IconX, IconUpload, IconBookmark } from './Icons';
 import CustomSelect from './CustomSelect';
 import ImportLeadsModal from './ImportLeadsModal';
 
@@ -428,9 +428,7 @@ export default function LeadList() {
             style={{ cursor: 'pointer', background: 'oklch(0.72 0.19 250 / 0.08)', borderColor: 'oklch(0.72 0.19 250 / 0.2)' }}
             onClick={() => applyPreset(preset)}
           >
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.6 }}>
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-            </svg>
+            <IconBookmark width={10} height={10} style={{ opacity: 0.6, strokeWidth: 2.5 }} />
             {preset.name}
             <button
               onClick={(e) => { e.stopPropagation(); deletePreset(preset.id); }}
@@ -450,9 +448,7 @@ export default function LeadList() {
               display: 'flex', alignItems: 'center', gap: 4,
             }}
           >
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-            </svg>
+            <IconBookmark width={10} height={10} style={{ strokeWidth: 2.5 }} />
             Save Filter
           </button>
         )}

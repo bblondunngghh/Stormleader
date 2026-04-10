@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { CheckIcon } from '@heroicons/react/24/outline';
 
 const STAGE_LABELS = {
   new: 'Lead Received',
@@ -125,9 +126,7 @@ export default function ClientStatusPage() {
                   transform: isCurrent ? 'scale(1.3)' : 'scale(1)',
                 }}>
                   {isPast && (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="oklch(1 0 0)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
+                    <CheckIcon style={{ width: 12, height: 12, color: 'oklch(1 0 0)', strokeWidth: 3 }} />
                   )}
                 </div>
                 {/* Label + date */}
@@ -209,9 +208,7 @@ export default function ClientStatusPage() {
                         : 'oklch(0.4 0 0)',
                     }}>
                       {ms.completed && (
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="oklch(1 0 0)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
+                        <CheckIcon style={{ width: 10, height: 10, color: 'oklch(1 0 0)', strokeWidth: 3 }} />
                       )}
                     </div>
                     <span style={{

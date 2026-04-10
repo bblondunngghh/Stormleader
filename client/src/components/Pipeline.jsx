@@ -4,7 +4,7 @@ import { getActivities } from '../api/crm';
 import { showToast } from './Toast';
 import { IconRefresh, IconPlusCircle, IconPhone, IconCalendar, IconFilter, IconX, IconChevronDown, IconEyeOff, IconEye, IconMail } from './Icons';
 import CustomSelect from './CustomSelect';
-import { UserCircleIcon, FireIcon, SunIcon, CloudIcon, ArrowsPointingOutIcon, CurrencyDollarIcon, WrenchScrewdriverIcon, BanknotesIcon } from '@heroicons/react/24/outline';
+import { UserCircleIcon, FireIcon, SunIcon, CloudIcon, ArrowsPointingOutIcon, CurrencyDollarIcon, WrenchScrewdriverIcon, BanknotesIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 const LeadDetail = lazy(() => import('./LeadDetail'));
 const CreateLeadModal = lazy(() => import('./CreateLeadModal'));
 

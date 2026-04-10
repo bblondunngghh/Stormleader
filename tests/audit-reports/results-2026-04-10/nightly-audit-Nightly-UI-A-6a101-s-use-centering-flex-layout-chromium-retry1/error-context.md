@@ -1,0 +1,310 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - complementary [ref=e4]:
+      - img "StormPipe" [ref=e6] [cursor=pointer]
+      - navigation [ref=e7]:
+        - button "Dashboard" [ref=e8] [cursor=pointer]:
+          - img [ref=e9]
+          - text: Dashboard
+        - button "Storm Map" [ref=e11] [cursor=pointer]:
+          - img [ref=e12]
+          - text: Storm Map
+        - button "Storm Archive" [ref=e14] [cursor=pointer]:
+          - img [ref=e15]
+          - text: Storm Archive
+        - button "Pipeline" [ref=e17] [cursor=pointer]:
+          - img [ref=e18]
+          - text: Pipeline
+        - button "Leads" [ref=e20] [cursor=pointer]:
+          - img [ref=e21]
+          - text: Leads
+        - button "Jobs" [ref=e24] [cursor=pointer]:
+          - text: Jobs
+          - img [ref=e25]
+        - button "Finance" [ref=e28] [cursor=pointer]:
+          - text: Finance
+          - img [ref=e29]
+        - button "Operations" [ref=e32] [cursor=pointer]:
+          - text: Operations
+          - img [ref=e33]
+      - button "Settings" [ref=e35] [cursor=pointer]:
+        - img [ref=e36]
+        - text: Settings
+      - button "Admin" [ref=e38] [cursor=pointer]:
+        - img [ref=e39]
+        - text: Admin
+      - generic [ref=e41]:
+        - generic [ref=e42]: BA
+        - generic [ref=e43]:
+          - generic [ref=e44]: Brandon A.
+          - generic [ref=e45]: super_admin
+        - button "Sign out" [ref=e46] [cursor=pointer]:
+          - img [ref=e47]
+    - generic [ref=e49]:
+      - banner [ref=e50]:
+        - heading "Pipeline" [level=1] [ref=e51]
+        - generic [ref=e52]:
+          - img
+          - textbox "Search leads, contacts... (Ctrl+K)" [ref=e53]
+        - generic [ref=e54]:
+          - button "Help" [ref=e56] [cursor=pointer]:
+            - img [ref=e57]
+          - button "Notifications" [ref=e60] [cursor=pointer]:
+            - img [ref=e61]
+          - button "enterprise" [ref=e63] [cursor=pointer]:
+            - img [ref=e64]
+            - generic [ref=e66]: enterprise
+      - generic [ref=e67]:
+        - generic [ref=e68]:
+          - generic [ref=e69]:
+            - button "Sales" [ref=e70] [cursor=pointer]:
+              - img [ref=e71]
+              - text: Sales
+            - button "Production" [ref=e73] [cursor=pointer]:
+              - img [ref=e74]
+              - text: Production
+            - button "Billing" [ref=e76] [cursor=pointer]:
+              - img [ref=e77]
+              - text: Billing
+          - img [ref=e80]
+          - button "All Priorities" [ref=e83] [cursor=pointer]:
+            - generic [ref=e84]: All Priorities
+            - img [ref=e85]
+          - button "All Sources" [ref=e88] [cursor=pointer]:
+            - generic [ref=e89]: All Sources
+            - img [ref=e90]
+          - button "All Reps" [ref=e93] [cursor=pointer]:
+            - generic [ref=e94]: All Reps
+            - img [ref=e95]
+          - button "Refresh" [ref=e98] [cursor=pointer]:
+            - img [ref=e99]
+          - button "Add Lead" [active] [ref=e101] [cursor=pointer]:
+            - img [ref=e102]
+            - text: Add Lead
+        - generic [ref=e105]:
+          - generic [ref=e106]:
+            - generic [ref=e107]:
+              - generic [ref=e109]: New
+              - generic [ref=e110]: "7"
+              - generic [ref=e111]: $5.0K
+              - button "Collapse column" [ref=e112] [cursor=pointer]:
+                - img [ref=e113]
+              - img [ref=e115]
+            - generic [ref=e117]:
+              - generic [ref=e118] [cursor=pointer]:
+                - img [ref=e121]
+                - generic [ref=e123]:
+                  - generic [ref=e124]: Address
+                  - generic [ref=e125]: 456 Test Ave
+                - generic [ref=e126]:
+                  - generic [ref=e127]:
+                    - generic "0 days in this stage" [ref=e128]: Today
+                    - 'generic "Source: canvassing" [ref=e129]': canvassing
+                  - generic [ref=e130]: BA
+              - generic [ref=e131] [cursor=pointer]:
+                - generic [ref=e132]:
+                  - img [ref=e134]
+                  - generic [ref=e136]: $1.0K
+                - generic [ref=e137]:
+                  - generic [ref=e138]: Address
+                  - generic [ref=e139]: 345 Tomlinson , Sour Lake, Tx 77659
+                  - generic [ref=e140]: Sour Lake
+                - generic [ref=e141]:
+                  - generic [ref=e142]: Owner
+                  - text: Hannah Baisdon
+                - generic [ref=e144]:
+                  - generic "0 days in this stage" [ref=e145]: Today
+                  - 'generic "Lead score: 17/100" [ref=e146]': "17"
+                  - 'generic "Source: storm_map" [ref=e147]': storm map
+              - generic [ref=e148] [cursor=pointer]:
+                - img [ref=e151]
+                - generic [ref=e153]:
+                  - generic [ref=e154]: Address
+                  - generic [ref=e155]: 4610 Hardwood Lane
+                  - generic [ref=e156]: Beaumont
+                - generic [ref=e158]:
+                  - generic "0 days in this stage" [ref=e159]: Today
+                  - 'generic "Lead score: 11/100" [ref=e160]': "11"
+                  - 'generic "Source: fema_nsi" [ref=e161]': fema nsi
+              - generic [ref=e162] [cursor=pointer]:
+                - img [ref=e165]
+                - generic [ref=e167]:
+                  - generic [ref=e168]: Address
+                  - generic [ref=e169]: 10409 Peck Road
+                  - generic [ref=e170]: Hardin
+                - generic [ref=e172]:
+                  - generic "0 days in this stage" [ref=e173]: Today
+                  - 'generic "Lead score: 11/100" [ref=e174]': "11"
+                  - 'generic "Source: fema_nsi" [ref=e175]': fema nsi
+              - generic [ref=e176] [cursor=pointer]:
+                - generic [ref=e177]:
+                  - img [ref=e179]
+                  - generic [ref=e181]: $400
+                - generic [ref=e182]:
+                  - generic [ref=e183]: Address
+                  - generic [ref=e184]: 1510 Fm 3513 , Lumberton, Tx 77657
+                  - generic [ref=e185]: Lumberton
+                - generic [ref=e186]:
+                  - generic [ref=e187]: Owner
+                  - text: Raymond L Tynes
+                - generic [ref=e189]:
+                  - generic "0 days in this stage" [ref=e190]: Today
+                  - 'generic "Lead score: 13/100" [ref=e191]': "13"
+                  - 'generic "Source: storm_map" [ref=e192]': storm map
+              - generic [ref=e193] [cursor=pointer]:
+                - generic [ref=e194]:
+                  - img [ref=e196]
+                  - generic [ref=e199]: $3.6K
+                - generic [ref=e200]:
+                  - generic [ref=e201]: Address
+                  - generic [ref=e202]: 165 Hilda , Lumberton, Tx 77657
+                  - generic [ref=e203]: Lumberton
+                - generic [ref=e204]:
+                  - generic [ref=e205]: Owner
+                  - text: Christopher & Amber Lawrence
+                - generic [ref=e207]:
+                  - generic "0 days in this stage" [ref=e208]: Today
+                  - 'generic "Lead score: 22/100" [ref=e209]': "22"
+                  - 'generic "Source: storm_map" [ref=e210]': storm map
+              - generic [ref=e211] [cursor=pointer]:
+                - img [ref=e214]
+                - generic [ref=e217]:
+                  - generic [ref=e218]: Address
+                  - generic [ref=e219]: 1250 Condon
+                  - generic [ref=e220]: Beaumont
+                - generic [ref=e222]:
+                  - generic "0 days in this stage" [ref=e223]: Today
+                  - 'generic "Lead score: 10/100" [ref=e224]': "10"
+                  - 'generic "Source: fema_nsi" [ref=e225]': fema nsi
+          - generic "14% of New leads are in Contacted" [ref=e227]: 14%
+          - generic [ref=e229]:
+            - generic [ref=e230]:
+              - generic [ref=e232]: Contacted
+              - generic [ref=e233]: "1"
+              - generic [ref=e234]: $9.4K
+              - button "Collapse column" [ref=e235] [cursor=pointer]:
+                - img [ref=e236]
+              - img [ref=e238]
+            - generic [ref=e241] [cursor=pointer]:
+              - generic [ref=e242]:
+                - img [ref=e244]
+                - generic [ref=e246]: $9.4K
+              - generic [ref=e247]:
+                - generic [ref=e248]: Address
+                - generic [ref=e249]: 4360 Thomas Court
+                - generic [ref=e250]: Beaumont
+              - generic [ref=e252]:
+                - generic "0 days in this stage" [ref=e253]: Today
+                - 'generic "Lead score: 18/100" [ref=e254]': "18"
+                - 'generic "Source: fema_nsi" [ref=e255]': fema nsi
+          - generic "100% of Contacted leads are in Appt Set" [ref=e257]: 100%
+          - generic [ref=e259]:
+            - generic [ref=e260]:
+              - generic [ref=e262]: Appt Set
+              - generic [ref=e263]: "1"
+              - button "Collapse column" [ref=e264] [cursor=pointer]:
+                - img [ref=e265]
+              - img [ref=e267]
+            - generic [ref=e270] [cursor=pointer]:
+              - img [ref=e273]
+              - generic [ref=e275]:
+                - generic [ref=e276]: Address
+                - generic [ref=e277]: 4410 Thomas Court
+                - generic [ref=e278]: Beaumont
+              - generic [ref=e280]:
+                - generic "0 days in this stage" [ref=e281]: Today
+                - 'generic "Lead score: 11/100" [ref=e282]': "11"
+                - 'generic "Source: fema_nsi" [ref=e283]': fema nsi
+          - generic "100% of Appt Set leads are in Inspected" [ref=e285]: 100%
+          - generic [ref=e287]:
+            - generic [ref=e288]:
+              - generic [ref=e290]: Inspected
+              - generic [ref=e291]: "1"
+              - button "Collapse column" [ref=e292] [cursor=pointer]:
+                - img [ref=e293]
+              - img [ref=e295]
+            - generic [ref=e298] [cursor=pointer]:
+              - img [ref=e301]
+              - generic [ref=e303]:
+                - generic [ref=e304]: Address
+                - generic [ref=e305]: 115 Cardinal Drive
+                - generic [ref=e306]: Lumberton
+              - generic [ref=e308]:
+                - generic "0 days in this stage" [ref=e309]: Today
+                - 'generic "Lead score: 11/100" [ref=e310]': "11"
+                - 'generic "Source: fema_nsi" [ref=e311]': fema nsi
+          - generic [ref=e314]:
+            - generic [ref=e315]:
+              - generic [ref=e317]: Estimate Sent
+              - generic [ref=e318]: "0"
+              - button "Collapse column" [ref=e319] [cursor=pointer]:
+                - img [ref=e320]
+              - img [ref=e322]
+            - generic [ref=e325]: No leads in this stage
+          - generic [ref=e328]:
+            - generic [ref=e329]:
+              - generic [ref=e331]: Negotiating
+              - generic [ref=e332]: "0"
+              - button "Collapse column" [ref=e333] [cursor=pointer]:
+                - img [ref=e334]
+              - img [ref=e336]
+            - generic [ref=e339]: No leads in this stage
+          - generic [ref=e342]:
+            - generic [ref=e343]:
+              - generic [ref=e345]: Sold
+              - generic [ref=e346]: "0"
+              - button "Collapse column" [ref=e347] [cursor=pointer]:
+                - img [ref=e348]
+            - generic [ref=e351]: No leads in this stage
+  - generic [ref=e353]:
+    - generic [ref=e354]:
+      - heading "Add Lead" [level=2] [ref=e355]
+      - button "×" [ref=e356] [cursor=pointer]
+    - generic [ref=e357]:
+      - generic [ref=e358]:
+        - generic [ref=e359]:
+          - generic [ref=e360]: Contact Name
+          - textbox "John Doe" [ref=e361]
+        - generic [ref=e362]:
+          - generic [ref=e363]: Phone
+          - textbox "555-123-4567" [ref=e364]
+      - generic [ref=e365]:
+        - generic [ref=e366]: Email
+        - textbox "john@example.com" [ref=e367]
+      - generic [ref=e368]:
+        - generic [ref=e369]: Address
+        - textbox "123 Main St" [ref=e370]
+      - generic [ref=e371]:
+        - generic [ref=e372]:
+          - generic [ref=e373]: City
+          - textbox "Austin" [ref=e374]
+        - generic [ref=e375]:
+          - generic [ref=e376]: State
+          - textbox "TX" [ref=e377]
+        - generic [ref=e378]:
+          - generic [ref=e379]: Zip
+          - textbox "78701" [ref=e380]
+      - generic [ref=e381]:
+        - generic [ref=e382]:
+          - generic [ref=e383]: Stage
+          - button "New" [ref=e385] [cursor=pointer]:
+            - generic [ref=e386]: New
+            - img [ref=e387]
+        - generic [ref=e389]:
+          - generic [ref=e390]: Priority
+          - button "Warm" [ref=e392] [cursor=pointer]:
+            - generic [ref=e393]: Warm
+            - img [ref=e394]
+        - generic [ref=e396]:
+          - generic [ref=e397]: Source
+          - button "Manual" [ref=e399] [cursor=pointer]:
+            - generic [ref=e400]: Manual
+            - img [ref=e401]
+      - generic [ref=e403]:
+        - generic [ref=e404]: Estimated Value ($)
+        - spinbutton [ref=e405]
+      - button "Create Lead" [ref=e406] [cursor=pointer]
+```

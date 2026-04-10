@@ -39,6 +39,7 @@ import {
   ExclamationTriangleIcon,
   CheckCircleIcon,
   XCircleIcon,
+  BookmarkIcon,
 } from '@heroicons/react/24/outline';
 
 export function IconGrid({ width = 18, height = 18, ...props }) {
@@ -199,6 +200,10 @@ export function IconCheckCircle({ width = 18, height = 18, ...props }) {
 
 export function IconXCircle({ width = 18, height = 18, ...props }) {
   return <XCircleIcon width={width} height={height} {...props} />;
+}
+
+export function IconBookmark({ width = 18, height = 18, ...props }) {
+  return <BookmarkIcon width={width} height={height} {...props} />;
 }
 
 const iconMap = {

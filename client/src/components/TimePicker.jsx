@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { ClockIcon } from '@heroicons/react/24/outline';
 
 export default function TimePicker({ value, onChange, placeholder }) {
   const [open, setOpen] = useState(false);
@@ -48,10 +49,7 @@ export default function TimePicker({ value, onChange, placeholder }) {
         }}
       >
         <span>{displayValue || placeholder || 'Select time'}</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, opacity: 0.5 }}>
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 6 12 12 16 14" />
-        </svg>
+        <ClockIcon style={{ width: 14, height: 14, flexShrink: 0, opacity: 0.5 }} />
       </button>
 
       {open && (

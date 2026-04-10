@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 export default function CustomSelect({ value, onChange, options, placeholder, style, icon }) {
   const [open, setOpen] = useState(false);
@@ -82,9 +83,7 @@ export default function CustomSelect({ value, onChange, options, placeholder, st
         }}
       >
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}>{icon}{label}</span>
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, opacity: 0.5 }}>
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
+        <ChevronDownIcon style={{ width: 10, height: 10, flexShrink: 0, opacity: 0.5, strokeWidth: 2.5 }} />
       </button>
       {dropdown}
     </div>

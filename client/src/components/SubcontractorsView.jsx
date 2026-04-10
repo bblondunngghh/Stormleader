@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import * as subApi from '../api/subcontractors';
 import { showToast } from './Toast';
 import CustomSelect from './CustomSelect';
+import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 const SPECIALTIES = ['general', 'roofing', 'siding', 'gutters', 'painting', 'drywall', 'electrical', 'plumbing', 'hvac', 'landscaping', 'demolition', 'other'];
 const SPECIALTY_OPTIONS = [{ value: '', label: 'All' }, ...SPECIALTIES.map(s => ({ value: s, label: s.charAt(0).toUpperCase() + s.slice(1) }))];
@@ -166,12 +167,12 @@ export default function SubcontractorsView() {
                           <button onClick={() => setSlideOver(sub)}
                             style={{ width: 28, height: 28, borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
                             title="Edit">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            <PencilSquareIcon style={{ width: 14, height: 14 }} />
                           </button>
                           <button onClick={() => setConfirmDelete(sub.id)}
                             style={{ width: 28, height: 28, borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
                             title="Delete">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14H7L5 6m5 0V4h4v2"/></svg>
+                            <TrashIcon style={{ width: 14, height: 14 }} />
                           </button>
                         </div>
                       )}

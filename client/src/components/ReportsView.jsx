@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowDownTrayIcon, ArrowTrendingUpIcon } from '@heroicons/react/24/outline';
 import DatePicker from './DatePicker';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -109,9 +110,7 @@ function ExportButton({ data, filename }) {
       onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent-blue)'; e.currentTarget.style.borderColor = 'oklch(0.72 0.19 250 / 0.4)'; }}
       onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'oklch(0.35 0.02 260 / 0.3)'; }}
     >
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
-      </svg>
+      <ArrowDownTrayIcon style={{ width: 12, height: 12 }} />
       CSV
     </button>
   );
@@ -621,9 +620,7 @@ export default function ReportsView() {
               display: 'flex', alignItems: 'center', gap: 5,
             }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" /><polyline points="16 7 22 7 22 13" />
-            </svg>
+            <ArrowTrendingUpIcon style={{ width: 14, height: 14 }} />
             {compare ? 'Comparing' : 'Compare'}
           </button>
         </div>
