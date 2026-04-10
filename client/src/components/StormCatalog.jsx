@@ -198,7 +198,7 @@ export default function StormCatalog() {
       <div style={{ display: 'flex', gap: 'var(--space-sm)', marginBottom: 'var(--space-sm)', flexWrap: 'wrap', alignItems: 'center' }}>
         {TIME_RANGES.map(tr => (
           <button key={tr.id}
-            className={`btn ${timeRange === tr.id && !isCustomRange ? 'btn-primary' : 'btn-secondary'}`}
+            className={timeRange === tr.id && !isCustomRange ? 'auth-btn' : 'quick-action-btn'}
             onClick={() => handlePillClick(tr.id)}
             style={{ fontSize: 12, padding: '6px 14px' }}
           >
@@ -211,7 +211,7 @@ export default function StormCatalog() {
 
         {/* Custom pill - active when date range is set */}
         <button
-          className={`btn ${isCustomRange ? 'btn-primary' : 'btn-secondary'}`}
+          className={isCustomRange ? 'auth-btn' : 'quick-action-btn'}
           style={{ fontSize: 12, padding: '6px 14px' }}
           onClick={() => {
             if (!isCustomRange) {

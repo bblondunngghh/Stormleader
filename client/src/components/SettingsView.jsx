@@ -1689,7 +1689,7 @@ function EmailSmtpTab() {
             </div>
           </div>
           <div style={{ marginTop: 'var(--space-lg)' }}>
-            <button type="submit" className="btn btn-primary" disabled={saving}>
+            <button type="submit" className="auth-btn" disabled={saving}>
               {saving ? 'Saving...' : 'Save SMTP Settings'}
             </button>
           </div>
@@ -1709,7 +1709,7 @@ function EmailSmtpTab() {
               value={testEmail} onChange={e => setTestEmail(e.target.value)}
             />
           </div>
-          <button type="button" className="btn btn-primary" disabled={testing || !testEmail || !settings.smtpConfigured}
+          <button type="button" className="auth-btn" disabled={testing || !testEmail || !settings.smtpConfigured}
             onClick={handleTest} style={{ whiteSpace: 'nowrap', height: 38 }}>
             {testing ? 'Sending...' : 'Send Test'}
           </button>
@@ -1855,15 +1855,13 @@ function FinancingTab() {
           {error && <div style={{ color: 'oklch(0.7 0.2 25)', fontSize: 13, marginBottom: 'var(--space-md)' }}>{error}</div>}
           <div className="form-group" style={{ marginBottom: 'var(--space-md)' }}>
             <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>API Key</label>
-            <input type="password" value={form.apiKey} onChange={e => setForm(f => ({ ...f, apiKey: e.target.value }))}
-              placeholder="Enter your Hearth API key"
-              style={{ width: '100%', padding: '10px 12px', background: 'oklch(0.18 0.02 260 / 0.5)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)', fontSize: 13 }} />
+            <input className="form-input" type="password" value={form.apiKey} onChange={e => setForm(f => ({ ...f, apiKey: e.target.value }))}
+              placeholder="Enter your Hearth API key" />
           </div>
           <div className="form-group" style={{ marginBottom: 'var(--space-lg)' }}>
             <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Merchant ID</label>
-            <input type="text" value={form.merchantId} onChange={e => setForm(f => ({ ...f, merchantId: e.target.value }))}
-              placeholder="Enter your Hearth merchant ID"
-              style={{ width: '100%', padding: '10px 12px', background: 'oklch(0.18 0.02 260 / 0.5)', border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-sm)', color: 'var(--text-primary)', fontSize: 13 }} />
+            <input className="form-input" type="text" value={form.merchantId} onChange={e => setForm(f => ({ ...f, merchantId: e.target.value }))}
+              placeholder="Enter your Hearth merchant ID" />
           </div>
           <button type="submit" disabled={connecting || !form.apiKey || !form.merchantId}
             style={{

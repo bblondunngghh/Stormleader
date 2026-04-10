@@ -307,7 +307,7 @@ export default function ImportLeadsModal({ onClose, onImported }) {
               <button
                 onClick={handleImport}
                 disabled={validRows.length === 0 || !columnMapping.address}
-                className="btn-primary"
+                className="auth-btn"
                 style={{ fontSize: 13, padding: '8px 24px', opacity: validRows.length === 0 ? 0.5 : 1 }}
               >
                 Import {validRows.length} Lead{validRows.length !== 1 ? 's' : ''}
@@ -402,7 +402,7 @@ export default function ImportLeadsModal({ onClose, onImported }) {
             )}
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-md)' }}>
-              <button onClick={() => { onImported?.(); onClose(); }} className="btn-primary" style={{ fontSize: 13, padding: '8px 24px' }}>
+              <button onClick={() => { onImported?.(); onClose(); }} className="auth-btn" style={{ fontSize: 13, padding: '8px 24px' }}>
                 Done
               </button>
             </div>

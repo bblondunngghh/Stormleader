@@ -26,6 +26,7 @@ import {
   DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 import PhotoAnnotator from './PhotoAnnotator';
+import DatePicker from './DatePicker';
 import { showToast } from './Toast';
 
 function cleanAddr(str) {
@@ -1296,17 +1297,18 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                           ...(def.options || []).map(opt => ({ value: String(opt), label: String(opt) }))
                         ]}
                       />
+                    ) : def.field_type === 'date' ? (
+                      <DatePicker
+                        value={val || ''}
+                        onChange={v => handleChange(v)}
+                      />
                     ) : (
                       <input
-                        type={def.field_type === 'number' ? 'number' : def.field_type === 'date' ? 'date' : 'text'}
+                        className="form-input"
+                        type={def.field_type === 'number' ? 'number' : 'text'}
                         value={val || ''}
                         onChange={e => handleChange(def.field_type === 'number' ? (e.target.value ? Number(e.target.value) : '') : e.target.value)}
                         placeholder={def.field_label}
-                        style={{
-                          background: 'oklch(0.18 0.02 260 / 0.6)', color: 'var(--text-primary)',
-                          border: '1px solid var(--glass-border)', borderRadius: 'var(--radius-sm)',
-                          padding: '6px 10px', fontSize: 13, width: '100%',
-                        }}
                       />
                     )}
                   </div>

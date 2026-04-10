@@ -517,7 +517,7 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
                   onKeyDown={e => { if (e.key === 'Enter' && newMilestoneName.trim()) handleAddMilestone(); }}
                   style={{ flex: 1, fontSize: 12, padding: '6px 10px' }}
                 />
-                <button className="btn btn-primary" disabled={!newMilestoneName.trim()} onClick={handleAddMilestone}
+                <button className="auth-btn" disabled={!newMilestoneName.trim()} onClick={handleAddMilestone}
                   style={{ fontSize: 11, padding: '6px 12px' }}>
                   Add
                 </button>
