@@ -2,6 +2,7 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
+import validateId from '../middleware/validateId.js';
 import * as crmService from '../services/crmService.js';
 import pool from '../db/pool.js';
 import { fireTrigger } from '../services/automationEngine.js';
@@ -149,7 +150,7 @@ router.post('/leads/quick', async (req, res, next) => {
 });
 
 // GET /api/crm/leads/:id — Full detail with contacts, activities, tasks
-router.get('/leads/:id', async (req, res, next) => {
+router.get('/leads/:id', validateId(), async (req, res, next) => {
   try {
     const lead = await crmService.getLeadDetail(req.tenantId, req.params.id);
     if (!lead) return res.status(404).json({ error: 'Lead not found' });
@@ -160,7 +161,7 @@ router.get('/leads/:id', async (req, res, next) => {
 });
 
 // PATCH /api/crm/leads/:id — Update lead
-router.patch('/leads/:id', async (req, res, next) => {
+router.patch('/leads/:id', validateId(), async (req, res, next) => {
   try {
     const validPriorities = ['hot', 'warm', 'cold'];
     if (req.body.priority && !validPriorities.includes(req.body.priority)) {
@@ -207,7 +208,7 @@ router.patch('/leads/:id', async (req, res, next) => {
 });
 
 // DELETE /api/crm/leads/:id — Soft-delete a lead
-router.delete('/leads/:id', async (req, res, next) => {
+router.delete('/leads/:id', validateId(), async (req, res, next) => {
   try {
     const result = await crmService.deleteLead(req.tenantId, req.params.id);
     if (!result) return res.status(404).json({ error: 'Lead not found' });
@@ -218,7 +219,7 @@ router.delete('/leads/:id', async (req, res, next) => {
 });
 
 // PATCH /api/crm/leads/:id/roof-type — Update property roof type & recalculate estimate
-router.patch('/leads/:id/roof-type', async (req, res, next) => {
+router.patch('/leads/:id/roof-type', validateId(), async (req, res, next) => {
   try {
     const { roof_type } = req.body;
     if (!roof_type) return res.status(400).json({ error: 'roof_type required' });
@@ -263,7 +264,7 @@ router.post('/leads/bulk-status', async (req, res, next) => {
 // ============================================================
 
 // POST /api/crm/leads/:id/score — Compute/refresh score for a single lead
-router.post('/leads/:id/score', async (req, res, next) => {
+router.post('/leads/:id/score', validateId(), async (req, res, next) => {
   try {
     const { scoreLead } = await import('../services/leadScoringService.js');
     const result = await scoreLead(req.tenantId, req.params.id);
@@ -290,7 +291,7 @@ router.post('/leads/score-all', async (req, res, next) => {
 // ============================================================
 
 // POST /api/crm/leads/:id/contacts
-router.post('/leads/:id/contacts', async (req, res, next) => {
+router.post('/leads/:id/contacts', validateId(), async (req, res, next) => {
   try {
     const contact = await crmService.addContact(req.tenantId, req.params.id, req.body);
     res.status(201).json(contact);
@@ -300,7 +301,7 @@ router.post('/leads/:id/contacts', async (req, res, next) => {
 });
 
 // DELETE /api/crm/leads/:leadId/contacts/:contactId
-router.delete('/leads/:leadId/contacts/:contactId', async (req, res, next) => {
+router.delete('/leads/:leadId/contacts/:contactId', validateId('leadId', 'contactId'), async (req, res, next) => {
   try {
     const deleted = await crmService.deleteContact(req.tenantId, req.params.contactId);
     if (!deleted) return res.status(404).json({ error: 'Contact not found' });
@@ -327,7 +328,7 @@ router.post('/activities', async (req, res, next) => {
 });
 
 // GET /api/crm/leads/:id/activities
-router.get('/leads/:id/activities', async (req, res, next) => {
+router.get('/leads/:id/activities', validateId(), async (req, res, next) => {
   try {
     const { limit = '30', offset = '0' } = req.query;
     const result = await crmService.getActivities(req.tenantId, req.params.id, {
@@ -374,7 +375,7 @@ router.post('/tasks', async (req, res, next) => {
 });
 
 // PATCH /api/crm/tasks/:id
-router.patch('/tasks/:id', async (req, res, next) => {
+router.patch('/tasks/:id', validateId(), async (req, res, next) => {
   try {
     const task = await crmService.updateTask(req.tenantId, req.params.id, req.body);
     if (!task) return res.status(404).json({ error: 'Task not found' });
@@ -443,7 +444,7 @@ router.get('/team', async (req, res, next) => {
 });
 
 // PATCH /api/crm/team/:userId/role
-router.patch('/team/:userId/role', async (req, res, next) => {
+router.patch('/team/:userId/role', validateId('userId'), async (req, res, next) => {
   try {
     // Only admins can change roles
     if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
@@ -924,7 +925,7 @@ router.get('/prospect-lists', async (req, res, next) => {
 });
 
 // GET /api/crm/prospect-lists/:id/items — Properties in a list
-router.get('/prospect-lists/:id/items', async (req, res, next) => {
+router.get('/prospect-lists/:id/items', validateId(), async (req, res, next) => {
   try {
     const { limit = '50', offset = '0', ...filterParams } = req.query;
     const filters = {};
@@ -944,7 +945,7 @@ router.get('/prospect-lists/:id/items', async (req, res, next) => {
 });
 
 // DELETE /api/crm/prospect-lists/:id/items/:propertyId — Remove property from list
-router.delete('/prospect-lists/:id/items/:propertyId', async (req, res, next) => {
+router.delete('/prospect-lists/:id/items/:propertyId', validateId('id', 'propertyId'), async (req, res, next) => {
   try {
     const result = await crmService.removeProspectListItem(
       req.tenantId, req.params.id, req.params.propertyId
@@ -958,7 +959,7 @@ router.delete('/prospect-lists/:id/items/:propertyId', async (req, res, next) =>
 });
 
 // DELETE /api/crm/prospect-lists/:id
-router.delete('/prospect-lists/:id', async (req, res, next) => {
+router.delete('/prospect-lists/:id', validateId(), async (req, res, next) => {
   try {
     const deleted = await crmService.deleteProspectList(req.tenantId, req.params.id);
     if (!deleted) return res.status(404).json({ error: 'List not found' });
@@ -1095,7 +1096,7 @@ router.post('/custom-fields', async (req, res, next) => {
 });
 
 // PATCH /api/crm/custom-fields/:id — update field definition
-router.patch('/custom-fields/:id', async (req, res, next) => {
+router.patch('/custom-fields/:id', validateId(), async (req, res, next) => {
   try {
     const { field_label, field_type, options, is_required, sort_order } = req.body;
     const setClauses = [];
@@ -1123,7 +1124,7 @@ router.patch('/custom-fields/:id', async (req, res, next) => {
 });
 
 // DELETE /api/crm/custom-fields/:id — delete field definition
-router.delete('/custom-fields/:id', async (req, res, next) => {
+router.delete('/custom-fields/:id', validateId(), async (req, res, next) => {
   try {
     const { rowCount } = await pool.query(
       `DELETE FROM custom_field_definitions WHERE id = $1 AND tenant_id = $2`,

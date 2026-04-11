@@ -4,6 +4,7 @@ import path from 'path';
 import { randomUUID } from 'crypto';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
+import validateId from '../middleware/validateId.js';
 import * as documentService from '../services/documentService.js';
 
 const router = Router();
@@ -73,7 +74,7 @@ router.post('/upload', upload.single('file'), async (req, res, next) => {
 });
 
 // DELETE /api/documents/:id
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', validateId(), async (req, res, next) => {
   try {
     const result = await documentService.deleteDocument(req.tenantId, req.params.id);
     res.json(result);

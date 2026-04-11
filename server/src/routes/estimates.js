@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
+import validateId from '../middleware/validateId.js';
 import * as estimateService from '../services/estimateService.js';
 import pool from '../db/pool.js';
 
@@ -93,7 +94,7 @@ router.post('/templates', async (req, res, next) => {
 });
 
 // Update template
-router.patch('/templates/:id', async (req, res, next) => {
+router.patch('/templates/:id', validateId(), async (req, res, next) => {
   try {
     const { name, description, unit, default_unit_price, section } = req.body;
     const fields = [];
@@ -118,7 +119,7 @@ router.patch('/templates/:id', async (req, res, next) => {
 });
 
 // Delete template
-router.delete('/templates/:id', async (req, res, next) => {
+router.delete('/templates/:id', validateId(), async (req, res, next) => {
   try {
     const { rowCount } = await pool.query(
       'DELETE FROM estimate_templates WHERE id = $1 AND tenant_id = $2',
@@ -132,7 +133,7 @@ router.delete('/templates/:id', async (req, res, next) => {
 });
 
 // Get single estimate
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', validateId(), async (req, res, next) => {
   try {
     const estimate = await estimateService.getEstimateDetail(req.tenantId, req.params.id);
     if (!estimate) return res.status(404).json({ error: 'Estimate not found' });
@@ -145,6 +146,9 @@ router.get('/:id', async (req, res, next) => {
 // Create estimate
 router.post('/', async (req, res, next) => {
   try {
+    if (!req.body.lead_id) {
+      return res.status(400).json({ error: 'lead_id is required' });
+    }
     const estimate = await estimateService.createEstimate(req.tenantId, req.user.id, req.body);
     res.status(201).json(estimate);
   } catch (err) {
@@ -153,7 +157,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // Update estimate
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id', validateId(), async (req, res, next) => {
   try {
     const estimate = await estimateService.updateEstimate(req.tenantId, req.params.id, req.body);
     if (!estimate) return res.status(404).json({ error: 'Estimate not found' });
@@ -164,7 +168,7 @@ router.patch('/:id', async (req, res, next) => {
 });
 
 // Delete estimate
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', validateId(), async (req, res, next) => {
   try {
     const deleted = await estimateService.deleteEstimate(req.tenantId, req.params.id);
     if (!deleted) return res.status(404).json({ error: 'Estimate not found' });
@@ -175,7 +179,7 @@ router.delete('/:id', async (req, res, next) => {
 });
 
 // Send estimate to customer
-router.post('/:id/send', async (req, res, next) => {
+router.post('/:id/send', validateId(), async (req, res, next) => {
   try {
     const estimate = await estimateService.sendEstimate(req.tenantId, req.params.id);
     if (!estimate) return res.status(404).json({ error: 'Estimate not found or already sent' });
@@ -186,7 +190,7 @@ router.post('/:id/send', async (req, res, next) => {
 });
 
 // Duplicate estimate
-router.post('/:id/duplicate', async (req, res, next) => {
+router.post('/:id/duplicate', validateId(), async (req, res, next) => {
   try {
     const estimate = await estimateService.duplicateEstimate(req.tenantId, req.user.id, req.params.id);
     if (!estimate) return res.status(404).json({ error: 'Estimate not found' });
@@ -197,7 +201,7 @@ router.post('/:id/duplicate', async (req, res, next) => {
 });
 
 // Generate branded PDF for an estimate
-router.get('/:id/pdf', async (req, res, next) => {
+router.get('/:id/pdf', validateId(), async (req, res, next) => {
   try {
     const estimate = await estimateService.getEstimateDetail(req.tenantId, req.params.id);
     if (!estimate) return res.status(404).json({ error: 'Estimate not found' });
@@ -391,7 +395,7 @@ router.get('/:id/pdf', async (req, res, next) => {
 });
 
 // In-person signing (SumoQuote on-the-spot pattern)
-router.post('/:id/sign-in-person', async (req, res, next) => {
+router.post('/:id/sign-in-person', validateId(), async (req, res, next) => {
   try {
     const { signer_name, signature_data } = req.body;
     if (!signer_name) return res.status(400).json({ error: 'signer_name required' });
@@ -406,7 +410,7 @@ router.post('/:id/sign-in-person', async (req, res, next) => {
 });
 
 // Generate Good/Better/Best tiers from a single estimate
-router.post('/:id/generate-tiers', async (req, res, next) => {
+router.post('/:id/generate-tiers', validateId(), async (req, res, next) => {
   try {
     const tiers = await estimateService.generateTiers(req.tenantId, req.user.id, req.params.id);
     if (!tiers) return res.status(404).json({ error: 'Estimate not found' });

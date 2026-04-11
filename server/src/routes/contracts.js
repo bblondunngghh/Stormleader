@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
+import validateId from '../middleware/validateId.js';
 import * as contractService from '../services/contractService.js';
 
 const router = Router();
@@ -63,7 +64,7 @@ router.post('/templates', async (req, res, next) => {
   }
 });
 
-router.patch('/templates/:id', async (req, res, next) => {
+router.patch('/templates/:id', validateId(), async (req, res, next) => {
   try {
     const template = await contractService.updateTemplate(req.tenantId, req.params.id, req.body);
     if (!template) return res.status(404).json({ error: 'Template not found or not editable' });
@@ -73,7 +74,7 @@ router.patch('/templates/:id', async (req, res, next) => {
   }
 });
 
-router.delete('/templates/:id', async (req, res, next) => {
+router.delete('/templates/:id', validateId(), async (req, res, next) => {
   try {
     const deleted = await contractService.deleteTemplate(req.tenantId, req.params.id);
     if (!deleted) return res.status(404).json({ error: 'Template not found or cannot be deleted' });
@@ -100,7 +101,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', validateId(), async (req, res, next) => {
   try {
     const contract = await contractService.getContract(req.tenantId, req.params.id);
     if (!contract) return res.status(404).json({ error: 'Contract not found' });
@@ -113,6 +114,9 @@ router.get('/:id', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
   try {
     const { leadId, estimateId, templateType, content } = req.body;
+    if (!leadId) {
+      return res.status(400).json({ error: 'lead_id is required' });
+    }
     const contract = await contractService.createContract(req.tenantId, { leadId, estimateId, templateType, content });
     res.status(201).json(contract);
   } catch (err) {
@@ -120,7 +124,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id', validateId(), async (req, res, next) => {
   try {
     const contract = await contractService.updateContract(req.tenantId, req.params.id, req.body);
     if (!contract) return res.status(404).json({ error: 'Contract not found or not in draft status' });
@@ -130,7 +134,7 @@ router.patch('/:id', async (req, res, next) => {
   }
 });
 
-router.post('/:id/send', async (req, res, next) => {
+router.post('/:id/send', validateId(), async (req, res, next) => {
   try {
     const contract = await contractService.sendContract(req.tenantId, req.params.id);
     if (!contract) return res.status(404).json({ error: 'Contract not found or not in draft status' });
@@ -140,7 +144,7 @@ router.post('/:id/send', async (req, res, next) => {
   }
 });
 
-router.post('/:id/void', async (req, res, next) => {
+router.post('/:id/void', validateId(), async (req, res, next) => {
   try {
     const contract = await contractService.voidContract(req.tenantId, req.params.id);
     if (!contract) return res.status(404).json({ error: 'Contract not found' });
@@ -151,7 +155,7 @@ router.post('/:id/void', async (req, res, next) => {
 });
 
 // Generate branded PDF for a contract (mirrors estimate PDF generation)
-router.get('/:id/pdf', async (req, res, next) => {
+router.get('/:id/pdf', validateId(), async (req, res, next) => {
   try {
     const contract = await contractService.getContract(req.tenantId, req.params.id);
     if (!contract) return res.status(404).json({ error: 'Contract not found' });

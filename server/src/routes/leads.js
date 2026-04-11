@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
+import validateId from '../middleware/validateId.js';
 import * as leadService from '../services/leadService.js';
 import pool from '../db/pool.js';
 
@@ -106,7 +107,7 @@ router.get('/', async (req, res, next) => {
 });
 
 // GET /api/leads/:id — Lead detail
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', validateId('id'), async (req, res, next) => {
   try {
     const lead = await leadService.getLead(req.tenantId, req.params.id);
     if (!lead) {
@@ -119,7 +120,7 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // PATCH /api/leads/:id — Update lead
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id', validateId('id'), async (req, res, next) => {
   try {
     const lead = await leadService.updateLead(req.tenantId, req.params.id, req.body);
     if (!lead) {
@@ -132,7 +133,7 @@ router.patch('/:id', async (req, res, next) => {
 });
 
 // POST /api/leads/:id/status-token — Generate a public status page token
-router.post('/:id/status-token', async (req, res, next) => {
+router.post('/:id/status-token', validateId('id'), async (req, res, next) => {
   try {
     const crypto = await import('crypto');
     const token = crypto.randomBytes(32).toString('hex');

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
+import validateId from '../middleware/validateId.js';
 import * as invoiceService from '../services/invoiceService.js';
 import pool from '../db/pool.js';
 
@@ -24,7 +25,7 @@ router.get('/', async (req, res, next) => {
 });
 
 // Get single invoice
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', validateId(), async (req, res, next) => {
   try {
     const invoice = await invoiceService.getInvoice(req.tenantId, req.params.id);
     if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
@@ -37,6 +38,9 @@ router.get('/:id', async (req, res, next) => {
 // Create invoice
 router.post('/', async (req, res, next) => {
   try {
+    if (!req.body.lead_id) {
+      return res.status(400).json({ error: 'lead_id is required' });
+    }
     const invoice = await invoiceService.createInvoice(req.tenantId, req.body);
     res.status(201).json(invoice);
   } catch (err) {
@@ -45,7 +49,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // Create from estimate
-router.post('/from-estimate/:estimateId', async (req, res, next) => {
+router.post('/from-estimate/:estimateId', validateId('estimateId'), async (req, res, next) => {
   try {
     const invoice = await invoiceService.createFromEstimate(req.tenantId, req.params.estimateId);
     if (!invoice) return res.status(404).json({ error: 'Estimate not found' });
@@ -56,7 +60,7 @@ router.post('/from-estimate/:estimateId', async (req, res, next) => {
 });
 
 // Update invoice
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id', validateId(), async (req, res, next) => {
   try {
     const invoice = await invoiceService.updateInvoice(req.tenantId, req.params.id, req.body);
     if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
@@ -67,7 +71,7 @@ router.patch('/:id', async (req, res, next) => {
 });
 
 // Record payment
-router.post('/:id/payment', async (req, res, next) => {
+router.post('/:id/payment', validateId(), async (req, res, next) => {
   try {
     const { amount } = req.body;
     if (!amount || amount <= 0) return res.status(400).json({ error: 'Valid amount required' });
@@ -80,7 +84,7 @@ router.post('/:id/payment', async (req, res, next) => {
 });
 
 // Mark as sent
-router.post('/:id/send', async (req, res, next) => {
+router.post('/:id/send', validateId(), async (req, res, next) => {
   try {
     const invoice = await invoiceService.sendInvoice(req.tenantId, req.params.id);
     if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
@@ -91,7 +95,7 @@ router.post('/:id/send', async (req, res, next) => {
 });
 
 // Send invoice via email
-router.post('/:id/send-email', async (req, res, next) => {
+router.post('/:id/send-email', validateId(), async (req, res, next) => {
   try {
     const { to } = req.body;
     if (!to) return res.status(400).json({ error: 'Recipient email required' });

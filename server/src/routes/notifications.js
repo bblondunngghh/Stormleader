@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
+import validateId from '../middleware/validateId.js';
 import * as notificationService from '../services/notificationService.js';
 
 const router = Router();
@@ -31,7 +32,7 @@ router.get('/unread-count', async (req, res, next) => {
 });
 
 // PATCH /api/notifications/:id/read
-router.patch('/:id/read', async (req, res, next) => {
+router.patch('/:id/read', validateId(), async (req, res, next) => {
   try {
     const notification = await notificationService.markRead(req.user.id, req.params.id);
     if (!notification) return res.status(404).json({ error: 'Notification not found' });

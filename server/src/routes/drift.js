@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
+import validateId from '../middleware/validateId.js';
 import {
   applyDriftCorrection,
   correctAllPending,
@@ -13,7 +14,7 @@ const router = Router();
 router.use(authenticate);
 
 // GET /api/drift/:stormEventId — get drift info for a storm
-router.get('/:stormEventId', async (req, res, next) => {
+router.get('/:stormEventId', validateId('stormEventId'), async (req, res, next) => {
   try {
     const info = await getDriftInfo(req.params.stormEventId);
     if (!info) return res.status(404).json({ error: 'Storm event not found' });
@@ -22,7 +23,7 @@ router.get('/:stormEventId', async (req, res, next) => {
 });
 
 // POST /api/drift/:stormEventId/correct — apply drift correction to a single storm
-router.post('/:stormEventId/correct', async (req, res, next) => {
+router.post('/:stormEventId/correct', validateId('stormEventId'), async (req, res, next) => {
   try {
     const detectionAltM = parseInt(req.body.detection_alt_m) || 5500;
     const drift = await applyDriftCorrection(req.params.stormEventId, { detectionAltM });

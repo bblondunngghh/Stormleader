@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
+import validateId from '../middleware/validateId.js';
 import * as svc from '../services/financing/index.js';
 
 const router = Router();
@@ -53,7 +54,7 @@ router.post('/lenders', async (req, res, next) => {
   }
 });
 
-router.patch('/lenders/:id', async (req, res, next) => {
+router.patch('/lenders/:id', validateId(), async (req, res, next) => {
   try {
     const lender = await svc.updateLender(req.tenantId, req.params.id, req.body);
     if (!lender) return res.status(404).json({ error: 'Lender not found' });
@@ -61,7 +62,7 @@ router.patch('/lenders/:id', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-router.delete('/lenders/:id', async (req, res, next) => {
+router.delete('/lenders/:id', validateId(), async (req, res, next) => {
   try {
     const result = await svc.deactivateLender(req.tenantId, req.params.id);
     if (!result) return res.status(404).json({ error: 'Lender not found' });
@@ -86,7 +87,7 @@ router.post('/plans/sync', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-router.patch('/plans/:id', async (req, res, next) => {
+router.patch('/plans/:id', validateId(), async (req, res, next) => {
   try {
     const plan = await svc.updatePlan(req.tenantId, req.params.id, req.body);
     if (!plan) return res.status(404).json({ error: 'Plan not found' });
@@ -102,7 +103,7 @@ router.get('/applications', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-router.get('/applications/:id', async (req, res, next) => {
+router.get('/applications/:id', validateId(), async (req, res, next) => {
   try {
     const app = await svc.getApplication(req.tenantId, req.params.id);
     if (!app) return res.status(404).json({ error: 'Application not found' });
@@ -112,6 +113,12 @@ router.get('/applications/:id', async (req, res, next) => {
 
 router.post('/applications', async (req, res, next) => {
   try {
+    if (!req.body.lead_id) {
+      return res.status(400).json({ error: 'lead_id is required' });
+    }
+    if (!req.body.lender_id) {
+      return res.status(400).json({ error: 'lender_id is required' });
+    }
     const app = await svc.createApplication(req.tenantId, req.body);
     res.status(201).json(app);
   } catch (err) { next(err); }

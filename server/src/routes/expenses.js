@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
+import validateId from '../middleware/validateId.js';
 import * as expenseService from '../services/expenseService.js';
 
 const router = Router();
@@ -26,7 +27,7 @@ router.get('/', async (req, res, next) => {
 });
 
 // Job cost summary
-router.get('/summary/:leadId', async (req, res, next) => {
+router.get('/summary/:leadId', validateId('leadId'), async (req, res, next) => {
   try {
     const summary = await expenseService.getJobCostSummary(req.tenantId, req.params.leadId);
     res.json(summary);
@@ -57,7 +58,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // Update expense
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id', validateId(), async (req, res, next) => {
   try {
     const expense = await expenseService.updateExpense(req.tenantId, req.params.id, req.body);
     if (!expense) return res.status(404).json({ error: 'Expense not found' });
@@ -68,7 +69,7 @@ router.patch('/:id', async (req, res, next) => {
 });
 
 // Delete expense
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', validateId(), async (req, res, next) => {
   try {
     const deleted = await expenseService.deleteExpense(req.tenantId, req.params.id);
     if (!deleted) return res.status(404).json({ error: 'Expense not found' });

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
+import validateId from '../middleware/validateId.js';
 import * as subcontractorService from '../services/subcontractorService.js';
 
 const router = Router();
@@ -25,7 +26,7 @@ router.get('/', async (req, res, next) => {
 });
 
 // Get single subcontractor
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', validateId(), async (req, res, next) => {
   try {
     const sub = await subcontractorService.getSubcontractor(req.tenantId, req.params.id);
     if (!sub) return res.status(404).json({ error: 'Subcontractor not found' });
@@ -50,7 +51,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // Update subcontractor
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id', validateId(), async (req, res, next) => {
   try {
     const sub = await subcontractorService.updateSubcontractor(req.tenantId, req.params.id, req.body);
     if (!sub) return res.status(404).json({ error: 'Subcontractor not found' });
@@ -61,7 +62,7 @@ router.patch('/:id', async (req, res, next) => {
 });
 
 // Delete subcontractor
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', validateId(), async (req, res, next) => {
   try {
     const deleted = await subcontractorService.deleteSubcontractor(req.tenantId, req.params.id);
     if (!deleted) return res.status(404).json({ error: 'Subcontractor not found' });
@@ -89,7 +90,7 @@ router.post('/assign', async (req, res, next) => {
 });
 
 // Get subcontractors for a work order
-router.get('/work-order/:workOrderId', async (req, res, next) => {
+router.get('/work-order/:workOrderId', validateId('workOrderId'), async (req, res, next) => {
   try {
     const subs = await subcontractorService.getWorkOrderSubcontractors(req.tenantId, req.params.workOrderId);
     res.json(subs);
@@ -99,7 +100,7 @@ router.get('/work-order/:workOrderId', async (req, res, next) => {
 });
 
 // Remove subcontractor from work order
-router.delete('/work-order/:workOrderId/:subcontractorId', async (req, res, next) => {
+router.delete('/work-order/:workOrderId/:subcontractorId', validateId('workOrderId', 'subcontractorId'), async (req, res, next) => {
   try {
     const removed = await subcontractorService.removeFromWorkOrder(
       req.tenantId, req.params.workOrderId, req.params.subcontractorId

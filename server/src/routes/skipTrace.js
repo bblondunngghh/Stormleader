@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
+import validateId from '../middleware/validateId.js';
 import * as skipTraceService from '../services/skipTraceService.js';
 import pool from '../db/pool.js';
 import logger from '../utils/logger.js';
@@ -135,7 +136,7 @@ router.post('/submit', async (req, res, next) => {
  * GET /api/skip-trace/job/:jobId
  * Check status of a skip trace job.
  */
-router.get('/job/:jobId', async (req, res, next) => {
+router.get('/job/:jobId', validateId('jobId'), async (req, res, next) => {
   try {
     const status = await skipTraceService.getJobStatus(req.params.jobId);
     res.json(status);

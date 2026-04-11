@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
+import validateId from '../middleware/validateId.js';
 import {
   getSequences,
   getSequence,
@@ -27,7 +28,7 @@ router.get('/', async (req, res, next) => {
 });
 
 // GET /api/crm/drip-sequences/:id — detail with steps
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', validateId(), async (req, res, next) => {
   try {
     const sequence = await getSequence(req.tenantId, req.params.id);
     if (!sequence) return res.status(404).json({ error: 'Sequence not found' });
@@ -55,7 +56,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // PATCH /api/crm/drip-sequences/:id — update
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id', validateId(), async (req, res, next) => {
   try {
     const sequence = await updateSequence(req.tenantId, req.params.id, req.body);
     if (!sequence) return res.status(404).json({ error: 'Sequence not found' });
@@ -66,7 +67,7 @@ router.patch('/:id', async (req, res, next) => {
 });
 
 // DELETE /api/crm/drip-sequences/:id — delete
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', validateId(), async (req, res, next) => {
   try {
     const deleted = await deleteSequence(req.tenantId, req.params.id);
     if (!deleted) return res.status(404).json({ error: 'Sequence not found' });
@@ -77,7 +78,7 @@ router.delete('/:id', async (req, res, next) => {
 });
 
 // POST /api/crm/drip-sequences/:id/enroll — enroll a lead
-router.post('/:id/enroll', async (req, res, next) => {
+router.post('/:id/enroll', validateId(), async (req, res, next) => {
   try {
     const { leadId } = req.body;
     if (!leadId) return res.status(400).json({ error: 'leadId is required' });
@@ -89,7 +90,7 @@ router.post('/:id/enroll', async (req, res, next) => {
 });
 
 // POST /api/crm/drip-sequences/:id/cancel — cancel enrollment
-router.post('/:id/cancel', async (req, res, next) => {
+router.post('/:id/cancel', validateId(), async (req, res, next) => {
   try {
     const { leadId } = req.body;
     if (!leadId) return res.status(400).json({ error: 'leadId is required' });
@@ -102,7 +103,7 @@ router.post('/:id/cancel', async (req, res, next) => {
 });
 
 // GET /api/crm/drip-sequences/:id/enrollments — list enrolled leads
-router.get('/:id/enrollments', async (req, res, next) => {
+router.get('/:id/enrollments', validateId(), async (req, res, next) => {
   try {
     const enrollments = await getEnrollments(req.tenantId, req.params.id);
     res.json(enrollments);

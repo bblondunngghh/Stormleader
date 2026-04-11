@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
+import validateId from '../middleware/validateId.js';
 import pool from '../db/pool.js';
 
 const router = Router();
@@ -31,7 +32,7 @@ router.get('/', async (req, res, next) => {
 });
 
 // GET /api/crm/territories/:id — single territory with pins
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', validateId(), async (req, res, next) => {
   try {
     const { rows } = await pool.query(
       `SELECT t.*,
@@ -89,7 +90,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // PATCH /api/crm/territories/:id — update territory
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id', validateId(), async (req, res, next) => {
   try {
     const { name, color, coordinates, assigned_user_id, notes } = req.body;
     const sets = [];
@@ -138,7 +139,7 @@ router.patch('/:id', async (req, res, next) => {
 });
 
 // DELETE /api/crm/territories/:id
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', validateId(), async (req, res, next) => {
   try {
     const { rowCount } = await pool.query(
       'DELETE FROM canvass_territories WHERE id = $1 AND tenant_id = $2',
@@ -152,7 +153,7 @@ router.delete('/:id', async (req, res, next) => {
 });
 
 // GET /api/crm/territories/:id/pins — pins within a territory
-router.get('/:id/pins', async (req, res, next) => {
+router.get('/:id/pins', validateId(), async (req, res, next) => {
   try {
     const { rows: tRows } = await pool.query(
       'SELECT polygon FROM canvass_territories WHERE id = $1 AND tenant_id = $2',

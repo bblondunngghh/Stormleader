@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
+import validateId from '../middleware/validateId.js';
 import * as workOrderService from '../services/workOrderService.js';
 import pool from '../db/pool.js';
 
@@ -37,7 +38,7 @@ router.get('/', async (req, res, next) => {
 });
 
 // Get single work order
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', validateId(), async (req, res, next) => {
   try {
     const wo = await workOrderService.getWorkOrder(req.tenantId, req.params.id);
     if (!wo) return res.status(404).json({ error: 'Work order not found' });
@@ -61,7 +62,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // Create from estimate
-router.post('/from-estimate/:estimateId', async (req, res, next) => {
+router.post('/from-estimate/:estimateId', validateId('estimateId'), async (req, res, next) => {
   try {
     const wo = await workOrderService.createFromEstimate(req.tenantId, req.params.estimateId);
     if (!wo) return res.status(404).json({ error: 'Estimate not found' });
@@ -72,7 +73,7 @@ router.post('/from-estimate/:estimateId', async (req, res, next) => {
 });
 
 // Update work order
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id', validateId(), async (req, res, next) => {
   try {
     const wo = await workOrderService.updateWorkOrder(req.tenantId, req.params.id, req.body);
     if (!wo) return res.status(404).json({ error: 'Work order not found' });
@@ -83,7 +84,7 @@ router.patch('/:id', async (req, res, next) => {
 });
 
 // Mark complete
-router.patch('/:id/complete', async (req, res, next) => {
+router.patch('/:id/complete', validateId(), async (req, res, next) => {
   try {
     const wo = await workOrderService.completeWorkOrder(req.tenantId, req.params.id);
     if (!wo) return res.status(404).json({ error: 'Work order not found' });
@@ -94,7 +95,7 @@ router.patch('/:id/complete', async (req, res, next) => {
 });
 
 // Get milestones for a work order (tenant-scoped)
-router.get('/:id/milestones', async (req, res, next) => {
+router.get('/:id/milestones', validateId(), async (req, res, next) => {
   try {
     // Verify work order belongs to this tenant before returning milestones
     const wo = await workOrderService.getWorkOrder(req.tenantId, req.params.id);
@@ -107,7 +108,7 @@ router.get('/:id/milestones', async (req, res, next) => {
 });
 
 // Create a new milestone — tenant-scoped
-router.post('/:id/milestones', async (req, res, next) => {
+router.post('/:id/milestones', validateId(), async (req, res, next) => {
   try {
     const { name } = req.body;
     if (!name?.trim()) return res.status(400).json({ error: 'Milestone name required' });
@@ -126,7 +127,7 @@ router.post('/:id/milestones', async (req, res, next) => {
 });
 
 // Delete a milestone — tenant-scoped
-router.delete('/:woId/milestones/:milestoneId', async (req, res, next) => {
+router.delete('/:woId/milestones/:milestoneId', validateId('woId', 'milestoneId'), async (req, res, next) => {
   try {
     const wo = await workOrderService.getWorkOrder(req.tenantId, req.params.woId);
     if (!wo) return res.status(404).json({ error: 'Work order not found' });
@@ -139,7 +140,7 @@ router.delete('/:woId/milestones/:milestoneId', async (req, res, next) => {
 });
 
 // Update a milestone (toggle complete, set photo) — tenant-scoped
-router.patch('/:id/milestones/:milestoneId', async (req, res, next) => {
+router.patch('/:id/milestones/:milestoneId', validateId('id', 'milestoneId'), async (req, res, next) => {
   try {
     // Verify work order belongs to this tenant
     const wo = await workOrderService.getWorkOrder(req.tenantId, req.params.id);
@@ -164,7 +165,7 @@ router.patch('/:id/milestones/:milestoneId', async (req, res, next) => {
 });
 
 // GET /:id/pdf — Generate work order PDF with milestones and photos (vs RoofLink)
-router.get('/:id/pdf', async (req, res, next) => {
+router.get('/:id/pdf', validateId(), async (req, res, next) => {
   try {
     const wo = await workOrderService.getWorkOrder(req.tenantId, req.params.id);
     if (!wo) return res.status(404).json({ error: 'Work order not found' });

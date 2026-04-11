@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
+import validateId from '../middleware/validateId.js';
 import * as roofMeasurementService from '../services/roofMeasurementService.js';
 import pool from '../db/pool.js';
 
@@ -91,7 +92,7 @@ router.post('/manual', async (req, res, next) => {
 });
 
 // GET /api/roof-measurement/segments/:propertyId — Return parsed Google Solar segment data for overlay
-router.get('/segments/:propertyId', async (req, res, next) => {
+router.get('/segments/:propertyId', validateId('propertyId'), async (req, res, next) => {
   try {
     const { propertyId } = req.params;
     const { rows } = await pool.query(
@@ -176,7 +177,7 @@ router.get('/segments/:propertyId', async (req, res, next) => {
 });
 
 // GET /api/roof-measurement/solar/:propertyId — Solar potential data for upselling
-router.get('/solar/:propertyId', async (req, res, next) => {
+router.get('/solar/:propertyId', validateId('propertyId'), async (req, res, next) => {
   try {
     const { propertyId } = req.params;
     const { rows } = await pool.query(

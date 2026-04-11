@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
+import validateId from '../middleware/validateId.js';
 import * as propertyService from '../services/propertyService.js';
 import * as leadService from '../services/leadService.js';
 import { getImportProgress } from '../services/countyService.js';
@@ -185,7 +186,7 @@ router.get('/', async (req, res, next) => {
 });
 
 // GET /api/properties/in-swath/:stormEventId/count — Fast count of properties in swath
-router.get('/in-swath/:stormEventId/count', async (req, res, next) => {
+router.get('/in-swath/:stormEventId/count', validateId('stormEventId'), async (req, res, next) => {
   try {
     const stormEventId = req.params.stormEventId;
     const cacheKey = `swath-count:${stormEventId}`;
@@ -211,7 +212,7 @@ router.get('/in-swath/:stormEventId/count', async (req, res, next) => {
 
 // GET /api/properties/in-swath/:stormEventId — Properties within a storm swath
 // Pass ?light=true for lightweight map-dot payload (fewer columns, less data transfer)
-router.get('/in-swath/:stormEventId', async (req, res, next) => {
+router.get('/in-swath/:stormEventId', validateId('stormEventId'), async (req, res, next) => {
   try {
     const { limit = '500', offset = '0', bbox, light } = req.query;
     const opts = { limit: parseInt(limit, 10), offset: parseInt(offset, 10) };
@@ -249,7 +250,7 @@ router.get('/reverse-geocode', authenticate, async (req, res, next) => {
 });
 
 // GET /api/properties/:id — Single property detail
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', validateId(), async (req, res, next) => {
   try {
     const property = await propertyService.getProperty(req.params.id);
     if (!property) {

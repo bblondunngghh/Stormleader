@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
+import validateId from '../middleware/validateId.js';
 import pool from '../db/pool.js';
 
 const router = Router();
@@ -41,7 +42,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // PATCH /api/crm/automations/:id — update automation
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id', validateId(), async (req, res, next) => {
   try {
     const { name, trigger_type, trigger_config, action_type, action_config, is_active } = req.body;
     const setClauses = [];
@@ -70,7 +71,7 @@ router.patch('/:id', async (req, res, next) => {
 });
 
 // DELETE /api/crm/automations/:id — delete automation
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', validateId(), async (req, res, next) => {
   try {
     const { rowCount } = await pool.query(
       `DELETE FROM automations WHERE id = $1 AND tenant_id = $2`,
@@ -84,7 +85,7 @@ router.delete('/:id', async (req, res, next) => {
 });
 
 // PATCH /api/crm/automations/:id/toggle — toggle is_active
-router.patch('/:id/toggle', async (req, res, next) => {
+router.patch('/:id/toggle', validateId(), async (req, res, next) => {
   try {
     const { rows } = await pool.query(
       `UPDATE automations SET is_active = NOT is_active, updated_at = NOW()
