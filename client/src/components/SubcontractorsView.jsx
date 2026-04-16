@@ -77,7 +77,7 @@ export default function SubcontractorsView() {
           <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Subcontractors</h2>
           <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 'var(--space-xs)' }}>{total} total</div>
         </div>
-        <button className="auth-btn" style={{ fontSize: 13, padding: '0 var(--space-lg)', height: 36, borderRadius: 'var(--radius-pill)', fontWeight: 700 }}
+        <button className="auth-btn" style={{ fontSize: 13, fontWeight: 700 }}
           onClick={() => setSlideOver('add')}>
           + Add Subcontractor
         </button>
@@ -331,9 +331,9 @@ function SubSlideOver({ sub, onClose, onSaved }) {
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-md)', marginTop: 'auto' }}>
           <button className="quick-action-btn" onClick={onClose}
-            style={{ padding: 'var(--space-sm) var(--space-lg)', borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 600 }}>Cancel</button>
+            style={{ padding: 'var(--space-sm) var(--space-lg)', fontSize: 13, fontWeight: 600 }}>Cancel</button>
           <button className="auth-btn" onClick={handleSave} disabled={saving || !form.name.trim()}
-            style={{ height: 36, padding: '0 var(--space-xl)', borderRadius: 'var(--radius-pill)', fontSize: 13, fontWeight: 700, opacity: saving || !form.name.trim() ? 0.5 : 1, cursor: saving || !form.name.trim() ? 'not-allowed' : 'pointer' }}>
+            style={{ fontSize: 13, fontWeight: 700 }}>
             {saving ? 'Saving...' : sub ? 'Update' : 'Add Subcontractor'}
           </button>
         </div>
