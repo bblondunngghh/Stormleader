@@ -739,3 +739,37 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Email send requires SMTP configuration
 - Calendar event creation not tested via browser
 - QuickBooks, Twilio, Stripe integrations not implemented
+
+---
+
+## QA Run: 2026-04-16
+
+### Test Results
+- Pages tested: 5
+- API endpoints tested: 250+ (37 route files)
+- Bugs found: 8
+- Bugs fixed: 8
+- UI inconsistencies found: 12
+- UI inconsistencies fixed: 12
+
+### Fixes Made
+- POST /api/financing/public/:token/apply — added planId required check and token error handling (1fb9b3f)
+- POST /api/crm/leads/:id/contacts — require at least one contact field (1fb9b3f)
+- PATCH /api/crm/canvass-pins/:id — added UUID validation (005a6eb)
+- POST /api/crm/canvass-pins/:id/convert — added UUID validation (005a6eb)
+- GET /api/materials/orders/:id — added UUID validation (005a6eb)
+- POST /api/materials/estimate/:estimateId/auto-order — added UUID validation (005a6eb)
+- PUT /api/skip-trace/config — require 'enabled' boolean (005a6eb)
+- PATCH /api/crm/tasks/:id — map completed boolean to completed_at timestamp (738661f)
+
+### UI Consistency Fixes
+- Replaced 11 inline SVGs with @heroicons/react/24/outline across EstimatesView, LeadDetail, WorkOrdersView, AddressSearch (9e7ac88)
+- Standardized auth-btn styling on SubcontractorsView — removed inline borderRadius and padding overrides (af86637)
+
+### Known Issues Remaining
+- Admin panel requires super_admin role to test
+- Pipeline drag-and-drop not exercised (no browser automation)
+- CSV export/import not verified end-to-end
+- Email send requires SMTP configuration
+- Webhook endpoints need signature verification keys
+- QuickBooks, Twilio, Stripe integrations not implemented
