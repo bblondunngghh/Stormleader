@@ -393,6 +393,11 @@ export async function createTask(tenantId, data) {
 }
 
 export async function updateTask(tenantId, taskId, updates) {
+  // Map 'completed' boolean to 'completed_at' timestamp
+  if (updates.completed !== undefined && updates.completed_at === undefined) {
+    updates.completed_at = updates.completed ? new Date().toISOString() : null;
+  }
+
   const allowedFields = ['title', 'description', 'due_date', 'assigned_to', 'priority', 'completed_at'];
   const setClauses = [];
   const params = [tenantId, taskId];
