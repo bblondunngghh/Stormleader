@@ -24,9 +24,15 @@ router.get('/public/:token/applications', async (req, res, next) => {
 
 router.post('/public/:token/apply', async (req, res, next) => {
   try {
+    if (!req.body.planId) return res.status(400).json({ error: 'planId is required' });
     const app = await svc.createPublicApplication(req.params.token, req.body.planId);
     res.status(201).json(app);
-  } catch (err) { next(err); }
+  } catch (err) {
+    if (err.message === 'Estimate not found or financing not enabled') {
+      return res.status(404).json({ error: err.message });
+    }
+    next(err);
+  }
 });
 
 // --- Authenticated routes ---

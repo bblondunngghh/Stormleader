@@ -293,6 +293,10 @@ router.post('/leads/score-all', async (req, res, next) => {
 // POST /api/crm/leads/:id/contacts
 router.post('/leads/:id/contacts', validateId(), async (req, res, next) => {
   try {
+    const { first_name, last_name, email, phone } = req.body;
+    if (!first_name && !last_name && !email && !phone) {
+      return res.status(400).json({ error: 'At least one of first_name, last_name, email, or phone is required' });
+    }
     const contact = await crmService.addContact(req.tenantId, req.params.id, req.body);
     res.status(201).json(contact);
   } catch (err) {
