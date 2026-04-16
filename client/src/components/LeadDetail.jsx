@@ -24,6 +24,9 @@ import {
   ArrowDownTrayIcon,
   SunIcon,
   DocumentTextIcon,
+  QuestionMarkCircleIcon,
+  ExclamationTriangleIcon,
+  PaperAirplaneIcon,
 } from '@heroicons/react/24/outline';
 import PhotoAnnotator from './PhotoAnnotator';
 import DatePicker from './DatePicker';
@@ -674,11 +677,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                     }}
                     title="How is this calculated?"
                   >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10" />
-                      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                      <line x1="12" y1="17" x2="12.01" y2="17" />
-                    </svg>
+                    <QuestionMarkCircleIcon width={12} height={12} style={{ stroke: 'var(--text-muted)' }} />
                   </button>
                 </span>
                 {showEstimateInfo && (
@@ -985,10 +984,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 onMouseEnter={e => { if (!disasterLoading) e.currentTarget.style.opacity = '1'; }}
                 onMouseLeave={e => { e.currentTarget.style.opacity = disasterLoading ? '0.5' : '0.85'; }}
               >
-                <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
-                  <path d="M12 15.75h.007v.008H12v-.008z" />
-                </svg>
+                <ExclamationTriangleIcon width={16} height={16} />
                 {disasterLoading ? 'Loading...' : disasterData?.error ? 'FEMA Disaster History' : disasterData ? `${disasterData.summary?.total || 0} Disaster Declarations` : 'FEMA Disaster History'}
               </button>
               {disasterData?.error && (
@@ -2203,9 +2199,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                     textDecoration: 'none', cursor: 'pointer',
                   }}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="3 11 22 2 13 21 11 13 3 11" />
-                  </svg>
+                  <PaperAirplaneIcon width={16} height={16} />
                   Get Directions
                 </a>
               )}

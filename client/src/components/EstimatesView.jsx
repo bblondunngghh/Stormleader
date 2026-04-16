@@ -9,7 +9,7 @@ import DatePicker from './DatePicker';
 import { showToast } from './Toast';
 import { SRSCatalogModal } from './MaterialsView';
 import * as materialsApi from '../api/materials';
-import { CloudIcon, ClockIcon, CheckCircleIcon, BanknotesIcon, ClipboardDocumentListIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { CloudIcon, ClockIcon, CheckCircleIcon, BanknotesIcon, ClipboardDocumentListIcon, ShieldCheckIcon, Squares2X2Icon, ListBulletIcon, LinkIcon, PrinterIcon, DocumentArrowDownIcon, PhotoIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 
 function formatPhone(value) {
   const digits = value.replace(/\D/g, '').slice(0, 10);
@@ -597,9 +597,7 @@ export default function EstimatesView() {
               fontSize: 12, fontWeight: 600, cursor: 'pointer',
             }}
           >
-            <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" />
-            </svg>
+            <Squares2X2Icon width={14} height={14} />
             Compare Tiers
           </button>
         )}
@@ -1012,13 +1010,13 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = 80, tokens }
         <button type="button" style={btnStyle()} onMouseDown={e => { e.preventDefault(); exec('underline'); }} title="Underline"><u>U</u></button>
         <div style={{ width: 1, margin: '4px 4px', background: 'var(--glass-border)' }} />
         <button type="button" style={btnStyle()} onMouseDown={e => { e.preventDefault(); exec('insertUnorderedList'); }} title="Bullet List">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1" fill="currentColor"/><circle cx="3" cy="12" r="1" fill="currentColor"/><circle cx="3" cy="18" r="1" fill="currentColor"/></svg>
+          <ListBulletIcon width={14} height={14} />
         </button>
         <button type="button" style={btnStyle()} onMouseDown={e => { e.preventDefault(); exec('insertOrderedList'); }} title="Numbered List">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><text x="3" y="8" fill="currentColor" fontSize="8" stroke="none">1</text><text x="3" y="14" fill="currentColor" fontSize="8" stroke="none">2</text><text x="3" y="20" fill="currentColor" fontSize="8" stroke="none">3</text></svg>
         </button>
         <button type="button" style={btnStyle()} onMouseDown={e => { e.preventDefault(); handleLink(); }} title="Insert Link">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          <LinkIcon width={14} height={14} />
         </button>
         {tokens && tokens.length > 0 && (
           <>
@@ -1610,10 +1608,10 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
           </div>
           <div style={{ display: 'flex', gap: 'var(--space-sm)', alignItems: 'center' }}>
             <button className="quick-action-btn" onClick={() => window.print()} style={{ padding: '6px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }} title="Print">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              <PrinterIcon width={14} height={14} />
             </button>
             <button className="quick-action-btn" onClick={() => editingEstimate?.id && handleDownloadPdf(editingEstimate)} style={{ padding: '6px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }} title="Download PDF">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+              <DocumentArrowDownIcon width={14} height={14} />
               PDF
             </button>
             <button className="quick-action-btn" onClick={async () => {
@@ -1980,9 +1978,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                   </>
                 ) : (
                   <>
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4, marginBottom: 8 }}>
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                    </svg>
+                    <PhotoIcon width={32} height={32} style={{ opacity: 0.4, marginBottom: 8 }} />
                     <div style={{ fontSize: 13, fontWeight: 500 }}>Drag & drop a primary image here</div>
                     <div style={{ fontSize: 11, marginTop: 4 }}>or click to browse files</div>
                   </>
@@ -2226,9 +2222,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-xs)', marginBottom: 'var(--space-sm)' }}>
                   <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>Profit margin for this estimate</label>
                   <span title="Calculated as (total - cost) / total * 100" style={{ cursor: 'help', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
+                    <QuestionMarkCircleIcon width={14} height={14} />
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>

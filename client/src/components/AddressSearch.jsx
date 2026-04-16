@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { loadGoogleMaps } from '../lib/googleMaps';
 
 export default function AddressSearch({ onSelect, isLoading }) {
@@ -272,9 +273,7 @@ export default function AddressSearch({ onSelect, isLoading }) {
   return (
     <div ref={wrapperRef} className="address-search">
       <div className="address-search__input-wrap">
-        <svg className="address-search__icon" viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
-          <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-        </svg>
+        <MagnifyingGlassIcon className="address-search__icon" width={16} height={16} />
         <input
           type="text"
           value={query}
