@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
+import validateId from '../middleware/validateId.js';
 import pool from '../db/pool.js';
 
 const router = Router();
@@ -102,7 +103,7 @@ router.post('/', async (req, res, next) => {
 });
 
 // PATCH /api/crm/canvass-pins/:id — update outcome/notes
-router.patch('/:id', async (req, res, next) => {
+router.patch('/:id', validateId(), async (req, res, next) => {
   try {
     const { id } = req.params;
     const { outcome, notes, address } = req.body;
@@ -154,7 +155,7 @@ router.patch('/:id', async (req, res, next) => {
 });
 
 // POST /api/crm/canvass-pins/:id/convert — convert pin to lead
-router.post('/:id/convert', async (req, res, next) => {
+router.post('/:id/convert', validateId(), async (req, res, next) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');

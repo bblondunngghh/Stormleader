@@ -26,6 +26,7 @@ router.get('/config', async (req, res, next) => {
 router.put('/config', async (req, res, next) => {
   try {
     const { enabled } = req.body;
+    if (enabled === undefined) return res.status(400).json({ error: 'enabled (boolean) is required' });
     const { rows } = await pool.query(
       `INSERT INTO tenant_skip_trace_config (tenant_id, enabled)
        VALUES ($1, $2)

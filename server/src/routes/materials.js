@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
+import validateId from '../middleware/validateId.js';
 import pool from '../db/pool.js';
 
 const router = Router();
@@ -637,7 +638,7 @@ router.get('/orders', async (req, res, next) => {
 });
 
 // GET /api/materials/orders/:id — order detail
-router.get('/orders/:id', async (req, res, next) => {
+router.get('/orders/:id', validateId(), async (req, res, next) => {
   try {
     const { rows } = await pool.query(
       `SELECT * FROM material_orders WHERE id = $1 AND tenant_id = $2`,
@@ -651,7 +652,7 @@ router.get('/orders/:id', async (req, res, next) => {
 });
 
 // POST /api/materials/estimate/:estimateId/auto-order — auto-generate order from estimate
-router.post('/estimate/:estimateId/auto-order', async (req, res, next) => {
+router.post('/estimate/:estimateId/auto-order', validateId('estimateId'), async (req, res, next) => {
   try {
     const { estimateId } = req.params;
 
