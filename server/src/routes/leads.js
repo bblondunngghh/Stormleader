@@ -24,7 +24,7 @@ router.get('/status/public/:token', async (req, res, next) => {
 
     // 2. Fetch lead info
     const leadResult = await pool.query(
-      'SELECT id, contact_name, address, city, state, zip, stage, created_at, updated_at FROM leads WHERE id = $1',
+      'SELECT id, contact_name, address, city, stage, created_at, updated_at FROM leads WHERE id = $1',
       [lead_id]
     );
     const lead = leadResult.rows[0];
@@ -32,7 +32,7 @@ router.get('/status/public/:token', async (req, res, next) => {
 
     // 3. Fetch tenant company name
     const tenantResult = await pool.query(
-      'SELECT company_name FROM tenants WHERE id = $1',
+      'SELECT name FROM tenants WHERE id = $1',
       [tenant_id]
     );
 
@@ -53,17 +53,17 @@ router.get('/status/public/:token', async (req, res, next) => {
 
     // 5. Fetch stage history from activities (stage changes)
     const actResult = await pool.query(
-      `SELECT description, created_at FROM activities
-       WHERE lead_id = $1 AND type = 'stage_change'
+      `SELECT subject, notes, created_at FROM activities
+       WHERE lead_id = $1 AND type = 'status_change'
        ORDER BY created_at ASC`,
       [lead_id]
     );
 
     res.json({
-      companyName: tenantResult.rows[0]?.company_name || 'Company',
+      companyName: tenantResult.rows[0]?.name || 'Company',
       customer: {
         name: lead.contact_name,
-        address: [lead.address, lead.city, lead.state, lead.zip].filter(Boolean).join(', '),
+        address: [lead.address, lead.city].filter(Boolean).join(', '),
       },
       currentStage: lead.stage,
       stageHistory: actResult.rows,
