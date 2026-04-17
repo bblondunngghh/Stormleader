@@ -608,7 +608,7 @@ router.post('/test-email', async (req, res, next) => {
     if (req.user?.role !== 'admin' && req.user?.role !== 'super_admin') {
       return res.status(403).json({ error: 'Only admins can test email settings' });
     }
-    const { to } = req.body;
+    const { to } = req.body || {};
     if (!to) return res.status(400).json({ error: 'Recipient email required' });
 
     // Load tenant SMTP config

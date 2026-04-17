@@ -291,9 +291,9 @@ async function executeStepAction(tenantId, leadId, step) {
       }
       // Fetch company name for merge fields
       const { rows: tenantRows } = await pool.query(
-        `SELECT company_name FROM tenants WHERE id = $1`, [tenantId]
+        `SELECT name FROM tenants WHERE id = $1`, [tenantId]
       );
-      const companyName = tenantRows[0]?.company_name || '';
+      const companyName = tenantRows[0]?.name || '';
       // Replace merge fields in subject and body
       const nameParts = (lead.contact_name || '').split(/\s+/);
       const mergeMap = {
