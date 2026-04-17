@@ -1,0 +1,94 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - img "StormPipe" [ref=e6] [cursor=pointer]
+    - navigation [ref=e7]:
+      - button "Dashboard" [ref=e8] [cursor=pointer]:
+        - img [ref=e9]
+        - text: Dashboard
+      - button "Storm Map" [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+        - text: Storm Map
+      - button "Storm Archive" [ref=e14] [cursor=pointer]:
+        - img [ref=e15]
+        - text: Storm Archive
+      - button "Pipeline" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - text: Pipeline
+      - button "Leads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+        - text: Leads
+      - button "Jobs" [ref=e24] [cursor=pointer]:
+        - text: Jobs
+        - img [ref=e25]
+      - button "Finance" [ref=e28] [cursor=pointer]:
+        - text: Finance
+        - img [ref=e29]
+      - button "Operations" [ref=e32] [cursor=pointer]:
+        - text: Operations
+        - img [ref=e33]
+    - button "Settings" [ref=e35] [cursor=pointer]:
+      - img [ref=e36]
+      - text: Settings
+    - button "Admin" [ref=e38] [cursor=pointer]:
+      - img [ref=e39]
+      - text: Admin
+    - generic [ref=e41]:
+      - generic [ref=e42]: BA
+      - generic [ref=e43]:
+        - generic [ref=e44]: Brandon A.
+        - generic [ref=e45]: super_admin
+      - button "Sign out" [ref=e46] [cursor=pointer]:
+        - img [ref=e47]
+  - generic [ref=e49]:
+    - banner [ref=e50]:
+      - heading "Dashboard" [level=1] [ref=e51]
+      - generic [ref=e52]:
+        - img
+        - textbox "Search leads, contacts... (Ctrl+K)" [ref=e53]
+      - generic [ref=e54]:
+        - button "Help" [ref=e56] [cursor=pointer]
+        - button "Notifications" [ref=e60] [cursor=pointer]
+        - button "enterprise" [ref=e65] [cursor=pointer]
+    - generic [ref=e69]:
+      - banner [ref=e70]:
+        - generic [ref=e71]
+        - generic [ref=e74]
+      - generic [ref=e81]:
+        - button "All Time" [ref=e82] [cursor=pointer]
+        - button "7 Days" [ref=e83] [cursor=pointer]
+        - button "30 Days" [ref=e84] [cursor=pointer]
+        - button "90 Days" [ref=e85] [cursor=pointer]
+        - button "YTD" [ref=e86] [cursor=pointer]
+        - button "All Reps" [ref=e88] [cursor=pointer]
+        - button "All Sources" [ref=e93] [cursor=pointer]
+      - generic [ref=e97]:
+        - generic [ref=e98] [cursor=pointer]
+        - generic [ref=e104] [cursor=pointer]
+        - generic [ref=e110] [cursor=pointer]
+        - generic [ref=e116] [cursor=pointer]
+        - generic [ref=e122] [cursor=pointer]
+      - generic [ref=e128]:
+        - generic [ref=e129]: Set a monthly revenue goal to track progress
+        - button "Set Goal" [ref=e130] [cursor=pointer]
+      - generic [ref=e131]:
+        - generic [ref=e132]
+        - generic [ref=e173]
+        - generic [ref=e184]
+      - generic [ref=e314]:
+        - generic [ref=e315]
+        - generic [ref=e333]
+      - generic [ref=e349]:
+        - generic [ref=e350]
+        - generic [ref=e354]
+      - generic [ref=e385]:
+        - generic [ref=e386]
+        - generic [ref=e389]
+      - generic [ref=e426]:
+        - generic [ref=e427]
+        - generic [ref=e446]
+      - generic [ref=e464]:
+        - generic [ref=e465]
+        - generic [ref=e468]
+      - generic [ref=e493]:
+        - heading "Team Leaderboard" [level=2] [ref=e495]
+        - table [ref=e497]

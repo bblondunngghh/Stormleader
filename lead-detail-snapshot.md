@@ -1,0 +1,130 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - img "StormPipe" [ref=e6] [cursor=pointer]
+    - navigation [ref=e7]:
+      - button "Dashboard" [ref=e8] [cursor=pointer]:
+        - img [ref=e9]
+        - text: Dashboard
+      - button "Storm Map" [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+        - text: Storm Map
+      - button "Storm Archive" [ref=e14] [cursor=pointer]:
+        - img [ref=e15]
+        - text: Storm Archive
+      - button "Pipeline" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - text: Pipeline
+      - button "Leads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+        - text: Leads
+      - button "Jobs" [ref=e24] [cursor=pointer]:
+        - text: Jobs
+        - img [ref=e25]
+      - button "Finance" [ref=e28] [cursor=pointer]:
+        - text: Finance
+        - img [ref=e29]
+      - button "Operations" [ref=e32] [cursor=pointer]:
+        - text: Operations
+        - img [ref=e33]
+    - button "Settings" [ref=e35] [cursor=pointer]:
+      - img [ref=e36]
+      - text: Settings
+    - button "Admin" [ref=e38] [cursor=pointer]:
+      - img [ref=e39]
+      - text: Admin
+    - generic [ref=e41]:
+      - generic [ref=e42]: BA
+      - generic [ref=e43]:
+        - generic [ref=e44]: Brandon A.
+        - generic [ref=e45]: super_admin
+      - button "Sign out" [ref=e46] [cursor=pointer]:
+        - img [ref=e47]
+  - generic [ref=e49]:
+    - banner [ref=e50]:
+      - heading "Leads" [level=1] [ref=e51]
+      - generic [ref=e52]:
+        - img
+        - textbox "Search leads, contacts... (Ctrl+K)" [ref=e53]
+      - generic [ref=e54]:
+        - button "Help" [ref=e56] [cursor=pointer]:
+          - img [ref=e57]
+        - button "Notifications" [ref=e60] [cursor=pointer]:
+          - img [ref=e61]
+        - button "enterprise" [ref=e65] [cursor=pointer]:
+          - img [ref=e66]
+          - generic [ref=e68]: enterprise
+    - generic [ref=e69]:
+      - generic [ref=e70]:
+        - generic [ref=e71]:
+          - img
+          - textbox "Search leads..." [ref=e72]
+        - button "All Stages" [ref=e74] [cursor=pointer]:
+          - generic [ref=e75]: All Stages
+          - img [ref=e76]
+        - button "All Priorities" [ref=e79] [cursor=pointer]:
+          - generic [ref=e80]: All Priorities
+          - img [ref=e81]
+        - button "All Sources" [ref=e84] [cursor=pointer]:
+          - generic [ref=e85]: All Sources
+          - img [ref=e86]
+        - button "All Scores" [ref=e89] [cursor=pointer]:
+          - generic [ref=e90]: All Scores
+          - img [ref=e91]
+        - generic [ref=e93]:
+          - button "Import" [ref=e94] [cursor=pointer]
+          - button "Export" [ref=e98] [cursor=pointer]
+          - generic [ref=e102]: 13 leads
+      - generic [ref=e103]:
+        - table [ref=e105]:
+          - rowgroup [ref=e106]
+          - rowgroup [ref=e125]
+        - generic [ref=e396]:
+          - generic [ref=e397]: Showing 1–13 of 13 leads
+          - generic [ref=e399]
+      - generic [ref=e407]:
+        - button [ref=e408] [cursor=pointer]:
+          - img [ref=e409]
+        - generic [ref=e411]:
+          - generic [ref=e412]
+          - generic [ref=e419]: —
+          - generic [ref=e420]: 123 Qa St
+          - generic [ref=e421]: $0
+        - generic [ref=e422]:
+          - generic [ref=e423]: Contact
+          - generic [ref=e424]
+          - button "View House" [ref=e432] [cursor=pointer]
+          - button "FEMA Disaster History" [ref=e437] [cursor=pointer]
+        - generic [ref=e441]:
+          - generic [ref=e442]: Property
+          - generic [ref=e443]
+        - generic [ref=e468]:
+          - generic [ref=e470]: Weather Event
+          - generic [ref=e471]
+        - generic [ref=e481]:
+          - generic [ref=e482]: Insurance
+          - generic [ref=e483]
+        - generic [ref=e490]:
+          - generic [ref=e491]: Custom Fields
+          - generic [ref=e492]: No custom fields configured. Add them in Settings.
+        - generic [ref=e493]:
+          - generic [ref=e494]: Activity (0)
+          - generic [ref=e496]: No activity yet
+        - generic [ref=e498]:
+          - generic [ref=e499]: Documents (0)
+          - button "+ Upload" [ref=e500] [cursor=pointer]
+        - generic [ref=e502]:
+          - generic [ref=e503]: Contracts (0)
+          - button "+ Generate Contract" [ref=e504] [cursor=pointer]
+        - generic [ref=e506]:
+          - generic [ref=e507]: Expenses (0)
+          - button "+ Add Expense" [ref=e508] [cursor=pointer]
+        - generic [ref=e509]:
+          - generic [ref=e510]: Client Status Page
+          - paragraph [ref=e511]: Share a live status page with your customer so they can track job progress.
+          - button "Share Status Page" [ref=e512] [cursor=pointer]
+        - generic [ref=e513]:
+          - generic [ref=e514]: Quick Actions
+          - generic [ref=e515]
+        - button "Remove Lead" [ref=e535] [cursor=pointer]:
+          - img [ref=e536]
+          - text: Remove Lead
