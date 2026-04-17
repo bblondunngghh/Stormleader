@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { getProspectLists, getProspectListItems, deleteProspectList, removeProspectListItem } from '../api/crm';
 import { IconSearch } from './Icons';
 import CustomSelect from './CustomSelect';
+import { FunnelIcon } from '@heroicons/react/24/outline';
 
 const PAGE_SIZE = 50;
 
@@ -439,9 +440,7 @@ export default function StormProperties() {
             fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
           }}
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="4" y1="6" x2="20" y2="6" /><line x1="7" y1="12" x2="17" y2="12" /><line x1="10" y1="18" x2="14" y2="18" />
-          </svg>
+          <FunnelIcon width={13} height={13} />
           Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
         </button>
 

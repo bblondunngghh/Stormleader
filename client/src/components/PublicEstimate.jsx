@@ -4,6 +4,7 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 import client from '../api/client';
 import { createPublicPaymentIntent } from '../api/payments';
 import { calcMonthlyPayment, formatMoney } from '../utils/financing';
+import { CheckIcon, CreditCardIcon, WalletIcon } from '@heroicons/react/24/outline';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder');
 
@@ -491,9 +492,7 @@ export default function PublicEstimate({ token }) {
               background: 'oklch(0.75 0.18 145 / 0.15)', border: '2px solid oklch(0.75 0.18 145 / 0.4)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="oklch(0.75 0.18 145)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
+              <CheckIcon width={28} height={28} strokeWidth={2.5} style={{ color: 'oklch(0.75 0.18 145)' }} />
             </div>
             <div style={{ fontSize: 18, fontWeight: 700, color: 'oklch(0.75 0.18 145)', marginBottom: 8 }}>
               Payment Successful
@@ -535,10 +534,7 @@ export default function PublicEstimate({ token }) {
                   transition: 'all 0.15s ease',
                 }}
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="oklch(0.55 0.15 270)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-                  <line x1="1" y1="10" x2="23" y2="10" />
-                </svg>
+                <CreditCardIcon width={24} height={24} style={{ color: 'oklch(0.55 0.15 270)' }} />
                 <span style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>Pay with Card</span>
                 <span style={{ fontSize: 11, color: '#888' }}>
                   Fee: 2.9% + $0.25 (${(calculateFee(totalCents, 'card') / 100).toFixed(2)})
@@ -555,11 +551,7 @@ export default function PublicEstimate({ token }) {
                   transition: 'all 0.15s ease',
                 }}
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="oklch(0.75 0.18 145)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
-                  <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
-                  <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
-                </svg>
+                <WalletIcon width={24} height={24} style={{ color: 'oklch(0.75 0.18 145)' }} />
                 <span style={{ fontSize: 14, fontWeight: 600, color: '#1a1a1a' }}>Pay with Bank</span>
                 <span style={{ fontSize: 11, color: '#888' }}>
                   Fee: 0.8% capped at $25 (${(calculateFee(totalCents, 'ach') / 100).toFixed(2)})

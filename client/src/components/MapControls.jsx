@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
 
 const timeRanges = [
   { id: '12h', label: '12 Hours' },
@@ -38,9 +39,7 @@ export function TimeFilter({ timeRange, onTimeRangeChange }) {
         onClick={() => setOpen((v) => !v)}
       >
         <span>{current?.label || 'Select'}</span>
-        <svg className={`map-controls__chevron${open ? ' is-open' : ''}`} width="10" height="6" viewBox="0 0 10 6" fill="none">
-          <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
+        <ChevronDownIcon className={`map-controls__chevron${open ? ' is-open' : ''}`} width={10} height={10} />
       </button>
       {open && (
         <div className="map-controls__dropdown-menu glass">

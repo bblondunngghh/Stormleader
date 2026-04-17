@@ -4,7 +4,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useAuth } from './AuthContext';
 import * as onboardingApi from '../api/onboarding';
-import { CloudIcon, MagnifyingGlassIcon, ArrowsPointingOutIcon } from '@heroicons/react/24/outline';
+import { CloudIcon, MagnifyingGlassIcon, ArrowsPointingOutIcon, CheckIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 
 function formatPhone(value) {
   const digits = value.replace(/\D/g, '').slice(0, 10);
@@ -81,9 +81,7 @@ function StepIndicator({ currentStep, onGoToStep }) {
                 }}
               >
                 {isDone ? (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
+                  <CheckIcon width={14} height={14} strokeWidth={3} aria-hidden="true" />
                 ) : (
                   step.id
                 )}
@@ -465,20 +463,7 @@ function PlanCard({ plan, isSelected, isRecommended, onSelect }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)', flex: 1 }}>
         {plan.features && plan.features.map((feature, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-sm)' }}>
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="var(--accent-green)"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              style={{ flexShrink: 0, marginTop: 1 }}
-              aria-hidden="true"
-            >
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
+            <CheckIcon width={14} height={14} strokeWidth={2.5} style={{ flexShrink: 0, marginTop: 1, color: 'var(--accent-green)' }} aria-hidden="true" />
             <span style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>{feature}</span>
           </div>
         ))}
@@ -691,10 +676,7 @@ function PaymentForm({ onNext, onSkip }) {
             border: '1px solid oklch(0.75 0.18 155 / 0.2)',
           }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-          </svg>
+          <LockClosedIcon width={14} height={14} style={{ color: 'var(--accent-green)' }} aria-hidden="true" />
           <span style={{ fontSize: 12, color: 'var(--accent-green)' }}>
             Secured by Stripe. We never store your card details.
           </span>

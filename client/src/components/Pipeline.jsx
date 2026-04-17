@@ -1226,9 +1226,7 @@ export default function Pipeline() {
                         <IconEyeOff width="13" height="13" />
                       </button>
                       {idx < columns.length - 1 && (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={col.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 ml-1" style={{ opacity: 0.45, transform: 'scaleX(-1)' }}>
-                          <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
-                        </svg>
+                        <ArrowLeftIcon width={16} height={16} className="shrink-0 ml-1" style={{ opacity: 0.45, transform: 'scaleX(-1)', color: col.color }} />
                       )}
                     </>
                   )}
