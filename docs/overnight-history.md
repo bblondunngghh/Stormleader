@@ -773,3 +773,36 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Email send requires SMTP configuration
 - Webhook endpoints need signature verification keys
 - QuickBooks, Twilio, Stripe integrations not implemented
+
+---
+
+## QA Run: 2026-04-17
+
+### Test Results
+- Pages tested: 17
+- API endpoints tested: 160+
+- Bugs found: 3
+- Bugs fixed: 3
+- UI inconsistencies found: 8
+- UI inconsistencies fixed: 8
+
+### Fixes Made
+- GET /leads/status/public/:token 500 — removed non-existent `state`/`zip` columns, fixed `company_name` → `name`, fixed `stage_change` → `status_change` enum (04c0ee8)
+- dripService.js — `company_name` → `name` column fix in tenants query (e30be36)
+- POST /crm/test-email — added `|| {}` fallback for missing Content-Type header (e30be36)
+
+### UI Consistency Fixes
+- StormCatalog: inline SVG close → XMarkIcon (0de487f)
+- StormProperties: inline SVG filter → FunnelIcon (0de487f)
+- MapControls: inline SVG chevron → ChevronDownIcon (0de487f)
+- Pipeline: inline SVG arrow → ArrowLeftIcon (0de487f)
+- OnboardingPage: 3 inline SVGs → CheckIcon, LockClosedIcon (0de487f)
+- PublicEstimate: 3 inline SVGs → CheckIcon, CreditCardIcon, WalletIcon (0de487f)
+
+### Known Issues Remaining
+- Admin panel requires super_admin role to test
+- Pipeline drag-and-drop not exercised (no browser automation)
+- CSV export/import not verified end-to-end
+- Email send requires SMTP configuration
+- Webhook endpoints need signature verification keys
+- QuickBooks, Twilio, Stripe integrations not implemented
