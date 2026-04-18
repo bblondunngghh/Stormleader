@@ -589,13 +589,9 @@ export default function EstimatesView() {
         {/* Compare Tiers button — shows when there are tier estimates */}
         {estimates.filter(e => getTierLabel(e)).length >= 2 && (
           <button
+            className="quick-action-btn"
             onClick={() => setShowCompare(true)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              padding: '8px 14px', borderRadius: 10, border: '1px solid oklch(0.72 0.15 200 / 0.3)',
-              background: 'oklch(0.72 0.15 200 / 0.1)', color: 'oklch(0.72 0.15 200)',
-              fontSize: 12, fontWeight: 600, cursor: 'pointer',
-            }}
+            style={{ display: 'flex', alignItems: 'center', gap: 5 }}
           >
             <Squares2X2Icon width={14} height={14} />
             Compare Tiers
