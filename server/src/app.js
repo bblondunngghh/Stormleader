@@ -24,7 +24,13 @@ app.use((req, res, next) => {
   if (req.originalUrl === '/api/payments/webhook' || req.originalUrl === '/api/webhooks/hearth') {
     return next();
   }
-  express.json()(req, res, next);
+  express.json()(req, res, (err) => {
+    if (err) return next(err);
+    // Guarantee req.body is always an object so handlers can safely destructure
+    // even when clients omit Content-Type or send no body at all.
+    if (req.body == null) req.body = {};
+    next();
+  });
 });
 
 app.use('/api', routes);
