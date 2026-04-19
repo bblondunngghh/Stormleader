@@ -1,9 +1,6 @@
 -- 043_security_audit_indexes.sql
 -- Missing indexes identified during 2026-03-25 security & performance audit
 
--- properties: tenant_id used in nearly every property query
-CREATE INDEX IF NOT EXISTS idx_properties_tenant ON properties(tenant_id);
-
 -- leads: property_id used in JOINs with properties table
 CREATE INDEX IF NOT EXISTS idx_leads_property ON leads(property_id);
 
