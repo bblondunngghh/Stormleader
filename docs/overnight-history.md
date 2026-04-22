@@ -806,3 +806,32 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Email send requires SMTP configuration
 - Webhook endpoints need signature verification keys
 - QuickBooks, Twilio, Stripe integrations not implemented
+
+---
+
+## QA Run: 2026-04-22
+
+### Test Results
+- Pages tested: 17
+- API endpoints tested: 160+
+- Bugs found: 2
+- Bugs fixed: 2
+- UI inconsistencies found: 1
+- UI inconsistencies fixed: 1
+
+### Fixes Made
+- `/leads/:id` route missing — added route in `App.jsx` and wired `LeadList.jsx` to auto-open the detail panel from URL param so dashboard/deep-link navigation no longer falls through to the catch-all redirect (eabc81c)
+- EstimatesView numbered-list button used inline SVG inconsistent with adjacent Heroicon bullet-list button — replaced with `NumberedListIcon` from `@heroicons/react/24/outline` (ce87ade)
+
+### UI Consistency Fixes
+- EstimatesView rich-text toolbar: inline numbered-list SVG → `NumberedListIcon` (ce87ade)
+
+### Known Issues Remaining
+- Admin panel requires super_admin role to test
+- Pipeline drag-and-drop not exercised end-to-end in-browser
+- CSV export/import binary download not verified
+- Email send requires SMTP configuration
+- Webhook endpoints need signature verification keys
+- QuickBooks, Twilio, Stripe integrations not implemented
+- Mobile responsive (375px/768px) not measured this run
+- File upload on lead detail not exercised
