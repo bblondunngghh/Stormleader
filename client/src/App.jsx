@@ -91,6 +91,7 @@ function AppShell() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/pipeline" element={<Pipeline />} />
             <Route path="/leads" element={<LeadList />} />
+            <Route path="/leads/:id" element={<LeadList />} />
             <Route path="/storm-map" element={<StormMap />} />
             <Route path="/storm-catalog" element={<StormCatalog />} />
             <Route path="/alerts" element={<AlertSettings />} />

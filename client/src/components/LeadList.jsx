@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
 import { getLeads, bulkAssign, bulkStatus, getTeamMembers } from '../api/crm';
 const LeadDetail = lazy(() => import('./LeadDetail'));
 import { IconSearch, IconDownload, IconFilter, IconX, IconUpload, IconBookmark } from './Icons';
@@ -93,12 +93,21 @@ function isOverdue(dateStr) {
 
 export default function LeadList() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { id: routeLeadId } = useParams();
+  const navigate = useNavigate();
 
   // Restore from URL params
   const [leads, setLeads] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [selectedLead, setSelectedLead] = useState(null);
+  const [selectedLead, setSelectedLead] = useState(routeLeadId ? { id: routeLeadId } : null);
+
+  useEffect(() => {
+    if (routeLeadId && (!selectedLead || selectedLead.id !== routeLeadId)) {
+      setSelectedLead({ id: routeLeadId });
+    }
+  }, [routeLeadId]);
+
   const [searchInput, setSearchInput] = useState(searchParams.get('search') || '');
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [stageFilter, setStageFilter] = useState(searchParams.get('stage') || '');
@@ -769,7 +778,10 @@ export default function LeadList() {
         <Suspense fallback={null}>
           <LeadDetail
             leadId={selectedLead.id}
-            onClose={() => setSelectedLead(null)}
+            onClose={() => {
+              setSelectedLead(null);
+              if (routeLeadId) navigate('/leads');
+            }}
             onUpdated={() => fetchLeads()}
           />
         </Suspense>
