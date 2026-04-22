@@ -9,7 +9,7 @@ import DatePicker from './DatePicker';
 import { showToast } from './Toast';
 import { SRSCatalogModal } from './MaterialsView';
 import * as materialsApi from '../api/materials';
-import { CloudIcon, ClockIcon, CheckCircleIcon, BanknotesIcon, ClipboardDocumentListIcon, ShieldCheckIcon, Squares2X2Icon, ListBulletIcon, LinkIcon, PrinterIcon, DocumentArrowDownIcon, PhotoIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
+import { CloudIcon, ClockIcon, CheckCircleIcon, BanknotesIcon, ClipboardDocumentListIcon, ShieldCheckIcon, Squares2X2Icon, ListBulletIcon, NumberedListIcon, LinkIcon, PrinterIcon, DocumentArrowDownIcon, PhotoIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
 
 function formatPhone(value) {
   const digits = value.replace(/\D/g, '').slice(0, 10);
@@ -1009,7 +1009,7 @@ function RichTextEditor({ value, onChange, placeholder, minHeight = 80, tokens }
           <ListBulletIcon width={14} height={14} />
         </button>
         <button type="button" style={btnStyle()} onMouseDown={e => { e.preventDefault(); exec('insertOrderedList'); }} title="Numbered List">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><text x="3" y="8" fill="currentColor" fontSize="8" stroke="none">1</text><text x="3" y="14" fill="currentColor" fontSize="8" stroke="none">2</text><text x="3" y="20" fill="currentColor" fontSize="8" stroke="none">3</text></svg>
+          <NumberedListIcon width={14} height={14} />
         </button>
         <button type="button" style={btnStyle()} onMouseDown={e => { e.preventDefault(); handleLink(); }} title="Insert Link">
           <LinkIcon width={14} height={14} />
