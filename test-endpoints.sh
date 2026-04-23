@@ -1,0 +1,130 @@
+#!/bin/bash
+# API endpoint test script
+BASE="http://localhost:3001/api"
+TOKEN=$(cat /tmp/token.txt)
+OUT="/tmp/api-test-results.txt"
+echo "# API Test Results - $(date)" > "$OUT"
+echo "| Method | Endpoint | Status | Notes |" >> "$OUT"
+echo "|--------|----------|--------|-------|" >> "$OUT"
+
+test_endpoint() {
+  local method="$1"
+  local path="$2"
+  local data="$3"
+  local url="${BASE}${path}"
+  local response
+  local status
+  if [ -n "$data" ]; then
+    response=$(curl -s -o /tmp/resp.txt -w "%{http_code}" -X "$method" "$url" \
+      -H "Authorization: Bearer $TOKEN" \
+      -H "Content-Type: application/json" \
+      -d "$data")
+  else
+    response=$(curl -s -o /tmp/resp.txt -w "%{http_code}" -X "$method" "$url" \
+      -H "Authorization: Bearer $TOKEN")
+  fi
+  status=$response
+  # Get first 150 chars of response for debugging
+  local body=$(head -c 200 /tmp/resp.txt | tr '\n' ' ' | tr '|' ' ')
+  local flag=""
+  if [ "$status" = "500" ] || [ "$status" = "502" ] || [ "$status" = "000" ]; then
+    flag=" ⚠️ BROKEN"
+  fi
+  echo "| $method | $path | $status |$flag ${body:0:80} |" >> "$OUT"
+  echo "$method $path -> $status${flag}"
+}
+
+# GET endpoints (safe reads)
+test_endpoint GET "/auth/me"
+test_endpoint GET "/storms"
+test_endpoint GET "/dashboard/stats"
+test_endpoint GET "/dashboard/funnel"
+test_endpoint GET "/dashboard/activity"
+test_endpoint GET "/properties"
+test_endpoint GET "/properties/import-progress"
+test_endpoint GET "/properties/fema-live?bbox=-90,41,-89,42"
+test_endpoint GET "/map/properties?bbox=-90,41,-89,42"
+test_endpoint GET "/map/affected-properties"
+test_endpoint GET "/map/swaths"
+test_endpoint GET "/leads"
+test_endpoint GET "/alerts/config"
+test_endpoint GET "/alerts/history"
+test_endpoint GET "/counties"
+test_endpoint GET "/crm/leads"
+test_endpoint GET "/crm/tasks"
+test_endpoint GET "/crm/pipeline/stages"
+test_endpoint GET "/crm/pipeline/metrics"
+test_endpoint GET "/crm/dashboard/stats"
+test_endpoint GET "/crm/dashboard/activity"
+test_endpoint GET "/crm/team"
+test_endpoint GET "/crm/tenant-settings"
+test_endpoint GET "/crm/dashboard/properties-affected"
+test_endpoint GET "/crm/dashboard/properties-affected/list"
+test_endpoint GET "/crm/dashboard/followups"
+test_endpoint GET "/crm/dashboard/conversion-by-storm"
+test_endpoint GET "/crm/dashboard/estimate-summary"
+test_endpoint GET "/crm/dashboard/ar-summary"
+test_endpoint GET "/crm/dashboard/estimating-conversion"
+test_endpoint GET "/crm/dashboard/leaderboard"
+test_endpoint GET "/crm/dashboard/tasks-today"
+test_endpoint GET "/crm/dashboard/days-in-stage"
+test_endpoint GET "/crm/dashboard/stale-leads"
+test_endpoint GET "/crm/dashboard/customer-storm-alerts"
+test_endpoint GET "/crm/dashboard/lead-source-revenue"
+test_endpoint GET "/crm/prospect-lists"
+test_endpoint GET "/crm/calendar"
+test_endpoint GET "/crm/custom-fields"
+test_endpoint GET "/crm/automations"
+test_endpoint GET "/crm/canvass-pins"
+test_endpoint GET "/crm/canvass-pins/stats"
+test_endpoint GET "/crm/reports/revenue"
+test_endpoint GET "/crm/reports/pipeline"
+test_endpoint GET "/crm/reports/conversion"
+test_endpoint GET "/crm/reports/rep-performance"
+test_endpoint GET "/crm/reports/stage-duration"
+test_endpoint GET "/crm/reports/lead-sources"
+test_endpoint GET "/crm/work-orders"
+test_endpoint GET "/crm/work-orders/milestone-templates"
+test_endpoint GET "/crm/drip-sequences"
+test_endpoint GET "/crm/contracts"
+test_endpoint GET "/crm/contracts/templates"
+test_endpoint GET "/crm/expenses"
+test_endpoint GET "/crm/subcontractors"
+test_endpoint GET "/crm/territories"
+test_endpoint GET "/crm/financing/lenders"
+test_endpoint GET "/crm/financing/plans"
+test_endpoint GET "/crm/financing/applications"
+test_endpoint GET "/crm/invoices"
+test_endpoint GET "/estimates"
+test_endpoint GET "/estimates/templates"
+test_endpoint GET "/notifications"
+test_endpoint GET "/notifications/unread-count"
+test_endpoint GET "/notifications/preferences"
+test_endpoint GET "/search?q=test"
+test_endpoint GET "/documents"
+test_endpoint GET "/roof-measurement/config"
+test_endpoint GET "/roof-measurement/usage"
+test_endpoint GET "/roof-measurement/balance"
+test_endpoint GET "/admin/overview"
+test_endpoint GET "/admin/tenants"
+test_endpoint GET "/admin/revenue"
+test_endpoint GET "/admin/usage"
+test_endpoint GET "/payments/connect/status"
+test_endpoint GET "/payments/history"
+test_endpoint GET "/materials/products"
+test_endpoint GET "/materials/branches"
+test_endpoint GET "/materials/orders"
+test_endpoint GET "/materials/credentials"
+test_endpoint GET "/skip-trace/config"
+test_endpoint GET "/skip-trace/balance"
+test_endpoint GET "/skip-trace/invoices"
+test_endpoint GET "/skip-trace/usage"
+test_endpoint GET "/skip-trace/jobs"
+test_endpoint GET "/onboarding/plans"
+test_endpoint GET "/disaster-declarations"
+test_endpoint GET "/storm-history"
+test_endpoint GET "/storm-history/heatmap"
+test_endpoint GET "/data/fema-housing?lat=41.5&lng=-90.5"
+test_endpoint GET "/data/directions?origin=41.5,-90.5&destination=41.6,-90.4"
+
+echo "Done. Results in $OUT"

@@ -73,7 +73,9 @@ function AppShell() {
   const location = useLocation();
 
   const activeView = useMemo(() => {
-    return routeToView[location.pathname] || 'dashboard';
+    if (routeToView[location.pathname]) return routeToView[location.pathname];
+    const firstSegment = '/' + (location.pathname.split('/')[1] || '');
+    return routeToView[firstSegment] || 'dashboard';
   }, [location.pathname]);
 
   const handleNavigate = useCallback((view, search) => {
