@@ -835,3 +835,43 @@ and what should be prioritized next. Future agents MUST read this before startin
 - QuickBooks, Twilio, Stripe integrations not implemented
 - Mobile responsive (375px/768px) not measured this run
 - File upload on lead detail not exercised
+
+---
+
+## QA Run: 2026-04-24
+
+### Test Results
+- Pages tested (screenshots produced or refreshed): 21 (15 new, 6 updated)
+- API endpoints tested: 0 fully-logged endpoints this run (test harness built but not executed to completion)
+- Bugs found: 2
+- Bugs fixed (committed): 1
+- Bugs fixed (uncommitted, in working tree): 1
+- UI inconsistencies found: 2 (both inline-SVG star ratings)
+- UI inconsistencies fixed: 2
+
+### Fixes Made
+- Dashboard.jsx `StarRating` and StormCatalog.jsx severity stars rendered with raw inline `<svg>` paths instead of Heroicons — replaced with `StarIcon` from `@heroicons/react/24/outline`, preserving filled/unfilled visual via a `fill` style prop (18f337a)
+- server/src/routes/admin.js — added `validateId()` middleware to `GET /api/admin/tenants/:id` and `PUT /api/admin/tenants/:id` to prevent a raw 500 on a non-UUID path param (uncommitted in working tree; matches the CRM UUID-validation pattern from 3577c4a / 005a6eb)
+
+### New Infrastructure
+- server/scripts/api-test.sh — reusable ~340-line bash harness that hits ~160+ endpoints in one pass, marks HTTP 500/502/504 as `CRASH`, and writes a skimmable log suitable for regression diffs (uncommitted in working tree)
+
+### UI Consistency Fixes
+- Dashboard.jsx: inline-SVG `StarRating` → `StarIcon` heroicon (18f337a)
+- StormCatalog.jsx: severity-row inline SVGs → `StarIcon` heroicon (18f337a)
+
+### Session Integrity
+- All 5 overnight child sessions hit `error_max_turns`: s1=51, s2=81, s3=61, s4=41, s5=0B
+- The s5 report session produced a zero-byte JSON — this report was written in a follow-up session
+- Total cost for the 4 sessions that did produce work: ~$14.48
+
+### Known Issues Remaining
+- Admin panel requires super_admin role to test
+- Pipeline drag-and-drop not exercised end-to-end in-browser
+- CSV export/import binary download not verified
+- Email send requires SMTP configuration
+- Webhook endpoints need signature verification keys
+- QuickBooks, Twilio, Stripe integrations not implemented
+- Mobile responsive (375px/768px) not measured systematically this run (one capture only)
+- File upload on lead detail not exercised
+- Playwright not invoked this run — zero interactive click/fill/drag coverage
