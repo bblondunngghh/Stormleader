@@ -18,6 +18,7 @@ import {
   SignalIcon,
   HomeIcon,
   ExclamationTriangleIcon,
+  StarIcon,
 } from '@heroicons/react/24/outline';
 
 /* ── Helpers ──────────────────────────────────────────────── */
@@ -241,9 +242,15 @@ function StarRating({ stars }) {
   return (
     <span className="flex items-center gap-px" title={`${stars}/5 severity`}>
       {[1, 2, 3, 4, 5].map(i => (
-        <svg key={i} width="10" height="10" viewBox="0 0 20 20" fill={i <= stars ? 'oklch(0.78 0.17 85)' : 'oklch(0.25 0.02 260)'}>
-          <path d="M10 1l2.5 5.5L18 7.5l-4 4 1 5.5L10 14.5 5 17l1-5.5-4-4 5.5-1z" />
-        </svg>
+        <StarIcon
+          key={i}
+          style={{
+            width: 10,
+            height: 10,
+            color: i <= stars ? 'oklch(0.78 0.17 85)' : 'oklch(0.25 0.02 260)',
+            fill: i <= stars ? 'oklch(0.78 0.17 85)' : 'none',
+          }}
+        />
       ))}
     </span>
   );

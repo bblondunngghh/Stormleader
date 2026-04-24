@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { getStorms } from '../api/storms';
 import client from '../api/client';
 import DatePicker from './DatePicker';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, StarIcon } from '@heroicons/react/24/outline';
 
 const TIME_RANGES = [
   { id: '24h', label: '24 Hours' },
@@ -346,9 +346,15 @@ export default function StormCatalog() {
                           {/* Severity stars */}
                           <span title={`${severityLabel(rating)} (${rating}/5)`} style={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                             {[1, 2, 3, 4, 5].map(i => (
-                              <svg key={i} width={12} height={12} viewBox="0 0 20 20" fill={i <= rating ? sColor : 'none'} stroke={sColor} strokeWidth={1.5}>
-                                <path d="M10 1.5l2.47 5.01 5.53.8-4 3.9.94 5.49L10 14.35 5.06 16.7 6 11.21l-4-3.9 5.53-.8z" />
-                              </svg>
+                              <StarIcon
+                                key={i}
+                                style={{
+                                  width: 12,
+                                  height: 12,
+                                  color: sColor,
+                                  fill: i <= rating ? sColor : 'none',
+                                }}
+                              />
                             ))}
                           </span>
                         </div>
