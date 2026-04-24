@@ -423,6 +423,23 @@ export async function updateTask(tenantId, taskId, updates) {
 // PIPELINE STAGES
 // ============================================================
 
+const DEFAULT_PIPELINE_STAGES = [
+  { key: 'new',              label: 'New',              color: 'oklch(0.72 0.19 250)', position: 0 },
+  { key: 'contacted',        label: 'Contacted',        color: 'oklch(0.75 0.15 200)', position: 1 },
+  { key: 'appt_set',         label: 'Appt Set',         color: 'oklch(0.78 0.17 85)',  position: 2 },
+  { key: 'inspected',        label: 'Inspected',        color: 'oklch(0.72 0.20 50)',  position: 3 },
+  { key: 'estimate_sent',    label: 'Estimate Sent',    color: 'oklch(0.70 0.18 330)', position: 4 },
+  { key: 'negotiating',      label: 'Negotiating',      color: 'oklch(0.65 0.15 280)', position: 5 },
+  { key: 'sold',             label: 'Sold',             color: 'oklch(0.75 0.18 155)', position: 6 },
+  { key: 'in_production',    label: 'In Production',    color: 'oklch(0.70 0.16 170)', position: 7 },
+  { key: 'material_ordered', label: 'Material Ordered', color: 'oklch(0.72 0.14 120)', position: 8 },
+  { key: 'scheduled',        label: 'Scheduled',        color: 'oklch(0.74 0.16 100)', position: 9 },
+  { key: 'completed',        label: 'Completed',        color: 'oklch(0.76 0.17 145)', position: 10 },
+  { key: 'invoiced',         label: 'Invoiced',         color: 'oklch(0.70 0.15 220)', position: 11 },
+  { key: 'paid',             label: 'Paid',             color: 'oklch(0.75 0.18 155)', position: 12 },
+  { key: 'collections',      label: 'Collections',      color: 'oklch(0.68 0.22 25)',  position: 13 },
+];
+
 export async function getPipelineStages(tenantId) {
   const { rows } = await pool.query(
     `SELECT * FROM pipeline_stages
@@ -430,7 +447,8 @@ export async function getPipelineStages(tenantId) {
      ORDER BY position`,
     [tenantId]
   );
-  return rows;
+  if (rows.length) return rows;
+  return DEFAULT_PIPELINE_STAGES;
 }
 
 // ============================================================
@@ -460,22 +478,9 @@ export async function getPipelineMetrics(tenantId) {
     [tenantId]
   );
 
-  // Merge with pipeline stages for color/label
-  let stages = await getPipelineStages(tenantId);
-
-  // Fallback to default stages if tenant has none configured
-  if (!stages.length) {
-    stages = [
-      { key: 'new', label: 'New', color: 'oklch(0.72 0.19 250)' },
-      { key: 'contacted', label: 'Contacted', color: 'oklch(0.75 0.15 200)' },
-      { key: 'appt_set', label: 'Appt Set', color: 'oklch(0.78 0.17 85)' },
-      { key: 'inspected', label: 'Inspected', color: 'oklch(0.72 0.20 50)' },
-      { key: 'estimate_sent', label: 'Estimate Sent', color: 'oklch(0.70 0.18 330)' },
-      { key: 'negotiating', label: 'Negotiating', color: 'oklch(0.65 0.15 280)' },
-      { key: 'sold', label: 'Sold', color: 'oklch(0.75 0.18 155)' },
-      { key: 'in_production', label: 'In Production', color: 'oklch(0.70 0.16 170)' },
-    ];
-  }
+  // Merge with pipeline stages for color/label (getPipelineStages returns
+  // DEFAULT_PIPELINE_STAGES when the tenant has none configured).
+  const stages = await getPipelineStages(tenantId);
 
   // Build a map of actual counts from DB
   const countMap = Object.fromEntries(rows.map(r => [r.stage, r]));

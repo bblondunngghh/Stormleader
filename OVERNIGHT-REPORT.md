@@ -1,135 +1,90 @@
-# QA Test Report — 2026-04-22
+# QA Test Report — 2026-04-23
 
 ## QA Test Summary
 
 | Metric | Count |
 |---|---|
-| Pages tested | 17 |
-| API endpoints tested | 160+ |
-| Bugs found | 2 |
-| Bugs fixed | 2 |
-| UI inconsistencies found | 1 |
-| UI inconsistencies fixed | 1 |
-| Commits | 2 |
+| Overnight sessions launched | 5 (s1 api, s2 frontend, s3 ui-audit, s4 verify, s5 report) |
+| Sessions that completed normally | 0 — every session terminated on `error_max_turns` |
+| Pages visually verified (screenshots) | 4 (dashboard, pipeline/production filter, leads deep-link, leads table) |
+| Uncommitted fixes produced | 2 files (`skipTrace.js`, `crmService.js`) |
+| New commits on `feat/financing` | 0 |
+| Bugs found this run | 2 |
+| Bugs fixed (code written, not yet committed) | 2 |
+| UI inconsistencies found | 0 |
+
+**Honesty note:** All five overnight child sessions hit their turn caps, including the s5 "write the report" session (its output JSON is zero bytes). The code fixes below were produced inside those sessions but never committed. Stale test-result files under `/tmp` (`api-test-results.txt` dated 2026-04-17, `ui-audit-results.txt` dated 2026-04-22, `frontend-test-results.txt` missing) cannot be attributed to tonight and are not counted toward this run.
 
 ## Backend API Test Results
 
-All 160+ endpoints across 37 route files were re-exercised with curl against `http://localhost:3001` using the `brandon@accessvaletparking.com / waterloo` session.
+No new API-level sweep completed tonight. The s1 api-test session hit max turns after 51 iterations. No fresh endpoint matrix was produced; the only /tmp API result file present is from QA Run 6 (2026-04-17) and is explicitly excluded from this report.
 
-### Auth & Public Routes
-- Endpoints tested: ~10 (login, register, onboarding, public lead status, public estimate, public financing)
-- Passed: 10 | Failed: 0
-- No regressions from prior fixes (`04c0ee8`, `e30be36`).
+Two backend defects were identified and patched during the overnight work (uncommitted in working tree):
 
-### CRM Core (leads, contacts, activities, tasks, documents, notes)
-- Endpoints tested: ~55
-- Passed: 55 | Failed: 0
-- UUID validation on all ID-bearing routes returns 400 on malformed IDs (not 500); empty POST bodies return 400.
+### skipTrace
+- `GET /api/skip-trace/job/:jobId` surfaced raw 500 when `TRACERFY_API_KEY` was unset. Patched to return `503 { error: 'Skip trace service not configured. Set TRACERFY_API_KEY.' }` via a targeted `not configured` error-message check. (`server/src/routes/skipTrace.js`)
 
-### Estimates, Invoices, Work Orders, Payments
-- Endpoints tested: ~35
-- Passed: 35 | Failed: 0
-- CRUD flows verified end-to-end; public estimate signing endpoint healthy.
+### CRM pipeline stages
+- `getPipelineStages` returned `[]` for tenants with no configured stages — the UI then rendered an empty kanban. Extracted a new `DEFAULT_PIPELINE_STAGES` constant (14 canonical stages: `new`, `contacted`, `appt_set`, `inspected`, `estimate_sent`, `negotiating`, `sold`, `in_production`, `material_ordered`, `scheduled`, `completed`, `invoiced`, `paid`, `collections`) and fall back to it when the DB returns no rows.
+- `getPipelineMetrics` carried a duplicated 8-stage fallback. Removed; it now relies on the unified default from `getPipelineStages`. (`server/src/services/crmService.js`)
 
-### Storm / Map Data (NOAA, NSI, Census, hail swaths)
-- Endpoints tested: ~20
-- Passed: 20 | Failed: 0
-- FEMA property endpoints left untouched per standing instruction.
-
-### Drip Sequences, Email, Notifications, Search
-- Endpoints tested: ~15
-- Passed: 15 | Failed: 0
-- Previous drip/test-email fixes (`e30be36`) remain clean.
-
-### Admin & Super-admin
-- Endpoints tested: ~10
-- Status: 403 as expected (tenant user has no `super_admin` role); functional testing deferred.
-
-### Settings, Team, Integrations, Reports, Leaderboard
-- Endpoints tested: ~15
-- Passed: 15 | Failed: 0
-
-**Net:** 0 new backend bugs found tonight. All previously-fixed 500s stayed fixed.
+Both patches are staged in the working tree but **not committed** — they should be reviewed before promotion.
 
 ## Frontend Feature Test Results
 
-Playwright-style code + route audit across all routes declared in `client/src/App.jsx`.
+The s2 frontend-test session hit max turns after 81 iterations without writing a summary file. The s4 verify session produced four screenshots before also hitting its cap. What those screenshots do confirm:
 
-### /dashboard
-- Rendered cleanly; stat cards, funnel, activity feed, tasks-due-today, leaderboard all load.
-- **Bug found:** Stat cards and activity links navigated to `/leads/:id` URLs, but no such route was registered — the catch-all redirected users back to the dashboard.
-- **Fixed** in `eabc81c`: added `/leads/:id` route in `App.jsx` and wired `LeadList.jsx` to auto-open the detail panel from the URL param.
+### /dashboard — `qa-20260423-01-dashboard.png`
+- Greeting, stat cards ($60K, 0%, 10h), pipeline funnel, storm activity panel, today/activity-feed panels all render cleanly against the glass background. No visible regression vs. prior runs.
 
-### /leads
-- Table, filters, pagination, CSV export, bulk select all render.
-- Direct deep links (`/leads/<uuid>`) now open the detail panel — previously broken, verified fixed.
+### /pipeline — `qa-20260423-02-pipeline-production.png`
+- Kanban renders with filter chips (All, Sold, In Production, Billing, All Storm, All Financing, All Tags). No obvious layout breakage; the "In Production" filter view is sparsely populated which is expected for this tenant dataset.
 
-### /leads/:id
-- Detail panel opens from both the table click path and direct URL navigation after `eabc81c`.
-- All tabs (overview, activity, documents, estimates) render.
+### /leads deep-link — `qa-20260423-s4-leads-deeplink.png`
+- Navigating directly to `/leads/<uuid>` opens the lead detail panel (Lead: "888 Qa Path", stage badge "Contacted", HOT pill). This exercises the `/leads/:id` route added in `eabc81c` (2026-04-22); still passing tonight.
 
-### /pipeline
-- Kanban board renders with stages (`appt_set`, `estimate_sent`, `in_production`, etc.).
-- HTML5 drag API still in use (no regression).
+### /leads list — `qa-20260423-s4-leads-notfound.png`
+- Leads table renders with full column set, stage chips, filter toolbar, and pagination ("Showing 1-10 of X leads"). Sidebar shows `Admin` entry — user role is now `super_admin` per the avatar subtitle.
 
-### /estimates
-- List view and builder both render; live preview updates on line-item changes.
-- **UI bug found:** the numbered-list button in the rich-text toolbar used an inline SVG while the adjacent bullet-list button used a Heroicon — library inconsistency.
-- **Fixed** in `ce87ade`: replaced with `NumberedListIcon` from `@heroicons/react/24/outline`.
-
-### /invoices, /work-orders, /tasks, /calendar, /reports
-- Routes load; no new regressions detected.
-
-### /canvassing, /content-studio, /storm-map
-- Render cleanly. FEMA property logic not exercised per instruction.
-
-### /settings (all tabs)
-- Profile, Company, Team, Storm Alerts, Notifications, Email/SMTP, Financing, Integrations, Drip Sequences, Custom Fields, Contracts, Reviews — all render. No new issues.
+### What was not covered
+- No programmatic per-route assertion list produced tonight.
+- No Playwright `browser_click/fill/drag` interactive flows were captured.
+- No responsive/mobile breakpoint verification.
 
 ## UI Consistency Audit Results
 
-### Icons
-- Scanned all 37 Heroicon imports — every one uses `/24/outline`. No solid variants, no `react-icons`, no `lucide`, no `fortawesome`, no `material-icons`.
-- One inline `<svg>` icon found in a button context (EstimatesView numbered-list) — **fixed** in `ce87ade`.
-- Remaining inline SVGs are intentional (map decorations, photo-annotator drawing tools, star-rating fills) — documented and left as-is.
+The s3 ui-audit session hit max turns after 61 iterations and did not write a summary. No new non-Heroicon icons were flagged in the screenshots, no inline-SVG regressions are visible, and the icon-standardization work from runs 5–7 is intact. Treating this category as **not re-audited** tonight rather than "clean" — there is no fresh evidence either way.
 
-### Buttons
-- No outlier sizing/padding/radius detected across primary, secondary, icon-only, and danger variants. All share the established token set.
-
-### Toolbars & Headers
-- Header/toolbar pattern is consistent across all pages (title left, actions right); heights match.
-
-### Sidebar & Nav
-- Collapsible sidebar, active-state styling, icon set, and spacing are consistent across every page.
-
-### Forms
-- All `<input>`, `<select>`, `<textarea>` elements in forms use `.form-input` (or `CustomSelect` / `DatePicker` for dropdowns and dates). No native `<select>` or native `<input type="date">` detected in audited views.
-
-### Spacing & Alignment
-- Card gaps, section headers, and `.glass` panel padding consistent.
-
-### Modals
-- All modals use `modal-backdrop` + `scale-in` animation, consistent header styling, consistent close-button placement.
+- Icons: no change observed in screenshots; last known clean as of `ce87ade` (2026-04-22).
+- Buttons: no visible inconsistency in the four screenshots.
+- Toolbars/Headers: consistent title-left / actions-right pattern visible.
+- Sidebar/Nav: consistent across the two sidebars captured (dashboard, leads).
+- Forms: only the lead detail form was visible; all inputs use `.form-input`.
+- Spacing: no visible alignment regression.
+- Modals: no modal captured this run.
 
 ## Bugs Fixed
 
-1. **`/leads/:id` route missing** — Dashboard and list views navigated to `/leads/<uuid>` but the router had no matching route, so the catch-all redirected to `/dashboard`. Added the route in `App.jsx` and wired `LeadList.jsx` to auto-open the detail panel from the URL param. (`eabc81c`)
-2. **EstimatesView numbered-list icon** — Rich-text toolbar used an inline SVG inconsistent with the `@heroicons/react/24/outline` standard used by every adjacent button. Replaced with `NumberedListIcon`. (`ce87ade`)
+1. **`GET /api/skip-trace/job/:jobId` 500 when Tracerfy unconfigured** — service threw `"Skip trace service not configured"` which was swallowed by the default 500 handler. Added a targeted catch that returns `503` with a clear error message. (working tree, uncommitted — `server/src/routes/skipTrace.js`)
+2. **Empty pipeline kanban for tenants without configured stages** — `getPipelineStages` returned `[]`; the UI then rendered nothing. Added `DEFAULT_PIPELINE_STAGES` fallback (14 canonical stages) and removed duplicate fallback logic in `getPipelineMetrics`. (working tree, uncommitted — `server/src/services/crmService.js`)
 
 ## Known Issues (Not Fixed)
 
-- **Admin / super-admin panel** — endpoints return 403 under the tenant session; full functional testing requires a `super_admin` role.
-- **Pipeline drag-and-drop** — code path untested end-to-end without live browser automation under this run.
-- **Email send (`/crm/test-email`, `/invoices/:id/send-email`)** — blocked on SMTP configuration.
-- **Webhook endpoints (`/webhooks/tracerfy`, `/webhooks/hearth`)** — blocked on signature-verification keys.
-- **QuickBooks / Twilio / Stripe integrations** — not wired up; nothing to test.
-- **Calendar view** — still flagged as "future" per spec; no functional depth to exercise.
-- **CSV export/import** — tables render and endpoints 200, but binary file download not verified in this pass.
+- Uncommitted fixes above need human review and commit.
+- Admin super-admin panel: user now has super_admin role (screenshot evidence) — no endpoint testing was performed against admin routes tonight.
+- Pipeline drag-and-drop: still not exercised end-to-end in-browser.
+- Email send / SMTP, webhook signature keys, QuickBooks / Twilio / Stripe integrations: unchanged since prior runs.
+- Calendar view: still "future" per spec.
+- CSV export/import binary path: not verified.
+- Carryover session runaway: every child session exceeded its turn budget. The harness contract the orchestrator issues to sub-sessions is producing unbounded work. Worth investigating before the next overnight run.
 
 ## Test Coverage Gaps
 
-- **Browser-interactive paths** — Playwright browser_click/fill/drag flows weren't exercised this run; verification relied on route-level code audit and API-level testing.
-- **Mobile responsive (375px, 768px)** — not measured this run.
-- **File uploads** on lead detail — multipart path not exercised.
-- **FEMA property loading** — deliberately excluded per standing instruction (active dev area).
+- **No fresh API matrix tonight.** All backend status numbers in prior reports carry over; no new assertions were captured.
+- **No per-route frontend audit tonight.** Only four screenshots available.
+- **No UI consistency re-audit tonight.** The s3 session did not write.
+- **Mobile responsive (375px, 768px)** — not measured.
+- **File upload** on lead detail — multipart path not exercised.
+- **FEMA property loading** — deliberately excluded per standing instruction.
 - **Long-running jobs** (drip schedule firing, scheduled reports) — no background job runner exercised.
+- **s5 report session produced a zero-byte output** — this report was assembled from git state, screenshots, and working-tree diffs rather than from the scheduled reporting agent.

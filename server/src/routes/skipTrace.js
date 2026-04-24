@@ -142,6 +142,9 @@ router.get('/job/:jobId', validateId('jobId'), async (req, res, next) => {
     const status = await skipTraceService.getJobStatus(req.params.jobId);
     res.json(status);
   } catch (err) {
+    if (err.message.includes('not configured')) {
+      return res.status(503).json({ error: 'Skip trace service not configured. Set TRACERFY_API_KEY.' });
+    }
     next(err);
   }
 });
