@@ -495,7 +495,7 @@ router.post('/', async (req, res, next) => {
 
 // PUT /api/properties/:id/location — Update property coordinates (e.g. drag pin to correct spot)
 // Also re-lookups nearest parcel to correct assessed_value and other county data
-router.put('/:id/location', async (req, res, next) => {
+router.put('/:id/location', validateId(), async (req, res, next) => {
   try {
     const { lat, lng } = req.body;
     if (lat == null || lng == null) return res.status(400).json({ error: 'lat and lng are required' });
@@ -543,7 +543,7 @@ router.put('/:id/location', async (req, res, next) => {
 });
 
 // POST /api/properties/:id/fema-lookup — Fetch FEMA NSI data for a single property on-demand
-router.post('/:id/fema-lookup', async (req, res, next) => {
+router.post('/:id/fema-lookup', validateId(), async (req, res, next) => {
   try {
     const propertyId = req.params.id;
 
@@ -654,7 +654,7 @@ router.post('/:id/fema-lookup', async (req, res, next) => {
 });
 
 // GET /api/properties/:id/weather-history — Storm history within 5 miles of property
-router.get('/:id/weather-history', async (req, res, next) => {
+router.get('/:id/weather-history', validateId(), async (req, res, next) => {
   try {
     const propertyId = req.params.id;
 
@@ -683,7 +683,7 @@ router.get('/:id/weather-history', async (req, res, next) => {
 });
 
 // GET /api/properties/:id/weather-history/pdf — Download storm history as PDF
-router.get('/:id/weather-history/pdf', async (req, res, next) => {
+router.get('/:id/weather-history/pdf', validateId(), async (req, res, next) => {
   try {
     const propertyId = req.params.id;
 
@@ -797,7 +797,7 @@ router.get('/:id/weather-history/pdf', async (req, res, next) => {
 });
 
 // GET /api/properties/:id/report/pdf — Comprehensive property report
-router.get('/:id/report/pdf', async (req, res, next) => {
+router.get('/:id/report/pdf', validateId(), async (req, res, next) => {
   try {
     const propId = req.params.id;
 
