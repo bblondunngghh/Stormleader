@@ -27,6 +27,7 @@ import {
   QuestionMarkCircleIcon,
   ExclamationTriangleIcon,
   PaperAirplaneIcon,
+  BanknotesIcon,
 } from '@heroicons/react/24/outline';
 import PhotoAnnotator from './PhotoAnnotator';
 import DatePicker from './DatePicker';
@@ -1438,7 +1439,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
           <>
             <div className="detail-section">
               <h4 style={{ marginBottom: 'var(--space-md)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: 14, fontWeight: 700, margin: '0 0 var(--space-md) 0' }}>
-                <span className="material-symbols-rounded" style={{ fontSize: 18 }}>payments</span>
+                <BanknotesIcon style={{ width: 18, height: 18 }} />
                 Financing
               </h4>
               {financingApps.map(app => (

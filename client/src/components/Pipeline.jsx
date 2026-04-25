@@ -951,7 +951,7 @@ export default function Pipeline() {
                            ['declined'].includes(lead.financing_status) ? 'oklch(0.8 0.15 25)' :
                            'oklch(0.8 0.15 85)',
                   }}>
-                    <span className="material-symbols-rounded" style={{ fontSize: '14px' }}>payments</span>
+                    <BanknotesIcon style={{ width: 14, height: 14 }} />
                     {lead.financing_status}
                   </span>
                 )}
@@ -1297,7 +1297,7 @@ export default function Pipeline() {
                                      ['declined'].includes(lead.financing_status) ? 'oklch(0.8 0.15 25)' :
                                      'oklch(0.8 0.15 85)',
                             }}>
-                              <span className="material-symbols-rounded" style={{ fontSize: '14px' }}>payments</span>
+                              <BanknotesIcon style={{ width: 14, height: 14 }} />
                               {lead.financing_status}
                             </span>
                           )}
