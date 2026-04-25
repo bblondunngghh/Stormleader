@@ -4,7 +4,7 @@ import { getEstimates } from '../api/estimates';
 import { uploadDocument } from '../api/documents';
 import { showToast } from './Toast';
 import { IconPlusCircle, IconX, IconRefresh } from './Icons';
-import { CheckCircleIcon, CameraIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, CameraIcon, CheckIcon, DocumentArrowDownIcon } from '@heroicons/react/24/outline';
 import CustomSelect from './CustomSelect';
 import DatePicker from './DatePicker';
 import TimePicker from './TimePicker';
@@ -561,7 +561,7 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
             color: 'oklch(0.78 0.16 85)',
             border: '1px solid oklch(0.78 0.16 85 / 0.25)',
           }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>picture_as_pdf</span> Export PDF
+            <DocumentArrowDownIcon width={16} height={16} /> Export PDF
           </button>
           {wo.status !== 'completed' && (
             <button onClick={handleComplete} disabled={saving} style={{

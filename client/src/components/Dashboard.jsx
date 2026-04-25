@@ -19,6 +19,11 @@ import {
   HomeIcon,
   ExclamationTriangleIcon,
   StarIcon,
+  WalletIcon,
+  ArrowsRightLeftIcon,
+  ArrowsPointingOutIcon,
+  ChevronRightIcon,
+  CloudArrowDownIcon,
 } from '@heroicons/react/24/outline';
 
 /* ── Helpers ──────────────────────────────────────────────── */
@@ -752,9 +757,7 @@ export default function Dashboard() {
                   margin: '4px 0 0',
                 }}>{pipelineValue}</h3>
               </div>
-              <span className="material-symbols-outlined" style={{ color: 'oklch(0.78 0.12 200 / 0.5)', fontSize: 24 }}>
-                account_balance_wallet
-              </span>
+              <WalletIcon style={{ color: 'oklch(0.78 0.12 200 / 0.5)', width: 24, height: 24 }} />
             </div>
 
             {/* New Leads — half width */}
@@ -807,9 +810,7 @@ export default function Dashboard() {
                   fontSize: 24,
                   fontWeight: 700,
                 }}>{closeRate}</span>
-                <span className="material-symbols-outlined" style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                  trending_flat
-                </span>
+                <ArrowsRightLeftIcon style={{ width: 12, height: 12, color: 'var(--text-muted)' }} />
               </div>
             </div>
 
@@ -941,9 +942,7 @@ export default function Dashboard() {
                   alignItems: 'center',
                   gap: 8,
                 }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 14, color: 'var(--accent-cyan)' }}>
-                    radar
-                  </span>
+                  <SignalIcon style={{ width: 14, height: 14, color: 'var(--accent-cyan)' }} />
                   <span style={{
                     fontFamily: 'inherit',
                     fontSize: 10,
@@ -969,7 +968,7 @@ export default function Dashboard() {
                     boxShadow: '0 4px 12px oklch(0 0 0 / 0.3)',
                   }}
                 >
-                  <span className="material-symbols-outlined">fullscreen</span>
+                  <ArrowsPointingOutIcon style={{ width: 20, height: 20 }} />
                 </button>
               </div>
             </div>
@@ -1067,9 +1066,7 @@ export default function Dashboard() {
                             }}>{detail}{timeAgo ? ` \u2022 ${timeAgo}` : ''}</p>
                           </div>
                         </div>
-                        <span className="material-symbols-outlined" style={{ color: 'var(--text-muted)', fontSize: 14 }}>
-                          chevron_right
-                        </span>
+                        <ChevronRightIcon style={{ color: 'var(--text-muted)', width: 14, height: 14 }} />
                       </div>
                     );
                   })}
@@ -1088,9 +1085,7 @@ export default function Dashboard() {
                 justifyContent: 'center',
                 textAlign: 'center',
               }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--text-muted)', marginBottom: 8 }}>
-                  cloud_off
-                </span>
+                <CloudArrowDownIcon style={{ color: 'var(--text-muted)', width: 24, height: 24, marginBottom: 8, opacity: 0.5 }} />
                 <p style={{
                   fontFamily: "'Manrope', sans-serif",
                   fontSize: 12,

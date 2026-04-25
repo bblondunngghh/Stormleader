@@ -4,7 +4,7 @@ import { getActivities } from '../api/crm';
 import { showToast } from './Toast';
 import { IconRefresh, IconPlusCircle, IconPhone, IconCalendar, IconFilter, IconX, IconChevronDown, IconEyeOff, IconEye, IconMail } from './Icons';
 import CustomSelect from './CustomSelect';
-import { UserCircleIcon, FireIcon, SunIcon, CloudIcon, ArrowsPointingOutIcon, CurrencyDollarIcon, WrenchScrewdriverIcon, BanknotesIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { UserCircleIcon, FireIcon, SunIcon, CloudIcon, ArrowsPointingOutIcon, CurrencyDollarIcon, WrenchScrewdriverIcon, BanknotesIcon, ArrowLeftIcon, ClockIcon, PaperClipIcon, PlusIcon } from '@heroicons/react/24/outline';
 const LeadDetail = lazy(() => import('./LeadDetail'));
 const CreateLeadModal = lazy(() => import('./CreateLeadModal'));
 
@@ -979,14 +979,14 @@ export default function Pipeline() {
                       const info = dueDateInfo(lead.due_date);
                       return info ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: 16, color: info.color || 'var(--text-muted)' }}>schedule</span>
+                          <ClockIcon style={{ width: 16, height: 16, color: info.color || 'var(--text-muted)' }} />
                           <span style={{ fontSize: 10, fontFamily: 'inherit', fontWeight: 700, color: info.color || 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{info.text}</span>
                         </div>
                       ) : null;
                     })()}
                     {lead.document_count > 0 && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--text-muted)' }}>attach_file</span>
+                        <PaperClipIcon style={{ width: 16, height: 16, color: 'var(--text-muted)' }} />
                         <span style={{ fontSize: 10, fontFamily: 'inherit', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{lead.document_count} files</span>
                       </div>
                     )}
@@ -1005,7 +1005,7 @@ export default function Pipeline() {
                         background: 'oklch(0.22 0.02 260)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                         marginLeft: lead.rep_first_name ? -8 : 0,
                       }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: 12, color: 'var(--text-primary)' }}>add</span>
+                        <PlusIcon style={{ width: 12, height: 12, color: 'var(--text-primary)' }} />
                       </div>
                     </div>
                   </div>
@@ -1039,7 +1039,7 @@ export default function Pipeline() {
             transition: 'transform 0.15s',
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: 30 }}>add</span>
+          <PlusIcon style={{ width: 30, height: 30 }} />
         </button>
 
         {/* Pulse animation keyframes */}

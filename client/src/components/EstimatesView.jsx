@@ -9,7 +9,7 @@ import DatePicker from './DatePicker';
 import { showToast } from './Toast';
 import { SRSCatalogModal } from './MaterialsView';
 import * as materialsApi from '../api/materials';
-import { CloudIcon, ClockIcon, CheckCircleIcon, BanknotesIcon, ClipboardDocumentListIcon, ShieldCheckIcon, Squares2X2Icon, ListBulletIcon, NumberedListIcon, LinkIcon, PrinterIcon, DocumentArrowDownIcon, PhotoIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
+import { CloudIcon, ClockIcon, CheckCircleIcon, BanknotesIcon, ClipboardDocumentListIcon, ShieldCheckIcon, Squares2X2Icon, ListBulletIcon, NumberedListIcon, LinkIcon, PrinterIcon, DocumentArrowDownIcon, PhotoIcon, QuestionMarkCircleIcon, PlusCircleIcon, PencilSquareIcon, TrashIcon, EyeIcon, EnvelopeIcon, DocumentDuplicateIcon, ArrowUpCircleIcon } from '@heroicons/react/24/outline';
 
 function formatPhone(value) {
   const digits = value.replace(/\D/g, '').slice(0, 10);
@@ -241,7 +241,7 @@ export default function EstimatesView() {
               marginBottom: 24,
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>add_circle</span>
+            <PlusCircleIcon style={{ width: 20, height: 20 }} />
             CREATE NEW ESTIMATE
           </button>
 
@@ -434,60 +434,52 @@ export default function EstimatesView() {
                       <div style={{ display: 'flex', gap: 8 }}>
                         {est.status === 'draft' ? (
                           <>
-                            <span
-                              className="material-symbols-outlined"
+                            <PencilSquareIcon
                               onClick={() => handleEdit(est)}
-                              style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
+                              style={{ width: 18, height: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
                               title="Edit"
-                            >edit</span>
-                            <span
-                              className="material-symbols-outlined"
+                            />
+                            <DocumentArrowDownIcon
                               onClick={() => handleDownloadPdf(est)}
-                              style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
+                              style={{ width: 18, height: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
                               title="Download PDF"
-                            >picture_as_pdf</span>
-                            <span
-                              className="material-symbols-outlined"
+                            />
+                            <TrashIcon
                               onClick={() => handleDelete(est)}
-                              style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
+                              style={{ width: 18, height: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
                               title="Delete"
-                            >delete</span>
+                            />
                           </>
                         ) : est.status === 'sent' || est.status === 'viewed' ? (
                           <>
-                            <span
-                              className="material-symbols-outlined"
+                            <EyeIcon
                               onClick={() => handleEdit(est)}
-                              style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
+                              style={{ width: 18, height: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
                               title="View"
-                            >visibility</span>
-                            <span
-                              className="material-symbols-outlined"
+                            />
+                            <DocumentArrowDownIcon
                               onClick={() => handleDownloadPdf(est)}
-                              style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
+                              style={{ width: 18, height: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
                               title="Download PDF"
-                            >picture_as_pdf</span>
-                            <span
-                              className="material-symbols-outlined"
+                            />
+                            <EnvelopeIcon
                               onClick={() => handleSend(est)}
-                              style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
+                              style={{ width: 18, height: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
                               title="Resend"
-                            >mail</span>
+                            />
                           </>
                         ) : (
                           <>
-                            <span
-                              className="material-symbols-outlined"
+                            <DocumentArrowDownIcon
                               onClick={() => handleDownloadPdf(est)}
-                              style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
+                              style={{ width: 18, height: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
                               title="Download PDF"
-                            >picture_as_pdf</span>
-                            <span
-                              className="material-symbols-outlined"
+                            />
+                            <DocumentDuplicateIcon
                               onClick={() => handleDuplicate(est)}
-                              style={{ fontSize: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
+                              style={{ width: 18, height: 18, color: 'var(--text-secondary)', cursor: 'pointer' }}
                               title="Duplicate"
-                            >assignment</span>
+                            />
                           </>
                         )}
                       </div>
@@ -2292,7 +2284,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
           <div className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: insuranceEnabled ? 'var(--space-md)' : 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--accent-blue)' }}>shield</span>
+                <ShieldCheckIcon style={{ width: 18, height: 18, color: 'var(--accent-blue)' }} />
                 <span style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Insurance Claim</span>
               </div>
               <button onClick={() => setInsuranceEnabled(!insuranceEnabled)}
@@ -2425,7 +2417,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
           <div className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--accent-amber)' }}>upgrade</span>
+                <ArrowUpCircleIcon style={{ width: 18, height: 18, color: 'var(--accent-amber)' }} />
                 <span style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Optional Upgrades</span>
               </div>
               <button className="quick-action-btn" onClick={() => setUpgrades(prev => [...prev, { name: '', description: '', price: '', selected: false }])}

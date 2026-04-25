@@ -10,7 +10,7 @@ import { TimeFilter, LayerPanel } from './MapControls';
 import AddressSearch from './AddressSearch';
 import SwathPopup from './SwathPopup';
 
-import { SignalIcon, BoltIcon, MagnifyingGlassPlusIcon } from '@heroicons/react/24/outline';
+import { SignalIcon, BoltIcon, MagnifyingGlassPlusIcon, Squares2X2Icon, CloudIcon, FunnelIcon, MapPinIcon } from '@heroicons/react/24/outline';
 
 // Clean address strings from messy data (trailing commas, extra spaces)
 function cleanAddr(str) {
@@ -2634,14 +2634,14 @@ export default function StormMap() {
                     }
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'oklch(0.90 0.06 200)' }}>layers</span>
+                  <Squares2X2Icon style={{ width: '16px', height: '16px', color: 'oklch(0.90 0.06 200)' }} />
                   <span style={mobileStyles.layerBtnLabel}>Terrain</span>
                 </button>
                 <button
                   style={layers.hail ? mobileStyles.layerBtnActive : { ...mobileStyles.layerBtnBase, background: 'var(--accent-cyan)', color: 'oklch(0.25 0.06 200)' }}
                   onClick={() => setLayers(prev => ({ ...prev, hail: !prev.hail }))}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>storm</span>
+                  <CloudIcon style={{ width: '16px', height: '16px' }} />
                   <span style={mobileStyles.layerBtnLabel}>Show Hail Trace</span>
                 </button>
               </div>
@@ -2657,7 +2657,7 @@ export default function StormMap() {
           <aside style={mobileStyles.aside}>
             <div style={mobileStyles.feedHeader}>
               <h3 style={mobileStyles.feedTitle}>STORM FEED</h3>
-              <span className="material-symbols-outlined" style={{ color: 'var(--text-muted)', fontSize: '20px' }}>filter_list</span>
+              <FunnelIcon style={{ color: 'var(--text-muted)', width: '20px', height: '20px' }} />
             </div>
 
             {/* Stats Grid */}
@@ -2676,9 +2676,7 @@ export default function StormMap() {
             <div style={mobileStyles.feedScroll}>
               {mobileStormFeed.length === 0 && !mapLoading && (
                 <div style={{ textAlign: 'center', padding: '32px 16px', color: 'var(--text-muted)', fontSize: '13px' }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: '40px', display: 'block', marginBottom: '8px', opacity: 0.4 }}>
-                    location_searching
-                  </span>
+                  <MapPinIcon style={{ width: '40px', height: '40px', display: 'block', marginBottom: '8px', opacity: 0.4, marginLeft: 'auto', marginRight: 'auto' }} />
                   Zoom into a storm area to load properties
                 </div>
               )}

@@ -4,7 +4,7 @@ import { IconCheckSquare, IconX } from './Icons';
 import CustomSelect from './CustomSelect';
 import DatePicker from './DatePicker';
 
-import { ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
+import { ClipboardDocumentListIcon, FunnelIcon, PlusIcon, CheckCircleIcon, ClockIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 
 const priorityColors = {
   hot: 'var(--accent-red)',
@@ -138,7 +138,7 @@ export default function TasksView() {
                 fontFamily: 'inherit', fontSize: 13, cursor: 'pointer',
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>filter_list</span>
+              <FunnelIcon style={{ width: 16, height: 16 }} />
               FILTER OPS
             </button>
             <button
@@ -151,7 +151,7 @@ export default function TasksView() {
                 boxShadow: '0 0 15px oklch(0.78 0.12 200 / 0.2)',
               }}
             >
-              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
+              <PlusIcon style={{ width: 16, height: 16 }} />
               NEW TASK
             </button>
           </div>
@@ -690,7 +690,7 @@ function MobileTaskSection({ icon, iconColor, title, badgeText, badgeBg, badgeCo
             color: 'var(--text-secondary)', marginBottom: 4, textDecoration: 'line-through', margin: '0 0 8px',
           }}>{task.title}</h4>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'oklch(0.78 0.12 200 / 0.5)' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check_circle</span>
+            <CheckCircleIcon style={{ width: 16, height: 16 }} />
             <span style={{
               fontSize: 11, fontFamily: 'inherit', fontWeight: 700,
               letterSpacing: '0.1em', textTransform: 'uppercase',
@@ -759,9 +759,11 @@ function MobileTaskCard({ task, borderColor, cardStyle, onToggle, onEdit }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: task.description ? 0 : 16 }}>
         {task.due_date && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: getMobileTimeColor(task, cardStyle) }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
-              {cardStyle === 'overdue' ? 'schedule' : cardStyle === 'today' ? 'timer' : 'calendar_today'}
-            </span>
+            {(cardStyle === 'overdue' || cardStyle === 'today') ? (
+              <ClockIcon style={{ width: 16, height: 16 }} />
+            ) : (
+              <CalendarDaysIcon style={{ width: 16, height: 16 }} />
+            )}
             <span style={{
               fontSize: 11, fontFamily: 'inherit', fontWeight: 700,
               letterSpacing: '0.1em',
