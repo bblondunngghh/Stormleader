@@ -11,6 +11,7 @@ import { Router } from 'express';
 import pool from '../db/pool.js';
 import authenticate from '../middleware/authenticate.js';
 import authorize from '../middleware/authorize.js';
+import validateId from '../middleware/validateId.js';
 
 const router = Router();
 
@@ -217,7 +218,7 @@ router.get('/tenants', async (req, res, next) => {
 // GET /api/admin/tenants/:id
 // Detailed tenant info: users, skip-trace config, billing summary
 // ---------------------------------------------------------------------------
-router.get('/tenants/:id', async (req, res, next) => {
+router.get('/tenants/:id', validateId(), async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -372,7 +373,7 @@ router.get('/tenants/:id', async (req, res, next) => {
 // Update a tenant's subscription tier or status
 // Body: { subscriptionTier?, subscriptionStatus? }
 // ---------------------------------------------------------------------------
-router.put('/tenants/:id', async (req, res, next) => {
+router.put('/tenants/:id', validateId(), async (req, res, next) => {
   try {
     const { id } = req.params;
     const { subscriptionTier, subscriptionStatus } = req.body;
