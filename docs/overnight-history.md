@@ -875,3 +875,42 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Mobile responsive (375px/768px) not measured systematically this run (one capture only)
 - File upload on lead detail not exercised
 - Playwright not invoked this run — zero interactive click/fill/drag coverage
+
+---
+
+## QA Run: 2026-04-25
+
+### Test Results
+- Pages tested (icon audit sweep): 6 components
+- API endpoints tested: 159 (harness) + ~50 nested-`:id` probes
+- Bugs found: 1 root cause across 5 endpoints
+- Bugs fixed: 1 (5 endpoints, single commit)
+- UI inconsistencies found: 29 (1 payments badge × 3 call sites + 28 outlined icons across 6 components)
+- UI inconsistencies fixed: 29
+
+### Fixes Made
+- `server/src/routes/properties.js` — five nested `:id` routes (`GET /weather-history`, `GET /weather-history/pdf`, `GET /report/pdf`, `PUT /location`, `POST /fema-lookup`) returned `500` on a non-UUID `:id` because `pool.query` threw on the malformed UUID. Added the existing `validateId()` middleware (already imported in the file) to all five routes; they now return `400 {"error":"Invalid id format"}`. Verified by re-running `server/scripts/api-test.sh` (still 0 × 5xx) and ~50 additional targeted nested-`:id` probes (26a3f20)
+
+### UI Consistency Fixes
+- Pipeline desktop card, Pipeline mobile card, LeadDetail financing section: `material-symbols-rounded` `payments` glyph → `BanknotesIcon` from `@heroicons/react/24/outline` (b5887e7)
+- Dashboard.jsx, EstimatesView.jsx, Pipeline.jsx, StormMap.jsx, TasksView.jsx, WorkOrdersView.jsx: 28 final `material-symbols-outlined` spans → `@heroicons/react/24/outline` equivalents. Codebase now has zero Material Symbols spans (6e779d8)
+
+### Session Integrity
+- s1 api-test: success (54 turns, 23 881 output tokens, $2.75)
+- s2 frontend-test: error_max_turns (81 turns, 21 297 output tokens, $4.80)
+- s3 ui-audit: error_max_turns (61 turns, 17 511 output tokens, $3.28) — produced the two icon-cleanup commits before timing out
+- s4 verify: error_max_turns (41 turns, 8 203 output tokens, $2.22)
+- s5 report: 0 bytes (did not run; this report written in a follow-up session, same pattern as Run 8)
+- Total cost for the four sessions that produced work: ~$13.05
+
+### Known Issues Remaining
+- Admin panel requires global super_admin role to fully exercise
+- Pipeline drag-and-drop not validated end-to-end in a browser
+- CSV export download is not verified as a binary download (only 200 status is checked)
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration
+- Webhook endpoints (`/webhooks/tracerfy`, `/webhooks/hearth`) need signature verification keys
+- File upload on Lead Detail (multipart path) not exercised
+- QuickBooks, Twilio, Stripe integrations not implemented (pre-existing, not regressions)
+- Mobile responsive sweep at 375 px / 768 px not performed systematically this run
+- `/properties/in-swath/:stormEventId/count` returns `{"count":0}` for a nil UUID rather than 400 — harmless, left as-is
+- Browser-interactive (Playwright) coverage absent since Run 6 — top priority for Run 10

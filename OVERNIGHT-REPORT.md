@@ -1,147 +1,150 @@
-# QA Test Report — 2026-04-24
+# Overnight QA Report — 2026-04-25 (QA Run 9)
 
 ## QA Test Summary
 
-| Metric | Count |
-|---|---|
-| Overnight sessions launched | 5 (s1 api, s2 frontend, s3 ui-audit, s4 verify, s5 report) |
-| Sessions that completed normally | 0 — every session terminated on `error_max_turns` |
-| Screenshots produced (new + touched) | 21 (15 new, 6 updated) |
-| New commits on `feat/financing` | 1 (`18f337a`) |
-| Bugs found this run | 2 |
-| Bugs fixed & committed | 1 |
-| Bugs fixed but uncommitted (in working tree) | 1 |
-| New QA infrastructure | 1 (`server/scripts/api-test.sh`, ~340 lines) |
-| UI inconsistencies found | 2 (both star-rating SVGs) |
-| UI inconsistencies fixed | 2 |
-
-**Honesty note:** All five overnight child sessions hit their turn caps. The s5 "write the report" session output (`claude-overnight-20260424-s5-report.json`) is zero bytes — the report you are reading was written in a follow-up session. No `/tmp/api-test-results.txt`, `/tmp/frontend-test-results.txt`, or `/tmp/ui-audit-results.txt` from tonight are present; evidence for this run is the git diff, the committed change, the working-tree diff, and the screenshot set on disk.
+- Pages reviewed (icon audit): 6 components
+- API endpoints tested: 159 (harness) + ~50 nested-`:id` probes
+- Bugs found: 1 (5 endpoints with same root cause)
+- Bugs fixed: 1 (5 endpoints, one commit)
+- UI inconsistencies found: 29 (1 payments badge × 3 call sites, 28 outlined icons across 6 components)
+- UI inconsistencies fixed: 29
+- Commits landed since `overnight-checkpoint-20260425`: 3
+- Build status: passes (`npx vite build` ≈ 7.85 s)
 
 ## Backend API Test Results
 
-No completed fresh endpoint matrix was captured. The s1 api-test session (51 turns, $2.89) was spent building test infrastructure rather than running and logging results.
+The auth/CRM/estimates/properties harness was driven by `server/scripts/api-test.sh`, which logs in as `brandon@accessvaletparking.com` (waterloo tenant) on port **3001** and probes 159 endpoints across 36 route files.
 
-### Produced: `server/scripts/api-test.sh` (uncommitted, new file)
-A reusable ~340-line bash harness that hits every major route family with a single `bash server/scripts/api-test.sh > /tmp/api-test-results.txt` invocation. Coverage:
-- auth, storms, map, dashboard, properties, leads, skip-trace, alerts, drift, counties
-- CRM (leads, tasks, pipeline, dashboard family, team, tenant-settings, ~20 endpoints)
-- estimates, contracts, financing, automations, invoices, canvassing, reports
-- work-orders, drip, expenses, subcontractors, territories, materials
-- notifications, search, documents, roof-measurement, admin, payments, onboarding
-- disaster-declarations, storm-history, data (fema-housing, directions)
-- POST/PATCH/DELETE with empty `{}` body — verifies 400 vs 500 boundary
+| Category | Endpoints | 200 | 400 | 404 | 5xx |
+|----------|----------:|----:|----:|----:|----:|
+| All harness routes | 159 | 89 | 60 | 10 | **0** |
 
-Each call is wrapped with a `CRASH` marker for HTTP 500/502/504, `NO-CONN` for 000, and `OK` otherwise, making the resulting log skimmable for regressions.
+Distribution above is the full sweep — no per-category breakdown was logged this run because the harness writes a flat log, not categorized buckets.
 
-### Bug identified & patched in working tree (uncommitted): Admin tenant UUID 500s
-`GET /api/admin/tenants/:id` and `PUT /api/admin/tenants/:id` did not validate the `:id` param. A non-UUID value reached the pg driver and produced a raw 500 (`invalid input syntax for type uuid`). Patched in `server/src/routes/admin.js` by adding the shared `validateId()` middleware (same pattern used across CRM routes after Run 3). Fix is in the working tree, not yet committed — see "Follow-ups" below.
+### Bug found and fixed
 
-### Regression check on prior fixes
-No regressions reported against the fixes committed on 04-09 through 04-22 (public lead status, drip service `company_name`→`name`, test-email body fallback, CRM/canvassing UUID validation, skip-trace enable payload, task `completed` boolean mapping, `/leads/:id` route, numbered-list icon). The star-icon commit from this run (`18f337a`) built cleanly.
+| # | Endpoint(s) | Behaviour | Fix | Commit |
+|---|-------------|-----------|-----|--------|
+| 1 | `GET /properties/:id/weather-history`, `GET /properties/:id/weather-history/pdf`, `GET /properties/:id/report/pdf`, `PUT /properties/:id/location`, `POST /properties/:id/fema-lookup` | Returned `500 Internal server error` when `:id` was not a valid UUID — Postgres rejected the malformed UUID literal and the global error handler converted it to 500. | Added the existing `validateId()` middleware (already imported in `server/src/routes/properties.js`) to all five routes. They now return `400 {"error":"Invalid id format"}`. | `26a3f20` |
+
+These five routes were not covered by the harness; they were found by extending the bad-UUID sweep to nested `:id` paths in `properties.js`.
+
+After the fix, `bash server/scripts/api-test.sh` re-ran clean (still 0 × 5xx). `~50` additional targeted probes for nested `PATCH/DELETE/POST :id` routes also returned only 400 / 404 / proper success — no other 500s.
+
+### Categories with no failures this run
+
+- Auth (`/api/auth/*`)
+- Leads (`/api/crm/leads`, `/api/crm/leads/status/public/:token`)
+- Pipeline / stages
+- Estimates, invoices, payments
+- Tasks, contacts, properties (other than the five fixed)
+- Storms, FEMA, weather-history list endpoints
+- Documents, notifications, search
+- Drip, financing, work orders, subcontractors
+- Admin (returns 403 as expected — test account is super_admin in waterloo only, not globally)
 
 ## Frontend Feature Test Results
 
-The s2 frontend session (81 turns, $5.40) produced 15 new page screenshots plus 6 updated existing ones. All screenshots are in the repo root at `qa-*.png`.
+The frontend-test session (s2) hit `error_max_turns` (80 turns, 21 297 output tokens) before producing a structured per-page log, so this section is intentionally short. The verify session (s4) also hit max_turns (40 turns) before completing its sweep.
 
-### New screenshots captured tonight
-- `qa-admin.png`, `qa-admin-view.png` — admin super-panel views (role-gated; captured from tenant perspective as expected-403 empty states)
-- `qa-calendar.png` — calendar view
-- `qa-canvassing.png` — canvassing pins / door-to-door view
-- `qa-contracts.png` — contracts list
-- `qa-expenses.png` — expenses view
-- `qa-materials.png` — materials orders / products catalog
-- `qa-reports.png` — reports hub
-- `qa-settings-reviews.png` — settings reviews tab
-- `qa-subcontractors.png` — subcontractors view
-- `qa-tasks.png` — tasks view
-- `qa-mobile-dashboard.png` — dashboard at narrow viewport (first mobile-viewport capture in several runs)
-- `qa-dashboard-stars.png`, `qa-storm-catalog-stars.png` — focused captures of the star-rating regions used as the visual evidence for the s3 UI fix
-- `qa-leads-invalid-uuid.png` — leads page behaviour on `/leads/bad-uuid` path (expected "not found" state)
+What was inspected during the run (no regressions surfaced):
 
-### Updated screenshots (drift captures, behavior unchanged)
-`qa-estimates.png`, `qa-invoices.png`, `qa-lead-detail.png`, `qa-pipeline.png`, `qa-storm-map.png`, `qa-work-orders.png`
+- **Pipeline**: lead cards rendered correctly on desktop and mobile breakpoints. Financing badge previously rendered with a Material Symbols glyph — now a Heroicon (see UI Audit below).
+- **LeadDetail**: financing section's payments icon swapped to Heroicon; no other regressions found.
+- **Dashboard, EstimatesView, StormMap, TasksView, WorkOrdersView**: visual sweep during the icon migration confirmed all six pages still render and the icon swaps preserved sizing/spacing.
 
-### Per-page findings
-- **Dashboard** — render clean; stat cards retain glass styling; star-rating spans were rendering via raw `<svg>` (fixed in s3)
-- **StormCatalog** — render clean; severity-rating star row used raw `<svg>` (fixed in s3)
-- **Leads / LeadDetail** — deep-link (`/leads/:id`) still works after last run's route fix; invalid UUID path reaches a non-crashing state
-- **Pipeline** — no visual regression vs. last run
-- **Admin / Admin View** — route mounts and the page renders, but all calls return 403 for the tenant user (no super_admin role on the seeded account); not functionally exercised this run
-- **Mobile dashboard (single viewport test)** — dashboard layout holds at narrow width; sidebar behaviour at 375px still not systematically measured (covered under gaps below)
-- **Calendar, Canvassing, Contracts, Expenses, Materials, Reports, Settings/Reviews, Subcontractors, Tasks** — all routes mount and render; none produced a crash or missing-element screenshot
+What was **not** exercised this run:
 
-### What still needs attention
-- Admin super-panel is essentially a "gated, role-required" smoke — needs a super_admin session to actually exercise
-- Interactive flows (drag between pipeline stages, signing an estimate, uploading a document, sending an email) were not driven this run; Playwright was not invoked
-- Mobile viewport captures are a single screenshot, not a systematic 375px/768px sweep
+- Pipeline drag-and-drop card moves
+- CSV export download path on Leads
+- File upload on Lead Detail
+- Public estimate signing
+- Onboarding flow
+- Storm map FEMA loading
+- Calendar view
+- Reports page interactions
+
+Browser-interactive coverage (Playwright click/fill/drag) has been deferred since Run 6 and is the priority for Run 10.
 
 ## UI Consistency Audit Results
 
-The s3 ui-audit session (61 turns, $3.77) produced one committed fix and no other flagged issues.
-
 ### Icons
-- **Found:** two inline `<svg>` star-rating elements — one in `Dashboard.jsx` (`StarRating` component used by the Storm Activity feed) and one in `StormCatalog.jsx` (severity stars on catalog cards). Both rendered by hand-rolled paths rather than the app's Heroicon standard.
-- **Fixed:** both replaced with `StarIcon` from `@heroicons/react/24/outline`, preserving the filled/unfilled visual via a `fill` style prop (so a zero-severity star still renders as an outline, and a full-severity star still renders solid amber / storm-severity colour). Committed as `18f337a`.
-- Remaining raw `<svg>` elements in the app belong to map overlays, photo-annotator tools, and chart axis ticks — all intentional and out of scope for Heroicon substitution.
+
+**Found**: 29 non-Heroicon usages across the app — all Material Symbols font glyphs (`.material-symbols-outlined` and `.material-symbols-rounded`), violating the Heroicons-only policy.
+
+**Fixed in 2 commits**:
+
+1. `b5887e7` — `material-symbols-rounded` `payments` glyph used as the financing badge in three call sites (Pipeline desktop card, Pipeline mobile card, LeadDetail financing section). Replaced with `BanknotesIcon` from `@heroicons/react/24/outline`.
+2. `6e779d8` — final 28 `material-symbols-outlined` spans across **6 components**:
+   - `Dashboard.jsx`
+   - `EstimatesView.jsx`
+   - `Pipeline.jsx`
+   - `StormMap.jsx`
+   - `TasksView.jsx`
+   - `WorkOrdersView.jsx`
+
+   All replaced with the project-standard `@heroicons/react/24/outline` equivalents.
+
+After these two commits, the codebase contains **zero Material Symbols spans**.
 
 ### Buttons
-- No new outliers. Primary, secondary, icon-only, and danger variants continue to share the established `auth-btn` / `quick-action-btn` token set (no `btn-primary`/`btn-secondary` classes reintroduced since Run 2).
+
+No new sizing or styling inconsistencies surfaced this run.
 
 ### Toolbars / Headers
-- Consistent across all pages captured tonight. Title-left / actions-right layout holds; row heights match.
+
+Consistent across the pages inspected during the icon migration. No changes required.
 
 ### Sidebar / Nav
-- No reported issues; collapse/expand behaviour unchanged.
+
+No issues. Sidebar collapse/expand and active-route highlighting continue to render correctly after the icon swap.
 
 ### Forms
-- No new native `<select>` or native `<input type="date">` elements reintroduced. `CustomSelect` and `DatePicker` remain universal.
-- No new `.form-input` class deviations detected in the files touched this run.
+
+No non-standard form elements introduced. `DatePicker.jsx` and `CustomSelect.jsx` are still the canonical choices and were not regressed.
 
 ### Spacing
-- No new alignment issues surfaced in the screenshot set.
+
+Icon swaps preserved width/height (`w-5 h-5` defaults), so no visual gaps or alignment shifts were observed in the components touched.
 
 ### Modals
-- Modal backdrop and glass styling stable; no new modal components were added this run.
 
-## Bugs Fixed (numbered)
+No modal changes this run; ActivityModal continues to match prior screenshots.
 
-1. **Dashboard.jsx `StarRating` — inline `<svg>` star paths** — replaced with `StarIcon` from `@heroicons/react/24/outline` using `fill` style to preserve filled/unfilled appearance (committed as `18f337a`).
-2. **StormCatalog.jsx severity-row stars — inline `<svg>` star paths** — same replacement, same commit (`18f337a`).
+## Bugs Fixed (numbered list)
 
-## Follow-ups / Uncommitted Work Produced This Session
-
-The following are code changes produced by the overnight sessions that are in the working tree but were **not** committed by the task harness (the s5 report session died before committing). The follow-up session that wrote this report intentionally did not auto-commit them; they should be reviewed before landing.
-
-1. **`server/src/routes/admin.js`** — added `validateId()` middleware to `GET /api/admin/tenants/:id` and `PUT /api/admin/tenants/:id`. Consistent with the UUID-validation pattern applied to CRM routes in Run 3 (`3577c4a`, `005a6eb`). Prevents a 500 on a malformed path param; returns 400 instead.
-2. **`server/scripts/api-test.sh`** — new file, executable bash harness for smoke-testing ~160+ endpoints in one pass. Intended as recurring QA infrastructure.
+1. **`server/src/routes/properties.js` (5 routes)** — Bad-UUID `:id` returned 500 instead of 400. Added `validateId()` middleware to `/weather-history`, `/weather-history/pdf`, `/report/pdf`, `/location`, `/fema-lookup`. Commit `26a3f20`.
+2. **Pipeline + LeadDetail financing badge** — used `material-symbols-rounded` `payments` glyph instead of a Heroicon. Replaced with `BanknotesIcon` in all three call sites. Commit `b5887e7`.
+3. **Dashboard / EstimatesView / Pipeline / StormMap / TasksView / WorkOrdersView** — 28 leftover `material-symbols-outlined` spans across 6 components. Replaced with `@heroicons/react/24/outline` equivalents. Commit `6e779d8`.
 
 ## Known Issues (Not Fixed)
 
-- Admin panel deep testing requires a user with the `super_admin` role — no such seeded account available
-- Pipeline drag-and-drop not exercised end-to-end in a real browser (HTML5 drag API path)
-- CSV export binary download not verified (only endpoint 200 checked)
-- Email send requires SMTP configuration — `/crm/test-email` and `/invoices/:id/send-email` untested against a live sender
-- Webhook endpoints (`/webhooks/tracerfy`, `/webhooks/hearth`) need signature-verification keys to test
-- QuickBooks, Twilio, Stripe integrations not implemented — endpoints stubbed
-- Mobile responsive sweep (375px / 768px) still a one-off rather than a systematic viewport matrix
-- File upload on lead detail (multipart path) still not exercised
+- Admin panel cannot be fully exercised — needs super_admin role beyond the per-tenant flag the test account holds.
+- Pipeline drag-and-drop not validated end-to-end in a browser.
+- CSV export download is not verified as a binary download (only the 200 status is checked).
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration to verify delivery.
+- Webhook endpoints (`/webhooks/tracerfy`, `/webhooks/hearth`) need signature verification keys.
+- File upload on Lead Detail (multipart path) not exercised.
+- QuickBooks, Twilio, Stripe integrations not implemented (pre-existing, not regressions).
+- Mobile responsive sweep at 375 px / 768 px not performed systematically this run.
 
 ## Test Coverage Gaps
 
-- **All five sessions hit their turn cap.** Per-session caps were s1=50, s2=80, s3=60, s4=40, s5=40. None of the stages walked their plan to completion.
-- **No completed API run log.** `/tmp/api-test-results.txt` was not produced on this run. The new `server/scripts/api-test.sh` script provides the infrastructure, but the pre-flight step that writes the JWT token, tenant ID, and user ID to `/tmp/` so the script can authenticate did not complete.
-- **No completed frontend run log.** `/tmp/frontend-test-results.txt` absent; evidence for this run is the screenshot set.
-- **No completed UI audit log.** `/tmp/ui-audit-results.txt` absent; evidence for this run is the committed diff for `18f337a`.
-- **Playwright not invoked.** Zero interactive click/fill/drag steps executed this run.
-- **Super-admin flows un-exercised** (role not held by the test account).
+- **Browser-interactive flows.** Sessions s2/s3/s4 all hit `error_max_turns` before initiating Playwright-driven flows. Click/fill/drag coverage has been absent since Run 6 and is the highest-priority gap.
+- **Positive-path E2E.** The harness only verifies that empty-body POSTs return 400. No `create lead → estimate → sign → work order → invoice → payment` traversal was exercised.
+- **`/properties/in-swath/:stormEventId/count`** returns `{"count":0}` for a nil UUID rather than 400 (no `validateId` on `:stormEventId`). Harmless but inconsistent with the rest of the surface — left as-is this run.
+- **Background jobs** (drip schedule firing, scheduled reports) — not invoked.
+- **Mobile viewports** — only one capture taken; no systematic 375 px / 768 px sweep.
 
-## Session cost (2026-04-24)
+## Session Integrity
 
-| Session | Turns | Wall time | API time | Cost |
-|---|---|---|---|---|
-| s1 api-test | 51 | 344s | 272s | $2.89 |
-| s2 frontend-test | 81 | 445s | 382s | $5.40 |
-| s3 ui-audit | 61 | 449s | 389s | $3.77 |
-| s4 verify | 41 | 269s | 250s | $2.42 |
-| s5 report | 0 (0B output) | — | — | $0.00 |
-| **Total** | **234** | **~25 min** | **~22 min** | **$14.48** |
+| Session | Status | Turns | Output tokens | Cost |
+|---------|--------|-----:|--------------:|-----:|
+| s1 api-test | success | 54 | 23 881 | $2.75 |
+| s2 frontend-test | error_max_turns | 81 | 21 297 | $4.80 |
+| s3 ui-audit | error_max_turns | 61 | 17 511 | $3.28 |
+| s4 verify | error_max_turns | 41 | 8 203 | $2.22 |
+| s5 report | 0 bytes (no run) | — | — | — |
+| **Total** | | | | **~$13.05** |
+
+This (post-overnight) report session was added to compensate for s5 producing a zero-byte JSON — the same pattern observed in Run 8.
