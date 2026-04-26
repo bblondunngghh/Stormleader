@@ -914,3 +914,44 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Mobile responsive sweep at 375 px / 768 px not performed systematically this run
 - `/properties/in-swath/:stormEventId/count` returns `{"count":0}` for a nil UUID rather than 400 — harmless, left as-is
 - Browser-interactive (Playwright) coverage absent since Run 6 — top priority for Run 10
+
+---
+
+## QA Run: 2026-04-26
+
+### Test Results
+- Pages tested: 14 full-page captures (qa11) + 7 focused captures (qa12)
+- API endpoints tested: 159 (harness) + ~120 (uncovered probe) + ~25 (positive-path E2E)
+- Bugs found: 0
+- Bugs fixed (committed): 0
+- UI inconsistencies found: 3
+- UI inconsistencies fixed (uncommitted in working tree): 3
+
+### Fixes Made
+- None committed this run. API surface clean for second consecutive run.
+
+### UI Consistency Fixes (uncommitted in working tree)
+- `client/src/components/ActivityModal.jsx` — replaced native `<input type="time">` in the follow-up section with the `TimePicker` component, mirroring the existing DatePicker mandate
+- `client/src/components/Dashboard.jsx` — `RevenueGoalBar` buttons changed from `rounded-lg` (8px) to `rounded-[12px]` to match the rest of the app
+- `client/src/components/WorkOrdersView.jsx` — toolbar padding `var(--space-2xl)` → `var(--space-xl)` to match Leads/Pipeline/Estimates toolbars; `btnStyle.borderRadius` `10` → `12` to match the rest of the app
+
+### Session Integrity
+- s1 api-test: success (31 turns, 26 836 output tokens, $2.44)
+- s2 frontend-test: error_max_turns (81 turns, 18 089 output tokens, $4.72) — captured the 14 qa11-* full-page screenshots before timing out
+- s3 ui-audit: error_max_turns (61 turns, 34 239 output tokens, $4.55) — captured the 7 qa12-* focused screenshots and produced the 3 uncommitted UI fixes in the working tree before timing out
+- s4 verify: error_max_turns (41 turns, 13 092 output tokens, $2.57)
+- s5 report: 0 bytes — did not run; this report written in a follow-up session (same pattern as Runs 8, 9, 10)
+- Total cost for the four sessions that produced work: ~$14.28
+
+### Known Issues Remaining
+- Admin panel requires global super_admin role to fully exercise
+- Pipeline drag-and-drop not validated end-to-end in a browser (still HTML5 drag API)
+- CSV export download is not verified as a binary download (only 200 status checked)
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration
+- Webhook endpoints (`/webhooks/tracerfy`, `/webhooks/hearth`) need signature verification keys
+- File upload on Lead Detail (multipart path) not exercised
+- QuickBooks, Twilio, Stripe integrations not implemented (pre-existing, not regressions)
+- Mobile responsive sweep at 375 px / 768 px not performed this run
+- `POST /drift/correct-all` and `POST /properties/trigger-import` accept empty bodies and trigger heavy work — should require explicit confirmation/role params
+- `PATCH /admin/tenants/:id` not defined (only `PUT` is) — Express returns default 404 HTML; not a bug per the contract
+- Browser-interactive (Playwright) click/fill/drag coverage absent since Run 6 — Run 11 captured screenshots only
