@@ -955,3 +955,47 @@ and what should be prioritized next. Future agents MUST read this before startin
 - `POST /drift/correct-all` and `POST /properties/trigger-import` accept empty bodies and trigger heavy work — should require explicit confirmation/role params
 - `PATCH /admin/tenants/:id` not defined (only `PUT` is) — Express returns default 404 HTML; not a bug per the contract
 - Browser-interactive (Playwright) click/fill/drag coverage absent since Run 6 — Run 11 captured screenshots only
+
+---
+
+## QA Run: 2026-04-27
+
+### Test Results
+- Pages tested: 19 focused captures (qa12) + 1 verification capture (qa13)
+- API endpoints tested: 159 (existing harness) + new `scripts/qa-api-harness.sh` (306 lines, ~80 GETs + ~40 POSTs)
+- Bugs found: 3 (2 API ENUM-cast crashes, 1 UI stacking-context)
+- Bugs fixed (uncommitted in working tree): 3
+- UI inconsistencies found: 1 (Work Orders modal hidden behind page chrome)
+- UI inconsistencies fixed (uncommitted in working tree): 1
+
+### Fixes Made
+- `server/src/routes/crm.js` — `POST /leads/quick` accepted arbitrary `priority` / `stage` strings, which threw a Postgres `invalid input value for enum` error and returned an opaque 5xx. Added explicit allow-list validation (`hot/warm/cold` for priority; `new/contacted/appt_set/inspected/estimate_sent/sold/lost/negotiating/in_production/on_hold` for stage) returning `400` with a descriptive message before the request reaches the database. Same pattern applied to `POST /tasks` and `PATCH /tasks/:id` for the `priority` field. Three handlers, one root cause. (uncommitted)
+- `client/src/components/WorkOrdersView.jsx` — `WorkOrderDetail`, `CreateWorkOrderModal`, and `EstimatePickerModal` mounted inline inside `WorkOrdersView`, which is wrapped by a `.glass` page container that uses `backdrop-filter` and creates its own stacking context. The modal `z-index: 1000` only stacked above siblings of that container, so the modal sat behind page chrome. Wrapped each modal in `createPortal(..., document.body)` so they mount as direct children of `<body>` and escape the parent stacking context entirely. Verified via qa13-wo-detail-portal.png. (uncommitted)
+
+### New Infrastructure
+- `scripts/qa-api-harness.sh` — 306-line consolidated bash harness combining positive-path GETs (with both real-looking and bad UUIDs), POST-empty-body probes for ~40 mutating endpoints, and `*** 5xx ***` flagging plus response-body capture for any 5xx. Sources `TOKEN` from env or `/tmp/tok.txt`. Complements (does not replace) `server/scripts/api-test.sh`. (uncommitted)
+
+### UI Consistency Fixes
+- `client/src/components/WorkOrdersView.jsx` — three modals wrapped in `createPortal(..., document.body)` (same change as Bug 3 above; this is both a UI-correctness fix and a stacking-context bug fix). (uncommitted)
+
+### Session Integrity
+- s1 api-test: error_max_turns (51 turns, 21 866 output tokens, $3.01) — produced the new harness and the two `crm.js` validation diffs before timing out
+- s2 frontend-test: error_max_turns (81 turns, 42 243 output tokens, $6.06) — captured most of the qa12 screenshots
+- s3 ui-audit: error_max_turns (61 turns, 26 021 output tokens, $4.19) — captured the qa12-wo-detail*.png + qa13-wo-detail-portal.png evidence and produced the WorkOrdersView portal fix before timing out
+- s4 verify: error_max_turns (41 turns, 9 179 output tokens, $2.03)
+- s5 report: 0 bytes — did not run; this report was written in a follow-up session (same pattern as Runs 8, 9, 10, 11)
+- Total cost for the four sessions that produced work: ~$15.29
+
+### Known Issues Remaining
+- Admin panel requires global super_admin role to fully exercise
+- Pipeline drag-and-drop not validated end-to-end in a browser (still HTML5 drag API)
+- CSV export download is not verified as a binary download (only 200 status checked)
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration
+- Webhook endpoints (`/webhooks/tracerfy`, `/webhooks/hearth`) need signature verification keys
+- File upload on Lead Detail (multipart path) not exercised
+- QuickBooks, Twilio, Stripe integrations not implemented (pre-existing, not regressions)
+- Mobile responsive sweep at 375 px / 768 px not performed this run
+- ENUM-validation allow-list pattern not yet applied to all other mutating routes that write Postgres ENUM columns (e.g. `POST /crm/activities` writes `activity_type`, `direction`, `outcome`; estimate/work-order status fields)
+- `POST /drift/correct-all` and `POST /properties/trigger-import` still accept empty bodies and trigger heavy work — should require explicit confirmation/role params
+- Browser-interactive (Playwright) click/fill/drag coverage absent since Run 6 — Run 12 captured screenshots only
+- s5 report-writing session has been 0-byte for 5 consecutive runs — the slot should be re-thought

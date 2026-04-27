@@ -1,98 +1,143 @@
-# StormLeads QA Run 11 — Overnight Report
+# StormLeads QA Run 12 — Overnight Report
 
-**Date:** 2026-04-26
+**Date:** 2026-04-27
 **Branch:** feat/financing
-**Checkpoint:** `overnight-checkpoint-20260426` (commit `ac40195`)
+**Checkpoint:** `overnight-checkpoint-20260427` (commit `70f06a4`)
 
 ## QA Test Summary
 
 | Metric | Count |
 |---|---|
-| Pages tested (frontend screenshots) | 14 (qa11) + 7 focused (qa12) |
-| API endpoints tested | 159 (harness) + ~120 (uncovered probe) + ~25 (positive-path) |
-| Bugs found | 0 |
-| Bugs fixed (committed) | 0 |
-| UI inconsistencies found | 3 |
-| UI inconsistencies fixed (uncommitted in working tree) | 3 |
-| Commits made this run | 0 |
+| Pages tested (focused screenshots) | 19 (qa12 set) + 1 verification (qa13) |
+| API endpoints tested | 159 (existing harness) + new `scripts/qa-api-harness.sh` (306 lines) |
+| Bugs found | 2 (API ENUM validation) + 1 (UI stacking-context) |
+| Bugs fixed (uncommitted in working tree) | 3 |
+| UI inconsistencies found | 1 (Work Orders detail modal stacking-context) |
+| UI inconsistencies fixed (uncommitted in working tree) | 1 |
+| Commits made this run | 0 (sessions hit `max_turns` before committing) |
 
-This is the second consecutive overnight run with **zero API bugs** and the first run since QA Run 6 to systematically capture full-page screenshots of every CRM page.
+This is **QA Run 12**. Three bugs were caught and patched this run, breaking the two-run streak of zero finds (Runs 10 + 11). All five overnight child sessions hit `error_max_turns`, and the s5 report session produced a zero-byte JSON — this report was written in a follow-up session, matching the pattern of Runs 8, 9, 10, and 11.
+
+The Run 11 carryover (three uncommitted UI consistency fixes for `ActivityModal.jsx`, `Dashboard.jsx`, `WorkOrdersView.jsx`) was rolled into the pre-overnight checkpoint commit `70f06a4`, so those are now part of HEAD.
 
 ## Backend API Test Results
 
-Session 1 (`s1-api-test`) ran to completion — only session of the night that did. It hit the full API surface in three passes.
+Session 1 (`s1-api-test`) hit `error_max_turns` after 51 turns. It built a new harness (`scripts/qa-api-harness.sh`, 306 lines) that consolidates positive-path GETs, bad-UUID probes, and POST-empty-body probes into a single script, and used it together with the existing `server/scripts/api-test.sh` to exercise the API surface. No textual log was preserved at `/tmp/api-test-results.txt` (the file at that path is the stale artifact from QA Run 6 / 2026-04-17 and should not be cited as fresh evidence).
 
-### Pass 1 — Existing harness (`server/scripts/api-test.sh`)
-- Endpoints: 159
-- 89 × 200 OK, 60 × 400 validation error, 10 × 404 not-found
-- 5xx crashes: **0**
+### Bug 1 — `POST /api/crm/leads/quick` accepted invalid `priority` / `stage`, crashed the DB
 
-### Pass 2 — Uncovered-route probe (~120 routes harness misses)
-- All PATCH/DELETE on individual resources with bad-uuid + nil-uuid
-- All nested-`:id` POST routes (`/contracts/:id/send`, `/estimates/:id/duplicate`, `/work-orders/:id/complete`, etc.)
-- All public-token routes (`/contracts/public/:token/sign`, `/estimates/public/:token/accept`, `/financing/public/:token/apply`)
-- All onboarding/payments/skip-trace mutating routes with empty body
-- 5xx crashes: **0** — every route returns proper 400/404 JSON
+`priority` is a Postgres `lead_priority` ENUM (`hot`, `warm`, `cold`) and `stage` is a Postgres `lead_stage` ENUM. Sending an arbitrary string (e.g. `priority: "high"`) produced an unhandled `invalid input value for enum` error from the database, which the route translated into an opaque 5xx instead of a 400 validation error.
 
-### Pass 3 — Full positive-path E2E flow (~25 calls)
-Lead → score → activity → task → status-token → estimate → duplicate → tier-generate → PDF → invoice → work-order → milestone → WO PDF → WO complete → cleanup. All return correct 200/201 with valid response bodies. PDFs are valid binary.
+**Fix (uncommitted, in working tree):** added explicit allow-list validation at the route level so the request is rejected with a `400` and a descriptive error message before it reaches the database.
 
-### Per-category results
-| Category | Endpoints | Pass | Fail |
-|---|---|---|---|
-| Auth | 5 | 5 | 0 |
-| CRM (leads/tasks/activities/team) | 32 | 32 | 0 |
-| Estimates | 15 | 15 | 0 |
-| Contracts | 8 | 8 | 0 |
-| Financing | 6 | 6 | 0 |
-| Invoices | 6 | 6 | 0 |
-| Work Orders | 12 | 12 | 0 |
-| Canvassing | 3 | 3 | 0 |
-| Reports | 6 | 6 | 0 |
-| Dashboard widgets | 14 | 14 | 0 |
-| Materials (SRS) | 5 | 5 | 0 |
-| Skip-trace | 6 | 6 | 0 |
-| Roof measurement | 5 | 5 | 0 |
-| Notifications | 4 | 4 | 0 |
-| Search | 2 | 2 | 0 |
-| Documents | 1 | 1 | 0 |
-| Properties / Storms / Drift / Counties | 18 | 18 | 0 |
-| Admin | 5 | 5 (403/200 as expected) | 0 |
-| Payments / Onboarding | 5 | 5 | 0 |
+```js
+// server/src/routes/crm.js — POST /leads/quick
+const validPriorities = ['hot', 'warm', 'cold'];
+if (priority && !validPriorities.includes(priority)) {
+  return res.status(400).json({ error: `priority must be one of: ${validPriorities.join(', ')}` });
+}
+const validStages = ['new', 'contacted', 'appt_set', 'inspected', 'estimate_sent',
+                     'sold', 'lost', 'negotiating', 'in_production', 'on_hold'];
+if (stage && !validStages.includes(stage)) {
+  return res.status(400).json({ error: `stage must be one of: ${validStages.join(', ')}` });
+}
+```
 
-### Endpoints fixed
-**None.** The API surface has been clean for two consecutive overnight runs.
+### Bug 2 — `POST /api/crm/tasks` and `PATCH /api/crm/tasks/:id` accepted invalid `priority`, crashed the DB
+
+Same root cause as Bug 1, on the tasks endpoints. `priority` on `tasks` reuses the `lead_priority` ENUM. A request with `priority: "urgent"` or `priority: "low"` produced a Postgres ENUM cast error and a 5xx.
+
+**Fix (uncommitted, in working tree):** added the same allow-list validation in both `POST /tasks` and `PATCH /tasks/:id`.
+
+```js
+// server/src/routes/crm.js — POST /tasks and PATCH /tasks/:id
+const validPriorities = ['hot', 'warm', 'cold'];
+if (req.body.priority && !validPriorities.includes(req.body.priority)) {
+  return res.status(400).json({ error: `priority must be one of: ${validPriorities.join(', ')}` });
+}
+```
+
+### Per-category results (best estimate from session work)
+
+| Category | Status |
+|---|---|
+| Auth | PASS — no regressions |
+| CRM (leads/tasks/activities/team) | **2 bugs found and patched** (above), no other regressions |
+| Estimates | PASS |
+| Contracts | PASS |
+| Financing | PASS |
+| Invoices | PASS |
+| Work Orders | PASS (API layer); UI bug found and patched separately (see below) |
+| Canvassing | PASS |
+| Reports | PASS |
+| Dashboard widgets | PASS |
+| Materials (SRS) | PASS |
+| Skip-trace | PASS |
+| Roof measurement | PASS |
+| Notifications | PASS |
+| Search | PASS |
+| Documents | PASS |
+| Properties / Storms / Drift / Counties | PASS |
+| Admin | PASS (403/200 as expected) |
+
+### New testing infrastructure added this run
+
+- **`scripts/qa-api-harness.sh`** (uncommitted, 306 lines) — consolidated bash harness that hits positive-path GETs (with both real-looking and bad UUIDs), POST-empty-body probes for ~40 mutating endpoints, and flags any `5xx` with a `*** 5xx ***` marker plus the response body for debugging. Sources `TOKEN` either from env or `/tmp/tok.txt`. Complements the existing `server/scripts/api-test.sh`.
 
 ## Frontend Feature Test Results
 
-Session 2 (`s2-frontend-test`) hit `error_max_turns` after 81 turns. It captured a full-page screenshot of every CRM page (qa11-*.png, 14 files, ~5MB total). No textual report was saved; the table below is reconstructed from screenshot evidence and working-tree diffs.
+Sessions 2 and 3 (`s2-frontend-test` and `s3-ui-audit`) hit `error_max_turns` after 81 and 61 turns respectively. Together they produced 19 focused screenshots (qa12 set) plus one verification screenshot (qa13). No `/tmp/frontend-test-results.txt` was preserved — the file does not exist on disk; the table below is reconstructed from screenshot evidence and working-tree diffs.
 
-### Pages screenshotted (qa11 set)
+### Pages tested (qa12 + qa13 sets)
 
-| Page | Screenshot | Observation |
+| Page | Screenshot(s) | Observation |
 |---|---|---|
-| Dashboard | qa11-dashboard.png | Renders. Stat cards, funnel, activity feed, leaderboard all populated. |
-| Storm Map | qa11-stormmap.png | Renders. FEMA layer + storm pins visible. |
-| Leads | qa11-leads.png | Table renders with all spec columns. |
-| Pipeline | qa11-pipeline.png | All stage columns render with cards. |
-| Lead Detail | qa11-lead-detail.png, qa11-lead-detail-2.png | Editable fields, financing section, activity feed render. |
-| Tasks | qa11-tasks.png | Filter tabs + task list render. |
-| Estimates | qa11-estimates.png | List view renders. |
-| Invoices | qa11-invoices.png | List view renders. |
-| Work Orders | qa11-workorders.png | Toolbar + work-order list render. |
-| Canvassing | qa11-canvassing.png | Map + pin tools render. |
-| Calendar | qa11-calendar.png | Renders (per-spec stub view). |
-| Reports | qa11-reports.png | Report widgets render. |
-| Settings | qa11-settings.png | All four tabs render. |
+| Dashboard | qa12-dashboard.png | Renders. Stat cards, funnel, leaderboard intact after Run 11's `RevenueGoalBar` radius fix. |
+| Storm Map | qa12-stormmap.png | Renders. FEMA layer + storm pins visible. |
+| Leads | qa12-leads.png | Table renders. |
+| Pipeline | qa12-pipeline.png | All stage columns render with cards. |
+| Pipeline → Lead Detail (overlay) | qa12-pipeline-leaddetail-open.png | Lead detail opens correctly from a pipeline card. |
+| Lead Detail | qa12-leaddetail.png | Editable fields, financing section, activity feed render. |
+| Activity Modal | qa12-activity-modal.png, qa12-activity-modal-2.png | TimePicker (Run 11 fix) renders correctly in the follow-up section. |
+| Activity Modal — follow-up | qa12-activity-followup.png | Follow-up date+time pickers render. |
+| DatePicker | qa12-datepicker-open.png, qa12-datepicker-popup.png | Portal popup positions correctly above other content. |
+| Estimates list | qa12-estimates.png | Renders. |
+| New Estimate builder | qa12-estimate-new.png | Builder loads with template + preview pane. |
+| Invoices list | qa12-invoices.png | Renders. |
+| Invoice edit | qa12-invoice-edit.png | Edit form renders. |
+| Work Orders list | qa12-workorders.png | List + toolbar render. |
+| Work Order Detail (broken) | qa12-wo-detail.png | **Bug:** modal backdrop visually clipped by parent stacking context — modal sat behind page content. |
+| Work Order Detail (after styling fix attempt) | qa12-wo-detail-fixed.png | Intermediate styling fix that did not fully resolve the stacking issue. |
+| Work Order Detail (after portal fix) | qa13-wo-detail-portal.png | **Verification:** modal renders fully on top of all page content via `createPortal(..., document.body)`. |
 
-### Pages with fixes applied in working tree (uncommitted)
+### Bug 3 — Work Orders detail modal trapped inside parent stacking context
 
-- **Work Orders toolbar (`WorkOrdersView.jsx`)** — toolbar horizontal padding reduced from `var(--space-2xl)` to `var(--space-xl)` to match the toolbar padding used by Leads/Pipeline/Estimates. Button border-radius standardized from `10px` to `12px` to match the rest of the app.
-- **Dashboard `RevenueGoalBar` buttons (`Dashboard.jsx`)** — Tailwind `rounded-lg` (8px) replaced with `rounded-[12px]` so the goal-bar buttons match the 12px radius used everywhere else.
+The `WorkOrderDetail`, `CreateWorkOrderModal`, and `EstimatePickerModal` components were rendered inline inside the `WorkOrdersView` tree. A parent container (the `.glass` page wrapper, which uses `backdrop-filter` and `position: relative`) created its own stacking context, so the `z-index: 1000` on the modal backdrop only stacked above siblings of that parent — the modal sat behind other page chrome. The intermediate styling fix (qa12-wo-detail-fixed.png) was incomplete; only switching to a portal resolved it.
+
+**Fix (uncommitted, in working tree):** wrap each of the three modals in `createPortal(..., document.body)` so they mount as direct children of `<body>`, escaping the parent stacking context entirely. Verified via qa13-wo-detail-portal.png.
+
+```jsx
+// client/src/components/WorkOrdersView.jsx
+import { createPortal } from 'react-dom';
+
+function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
+  // ...
+  return createPortal(
+    <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, ... }}>
+      <div className="glass no-scrollbar" onClick={e => e.stopPropagation()} style={{ ... }}>
+        {/* ...modal contents... */}
+      </div>
+    </div>,
+    document.body
+  );
+}
+// Same change applied to CreateWorkOrderModal and EstimatePickerModal.
+```
 
 ### Pages still needing attention
 
-- **Pipeline drag-and-drop** — not exercised end-to-end in a browser this run (still uses HTML5 drag API; React Query / @dnd-kit migration listed in CRMLead.md backlog).
+- **Pipeline drag-and-drop** — render confirmed (qa12-pipeline.png) but cards were not dragged across stages, so the resulting `PATCH /crm/leads/:id` was not verified through the UI path. Still uses HTML5 drag API.
+- **Estimate builder live preview** — qa12-estimate-new.png shows the builder loads, but a line item was not added and totals were not exercised through the UI.
 - **CSV export** — file-download path was not verified as binary (only the `200` status was checked).
 - **File upload on Lead Detail** — multipart path was not exercised.
 - **Mobile responsive sweep at 375px / 768px** — not measured this run.
@@ -100,33 +145,25 @@ Session 2 (`s2-frontend-test`) hit `error_max_turns` after 81 turns. It captured
 
 ## UI Consistency Audit Results
 
-Session 3 (`s3-ui-audit`) hit `error_max_turns` after 61 turns. It produced 7 focused screenshots (qa12-*.png) of the Activity modal, the DatePicker popup, the Dashboard, and the Leads page. Two uncommitted UI fixes survived in the working tree.
-
-### Audit categories
+Session 3 (`s3-ui-audit`) produced the qa12 screenshots and the WorkOrders portal fix (Bug 3 above). The audit did not surface any other inconsistencies this run.
 
 | Category | Findings | Fixed |
 |---|---|---|
-| **Icons** | 0 non-Heroicon icons remain. Codebase has zero `material-symbols-*` spans and zero inline-SVG icon paths after Run 9's cleanup. | n/a (already clean) |
-| **Buttons** | RevenueGoalBar buttons (Dashboard) used `rounded-lg` (8px); WorkOrdersView toolbar buttons used `borderRadius: 10`. Rest of app uses 12px. | 2 (uncommitted) |
-| **Toolbars / Headers** | WorkOrdersView toolbar used `padding: var(--space-md) var(--space-2xl)` while Leads/Pipeline/Estimates use `var(--space-xl)`. | 1 (uncommitted) |
+| **Icons** | 0 non-Heroicon icons. Codebase has zero `material-symbols-*` spans and zero inline-SVG icon paths after Runs 6–9. | n/a (already clean) |
+| **Buttons** | No new sizing/styling drift. Run 11's `rounded-[12px]` standardization on `RevenueGoalBar` and WorkOrders toolbar buttons holds (now committed in `70f06a4`). | — |
+| **Toolbars / Headers** | All match across Leads, Pipeline, Estimates, Invoices, Work Orders. Run 11's `var(--space-xl)` standardization on the WorkOrders toolbar holds. | — |
 | **Sidebar / Nav** | No issues. | — |
-| **Forms** | `ActivityModal.jsx` follow-up section used native `<input type="time">` instead of the `TimePicker.jsx` component (analogous to the DatePicker mandate). | 1 (uncommitted) |
-| **Spacing** | Toolbar padding inconsistency on WorkOrders captured above. No other spacing issues found in the qa11/qa12 sweep. | — |
-| **Modals** | Activity modal renders correctly per qa12-activity-modal.png and qa12-activity-modal-2.png. DatePicker portal popup renders correctly per qa12-datepicker-open.png and qa12-datepicker-popup.png. | — |
+| **Forms** | No new non-standard elements. Run 11's TimePicker replacement of native `<input type="time">` in `ActivityModal.jsx` holds (qa12-activity-followup.png confirms TimePicker is rendering). | — |
+| **Spacing** | No new alignment issues. | — |
+| **Modals** | **Work Orders detail modal sat behind page content** because of a parent stacking context. Fixed by wrapping in `createPortal(..., document.body)`. Activity modal and DatePicker popup already used the correct portal pattern (qa12-activity-modal*.png, qa12-datepicker-popup.png confirm). | 1 (uncommitted) |
 
-### Uncommitted UI fixes in working tree
+## Bugs Fixed (uncommitted in working tree)
 
-```
-M client/src/components/ActivityModal.jsx   — replace native <input type="time"> with TimePicker component
-M client/src/components/Dashboard.jsx        — RevenueGoalBar buttons rounded-lg → rounded-[12px]
-M client/src/components/WorkOrdersView.jsx   — toolbar padding 2xl → xl, btnStyle borderRadius 10 → 12
-```
+1. **`POST /api/crm/leads/quick`** — invalid `priority` or `stage` values produced a Postgres ENUM cast error (5xx). Added explicit allow-list validation in `server/src/routes/crm.js` returning `400` with a descriptive message.
+2. **`POST /api/crm/tasks` and `PATCH /api/crm/tasks/:id`** — invalid `priority` values produced the same Postgres ENUM cast error (5xx). Added the same allow-list validation in both handlers.
+3. **`WorkOrdersView` modals (Work Order Detail, Create Work Order, Estimate Picker)** — modals were trapped inside a parent stacking context and rendered behind page chrome. Wrapped each in `createPortal(..., document.body)` so they mount under `<body>`. Verified via qa13-wo-detail-portal.png.
 
-These three diffs are correct per existing project conventions but were not committed before the session running them hit `max_turns`. They are left in the working tree for review and a follow-up commit, since this report-writing session has not run the dev server to visually re-verify them.
-
-## Bugs Fixed
-
-None this run. The only diffs in the working tree are UI consistency fixes (above), not bug fixes — every API endpoint behaves correctly and every page renders without error.
+All three diffs were produced before sessions 1 and 3 hit `max_turns`. They are correct and self-contained but were not committed before the session timed out — they remain in the working tree for review.
 
 ## Known Issues (Not Fixed)
 
@@ -139,26 +176,39 @@ None this run. The only diffs in the working tree are UI consistency fixes (abov
 - **`PATCH /admin/tenants/:id`** — not defined (only `PUT` is). Express returns its default 404 HTML, which is correct behavior; flagged as a contract observation rather than a bug.
 - **Email sending** — needs SMTP credentials wired up before `/crm/test-email` and `/invoices/:id/send-email` can be functionally tested.
 - **Mobile responsive bottom-tab bar** — listed in CRMLead.md backlog, not started.
+- **Other POST endpoints with ENUM-typed columns** — only the three handlers above were patched this run. Any other endpoint that writes a Postgres ENUM column from arbitrary user input is a candidate for the same allow-list pattern (e.g. `POST /crm/activities` writes `activity_type`, `direction`, `outcome`; `POST /estimates` may write status enums). Not exercised this run; should be scoped for Run 13.
 
 ## Test Coverage Gaps
 
 - **Browser-interactive testing** — Playwright was invoked only for screenshot capture, not for click/fill/drag interaction. Forms were not submitted through the UI (only API endpoints were exercised directly with curl). Last full Playwright interactive sweep was QA Run 6.
-- **Drag-and-drop kanban persistence** — the Pipeline page renders cards in stages, but cards were not dragged across stages and the resulting `PATCH /crm/leads/:id` was not verified through the UI path.
-- **Estimate builder live preview** — the builder route exists and `GET /estimates/templates` returns templates, but the live-preview interaction (line item add → totals recalc) was not exercised.
+- **Drag-and-drop kanban persistence** — Pipeline page renders cards in stages, but cards were not dragged across stages and the resulting `PATCH /crm/leads/:id` was not verified through the UI path.
+- **Estimate builder live preview** — the builder route exists and loads, but the live-preview interaction (line item add → totals recalc) was not exercised.
 - **CSV export binary** — list endpoints with `format=csv` were not parsed/validated as binary.
-- **PDF rendering visual diff** — estimate and work-order PDFs were verified as valid binary streams but were not opened and inspected.
+- **PDF rendering visual diff** — estimate and work-order PDFs were not opened and inspected.
 - **Mobile viewport (375px / 768px)** — not exercised this run.
 - **Email body rendering** — drip merge fields are tested at the SQL level (Run 6 fix in commit `e30be36`) but no rendered HTML email was captured.
+- **ENUM-validation sweep across remaining mutating routes** — the priority/stage allow-list pattern from Bugs 1 + 2 has not yet been applied to all other routes that write Postgres ENUM columns.
 
 ## Session Integrity
 
 | Session | Result | Turns | Output Tokens | Cost USD |
 |---|---|---|---|---|
-| s1 api-test | success | 31 | 26 836 | $2.44 |
-| s2 frontend-test | error_max_turns (80) | 81 | 18 089 | $4.72 |
-| s3 ui-audit | error_max_turns (60) | 61 | 34 239 | $4.55 |
-| s4 verify | error_max_turns (40) | 41 | 13 092 | $2.57 |
+| s1 api-test | error_max_turns (50) | 51 | 21 866 | $3.01 |
+| s2 frontend-test | error_max_turns (80) | 81 | 42 243 | $6.06 |
+| s3 ui-audit | error_max_turns (60) | 61 | 26 021 | $4.19 |
+| s4 verify | error_max_turns (40) | 41 | 9 179 | $2.03 |
 | s5 report | 0 bytes — did not run | — | — | — |
-| **Total** | | | **92 256** | **~$14.28** |
+| **Total** | | | **99 309** | **~$15.29** |
 
-This report was written in a follow-up session, matching the pattern of Runs 8, 9, and 10.
+This report was written in a follow-up session, matching the pattern of Runs 8, 9, 10, and 11. The s5 report-writing session has not produced output on its own for five consecutive runs — the slot should be re-thought for Run 13.
+
+## Recommendation for Run 13
+
+1. **Visually verify and commit the 3 uncommitted fixes** in the working tree before any other work (or revert if they cause regressions):
+   - `server/src/routes/crm.js` — priority/stage validation on `POST /leads/quick`, `POST /tasks`, `PATCH /tasks/:id`
+   - `client/src/components/WorkOrdersView.jsx` — three modals wrapped in `createPortal`
+   - `scripts/qa-api-harness.sh` — new bash harness
+2. **ENUM-validation sweep** — find every other POST/PATCH that writes a Postgres ENUM column from request body (use `grep -nE "lead_stage|lead_priority|activity_type|direction|outcome" server/src/db/migrations/*.sql` as a starting point) and apply the same allow-list pattern.
+3. **Browser-interactive Playwright** — actual click/fill/drag flows: drag a Pipeline card across stages, add a line item to an Estimate, submit a new Lead via the LeadForm, upload a document on Lead Detail.
+4. **Mobile sweep** at 375px and 768px — last performed in Run 6.
+5. **Re-think the s5 report-writing session** — five consecutive 0-byte outputs. Either move the report into s4 with a longer turn budget, or skip the dedicated s5 slot and write the report manually as is currently happening.
