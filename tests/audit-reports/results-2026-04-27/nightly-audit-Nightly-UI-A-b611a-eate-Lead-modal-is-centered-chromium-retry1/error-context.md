@@ -1,0 +1,484 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - img "StormPipe" [ref=e6] [cursor=pointer]
+    - navigation [ref=e7]:
+      - button "Dashboard" [ref=e8] [cursor=pointer]:
+        - img [ref=e9]
+        - text: Dashboard
+      - button "Storm Map" [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+        - text: Storm Map
+      - button "Storm Archive" [ref=e14] [cursor=pointer]:
+        - img [ref=e15]
+        - text: Storm Archive
+      - button "Pipeline" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - text: Pipeline
+      - button "Leads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+        - text: Leads
+      - button "Jobs" [ref=e24] [cursor=pointer]:
+        - text: Jobs
+        - img [ref=e25]
+      - button "Finance" [ref=e28] [cursor=pointer]:
+        - text: Finance
+        - img [ref=e29]
+      - button "Operations" [ref=e32] [cursor=pointer]:
+        - text: Operations
+        - img [ref=e33]
+    - button "Settings" [ref=e35] [cursor=pointer]:
+      - img [ref=e36]
+      - text: Settings
+    - button "Admin" [ref=e38] [cursor=pointer]:
+      - img [ref=e39]
+      - text: Admin
+    - generic [ref=e41]:
+      - generic [ref=e42]: BA
+      - generic [ref=e43]:
+        - generic [ref=e44]: Brandon A.
+        - generic [ref=e45]: super_admin
+      - button "Sign out" [ref=e46] [cursor=pointer]:
+        - img [ref=e47]
+  - generic [ref=e49]:
+    - banner [ref=e50]:
+      - heading "Leads" [level=1] [ref=e51]
+      - generic [ref=e52]:
+        - img
+        - textbox "Search leads, contacts... (Ctrl+K)" [ref=e53]
+      - generic [ref=e54]:
+        - button "Help" [ref=e56] [cursor=pointer]:
+          - img [ref=e57]
+        - button "Notifications" [ref=e60] [cursor=pointer]:
+          - img [ref=e61]
+        - button "enterprise" [ref=e63] [cursor=pointer]:
+          - img [ref=e64]
+          - generic [ref=e66]: enterprise
+    - generic [ref=e67]:
+      - generic [ref=e68]:
+        - generic [ref=e69]:
+          - img
+          - textbox "Search leads..." [ref=e70]
+        - button "All Stages" [ref=e72] [cursor=pointer]:
+          - generic [ref=e73]: All Stages
+          - img [ref=e74]
+        - button "All Priorities" [ref=e77] [cursor=pointer]:
+          - generic [ref=e78]: All Priorities
+          - img [ref=e79]
+        - button "All Sources" [ref=e82] [cursor=pointer]:
+          - generic [ref=e83]: All Sources
+          - img [ref=e84]
+        - button "All Scores" [ref=e87] [cursor=pointer]:
+          - generic [ref=e88]: All Scores
+          - img [ref=e89]
+        - generic [ref=e91]:
+          - button "Import" [active] [ref=e92] [cursor=pointer]:
+            - img [ref=e93]
+            - generic [ref=e95]: Import
+          - button "Export" [ref=e96] [cursor=pointer]:
+            - img [ref=e97]
+            - generic [ref=e99]: Export
+          - generic [ref=e100]: 18 leads
+      - generic [ref=e101]:
+        - table [ref=e103]:
+          - rowgroup [ref=e104]:
+            - row "Stage Pri Score Address Contact Phone Email Source Storm Value Rep Last Contact Follow-up Days Created ▼" [ref=e105]:
+              - columnheader [ref=e106]:
+                - checkbox [ref=e107] [cursor=pointer]
+              - columnheader "Stage" [ref=e108] [cursor=pointer]
+              - columnheader "Pri" [ref=e109] [cursor=pointer]
+              - columnheader "Score" [ref=e110] [cursor=pointer]
+              - columnheader "Address" [ref=e111]
+              - columnheader "Contact" [ref=e112] [cursor=pointer]
+              - columnheader "Phone" [ref=e113]
+              - columnheader "Email" [ref=e114]
+              - columnheader "Source" [ref=e115]
+              - columnheader "Storm" [ref=e116]
+              - columnheader "Value" [ref=e117] [cursor=pointer]
+              - columnheader "Rep" [ref=e118]
+              - columnheader "Last Contact" [ref=e119] [cursor=pointer]
+              - columnheader "Follow-up" [ref=e120]
+              - columnheader "Days" [ref=e121]
+              - columnheader "Created ▼" [ref=e122] [cursor=pointer]
+          - rowgroup [ref=e123]:
+            - row "New 7 123 Qa Street, Test City, Tx 75001 Probe Run 10 1777197905 Qa 5555550100 qarun10@example.com Manual — — — — — 0 Apr 26" [ref=e124] [cursor=pointer]:
+              - cell [ref=e125]:
+                - checkbox [ref=e126]
+              - cell "New" [ref=e127]
+              - cell [ref=e128]
+              - cell "7" [ref=e130]
+              - cell "123 Qa Street, Test City, Tx 75001" [ref=e131]:
+                - generic [ref=e132]: 123 Qa Street, Test City, Tx 75001
+              - cell "Probe Run 10 1777197905 Qa" [ref=e133]
+              - cell "5555550100" [ref=e134]:
+                - link "5555550100" [ref=e135]:
+                  - /url: tel:5555550100
+              - cell "qarun10@example.com" [ref=e136]:
+                - link "qarun10@example.com" [ref=e137]:
+                  - /url: mailto:qarun10@example.com
+              - cell "Manual" [ref=e138]
+              - cell "—" [ref=e139]
+              - cell "—" [ref=e140]
+              - cell "—" [ref=e141]
+              - cell "—" [ref=e142]
+              - cell "—" [ref=e143]
+              - cell "0" [ref=e144]
+              - cell "Apr 26" [ref=e145]
+            - row "Contacted 2 888 Qa Path — — — Manual — — — — — 5 Apr 21" [ref=e146] [cursor=pointer]:
+              - cell [ref=e147]:
+                - checkbox [ref=e148]
+              - cell "Contacted" [ref=e149]
+              - cell [ref=e150]
+              - cell "2" [ref=e152]
+              - cell "888 Qa Path" [ref=e153]:
+                - generic [ref=e154]: 888 Qa Path
+              - cell "—" [ref=e155]
+              - cell "—" [ref=e156]
+              - cell "—" [ref=e157]
+              - cell "Manual" [ref=e158]
+              - cell "—" [ref=e159]
+              - cell "—" [ref=e160]
+              - cell "—" [ref=e161]
+              - cell "—" [ref=e162]
+              - cell "—" [ref=e163]
+              - cell "5" [ref=e164]
+              - cell "Apr 21" [ref=e165]
+            - row "New 2 777 Qa Test Rd — — — Manual — — — — — 5 Apr 21" [ref=e166] [cursor=pointer]:
+              - cell [ref=e167]:
+                - checkbox [ref=e168]
+              - cell "New" [ref=e169]
+              - cell [ref=e170]
+              - cell "2" [ref=e172]
+              - cell "777 Qa Test Rd" [ref=e173]:
+                - generic [ref=e174]: 777 Qa Test Rd
+              - cell "—" [ref=e175]
+              - cell "—" [ref=e176]
+              - cell "—" [ref=e177]
+              - cell "Manual" [ref=e178]
+              - cell "—" [ref=e179]
+              - cell "—" [ref=e180]
+              - cell "—" [ref=e181]
+              - cell "—" [ref=e182]
+              - cell "—" [ref=e183]
+              - cell "5" [ref=e184]
+              - cell "Apr 21" [ref=e185]
+            - row "New 8 123 Test St — — — canvassing — — Brandon A — — 9 Apr 17" [ref=e186] [cursor=pointer]:
+              - cell [ref=e187]:
+                - checkbox [ref=e188]
+              - cell "New" [ref=e189]
+              - cell [ref=e190]
+              - cell "8" [ref=e192]
+              - cell "123 Test St" [ref=e193]:
+                - generic [ref=e194]: 123 Test St
+              - cell "—" [ref=e195]
+              - cell "—" [ref=e196]
+              - cell "—" [ref=e197]
+              - cell "canvassing" [ref=e198]
+              - cell "—" [ref=e199]
+              - cell "—" [ref=e200]
+              - cell "Brandon A" [ref=e201]
+              - cell "—" [ref=e202]
+              - cell "—" [ref=e203]
+              - cell "9" [ref=e204]
+              - cell "Apr 17" [ref=e205]
+            - row "Estimate Sent 3 — Qalead Test — — Manual — $20,250 Brandon A 9d ago — 9 Apr 17" [ref=e206] [cursor=pointer]:
+              - cell [ref=e207]:
+                - checkbox [ref=e208]
+              - cell "Estimate Sent" [ref=e209]
+              - cell [ref=e210]
+              - cell "3" [ref=e212]
+              - cell "—" [ref=e213]:
+                - generic [ref=e214]: —
+              - cell "Qalead Test" [ref=e215]
+              - cell "—" [ref=e216]
+              - cell "—" [ref=e217]
+              - cell "Manual" [ref=e218]
+              - cell "—" [ref=e219]
+              - cell "$20,250" [ref=e220]
+              - cell "Brandon A" [ref=e221]
+              - cell "9d ago" [ref=e222]
+              - cell "—" [ref=e223]
+              - cell "9" [ref=e224]
+              - cell "Apr 17" [ref=e225]
+            - row "New 2 123 Qa St — — — Manual — — — — — 10 Apr 16" [ref=e226] [cursor=pointer]:
+              - cell [ref=e227]:
+                - checkbox [ref=e228]
+              - cell "New" [ref=e229]
+              - cell [ref=e230]
+              - cell "2" [ref=e232]
+              - cell "123 Qa St" [ref=e233]:
+                - generic [ref=e234]: 123 Qa St
+              - cell "—" [ref=e235]
+              - cell "—" [ref=e236]
+              - cell "—" [ref=e237]
+              - cell "Manual" [ref=e238]
+              - cell "—" [ref=e239]
+              - cell "—" [ref=e240]
+              - cell "—" [ref=e241]
+              - cell "—" [ref=e242]
+              - cell "—" [ref=e243]
+              - cell "10" [ref=e244]
+              - cell "Apr 16" [ref=e245]
+            - row "Contacted 5 123 Test St — — — Manual — $22,725 — 10d ago — 15 Apr 11" [ref=e246] [cursor=pointer]:
+              - cell [ref=e247]:
+                - checkbox [ref=e248]
+              - cell "Contacted" [ref=e249]
+              - cell [ref=e250]
+              - cell "5" [ref=e252]
+              - cell "123 Test St" [ref=e253]:
+                - generic [ref=e254]: 123 Test St
+              - cell "—" [ref=e255]
+              - cell "—" [ref=e256]
+              - cell "—" [ref=e257]
+              - cell "Manual" [ref=e258]
+              - cell "—" [ref=e259]
+              - cell "$22,725" [ref=e260]
+              - cell "—" [ref=e261]
+              - cell "10d ago" [ref=e262]
+              - cell "—" [ref=e263]
+              - cell "15" [ref=e264]
+              - cell "Apr 11" [ref=e265]
+            - row "New 3 123 Test St Austin Test Lead Qa — — Manual — $2,600 — — — 16 Apr 10" [ref=e266] [cursor=pointer]:
+              - cell [ref=e267]:
+                - checkbox [ref=e268]
+              - cell "New" [ref=e269]
+              - cell [ref=e270]
+              - cell "3" [ref=e272]
+              - cell "123 Test St Austin" [ref=e273]:
+                - generic [ref=e274]: 123 Test St
+                - generic [ref=e275]: Austin
+              - cell "Test Lead Qa" [ref=e276]
+              - cell "—" [ref=e277]
+              - cell "—" [ref=e278]
+              - cell "Manual" [ref=e279]
+              - cell "—" [ref=e280]
+              - cell "$2,600" [ref=e281]
+              - cell "—" [ref=e282]
+              - cell "—" [ref=e283]
+              - cell "—" [ref=e284]
+              - cell "16" [ref=e285]
+              - cell "Apr 10" [ref=e286]
+            - row "New 11 456 Test Ave — — — canvassing — — Brandon A — — 17 Apr 9" [ref=e287] [cursor=pointer]:
+              - cell [ref=e288]:
+                - checkbox [ref=e289]
+              - cell "New" [ref=e290]
+              - cell [ref=e291]
+              - cell "11" [ref=e293]
+              - cell "456 Test Ave" [ref=e294]:
+                - generic [ref=e295]: 456 Test Ave
+              - cell "—" [ref=e296]
+              - cell "—" [ref=e297]
+              - cell "—" [ref=e298]
+              - cell "canvassing" [ref=e299]
+              - cell "—" [ref=e300]
+              - cell "—" [ref=e301]
+              - cell "Brandon A" [ref=e302]
+              - cell "—" [ref=e303]
+              - cell "—" [ref=e304]
+              - cell "17" [ref=e305]
+              - cell "Apr 9" [ref=e306]
+            - row "Contacted 19 4360 Thomas Court Beaumont — — — fema_nsi — $9,400 — 17d ago — 29 Mar 28" [ref=e307] [cursor=pointer]:
+              - cell [ref=e308]:
+                - checkbox [ref=e309]
+              - cell "Contacted" [ref=e310]
+              - cell [ref=e311]
+              - cell "19" [ref=e313]
+              - cell "4360 Thomas Court Beaumont" [ref=e314]:
+                - generic [ref=e315]: 4360 Thomas Court
+                - generic [ref=e316]: Beaumont
+              - cell "—" [ref=e317]
+              - cell "—" [ref=e318]
+              - cell "—" [ref=e319]
+              - cell "fema_nsi" [ref=e320]
+              - cell "—" [ref=e321]
+              - cell "$9,400" [ref=e322]
+              - cell "—" [ref=e323]
+              - cell "17d ago" [ref=e324]
+              - cell "—" [ref=e325]
+              - cell "29" [ref=e326]
+              - cell "Mar 28" [ref=e327]
+            - row "New 17 345 Tomlinson , Sour Lake, Tx 77659 Sour Lake Hannah Baisdon — — storm_map — $1,000 — — — 30 Mar 27" [ref=e328] [cursor=pointer]:
+              - cell [ref=e329]:
+                - checkbox [ref=e330]
+              - cell "New" [ref=e331]
+              - cell [ref=e332]
+              - cell "17" [ref=e334]
+              - cell "345 Tomlinson , Sour Lake, Tx 77659 Sour Lake" [ref=e335]:
+                - generic [ref=e336]: 345 Tomlinson , Sour Lake, Tx 77659
+                - generic [ref=e337]: Sour Lake
+              - cell "Hannah Baisdon" [ref=e338]
+              - cell "—" [ref=e339]
+              - cell "—" [ref=e340]
+              - cell "storm_map" [ref=e341]
+              - cell "—" [ref=e342]
+              - cell "$1,000" [ref=e343]
+              - cell "—" [ref=e344]
+              - cell "—" [ref=e345]
+              - cell "—" [ref=e346]
+              - cell "30" [ref=e347]
+              - cell "Mar 27" [ref=e348]
+            - row "New 11 4610 Hardwood Lane Beaumont — — — fema_nsi — — — — — 30 Mar 27" [ref=e349] [cursor=pointer]:
+              - cell [ref=e350]:
+                - checkbox [ref=e351]
+              - cell "New" [ref=e352]
+              - cell [ref=e353]
+              - cell "11" [ref=e355]
+              - cell "4610 Hardwood Lane Beaumont" [ref=e356]:
+                - generic [ref=e357]: 4610 Hardwood Lane
+                - generic [ref=e358]: Beaumont
+              - cell "—" [ref=e359]
+              - cell "—" [ref=e360]
+              - cell "—" [ref=e361]
+              - cell "fema_nsi" [ref=e362]
+              - cell "—" [ref=e363]
+              - cell "—" [ref=e364]
+              - cell "—" [ref=e365]
+              - cell "—" [ref=e366]
+              - cell "—" [ref=e367]
+              - cell "30" [ref=e368]
+              - cell "Mar 27" [ref=e369]
+            - row "Appt Set 11 4410 Thomas Court Beaumont — — — fema_nsi — — — — — 31 Mar 26" [ref=e370] [cursor=pointer]:
+              - cell [ref=e371]:
+                - checkbox [ref=e372]
+              - cell "Appt Set" [ref=e373]
+              - cell [ref=e374]
+              - cell "11" [ref=e376]
+              - cell "4410 Thomas Court Beaumont" [ref=e377]:
+                - generic [ref=e378]: 4410 Thomas Court
+                - generic [ref=e379]: Beaumont
+              - cell "—" [ref=e380]
+              - cell "—" [ref=e381]
+              - cell "—" [ref=e382]
+              - cell "fema_nsi" [ref=e383]
+              - cell "—" [ref=e384]
+              - cell "—" [ref=e385]
+              - cell "—" [ref=e386]
+              - cell "—" [ref=e387]
+              - cell "—" [ref=e388]
+              - cell "31" [ref=e389]
+              - cell "Mar 26" [ref=e390]
+            - row "New 11 10409 Peck Road Hardin — — — fema_nsi — — — — — 32 Mar 25" [ref=e391] [cursor=pointer]:
+              - cell [ref=e392]:
+                - checkbox [ref=e393]
+              - cell "New" [ref=e394]
+              - cell [ref=e395]
+              - cell "11" [ref=e397]
+              - cell "10409 Peck Road Hardin" [ref=e398]:
+                - generic [ref=e399]: 10409 Peck Road
+                - generic [ref=e400]: Hardin
+              - cell "—" [ref=e401]
+              - cell "—" [ref=e402]
+              - cell "—" [ref=e403]
+              - cell "fema_nsi" [ref=e404]
+              - cell "—" [ref=e405]
+              - cell "—" [ref=e406]
+              - cell "—" [ref=e407]
+              - cell "—" [ref=e408]
+              - cell "—" [ref=e409]
+              - cell "32" [ref=e410]
+              - cell "Mar 25" [ref=e411]
+            - row "New 13 1510 Fm 3513 , Lumberton, Tx 77657 Lumberton Raymond L Tynes — — storm_map — $400 — — — 32 Mar 25" [ref=e412] [cursor=pointer]:
+              - cell [ref=e413]:
+                - checkbox [ref=e414]
+              - cell "New" [ref=e415]
+              - cell [ref=e416]
+              - cell "13" [ref=e418]
+              - cell "1510 Fm 3513 , Lumberton, Tx 77657 Lumberton" [ref=e419]:
+                - generic [ref=e420]: 1510 Fm 3513 , Lumberton, Tx 77657
+                - generic [ref=e421]: Lumberton
+              - cell "Raymond L Tynes" [ref=e422]
+              - cell "—" [ref=e423]
+              - cell "—" [ref=e424]
+              - cell "storm_map" [ref=e425]
+              - cell "—" [ref=e426]
+              - cell "$400" [ref=e427]
+              - cell "—" [ref=e428]
+              - cell "—" [ref=e429]
+              - cell "—" [ref=e430]
+              - cell "32" [ref=e431]
+              - cell "Mar 25" [ref=e432]
+            - row "Inspected 11 115 Cardinal Drive Lumberton — — — fema_nsi — — — — — 33 Mar 24" [ref=e433] [cursor=pointer]:
+              - cell [ref=e434]:
+                - checkbox [ref=e435]
+              - cell "Inspected" [ref=e436]
+              - cell [ref=e437]
+              - cell "11" [ref=e439]
+              - cell "115 Cardinal Drive Lumberton" [ref=e440]:
+                - generic [ref=e441]: 115 Cardinal Drive
+                - generic [ref=e442]: Lumberton
+              - cell "—" [ref=e443]
+              - cell "—" [ref=e444]
+              - cell "—" [ref=e445]
+              - cell "fema_nsi" [ref=e446]
+              - cell "—" [ref=e447]
+              - cell "—" [ref=e448]
+              - cell "—" [ref=e449]
+              - cell "—" [ref=e450]
+              - cell "—" [ref=e451]
+              - cell "33" [ref=e452]
+              - cell "Mar 24" [ref=e453]
+            - row "New 16 165 Hilda , Lumberton, Tx 77657 Lumberton Christopher & Amber Lawrence — — storm_map — $3,600 — — — 33 Mar 24" [ref=e454] [cursor=pointer]:
+              - cell [ref=e455]:
+                - checkbox [ref=e456]
+              - cell "New" [ref=e457]
+              - cell [ref=e458]
+              - cell "16" [ref=e460]
+              - cell "165 Hilda , Lumberton, Tx 77657 Lumberton" [ref=e461]:
+                - generic [ref=e462]: 165 Hilda , Lumberton, Tx 77657
+                - generic [ref=e463]: Lumberton
+              - cell "Christopher & Amber Lawrence" [ref=e464]
+              - cell "—" [ref=e465]
+              - cell "—" [ref=e466]
+              - cell "storm_map" [ref=e467]
+              - cell "—" [ref=e468]
+              - cell "$3,600" [ref=e469]
+              - cell "—" [ref=e470]
+              - cell "—" [ref=e471]
+              - cell "—" [ref=e472]
+              - cell "33" [ref=e473]
+              - cell "Mar 24" [ref=e474]
+            - row "New 10 1250 Condon Beaumont — — — fema_nsi — — — — — 34 Mar 23" [ref=e475] [cursor=pointer]:
+              - cell [ref=e476]:
+                - checkbox [ref=e477]
+              - cell "New" [ref=e478]
+              - cell [ref=e479]
+              - cell "10" [ref=e481]
+              - cell "1250 Condon Beaumont" [ref=e482]:
+                - generic [ref=e483]: 1250 Condon
+                - generic [ref=e484]: Beaumont
+              - cell "—" [ref=e485]
+              - cell "—" [ref=e486]
+              - cell "—" [ref=e487]
+              - cell "fema_nsi" [ref=e488]
+              - cell "—" [ref=e489]
+              - cell "—" [ref=e490]
+              - cell "—" [ref=e491]
+              - cell "—" [ref=e492]
+              - cell "—" [ref=e493]
+              - cell "34" [ref=e494]
+              - cell "Mar 23" [ref=e495]
+        - generic [ref=e496]:
+          - generic [ref=e497]: Showing 1–18 of 18 leads
+          - generic [ref=e499]:
+            - generic [ref=e500]: "Per page:"
+            - button "25" [ref=e501] [cursor=pointer]
+            - button "50" [ref=e502] [cursor=pointer]
+            - button "100" [ref=e503] [cursor=pointer]
+      - generic [ref=e505]:
+        - generic [ref=e506]:
+          - generic [ref=e507]:
+            - heading "Import Leads from CSV" [level=2] [ref=e508]
+            - paragraph [ref=e509]: Upload a CSV file to bulk-import leads with free geocoding
+          - button [ref=e510] [cursor=pointer]:
+            - img [ref=e511]
+        - generic [ref=e513]:
+          - generic [ref=e514] [cursor=pointer]:
+            - img [ref=e515]
+            - generic [ref=e517]: Drop CSV file here or click to browse
+            - generic [ref=e518]: Max 10,000 rows · Addresses geocoded free via US Census
+          - generic [ref=e519]:
+            - button "Download Template" [ref=e520] [cursor=pointer]
+            - generic [ref=e521]: "Required: address · Optional: city, state, zip, contact_name, contact_phone, contact_email"
+```

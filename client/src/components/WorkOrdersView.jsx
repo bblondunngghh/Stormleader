@@ -945,7 +945,7 @@ export default function WorkOrdersView() {
       {/* Top Bar */}
       <div className="glass" style={{
         display: 'flex', alignItems: 'center', gap: 12,
-        padding: 'var(--space-md) var(--space-2xl)',
+        padding: 'var(--space-md) var(--space-xl)',
         borderRadius: '20px / 18px',
         boxShadow: '0 8px 32px oklch(0 0 0 / 0.25), inset 0 1px 0 oklch(1 0 0 / 0.05)',
       }}>
@@ -1158,7 +1158,7 @@ const labelStyle = {
 
 const btnStyle = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
-  padding: '7px 14px', borderRadius: 10, border: 'none',
+  padding: '7px 14px', borderRadius: 12, border: 'none',
   fontSize: 13, fontWeight: 600, cursor: 'pointer',
   background: 'transparent', transition: 'all 0.15s',
 };

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { logActivity } from '../api/crm';
 import { IconX } from './Icons';
 import DatePicker from './DatePicker';
+import TimePicker from './TimePicker';
 import { PhoneArrowUpRightIcon, EnvelopeOpenIcon, ChatBubbleLeftRightIcon, HomeIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 
 const activityTypes = [
@@ -175,13 +176,9 @@ export default function ActivityModal({ leadId, onSave, onClose }) {
               <DatePicker value={followUpDate} onChange={setFollowUpDate} placeholder="Select date" />
             </div>
             {followUpDate && (
-              <input
-                className="form-input"
-                type="time"
-                value={followUpTime}
-                onChange={(e) => setFollowUpTime(e.target.value)}
-                style={{ width: 110, flexShrink: 0 }}
-              />
+              <div style={{ width: 130, flexShrink: 0 }}>
+                <TimePicker value={followUpTime} onChange={setFollowUpTime} />
+              </div>
             )}
           </div>
         </div>

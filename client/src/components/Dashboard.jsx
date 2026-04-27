@@ -475,7 +475,7 @@ function RevenueGoalBar({ stats }) {
         <span className="text-xs text-[var(--text-muted)]">Set a monthly revenue goal to track progress</span>
         <button
           onClick={() => { setEditing(true); setEditValue(''); }}
-          className="text-[11px] font-bold px-3 py-1.5 rounded-lg"
+          className="text-[11px] font-bold px-3 py-1.5 rounded-[12px]"
           style={{
             background: 'oklch(0.72 0.19 250 / 0.12)', border: '1px solid oklch(0.72 0.19 250 / 0.3)',
             color: 'oklch(0.80 0.19 250)', cursor: 'pointer',
@@ -502,7 +502,7 @@ function RevenueGoalBar({ stats }) {
         />
         <button
           onClick={handleSaveGoal}
-          className="text-[11px] font-bold px-3 py-1.5 rounded-lg"
+          className="text-[11px] font-bold px-3 py-1.5 rounded-[12px]"
           style={{ background: 'oklch(0.75 0.18 155 / 0.15)', border: '1px solid oklch(0.75 0.18 155 / 0.3)', color: 'oklch(0.75 0.18 155)', cursor: 'pointer' }}
         >
           Save
