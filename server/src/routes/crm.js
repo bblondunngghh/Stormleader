@@ -113,6 +113,15 @@ router.post('/leads/quick', async (req, res, next) => {
     const { contact_name, contact_phone, contact_email, address, city, state, zip, stage, priority, source, estimated_value } = req.body;
     if (!contact_name && !address) return res.status(400).json({ error: 'contact_name or address is required' });
 
+    const validPriorities = ['hot', 'warm', 'cold'];
+    if (priority && !validPriorities.includes(priority)) {
+      return res.status(400).json({ error: `priority must be one of: ${validPriorities.join(', ')}` });
+    }
+    const validStages = ['new', 'contacted', 'appt_set', 'inspected', 'estimate_sent', 'sold', 'lost', 'negotiating', 'in_production', 'on_hold'];
+    if (stage && !validStages.includes(stage)) {
+      return res.status(400).json({ error: `stage must be one of: ${validStages.join(', ')}` });
+    }
+
     const ev = estimated_value != null ? parseFloat(estimated_value) : null;
     if (estimated_value != null && isNaN(ev)) return res.status(400).json({ error: 'estimated_value must be a number' });
 
@@ -371,6 +380,10 @@ router.post('/tasks', async (req, res, next) => {
   try {
     const { title } = req.body;
     if (!title) return res.status(400).json({ error: 'title required' });
+    const validPriorities = ['hot', 'warm', 'cold'];
+    if (req.body.priority && !validPriorities.includes(req.body.priority)) {
+      return res.status(400).json({ error: `priority must be one of: ${validPriorities.join(', ')}` });
+    }
     const task = await crmService.createTask(req.tenantId, req.body);
     res.status(201).json(task);
   } catch (err) {
@@ -381,6 +394,10 @@ router.post('/tasks', async (req, res, next) => {
 // PATCH /api/crm/tasks/:id
 router.patch('/tasks/:id', validateId(), async (req, res, next) => {
   try {
+    const validPriorities = ['hot', 'warm', 'cold'];
+    if (req.body.priority && !validPriorities.includes(req.body.priority)) {
+      return res.status(400).json({ error: `priority must be one of: ${validPriorities.join(', ')}` });
+    }
     const task = await crmService.updateTask(req.tenantId, req.params.id, req.body);
     if (!task) return res.status(404).json({ error: 'Task not found' });
     res.json(task);

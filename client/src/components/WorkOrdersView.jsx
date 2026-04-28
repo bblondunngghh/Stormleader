@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { getWorkOrders, createWorkOrder, createWorkOrderFromEstimate, updateWorkOrder, completeWorkOrder, getTeamMembers, getWorkOrderMilestones, updateWorkOrderMilestone, addWorkOrderMilestone, deleteWorkOrderMilestone, getWorkOrderMilestoneTemplates, downloadWorkOrderPdf } from '../api/crm';
 import { getEstimates } from '../api/estimates';
 import { uploadDocument } from '../api/documents';
@@ -231,7 +232,7 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
 
   const statusColor = STATUS_COLORS[wo.status] || STATUS_COLORS.pending;
 
-  return (
+  return createPortal(
     <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="glass no-scrollbar" onClick={e => e.stopPropagation()} style={{
         width: '100%', maxWidth: 580, maxHeight: '90vh', overflow: 'auto',
@@ -583,7 +584,8 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -631,7 +633,7 @@ function CreateWorkOrderModal({ onClose, onCreate, teamMembers }) {
     setSaving(false);
   };
 
-  return (
+  return createPortal(
     <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <form className="glass no-scrollbar" onClick={e => e.stopPropagation()} onSubmit={handleSubmit} style={{
         width: '100%', maxWidth: 520, maxHeight: '90vh', overflow: 'auto',
@@ -747,7 +749,8 @@ function CreateWorkOrderModal({ onClose, onCreate, teamMembers }) {
           }}>{saving ? 'Creating...' : 'Create'}</button>
         </div>
       </form>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -765,7 +768,7 @@ function EstimatePickerModal({ onClose, onPick }) {
       .finally(() => setLoading(false));
   }, []);
 
-  return (
+  return createPortal(
     <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="glass" onClick={e => e.stopPropagation()} style={{
         width: '100%', maxWidth: 480, maxHeight: '70vh', overflow: 'auto',
@@ -807,7 +810,8 @@ function EstimatePickerModal({ onClose, onPick }) {
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
