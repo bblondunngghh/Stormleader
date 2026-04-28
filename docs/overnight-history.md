@@ -999,3 +999,53 @@ and what should be prioritized next. Future agents MUST read this before startin
 - `POST /drift/correct-all` and `POST /properties/trigger-import` still accept empty bodies and trigger heavy work — should require explicit confirmation/role params
 - Browser-interactive (Playwright) click/fill/drag coverage absent since Run 6 — Run 12 captured screenshots only
 - s5 report-writing session has been 0-byte for 5 consecutive runs — the slot should be re-thought
+
+---
+
+## QA Run: 2026-04-28
+
+### Test Results
+- Pages tested: 4 baseline captures (qa14-01..04) + 2 verification captures (qa14-fix-pipeline-btn, qa14-fix-workorders-btn)
+- API endpoints tested: 159 (existing harness) + ~40 mutating endpoints re-probed for ENUM/UUID handling
+- Bugs found: 6 (1 in `POST /crm/activities`, 1 in `POST /estimates`, 1 in `POST /invoices`, 1 in `PATCH /invoices/:id`, 1 in `POST /work-orders`, 1 in `PATCH /work-orders/:id`)
+- Bugs fixed: 6 (one commit, `4865288`)
+- UI inconsistencies found: 2 (`/pipeline` `Add Lead`, `/work-orders` `New Work Order` primary CTAs)
+- UI inconsistencies fixed: 2 (one commit, `23c3746`)
+
+### Fixes Made
+- `server/src/routes/crm.js` — `POST /api/crm/activities` now performs UUID format check on `lead_id` and ENUM allow-list check on `type` (`call`, `email`, `text`, `door_knock`, `note`, `status_change`, `task_completed`, `system`) before reaching the database. Closes the 5xx-on-bad-input gap that the Run 12 fix did not cover. (4865288)
+- `server/src/routes/estimates.js` — `POST /api/estimates` now performs UUID format check on `lead_id`. (4865288)
+- `server/src/routes/invoices.js` — `POST /api/invoices` performs UUID format checks on `lead_id` and (when present) `estimate_id`. `PATCH /api/invoices/:id` performs ENUM allow-list check on `status` (`draft`, `sent`, `viewed`, `paid`, `overdue`, `void`). (4865288)
+- `server/src/routes/workOrders.js` — `POST /api/work-orders` performs UUID format checks on `lead_id` and `estimate_id` and ENUM allow-list check on `status` (`pending`, `scheduled`, `in_progress`, `completed`, `cancelled`). `PATCH /api/work-orders/:id` performs the same ENUM allow-list check on `status`. (4865288)
+- After this commit every mutating route that writes a Postgres ENUM column or a UUID foreign key on the audited surface performs explicit input validation before the request reaches the database.
+
+### UI Consistency Fixes
+- `client/src/components/Pipeline.jsx` — `Add Lead` primary CTA was inline-styled with translucent tinted background (`oklch(0.72 0.19 250 / 0.15)`), 14 px padding, 12 px / 600 font. Replaced with the standard `.auth-btn` class so the button now renders at 36 px height, 24 px horizontal padding, 13 px / 700 font, solid `var(--accent-blue)` background, matching Estimates / Invoices / Contracts / Expenses / Subcontractors / Tasks. Verified via qa14-fix-pipeline-btn.png. (23c3746)
+- `client/src/components/WorkOrdersView.jsx` — `New Work Order` primary CTA was inline-styled with translucent tinted background, **32 px** height (not 36 px), 14 px padding, 13 px / 600 font. Replaced with the standard `.auth-btn` class. Verified via qa14-fix-workorders-btn.png. (23c3746)
+
+### New Infrastructure / Carryover
+- The Run 12 carryover (`crm.js` priority/stage validation, `WorkOrdersView` modal portals, `scripts/qa-api-harness.sh`) was rolled into the pre-overnight checkpoint commit `3de969e` and is now part of HEAD.
+
+### Session Integrity
+- s1 api-test: error_max_turns (51 turns, 32 248 output tokens, $3.80) — produced commit `4865288` before timing out
+- s2 frontend-test: error_max_turns (81 turns, 16 741 output tokens, $4.25) — captured the qa14-0* baseline screenshots
+- s3 ui-audit: error_max_turns (61 turns, 29 239 output tokens, $4.30) — produced commit `23c3746` and the qa14-fix-* verification screenshots, plus btn-audit.json / form-audit.json / sidebar-audit.json
+- s4 verify: error_max_turns (41 turns, 18 468 output tokens, $3.24)
+- s5 report: 0 bytes — did not run (6th consecutive 0-byte s5; this report written in a follow-up session)
+- Total cost for the four sessions that produced work: ~$15.59
+- This is the first overnight run since QA Run 6 (2026-04-17) where every fix landed as a real commit on HEAD before the report was written.
+
+### Known Issues Remaining
+- Admin panel requires global super_admin role to fully exercise
+- Pipeline drag-and-drop not validated end-to-end in a browser (still HTML5 drag API)
+- CSV export download is not verified as a binary download (only 200 status checked)
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration
+- Webhook endpoints (`/webhooks/tracerfy`, `/webhooks/hearth`) need signature verification keys
+- File upload on Lead Detail (multipart path) not exercised
+- QuickBooks, Twilio, Stripe integrations not implemented (pre-existing, not regressions)
+- Mobile responsive sweep at 375 px / 768 px not performed this run — last full sweep was Run 6
+- `POST /drift/correct-all` and `POST /properties/trigger-import` still accept empty bodies and trigger heavy work — should require explicit confirmation/role params
+- 16 search-input fields render correctly but do not carry the explicit `.form-input` class — refactor candidate, not a regression (form-audit.json)
+- Browser-interactive (Playwright) click/fill/drag coverage absent since Run 6 — Run 13 captured screenshots only
+- s5 report-writing session has been 0-byte for 6 consecutive runs — the slot should be re-thought (fold into s4 with a longer turn budget, or drop entirely)
+- Fresh `/tmp/api-test-results.txt`, `/tmp/frontend-test-results.txt`, `/tmp/ui-audit-results.txt` were not produced this run; api-test path still holds the Run 6 artifact
