@@ -1134,16 +1134,10 @@ export default function Pipeline() {
         {/* Add Lead */}
         <button
           onClick={() => setShowCreateModal(true)}
-          className="shrink-0"
-          style={{
-            display: 'flex', alignItems: 'center', gap: 5,
-            height: 36, padding: '0 14px', fontSize: 12, fontWeight: 600, boxSizing: 'border-box',
-            borderRadius: '14px / 12px', border: '1px solid oklch(0.72 0.19 250 / 0.3)',
-            cursor: 'pointer', backdropFilter: 'blur(12px)',
-            background: 'oklch(0.72 0.19 250 / 0.15)', color: 'var(--accent-blue)',
-          }}
+          className="auth-btn shrink-0"
+          style={{ gap: 6 }}
         >
-          <IconPlusCircle width="13" height="13" />
+          <IconPlusCircle width={14} height={14} />
           Add Lead
         </button>
 

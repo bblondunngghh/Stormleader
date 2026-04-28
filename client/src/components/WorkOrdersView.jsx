@@ -970,12 +970,7 @@ export default function WorkOrdersView() {
           From Estimate
         </button>
 
-        <button onClick={() => setShowCreate(true)} style={{
-          ...btnStyle,
-          background: 'oklch(0.72 0.19 250 / 0.15)',
-          color: 'oklch(0.72 0.19 250)',
-          border: '1px solid oklch(0.72 0.19 250 / 0.25)',
-        }}>
+        <button className="auth-btn" onClick={() => setShowCreate(true)} style={{ gap: 6 }}>
           <IconPlusCircle width={16} height={16} /> New Work Order
         </button>
 
