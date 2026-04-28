@@ -331,8 +331,14 @@ router.delete('/leads/:leadId/contacts/:contactId', validateId('leadId', 'contac
 // POST /api/crm/activities
 router.post('/activities', async (req, res, next) => {
   try {
-    const { lead_id } = req.body;
+    const { lead_id, type } = req.body;
     if (!lead_id) return res.status(400).json({ error: 'lead_id required' });
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!UUID_RE.test(lead_id)) return res.status(400).json({ error: 'Invalid lead_id format' });
+    const validTypes = ['call', 'email', 'text', 'door_knock', 'note', 'status_change', 'task_completed', 'system'];
+    if (type && !validTypes.includes(type)) {
+      return res.status(400).json({ error: `type must be one of: ${validTypes.join(', ')}` });
+    }
     const activity = await crmService.logActivity(req.tenantId, req.user.id, req.body);
     res.status(201).json(activity);
   } catch (err) {

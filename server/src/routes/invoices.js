@@ -38,9 +38,13 @@ router.get('/:id', validateId(), async (req, res, next) => {
 // Create invoice
 router.post('/', async (req, res, next) => {
   try {
-    if (!req.body.lead_id) {
+    const { lead_id, estimate_id } = req.body;
+    if (!lead_id) {
       return res.status(400).json({ error: 'lead_id is required' });
     }
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!UUID_RE.test(lead_id)) return res.status(400).json({ error: 'Invalid lead_id format' });
+    if (estimate_id && !UUID_RE.test(estimate_id)) return res.status(400).json({ error: 'Invalid estimate_id format' });
     const invoice = await invoiceService.createInvoice(req.tenantId, req.body);
     res.status(201).json(invoice);
   } catch (err) {
@@ -62,6 +66,12 @@ router.post('/from-estimate/:estimateId', validateId('estimateId'), async (req, 
 // Update invoice
 router.patch('/:id', validateId(), async (req, res, next) => {
   try {
+    if (req.body.status) {
+      const validStatuses = ['draft', 'sent', 'viewed', 'paid', 'overdue', 'void'];
+      if (!validStatuses.includes(req.body.status)) {
+        return res.status(400).json({ error: `status must be one of: ${validStatuses.join(', ')}` });
+      }
+    }
     const invoice = await invoiceService.updateInvoice(req.tenantId, req.params.id, req.body);
     if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
     res.json(invoice);

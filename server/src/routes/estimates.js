@@ -149,6 +149,8 @@ router.post('/', async (req, res, next) => {
     if (!req.body.lead_id) {
       return res.status(400).json({ error: 'lead_id is required' });
     }
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!UUID_RE.test(req.body.lead_id)) return res.status(400).json({ error: 'Invalid lead_id format' });
     const estimate = await estimateService.createEstimate(req.tenantId, req.user.id, req.body);
     res.status(201).json(estimate);
   } catch (err) {

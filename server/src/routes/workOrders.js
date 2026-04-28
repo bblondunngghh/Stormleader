@@ -54,6 +54,16 @@ router.post('/', async (req, res, next) => {
     if (!req.body.title) {
       return res.status(400).json({ error: 'title is required' });
     }
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const { lead_id, estimate_id, status } = req.body;
+    if (lead_id && !UUID_RE.test(lead_id)) return res.status(400).json({ error: 'Invalid lead_id format' });
+    if (estimate_id && !UUID_RE.test(estimate_id)) return res.status(400).json({ error: 'Invalid estimate_id format' });
+    if (status) {
+      const validStatuses = ['pending', 'scheduled', 'in_progress', 'completed', 'cancelled'];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ error: `status must be one of: ${validStatuses.join(', ')}` });
+      }
+    }
     const wo = await workOrderService.createWorkOrder(req.tenantId, req.body);
     res.status(201).json(wo);
   } catch (err) {
@@ -75,6 +85,12 @@ router.post('/from-estimate/:estimateId', validateId('estimateId'), async (req, 
 // Update work order
 router.patch('/:id', validateId(), async (req, res, next) => {
   try {
+    if (req.body.status) {
+      const validStatuses = ['pending', 'scheduled', 'in_progress', 'completed', 'cancelled'];
+      if (!validStatuses.includes(req.body.status)) {
+        return res.status(400).json({ error: `status must be one of: ${validStatuses.join(', ')}` });
+      }
+    }
     const wo = await workOrderService.updateWorkOrder(req.tenantId, req.params.id, req.body);
     if (!wo) return res.status(404).json({ error: 'Work order not found' });
     res.json(wo);
