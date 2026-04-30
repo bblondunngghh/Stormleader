@@ -30,9 +30,11 @@ import {
 function formatCurrency(value) {
   if (!value && value !== 0) return '$0';
   const num = Number(value);
-  if (num >= 1000000) return `$${(num / 1000000).toFixed(1)}M`;
-  if (num >= 1000) return `$${(num / 1000).toFixed(1)}K`;
-  return `$${num.toLocaleString()}`;
+  const sign = num < 0 ? '-' : '';
+  const abs = Math.abs(num);
+  if (abs >= 1000000) return `${sign}$${(abs / 1000000).toFixed(1)}M`;
+  if (abs >= 1000) return `${sign}$${(abs / 1000).toFixed(1)}K`;
+  return `${sign}$${abs.toLocaleString()}`;
 }
 
 function timeUntil(dateStr) {
