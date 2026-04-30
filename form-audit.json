@@ -1,0 +1,188 @@
+{
+  "totalInputs": 45,
+  "inputsWithoutFormInput": 16,
+  "sampleNoFormInput": [
+    {
+      "page": "/leads",
+      "type": "text",
+      "cls": "",
+      "h": 42,
+      "pad": "12px 16px 12px 42px",
+      "fs": "13px",
+      "br": "14px / 12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "hasFormInput": false
+    },
+    {
+      "page": "/tasks",
+      "type": "text",
+      "cls": "",
+      "h": 42,
+      "pad": "12px 16px 12px 42px",
+      "fs": "13px",
+      "br": "14px / 12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "hasFormInput": false
+    },
+    {
+      "page": "/estimates",
+      "type": "text",
+      "cls": "",
+      "h": 42,
+      "pad": "12px 16px 12px 42px",
+      "fs": "13px",
+      "br": "14px / 12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "hasFormInput": false
+    },
+    {
+      "page": "/invoices",
+      "type": "text",
+      "cls": "",
+      "h": 42,
+      "pad": "12px 16px 12px 42px",
+      "fs": "13px",
+      "br": "14px / 12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "hasFormInput": false
+    },
+    {
+      "page": "/work-orders",
+      "type": "text",
+      "cls": "",
+      "h": 42,
+      "pad": "12px 16px 12px 42px",
+      "fs": "13px",
+      "br": "14px / 12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "hasFormInput": false
+    },
+    {
+      "page": "/contracts",
+      "type": "text",
+      "cls": "",
+      "h": 42,
+      "pad": "12px 16px 12px 42px",
+      "fs": "13px",
+      "br": "14px / 12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "hasFormInput": false
+    },
+    {
+      "page": "/expenses",
+      "type": "text",
+      "cls": "",
+      "h": 42,
+      "pad": "12px 16px 12px 42px",
+      "fs": "13px",
+      "br": "14px / 12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "hasFormInput": false
+    },
+    {
+      "page": "/subcontractors",
+      "type": "text",
+      "cls": "",
+      "h": 42,
+      "pad": "12px 16px 12px 42px",
+      "fs": "13px",
+      "br": "14px / 12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "hasFormInput": false
+    },
+    {
+      "page": "/materials",
+      "type": "text",
+      "cls": "",
+      "h": 42,
+      "pad": "12px 16px 12px 42px",
+      "fs": "13px",
+      "br": "14px / 12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "hasFormInput": false
+    },
+    {
+      "page": "/calendar",
+      "type": "text",
+      "cls": "",
+      "h": 42,
+      "pad": "12px 16px 12px 42px",
+      "fs": "13px",
+      "br": "14px / 12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "hasFormInput": false
+    },
+    {
+      "page": "/reports",
+      "type": "text",
+      "cls": "",
+      "h": 42,
+      "pad": "12px 16px 12px 42px",
+      "fs": "13px",
+      "br": "14px / 12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "hasFormInput": false
+    },
+    {
+      "page": "/settings",
+      "type": "text",
+      "cls": "",
+      "h": 42,
+      "pad": "12px 16px 12px 42px",
+      "fs": "13px",
+      "br": "14px / 12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "hasFormInput": false
+    },
+    {
+      "page": "/admin",
+      "type": "text",
+      "cls": "",
+      "h": 42,
+      "pad": "12px 16px 12px 42px",
+      "fs": "13px",
+      "br": "14px / 12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "hasFormInput": false
+    },
+    {
+      "page": "/canvassing",
+      "type": "text",
+      "cls": "",
+      "h": 42,
+      "pad": "12px 16px 12px 42px",
+      "fs": "13px",
+      "br": "14px / 12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "hasFormInput": false
+    },
+    {
+      "page": "/storm-map",
+      "type": "text",
+      "cls": "",
+      "h": 42,
+      "pad": "12px 16px 12px 42px",
+      "fs": "13px",
+      "br": "14px / 12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "hasFormInput": false
+    },
+    {
+      "page": "/storm-map",
+      "type": "text",
+      "cls": "address-search__input",
+      "h": 36,
+      "pad": "10px 36px",
+      "fs": "13px",
+      "br": "0px",
+      "bg": "rgba(0, 0, 0, 0)",
+      "hasFormInput": false
+    }
+  ],
+  "nativeSelects": 0,
+  "sampleSelects": [],
+  "nativeDateInputs": 0,
+  "sampleDates": [],
+  "textareasNoFormInput": 0,
+  "sampleTextareasNoForm": []
+}
