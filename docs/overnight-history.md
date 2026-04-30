@@ -1049,3 +1049,54 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Browser-interactive (Playwright) click/fill/drag coverage absent since Run 6 — Run 13 captured screenshots only
 - s5 report-writing session has been 0-byte for 6 consecutive runs — the slot should be re-thought (fold into s4 with a longer turn budget, or drop entirely)
 - Fresh `/tmp/api-test-results.txt`, `/tmp/frontend-test-results.txt`, `/tmp/ui-audit-results.txt` were not produced this run; api-test path still holds the Run 6 artifact
+
+---
+
+## QA Run: 2026-04-30
+
+### Test Results
+- Pages tested: 9 baseline captures (qa14-01..09) + 2 verification captures (qa14r-01-dashboard-ar-currency, qa14r-02-invoices-negative-balance)
+- API endpoints tested: 159 (existing harness) — no new endpoint regressions surfaced
+- Bugs found: 3 (2 UI currency-formatting bugs + 1 backend 5xx-leak class-of-bug found while reviewing the error envelope)
+- Bugs fixed: 2 committed (`485a522`, `b3c1fe9`); 1 patch left in the working tree, uncommitted (`server/src/middleware/errorHandler.js`)
+- UI inconsistencies found: 0 new — Run 13 primary-CTA fix (commit `23c3746`) verified to still hold via fresh `btns-pipeline.json`, `btns-estimates.json`, `btns-invoices.json`, `btns-leads.json` captures
+- UI inconsistencies fixed: 0 (none required this run)
+
+### Fixes Made
+- `client/src/components/Dashboard.jsx` — `formatCurrency` was producing strings like `$-1,000` for negative AR/overpayment values because `$` was a hardcoded prefix and `Number.toLocaleString()` placed the sign in front of the digits. Refactored to split sign from absolute value: `${sign}$${abs.toLocaleString()}`. Negative values now render as `-$1,000` per US accounting convention. Verified at `/` via `qa14r-01-dashboard-ar-currency.png`. (485a522)
+- `client/src/components/InvoicesView.jsx` — same display bug on the balance column. Overpaid invoice `INV-0013` rendered as `$-1,000.00`. Same fix shape applied: `{balance < 0 ? '-' : ''}${Math.abs(balance).toLocaleString(...)}`. Verified at `/invoices` via `qa14r-02-invoices-negative-balance.png`. (b3c1fe9)
+- `server/src/middleware/errorHandler.js` — **uncommitted patch in working tree**. Translates five Postgres SQLSTATE codes (`22P02` invalid_text_representation, `22008` datetime_field_overflow, `22003` numeric_value_out_of_range, `22007` invalid_datetime_format, `23503` foreign_key_violation) from 500 to 400 with sensible error messages, so any un-validated route returns a client error rather than an opaque 5xx for bad input. Defense-in-depth on top of the route-level UUID/ENUM checks added in Runs 11–13. Diff is clean and isolated to that file. The agent ran out of turns before committing. Recommend committing in next session under `fix(api): translate Postgres input errors to 400 in errorHandler`.
+
+### UI Consistency Fixes
+- None this run. The Run 13 primary-CTA standardization (`23c3746`) was re-verified intact: Pipeline `Add Lead`, Estimates `New Estimate`, Invoices `New Invoice` all render at 36 px height / 0 24 px padding / 13 px font / 700 weight (matching `.auth-btn`). Dashboard's full 42-button enumeration (`dashboard-btns.json`) shows no off-spec primary CTAs. No Material Symbols icons reintroduced.
+
+### Audit Evidence Captured
+- `btns-dashboard.json` (page-level capture), `dashboard-btns.json` (full 42-button enumeration), `btns-pipeline.json`, `btns-leads.json`, `btns-estimates.json`, `btns-invoices.json`
+- 9 baseline screenshots: `qa14-01-dashboard.png`, `qa14-02-pipeline-billing.png`, `qa14-03-leads.png`, `qa14-04-lead-detail.png`, `qa14-05-storm-map.png`, `qa14-06-estimates.png`, `qa14-07-estimate-builder.png`, `qa14-08-invoices.png`, `qa14-09-invoice-modal.png`
+- 2 verification screenshots: `qa14r-01-dashboard-ar-currency.png`, `qa14r-02-invoices-negative-balance.png`
+
+### Session Integrity
+- s1 api-test: error_max_turns (51 turns, 24 413 output tokens, $3.32) — surfaced the errorHandler.js improvement (uncommitted in working tree)
+- s2 frontend-test: error_max_turns (81 turns, 21 917 output tokens, $5.35) — captured the qa14-0* baseline screenshots, surfaced both currency bugs, produced commits `485a522` and `b3c1fe9`
+- s3 ui-audit: error_max_turns (61 turns, 19 812 output tokens, $3.52) — captured the five `btns-*.json` files, verified Run 13 CTA fix still holds
+- s4 verify: error_max_turns (41 turns, 15 225 output tokens, $2.60) — captured the qa14r-* verification retests
+- s5 report: 0 bytes — did not run (7th consecutive 0-byte s5 since Run 8; this report written in a follow-up session)
+- Total cost for the four sessions that produced work: ~$14.79
+
+### Known Issues Remaining
+- `server/src/middleware/errorHandler.js` defense-in-depth patch sits uncommitted in the working tree — carry forward to next run for review and commit
+- Other currency-formatting surfaces (LeadDetail Profit/Expenses, Reports, ContractsView, ExpensesView) not audited for the same `$${num}` anti-pattern that produced Bug 1 and Bug 2 — recommended next-run task
+- Admin panel requires global super_admin role to fully exercise
+- Pipeline drag-and-drop not validated end-to-end in a browser (still HTML5 drag API)
+- CSV export download is not verified as a binary download (only 200 status checked)
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration
+- Webhook endpoints (`/webhooks/tracerfy`, `/webhooks/hearth`) need signature verification keys
+- File upload on Lead Detail (multipart path) not exercised
+- QuickBooks, Twilio, Stripe integrations not implemented (pre-existing, not regressions)
+- `POST /drift/correct-all` and `POST /properties/trigger-import` still accept empty bodies and trigger heavy work — should require explicit confirmation/role params (tracked since Run 11)
+- 16 search-input fields render correctly but do not carry the explicit `.form-input` class (tracked since Run 13)
+- Mobile responsive sweep at 375 px / 768 px not performed this run — last full sweep was Run 6
+- Browser-interactive (Playwright) click/fill/drag coverage absent since Run 6 — Run 14 captured screenshots only
+- s5 report-writing session has been 0-byte for 7 consecutive runs — the slot should be re-thought (fold into s4 with a longer turn budget, or drop entirely)
+- Fresh `/tmp/api-test-results.txt`, `/tmp/frontend-test-results.txt`, `/tmp/ui-audit-results.txt` were not produced this run; api-test path still holds the Run 6 artifact
+- Form audit + sidebar audit not re-captured this run; latest evidence is from Run 13
