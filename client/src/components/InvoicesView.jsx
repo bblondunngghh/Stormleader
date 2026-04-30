@@ -284,7 +284,7 @@ export default function InvoicesView() {
                     <td style={{ fontWeight: 700 }}>${Number(inv.total).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                     <td style={{ color: 'oklch(0.75 0.18 145)' }}>${Number(inv.amount_paid || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                     <td style={{ fontWeight: 700, color: balance > 0 ? 'oklch(0.65 0.2 25)' : 'oklch(0.75 0.18 145)' }}>
-                      ${balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      {balance < 0 ? '-' : ''}${Math.abs(balance).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </td>
                     <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                       {inv.due_date ? new Date(inv.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
