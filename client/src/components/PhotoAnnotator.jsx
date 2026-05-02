@@ -1,11 +1,19 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import {
+  PencilIcon,
+  ArrowUpRightIcon,
+  StopIcon,
+  StopCircleIcon,
+  DocumentTextIcon,
+  XMarkIcon,
+} from '@heroicons/react/24/outline';
 
 const TOOLS = [
-  { id: 'pen', label: 'Draw', icon: 'M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z' },
-  { id: 'arrow', label: 'Arrow', icon: 'M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25' },
-  { id: 'rect', label: 'Rectangle', icon: 'M3 3h18v18H3z' },
-  { id: 'circle', label: 'Circle', icon: 'M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0-18 0' },
-  { id: 'text', label: 'Text', icon: 'M4 6h16M8 6v12m8-12v12' },
+  { id: 'pen', label: 'Draw', Icon: PencilIcon },
+  { id: 'arrow', label: 'Arrow', Icon: ArrowUpRightIcon },
+  { id: 'rect', label: 'Rectangle', Icon: StopIcon },
+  { id: 'circle', label: 'Circle', Icon: StopCircleIcon },
+  { id: 'text', label: 'Text', Icon: DocumentTextIcon },
 ];
 
 const COLORS = [
@@ -208,19 +216,20 @@ export default function PhotoAnnotator({ imageUrl, onSave, onClose }) {
         }}>
           {/* Tools */}
           <div style={{ display: 'flex', gap: 'var(--space-xs)' }}>
-            {TOOLS.map(t => (
-              <button key={t.id} title={t.label} onClick={() => setTool(t.id)}
-                style={{
-                  width: 36, height: 36, borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: tool === t.id ? 'oklch(0.30 0.08 250 / 0.6)' : 'transparent',
-                  color: tool === t.id ? 'var(--accent-blue)' : 'var(--text-muted)',
-                }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d={t.icon} />
-                </svg>
-              </button>
-            ))}
+            {TOOLS.map(t => {
+              const ToolIcon = t.Icon;
+              return (
+                <button key={t.id} title={t.label} onClick={() => setTool(t.id)}
+                  style={{
+                    width: 36, height: 36, borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: tool === t.id ? 'oklch(0.30 0.08 250 / 0.6)' : 'transparent',
+                    color: tool === t.id ? 'var(--accent-blue)' : 'var(--text-muted)',
+                  }}>
+                  <ToolIcon width={18} height={18} />
+                </button>
+              );
+            })}
           </div>
 
           <div style={{ width: 1, height: 24, background: 'var(--glass-border)' }} />
@@ -263,8 +272,8 @@ export default function PhotoAnnotator({ imageUrl, onSave, onClose }) {
             Save Annotated Photo
           </button>
           <button onClick={onClose}
-            style={{ width: 32, height: 32, borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'none', color: 'var(--text-muted)', fontSize: 18 }}>
-            &times;
+            style={{ width: 32, height: 32, borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'none', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <XMarkIcon width={18} height={18} />
           </button>
         </div>
 

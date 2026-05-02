@@ -258,9 +258,9 @@ function SubSlideOver({ sub, onClose, onSaved }) {
         style={{ position: 'fixed', top: 64, left: 0, right: 0, bottom: 0, background: 'oklch(0.05 0.02 260 / 0.6)', backdropFilter: 'blur(4px)', zIndex: 100, animation: 'fadeIn 0.25s var(--ease-out)' }} />
       <div className="slide-over glass"
         style={{ position: 'fixed', top: 'calc(64px + var(--space-md))', right: 'var(--space-md)', bottom: 'var(--space-md)', width: 480, maxWidth: '90vw', borderRadius: '20px / 18px', padding: 'var(--space-2xl)', zIndex: 101, animation: 'slideIn 0.35s var(--ease-out)', display: 'flex', flexDirection: 'column', gap: 'var(--space-xl)' }}>
-        <button onClick={onClose} className="slide-over__close"
+        <button onClick={onClose} className="slide-over__close" aria-label="Close"
           style={{ position: 'absolute', top: 'var(--space-xl)', right: 'var(--space-xl)', width: 32, height: 32, borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}>
-          &times;
+          <XMarkIcon width={20} height={20} />
         </button>
 
         <div style={{ paddingRight: 40 }}>

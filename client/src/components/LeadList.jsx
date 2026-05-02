@@ -441,8 +441,9 @@ export default function LeadList() {
             {preset.name}
             <button
               onClick={(e) => { e.stopPropagation(); deletePreset(preset.id); }}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 0 0 4px', fontSize: 12, lineHeight: 1 }}
-            >&times;</button>
+              aria-label="Delete preset"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 0 0 4px', display: 'inline-flex', alignItems: 'center' }}
+            ><IconX width={10} height={10} /></button>
           </span>
         ))}
 
@@ -498,7 +499,7 @@ export default function LeadList() {
         {activeFilters.map(f => (
           <span key={f.key} className="filter-pill">
             {f.label}
-            <button onClick={f.clear} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 0 0 6px', fontSize: 12, lineHeight: 1 }}>&times;</button>
+            <button onClick={f.clear} aria-label="Remove filter" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 0 0 6px', display: 'inline-flex', alignItems: 'center' }}><IconX width={11} height={11} /></button>
           </span>
         ))}
         {activeFilters.length > 1 && (

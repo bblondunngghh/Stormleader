@@ -1147,7 +1147,7 @@ export default function Pipeline() {
             {activeFilters.map(f => (
               <span key={f.key} className="filter-pill shrink-0">
                 {f.label}
-                <button onClick={f.clear} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 0 0 6px', fontSize: 12, lineHeight: 1 }}>&times;</button>
+                <button onClick={f.clear} aria-label="Remove filter" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '0 0 0 6px', display: 'inline-flex', alignItems: 'center' }}><IconX width={11} height={11} /></button>
               </span>
             ))}
             {activeFilters.length > 1 && (

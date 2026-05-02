@@ -355,7 +355,7 @@ export default function CanvassingMode() {
       {geoError && (
         <div style={styles.geoError}>
           {geoError}
-          <button onClick={() => setGeoError(null)} style={styles.geoErrorClose}>&times;</button>
+          <button onClick={() => setGeoError(null)} style={styles.geoErrorClose} aria-label="Dismiss"><XMarkIcon width={14} height={14} /></button>
         </div>
       )}
 

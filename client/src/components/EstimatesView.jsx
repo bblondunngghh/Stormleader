@@ -1106,11 +1106,11 @@ function SectionImageBar({ sectionId, images, onAdd, onRemove }) {
           {images.map((img, i) => (
             <div key={i} style={{ position: 'relative', borderRadius: '10px / 8px', overflow: 'hidden', width: 120, height: 80 }}>
               <img src={img.preview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              <button onClick={() => onRemove(sectionId, i)} style={{
+              <button onClick={() => onRemove(sectionId, i)} aria-label="Remove" style={{
                 position: 'absolute', top: 4, right: 4, width: 18, height: 18, borderRadius: '50%',
                 background: 'oklch(0 0 0 / 0.6)', border: 'none', color: 'oklch(1 0 0)', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, lineHeight: 1,
-              }}>&times;</button>
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}><IconX width={11} height={11} /></button>
             </div>
           ))}
         </div>
@@ -1172,7 +1172,7 @@ function SendForSigningModal({ signers, customerEmail, onSend, onClose, sending 
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>Send for Signing</h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 18 }}>&times;</button>
+          <button onClick={onClose} aria-label="Close" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconX width={18} height={18} /></button>
         </div>
 
         <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
@@ -1957,12 +1957,13 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                     <img src={primaryImage.preview} alt="Primary" style={{ width: '100%', maxHeight: 200, objectFit: 'cover', display: 'block' }} />
                     <button
                       onClick={e => { e.stopPropagation(); setPrimaryImage(null); }}
+                      aria-label="Remove image"
                       style={{
                         position: 'absolute', top: 8, right: 8, width: 24, height: 24, borderRadius: '50%',
                         background: 'oklch(0 0 0 / 0.6)', border: 'none', color: 'oklch(1 0 0)', cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}
-                    >&times;</button>
+                    ><IconX width={14} height={14} /></button>
                   </>
                 ) : (
                   <>

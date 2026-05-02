@@ -965,7 +965,7 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Send Invoice</h3>
-              <button onClick={() => setShowSendModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 18 }}>&times;</button>
+              <button onClick={() => setShowSendModal(false)} aria-label="Close" style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconX width={18} height={18} /></button>
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12 }}>
               Send <strong>{invoice.invoice_number}</strong> for <strong>${Number(invoice.total || 0).toLocaleString()}</strong> to the customer.
