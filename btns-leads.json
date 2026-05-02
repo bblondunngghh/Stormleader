@@ -1,0 +1,11 @@
+{
+  "url": "/leads",
+  "headers": [
+    {
+      "cls": "topbar glass",
+      "h": 56
+    }
+  ],
+  "authBtns": [],
+  "suspectPrimary": []
+}

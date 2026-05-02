@@ -1,0 +1,20 @@
+{
+  "url": "/invoices",
+  "headers": [
+    {
+      "cls": "topbar glass",
+      "h": 56
+    }
+  ],
+  "authBtns": [
+    {
+      "text": "New Invoice",
+      "h": 36,
+      "pad": "0px 24px",
+      "fs": "13px",
+      "fw": "700",
+      "br": "14px / 12px"
+    }
+  ],
+  "suspectPrimary": []
+}

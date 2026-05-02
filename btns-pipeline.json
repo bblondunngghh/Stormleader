@@ -1,0 +1,167 @@
+{
+  "url": "/pipeline",
+  "headers": [
+    {
+      "tag": "HEADER",
+      "cls": "topbar glass",
+      "h": 56
+    }
+  ],
+  "authBtns": [
+    {
+      "text": "Add Lead",
+      "h": 36,
+      "pad": "0px 24px",
+      "fs": "13px",
+      "fw": "700",
+      "br": "14px / 12px"
+    }
+  ],
+  "totalBtns": 18,
+  "btns": [
+    {
+      "text": "",
+      "cls": "topbar__btn",
+      "h": 38,
+      "pad": "0px",
+      "fs": "13.3333px",
+      "br": "12px"
+    },
+    {
+      "text": "",
+      "cls": "topbar__btn",
+      "h": 38,
+      "pad": "0px",
+      "fs": "13.3333px",
+      "br": "12px"
+    },
+    {
+      "text": "Enterprise",
+      "cls": "",
+      "h": 26,
+      "pad": "4px 10px",
+      "fs": "13.3333px",
+      "br": "10px / 8px"
+    },
+    {
+      "text": "Sales",
+      "cls": "shrink-0",
+      "h": 25,
+      "pad": "5px 12px",
+      "fs": "12px",
+      "br": "8px"
+    },
+    {
+      "text": "Production",
+      "cls": "shrink-0",
+      "h": 25,
+      "pad": "5px 12px",
+      "fs": "12px",
+      "br": "8px"
+    },
+    {
+      "text": "Billing",
+      "cls": "shrink-0",
+      "h": 25,
+      "pad": "5px 12px",
+      "fs": "12px",
+      "br": "8px"
+    },
+    {
+      "text": "All Priorities",
+      "cls": "",
+      "h": 36,
+      "pad": "0px 16px",
+      "fs": "13px",
+      "br": "12px"
+    },
+    {
+      "text": "All Sources",
+      "cls": "",
+      "h": 36,
+      "pad": "0px 16px",
+      "fs": "13px",
+      "br": "12px"
+    },
+    {
+      "text": "All Reps",
+      "cls": "",
+      "h": 36,
+      "pad": "0px 16px",
+      "fs": "13px",
+      "br": "12px"
+    },
+    {
+      "text": "",
+      "cls": "shrink-0",
+      "h": 36,
+      "pad": "0px",
+      "fs": "13.3333px",
+      "br": "14px / 12px"
+    },
+    {
+      "text": "Add Lead",
+      "cls": "auth-btn shrink-0",
+      "h": 36,
+      "pad": "0px 24px",
+      "fs": "13px",
+      "br": "14px / 12px"
+    },
+    {
+      "text": "",
+      "cls": "",
+      "h": 13,
+      "pad": "0px",
+      "fs": "13.3333px",
+      "br": "0px"
+    },
+    {
+      "text": "",
+      "cls": "",
+      "h": 13,
+      "pad": "0px",
+      "fs": "13.3333px",
+      "br": "0px"
+    },
+    {
+      "text": "",
+      "cls": "",
+      "h": 13,
+      "pad": "0px",
+      "fs": "13.3333px",
+      "br": "0px"
+    },
+    {
+      "text": "",
+      "cls": "",
+      "h": 13,
+      "pad": "0px",
+      "fs": "13.3333px",
+      "br": "0px"
+    },
+    {
+      "text": "",
+      "cls": "",
+      "h": 13,
+      "pad": "0px",
+      "fs": "13.3333px",
+      "br": "0px"
+    },
+    {
+      "text": "",
+      "cls": "",
+      "h": 13,
+      "pad": "0px",
+      "fs": "13.3333px",
+      "br": "0px"
+    },
+    {
+      "text": "",
+      "cls": "",
+      "h": 13,
+      "pad": "0px",
+      "fs": "13.3333px",
+      "br": "0px"
+    }
+  ]
+}

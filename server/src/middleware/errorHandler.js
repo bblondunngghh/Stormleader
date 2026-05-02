@@ -1,9 +1,30 @@
 import fs from 'fs';
 import logger from '../utils/logger.js';
 
+// Postgres SQLSTATE codes we surface as 400 instead of 500 — these are caused
+// by client-supplied input (bad UUID, bad number, FK to a non-existent row),
+// not by a server fault.
+const PG_BAD_INPUT_CODES = new Set([
+  '22P02', // invalid_text_representation (e.g. "not-a-uuid" cast to uuid)
+  '22008', // datetime_field_overflow
+  '22003', // numeric_value_out_of_range
+  '22007', // invalid_datetime_format
+  '23503', // foreign_key_violation
+]);
+
 export default function errorHandler(err, req, res, _next) {
-  const status = err.status || err.statusCode || 500;
-  const message = status === 500 ? 'Internal server error' : err.message;
+  let status = err.status || err.statusCode || 500;
+  let message = status === 500 ? 'Internal server error' : err.message;
+
+  // Translate Postgres input/FK errors so callers receive a 400 instead of 500.
+  if (status === 500 && err && typeof err.code === 'string' && PG_BAD_INPUT_CODES.has(err.code)) {
+    status = 400;
+    if (err.code === '23503') {
+      message = 'Referenced resource does not exist or is not accessible';
+    } else {
+      message = err.message || 'Invalid input';
+    }
+  }
 
   logger.error({ err, method: req.method, url: req.url }, err.message);
   if (status === 500) {
