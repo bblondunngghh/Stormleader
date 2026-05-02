@@ -62,7 +62,7 @@ export default function InvoicesView() {
   const totalValue = invoices.reduce((s, inv) => s + Number(inv.total || 0), 0);
   const paidValue = invoices.filter(i => i.status === 'paid').reduce((s, inv) => s + Number(inv.total || 0), 0);
   const outstandingValue = invoices.filter(i => ['sent', 'viewed', 'overdue'].includes(i.status)).reduce((s, inv) => s + Number(inv.total || 0) - Number(inv.amount_paid || 0), 0);
-  const overdueCount = invoices.filter(i => i.status === 'overdue').length;
+  const overdueCount = invoices.filter(i => i.status === 'overdue' || (i.status === 'sent' && i.due_date && new Date(i.due_date) < new Date())).length;
 
   // A/R Aging buckets — JobNimbus-style cash flow management
   const agingBuckets = (() => {
