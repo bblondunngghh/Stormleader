@@ -1100,3 +1100,54 @@ and what should be prioritized next. Future agents MUST read this before startin
 - s5 report-writing session has been 0-byte for 7 consecutive runs — the slot should be re-thought (fold into s4 with a longer turn budget, or drop entirely)
 - Fresh `/tmp/api-test-results.txt`, `/tmp/frontend-test-results.txt`, `/tmp/ui-audit-results.txt` were not produced this run; api-test path still holds the Run 6 artifact
 - Form audit + sidebar audit not re-captured this run; latest evidence is from Run 13
+
+---
+
+## QA Run: 2026-05-02
+
+### Test Results
+- Pages tested: 13 routes + 15 settings tabs (full Playwright UI sweep — first since Run 6)
+- API endpoints tested: 260+ endpoint hits across 36 route files (176 calls in `scripts/qa-api-test.mjs` + 79 in `scripts/qa-api-test-extended.mjs` + targeted curl probes)
+- Bugs found: 3
+- Bugs fixed: 3 (commits `e61b0c7`, `88e9dfe`, `ba79211`)
+- UI inconsistencies found: 2 (icon-discipline violations)
+- UI inconsistencies fixed: 2 (rolled into the `88e9dfe` and `ba79211` commits — both fix categories overlap)
+
+### Fixes Made
+- `client/src/components/InvoicesView.jsx` — Overdue stat card counted only `status === 'overdue'`, while the row OVERDUE badge fires on `status === 'sent' && new Date(due_date) < now`. Stat showed `0` while a clearly-overdue row was visible. Extended the filter to match the badge logic and the dashboard's SQL definition. Verified at `/invoices`: card now shows `1`, agreeing with the OVERDUE row badge. (e61b0c7)
+- No backend commits this run. Two new API harness scripts (`scripts/qa-api-test.mjs`, `scripts/qa-api-test-extended.mjs`) were created and used to drive 260+ endpoint hits — both left untracked. Every previous-run fix held under re-probe; Run 14's `errorHandler.js` SQLSTATE patch is now live in checkpoint `7e68f24`.
+
+### UI Consistency Fixes
+- `client/src/components/PhotoAnnotator.jsx` + 8 components — drawing toolbar used inline `<svg>` + raw path strings, and eight components rendered raw `&times;` inside close/dismiss `<button>`s instead of `XMarkIcon`. Notably `EstimatesView`, `InvoicesView`, `LeadList`, and `Pipeline` already imported `IconX` but used `&times;` in places — inconsistent within the same file. Standardized on `IconX` / `XMarkIcon` plus `aria-label`s, and swapped the PhotoAnnotator toolbar icons for `PencilIcon` / `ArrowUpRightIcon` / `StopIcon` / `StopCircleIcon` / `DocumentTextIcon`. Files touched: `PhotoAnnotator`, `CanvassingMode`, `CreateLeadModal`, `SubcontractorsView`, `EstimatesView` (3), `InvoicesView`, `LeadList` (2), `Pipeline`. +49 / -37 lines. (88e9dfe)
+- `client/src/components/WorkOrdersView.jsx` — "Remove milestone" buttons rendered a literal `×` character. Swapped for the `IconX` wrapper already imported in the file, plus `aria-label="Remove milestone"`. +4 / -3 lines. (ba79211)
+- After these two commits, `git grep` for `&times;`, raw `<svg>` icon paths in view components, and `material-symbols-*` returns clean across `client/src` (audited categories — does not include intentional non-icon SVGs like chart geometry).
+
+### Audit Evidence Captured
+- 16 refreshed Playwright screenshots in working tree: `qa-storm-map.png`, `qa-pipeline.png`, `qa-leads.png`, `qa-lead-detail.png`, `qa-estimates.png`, `qa-estimate-builder.png`, `qa-invoices.png`, `qa-invoices-after.png`, `qa-work-orders.png`, `qa-work-orders-after.png`, `qa-work-order-detail.png`, `qa-tasks.png`, `qa-calendar.png`, `qa-reports.png`, `qa-canvassing.png`, `qa-settings.png`, `qa-invoice-modal.png`
+- New harness scripts in working tree: `scripts/qa-api-test.mjs` (315 lines, 176 calls), `scripts/qa-api-test-extended.mjs` (185 lines, 79 calls)
+
+### Session Integrity
+- s1 api-test: **completed** (34 turns, 30 297 output tokens, $2.68) — first fully-clean API sweep in the 15-run series
+- s2 frontend-test: error_max_turns (81 turns, 27 809 output tokens, $5.42) — produced commit `e61b0c7`, captured baseline screenshots, first full UI sweep since Run 6
+- s3 ui-audit: error_max_turns (61 turns, 40 104 output tokens, $4.91) — produced commits `88e9dfe` and `ba79211`
+- s4 verify: error_max_turns (41 turns, 11 004 output tokens, $2.25)
+- s5 report: 0 bytes — did not run (8th consecutive 0-byte s5 since Run 8; this report written in a follow-up session)
+- Total cost across the four sessions that produced work: ~$15.26
+- Two consecutive runs now where every fix landed as a real commit on HEAD before the report was written
+
+### Known Issues Remaining
+- `POST /drift/correct-all` and `POST /properties/trigger-import` still accept empty bodies and trigger heavy work — should require explicit confirmation/role params (tracked since Run 11)
+- 16 search-input fields render correctly but do not carry the explicit `.form-input` class (tracked since Run 13, `form-audit.json`)
+- Pre-token-attach 401 noise on `/api/properties/import-progress`, `/api/notifications/unread-count`, `/api/crm/tenant-settings` — cosmetic console noise on first paint, no functional impact
+- Reports chart label overlap — "Mar 26" / "Apr 26" tick labels overlap the "$0" y-axis label on the Revenue chart at narrow widths
+- Other currency-formatting surfaces (LeadDetail Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals) not audited for the `$${num}` anti-pattern that produced Run 14's bugs
+- Admin panel requires global super_admin role to fully exercise
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration for live delivery testing
+- Webhook endpoints (`/webhooks/tracerfy`, `/webhooks/hearth`) need signature verification keys
+- File upload on Lead Detail (multipart path) probed only with empty multipart body, not with a real file payload
+- CSV export download verified by 200 status only, not by binary content-type and download triggering
+- QuickBooks, Twilio, Stripe integrations not implemented (pre-existing, not regressions)
+- Mobile responsive sweep at 375 px / 768 px not performed this run — last full sweep was Run 6 (9 runs ago)
+- Browser-interactive (Playwright) click/fill/drag write coverage absent since Run 6 — Run 15 opened modals and verified rendering, but did not submit Add Lead, drag pipeline cards, upload documents, or record payments
+- s5 report-writing session has been 0-byte for 8 consecutive runs — fold into s4 with a longer turn budget, or drop entirely
+- Fresh `/tmp/api-test-results.txt`, `/tmp/frontend-test-results.txt`, `/tmp/ui-audit-results.txt` were not produced this run; api-test path still holds the Run 6 artifact (s1 wrote results into the JSON instead)
