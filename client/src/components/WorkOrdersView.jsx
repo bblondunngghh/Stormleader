@@ -498,9 +498,10 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
                     </button>
                     {!m.completed && (
                       <button onClick={(e) => { e.stopPropagation(); handleDeleteMilestone(m.id); }}
-                        style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 14, padding: '0 4px', opacity: 0.5 }}
-                        title="Remove milestone">
-                        ×
+                        style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0 4px', opacity: 0.5, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                        title="Remove milestone"
+                        aria-label="Remove milestone">
+                        <IconX width={14} height={14} />
                       </button>
                     )}
                   </div>
