@@ -86,7 +86,7 @@ await hit('GET', '/api/crm/canvass-pins/stats', { expect: [200] });
 await hit('POST', '/api/crm/canvass-pins', { body: {}, expect: [400] });
 await hit('PATCH', `/api/crm/canvass-pins/${BAD_ID}`, { body: {}, expect: [400] });
 await hit('POST', `/api/crm/canvass-pins/${BAD_ID}/convert`, { body: {}, expect: [400] });
-await hit('PATCH', `/api/crm/canvass-pins/${IDS.canvassPin}`, { body: { outcome: 'callback' }, expect: [200] });
+await hit('PATCH', `/api/crm/canvass-pins/${IDS.canvassPin}`, { body: { outcome: 'follow_up' }, expect: [200] });
 
 // --- CONTRACTS ---
 await hit('GET', '/api/crm/contracts', { expect: [200] });
@@ -133,7 +133,8 @@ await hit('GET', '/api/crm/dashboard/customer-storm-alerts', { expect: [200] });
 await hit('GET', '/api/crm/dashboard/lead-source-revenue', { expect: [200] });
 await hit('GET', '/api/crm/team', { expect: [200] });
 await hit('GET', '/api/crm/tenant-settings', { expect: [200] });
-await hit('GET', '/api/crm/calendar', { expect: [200] });
+await hit('GET', '/api/crm/calendar?start=2026-04-01&end=2026-06-30', { expect: [200] });
+await hit('GET', '/api/crm/calendar', { expect: [400], note: 'no start/end' });
 await hit('GET', '/api/crm/custom-fields', { expect: [200] });
 await hit('GET', '/api/crm/prospect-lists', { expect: [200] });
 
@@ -149,7 +150,8 @@ await hit('POST', '/api/data/optimize-route', { body: {}, expect: [400] });
 await hit('GET', '/api/data/directions', { expect: [400] });
 
 // --- DISASTER DECLARATIONS ---
-await hit('GET', '/api/disaster-declarations', { expect: [200] });
+await hit('GET', '/api/disaster-declarations?state=TX&county=Harris', { expect: [200] });
+await hit('GET', '/api/disaster-declarations', { expect: [400], note: 'no state/county' });
 
 // --- DOCUMENTS ---
 await hit('GET', '/api/documents', { expect: [200] });
