@@ -583,7 +583,7 @@ export default function EstimatesView() {
           <button
             className="quick-action-btn"
             onClick={() => setShowCompare(true)}
-            style={{ display: 'flex', alignItems: 'center', gap: 5 }}
+            style={{ display: 'flex', alignItems: 'center', gap: 5, height: 36, padding: '0 16px' }}
           >
             <Squares2X2Icon width={14} height={14} />
             Compare Tiers

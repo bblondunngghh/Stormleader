@@ -964,6 +964,9 @@ export default function WorkOrdersView() {
 
         <button onClick={() => setShowEstimatePicker(true)} style={{
           ...btnStyle,
+          height: 36,
+          padding: '0 16px',
+          borderRadius: '14px / 12px',
           background: 'oklch(0.75 0.15 55 / 0.12)',
           color: 'oklch(0.75 0.15 55)',
           border: '1px solid oklch(0.75 0.15 55 / 0.2)',
