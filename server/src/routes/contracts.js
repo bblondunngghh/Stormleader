@@ -126,6 +126,9 @@ router.post('/', async (req, res, next) => {
 
 router.patch('/:id', validateId(), async (req, res, next) => {
   try {
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
     const contract = await contractService.updateContract(req.tenantId, req.params.id, req.body);
     if (!contract) return res.status(404).json({ error: 'Contract not found or not in draft status' });
     res.json(contract);

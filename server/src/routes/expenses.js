@@ -60,6 +60,9 @@ router.post('/', async (req, res, next) => {
 // Update expense
 router.patch('/:id', validateId(), async (req, res, next) => {
   try {
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
     const expense = await expenseService.updateExpense(req.tenantId, req.params.id, req.body);
     if (!expense) return res.status(404).json({ error: 'Expense not found' });
     res.json(expense);

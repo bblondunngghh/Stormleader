@@ -400,6 +400,9 @@ router.post('/tasks', async (req, res, next) => {
 // PATCH /api/crm/tasks/:id
 router.patch('/tasks/:id', validateId(), async (req, res, next) => {
   try {
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
     const validPriorities = ['hot', 'warm', 'cold'];
     if (req.body.priority && !validPriorities.includes(req.body.priority)) {
       return res.status(400).json({ error: `priority must be one of: ${validPriorities.join(', ')}` });

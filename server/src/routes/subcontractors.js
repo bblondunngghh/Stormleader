@@ -53,6 +53,9 @@ router.post('/', async (req, res, next) => {
 // Update subcontractor
 router.patch('/:id', validateId(), async (req, res, next) => {
   try {
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
     const sub = await subcontractorService.updateSubcontractor(req.tenantId, req.params.id, req.body);
     if (!sub) return res.status(404).json({ error: 'Subcontractor not found' });
     res.json(sub);
