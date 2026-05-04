@@ -1151,3 +1151,55 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Browser-interactive (Playwright) click/fill/drag write coverage absent since Run 6 — Run 15 opened modals and verified rendering, but did not submit Add Lead, drag pipeline cards, upload documents, or record payments
 - s5 report-writing session has been 0-byte for 8 consecutive runs — fold into s4 with a longer turn budget, or drop entirely
 - Fresh `/tmp/api-test-results.txt`, `/tmp/frontend-test-results.txt`, `/tmp/ui-audit-results.txt` were not produced this run; api-test path still holds the Run 6 artifact (s1 wrote results into the JSON instead)
+
+---
+
+## QA Run: 2026-05-03
+
+### Test Results
+- Pages tested: 14 routes + 14 settings tabs (full Playwright UI sweep — Run 17)
+- API endpoints tested: 257 endpoint hits across 36 route files (178 main harness + 79 extended write-flow harness)
+- Bugs found: 2 (both UI toolbar height inconsistencies; 0 API/server bugs)
+- Bugs fixed: 2
+- UI inconsistencies found: 2 (toolbar secondary CTAs)
+- UI inconsistencies fixed: 2 (rolled into commit `a16ac46`)
+
+### Fixes Made
+- `client/src/components/EstimatesView.jsx` — "Compare Tiers" secondary CTA was 34 px next to a 36 px "New Estimate" `.auth-btn` primary. Aligned to 36 px / matching 14/12 px radius. (a16ac46)
+- `client/src/components/WorkOrdersView.jsx` — "From Estimate" secondary CTA was 32 px next to a 36 px "New Work Order" `.auth-btn` primary. Aligned to 36 px / matching radius. Pattern matches the already-correct Invoices toolbar. (a16ac46)
+- No backend production code changed. The QA harness itself was patched for 3 false-positive 400s (`canvass-pin` PATCH used invalid enum `'callback'` → switched to `'follow_up'`; `/api/crm/calendar` was called bare instead of with required `start/end` → now sends a real range plus a separate negative case; `/api/disaster-declarations` was called without required `state/county` → now sends `state=TX&county=Harris` plus a separate negative case). After patch: 178/178 expected, 0 issues; extended harness 79/79 with 0 5xx. (4719928)
+
+### UI Consistency Fixes
+- `EstimatesView` "Compare Tiers" + `WorkOrdersView` "From Estimate" toolbar buttons unified to `.auth-btn` 36 px / 14 px (12 px on mobile) radius (a16ac46)
+- Icon library re-audited: `git grep` for `lucide-react`, `@fortawesome`, `react-icons`, `feather-icons`, `@heroicons/react/24/solid`, `@heroicons/react/20/`, raw `<svg>` icon paths in view components, `material-symbols-*`, raw `&times;` — all clean. The previous overnight runs that fixed these (`88e9dfe`, `ba79211`, `6e779d8`, `b5887e7`, `18f337a`) are sticking.
+
+### Audit Evidence Captured
+- 14 fresh Playwright screenshots in working tree: `qa-run17-01-dashboard.png`, `qa-run17-02-stormmap.png`, `qa-run17-03-pipeline.png`, `qa-run17-04-leads.png`, `qa-run17-05-leaddetail.png`, `qa-run17-06-estimates.png`, `qa-run17-07-invoices.png`, `qa-run17-08-workorders.png`, `qa-run17-09-tasks.png`, `qa-run17-10-calendar.png`, `qa-run17-11-reports.png`, `qa-run17-12-canvassing.png`, `qa-run17-13-settings.png`, `qa-run17-14-settings-customfields.png`
+- Run 18 before/after screenshots for the toolbar fix: `qa-run18-01-workorders-toolbar-fixed.png`, `qa-run18-02-workorders-toolbar.png`
+
+### Session Integrity
+- s1 api-test: **completed** (39 turns, 14 247 output tokens, $2.16) — second consecutive fully-clean API sweep on top of Run 16's clean sweep. Produced commit `4719928` (test-harness fix only)
+- s2 frontend-test: **completed** (63 turns, 23 959 output tokens, $3.85) — first frontend Playwright sweep since Run 15, 0 bugs
+- s3 ui-audit: error_max_turns (61 turns, 26 348 output tokens, $4.63) — produced commit `a16ac46` before exhaustion
+- s4 verify: error_max_turns (41 turns, 11 684 output tokens, $2.08)
+- s5 report: 0 bytes — did not run (9th consecutive 0-byte s5 since Run 8; this report written in a follow-up session)
+- Total cost across the four sessions that produced work: ~$12.72
+- Three consecutive runs now where every fix landed as a real commit on HEAD before the report was written
+
+### Known Issues Remaining
+- `POST /drift/correct-all` and `POST /properties/trigger-import` still accept empty bodies and trigger heavy work — should require explicit confirmation/role params (tracked since Run 11)
+- 16 search-input fields render correctly but do not carry the explicit `.form-input` class (tracked since Run 13, `form-audit.json`)
+- Pre-token-attach 401 noise on `/api/properties/import-progress`, `/api/notifications/unread-count`, `/api/crm/tenant-settings` — three endpoints fire before the axios auth interceptor attaches on every fresh page load; succeed on retry. Console-only noise (carry-over #7 from Run 16, confirmed still present in Run 17)
+- Reports chart label overlap at ~930 px viewport width — "Conversion By Source" title wraps awkwardly into the CSV badge. Cosmetic
+- 404 response shape — Express HTML 404 vs JSON elsewhere (cosmetic)
+- Other currency-formatting surfaces (LeadDetail Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals) not audited for the `$${num}` anti-pattern that produced Run 14's bugs
+- Admin panel requires global super_admin role to fully exercise
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration for live delivery testing
+- Webhook endpoints (`/webhooks/tracerfy`, `/webhooks/hearth`) need signature verification keys
+- File upload on Lead Detail (multipart path) not exercised with a real binary payload
+- CSV export download verified by 200 status only, not by binary content-type and download triggering
+- QuickBooks, Twilio, Stripe integrations not implemented (pre-existing, not regressions)
+- Mobile responsive sweep at 375 px / 768 px not performed this run — last full sweep was Run 6 (10 runs ago)
+- Browser-interactive (Playwright) click/fill/drag write coverage absent since Run 6 — this run verified read/render but did not drag pipeline cards, submit Add Lead end-to-end, record payments, toggle milestones, or upload documents. Biggest remaining gap
+- s5 report-writing session has been 0-byte for 9 consecutive runs — fold into s4 with a longer turn budget, or drop entirely
+- Fresh `/tmp/api-test-results.txt`, `/tmp/frontend-test-results.txt`, `/tmp/ui-audit-results.txt` were not produced this run; s1/s2/s3 wrote results into their JSON outputs instead
