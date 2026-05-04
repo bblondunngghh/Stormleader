@@ -11,6 +11,7 @@ const viewTitles = {
   pipeline: 'Pipeline',
   leads: 'Leads',
   'storm-map': 'Storm Map',
+  'storm-catalog': 'Storm Archive',
   alerts: 'Alerts',
   tasks: 'Tasks',
   calendar: 'Calendar',
