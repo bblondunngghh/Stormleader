@@ -1203,3 +1203,54 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Browser-interactive (Playwright) click/fill/drag write coverage absent since Run 6 — this run verified read/render but did not drag pipeline cards, submit Add Lead end-to-end, record payments, toggle milestones, or upload documents. Biggest remaining gap
 - s5 report-writing session has been 0-byte for 9 consecutive runs — fold into s4 with a longer turn budget, or drop entirely
 - Fresh `/tmp/api-test-results.txt`, `/tmp/frontend-test-results.txt`, `/tmp/ui-audit-results.txt` were not produced this run; s1/s2/s3 wrote results into their JSON outputs instead
+
+---
+
+## QA Run: 2026-05-04
+
+### Test Results
+- Pages tested: 14 routes + 14 settings tabs (re-walk of Run 17 baseline)
+- API endpoints tested: 158 endpoint hits across 36 route files (`/tmp/api-test-results.txt`, `qa-api-test-results.json`: 105×200, 43×400, 10×404, 0×5xx)
+- Bugs found: 2 (1 UI title-bar regression, 1 API input-validation gap)
+- Bugs fixed: 2 (commits `29d4a34`, `e72b649`)
+- UI inconsistencies found: 1 (rolled into the 2 fixes — `/storm-catalog` topbar)
+- UI inconsistencies fixed: 1 (commit `29d4a34`)
+
+### Fixes Made
+- `client/src/components/TopBar.jsx` — `viewTitles` map was missing the `'storm-catalog'` key, so on `/storm-catalog` the topbar h1 fell through to the default and rendered "Dashboard" instead of "Storm Archive". Added one entry. +1 line. (29d4a34)
+- `server/src/routes/{crm.js,contracts.js,expenses.js,subcontractors.js}` — empty-body PATCH (`{}`) fell through to the service layer and returned a misleading 404 ("Task/Contract/Expense/Subcontractor not found") instead of validating that the request body had something to update. Added the `if (!req.body || Object.keys(req.body).length === 0) return 400 "No fields to update"` guard already used on territories / canvass-pins / custom-fields / auth.me. +12 lines / -0 across 4 files. (e72b649)
+
+### UI Consistency Fixes
+- `TopBar.jsx` `/storm-catalog` title (rolled into fix `29d4a34`)
+- Icon library re-audited: `git grep` for `lucide-react`, `@fortawesome`, `react-icons`, `feather-icons`, `@heroicons/react/24/solid`, `@heroicons/react/20/`, raw `<svg>` icon paths in view components, `material-symbols-*`, raw `&times;` — all clean. Run 17's toolbar-CTA height alignment (`a16ac46`) holds — Estimates `Compare Tiers` and WorkOrders `From Estimate` still 36 px / matching radius
+
+### Audit Evidence Captured
+- `/tmp/api-test-results.txt` (22 KB, 158 endpoints, summary `5xx: 0`)
+- `qa-api-test-results.json` (51 KB, full per-endpoint payload previews)
+- `qa-run18-mobile-dashboard-375.png` (90 KB, single mobile screenshot at 375 px on `/dashboard`)
+
+### Session Integrity
+- s1 api-test: error_max_turns (51 turns, 33 067 output tokens, $4.26) — produced `/tmp/api-test-results.txt` and `qa-api-test-results.json`. No commits this stage
+- s2 frontend-test: error_max_turns (81 turns, 21 320 output tokens, $4.57) — re-walked 14 pages + 14 settings tabs; 0 bugs, 0 commits
+- s3 ui-audit: error_max_turns (61 turns, 21 339 output tokens, $3.79) — produced commit `29d4a34` (TopBar `/storm-catalog` fix) before exhaustion
+- s4 verify: error_max_turns (41 turns, 11 831 output tokens, $2.20) — produced commit `e72b649` (empty-body PATCH 400 on 4 endpoints), captured one mobile screenshot at 375 px
+- s5 report: 0 bytes — did not run (10th consecutive 0-byte s5 since Run 8; this report written in a follow-up session)
+- Total cost across the four sessions that produced work: ~$14.82
+- Four consecutive runs now where every fix landed as a real commit on HEAD before the report was written
+
+### Known Issues Remaining
+- `POST /drift/correct-all` and `POST /properties/trigger-import` still accept empty bodies and trigger heavy work — should require explicit confirmation/role params (tracked since Run 11)
+- 16 search-input fields render correctly but do not carry the explicit `.form-input` class (tracked since Run 13, `form-audit.json`)
+- Pre-token-attach 401 noise on `/api/properties/import-progress`, `/api/notifications/unread-count`, `/api/crm/tenant-settings` — three endpoints fire before the axios auth interceptor attaches on every fresh page load; succeed on retry. Console-only noise (carry-over from Run 16, confirmed still present in Run 17 and not addressed in Run 18)
+- Reports chart label overlap at ~930 px viewport width — "Conversion By Source" title wraps awkwardly into the CSV badge. Cosmetic
+- 404 response shape — Express HTML 404 vs JSON elsewhere (cosmetic)
+- Other currency-formatting surfaces (LeadDetail Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals) not audited for the `$${num}` anti-pattern that produced Run 14's bugs
+- Admin panel requires global super_admin role to fully exercise
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration for live delivery testing
+- Webhook endpoints (`/webhooks/tracerfy`, `/webhooks/hearth`) need signature verification keys
+- File upload on Lead Detail (multipart path) not exercised with a real binary payload
+- CSV export download verified by 200 status only, not by binary content-type and download triggering
+- QuickBooks, Twilio, Stripe integrations not implemented (pre-existing, not regressions)
+- Mobile responsive sweep at 375 px / 768 px — partial this run (one screenshot at 375 px on `/dashboard` only). Full sweep across all 14 routes still pending; last full sweep was Run 6 (12 runs ago)
+- Browser-interactive (Playwright) click/fill/drag write coverage absent since Run 6 — this run verified read/render but did not drag pipeline cards, submit Add Lead end-to-end, record payments, toggle milestones, or upload documents. Biggest remaining gap (12 runs)
+- s5 report-writing session has been 0-byte for 10 consecutive runs — fold into s4 with a longer turn budget, or drop entirely

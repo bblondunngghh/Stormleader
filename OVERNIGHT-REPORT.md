@@ -1,160 +1,189 @@
-# Overnight QA Report — 2026-05-03 (Run 17)
+# Overnight QA Report — 2026-05-04 (Run 18)
 
-Branch: `feat/financing` · Pre-run checkpoint: `cf6d869` · Head: `a16ac46`
+Branch: `feat/financing` · Pre-run checkpoint: `22a0c11` · Head: `e72b649`
 
 ## QA Test Summary
 
 | Metric | Count |
 |---|---|
-| Pages tested (frontend) | 14 routes + 14 settings tabs |
-| API endpoints tested | 257 endpoint hits across 36 route files (178 main harness + 79 extended write-flow harness) |
-| Bugs found | 2 (UI only) |
+| Pages tested (frontend) | 14 routes + 14 settings tabs (re-walked from Run 17 baseline) |
+| API endpoints tested | 158 endpoint hits across 36 route files (`/tmp/api-test-results.txt`, `qa-api-test-results.json`) |
+| Bugs found | 2 (1 UI title-bar regression, 1 API input-validation gap) |
 | Bugs fixed | 2 |
-| API/server bugs | 0 |
-| Commits this run | 2 (`4719928`, `a16ac46`) |
+| Commits this run | 2 (`29d4a34`, `e72b649`) |
+| UI inconsistencies found | 1 (rolled into the 2 fixes — title-bar on `/storm-catalog`) |
 
-This was the **third consecutive 0-bug overnight QA run** for the API and frontend code paths (Runs 15 and 16 were API-clean, Run 17 added a frontend Playwright sweep that was also clean). The only two commits were a UI-polish toolbar fix and a test-harness fix for false-positive 400s; no production server code changed.
+This is the **fourth consecutive overnight QA run with 0 production-code 5xx bugs**. Both fixes this run are minor: one is a viewTitles map miss in the topbar, the other is an empty-body PATCH guard already present on four sibling endpoints but missing from these four. Every previous-run fix held under re-probe.
 
 ## Backend API Test Results
 
-Two harnesses were run end-to-end against `http://localhost:3001`:
+The main harness (`qa-api-test.mjs`, 178 calls) and a follow-up extended pass (curl probes for the four PATCH endpoints) were run end-to-end against `http://localhost:3001`. Final tally written to `/tmp/api-test-results.txt`:
 
-| Harness | Endpoint hits | Pass | Fail | 5xx | Notes |
-|---|---:|---:|---:|---:|---|
-| `scripts/qa-api-test.mjs` (main) | 178 | 178 | 0 | 0 | Covers all 36 route files |
-| `scripts/qa-api-test-extended.mjs` (write flows) | 79 | 79 | 0 | 0 | Create/update/delete on activities, estimates, invoices, work-orders |
-| **Total** | **257** | **257** | **0** | **0** | |
+```
+# SUMMARY
+Total: 158
+OK (2xx/3xx/4xx): 158
+5xx: 0
+NETERR: 0
+```
+
+| HTTP method | Count | All passed |
+|---|---:|---|
+| GET | 108 | yes |
+| POST | 31 | yes (all expected-400 input-validation negative cases) |
+| PATCH | 14 | yes |
+| PUT | 5 | yes |
+| **Total** | **158** | **yes** |
+
+| Status code returned | Count |
+|---|---:|
+| 200 | 105 |
+| 400 | 43 (intentional input-validation negatives) |
+| 404 | 10 (intentional not-found negatives) |
+| 5xx | **0** |
 
 ### Coverage by route category
 
-| Category | Endpoints | Result |
+| Category | Result |
+|---|---|
+| Auth (`/api/auth/*`) | clean — `me`, login, refresh, password update, logout all OK |
+| Storms (`/api/storms*`, `/api/drift/*`) | clean — list, by-id 404, swath geometry |
+| Dashboard (`/api/dashboard/*`, `/api/crm/dashboard/*`) | clean — stats, funnel, activity, properties-affected, AR summary, leaderboard, days-in-stage, customer-storm-alerts, lead-source-revenue, follow-ups, conversion-by-storm, estimating-conversion |
+| Leads (`/api/leads`, `/api/crm/leads*`) | clean — list, by-id, activities, bulk-assign / bulk-status validation, quick-create validation |
+| CRM core (`/api/crm/{tasks,pipeline,team,tenant-settings,custom-fields,prospect-lists,calendar,activities}`) | clean |
+| Estimates (`/api/estimates*`) | clean — list, by-id, templates, PDF (200, valid `%PDF-1.3`), PATCH partial-update, POST validation |
+| Invoices (`/api/crm/invoices*`) | clean — list, by-id, PATCH partial-update, POST validation |
+| Work Orders (`/api/crm/work-orders*`) | clean — list, by-id, milestones, PDF, PATCH partial-update |
+| Contracts (`/api/crm/contracts*`) | **1 bug found** — empty-body PATCH returned misleading 404; **fixed (e72b649)** |
+| Tasks (`/api/crm/tasks/:id`) | **1 bug found** — empty-body PATCH returned misleading 404; **fixed (e72b649)** |
+| Expenses (`/api/crm/expenses*`) | **1 bug found** — empty-body PATCH returned misleading 404; **fixed (e72b649)** |
+| Subcontractors (`/api/crm/subcontractors*`) | **1 bug found** — empty-body PATCH returned misleading 404; **fixed (e72b649)** |
+| Territories / Canvass-pins | clean — already had the empty-body 400 guard |
+| Reports (`/api/crm/reports/*`) | clean — revenue, pipeline, conversion, rep-performance, stage-duration, lead-sources |
+| Drip / Automations / Financing | clean — empty-list returns, validation |
+| Skip-Trace / Roof-Measurement | clean — config, balance, usage, jobs |
+| Admin (`/api/admin/*`) | clean — overview, tenants, revenue, usage |
+| Materials (`/api/materials/*`) | clean — products, branches, orders, credentials |
+| Notifications | clean — list, unread-count, preferences |
+| Search (`/api/search?q=`) | clean — keyword match |
+| Documents | clean — list returns empty-state shape |
+| Storm-history / Disaster-declarations / FEMA-housing / Directions | clean — point-query 200, missing-param 400 |
+| Payments / Stripe Connect | clean — status, history |
+| Alerts | clean — config, history, test |
+
+### Backend fix (commit `e72b649`)
+
+`fix(api): empty-body PATCH returns 400 on tasks/contracts/expenses/subcontractors`
+
+| Endpoint | Before | After |
 |---|---|---|
-| Auth (`/api/auth/*`) | login, register, me, refresh, logout | All 200/204 on happy path; 400/401 on negative paths |
-| CRM Leads (`/api/crm/leads/*`) | list, get, create, update, delete, status, public | Clean |
-| CRM Activities | list, create, by-lead | Clean |
-| CRM Tasks | list, create, toggle, by-user | Clean |
-| Estimates | list, get, create, update, send, accept, public | Clean |
-| Invoices | list, get, create, send, mark-paid, AR aging | Clean |
-| Work Orders | list, get, create, update, milestones, kanban | Clean |
-| Properties | list, get, geocode (single), import-progress | Clean (correctly 400s on `{}` body for geocode) |
-| Storm/NOAA | events, layers, swaths, disaster-declarations, FEMA cache | Clean |
-| Canvassing | pins (CRUD), trails | Clean |
-| Documents | upload, list, delete | Clean |
-| Notifications | list, unread-count, mark-read | Clean |
-| Search | leads/contacts/properties global | Clean |
-| Team | members, roles, leaderboard | Clean |
-| Settings | tenant-settings, profile, integrations | Clean |
-| Calendar | range query (start/end required) | Clean |
-| Reports | revenue, conversion, days-in-stage, AR | Clean |
-| Drip / Email / SMTP | dripService, test-email | Clean |
-| Webhooks | tracerfy, hearth (signature paths return 401) | Clean |
-| Admin (super_admin only) | tenants, system | 403 as expected on tenant-scoped login |
+| `PATCH /api/crm/tasks/:id` | empty `{}` body fell through to service layer and returned `404 "Task not found"` (misleading) | returns `400 {"error":"No fields to update"}` |
+| `PATCH /api/crm/contracts/:id` | empty `{}` body returned `404 "Contract not found or not in draft status"` (misleading) | returns `400 {"error":"No fields to update"}` |
+| `PATCH /api/crm/expenses/:id` | empty `{}` body returned `404 "Expense not found"` (misleading) | returns `400 {"error":"No fields to update"}` |
+| `PATCH /api/crm/subcontractors/:id` | empty `{}` body returned `404 "Subcontractor not found"` (misleading) | returns `400 {"error":"No fields to update"}` |
 
-### Fixes committed
-
-- **`4719928` — test(qa): fix harness expectations for 3 false-positive 400s**
-  - The harness was sending invalid input on three calls and flagging the API's correct 400 responses as bugs. No production code changed.
-  - `PATCH /api/crm/canvass-pin/:id` was sending `outcome: 'callback'`, which is not in the valid enum; switched to `'follow_up'` so the 200 path is exercised, with a separate negative case for the 400.
-  - `GET /api/crm/calendar` requires `start` and `end` query params (the frontend always passes them); the harness was hitting it bare. Now sends a real range plus a separate negative case for the missing-params 400.
-  - `GET /api/disaster-declarations` requires `state` and `county`; harness now sends `state=TX&county=Harris` plus a separate negative case.
-  - After the fix: 178/178 expected, 0 issues. Extended harness still 79/79 with 0 5xx.
-
-No production API code changed. Prior runs of API hardening (`4865288` input validation, `26a3f20` UUID validation) are still holding under re-probe.
+Pattern matches the existing guard on `territories`, `canvass-pins`, `custom-fields`, and `auth.me`. Verified: all four return 400 on `{}` and 200 on a valid partial update. +12 lines / -0 across 4 files.
 
 ## Frontend Feature Test Results
 
-All 14 application pages and all 14 settings tabs were walked under Playwright. Screenshots captured to `qa-run17-*.png` (working-tree, untracked).
+A frontend Playwright sweep was run (s2) and a verify pass (s4) re-walked the same routes plus a 375-px mobile dashboard check.
 
-| Page | Tested | Result | Notes |
-|---|---|---|---|
-| `/dashboard` | Stat cards, 14-stage funnel, storm activity feed, tasks-due-today, AR aging, estimating conversion, days-in-stage, team leaderboard | PASS | Pipeline $60K, 2 New Leads, 0% Close, Speed-to-Lead 42h, 51 storm events |
-| `/storm-map` | Map render, layer panel, swath transparency slider, address search, hail/wind/property legends | PASS | FEMA layer untouched per user constraint |
-| `/pipeline` | Sales/Production/Billing tabs, kanban cards, filter dropdowns, Add Lead CTA | PASS | Drag-and-drop not interactively exercised |
-| `/leads` | Stage/Priority/Source/Score filters, Import/Export, table with stage badges, pagination 25/50/100 | PASS | 20 leads visible |
-| `/leads/:id` | Drawer with Contact, FEMA history, Property, Weather, Quick Call/Email/SMS/Visit, Insurance Report, Generate Contract, Add Expense | PASS | Sample lead `e25ad9f6-…` |
-| `/estimates` | 4 stat cards, status filter, Compare Tiers + New Estimate CTAs, table with Best/Better/Good tier badges | PASS | Compare Tiers button height fixed (see UI audit) |
-| `/invoices` | 4 stat cards, AR aging by bucket, status tabs, From Estimate + New Invoice CTAs | PASS | Overdue stat counter from prior run still correct |
-| `/work-orders` | Kanban (Pending/Scheduled/…), milestone progress per card, From Estimate + New Work Order CTAs | PASS | From Estimate button height fixed (see UI audit) |
-| `/tasks` | Pending/Completed tabs, overdue badge, priority chips, New Task CTA | PASS | |
-| `/calendar` | Month view (May 2026), nav arrows, Today, Month/Week/Day/List switcher, events render | PASS | |
-| `/reports` | Date-range filters, Compare button, charts (Revenue line, Pipeline funnel, Conversion-by-Source funnel), Rep Leaderboard, CSV export | PASS | Chart label overlap at ~930 px width is cosmetic (carry-over) |
-| `/canvassing` | Map render, Drop Pin CTA, 4 stat counters, satellite tiles | PASS | |
-| `/content-studio` | — | NOT IMPLEMENTED | Route doesn't exist; redirects to `/`. Per `MEMORY.md project_next_features` this is a planned future feature, not a regression. |
-| `/settings` | All 14 tabs render with correct heading, content, and CTA: Profile, Company, Billing, Payments, Team, Storm Alerts, Notifications, Email/SMTP, Financing, Automations, Drip Sequences, Custom Fields, Pricing/Line Items, Contracts, Reviews | PASS | Empty-state tabs (Custom Fields, Automations, Drip Sequences) show empty-state copy + creation CTA |
+| Page | What was tested | Result |
+|---|---|---|
+| `/dashboard` | Stat cards, 14-stage pipeline funnel, storm activity feed, tasks-due-today, AR aging, estimating-conversion 20%, days-in-stage, team leaderboard | clean |
+| `/storm-map` | Map render, layer panel toggles, swath transparency slider, address search, hail/wind/property legends | clean (FEMA properties NOT TOUCHED per developer instruction) |
+| `/storm-catalog` (Storm Archive) | Topbar h1 displayed | **bug found** — title showed "Dashboard" instead of "Storm Archive"; **fixed (29d4a34)** |
+| `/pipeline` | Sales/Production/Billing tabs, kanban with cards, filter dropdowns, Add Lead CTA | clean |
+| `/leads` | Stage/Priority/Source/Score filters, Import/Export, table with stage badges, pagination 25/50/100 | clean |
+| `/leads/:id` | Drawer panel with Contact, FEMA Disaster History, Property, Weather Event, Quick Call/Email/SMS/Visit, Insurance Report, Generate Contract, Add Expense | clean |
+| `/estimates` | 4 stat cards, status filter, Compare Tiers + New Estimate (now 36-px aligned from Run 17), tier badges | clean |
+| `/invoices` | 4 stat cards, AR aging by bucket, status tabs, From Estimate + New Invoice CTAs, Overdue badge logic (fixed Run 16) | clean |
+| `/work-orders` | Kanban (Pending/Scheduled/...), milestone progress per card, From Estimate + New Work Order CTAs | clean |
+| `/tasks` | Pending/Completed tabs, overdue badge, priority chips, New Task CTA | clean |
+| `/calendar` | Month view, navigation arrows, Today, Month/Week/Day/List view switcher, events render | clean |
+| `/reports` | This Week/Month/Quarter/Year/All Time filters, date range picker, Compare button, Revenue line / Pipeline funnel / Conversion-by-Source funnel, Rep Leaderboard, CSV exports | clean |
+| `/canvassing` | Map renders, Drop Pin CTA, 4 stat counters | clean |
+| `/settings` (14 tabs) | Profile, Company, Billing, Payments, Team, Storm Alerts, Notifications, Email/SMTP, Financing, Automations, Drip Sequences, Custom Fields, Pricing/Line Items, Contracts, Reviews | clean — every tab renders or shows correct empty state |
 
-### Console
+### Frontend fix (commit `29d4a34`)
 
-- 0 new errors. 0 React errors. 0 key warnings. 0 PropType warnings. 0 unhandled promise rejections.
-- The same three pre-token-attach 401s fire on every fresh page load: `/api/properties/import-progress`, `/api/notifications/unread-count`, `/api/crm/tenant-settings`. They return 401 once before the auth interceptor attaches, then succeed on retry. **Carry-over #7 from Run 16 — not a regression introduced this run.**
+`fix(ui): topbar shows Storm Archive on /storm-catalog instead of Dashboard`
 
-### Still needs attention (frontend)
+`client/src/components/TopBar.jsx` — the `viewTitles` map was missing the `'storm-catalog'` key, so the page header h1 fell through to the default and rendered "Dashboard" while the user was on the Storm Archive route. Added one entry: `'storm-catalog': 'Storm Archive'`. +1 line.
 
-- Browser-interactive write flows have not been exercised since Run 6 — drag-pipeline-card, end-to-end Add Lead, record invoice payment, toggle work-order milestone, document upload. Pages render and CTAs are present, but the actual write paths weren't submitted this run.
-- Mobile viewport sweep at 375 px / 768 px is overdue (last performed Run 6).
+### Mobile responsive (375 px) — first sweep since Run 6
+
+Verify stage took a single screenshot of `/dashboard` at 375 px (`qa-run18-mobile-dashboard-375.png`). The dashboard degrades gracefully at 375 px: stat cards stack to 1-up, sidebar collapses, content reflows. **No layout breaks observed** but only one route was actually re-checked at this width — full mobile sweep across all 14 routes is still pending (carry-over from Run 6, 11 runs ago).
 
 ## UI Consistency Audit Results
 
-| Category | Audit method | Result | Action |
-|---|---|---|---|
-| **Icons** | grep for `lucide-react`, `@fortawesome`, `react-icons`, `feather-icons`, `@heroicons/react/24/solid`, `@heroicons/react/20/`, raw `<svg>` icon paths in view components, `material-symbols-*`, raw `&times;` in close buttons | CLEAN | None — prior runs (`88e9dfe`, `ba79211`, `6e779d8`, `b5887e7`, `18f337a`) hardened this surface and no regressions appeared |
-| **Buttons (toolbar primary)** | Heights/radii of primary CTAs against the `.auth-btn` reference | PASS | None — Run 13 (`23c3746`) standardized Pipeline + WorkOrders primaries on `.auth-btn` |
-| **Buttons (toolbar secondary)** | Heights/radii of secondary CTAs sitting next to primaries | INCONSISTENT (2 found) | **Fixed in `a16ac46`** — see below |
-| **Toolbars / Page headers** | Consistent placement and structure across pages | PASS | Same toolbar pattern across Estimates, Invoices, Work Orders |
-| **Sidebar / Nav** | Collapsible behavior, label/route mapping, active-state styling | PASS | `/storm-catalog` correctly mapped from "Storm Archive" sidebar item |
-| **Forms** | All inputs use `.form-input` class, all `<select>` use `CustomSelect`, all date pickers use `DatePicker` | MOSTLY PASS | Carry-over: 16 search-input fields lack the explicit `.form-input` class (tracked since Run 13, cosmetic) |
-| **Spacing / Alignment** | Toolbar CTA vertical alignment | INCONSISTENT (rolled into `a16ac46`) | Fixed |
-| **Modals** | Backdrop, close-button (XMarkIcon), glass styling | PASS | All modals use `IconX` / `XMarkIcon` after Run 16's `88e9dfe` |
+The audit stage (s3) re-ran the now-standard categorical sweeps. Results below follow the same audit categories used in Run 17.
 
-### Fixes committed
-
-- **`a16ac46` — fix(ui): align toolbar secondary CTAs to match primary auth-btn height**
-  - `client/src/components/EstimatesView.jsx` — "Compare Tiers" was 34 px next to a 36 px "New Estimate" `.auth-btn`. Now 36 px with matching 14/12 px radius.
-  - `client/src/components/WorkOrdersView.jsx` — "From Estimate" was 32 px next to a 36 px "New Work Order" `.auth-btn`. Now 36 px with matching radius.
-  - Pattern matches the already-correct Invoices toolbar.
-  - +4 / -1 lines.
+| Category | Findings |
+|---|---|
+| **Icons** | Clean. `git grep` for `lucide-react`, `@fortawesome`, `react-icons`, `feather-icons`, `@heroicons/react/24/solid`, `@heroicons/react/20/`, raw `<svg>` icon paths, `material-symbols-*`, raw `&times;` — all return zero hits. The icon-discipline commits from Runs 13–17 (`88e9dfe`, `ba79211`, `6e779d8`, `b5887e7`, `18f337a`) are sticking |
+| **Buttons** | Clean. The Run 17 toolbar-CTA height alignment (`a16ac46` for Estimates `Compare Tiers` and WorkOrders `From Estimate`) holds — both still 36 px / matching radius |
+| **Toolbars / Headers** | **1 issue found** — Storm Archive page header h1 fell through to "Dashboard" because of a missing entry in the topbar `viewTitles` map. **Fixed (`29d4a34`)** |
+| **Sidebar / Nav** | Clean. All 14 sidebar items have outline Heroicons; active states consistent; collapse/expand works |
+| **Forms** | No new violations. Carry-over still tracked: 16 search inputs lack the explicit `.form-input` class (cosmetic-only — they render correctly via CustomSelect / DatePicker chrome around them) |
+| **Spacing / Alignment** | Clean. Card gaps, section header sizes, glass panel padding all match across pages |
+| **Modals** | Clean. All modals use `modal-backdrop`, scale-in animation, consistent close-X positioning |
 
 ## Bugs Fixed
 
-1. **Estimates toolbar — "Compare Tiers" secondary CTA height mismatch** — Sat at 34 px next to a 36 px primary `.auth-btn`. Aligned to 36 px / matching radius. (`a16ac46`)
-2. **Work Orders toolbar — "From Estimate" secondary CTA height mismatch** — Sat at 32 px next to a 36 px primary `.auth-btn`. Aligned to 36 px / matching radius. (`a16ac46`)
-3. **QA harness — 3 false-positive 400s** *(test code only, not a production bug)* — `canvass-pin` PATCH used an invalid enum, `/api/crm/calendar` was called bare instead of with required `start/end`, and `/api/disaster-declarations` was called without required `state/county`. Harness now sends valid params on the happy path and adds explicit negative cases for the 400 paths. (`4719928`)
+1. **Topbar / `/storm-catalog`** — header h1 displayed "Dashboard" instead of "Storm Archive" because the `viewTitles` map in `TopBar.jsx` was missing the `'storm-catalog'` key. Fixed by adding the entry — `client/src/components/TopBar.jsx`, +1 line. Commit `29d4a34`.
+
+2. **`PATCH /api/crm/{tasks,contracts,expenses,subcontractors}/:id`** — empty-body PATCH (`{}`) fell through to the service layer, which returned `null`, which produced a misleading `404 "Not found"` response despite the resource existing. Added the same `if (!req.body || Object.keys(req.body).length === 0) return 400 "No fields to update"` guard already used on the territories / canvass-pins / custom-fields / auth.me PATCH endpoints. `server/src/routes/{crm.js,contracts.js,expenses.js,subcontractors.js}`, +12 lines / -0 across 4 files. Commit `e72b649`.
 
 ## Known Issues (Not Fixed)
 
-Carry-overs that were out-of-scope or require external decisions:
+Carry-overs from prior runs, all unchanged this run:
 
-1. **Heavy-work guards on `POST /drift/correct-all` and `POST /properties/trigger-import`** — accept empty bodies and trigger long-running jobs. Tracked since Run 11. Needs a product decision on the confirmation/role gate.
-2. **`form-audit.json` cleanup** — 16 search-input fields render correctly but lack the explicit `.form-input` class. Cosmetic, tracked since Run 13.
-3. **Pre-token-attach 401 noise** — three endpoints fire before the axios auth interceptor attaches on every fresh page load (`/api/properties/import-progress`, `/api/notifications/unread-count`, `/api/crm/tenant-settings`). All three succeed on retry. Console-only noise. Could be fixed by hoisting `axios.defaults.headers.common['Authorization']` from `localStorage` synchronously at app boot.
-4. **Reports chart label overlap at ~930 px viewport width** — the "Conversion By Source" title wraps awkwardly into the CSV badge. Cosmetic.
-5. **404 response shape** — Express HTML 404 vs JSON elsewhere. Cosmetic.
-6. **Currency-format anti-pattern audit** — Run 14 caught two `$${num}` issues (Dashboard `formatCurrency`, Invoices balance). LeadDetail Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals have not been re-audited since.
+- **Heavy-work POST guards** — `POST /drift/correct-all` and `POST /properties/trigger-import` accept empty bodies and trigger heavy jobs. Should require explicit confirmation/role params. Tracked since Run 11. Not in scope for this QA-only run.
+- **`form-audit.json` cleanup** — 16 search-input fields render correctly but lack the explicit `.form-input` class. Cosmetic. Tracked since Run 13.
+- **Pre-token-attach 401 noise** — `/api/properties/import-progress`, `/api/notifications/unread-count`, `/api/crm/tenant-settings` fire before the axios auth interceptor attaches on every fresh page load. Three 401s on first paint, then succeed on retry. Console-only noise; no functional impact. Tracked since Run 16.
+- **Reports chart label overlap** — at ~930 px viewport width, "Conversion By Source" title wraps awkwardly into the CSV badge. Cosmetic. Tracked since Run 17.
+- **404 response shape** — Express HTML 404 vs JSON elsewhere. Cosmetic.
+- **Currency-formatting anti-pattern** — `LeadDetail` Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals not yet audited for the `$${num}` pattern that produced Run 14's bugs.
+- **Admin panel** — requires global super_admin role and live multi-tenant data to fully exercise.
+- **Email-send endpoints** — `/crm/test-email`, `/invoices/:id/send-email` need SMTP configuration for live delivery testing.
+- **Webhook endpoints** — `/webhooks/tracerfy`, `/webhooks/hearth` need signature verification keys.
+- **File upload (multipart)** — Lead Detail document upload not exercised with a real binary payload.
+- **CSV export** — verified by 200 status only, not by `Content-Type: text/csv` and download triggering.
+- **QuickBooks / Twilio / Stripe integrations** — not implemented (pre-existing, not regressions).
 
 ## Test Coverage Gaps
 
-Things that were not exercisable this run:
-
-1. **Browser-interactive write flows** — last truly exercised Run 6. This run verified read/render but did not drag a kanban card across stages, complete the full multi-step Add Lead modal, record an invoice payment, toggle a work-order milestone, or upload a document. Biggest remaining gap.
-2. **Mobile viewport sweep at 375 px / 768 px** — last performed Run 6.
-3. **Email-send endpoints** (`/crm/test-email`, `/invoices/:id/send-email`) — need real SMTP creds for live delivery.
-4. **Webhook signature verification** (`/webhooks/tracerfy`, `/webhooks/hearth`) — need provider signing keys.
-5. **File-upload multipart path on Lead Detail** — only the empty-multipart 400 path was exercised; no real binary payload.
-6. **CSV export download** — verified 200 status only, not download trigger or content-type.
-7. **QuickBooks / Twilio / Stripe integrations** — not implemented (pre-existing, not regressions).
-8. **Admin super-panel** — requires global `super_admin` role; tenant-scoped login correctly returns 403.
-9. **FEMA / Properties layer on Storm Map** — explicit user constraint: do not touch.
-10. **Bulk geocoding** — explicit cost constraint: do not exercise.
+- **Browser-interactive write flows** — biggest remaining gap. Not exercised since Run 6 (12 runs ago). Reads/renders verified, but Add-Lead end-to-end submit, drag pipeline cards between stages, record invoice payments, toggle work-order milestones, document-upload multipart path are all still un-tested via Playwright.
+- **Mobile responsive** — partial coverage this run (one screenshot at 375 px on `/dashboard`). Full sweep across all 14 routes at 375 px and 768 px not done since Run 6.
+- **FEMA properties layer** — explicitly out of scope per developer instruction; do not touch.
+- **Storm-map property loading at scale** — IndexedDB caching path not exercised in Playwright.
+- **Drag-drop kanban** — not exercised under Playwright (HTML5 drag API path).
 
 ## Session Integrity
 
-| Session | Status | Turns | Output | Notes |
-|---|---|---:|---|---|
-| s1 api-test | completed | 39 | 14 247 tokens | Produced commit `4719928` |
-| s2 frontend-test | completed | 63 | 23 959 tokens | 0 commits (nothing to fix) |
-| s3 ui-audit | error_max_turns (60) | 61 | 26 348 tokens | Produced commit `a16ac46` before exhaustion |
-| s4 verify | error_max_turns (40) | 41 | 11 684 tokens | No new commits |
-| s5 report | 0 bytes | — | — | **9th consecutive 0-byte s5.** Should be folded into s4 with a longer turn budget, or dropped — this report was written in a follow-up session |
+| Stage | Result | Turns | Output tokens | Cost | Notes |
+|---|---|---:|---:|---:|---|
+| s1 api-test | error_max_turns | 51 | 33 067 | $4.26 | Produced `/tmp/api-test-results.txt` (158 endpoints) and `qa-api-test-results.json`. No commits this stage |
+| s2 frontend-test | error_max_turns | 81 | 21 320 | $4.57 | Re-walked all 14 pages + 14 settings tabs. No bugs, no commits |
+| s3 ui-audit | error_max_turns | 61 | 21 339 | $3.79 | Produced commit `29d4a34` (TopBar `/storm-catalog` fix) |
+| s4 verify | error_max_turns | 41 | 11 831 | $2.20 | Produced commit `e72b649` (empty-body PATCH 400 on 4 endpoints), one mobile screenshot at 375 px |
+| s5 report | 0 bytes | — | — | — | **10th consecutive 0-byte s5** — did not run; this report written in a follow-up session |
 
-Total cost across the four sessions that produced work: ~$12.72.
+Total cost across the four sessions that produced work: **~$14.82**. Both fixes landed as real commits on HEAD before the report was written — this is the **fourth consecutive run** with that property.
 
-Both fixes (`4719928`, `a16ac46`) landed as real commits on `HEAD` before this report was written — third consecutive run with that property.
+## Files Left Untracked in Working Tree
+
+- `claude-overnight-20260504-{s1-api-test,s2-frontend-test,s3-ui-audit,s4-verify,s5-report}.json` — orchestrator metadata
+- `qa-api-test-results.json` — main harness output (51 KB, 158 endpoints)
+- `qa-api-test.mjs` — main harness script (17 KB) — first introduced Run 16, still untracked
+- `qa-token.txt` — auth token used by the harness
+- `qa-run18-mobile-dashboard-375.png` — single mobile screenshot from s4
+
+## What to Do Next
+
+If running another sweep:
+- **Browser-interactive write flows** are the biggest gap (12 runs of read-only verification). A run that actually drags a kanban card, creates a lead end-to-end, records an invoice payment, toggles a work-order milestone, and uploads a document would close that gap.
+- **Mobile viewport sweep** at 375 px and 768 px across all 14 routes (only `/dashboard` was checked this run).
+- **Pre-token-attach 401 noise** — fixable by hoisting the token attach earlier (synchronous `axios.defaults.headers.common['Authorization']` from localStorage on app boot before any component mounts).
+- **Drop or refactor s5** — 10 consecutive 0-byte runs. Either fold into s4 with a longer turn budget, or drop entirely.
