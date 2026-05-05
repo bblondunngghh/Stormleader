@@ -1254,3 +1254,58 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Mobile responsive sweep at 375 px / 768 px — partial this run (one screenshot at 375 px on `/dashboard` only). Full sweep across all 14 routes still pending; last full sweep was Run 6 (12 runs ago)
 - Browser-interactive (Playwright) click/fill/drag write coverage absent since Run 6 — this run verified read/render but did not drag pipeline cards, submit Add Lead end-to-end, record payments, toggle milestones, or upload documents. Biggest remaining gap (12 runs)
 - s5 report-writing session has been 0-byte for 10 consecutive runs — fold into s4 with a longer turn budget, or drop entirely
+
+---
+
+## QA Run: 2026-05-05
+
+### Test Results
+- API endpoints tested: 224 (158 baseline + 66 newly covered, harness expansion this run)
+- Pages tested (frontend): 5 routes captured to screenshot in `qa-run20/` (storm-map, pipeline, leads list, lead detail, slideovers/log-activity modal); s2 hit max_turns before walking the rest
+- Bugs found: 2 (1 production API 5xx, 1 PWA manifest console-warning)
+- Bugs fixed: 2 (commits `a6b5737`, `60a67d3`)
+- UI inconsistencies found: 1 (PWA manifest, rolled into the 2 fixes)
+- UI inconsistencies fixed: 1 (commit `60a67d3`)
+
+### Fixes Made
+- `server/src/routes/drift.js` — `POST /:stormEventId/correct` returned 500 when given any storm-event UUID that didn't exist. Handler called `applyDriftCorrection()` directly; service throws when row is missing → uncaught → 500. Added the same `getDriftInfo()` pre-check the sibling GET handler uses. +2 lines. (a6b5737)
+- `client/public/manifest.json` + `client/index.html` — manifest declared `favicon.png` as 192×192 (actual 128×128) and `stormpipe-logo.png` as 512×512 (actual 984×315). Browser logged "Resource size is not correct" on every page load. Removed wrong size declarations. Also added `<meta name="mobile-web-app-capable">` alongside the deprecated `apple-mobile-web-app-capable` to silence the deprecation warning. +3 / -8 across 2 files. (60a67d3)
+
+### UI Consistency Fixes
+- `manifest.json` icon-size correctness (rolled into fix `60a67d3`)
+- Icon library re-audited: `git grep` for `lucide-react`, `@fortawesome`, `react-icons`, `feather-icons`, `@heroicons/react/24/solid`, `@heroicons/react/20/`, raw `<svg>` icon paths in view components, `material-symbols-*`, raw `&times;` — all clean. Run 18's TopBar `viewTitles` fix (`29d4a34`) and Run 17's toolbar-CTA height alignment (`a16ac46`) both still hold
+
+### Audit Evidence Captured
+- `/tmp/api-test-results.txt` (22 KB, 224 endpoints, summary `5xx: 0`)
+- `qa-api-test-results.json` (~75 KB, full per-endpoint payload previews after Run 19 expansion)
+- `qa-run20/` — 10 frontend screenshots: `storm-map.png`, `pipeline.png`, `pipeline-slideover.png`, `leads.png`, `leads-search.png`, `leads-stages-dropdown.png`, `leads-stages-open.png`, `lead-detail.png`, `lead-detail-bottom.png`, `lead-log-activity.png`
+
+### Session Integrity
+- s1 api-test: **completed** (43 turns, 25 016 output tokens, $3.10) — produced commit `a6b5737`. First fully-completed s1 since Run 18; expanded harness +66 endpoints (158 → 224)
+- s2 frontend-test: error_max_turns (81 turns, 25 543 output tokens, $5.01) — 10 page screenshots; no bugs surfaced before exhaustion; did not commit
+- s3 ui-audit: error_max_turns (61 turns, 24 073 output tokens, $3.90) — produced commit `60a67d3` (PWA manifest icon sizes + mobile-web-app-capable meta) before exhaustion
+- s4 verify: error_max_turns (41 turns, 8 375 output tokens, $1.98) — no commits, no fresh artifacts
+- s5 report: 0 bytes — did not run (11th consecutive 0-byte s5 since Run 8; this report written in a follow-up session)
+- Total cost across the four sessions that produced work: ~$13.99
+- Five consecutive runs now where every fix landed as a real commit on HEAD before the report was written
+
+### Known Issues Remaining
+- `POST /drift/correct-all` and `POST /properties/trigger-import` still accept empty bodies and trigger heavy work — should require explicit confirmation/role params (tracked since Run 11)
+- 16 search-input fields render correctly but do not carry the explicit `.form-input` class (tracked since Run 13, `form-audit.json`)
+- Pre-token-attach 401 noise on `/api/properties/import-progress`, `/api/notifications/unread-count`, `/api/crm/tenant-settings` — three endpoints fire before the axios auth interceptor attaches on every fresh page load; succeed on retry. Console-only noise (carry-over from Run 16, confirmed still present)
+- Reports chart label overlap at ~930 px viewport width — "Conversion By Source" title wraps awkwardly into the CSV badge. Cosmetic
+- 404 response shape — Express HTML 404 vs JSON elsewhere (e.g. `PATCH /api/crm/tenant-settings` method-not-allowed). Cosmetic
+- Other currency-formatting surfaces (LeadDetail Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals) not audited for the `$${num}` anti-pattern that produced Run 14's bugs
+- Admin panel requires global super_admin role to fully exercise
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration for live delivery testing
+- Webhook endpoints (`/webhooks/tracerfy`, `/webhooks/hearth`) need signature verification keys
+- File upload on Lead Detail (multipart path) not exercised with a real binary payload
+- CSV export download verified by 200 status only, not by binary content-type and download triggering
+- `GET /api/skip-trace/job/:jobId` returns 503 when `TRACERFY_API_KEY` unset — intentional graceful-degrade, not a bug
+- QuickBooks, Twilio, Stripe integrations not implemented (pre-existing, not regressions)
+- Mobile responsive sweep at 375 px / 768 px — none performed this run; full sweep across all 14 routes still pending; last full sweep was Run 6 (13 runs ago)
+- Browser-interactive (Playwright) click/fill/drag write coverage absent since Run 6 — this run captured 10 page screenshots but did not drag, submit, or upload. Biggest remaining gap (13 runs)
+- 18 DELETE handlers still have 0 harness coverage — could add with a "won't actually delete" guard
+- Pages not walked by s2 this run (max_turns): `/dashboard`, `/storm-catalog`, `/estimates`, `/invoices`, `/work-orders`, `/tasks`, `/calendar`, `/reports`, `/canvassing`, `/content-studio`, `/settings/*`. Last clean walk was Run 18
+- s5 report-writing session has been 0-byte for 11 consecutive runs — fold into s4 with a longer turn budget, or drop entirely
+- s2 frontend-test session consistently hits max_turns; turn budget needs raising or route list needs splitting
