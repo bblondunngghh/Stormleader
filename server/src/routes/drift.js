@@ -25,6 +25,8 @@ router.get('/:stormEventId', validateId('stormEventId'), async (req, res, next) 
 // POST /api/drift/:stormEventId/correct — apply drift correction to a single storm
 router.post('/:stormEventId/correct', validateId('stormEventId'), async (req, res, next) => {
   try {
+    const info = await getDriftInfo(req.params.stormEventId);
+    if (!info) return res.status(404).json({ error: 'Storm event not found' });
     const detectionAltM = parseInt(req.body.detection_alt_m) || 5500;
     const drift = await applyDriftCorrection(req.params.stormEventId, { detectionAltM });
     res.json({ drift });
