@@ -1309,3 +1309,61 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Pages not walked by s2 this run (max_turns): `/dashboard`, `/storm-catalog`, `/estimates`, `/invoices`, `/work-orders`, `/tasks`, `/calendar`, `/reports`, `/canvassing`, `/content-studio`, `/settings/*`. Last clean walk was Run 18
 - s5 report-writing session has been 0-byte for 11 consecutive runs — fold into s4 with a longer turn budget, or drop entirely
 - s2 frontend-test session consistently hits max_turns; turn budget needs raising or route list needs splitting
+
+---
+
+## QA Run: 2026-05-06
+
+### Test Results
+- API endpoints tested: 249 (224 baseline + 25 newly covered, harness expansion this run)
+- Pages tested (frontend): 5 routes screenshotted (`/dashboard`, `/leads`, `/leads` empty state, `/pipeline`, plus 3 settings tabs); s2 hit max_turns before walking the rest
+- Bugs found: 0 (sixth consecutive 0-prod-5xx run; no fixes needed)
+- Bugs fixed: 0
+- UI inconsistencies found: 0
+- UI inconsistencies fixed: 0
+
+### Fixes Made
+- None this run. Run 19's drift-correct 404 fix (`a6b5737`), Run 19's PWA manifest fix (`60a67d3`), Run 18's TopBar `viewTitles` (`29d4a34`), Run 18's empty-body PATCH 400 guards (`e72b649`), Run 17's toolbar-CTA height alignment (`a16ac46`), and the Heroicons-only baseline from Runs 13–16 all still hold
+
+### UI Consistency Fixes
+- None this run. Icon library re-audited: `git grep` for `lucide-react`, `@fortawesome`, `react-icons`, `feather-icons`, `@heroicons/react/24/solid`, `@heroicons/react/20/`, raw `<svg>` icon paths in view components, `material-symbols-*`, raw `&times;` — all clean
+
+### Audit Evidence Captured
+- `/tmp/api-test-results.txt` (~26 KB, 249 endpoints, summary `5xx: 1` — the lone intentional `503` on `/skip-trace/job/:jobId` when `TRACERFY_API_KEY` unset; `0` production 5xx)
+- `qa-api-test-results.json` (~95 KB, full per-endpoint payload previews after Run 20 expansion)
+- `qa-r21-*.png` and `qa-settings-*.png` — 8 frontend screenshots: `qa-r21-dashboard.png`, `qa-r21-leads.png`, `qa-r21-leads-empty.png`, `qa-r21-leads-empty-state.png`, `qa-r21-pipeline.png`, `qa-settings-financing.png`, `qa-settings-notifications.png`, `qa-settings-team.png`
+
+### Harness Expansion (Run 20)
+- 18 DELETE endpoints added with bogus UUIDs (safe — every handler returns 404 for missing rows; no actual deletion takes place): `automations`, `contracts/templates`, `crm/leads`, `crm/leads/contacts`, `prospect-lists/items`, `prospect-lists`, `custom-fields`, `documents`, `drip-sequences`, `estimates/templates`, `estimates`, `expenses`, `financing/lenders`, `skip-trace/payment-method`, `subcontractors`, `subcontractors/work-order`, `territories`, `work-orders/milestones`. 17/18 return 404 with `{ error }`. 1 oddity: `DELETE /api/documents/:id` returns 200 `{ deleted: false }` for missing rows — cosmetic shape inconsistency, not a crash, left alone per "don't refactor working code" task constraint
+- 7 empty-body POSTs added validating service-layer guards: `properties.create`, `materials.orders.create`, `materials.estimate.auto-order`, `financing.plans.sync`, `invoices.from-estimate`, `work-orders.from-estimate`, `work-orders.milestones`
+- Coverage now 249 / 272 = 91.5 % (up from 82.4 % at Run 19). Of the 23 still untested: 3 auth, 5 onboarding, 3 webhooks, 5 Stripe-touching POSTs, 2 file uploads, 5 heavy-job triggers — all intentionally skipped per task constraints
+
+### Session Integrity
+- s1 api-test: **completed** (43 turns, 23 142 output tokens, $3.01) — produced commit `1daf39e`. Second consecutive fully-completed s1 (Run 19 was the previous one)
+- s2 frontend-test: error_max_turns (81 turns, 24 097 output tokens, $5.01) — 8 page screenshots; no bugs surfaced before exhaustion; no commits
+- s3 ui-audit: error_max_turns (61 turns, 17 936 output tokens, $3.69) — no new inconsistencies found; no commits
+- s4 verify: error_max_turns (41 turns, 10 382 output tokens, $1.91) — no commits, no fresh artifacts
+- s5 report: 0 bytes — did not run (12th consecutive 0-byte s5 since Run 8; this report written in a follow-up session)
+- Total cost across the four sessions that produced work / artifacts: ~$13.62
+- Six consecutive runs now where every fix landed as a real commit on HEAD before the report was written
+
+### Known Issues Remaining
+- `POST /drift/correct-all` and `POST /properties/trigger-import` still accept empty bodies and trigger heavy work — should require explicit confirmation/role params (tracked since Run 11)
+- 16 search-input fields render correctly but do not carry the explicit `.form-input` class (tracked since Run 13, `form-audit.json`)
+- Pre-token-attach 401 noise on `/api/properties/import-progress`, `/api/notifications/unread-count`, `/api/crm/tenant-settings` — three endpoints fire before the axios auth interceptor attaches on every fresh page load; succeed on retry. Console-only noise (carry-over from Run 16, confirmed still present)
+- Reports chart label overlap at ~930 px viewport width — "Conversion By Source" title wraps awkwardly into the CSV badge. Cosmetic
+- 404 response shape — Express HTML 404 vs JSON elsewhere (e.g. `PATCH /api/crm/tenant-settings` method-not-allowed). Cosmetic
+- Other currency-formatting surfaces (LeadDetail Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals) not audited for the `$${num}` anti-pattern that produced Run 14's bugs
+- `DELETE /api/documents/:id` returns 200 `{ deleted: false }` for missing rows; sibling DELETEs return 404 `{ error }`. Cosmetic shape inconsistency. **NEW carry-over from Run 20** — left alone per task constraints
+- `GET /api/skip-trace/job/:jobId` returns 503 when `TRACERFY_API_KEY` unset — intentional graceful-degrade, not a bug
+- Admin panel requires global super_admin role to fully exercise
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration for live delivery testing
+- Webhook endpoints (`/webhooks/tracerfy`, `/webhooks/hearth`) need signature verification keys
+- File upload on Lead Detail (multipart path) not exercised with a real binary payload
+- CSV export download verified by 200 status only, not by binary content-type and download triggering
+- QuickBooks, Twilio, Stripe integrations not implemented (pre-existing, not regressions)
+- Mobile responsive sweep at 375 px / 768 px — none performed this run; full sweep across all 14 routes still pending; last full sweep was Run 6 (14 runs ago)
+- Browser-interactive (Playwright) click/fill/drag write coverage absent since Run 6 — this run captured 8 page screenshots but did not drag, submit, or upload. Biggest remaining gap (14 runs)
+- Pages not walked by s2 this run (max_turns): `/storm-map`, `/storm-catalog`, `/estimates`, `/invoices`, `/work-orders`, `/tasks`, `/calendar`, `/reports`, `/canvassing`, `/content-studio`, plus 9 settings tabs (Profile, Company, Storm Alerts, Email/SMTP, Integrations, Drip Sequences, Custom Fields, Contracts, Reviews). Last clean walk was Run 18
+- s5 report-writing session has been 0-byte for 12 consecutive runs — fold into s4 with a longer turn budget, or drop entirely
+- s2 frontend-test session consistently hits max_turns; turn budget needs raising or route list needs splitting

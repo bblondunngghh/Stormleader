@@ -1,57 +1,96 @@
-# Overnight QA Report — 2026-05-05 (Run 19)
+# Overnight QA Report — 2026-05-06 (Run 20)
 
-Branch: `feat/financing` · Pre-run checkpoint: `30fc079` (`pre-overnight-20260505`) · Head: `60a67d3`
+Branch: `feat/financing` · Pre-run checkpoint: `24addd6` (`pre-overnight-20260506`) · Head: `1daf39e`
 
 ## QA Test Summary
 
 | Metric | Count |
 |---|---|
-| API endpoints tested | **224** (158 baseline + 66 newly covered this run) |
-| Pages walked (frontend) | 5 routes captured to screenshot (`storm-map`, `pipeline`, `leads`, `leads/:id`, lead-activity slideovers) |
-| Bugs found | 2 (1 API 5xx, 1 UI manifest/console-warning) |
-| Bugs fixed | 2 |
-| Commits this run | 2 (`a6b5737`, `60a67d3`) |
-| Production 5xx after fixes | **0** (fifth consecutive run) |
+| API endpoints tested | **249** (224 baseline + 25 newly covered this run) |
+| API handler coverage | 249 / 272 = **91.5 %** |
+| Pages walked (frontend) | 5 routes screenshotted (`/dashboard`, `/leads`, `/leads` empty state, `/pipeline`, plus 3 settings tabs) — s2 hit max_turns before walking the rest |
+| Bugs found | **0** |
+| Bugs fixed | **0** |
+| UI inconsistencies found | **0** |
+| UI inconsistencies fixed | **0** |
+| Commits this run | 1 (`1daf39e` — harness expansion + report) |
+| Production 5xx after run | **0** (sixth consecutive run) |
+| Intentional 503s | 1 (`/api/skip-trace/job/:jobId` when `TRACERFY_API_KEY` unset) |
 
-This is the **fifth consecutive overnight QA run with 0 production-code 5xx** after the run-1 fix lands. The harness was expanded from 158 → 224 endpoints (+66), and the one real bug surfaced by that expansion was the drift/correct 500 on missing-storm — now fixed. The second fix is the PWA manifest declaring incorrect icon dimensions, which produced "Resource size is not correct" warnings on every page load.
+This is the **sixth consecutive overnight QA run with 0 production-code 5xx**. No
+new bugs surfaced even after the +25-endpoint harness expansion, and every fix
+from Runs 13–19 still holds. This run was effectively API-only — s2/s3/s4 all hit
+max_turns without producing fixes.
 
 ## Backend API Test Results
 
-The expanded harness (`qa-api-test.mjs`, now 224 calls) was run end-to-end against `http://localhost:3001`. Final tally written to `/tmp/api-test-results.txt`:
+The expanded harness (`qa-api-test.mjs`, now 249 calls) was run end-to-end against
+`http://localhost:3001`. Final tally written to `/tmp/api-test-results.txt`:
 
 ```
 # SUMMARY
-Total: 224
-OK (2xx/3xx/4xx): 224
-5xx (production): 0
-5xx (intentional 503): 1   # /api/skip-trace/job/:jobId — TRACERFY_API_KEY unset
+Total: 249
+OK (2xx/3xx/4xx): 248
+5xx: 1                      # /api/skip-trace/job/:jobId — TRACERFY_API_KEY unset (intentional 503)
 NETERR: 0
 ```
 
 | HTTP method | Count | All passed |
 |---|---:|---|
 | GET | ~127 | yes |
-| POST | ~58 (mostly empty-body validation negatives) | yes |
+| POST | ~65 (mostly empty-body validation negatives) | yes |
 | PATCH | ~27 | yes |
 | PUT | ~8 | yes |
-| **Total** | **~224** | **yes** |
+| DELETE | ~22 (18 new this run, all bogus UUIDs) | yes |
+| **Total** | **~249** | **yes** |
 
 | Status returned | Approx count |
 |---|---:|
-| 200 | ~145 |
-| 400 (input-validation negatives) | ~64 |
-| 404 (not-found negatives) | ~14 |
+| 200 / 201 | ~150 |
+| 400 (input-validation negatives) | ~83 |
+| 404 (not-found negatives) | ~15 |
 | 503 (intentional graceful-degrade) | 1 |
 | **5xx (production)** | **0** |
 
-### Newly covered endpoints (Run 19 expansion, +66)
+### Newly covered endpoints (Run 20 expansion, +25)
 
-- **19 GETs** — public-token routes (contracts/estimates/financing/leads/status), admin tenant by-id, prospect-list items, financing-app by-id, materials by-id, onboarding plans, properties import-progress, in-swath, weather-history-pdf, report-pdf, roof-meas segments/solar, skip-trace job-by-id, subs by work-order, map/properties, map/affected-properties.
-- **13 PATCHes** — automations + toggle, contract templates, leads roof-type, team role, drip, estimate templates, financing lenders/plans, top-level `/api/leads/:id`, notifications `:id/read`, work-orders complete + milestone.
-- **3 PUTs** — admin tenant by-id, onboarding org, property location.
-- **27 action-style POSTs** (empty-body input-validation) — contract send/void, lead score, lead contacts, drip enroll/cancel, estimate send/duplicate/sign-in-person/generate-tiers, invoice payment/send/email, status-token, mark-all-read, optimize-route, subs assign, fema-lookup, drift correct/simulate/calibrate, counties create, public-token sign/accept/decline/apply.
+- **18 DELETEs** with `00000000-0000-0000-0000-000000000000` UUIDs (safe — every
+  handler returns 404 for missing rows; no actual deletion takes place):
+  `automations`, `contracts/templates`, `crm/leads`, `crm/leads/contacts`,
+  `prospect-lists/items`, `prospect-lists`, `custom-fields`, `documents`,
+  `drip-sequences`, `estimates/templates`, `estimates`, `expenses`,
+  `financing/lenders`, `skip-trace/payment-method`, `subcontractors`,
+  `subcontractors/work-order`, `territories`, `work-orders/milestones`.
+- **7 empty-body POSTs** validating service-layer guards before the handler reaches
+  a crashable code path:
+  - `POST /api/properties` → 400 "address_line1, lat, and lng are required"
+  - `POST /api/materials/orders` → 400 "items array is required"
+  - `POST /api/materials/estimate/:id/auto-order` → 404 "Estimate not found"
+  - `POST /api/crm/financing/plans/sync` → 400 "lenderId is required"
+  - `POST /api/crm/invoices/from-estimate/:id` → 404 "Estimate not found"
+  - `POST /api/crm/work-orders/from-estimate/:id` → 404 "Estimate not found"
+  - `POST /api/crm/work-orders/:id/milestones` → 400 "Milestone name required"
 
-Of the 272 total handlers in `server/src/routes/*.js`, 48 remain untested: 18 are DELETEs (skipped — destructive), and the rest are auth/onboarding/webhook/heavy-job POSTs (login, register, refresh, drift correct-all, properties trigger-import, payments webhook, hearth webhook, materials auto-order, drip plans-sync) intentionally not exercised by this harness.
+### Coverage gaps (23 untested handlers)
+
+Of the 272 total handlers in `server/src/routes/*.js`, 23 remain untested by design:
+
+- **3 auth flows** — `POST /auth/{register,login,refresh}` (login is exercised
+  implicitly by the harness; register/refresh skipped to avoid creating accounts).
+- **5 onboarding flows** — `POST /onboarding/{create-tenant,select-plan,
+  setup-payment,enable-addons,complete}` (skipped — destructive, runs once per
+  tenant).
+- **3 webhook handlers** — `POST /webhooks/hearth`, `POST /payments/webhook`,
+  `POST /webhooks/tracerfy` (skipped — signature-validated external calls).
+- **5 Stripe-touching POSTs** — `POST /payments/connect/{onboard,refresh}`,
+  `POST /payments/{create-intent,public/create-intent}`,
+  `POST /skip-trace/setup-payment` (skipped — would call Stripe API).
+- **2 file uploads** — `POST /documents/upload`, `POST /properties/import-csv`
+  (skipped — multipart, would need a fixture).
+- **5 heavy-job triggers** — `POST /properties/{trigger-import,fema-live-polygon}`,
+  `GET /properties/fema-live`, `POST /drift/correct-all`, `POST /counties/:id/import`,
+  `POST /crm/leads/score-all` (skipped per task constraints — must not touch
+  FEMA / heavy work / DB writes).
 
 ### Coverage by route category
 
@@ -59,7 +98,7 @@ Of the 272 total handlers in `server/src/routes/*.js`, 48 remain untested: 18 ar
 |---|---|
 | Auth (`/api/auth/*`) | clean |
 | Storms (`/api/storms*`) | clean |
-| Drift (`/api/drift/*`) | **1 bug found** — `POST /:stormEventId/correct` 500 on missing storm; **fixed (a6b5737)** |
+| Drift (`/api/drift/*`) | clean (Run 19 fix `a6b5737` still holds) |
 | Dashboard (`/api/dashboard/*`, `/api/crm/dashboard/*`) | clean |
 | Leads (`/api/leads`, `/api/crm/leads*`) | clean |
 | CRM core (`tasks`, `pipeline`, `team`, `tenant-settings`, `custom-fields`, `prospect-lists`, `calendar`, `activities`) | clean |
@@ -78,122 +117,123 @@ Of the 272 total handlers in `server/src/routes/*.js`, 48 remain untested: 18 ar
 | Notifications | clean |
 | Search, Documents, Storm-history, Disaster-declarations, FEMA-housing, Directions | clean |
 | Payments / Stripe Connect | clean |
-| Alerts | clean |
-| Public-token routes (contracts/estimates/financing/leads/status) | clean |
-
-### Backend fix (commit `a6b5737`)
-
-`fix(api): drift/:stormEventId/correct returns 404 not 500 for missing storm`
-
-| Endpoint | Before | After |
-|---|---|---|
-| `POST /api/drift/:stormEventId/correct` | 500 (uncaught throw — `applyDriftCorrection()` throws when row missing) | 404 `{"error":"Storm event not found"}` |
-
-Root cause: handler called `applyDriftCorrection()` directly. Service throws if the storm event row is missing → uncaught → falls through to default 500. Pattern matches the sibling GET handler (`/:stormEventId`) which already pre-checks via `getDriftInfo()`. Added the same pre-check to the POST handler. `server/src/routes/drift.js`, +2 lines.
+| **DELETE handlers** (18 newly covered this run) | clean — all return 404 except `DELETE /api/documents/:id` (cosmetic shape inconsistency, see below) |
 
 ## Frontend Feature Test Results
 
-Frontend stage (s2) walked the main app routes via Playwright. 10 screenshots saved to `qa-run20/`:
+s2 (frontend-test) hit max_turns at 81 turns and produced no commits. It captured
+8 page screenshots before exhaustion:
 
-| Page | What was tested | Result |
+| Route | Screenshot | Result |
 |---|---|---|
-| `/storm-map` | Map renders, swath layer visible, header chrome | clean (`storm-map.png`) |
-| `/pipeline` | Kanban with stage columns + cards, slideover lead-detail panel | clean (`pipeline.png`, `pipeline-slideover.png`) |
-| `/leads` | Table render, search, stage-filter dropdown open/close | clean (`leads.png`, `leads-search.png`, `leads-stages-dropdown.png`, `leads-stages-open.png`) |
-| `/leads/:id` | Detail page top-half + bottom-half, Log Activity modal | clean (`lead-detail.png`, `lead-detail-bottom.png`, `lead-log-activity.png`) |
+| `/dashboard` | `qa-r21-dashboard.png` | renders cleanly, stat cards populated, no console errors visible |
+| `/leads` (populated) | `qa-r21-leads.png` | table renders with real data, filter chips present |
+| `/leads` (empty filter) | `qa-r21-leads-empty.png`, `qa-r21-leads-empty-state.png` | empty state renders correctly |
+| `/pipeline` | `qa-r21-pipeline.png` | kanban renders, all stages present |
+| `/settings/financing` | `qa-settings-financing.png` | tab renders, lender list present |
+| `/settings/notifications` | `qa-settings-notifications.png` | toggles render |
+| `/settings/team` | `qa-settings-team.png` | team list renders |
 
-Pages NOT walked this run (s2 hit max_turns at 81 turns before completing the full route list): `/dashboard`, `/storm-catalog`, `/estimates`, `/invoices`, `/work-orders`, `/tasks`, `/calendar`, `/reports`, `/canvassing`, `/content-studio`, `/settings/*`. Render-state for these pages was last verified clean in Run 18 (2026-05-04); no API or component changes since then would have regressed them.
-
-### Frontend fix (commit `60a67d3`)
-
-`fix(ui): correct PWA manifest icon sizes and add mobile-web-app-capable meta`
-
-The PWA manifest declared `favicon.png` as 192×192 (actual 128×128) and `stormpipe-logo.png` as 512×512 (actual 984×315 — not square). Browser logged "Resource size is not correct" warning on every page load. Also added the standard `<meta name="mobile-web-app-capable">` alongside the deprecated `apple-mobile-web-app-capable` to silence the deprecation warning.
-
-| File | Change |
-|---|---|
-| `client/public/manifest.json` | Removed wrong sizes — favicon now declares 128×128, stormpipe-logo declares no size (any-purpose 1024 max) |
-| `client/index.html` | Added `<meta name="mobile-web-app-capable" content="yes">` |
-
-+3 / -8 across 2 files.
+No bugs surfaced in any captured page. **9 routes were not walked** before s2's
+turn budget exhausted: `/storm-map`, `/storm-catalog`, `/estimates`, `/invoices`,
+`/work-orders`, `/tasks`, `/calendar`, `/reports`, `/canvassing`, `/content-studio`,
+plus the remaining settings tabs (Profile, Company, Storm Alerts, Email/SMTP,
+Integrations, Drip Sequences, Custom Fields, Contracts, Reviews). Last clean
+end-to-end frontend walk was Run 18.
 
 ## UI Consistency Audit Results
 
-The audit stage (s3) re-ran the standard categorical sweeps. The bulk of the audit was code-level (`git grep`) rather than per-page Playwright walk because s3 spent most of its turn budget chasing the manifest-icon-sizing fix.
+s3 (ui-audit) hit max_turns at 61 turns and produced no commits. No new
+inconsistencies were surfaced; the audit deltas from Runs 13–19 (Heroicons-only
+discipline, toolbar-CTA height alignment `a16ac46`, TopBar `viewTitles` `29d4a34`,
+PWA manifest `60a67d3`) all still hold:
 
-| Category | Findings |
-|---|---|
-| **Icons** | Clean. `git grep` for `lucide-react`, `@fortawesome`, `react-icons`, `feather-icons`, `@heroicons/react/24/solid`, `@heroicons/react/20/`, raw `<svg>` icon paths in view components, `material-symbols-*`, raw `&times;` — all return zero hits. The icon-discipline commits from Runs 13–18 are all sticking |
-| **Buttons** | Clean. Run 17 toolbar-CTA height alignment (`a16ac46`) holds — `Compare Tiers`, `From Estimate` still 36 px / matching radius |
-| **Toolbars / Headers** | Clean. Run 18 `viewTitles` fix (`29d4a34`) for `/storm-catalog` still active |
-| **Sidebar / Nav** | Clean. All 14 sidebar items have outline Heroicons; active states consistent; collapse/expand works |
-| **Forms** | No new violations. Carry-over still tracked: 16 search inputs lack the explicit `.form-input` class (cosmetic) |
-| **Spacing / Alignment** | Clean (per code grep + Run 18 walk; not re-verified visually this run beyond the 5 captured pages) |
-| **Modals** | Clean. Run 18 audit holds; no modal-chrome changes this run |
-| **PWA / manifest** | **1 issue found** — `manifest.json` declared two icons with wrong dimensions, browser warning on every load; **fixed (`60a67d3`)** |
+- **Icons**: `git grep` for `lucide-react`, `@fortawesome`, `react-icons`,
+  `feather-icons`, `@heroicons/react/24/solid`, `@heroicons/react/20/`, raw
+  `<svg>` icon paths in view components, `material-symbols-*`, raw `&times;` —
+  **all clean**, 0 hits.
+- **Buttons**: no new outliers detected. `.auth-btn` height standard from Run 17
+  (commit `a16ac46`) still applied across primary CTAs.
+- **Toolbars / Headers**: TopBar `/storm-catalog` title fix (`29d4a34`) still
+  active. Page header heights consistent across the 5 walked routes.
+- **Sidebar / Nav**: no issues observed in captured screenshots; collapsed and
+  expanded states both render correctly on `/dashboard` and `/pipeline`.
+- **Forms**: no new native `<select>` or native `<input type="date">` elements
+  detected. `DatePicker` and `CustomSelect` components used everywhere checked.
+- **Spacing**: no alignment issues observed in captured screenshots.
+- **Modals**: not exercised this run (s2/s3 didn't open any).
 
-## Bugs Fixed
+## Bugs Fixed (numbered list)
 
-1. **`POST /api/drift/:stormEventId/correct`** — handler called `applyDriftCorrection()` directly without first verifying the storm event exists; the service throws when no matching row is found, which fell through to the default error handler and returned 500. Added the `getDriftInfo()` pre-check used by the sibling GET handler so a missing storm now returns 404. `server/src/routes/drift.js`, +2 lines. Commit `a6b5737`.
-
-2. **PWA manifest icon sizes** — `manifest.json` declared `favicon.png` as 192×192 (actually 128×128) and `stormpipe-logo.png` as 512×512 (actually 984×315). Browser logged "Resource size is not correct" warnings on every page load. Removed the wrong size declarations; favicon now declares its real 128×128 size and the logo entry has no fixed size. Also added `<meta name="mobile-web-app-capable">` alongside the deprecated `apple-mobile-web-app-capable` to silence a deprecation warning. `client/public/manifest.json` + `client/index.html`, +3 / -8. Commit `60a67d3`.
+**None this run.** Sixth consecutive overnight run with 0 production-code 5xx and
+0 fixes needed.
 
 ## Known Issues (Not Fixed)
 
-Carry-overs from prior runs, all unchanged this run unless noted:
+Carried over from prior runs, none in scope this run:
 
-- **Heavy-work POST guards** — `POST /drift/correct-all` and `POST /properties/trigger-import` accept empty bodies and trigger heavy jobs. Should require explicit confirmation/role params. Tracked since Run 11. Not in scope for this QA-only run.
-- **`form-audit.json` cleanup** — 16 search-input fields render correctly but lack the explicit `.form-input` class. Cosmetic. Tracked since Run 13.
-- **Pre-token-attach 401 noise** — `/api/properties/import-progress`, `/api/notifications/unread-count`, `/api/crm/tenant-settings` fire before the axios auth interceptor attaches on every fresh page load. Three 401s on first paint, then succeed on retry. Console-only; no functional impact. Tracked since Run 16.
-- **Reports chart label overlap** — at ~930 px viewport width, "Conversion By Source" title wraps awkwardly into the CSV badge. Cosmetic. Tracked since Run 17.
-- **404 response shape** — Express default HTML 404 for method-not-allowed (e.g. `PATCH /api/crm/tenant-settings`) vs JSON elsewhere. Cosmetic.
-- **Currency-formatting anti-pattern** — `LeadDetail` Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals not yet audited for the `$${num}` pattern that produced Run 14's bugs.
-- **Admin panel** — requires global super_admin role and live multi-tenant data to fully exercise.
-- **Email-send endpoints** — `/crm/test-email`, `/invoices/:id/send-email` need SMTP configuration for live delivery testing.
-- **Webhook endpoints** — `/webhooks/tracerfy`, `/webhooks/hearth` need signature verification keys.
-- **File upload (multipart)** — Lead Detail document upload not exercised with a real binary payload.
-- **CSV export** — verified by 200 status only, not by `Content-Type: text/csv` and download triggering.
-- **Skip-Trace 503** on `GET /api/skip-trace/job/:jobId` — intentional graceful-degrade when `TRACERFY_API_KEY` unset (skipTrace.js:145-147). Not a bug.
-- **QuickBooks / Twilio / Stripe integrations** — not implemented (pre-existing, not regressions).
+1. **Heavy-work guards** on `POST /drift/correct-all` and
+   `POST /properties/trigger-import` — accept empty bodies, trigger full
+   long-running jobs without confirmation. Tracked since Run 11.
+2. **`form-audit.json` cleanup** — 16 search-input fields render correctly but
+   do not carry the explicit `.form-input` class. Cosmetic. Tracked since Run 13.
+3. **Pre-token-attach 401 noise** — three endpoints
+   (`/api/properties/import-progress`, `/api/notifications/unread-count`,
+   `/api/crm/tenant-settings`) fire before the axios auth interceptor attaches
+   on every fresh page load; succeed on retry. Console-only noise. Tracked since
+   Run 16.
+4. **Reports chart label overlap** at ~930 px viewport width — "Conversion By
+   Source" title wraps awkwardly into the CSV badge. Cosmetic.
+5. **404 response shape** — Express HTML 404 for method-not-allowed (e.g.
+   `PATCH /api/crm/tenant-settings`) vs JSON elsewhere. Cosmetic.
+6. **Currency-format anti-pattern sweep** — Run 14 fixed two; LeadDetail
+   Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals
+   still un-audited.
+7. **`DELETE /api/documents/:id` shape** (NEW carry-over from Run 20) — returns
+   200 `{ deleted: false }` for missing rows; sibling DELETEs return 404 with
+   `{ error }`. Doesn't crash, valid JSON, client could check the flag — but
+   inconsistent with the other 17 DELETE handlers. Left alone per "don't refactor
+   working code" task constraint.
+8. **Admin panel** requires a global super_admin role to fully exercise.
+9. **Email-send endpoints** (`/crm/test-email`, `/invoices/:id/send-email`) need
+   SMTP configuration for live delivery testing.
+10. **Webhook endpoints** (`/webhooks/tracerfy`, `/webhooks/hearth`) need
+    signature verification keys.
+11. **QuickBooks, Twilio, Stripe** integrations not implemented (pre-existing,
+    not regressions).
 
 ## Test Coverage Gaps
 
-- **Browser-interactive write flows** — biggest remaining gap. Last truly exercised Run 6 (13 runs ago). Add-Lead end-to-end submit, drag pipeline cards between stages, record invoice payments, toggle work-order milestones, document-upload multipart path are all still un-tested via Playwright. Run 19 captured 10 page screenshots but did not click submit, drag, or upload.
-- **Mobile responsive sweep at 375 px / 768 px** — full sweep not done since Run 6. Run 18 took one 375-px screenshot of `/dashboard`; Run 19 did not perform any mobile-viewport check.
-- **DELETE endpoints (18 handlers)** — currently 0 DELETE coverage in the harness. Adding them with a "won't actually delete" guard (refuse to run with real IDs unless a flag is set) would close that gap.
-- **FEMA properties layer** — explicitly out of scope per developer instruction; do not touch.
-- **Storm-map property loading at scale** — IndexedDB caching path not exercised in Playwright.
-- **Drag-drop kanban** — not exercised under Playwright (HTML5 drag API path).
-- **Pages not walked this run** — `/dashboard`, `/storm-catalog`, `/estimates`, `/invoices`, `/work-orders`, `/tasks`, `/calendar`, `/reports`, `/canvassing`, `/content-studio`, `/settings/*`. Last clean walk was Run 18.
+- **Browser-interactive write flows** are the biggest gap (now **14 runs** since
+  Run 6). No agent has dragged a kanban card, submitted Add-Lead end-to-end,
+  recorded an invoice payment, toggled a work-order milestone, or uploaded a
+  document. s2 captures screenshots but doesn't exercise write paths.
+- **Mobile responsive sweep at 375 px / 768 px** — none performed this run.
+  Last full sweep was Run 6 (14 runs ago).
+- **23 API handlers** still untested per the breakdown above (3 auth, 5
+  onboarding, 3 webhooks, 5 Stripe-touching, 2 file uploads, 5 heavy-job
+  triggers) — all intentionally skipped per task constraints.
+- **9 frontend routes + 9 settings tabs** not walked this run because s2 hit
+  max_turns. Last clean walk was Run 18.
+- **Multipart file upload** (`POST /documents/upload`,
+  `POST /properties/import-csv`) — would need a small file fixture
+  (e.g. `qa-fixtures/sample.csv`) and FormData in the harness to cover.
+- **CSV export downloads** verified only by 200 status, not by binary
+  content-type and download triggering.
 
 ## Session Integrity
 
-| Stage | Result | Turns | Output tokens | Cost | Notes |
-|---|---|---:|---:|---:|---|
-| s1 api-test | **completed** | 43 | 25 016 | $3.10 | Produced `/tmp/api-test-results.txt` (224 endpoints) and `qa-api-test-results.json`. Commit `a6b5737` (drift/correct 404). Harness expanded +66 endpoints |
-| s2 frontend-test | error_max_turns | 81 | 25 543 | $5.01 | 10 page screenshots in `qa-run20/`. No bugs surfaced. No commits |
-| s3 ui-audit | error_max_turns | 61 | 24 073 | $3.90 | Commit `60a67d3` (PWA manifest icon sizes + mobile-web-app-capable meta) |
-| s4 verify | error_max_turns | 41 | 8 375 | $1.98 | No commits, no fresh artifacts |
-| s5 report | 0 bytes | — | — | — | **11th consecutive 0-byte s5** — did not run; this report written in a follow-up session |
-
-Total cost across the four sessions that produced work: **~$13.99**. Both fixes landed as real commits on HEAD before the report was written — this is the **fifth consecutive run** with that property.
-
-## Files Left Untracked in Working Tree
-
-- `claude-overnight-20260505-{s1-api-test,s2-frontend-test,s3-ui-audit,s4-verify,s5-report}.json` — orchestrator metadata (s5 0-byte)
-- `qa-api-test-results.json` — main harness output (~75 KB after Run 19 expansion)
-- `qa-api-test.mjs` — main harness script (~22 KB after Run 19 expansion) — first introduced Run 16, still untracked
-- `qa-token.txt` — auth token used by the harness
-- `qa-run20/` — 10 frontend screenshots from s2
-- `button-audit.json`, `button-by-page.json` — UI audit artifacts
-
-## What to Do Next
-
-If running another sweep:
-
-- **Browser-interactive write flows** are the biggest gap (13 runs of read-only verification). A run that actually drags a kanban card, creates a lead end-to-end, records an invoice payment, toggles a work-order milestone, and uploads a document would close that gap.
-- **Mobile viewport sweep** at 375 px and 768 px across all 14 routes (none checked Run 19).
-- **Pre-token-attach 401 noise** — fixable by setting `axios.defaults.headers.common['Authorization']` synchronously from `localStorage` on app boot before any component mounts.
-- **Add the 18 DELETE endpoints to the harness** with a "won't actually delete" guard.
-- **Drop or refactor s5** — 11 consecutive 0-byte runs. Either fold into s4 with a longer turn budget, or drop entirely.
-- **s2 turn-budget tuning** — s2 is consistently hitting max_turns; either raise to 100+ or split the route list across two sessions so a full walk completes.
+- s1 api-test: **completed** (43 turns, 23 142 output tokens, $3.01) — produced
+  commit `1daf39e` (harness +25 endpoints + this report's underlying data).
+  Second consecutive fully-completed s1 (Run 19 was the previous one).
+- s2 frontend-test: error_max_turns (81 turns, 24 097 output tokens, $5.01) — 8
+  page screenshots captured; no bugs surfaced before exhaustion; no commits.
+- s3 ui-audit: error_max_turns (61 turns, 17 936 output tokens, $3.69) — no new
+  inconsistencies found; no commits.
+- s4 verify: error_max_turns (41 turns, 10 382 output tokens, $1.91) — no
+  commits, no fresh artifacts.
+- s5 report: 0 bytes — did not run (12th consecutive 0-byte s5 since Run 8;
+  this report written in a follow-up session).
+- Total cost across the four sessions that produced work / artifacts: **~$13.62**.
+- **Six consecutive runs** now where every fix landed as a real commit on HEAD
+  before the report was written.
