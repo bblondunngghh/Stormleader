@@ -276,6 +276,85 @@ const TESTS = [
   ['PUT', '/api/roof-measurement/config', {}, 'roofMeas.config.put.empty'],
   ['PUT', '/api/crm/tenant-settings', {}, 'crm.tenantSettings.putEmpty'],
   ['PUT', '/api/materials/credentials', {}, 'materials.credentials.put.empty'],
+
+  // ==== Run 19 expansion: previously untested GET endpoints ====
+  // Public token endpoints — bogus token must 404, not 500
+  ['GET', '/api/crm/contracts/public/bogus-token-zzz', null, 'contracts.public.byToken'],
+  ['GET', '/api/estimates/public/bogus-token-zzz', null, 'estimates.public.byToken'],
+  ['GET', '/api/crm/financing/public/bogus-token-zzz/plans', null, 'financing.public.plans'],
+  ['GET', '/api/crm/financing/public/bogus-token-zzz/applications', null, 'financing.public.applications'],
+  ['GET', '/api/leads/status/public/bogus-token-zzz', null, 'leads.public.statusByToken'],
+  // Authenticated GETs not tested before
+  ['GET', '/api/admin/tenants/00000000-0000-0000-0000-000000000000', null, 'admin.tenant.byId'],
+  ['GET', '/api/counties/00000000-0000-0000-0000-000000000000/status', null, 'counties.status'],
+  ['GET', '/api/crm/prospect-lists/00000000-0000-0000-0000-000000000000/items', null, 'crm.prospectLists.items'],
+  ['GET', '/api/crm/financing/applications/00000000-0000-0000-0000-000000000000', null, 'financing.applications.byId'],
+  ['GET', '/api/materials/products/00000000-0000-0000-0000-000000000000', null, 'materials.products.byId'],
+  ['GET', '/api/materials/orders/00000000-0000-0000-0000-000000000000', null, 'materials.orders.byId'],
+  ['GET', '/api/onboarding/plans', null, 'onboarding.plans'],
+  ['GET', '/api/properties/import-progress', null, 'properties.importProgress'],
+  ['GET', '/api/properties/in-swath/00000000-0000-0000-0000-000000000000/count', null, 'properties.inSwath.count'],
+  ['GET', '/api/properties/in-swath/00000000-0000-0000-0000-000000000000', null, 'properties.inSwath'],
+  ['GET', '/api/properties/{property}/weather-history/pdf', null, 'properties.weatherHistory.pdf'],
+  ['GET', '/api/properties/{property}/report/pdf', null, 'properties.report.pdf'],
+  ['GET', '/api/roof-measurement/segments/{property}', null, 'roofMeas.segments'],
+  ['GET', '/api/roof-measurement/solar/{property}', null, 'roofMeas.solar'],
+  ['GET', '/api/skip-trace/job/00000000-0000-0000-0000-000000000000', null, 'skipTrace.job.byId'],
+  ['GET', '/api/crm/subcontractors/work-order/{workOrder}', null, 'subs.byWorkOrder'],
+  // Map GETs (require bbox query params)
+  ['GET', '/api/map/properties?bbox=-80.6,43.4,-80.4,43.5', null, 'map.properties'],
+  ['GET', '/api/map/affected-properties?bbox=-80.6,43.4,-80.4,43.5', null, 'map.affectedProperties'],
+
+  // ==== Run 19: previously untested PATCH empty-body validation ====
+  ['PATCH', '/api/crm/automations/00000000-0000-0000-0000-000000000000', {}, 'automations.patch.empty'],
+  ['PATCH', '/api/crm/automations/00000000-0000-0000-0000-000000000000/toggle', {}, 'automations.toggle.empty'],
+  ['PATCH', '/api/crm/contracts/templates/00000000-0000-0000-0000-000000000000', {}, 'contracts.templates.patch.empty'],
+  ['PATCH', '/api/crm/leads/{lead}/roof-type', {}, 'crm.leads.roofType.empty'],
+  ['PATCH', '/api/crm/team/00000000-0000-0000-0000-000000000000/role', {}, 'crm.team.role.empty'],
+  ['PATCH', '/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000', {}, 'drip.patch.empty'],
+  ['PATCH', '/api/estimates/templates/00000000-0000-0000-0000-000000000000', {}, 'estimates.templates.patch.empty'],
+  ['PATCH', '/api/crm/financing/lenders/00000000-0000-0000-0000-000000000000', {}, 'financing.lenders.patch.empty'],
+  ['PATCH', '/api/crm/financing/plans/00000000-0000-0000-0000-000000000000', {}, 'financing.plans.patch.empty'],
+  ['PATCH', '/api/leads/{lead}', {}, 'leads.patch.empty'],
+  ['PATCH', '/api/notifications/00000000-0000-0000-0000-000000000000/read', {}, 'notifications.read.empty'],
+  ['PATCH', '/api/crm/work-orders/{workOrder}/complete', {}, 'wo.complete.empty'],
+  ['PATCH', '/api/crm/work-orders/{workOrder}/milestones/00000000-0000-0000-0000-000000000000', {}, 'wo.milestone.empty'],
+
+  // ==== Run 19: previously untested PUT empty-body validation ====
+  ['PUT', '/api/admin/tenants/00000000-0000-0000-0000-000000000000', {}, 'admin.tenant.put.empty'],
+  ['PUT', '/api/onboarding/org', {}, 'onboarding.org.put.empty'],
+  ['PUT', '/api/properties/{property}/location', {}, 'properties.location.put.empty'],
+
+  // ==== Run 19: action-style POSTs (empty body, harmless inputs) ====
+  // We send empty {} to confirm input-validation guards exist (400, not 500)
+  ['POST', '/api/crm/canvass-pins/{canvassPin}/convert', {}, 'canvass.convert.empty'],
+  ['POST', '/api/crm/contracts/{contract}/send', {}, 'contracts.send.empty'],
+  ['POST', '/api/crm/contracts/{contract}/void', {}, 'contracts.void.empty'],
+  ['POST', '/api/crm/leads/{lead}/score', {}, 'crm.leads.score.empty'],
+  ['POST', '/api/crm/leads/{lead}/contacts', {}, 'crm.leads.contacts.empty'],
+  ['POST', '/api/crm/drip-sequences/{drip}/enroll', {}, 'drip.enroll.empty'],
+  ['POST', '/api/crm/drip-sequences/{drip}/cancel', {}, 'drip.cancel.empty'],
+  ['POST', '/api/estimates/{estimate}/send', {}, 'estimates.send.empty'],
+  ['POST', '/api/estimates/{estimate}/duplicate', {}, 'estimates.duplicate.empty'],
+  ['POST', '/api/estimates/{estimate}/sign-in-person', {}, 'estimates.signInPerson.empty'],
+  ['POST', '/api/estimates/{estimate}/generate-tiers', {}, 'estimates.generateTiers.empty'],
+  ['POST', '/api/crm/invoices/{invoice}/payment', {}, 'invoices.payment.empty'],
+  ['POST', '/api/crm/invoices/{invoice}/send', {}, 'invoices.send.empty'],
+  ['POST', '/api/crm/invoices/{invoice}/send-email', {}, 'invoices.sendEmail.empty'],
+  ['POST', '/api/leads/{lead}/status-token', {}, 'leads.statusToken.empty'],
+  ['POST', '/api/notifications/mark-all-read', {}, 'notifications.markAllRead.empty'],
+  ['POST', '/api/data/optimize-route', {}, 'data.optimizeRoute.empty'],
+  ['POST', '/api/crm/subcontractors/assign', {}, 'subs.assign.empty'],
+  ['POST', '/api/properties/{property}/fema-lookup', {}, 'properties.femaLookup.empty'],
+  ['POST', '/api/drift/{storm}/correct', {}, 'drift.correct.empty'],
+  ['POST', '/api/drift/simulate', {}, 'drift.simulate.empty'],
+  ['POST', '/api/drift/calibrate', {}, 'drift.calibrate.empty'],
+  ['POST', '/api/counties', {}, 'counties.create.empty'],
+  // Public-token POSTs with bogus tokens
+  ['POST', '/api/crm/contracts/public/bogus-token-zzz/sign', {}, 'contracts.public.sign.empty'],
+  ['POST', '/api/estimates/public/bogus-token-zzz/accept', {}, 'estimates.public.accept.empty'],
+  ['POST', '/api/estimates/public/bogus-token-zzz/decline', {}, 'estimates.public.decline.empty'],
+  ['POST', '/api/crm/financing/public/bogus-token-zzz/apply', {}, 'financing.public.apply.empty'],
 ];
 
 const subst = (path) => path.replace(/\{(\w+)\}/g, (_, k) => ids[k] ?? '00000000-0000-0000-0000-000000000000');

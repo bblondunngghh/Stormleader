@@ -1,0 +1,802 @@
+{
+  "Dashboard": {
+    "url": "/",
+    "btnSummary": [
+      {
+        "text": "Dashboard",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "600",
+        "cls": "nav-link is-active"
+      },
+      {
+        "text": "Storm Map",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "500",
+        "cls": "nav-link"
+      },
+      {
+        "text": "Storm Archive",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "500",
+        "cls": "nav-link"
+      },
+      {
+        "text": "",
+        "h": 38,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": "topbar__btn"
+      },
+      {
+        "text": "",
+        "h": 38,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": "topbar__btn"
+      },
+      {
+        "text": "Enterprise",
+        "h": 26,
+        "bg": "oklch(0.75 0.15 60 / 0.12)",
+        "br": "10px / 8px",
+        "pad": "4px 10px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": ""
+      },
+      {
+        "text": "All Time",
+        "h": 23,
+        "bg": "oklch(0.72 0.15 250 / 0.12)",
+        "br": "999px",
+        "pad": "4px 12px",
+        "fs": "11px",
+        "fw": "600",
+        "cls": ""
+      },
+      {
+        "text": "7 Days",
+        "h": 23,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "999px",
+        "pad": "4px 12px",
+        "fs": "11px",
+        "fw": "600",
+        "cls": ""
+      },
+      {
+        "text": "30 Days",
+        "h": 23,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "999px",
+        "pad": "4px 12px",
+        "fs": "11px",
+        "fw": "600",
+        "cls": ""
+      },
+      {
+        "text": "90 Days",
+        "h": 23,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "999px",
+        "pad": "4px 12px",
+        "fs": "11px",
+        "fw": "600",
+        "cls": ""
+      },
+      {
+        "text": "YTD",
+        "h": 23,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "999px",
+        "pad": "4px 12px",
+        "fs": "11px",
+        "fw": "600",
+        "cls": ""
+      },
+      {
+        "text": "All Reps",
+        "h": 36,
+        "bg": "oklch(0.22 0.02 260 / 0.45)",
+        "br": "12px",
+        "pad": "0px 16px",
+        "fs": "13px",
+        "fw": "500",
+        "cls": ""
+      },
+      {
+        "text": "All Sources",
+        "h": 36,
+        "bg": "oklch(0.22 0.02 260 / 0.45)",
+        "br": "12px",
+        "pad": "0px 16px",
+        "fs": "13px",
+        "fw": "500",
+        "cls": ""
+      }
+    ]
+  },
+  "Storm Map": {
+    "url": "/storm-map",
+    "btnSummary": [
+      {
+        "text": "Dashboard",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "500",
+        "cls": "nav-link"
+      },
+      {
+        "text": "Storm Map",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "600",
+        "cls": "nav-link is-active"
+      },
+      {
+        "text": "Storm Archive",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "500",
+        "cls": "nav-link"
+      },
+      {
+        "text": "",
+        "h": 38,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": "topbar__btn"
+      },
+      {
+        "text": "",
+        "h": 38,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": "topbar__btn"
+      },
+      {
+        "text": "Enterprise",
+        "h": 26,
+        "bg": "oklch(0.75 0.15 60 / 0.12)",
+        "br": "10px / 8px",
+        "pad": "4px 10px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": ""
+      },
+      {
+        "text": "30 Days",
+        "h": 38,
+        "bg": "oklch(0.16 0.015 260 / 0.35)",
+        "br": "12px",
+        "pad": "10px 12px",
+        "fs": "13px",
+        "fw": "600",
+        "cls": "map-controls__dropdown-trigger glass"
+      }
+    ]
+  },
+  "Storm Archive": {
+    "url": "/storm-catalog",
+    "btnSummary": [
+      {
+        "text": "Dashboard",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "500",
+        "cls": "nav-link"
+      },
+      {
+        "text": "Storm Map",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "500",
+        "cls": "nav-link"
+      },
+      {
+        "text": "Storm Archive",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "600",
+        "cls": "nav-link is-active"
+      },
+      {
+        "text": "",
+        "h": 38,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": "topbar__btn"
+      },
+      {
+        "text": "",
+        "h": 38,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": "topbar__btn"
+      },
+      {
+        "text": "Enterprise",
+        "h": 26,
+        "bg": "oklch(0.75 0.15 60 / 0.12)",
+        "br": "10px / 8px",
+        "pad": "4px 10px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": ""
+      },
+      {
+        "text": "24 Hours",
+        "h": 29,
+        "bg": "oklch(0.18 0.03 265 / 0.5)",
+        "br": "14px / 12px",
+        "pad": "6px 14px",
+        "fs": "12px",
+        "fw": "600",
+        "cls": "quick-action-btn"
+      },
+      {
+        "text": "3 Days",
+        "h": 29,
+        "bg": "oklch(0.18 0.03 265 / 0.5)",
+        "br": "14px / 12px",
+        "pad": "6px 14px",
+        "fs": "12px",
+        "fw": "600",
+        "cls": "quick-action-btn"
+      },
+      {
+        "text": "7 Days",
+        "h": 29,
+        "bg": "oklch(0.18 0.03 265 / 0.5)",
+        "br": "14px / 12px",
+        "pad": "6px 14px",
+        "fs": "12px",
+        "fw": "600",
+        "cls": "quick-action-btn"
+      },
+      {
+        "text": "14 Days",
+        "h": 29,
+        "bg": "oklch(0.18 0.03 265 / 0.5)",
+        "br": "14px / 12px",
+        "pad": "6px 14px",
+        "fs": "12px",
+        "fw": "600",
+        "cls": "quick-action-btn"
+      },
+      {
+        "text": "30 Days",
+        "h": 36,
+        "bg": "oklch(0.72 0.19 250)",
+        "br": "14px / 12px",
+        "pad": "6px 14px",
+        "fs": "12px",
+        "fw": "700",
+        "cls": "auth-btn"
+      },
+      {
+        "text": "Custom",
+        "h": 29,
+        "bg": "oklch(0.18 0.03 265 / 0.5)",
+        "br": "14px / 12px",
+        "pad": "6px 14px",
+        "fs": "12px",
+        "fw": "600",
+        "cls": "quick-action-btn"
+      }
+    ]
+  },
+  "Pipeline": {
+    "url": "/pipeline",
+    "btnSummary": [
+      {
+        "text": "Dashboard",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "500",
+        "cls": "nav-link"
+      },
+      {
+        "text": "Storm Map",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "500",
+        "cls": "nav-link"
+      },
+      {
+        "text": "Storm Archive",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "500",
+        "cls": "nav-link"
+      },
+      {
+        "text": "",
+        "h": 38,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": "topbar__btn"
+      },
+      {
+        "text": "",
+        "h": 38,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": "topbar__btn"
+      },
+      {
+        "text": "Enterprise",
+        "h": 26,
+        "bg": "oklch(0.75 0.15 60 / 0.12)",
+        "br": "10px / 8px",
+        "pad": "4px 10px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": ""
+      },
+      {
+        "text": "Sales",
+        "h": 25,
+        "bg": "oklch(0.78 0.12 200)",
+        "br": "8px",
+        "pad": "5px 12px",
+        "fs": "12px",
+        "fw": "700",
+        "cls": "shrink-0"
+      },
+      {
+        "text": "Production",
+        "h": 25,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "8px",
+        "pad": "5px 12px",
+        "fs": "12px",
+        "fw": "700",
+        "cls": "shrink-0"
+      },
+      {
+        "text": "Billing",
+        "h": 25,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "8px",
+        "pad": "5px 12px",
+        "fs": "12px",
+        "fw": "700",
+        "cls": "shrink-0"
+      },
+      {
+        "text": "All Priorities",
+        "h": 36,
+        "bg": "oklch(0.22 0.02 260 / 0.45)",
+        "br": "12px",
+        "pad": "0px 16px",
+        "fs": "13px",
+        "fw": "500",
+        "cls": ""
+      },
+      {
+        "text": "All Sources",
+        "h": 36,
+        "bg": "oklch(0.22 0.02 260 / 0.45)",
+        "br": "12px",
+        "pad": "0px 16px",
+        "fs": "13px",
+        "fw": "500",
+        "cls": ""
+      },
+      {
+        "text": "All Reps",
+        "h": 36,
+        "bg": "oklch(0.22 0.02 260 / 0.45)",
+        "br": "12px",
+        "pad": "0px 16px",
+        "fs": "13px",
+        "fw": "500",
+        "cls": ""
+      },
+      {
+        "text": "",
+        "h": 36,
+        "bg": "oklch(0.22 0.02 260 / 0.45)",
+        "br": "14px / 12px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": "shrink-0"
+      },
+      {
+        "text": "Add Lead",
+        "h": 36,
+        "bg": "oklch(0.72 0.19 250)",
+        "br": "14px / 12px",
+        "pad": "0px 24px",
+        "fs": "13px",
+        "fw": "700",
+        "cls": "auth-btn shrink-0"
+      },
+      {
+        "text": "",
+        "h": 13,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "0px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": ""
+      },
+      {
+        "text": "",
+        "h": 13,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "0px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": ""
+      },
+      {
+        "text": "",
+        "h": 13,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "0px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": ""
+      },
+      {
+        "text": "",
+        "h": 13,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "0px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": ""
+      },
+      {
+        "text": "",
+        "h": 13,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "0px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": ""
+      },
+      {
+        "text": "",
+        "h": 13,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "0px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": ""
+      },
+      {
+        "text": "",
+        "h": 13,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "0px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": ""
+      }
+    ]
+  },
+  "Leads": {
+    "url": "/leads",
+    "btnSummary": [
+      {
+        "text": "Dashboard",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "500",
+        "cls": "nav-link"
+      },
+      {
+        "text": "Storm Map",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "500",
+        "cls": "nav-link"
+      },
+      {
+        "text": "Storm Archive",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "500",
+        "cls": "nav-link"
+      },
+      {
+        "text": "",
+        "h": 38,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": "topbar__btn"
+      },
+      {
+        "text": "",
+        "h": 38,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": "topbar__btn"
+      },
+      {
+        "text": "Enterprise",
+        "h": 26,
+        "bg": "oklch(0.75 0.15 60 / 0.12)",
+        "br": "10px / 8px",
+        "pad": "4px 10px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": ""
+      },
+      {
+        "text": "All Stages",
+        "h": 36,
+        "bg": "oklch(0.22 0.02 260 / 0.45)",
+        "br": "12px",
+        "pad": "0px 16px",
+        "fs": "13px",
+        "fw": "500",
+        "cls": ""
+      },
+      {
+        "text": "All Priorities",
+        "h": 36,
+        "bg": "oklch(0.22 0.02 260 / 0.45)",
+        "br": "12px",
+        "pad": "0px 16px",
+        "fs": "13px",
+        "fw": "500",
+        "cls": ""
+      },
+      {
+        "text": "All Sources",
+        "h": 36,
+        "bg": "oklch(0.22 0.02 260 / 0.45)",
+        "br": "12px",
+        "pad": "0px 16px",
+        "fs": "13px",
+        "fw": "500",
+        "cls": ""
+      },
+      {
+        "text": "All Scores",
+        "h": 36,
+        "bg": "oklch(0.22 0.02 260 / 0.45)",
+        "br": "12px",
+        "pad": "0px 16px",
+        "fs": "13px",
+        "fw": "500",
+        "cls": ""
+      },
+      {
+        "text": "Import",
+        "h": 36,
+        "bg": "oklch(0.18 0.03 265 / 0.5)",
+        "br": "14px / 12px",
+        "pad": "8px 16px",
+        "fs": "13px",
+        "fw": "600",
+        "cls": "quick-action-btn"
+      },
+      {
+        "text": "Export",
+        "h": 36,
+        "bg": "oklch(0.18 0.03 265 / 0.5)",
+        "br": "14px / 12px",
+        "pad": "8px 16px",
+        "fs": "13px",
+        "fw": "600",
+        "cls": "quick-action-btn"
+      }
+    ]
+  },
+  "Settings": {
+    "url": "/settings",
+    "btnSummary": [
+      {
+        "text": "Dashboard",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "500",
+        "cls": "nav-link"
+      },
+      {
+        "text": "Storm Map",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "500",
+        "cls": "nav-link"
+      },
+      {
+        "text": "Storm Archive",
+        "h": 42,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "12px 16px",
+        "fs": "13.5px",
+        "fw": "500",
+        "cls": "nav-link"
+      },
+      {
+        "text": "",
+        "h": 38,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": "topbar__btn"
+      },
+      {
+        "text": "",
+        "h": 38,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "12px",
+        "pad": "0px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": "topbar__btn"
+      },
+      {
+        "text": "Enterprise",
+        "h": 26,
+        "bg": "oklch(0.75 0.15 60 / 0.12)",
+        "br": "10px / 8px",
+        "pad": "4px 10px",
+        "fs": "13.3333px",
+        "fw": "400",
+        "cls": ""
+      },
+      {
+        "text": "Profile",
+        "h": 31,
+        "bg": "oklch(0.3 0.05 250 / 0.6)",
+        "br": "8px",
+        "pad": "8px 12px",
+        "fs": "12px",
+        "fw": "600",
+        "cls": ""
+      },
+      {
+        "text": "Company",
+        "h": 31,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "8px",
+        "pad": "8px 12px",
+        "fs": "12px",
+        "fw": "600",
+        "cls": ""
+      },
+      {
+        "text": "Billing",
+        "h": 31,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "8px",
+        "pad": "8px 12px",
+        "fs": "12px",
+        "fw": "600",
+        "cls": ""
+      },
+      {
+        "text": "Payments",
+        "h": 31,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "8px",
+        "pad": "8px 12px",
+        "fs": "12px",
+        "fw": "600",
+        "cls": ""
+      },
+      {
+        "text": "Team",
+        "h": 31,
+        "bg": "rgba(0, 0, 0, 0)",
+        "br": "8px",
+        "pad": "8px 12px",
+        "fs": "12px",
+        "fw": "600",
+        "cls": ""
+      },
+      {
+        "text": "Edit Profile",
+        "h": 29,
+        "bg": "oklch(0.18 0.03 265 / 0.5)",
+        "br": "14px / 12px",
+        "pad": "6px 14px",
+        "fs": "12px",
+        "fw": "600",
+        "cls": "quick-action-btn"
+      }
+    ]
+  }
+}
