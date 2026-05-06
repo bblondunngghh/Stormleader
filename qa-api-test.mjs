@@ -355,6 +355,39 @@ const TESTS = [
   ['POST', '/api/estimates/public/bogus-token-zzz/accept', {}, 'estimates.public.accept.empty'],
   ['POST', '/api/estimates/public/bogus-token-zzz/decline', {}, 'estimates.public.decline.empty'],
   ['POST', '/api/crm/financing/public/bogus-token-zzz/apply', {}, 'financing.public.apply.empty'],
+
+  // ==== Run 20: 18 DELETE endpoints (bogus UUIDs — safe, will 404 not delete) ====
+  // Validates the route exists, auth gate works, validateId middleware works,
+  // and the handler returns 404 cleanly on missing rows instead of crashing.
+  ['DELETE', '/api/crm/automations/00000000-0000-0000-0000-000000000000', null, 'automations.delete.missing'],
+  ['DELETE', '/api/crm/contracts/templates/00000000-0000-0000-0000-000000000000', null, 'contracts.templates.delete.missing'],
+  ['DELETE', '/api/crm/leads/00000000-0000-0000-0000-000000000000', null, 'crm.leads.delete.missing'],
+  ['DELETE', '/api/crm/leads/00000000-0000-0000-0000-000000000000/contacts/00000000-0000-0000-0000-000000000000', null, 'crm.leads.contacts.delete.missing'],
+  ['DELETE', '/api/crm/prospect-lists/00000000-0000-0000-0000-000000000000/items/00000000-0000-0000-0000-000000000000', null, 'crm.prospectLists.items.delete.missing'],
+  ['DELETE', '/api/crm/prospect-lists/00000000-0000-0000-0000-000000000000', null, 'crm.prospectLists.delete.missing'],
+  ['DELETE', '/api/crm/custom-fields/00000000-0000-0000-0000-000000000000', null, 'crm.customFields.delete.missing'],
+  ['DELETE', '/api/documents/00000000-0000-0000-0000-000000000000', null, 'documents.delete.missing'],
+  ['DELETE', '/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000', null, 'drip.delete.missing'],
+  ['DELETE', '/api/estimates/templates/00000000-0000-0000-0000-000000000000', null, 'estimates.templates.delete.missing'],
+  ['DELETE', '/api/estimates/00000000-0000-0000-0000-000000000000', null, 'estimates.delete.missing'],
+  ['DELETE', '/api/crm/expenses/00000000-0000-0000-0000-000000000000', null, 'expenses.delete.missing'],
+  ['DELETE', '/api/crm/financing/lenders/00000000-0000-0000-0000-000000000000', null, 'financing.lenders.delete.missing'],
+  ['DELETE', '/api/skip-trace/payment-method', null, 'skipTrace.paymentMethod.delete.missing'],
+  ['DELETE', '/api/crm/subcontractors/00000000-0000-0000-0000-000000000000', null, 'subs.delete.missing'],
+  ['DELETE', '/api/crm/subcontractors/work-order/00000000-0000-0000-0000-000000000000/00000000-0000-0000-0000-000000000000', null, 'subs.workOrder.delete.missing'],
+  ['DELETE', '/api/crm/territories/00000000-0000-0000-0000-000000000000', null, 'territories.delete.missing'],
+  ['DELETE', '/api/crm/work-orders/00000000-0000-0000-0000-000000000000/milestones/00000000-0000-0000-0000-000000000000', null, 'wo.milestone.delete.missing'],
+
+  // ==== Run 20: 7 more empty-body input-validation POSTs ====
+  // These call paths invoke services that could crash if input validation is missing.
+  // Empty body should yield 400/404, NEVER 500.
+  ['POST', '/api/properties', {}, 'properties.create.empty'],
+  ['POST', '/api/materials/orders', {}, 'materials.orders.create.empty'],
+  ['POST', '/api/materials/estimate/00000000-0000-0000-0000-000000000000/auto-order', {}, 'materials.autoOrder.empty'],
+  ['POST', '/api/crm/financing/plans/sync', {}, 'financing.plans.sync.empty'],
+  ['POST', '/api/crm/invoices/from-estimate/00000000-0000-0000-0000-000000000000', {}, 'invoices.fromEstimate.empty'],
+  ['POST', '/api/crm/work-orders/from-estimate/00000000-0000-0000-0000-000000000000', {}, 'wo.fromEstimate.empty'],
+  ['POST', '/api/crm/work-orders/{workOrder}/milestones', {}, 'wo.milestones.create.empty'],
 ];
 
 const subst = (path) => path.replace(/\{(\w+)\}/g, (_, k) => ids[k] ?? '00000000-0000-0000-0000-000000000000');
