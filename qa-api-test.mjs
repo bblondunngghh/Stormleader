@@ -388,6 +388,20 @@ const TESTS = [
   ['POST', '/api/crm/invoices/from-estimate/00000000-0000-0000-0000-000000000000', {}, 'invoices.fromEstimate.empty'],
   ['POST', '/api/crm/work-orders/from-estimate/00000000-0000-0000-0000-000000000000', {}, 'wo.fromEstimate.empty'],
   ['POST', '/api/crm/work-orders/{workOrder}/milestones', {}, 'wo.milestones.create.empty'],
+
+  // ==== Run 21: 4 previously skipped POSTs — safe with empty bodies ====
+  // auth.refresh: Zod schema requires refreshToken; empty body must 400.
+  // webhooks.tracerfy: handler always returns 200 and only processes results
+  //   when status==='completed' && results && tenant_id are all set; empty body
+  //   yields a no-op 200 with {received:true}. No external API call.
+  // webhooks.hearth: signature-verified raw-body endpoint; missing signature
+  //   throws -> 400, no external call.
+  // payments.webhook: Stripe-signature-verified raw-body endpoint; missing sig
+  //   triggers stripe.webhooks.constructEvent to throw -> 400, no Stripe API.
+  ['POST', '/api/auth/refresh', {}, 'auth.refresh.empty'],
+  ['POST', '/api/webhooks/tracerfy', {}, 'webhooks.tracerfy.empty'],
+  ['POST', '/api/webhooks/hearth', {}, 'webhooks.hearth.empty'],
+  ['POST', '/api/payments/webhook', {}, 'payments.webhook.empty'],
 ];
 
 const subst = (path) => path.replace(/\{(\w+)\}/g, (_, k) => ids[k] ?? '00000000-0000-0000-0000-000000000000');
