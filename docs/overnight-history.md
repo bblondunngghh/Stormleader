@@ -1367,3 +1367,67 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Pages not walked by s2 this run (max_turns): `/storm-map`, `/storm-catalog`, `/estimates`, `/invoices`, `/work-orders`, `/tasks`, `/calendar`, `/reports`, `/canvassing`, `/content-studio`, plus 9 settings tabs (Profile, Company, Storm Alerts, Email/SMTP, Integrations, Drip Sequences, Custom Fields, Contracts, Reviews). Last clean walk was Run 18
 - s5 report-writing session has been 0-byte for 12 consecutive runs — fold into s4 with a longer turn budget, or drop entirely
 - s2 frontend-test session consistently hits max_turns; turn budget needs raising or route list needs splitting
+
+---
+
+## QA Run: 2026-05-07
+
+### Test Results
+- API endpoints tested: 253 (249 baseline + 4 newly covered, harness expansion this run)
+- API handler coverage: 253 / 272 = 93.0 % (up from 91.5 %)
+- Pages tested (frontend): 6 routes screenshotted (`/dashboard`, `/storm-map`, `/pipeline`, `/leads`, `/leads/:id`, `/estimates`); s2 hit max_turns before walking the rest
+- Bugs found (production 5xx): 0 (seventh consecutive 0-prod-5xx run; Runs 15–21)
+- Bugs fixed: 0
+- New findings (deferred): 1 (Hearth webhook permissive-on-missing-fields — security carry-over)
+- UI inconsistencies found: 0
+- UI inconsistencies fixed: 0
+
+### Fixes Made
+- None this run. Run 19's drift-correct 404 fix (`a6b5737`), Run 19's PWA manifest fix (`60a67d3`), Run 18's TopBar `viewTitles` (`29d4a34`), Run 18's empty-body PATCH 400 guards (`e72b649`), Run 17's toolbar-CTA height alignment (`a16ac46`), and the Heroicons-only baseline from Runs 13–16 all still hold
+
+### UI Consistency Fixes
+- None this run. Icon library re-audited: `git grep` for `lucide-react`, `@fortawesome`, `react-icons`, `feather-icons`, `@heroicons/react/24/solid`, `@heroicons/react/20/`, raw `<svg>` icon paths in view components, `material-symbols-*`, raw `&times;` — all clean
+
+### Audit Evidence Captured
+- `/tmp/api-test-results.txt` (~34 KB, 253 endpoints, summary `5xx: 1` — the lone intentional `503` on `/skip-trace/job/:jobId` when `TRACERFY_API_KEY` unset; `0` production 5xx)
+- `qa-api-test-results.json` (~95 KB, full per-endpoint payload previews after Run 21 expansion)
+- `qa-2026-05-07/` — 7 frontend screenshots: `01-dashboard.png` (+ `01-dashboard.yml`), `02-storm-map.png`, `03-pipeline.png`, `03b-pipeline-after-add-lead-click.png`, `04-leads-list.png`, `05-lead-detail.png`, `06-estimates.png`, `s4-01-add-lead-empty-validation.png`
+
+### Harness Expansion (Run 21)
+- 4 endpoints added — all chosen because they can be hit safely with empty bodies (no DB writes, no external calls):
+  - `POST /api/auth/refresh` (empty body) → 400 `{"error":"Validation failed","details":{"refreshToken":["Required"]}}` — Zod schema rejects before any token logic runs. Safe.
+  - `POST /api/webhooks/tracerfy` (empty body) → 200 `{"received":true}` — intentional always-200 to prevent Tracerfy retries; missing-body fields short-circuit the `if (status==='completed' && results && tenant_id)` guard, no DB writes / external calls. Safe.
+  - `POST /api/webhooks/hearth` (empty body) → 200 `{"status":"ignored","reason":"no application_id"}` — surprise: handler returns 200 instead of 400 because `handleWebhook` treats a body without `application_id` as a benign no-op rather than throwing. No DB writes, no external calls. **New carry-over (security audit candidate)** — out of scope per "do not refactor working code" task constraint.
+  - `POST /api/payments/webhook` (empty body) → 400 `{"error":"Webhook signature verification failed: No stripe-signature header value was provided."}` — Stripe SDK rejects before any handler logic. Safe.
+- Coverage now 253 / 272 = 93.0 % (up from 91.5 % at Run 20). Of the 19 still untested: 2 auth, 5 onboarding, 5 Stripe-touching POSTs, 2 file uploads, 5 heavy-job triggers — all intentionally skipped per task constraints
+
+### Session Integrity
+- s1 api-test: **completed** (47 turns, 17 312 output tokens, $2.29) — produced commit `99b4822`. Third consecutive fully-completed s1 (Runs 19, 20, 21)
+- s2 frontend-test: error_max_turns (81 turns, 20 533 output tokens, $4.49) — 7 page screenshots; no bugs surfaced before exhaustion; no commits
+- s3 ui-audit: error_max_turns (61 turns, 26 135 output tokens, $3.92) — no new inconsistencies found; no commits
+- s4 verify: error_max_turns (41 turns, 14 102 output tokens, $2.49) — 1 screenshot (`s4-01-add-lead-empty-validation.png`) of empty-form validation on Pipeline Add-Lead slideover; no commits
+- s5 report: 0 bytes — did not run (13th consecutive 0-byte s5 since Run 8; this report written in a follow-up session)
+- Total cost across the four sessions that produced work / artifacts: ~$13.19
+- Seven consecutive runs now where every fix landed as a real commit on HEAD before the report was written
+
+### Known Issues Remaining
+- `POST /drift/correct-all` and `POST /properties/trigger-import` still accept empty bodies and trigger heavy work — should require explicit confirmation/role params (tracked since Run 11)
+- 16 search-input fields render correctly but do not carry the explicit `.form-input` class (tracked since Run 13, `form-audit.json`)
+- Pre-token-attach 401 noise on `/api/properties/import-progress`, `/api/notifications/unread-count`, `/api/crm/tenant-settings` — three endpoints fire before the axios auth interceptor attaches on every fresh page load; succeed on retry. Console-only noise (carry-over from Run 16, confirmed still present)
+- Reports chart label overlap at ~930 px viewport width — "Conversion By Source" title wraps awkwardly into the CSV badge. Cosmetic
+- 404 response shape — Express HTML 404 vs JSON elsewhere (e.g. `PATCH /api/crm/tenant-settings` method-not-allowed). Cosmetic
+- Other currency-formatting surfaces (LeadDetail Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals) not audited for the `$${num}` anti-pattern that produced Run 14's bugs
+- `DELETE /api/documents/:id` returns 200 `{ deleted: false }` for missing rows; sibling DELETEs return 404 `{ error }`. Cosmetic shape inconsistency. Tracked since Run 20
+- **NEW (Run 21)** — `POST /api/webhooks/hearth` permissive on missing fields: empty-body returns 200 `{status:"ignored",reason:"no application_id"}` instead of 400. Suggests `handleWebhook` may not strictly verify signature when body fields are missing. Worth a future security audit; out of scope here
+- `GET /api/skip-trace/job/:jobId` returns 503 when `TRACERFY_API_KEY` unset — intentional graceful-degrade, not a bug
+- Admin panel requires global super_admin role to fully exercise
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration for live delivery testing
+- Webhook signature paths (`/webhooks/tracerfy`, `/webhooks/hearth`, `/payments/webhook`) — empty-body paths covered (Run 21); valid-signature delivery paths still need real signing keys
+- File upload on Lead Detail (multipart path) not exercised with a real binary payload
+- CSV export download verified by 200 status only, not by binary content-type and download triggering
+- QuickBooks, Twilio, Stripe integrations not implemented (pre-existing, not regressions)
+- Mobile responsive sweep at 375 px / 768 px — none performed this run; full sweep across all 14 routes still pending; last full sweep was Run 6 (15 runs ago)
+- Browser-interactive (Playwright) click/fill/drag write coverage absent since Run 6 — this run captured 7 page screenshots but did not drag, submit, or upload. Biggest remaining gap (15 runs)
+- Pages not walked by s2 this run (max_turns): `/storm-catalog`, `/invoices`, `/work-orders`, `/tasks`, `/calendar`, `/reports`, `/canvassing`, `/content-studio`, plus 12 settings tabs (Profile, Company, Team, Storm Alerts, Notifications, Email/SMTP, Financing, Integrations, Drip Sequences, Custom Fields, Contracts, Reviews). Last clean walk was Run 18
+- s5 report-writing session has been 0-byte for 13 consecutive runs — fold into s4 with a longer turn budget, or drop entirely
+- s2 frontend-test session consistently hits max_turns; turn budget needs raising or route list needs splitting
