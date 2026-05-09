@@ -402,6 +402,39 @@ const TESTS = [
   ['POST', '/api/webhooks/tracerfy', {}, 'webhooks.tracerfy.empty'],
   ['POST', '/api/webhooks/hearth', {}, 'webhooks.hearth.empty'],
   ['POST', '/api/payments/webhook', {}, 'payments.webhook.empty'],
+
+  // ==== Run 22: 12 previously skipped endpoints — proven safe with empty bodies ====
+  // Each one was reviewed by reading the handler: input-validation guard runs
+  // BEFORE any external API / heavy work, so an empty body returns 400/404 cleanly.
+  // Coverage now 265/272 (97.4%). Remaining 7 untested all call Stripe or a
+  // background job before any guard runs.
+  // properties.import-csv: rejects when rows array missing (handler:208).
+  // documents.upload: rejects when req.file undefined (multer doesn't error if
+  //   not multipart, handler:57 catches it).
+  // properties.fema-live: rejects when bbox query missing (handler returns 400
+  //   before fetchByBbox hits FEMA NSI).
+  // properties.fema-live-polygon: rejects when geometry missing in body
+  //   before fetchByPolygon hits FEMA NSI.
+  // counties.import: 404s for unknown county before triggerImport runs.
+  // payments.create-intent / public.create-intent: reject missing estimateId
+  //   / token before any Stripe call.
+  // skip-trace.setup-payment: rejects missing paymentMethodId before Stripe.
+  // onboarding.select-plan / setup-payment / enable-addons: Zod schema
+  //   rejects empty body before any DB writes / Stripe calls.
+  // onboarding.complete: idempotent — sets onboarding_completed=true (already
+  //   true on the test tenant), only side effect is updated_at bump.
+  ['POST', '/api/properties/import-csv', {}, 'properties.importCsv.empty'],
+  ['POST', '/api/documents/upload', {}, 'documents.upload.empty'],
+  ['GET',  '/api/properties/fema-live', null, 'properties.femaLive.empty'],
+  ['POST', '/api/properties/fema-live-polygon', {}, 'properties.femaLivePolygon.empty'],
+  ['POST', '/api/counties/00000000-0000-0000-0000-000000000000/import', {}, 'counties.import.missing'],
+  ['POST', '/api/payments/create-intent', {}, 'payments.createIntent.empty'],
+  ['POST', '/api/payments/public/create-intent', {}, 'payments.publicCreateIntent.empty'],
+  ['POST', '/api/skip-trace/setup-payment', {}, 'skipTrace.setupPayment.empty'],
+  ['POST', '/api/onboarding/select-plan', {}, 'onboarding.selectPlan.empty'],
+  ['POST', '/api/onboarding/setup-payment', {}, 'onboarding.setupPayment.empty'],
+  ['POST', '/api/onboarding/enable-addons', {}, 'onboarding.enableAddons.empty'],
+  ['POST', '/api/onboarding/complete', {}, 'onboarding.complete.idempotent'],
 ];
 
 const subst = (path) => path.replace(/\{(\w+)\}/g, (_, k) => ids[k] ?? '00000000-0000-0000-0000-000000000000');
