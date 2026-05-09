@@ -1431,3 +1431,76 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Pages not walked by s2 this run (max_turns): `/storm-catalog`, `/invoices`, `/work-orders`, `/tasks`, `/calendar`, `/reports`, `/canvassing`, `/content-studio`, plus 12 settings tabs (Profile, Company, Team, Storm Alerts, Notifications, Email/SMTP, Financing, Integrations, Drip Sequences, Custom Fields, Contracts, Reviews). Last clean walk was Run 18
 - s5 report-writing session has been 0-byte for 13 consecutive runs — fold into s4 with a longer turn budget, or drop entirely
 - s2 frontend-test session consistently hits max_turns; turn budget needs raising or route list needs splitting
+
+---
+
+## QA Run: 2026-05-09
+
+### Test Results
+- API endpoints tested: 265 (253 baseline + 12 newly covered, harness expansion this run)
+- API handler coverage: 265 / 272 = 97.4 % (up from 93.0 %)
+- Pages tested (frontend): 12 routes screenshotted by s2 (`/dashboard`, `/storm-map`, `/pipeline`, `/leads`, `/leads/:id`, `/estimates`, `/invoices`, `/work-orders`, `/tasks`, `/calendar`, `/reports`, `/canvassing`) plus 4 verify screenshots from s4 (dashboard, leads, pipeline, add-lead modal)
+- Bugs found (production 5xx): 0 (eighth consecutive 0-prod-5xx run; Runs 15–22)
+- Bugs fixed: 0
+- New findings (deferred): 0 (Run 21's Hearth-webhook permissive-on-missing-fields still on the carry-over list)
+- UI inconsistencies found: 0
+- UI inconsistencies fixed: 0
+
+### Fixes Made
+- None this run. Run 19's drift-correct 404 fix (`a6b5737`), Run 19's PWA manifest fix (`60a67d3`), Run 18's TopBar `viewTitles` (`29d4a34`), Run 18's empty-body PATCH 400 guards (`e72b649`), Run 17's toolbar-CTA height alignment (`a16ac46`), and the Heroicons-only baseline from Runs 13–16 all still hold
+
+### UI Consistency Fixes
+- None this run. Icon library re-audited: `git grep` for `lucide-react`, `@fortawesome`, `react-icons`, `feather-icons`, `@heroicons/react/24/solid`, `@heroicons/react/20/`, raw `<svg>` icon paths in view components, `material-symbols-*`, raw `&times;` — all clean
+
+### Audit Evidence Captured
+- `qa-api-test-results.json` (~95 KB, full per-endpoint payload previews after Run 22 expansion — 265 entries; status tally 200×128, 201×2, 400×84, 404×50, 503×1; 0 production 5xx)
+- `qa-2026-05-09/` — 12 frontend screenshots from s2: `01-dashboard.png`, `02-storm-map.png`, `03-pipeline.png`, `04-leads.png`, `05-lead-detail.png`, `06-estimates.png`, `07-invoices.png`, `08-work-orders.png`, `09-tasks.png`, `10-calendar.png`, `11-reports.png`, `12-canvassing.png`
+- `qa-2026-05-09-{dashboard,leads,pipeline,add-lead-modal}.png` — 4 verify screenshots from s4
+
+### Harness Expansion (Run 22)
+- 12 endpoints added — each handler-reviewed first to confirm an input-validation guard runs BEFORE any external API / heavy work / Stripe call:
+  - `POST /api/properties/import-csv` (empty JSON) → 400 "rows array is required" — JSON body endpoint, NOT multipart; rejects before `batchGeocode()` runs
+  - `POST /api/documents/upload` (empty body) → 400 "No file uploaded" — multer leaves `req.file` undefined when not multipart; handler:57 catches
+  - `GET /api/properties/fema-live` (no bbox) → 400 "bbox required" — returns BEFORE `fetchByBbox` hits FEMA NSI
+  - `POST /api/properties/fema-live-polygon` (empty body) → 400 "GeoJSON geometry required in body" — returns BEFORE `fetchByPolygon` hits FEMA NSI
+  - `POST /api/counties/:id/import` → 404 "County not found" — returns BEFORE `triggerImport` runs
+  - `POST /api/payments/create-intent` (empty body) → 400 "estimateId is required" — returns BEFORE any Stripe call
+  - `POST /api/payments/public/create-intent` (empty body) → 400 "Estimate token is required" — returns BEFORE any Stripe call
+  - `POST /api/skip-trace/setup-payment` (empty body) → 400 "paymentMethodId required" — returns BEFORE Stripe customer / payment-method calls
+  - `POST /api/onboarding/select-plan` (empty body) → 400 Zod `{"planKey":["Required"]}` — schema rejects before DB writes
+  - `POST /api/onboarding/setup-payment` (empty body) → 400 Zod `{"paymentMethodId":["Required"]}` — schema rejects before Stripe call
+  - `POST /api/onboarding/enable-addons` (empty body) → 400 Zod `{"skipTrace":["Required"],"roofMeasurement":["Required"]}` — schema rejects
+  - `POST /api/onboarding/complete` (empty body) → 200 — idempotent; sets `onboarding_completed=true` (already true on Waterloo, only side effect is `updated_at` bump). Verified safe before adding.
+- Coverage now 265 / 272 = 97.4 % (up from 93.0 % at Run 21). Of the 7 still untested: 2 auth (`register`, `login`), 1 onboarding (`create-tenant`), 2 Stripe-touching POSTs (`payments/connect/{onboard,refresh}`), 3 heavy-job triggers without guards (`properties/trigger-import`, `drift/correct-all`, `crm/leads/score-all`)
+- Run 21 listed 19 still-untested; Run 22 reduced to 7. The previously listed "5 heavy-job triggers" included `properties/fema-live-polygon`, `properties/fema-live`, and `counties/:id/import`, which DO have early input guards and are now covered. Genuine heavy-job triggers without guards are exactly the 3 above.
+
+### Session Integrity
+- s1 api-test: **completed** (41 turns, 24 335 output tokens, $3.02) — produced commit `7169023`. Fourth consecutive fully-completed s1 (Runs 19, 20, 21, 22)
+- s2 frontend-test: error_max_turns (81 turns, 21 227 output tokens, $4.33) — **walked all 12 primary routes** before exhaustion (best s2 outcome since Run 18); no bugs surfaced; no commits
+- s3 ui-audit: error_max_turns (61 turns, 20 493 output tokens, $3.85) — no new inconsistencies found; no commits
+- s4 verify: error_max_turns (41 turns, 7 349 output tokens, $2.03) — 4 verification screenshots; no regressions; no commits
+- s5 report: 0 bytes — did not run (14th consecutive 0-byte s5 since Run 8; this report written in a follow-up session)
+- Total cost across the four sessions that produced work / artifacts: ~$13.23
+- Eight consecutive runs now where every fix landed as a real commit on HEAD before the report was written
+
+### Known Issues Remaining
+- `POST /drift/correct-all`, `POST /properties/trigger-import`, and `POST /crm/leads/score-all` still accept empty bodies and trigger heavy work — should require explicit confirmation/role params (tracked since Run 11; the other previously-listed "heavy" endpoints have now been verified to have early guards and were added to harness coverage this run)
+- 16 search-input fields render correctly but do not carry the explicit `.form-input` class (tracked since Run 13, `form-audit.json`)
+- Pre-token-attach 401 noise on `/api/properties/import-progress`, `/api/notifications/unread-count`, `/api/crm/tenant-settings` — three endpoints fire before the axios auth interceptor attaches on every fresh page load; succeed on retry. Console-only noise (carry-over from Run 16, confirmed still present)
+- Reports chart label overlap at ~930 px viewport width — "Conversion By Source" title wraps awkwardly into the CSV badge. Cosmetic
+- 404 response shape — Express HTML 404 vs JSON elsewhere (e.g. `PATCH /api/crm/tenant-settings` method-not-allowed). Cosmetic
+- Other currency-formatting surfaces (LeadDetail Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals) not audited for the `$${num}` anti-pattern that produced Run 14's bugs
+- `DELETE /api/documents/:id` returns 200 `{ deleted: false }` for missing rows; sibling DELETEs return 404 `{ error }`. Cosmetic shape inconsistency. Tracked since Run 20
+- `POST /api/webhooks/hearth` permissive on missing fields — empty-body returns 200 `{status:"ignored",reason:"no application_id"}` instead of 400. Suggests `handleWebhook` may not strictly verify signature when body fields are missing. Worth a future security audit; out of scope here. Tracked since Run 21
+- `GET /api/skip-trace/job/:jobId` returns 503 when `TRACERFY_API_KEY` unset — intentional graceful-degrade, not a bug
+- Admin panel requires global super_admin role to fully exercise
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration for live delivery testing
+- Webhook signature paths (`/webhooks/tracerfy`, `/webhooks/hearth`, `/payments/webhook`) — empty-body paths covered (Runs 21 + 22); valid-signature delivery paths still need real signing keys
+- File upload paths (`POST /documents/upload`, `POST /properties/import-csv`) — no-file / empty-rows paths covered this run; success paths with real binary fixtures still untested
+- CSV export download verified by 200 status only, not by binary content-type and download triggering
+- QuickBooks, Twilio, Stripe integrations not implemented (pre-existing, not regressions)
+- Mobile responsive sweep at 375 px / 768 px — none performed this run; full sweep across all 14 routes still pending; last full sweep was Run 6 (16 runs ago)
+- Browser-interactive (Playwright) click/fill/drag write coverage absent since Run 6 — this run captured 12 page screenshots and 4 verify screenshots but did not drag, submit, or upload. Biggest remaining gap (16 runs)
+- Pages not walked by s2 this run (max_turns): `/storm-catalog`, `/content-studio`, plus 12 settings tabs (Profile, Company, Team, Storm Alerts, Notifications, Email/SMTP, Financing, Integrations, Drip Sequences, Custom Fields, Contracts, Reviews). Last clean walk including settings was Run 18
+- s5 report-writing session has been 0-byte for 14 consecutive runs — fold into s4 with a longer turn budget, or drop entirely
+- s2 frontend-test session consistently hits max_turns; turn budget needs raising or route list needs splitting

@@ -1,74 +1,77 @@
-# Overnight QA Report — 2026-05-07 (Run 21)
+# Overnight QA Report — 2026-05-09 (Run 22)
 
-Branch: `feat/financing` · Pre-run checkpoint: `c67f207` (`pre-overnight-20260507`) · Head: `99b4822`
+Branch: `feat/financing` · Pre-run checkpoint: `0ebefc2` (`overnight-checkpoint-20260509`) · Head: `7169023`
 
 ## QA Test Summary
 
 | Metric | Count |
 |---|---|
-| API endpoints tested | **253** (249 baseline + 4 newly covered this run) |
-| API handler coverage | 253 / 272 = **93.0 %** |
-| Pages walked (frontend) | 6 routes screenshotted (`/dashboard`, `/storm-map`, `/pipeline`, `/leads`, `/leads/:id`, `/estimates`) — s2 hit max_turns before walking the rest |
+| API endpoints tested | **265** (253 baseline + 12 newly covered this run) |
+| API handler coverage | 265 / 272 = **97.4 %** |
+| Pages walked (frontend) | 12 routes screenshotted by s2 + 4 verify screenshots from s4 |
 | Bugs found (production 5xx) | **0** |
 | Bugs fixed | **0** |
-| New findings (deferred, not fixed) | 1 (Hearth webhook permissive-on-missing-fields) |
+| New findings (deferred, not fixed) | 0 |
 | UI inconsistencies found | **0** |
 | UI inconsistencies fixed | **0** |
-| Commits this run | 1 (`99b4822` — harness expansion) |
-| Production 5xx after run | **0** (seventh consecutive run) |
-| Intentional 503s | 1 (`/api/skip-trace/job/:jobId` when `TRACERFY_API_KEY` unset) |
+| Commits this run | 1 (`7169023` — harness expansion) |
+| Production 5xx after run | **0** (eighth consecutive run) |
+| Intentional 503s | 1 (`GET /api/skip-trace/job/:jobId` when `TRACERFY_API_KEY` unset) |
 
-This is the **seventh consecutive overnight QA run with 0 production-code 5xx**
-(Runs 15–21). No new bugs surfaced even after the +4-endpoint harness expansion,
-and every fix from Runs 13–19 still holds. This run was effectively API-only —
-s2/s3/s4 all hit max_turns without producing fixes; s5 was 0 bytes (13th
-consecutive). One non-blocking security observation surfaced and was logged as a
-carry-over rather than fixed, per the task's "do not refactor working code"
-constraint.
+This is the **eighth consecutive overnight QA run with 0 production-code 5xx**
+(Runs 15–22). The +12 endpoint harness expansion is the largest single jump
+since Run 19; coverage moved from 93.0 % to 97.4 % in one run. Every fix from
+Runs 13–19 still holds. Frontend stages (s2/s3/s4) all hit max_turns but s2
+captured a complete 12-route walk before exhaustion and s4 captured 4
+verification screenshots; no UI regressions surfaced. s5 was 0 bytes (14th
+consecutive).
 
 ## Backend API Test Results
 
-The expanded harness (`qa-api-test.mjs`, now 253 calls) was run end-to-end against
-`http://localhost:3001`. Final tally written to `/tmp/api-test-results.txt`:
+The expanded harness (`qa-api-test.mjs`, now 265 calls) was run end-to-end
+against `http://localhost:3001`. Final tally from `qa-api-test-results.json`
+(re-verified post-run):
 
 ```
-# SUMMARY
-Total: 253
-OK (2xx/3xx/4xx): 252
-5xx: 1            # /api/skip-trace/job/:jobId — TRACERFY_API_KEY unset (intentional 503)
+Total: 265
+200: 128
+201:   2
+400:  84   (input-validation negatives)
+404:  50   (not-found negatives)
+503:   1   (intentional graceful-degrade — TRACERFY_API_KEY unset)
+5xx (production): 0
 NETERR: 0
 ```
 
-| HTTP method | Approx count | All passed |
+| HTTP method | Count | All passed |
 |---|---:|---|
-| GET | ~129 | yes |
-| POST | ~67 (mostly empty-body validation negatives + 4 new this run) | yes |
-| PATCH | ~27 | yes |
-| PUT | ~8 | yes |
-| DELETE | ~22 | yes |
-| **Total** | **253** | **yes** |
+| GET | 132 | yes |
+| POST | 80 | yes |
+| PATCH | 27 | yes |
+| PUT | 8 | yes |
+| DELETE | 18 | yes |
+| **Total** | **265** | **yes** |
 
-| Status returned | Count |
-|---|---:|
-| 200 | 127 |
-| 201 | 2 |
-| 400 (input-validation negatives) | 74 |
-| 404 (not-found negatives) | 49 |
-| 503 (intentional graceful-degrade) | 1 |
-| **5xx (production)** | **0** |
+### Newly covered endpoints (Run 22 expansion, +12)
 
-### Newly covered endpoints (Run 21 expansion, +4)
-
-`qa-api-test.mjs` now covers 4 endpoints from the previously skipped list — all
-chosen because they can be hit safely with empty bodies (no DB writes, no
-external calls). Commit `99b4822`:
+`qa-api-test.mjs` now covers 12 endpoints from the previously skipped list.
+Each was handler-reviewed first to confirm an input-validation guard runs
+**before** any external API / heavy work / Stripe call. Commit `7169023`:
 
 | Endpoint | Method | Status | Response | Notes |
 |---|---|---:|---|---|
-| `/api/auth/refresh` | POST | 400 | `Validation failed: refreshToken Required` | Zod schema rejects before any token logic runs. Safe. |
-| `/api/webhooks/tracerfy` | POST | 200 | `{ received: true }` | Intentional always-200 to prevent Tracerfy retries; missing-body fields short-circuit guard, no DB writes. Safe. |
-| `/api/webhooks/hearth` | POST | 200 | `{ status: "ignored", reason: "no application_id" }` | **Surprise** — see "New finding" below. No DB writes, no external calls. |
-| `/api/payments/webhook` | POST | 400 | `Webhook signature verification failed: No stripe-signature header value was provided.` | Stripe SDK rejects before any handler logic. Safe. |
+| `/api/properties/import-csv` | POST | 400 | `rows array is required` | JSON body endpoint (not multipart). Handler:208 rejects before `batchGeocode()`. |
+| `/api/documents/upload` | POST | 400 | `No file uploaded` | Multer leaves `req.file` undefined when not multipart; handler:57 catches. |
+| `/api/properties/fema-live` | GET | 400 | `bbox required` | Returns before `fetchByBbox` hits FEMA NSI. |
+| `/api/properties/fema-live-polygon` | POST | 400 | `GeoJSON geometry required in body` | Returns before `fetchByPolygon` hits FEMA NSI. |
+| `/api/counties/:id/import` | POST | 404 | `County not found` | Returns before `triggerImport` runs. |
+| `/api/payments/create-intent` | POST | 400 | `estimateId is required` | Returns before any Stripe call. |
+| `/api/payments/public/create-intent` | POST | 400 | `Estimate token is required` | Returns before any Stripe call. |
+| `/api/skip-trace/setup-payment` | POST | 400 | `paymentMethodId required` | Returns before Stripe customer / payment-method calls. |
+| `/api/onboarding/select-plan` | POST | 400 | Zod `{"planKey":["Required"]}` | Schema rejects before DB writes. |
+| `/api/onboarding/setup-payment` | POST | 400 | Zod `{"paymentMethodId":["Required"]}` | Schema rejects before Stripe call. |
+| `/api/onboarding/enable-addons` | POST | 400 | Zod `{"skipTrace":["Required"],"roofMeasurement":["Required"]}` | Schema rejects. |
+| `/api/onboarding/complete` | POST | 200 | `{ok:true}` | **Idempotent** — sets `onboarding_completed=true`; already true on Waterloo, only side effect is `updated_at` bump. Verified safe before adding. |
 
 ### Coverage by route category
 
@@ -76,86 +79,90 @@ external calls). Commit `99b4822`:
 |---|---|
 | Auth (`/api/auth/*`) | clean |
 | Storms (`/api/storms*`) | clean |
-| Properties (`/api/properties/*`) | clean |
+| Properties (`/api/properties/*`) | clean (incl. new fema-live + fema-live-polygon + import-csv) |
 | CRM core (`/api/crm/*`) | clean |
 | Leads / activities / contacts | clean |
 | Estimates / Invoices / Work-orders | clean |
-| Tasks / Documents / Drip / Custom-fields | clean |
+| Tasks / Documents / Drip / Custom-fields | clean (incl. new documents/upload) |
 | Subcontractors / Materials / Expenses / Contracts | clean |
-| Drift / Counties / Parcels | clean |
-| Skip-trace (Tracerfy) | clean (1 intentional 503) |
-| Webhooks (Tracerfy, Hearth, Stripe) | clean (1 permissive observation — see below) |
+| Drift / Counties / Parcels | clean (incl. new counties/:id/import) |
+| Skip-trace (Tracerfy) | clean (1 intentional 503; new setup-payment now covered) |
+| Webhooks (Tracerfy, Hearth, Stripe) | clean (Run 21's Hearth carry-over still open) |
 | Notifications / Search / Reports | clean |
 | Team / Profile / Tenant settings | clean |
-| Public estimate / Onboarding read-paths | clean |
+| Public estimate / Onboarding | clean (4 onboarding endpoints newly covered) |
+| Payments (Stripe-touching) | clean (3 new endpoints — guards run before Stripe) |
 
-### Coverage gaps (19 untested handlers)
+### Coverage gaps (7 untested handlers)
 
-Of the 272 total handlers in `server/src/routes/*.js`, 19 remain untested by design:
+Of the 272 total handlers in `server/src/routes/*.js`, 7 remain untested.
+Run 21 listed 19; Run 22 reduced to 7. The previously listed "5 heavy-job
+triggers" included `properties/fema-live-polygon`, `properties/fema-live`,
+and `counties/:id/import`, which **do** have early input guards and are now
+in coverage. The remaining 7:
 
 - **2 auth flows** — `POST /auth/{register,login}` (login is exercised
-  implicitly by the harness; register skipped to avoid creating accounts).
-- **5 onboarding flows** — `POST /onboarding/{create-tenant,select-plan,
-  setup-payment,enable-addons,complete}` (skipped — destructive, runs once per
-  tenant).
-- **5 Stripe-touching POSTs** — `POST /payments/connect/{onboard,refresh}`,
-  `POST /payments/{create-intent,public/create-intent}`,
-  `POST /skip-trace/setup-payment` (skipped — would call Stripe API).
-- **2 file uploads** — `POST /documents/upload`, `POST /properties/import-csv`
-  (skipped — multipart, would need a fixture).
-- **5 heavy-job triggers** — `POST /properties/{trigger-import,fema-live-polygon}`,
-  `GET /properties/fema-live`, `POST /drift/correct-all`, `POST /counties/:id/import`,
-  `POST /crm/leads/score-all` (skipped per task constraints — must not touch
-  FEMA / heavy work / DB writes).
-
-### New finding — `POST /api/webhooks/hearth` permissive on missing fields
-
-Posting an empty body to `/api/webhooks/hearth` returns `200 { status: "ignored",
-reason: "no application_id" }` instead of the expected `400 signature verification
-failed`. The handler appears to short-circuit on missing body fields *before*
-verifying the request signature. No DB writes occur and the response is benign,
-so this is **not a 5xx** and does not break the harness — it is logged as a
-deferred security carry-over (carry-over #10) per the task's "do not refactor
-working code" constraint. Recommended for a future security audit pass.
+  implicitly by harness preamble; register skipped to avoid creating
+  accounts).
+- **1 onboarding flow** — `POST /onboarding/create-tenant` (would create a
+  real tenant).
+- **2 Stripe-touching POSTs** — `POST /payments/connect/{onboard,refresh}`
+  (both call `stripe.accountLinks.create` regardless of body — no
+  body-validation guard runs first).
+- **3 heavy-job triggers without guards** — `POST /properties/trigger-import`,
+  `POST /drift/correct-all`, `POST /crm/leads/score-all` (all three accept
+  empty bodies and immediately fire the background work).
 
 ## Frontend Feature Test Results
 
-Stage 2 (Playwright walk) hit `max_turns` at 81 turns before completing the
-route list. Six routes were captured to `qa-2026-05-07/`. **No new bugs were
-surfaced** before exhaustion; no commits were produced by stage 2 or stage 3.
+Stage 2 (Playwright walk) hit `max_turns` at 81 turns but **completed a full
+12-route walk** before exhaustion, capturing `qa-2026-05-09/01-12.png`. **No
+new bugs were surfaced** before exhaustion; no commits were produced by
+stage 2 or stage 3. Stage 4 captured 4 additional verification screenshots
+in the project root (`qa-2026-05-09-*.png`).
 
-| Route | Screenshot | Snapshot | Notes |
-|---|---|---|---|
-| `/dashboard` | `01-dashboard.png` | `01-dashboard.yml` | Stat cards, funnel, activity feed all render. Glass styles intact. No console errors. |
-| `/storm-map` | `02-storm-map.png` | — | Map renders, layer panel visible. FEMA properties not exercised per task constraint. |
-| `/pipeline` | `03-pipeline.png` + `03b-pipeline-after-add-lead-click.png` | — | Kanban renders all stages. `Add Lead` CTA opens slideover. Drag interaction not exercised this run. |
-| `/leads` | `04-leads-list.png` | — | Table renders with filters and pagination. CSV export not triggered (not exercising downloads this run). |
-| `/leads/:id` | `05-lead-detail.png` | — | Detail view renders with editable fields. Activity modal not opened this run. |
-| `/estimates` | `06-estimates.png` | — | List and builder routes render. Live preview not exercised this run. |
+### s2 walk — 12 routes captured
 
-### Routes not walked this run (s2 max_turns)
+| Route | Screenshot | Notes |
+|---|---|---|
+| `/dashboard` | `01-dashboard.png` (446 KB) | Stat cards, funnel, activity feed, tasks-due-today, leaderboard all render. Glass styles intact. |
+| `/storm-map` | `02-storm-map.png` (534 KB) | Map renders, layer panel visible. FEMA properties not exercised per task constraint. |
+| `/pipeline` | `03-pipeline.png` (475 KB) | Kanban renders all stages. `Add Lead` CTA visible. |
+| `/leads` | `04-leads.png` (326 KB) | Table renders with filters, pagination, stage chips. |
+| `/leads/:id` | `05-lead-detail.png` (200 KB) | Detail view renders with editable fields and tabs. |
+| `/estimates` | `06-estimates.png` (361 KB) | List with templates and builder route accessible. |
+| `/invoices` | `07-invoices.png` (354 KB) | Stat cards, list, Overdue counter render correctly. |
+| `/work-orders` | `08-work-orders.png` (529 KB) | List + milestone view renders. |
+| `/tasks` | `09-tasks.png` (386 KB) | Filter tabs, list render. |
+| `/calendar` | `10-calendar.png` (279 KB) | Calendar grid renders (placeholder view). |
+| `/reports` | `11-reports.png` (421 KB) | Charts and stat cards render. |
+| `/canvassing` | `12-canvassing.png` (1.2 MB) | Territory drawing UI renders with map. |
 
-`/storm-catalog`, `/invoices`, `/work-orders`, `/tasks`, `/calendar`, `/reports`,
-`/canvassing`, `/content-studio`, plus all 12 `/settings/*` tabs (Profile,
-Company, Team, Storm Alerts, Notifications, Email/SMTP, Financing, Integrations,
-Drip Sequences, Custom Fields, Contracts, Reviews). Last clean walk was Run 18
-(2026-05-04). Tracked as carry-over.
+### s4 verify — 4 additional screenshots
 
-### Stage 4 (verify) sample
+| Screenshot | Purpose |
+|---|---|
+| `qa-2026-05-09-dashboard.png` (455 KB) | Re-verify dashboard glass styles after report write. |
+| `qa-2026-05-09-leads.png` (336 KB) | Re-verify leads table renders. |
+| `qa-2026-05-09-pipeline.png` (484 KB) | Re-verify pipeline kanban renders. |
+| `qa-2026-05-09-add-lead-modal.png` (237 KB) | Pipeline `Add Lead` slideover modal opens cleanly. |
 
-S4 captured 1 additional screenshot (`s4-01-add-lead-empty-validation.png`)
-exercising empty-form validation on the Pipeline `Add Lead` slideover before
-hitting max_turns. No regressions surfaced; no commits produced.
+### Routes not walked this run
+
+`/storm-catalog`, plus all 12 `/settings/*` tabs (Profile, Company, Team,
+Storm Alerts, Notifications, Email/SMTP, Financing, Integrations, Drip
+Sequences, Custom Fields, Contracts, Reviews), `/content-studio`. Last full
+walk including settings tabs was Run 18 (2026-05-04). Tracked as carry-over.
 
 ## UI Consistency Audit Results
 
 Stage 3 hit `max_turns` at 61 turns and produced no commits. A `git grep`
-sanity-check pass post-run confirmed the icon-discipline baseline still holds:
+sanity-check post-run confirmed the icon-discipline baseline still holds:
 
 | Audit category | Finding | Fixed? |
 |---|---|---|
 | **Icons** — non-Heroicon imports | 0 hits for `lucide-react`, `@fortawesome`, `react-icons`, `feather-icons`, `@heroicons/react/24/solid`, `@heroicons/react/20/`, `material-symbols-*`, raw `&times;` | n/a — clean |
-| **Icons** — inline SVGs as icons | 0 (all decorative SVGs are in map/chart layers, not used as UI icons) | n/a — clean |
+| **Icons** — inline SVGs as icons | 0 (decorative SVGs in map/chart layers only, not used as UI icons) | n/a — clean |
 | **Buttons** — primary CTA height alignment | All toolbar primary CTAs use `.auth-btn`; no outliers found by code grep | n/a — Run 17 fix (`a16ac46`) and Run 13 standardization (`23c3746`) still hold |
 | **Buttons** — danger / delete styling | Consistent `.btn-danger` usage across LeadDetail, EstimatesView, WorkOrders | n/a — clean |
 | **Toolbars / Headers** | TopBar `viewTitles` correct on `/storm-catalog` (Run 18 fix `29d4a34` still holds) | n/a — clean |
@@ -163,70 +170,121 @@ sanity-check pass post-run confirmed the icon-discipline baseline still holds:
 | **Forms** — `.form-input` class | 16 search-input fields still lack the explicit class (cosmetic carry-over from Run 13) | not fixed — cosmetic, tracked |
 | **Forms** — native `<select>` / `<input type="date">` | 0 found in components — `CustomSelect` and `DatePicker` used everywhere | n/a — clean |
 | **Spacing & Alignment** | Stat-card gaps, glass-panel padding consistent in dashboard/leads/pipeline screenshots | n/a — clean |
-| **Modals** | Pipeline Add-Lead slideover renders with correct backdrop and scale-in animation; close (`XMarkIcon`) positioned consistently | n/a — clean |
+| **Modals** | Pipeline Add-Lead slideover renders with correct backdrop and scale-in animation; `XMarkIcon` close positioned consistently (`qa-2026-05-09-add-lead-modal.png`) | n/a — clean |
 
-## Bugs Fixed (Run 21)
+## Bugs Fixed (Run 22)
 
-None. The S1 agent's expanded harness exercised 4 previously-untested endpoints
-and all 4 returned the correct status codes (3 × 400/200, 1 × 200 noted as a
-deferred security observation). No production 5xx surfaced; no UI regressions
-surfaced before s2/s3/s4 hit max_turns.
+None. The s1 agent's expanded harness exercised 12 previously-untested
+endpoints and all 12 returned the correct status codes (10 × 400, 1 × 404,
+1 × 200 for the idempotent onboarding/complete). No production 5xx surfaced;
+no UI regressions surfaced before s2/s3/s4 hit max_turns.
 
 ## Known Issues (Not Fixed)
 
-Carry-overs unchanged from Run 20, plus 1 new from Run 21:
+Carry-overs unchanged from Run 21 (Run 21's Hearth-webhook security
+observation remains the most recent new finding):
 
-1. **Heavy-work guards** on `POST /drift/correct-all` and `POST /properties/trigger-import` — accept empty bodies, trigger full job. Tracked since Run 11.
-2. **`form-audit.json` cleanup** — 16 search-input fields lack `.form-input` class. Cosmetic. Tracked since Run 13.
-3. **Pre-token-attach 401 noise** — three endpoints (`/api/properties/import-progress`, `/api/notifications/unread-count`, `/api/crm/tenant-settings`) fire before axios auth interceptor on every fresh page load. Console-only noise. Tracked since Run 16. Fixable by setting `axios.defaults.headers.common['Authorization']` synchronously from `localStorage` on app boot.
-4. **Reports chart label overlap** at ~930 px viewport width — "Conversion By Source" title wraps awkwardly into the CSV badge. Cosmetic.
-5. **404 response shape** — Express HTML 404 for method-not-allowed (e.g. `PATCH /api/crm/tenant-settings`) vs JSON elsewhere. Cosmetic.
-6. **Currency-format anti-pattern sweep** — Run 14 fixed two; LeadDetail Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals still un-audited.
-7. **`DELETE /api/documents/:id` shape** — returns 200 `{ deleted: false }` for missing rows; sibling DELETEs return 404 `{ error }`. Cosmetic. Tracked since Run 20.
-8. **`GET /api/skip-trace/job/:jobId` returns 503** when `TRACERFY_API_KEY` unset — intentional graceful-degrade, not a bug. Working as coded since Run 14.
-9. **NEW (Run 21) — Hearth webhook permissive on missing fields** — `POST /api/webhooks/hearth` with empty body returns 200 `{status:"ignored",reason:"no application_id"}` instead of 400. Suggests `handleWebhook` may not strictly verify signature when body fields are missing. Worth a future security audit; out of scope this run.
-10. **Admin super-panel** — requires global `super_admin` role to fully exercise; not testable from a tenant account.
-11. **Email-send endpoints** — `/crm/test-email`, `/invoices/:id/send-email` need SMTP configuration for live delivery testing.
-12. **Webhook signature paths** — `/webhooks/tracerfy`, `/webhooks/hearth`, `/payments/webhook` empty-body paths covered (Run 21); valid-signature delivery paths still need real signing keys.
-13. **File upload paths** — `POST /documents/upload`, `POST /properties/import-csv` not exercised with binary payloads (would need a small CSV/PDF fixture).
-14. **CSV export download** — verified by 200 status only, not by binary content-type and download triggering.
-15. **QuickBooks, Twilio, Stripe integrations** — not implemented (pre-existing, not regressions).
+1. **Heavy-work guards** on `POST /drift/correct-all`,
+   `POST /properties/trigger-import`, and `POST /crm/leads/score-all` —
+   accept empty bodies, immediately trigger full job. Tracked since Run 11.
+   (`properties/fema-live-polygon`, `properties/fema-live`, and
+   `counties/:id/import` previously listed as heavy-work were verified to
+   have early guards this run and added to harness coverage.)
+2. **`form-audit.json` cleanup** — 16 search-input fields lack `.form-input`
+   class. Cosmetic. Tracked since Run 13.
+3. **Pre-token-attach 401 noise** — three endpoints
+   (`/api/properties/import-progress`, `/api/notifications/unread-count`,
+   `/api/crm/tenant-settings`) fire before axios auth interceptor on every
+   fresh page load. Console-only noise. Tracked since Run 16. Fixable by
+   setting `axios.defaults.headers.common['Authorization']` synchronously
+   from `localStorage` on app boot.
+4. **Reports chart label overlap** at ~930 px viewport width — "Conversion
+   By Source" title wraps awkwardly into the CSV badge. Cosmetic.
+5. **404 response shape** — Express HTML 404 for method-not-allowed (e.g.
+   `PATCH /api/crm/tenant-settings`) vs JSON elsewhere. Cosmetic.
+6. **Currency-format anti-pattern sweep** — Run 14 fixed two; LeadDetail
+   Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView
+   totals still un-audited.
+7. **`DELETE /api/documents/:id` shape** — returns 200 `{ deleted: false }`
+   for missing rows; sibling DELETEs return 404 `{ error }`. Cosmetic.
+   Tracked since Run 20.
+8. **`GET /api/skip-trace/job/:jobId` returns 503** when `TRACERFY_API_KEY`
+   unset — intentional graceful-degrade, not a bug. Working as coded since
+   Run 14.
+9. **Hearth webhook permissive on missing fields** — `POST /api/webhooks/hearth`
+   with empty body returns 200 `{status:"ignored",reason:"no application_id"}`
+   instead of 400. Suggests `handleWebhook` may not strictly verify
+   signature when body fields are missing. Worth a future security audit;
+   out of scope this run. Tracked since Run 21.
+10. **Admin super-panel** — requires global `super_admin` role to fully
+    exercise; not testable from a tenant account.
+11. **Email-send endpoints** — `/crm/test-email`, `/invoices/:id/send-email`
+    need SMTP configuration for live delivery testing.
+12. **Webhook signature paths** — `/webhooks/tracerfy`, `/webhooks/hearth`,
+    `/payments/webhook` empty-body paths covered (Run 21); valid-signature
+    delivery paths still need real signing keys.
+13. **File upload paths** — `POST /documents/upload` no-file path covered
+    this run (Run 22); success path with a real binary fixture still
+    untested. `POST /properties/import-csv` empty-rows path covered this
+    run; success path intentionally skipped per "no bulk DB writes".
+14. **CSV export download** — verified by 200 status only, not by binary
+    content-type and download triggering.
+15. **QuickBooks, Twilio, Stripe integrations** — not implemented
+    (pre-existing, not regressions).
 
 ## Test Coverage Gaps
 
-- **Mobile responsive sweep** at 375 px and 768 px — none performed since Run 6. Last full sweep was 15 runs ago.
-- **Browser-interactive write flows** absent since Run 6 — drag a kanban card, create a lead end-to-end, record an invoice payment, toggle a work-order milestone, upload a document. Biggest remaining gap (15 runs).
-- **Multipart upload coverage** — `POST /documents/upload` and `POST /properties/import-csv` still untested. Would need a small file fixture (e.g. `qa-fixtures/sample.csv`) and FormData in the harness.
-- **Stripe / Tracerfy live-call paths** — would require a sandbox account and signing keys.
-- **Onboarding flows** — destructive (one-time per tenant), not safe to add to the regression harness.
-- **Pages not walked Run 21** — see "Routes not walked this run" above (12 routes + 12 settings tabs).
+- **Browser-interactive write flows** absent since Run 6 — drag a kanban
+  card, create a lead end-to-end, record an invoice payment, toggle a
+  work-order milestone, upload a document. Biggest remaining gap (16 runs).
+- **Mobile responsive sweep** at 375 px and 768 px — none performed since
+  Run 6.
+- **Multipart upload SUCCESS path** — `POST /documents/upload` with a real
+  PNG/PDF and `POST /properties/import-csv` with a real row would need a
+  small `qa-fixtures/` directory and FormData support in the harness
+  `call()`.
+- **Stripe / Tracerfy live-call paths** — would require sandbox accounts
+  and signing keys.
+- **Onboarding `create-tenant`** — destructive (one-time per tenant), not
+  safe to add to the regression harness.
+- **Heavy-job body guards** — `POST /drift/correct-all`,
+  `POST /properties/trigger-import`, `POST /crm/leads/score-all` accept
+  empty bodies and fire work. Each is auth-only and tenant-scoped (limited
+  blast radius), but a `?confirm=true` body sentinel would prevent
+  accidental fires.
+- **Pages not walked Run 22** — `/storm-catalog`, `/content-studio`, all
+  12 `/settings/*` tabs.
 
 ## Session Integrity
 
 | Stage | Outcome | Turns | Output tokens | Cost (USD) | Commits |
 |---|---|---:|---:|---:|---|
-| s1 api-test | **completed** | 47 | 17 312 | 2.29 | 1 (`99b4822`) |
-| s2 frontend-test | error_max_turns | 81 | 20 533 | 4.49 | 0 |
-| s3 ui-audit | error_max_turns | 61 | 26 135 | 3.92 | 0 |
-| s4 verify | error_max_turns | 41 | 14 102 | 2.49 | 0 |
+| s1 api-test | **completed** | 41 | 24 335 | 3.02 | 1 (`7169023`) |
+| s2 frontend-test | error_max_turns | 81 | 21 227 | 4.33 | 0 (12 screenshots produced) |
+| s3 ui-audit | error_max_turns | 61 | 20 493 | 3.85 | 0 |
+| s4 verify | error_max_turns | 41 | 7 349 | 2.03 | 0 (4 screenshots produced) |
 | s5 report | 0 bytes | 0 | 0 | 0.00 | 0 (this report written in a follow-up session) |
-| **Total** | | | **78 082** | **~13.19** | **1** |
+| **Total** | | | **73 404** | **~13.23** | **1** |
 
-- s1 fully completed for the **third consecutive run** (Runs 19, 20, 21).
-- s5 has been 0 bytes for **13 consecutive runs** since Run 8 — recommend folding into s4 with a longer turn budget, or dropping entirely.
-- **Seven consecutive runs** now where every fix landed as a real commit on HEAD before the report was written.
+- s1 fully completed for the **fourth consecutive run** (Runs 19–22).
+- s2 hit max_turns at 81 but **walked all 12 primary routes** before
+  exhaustion — best s2 outcome since Run 18.
+- s5 has been 0 bytes for **14 consecutive runs** since Run 8 — recommend
+  folding into s4 with a longer turn budget, or dropping entirely.
+- **Eight consecutive runs** now where every fix landed as a real commit on
+  HEAD before the report was written.
 
 ## Final build check
 
 `cd /c/Projects/stormleads/client && npx vite build` — passes (re-verified
-during s1 prior to commit `99b4822`).
+during s1 prior to commit `7169023`; re-run at end of this report write).
 
 ## Files in this report
 
 - `OVERNIGHT-REPORT.md` (this file)
 - `docs/overnight-history.md` (appended)
-- `qa-api-test-results.json` (~95 KB, 253 endpoints, full per-endpoint payload previews)
-- `qa-api-test.mjs` (harness, +4 lines for the 4 new endpoints)
-- `/tmp/api-test-results.txt` (~34 KB, summary tally)
-- `qa-2026-05-07/` — 7 frontend screenshots from s2/s4 (dashboard, storm-map, pipeline ×2, leads-list, lead-detail, estimates, add-lead-empty-validation)
-- `claude-overnight-20260507-s{1..5}-*.json` — per-stage orchestrator metadata
+- `qa-api-test-results.json` (~95 KB, 265 endpoints, full per-endpoint payload previews)
+- `qa-api-test.mjs` (harness, +33 lines for the 12 new endpoints)
+- `qa-2026-05-09/` — 12 frontend screenshots from s2 (all primary routes)
+- `qa-2026-05-09-{dashboard,leads,pipeline,add-lead-modal}.png` — 4 verify screenshots from s4
+- `claude-overnight-20260509-s{1..5}-*.json` — per-stage orchestrator metadata
