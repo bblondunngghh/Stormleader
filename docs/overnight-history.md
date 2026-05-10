@@ -1504,3 +1504,73 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Pages not walked by s2 this run (max_turns): `/storm-catalog`, `/content-studio`, plus 12 settings tabs (Profile, Company, Team, Storm Alerts, Notifications, Email/SMTP, Financing, Integrations, Drip Sequences, Custom Fields, Contracts, Reviews). Last clean walk including settings was Run 18
 - s5 report-writing session has been 0-byte for 14 consecutive runs — fold into s4 with a longer turn budget, or drop entirely
 - s2 frontend-test session consistently hits max_turns; turn budget needs raising or route list needs splitting
+
+---
+
+## QA Run: 2026-05-10
+
+### Test Results
+- API endpoints tested: 265 (unchanged from Run 22 — harness re-run against identical tree)
+- API handler coverage: 265 / 272 = 97.4 % (unchanged)
+- Pages tested (frontend): 1 — `/storm-map` only (`qa-run24-storm-map.png`, 526 KB; filename mislabeled by s2 — actual Run 23). s2 hit max_turns at 81 turns before completing the route walk
+- Bugs found (production 5xx): 0 (ninth consecutive 0-prod-5xx run; Runs 15–23)
+- Bugs fixed: 0
+- New findings (deferred): 0 (Run 21's Hearth-webhook permissive-on-missing-fields and the new Run 23 `subcontractors.js.bak` cleanup item both remain on the carry-over list)
+- UI inconsistencies found: 0 (s3 reached only Dashboard before max_turns; Dashboard SVG audit clean — 71/71 Heroicons. Repo-wide icon-import grep re-verified clean post-run)
+- UI inconsistencies fixed: 0
+- Source-code commits this run: 0 (`git diff overnight-checkpoint-20260510..HEAD` empty before report write)
+
+### Fixes Made
+- None this run. Run 22's harness expansion (`7169023`, +12 endpoints to 265/272), Run 19's drift-correct 404 fix (`a6b5737`), Run 19's PWA manifest fix (`60a67d3`), Run 18's TopBar `viewTitles` (`29d4a34`), Run 18's empty-body PATCH 400 guards (`e72b649`), Run 17's toolbar-CTA height alignment (`a16ac46`), and the Heroicons-only baseline from Runs 13–16 all still hold
+
+### UI Consistency Fixes
+- None this run. s3 hit max_turns after auditing only the Dashboard (71/71 Heroicons, clean). A post-run `git grep` for `lucide-react`, `@fortawesome`, `react-icons`, `feather-icons`, `@heroicons/react/24/solid`, `@heroicons/react/20/`, `material-symbols-*`, raw `&times;` returned 0 hits — repo-wide icon discipline intact
+
+### Audit Evidence Captured
+- `qa-api-test-results.json` (~95 KB, 265 entries; status tally 200×128, 201×2, 400×84, 404×50, 503×1; methods GET 132 / POST 80 / PATCH 27 / PUT 8 / DELETE 18; 0 production 5xx)
+- `/tmp/api-test-results.txt` (35 KB, 265 endpoint result lines)
+- `/tmp/ui-audit-results.txt` (12 lines — Dashboard SVG audit only; s3 max_turns)
+- `qa-run24-storm-map.png` (526 KB, captured 05:06; filename mislabeled "run24" by s2 — actual Run 23)
+
+### Investigated and Dismissed
+- "280 routes vs. 272" anomaly: traced to `server/src/routes/subcontractors.js.bak`, a tracked backup file with 8 router-method matches that is not imported anywhere. Not a bug; not a regression. Logged as new carry-over #14 (cleanup candidate, deferred per "don't refactor working state" task constraint)
+- `/api/crm/financing/public/:token/{plans,applications}` returning `200 []` for invalid tokens: re-verified handler. Service uses `JOIN ... ON e.public_token = $1`; non-match yields empty rows. Correct-by-design — avoids leaking token existence. Not a bug
+
+### Diff vs. Run 22
+- `git diff 7169023..c07170b -- server/src/routes/` empty
+- `git diff 7169023..c07170b -- qa-api-test.mjs` empty
+- Harness coverage unchanged at 265 / 272 (97.4 %)
+- Heavy-job triggers (`trigger-import`, `drift/correct-all`, `score-all`) unchanged since Run 22 — remain carry-over #1
+
+### Session Integrity
+- s1 api-test: **completed** (44 turns, 16 438 output tokens, $2.20) — no commits produced (nothing to fix). **Fifth consecutive fully-completed s1** (Runs 19–23). Lowest s1 cost since Run 21 — no harness expansion needed this run
+- s2 frontend-test: error_max_turns (81 turns, 19 013 output tokens, $4.51) — captured **only 1 screenshot** (`qa-run24-storm-map.png`) before exhaustion. Sharply worse than Run 22's 12-route walk; s2 appears to have spent more turns on inventory/discovery this run
+- s3 ui-audit: error_max_turns (61 turns, 15 637 output tokens, $3.29) — reached only Dashboard before exhaustion (71/71 Heroicons clean); no commits
+- s4 verify: error_max_turns (41 turns, 8 829 output tokens, $2.08) — no verification screenshots produced; no commits
+- s5 report: 0 bytes — did not run (**15th consecutive 0-byte s5** since Run 8; this report written in a follow-up session)
+- Total cost across the four sessions that produced work / artifacts: ~$12.08 (down from Run 22's $13.23)
+- Nine consecutive runs now where every fix landed as a real commit on HEAD before the report was written (this run: nothing to fix, HEAD already at the pre-overnight checkpoint)
+- s2 / s3 numbering mislabel: both stages output "Run 24" in their content, but the authoritative s1 + resume file call this Run 23. Worth investigating whether the orchestrator is passing run numbers inconsistently across stages
+
+### Known Issues Remaining
+- `POST /drift/correct-all`, `POST /properties/trigger-import`, and `POST /crm/leads/score-all` still accept empty bodies and trigger heavy work — should require explicit confirmation/role params (tracked since Run 11)
+- 16 search-input fields render correctly but do not carry the explicit `.form-input` class (tracked since Run 13, `form-audit.json`)
+- Pre-token-attach 401 noise on `/api/properties/import-progress`, `/api/notifications/unread-count`, `/api/crm/tenant-settings` — three endpoints fire before the axios auth interceptor attaches on every fresh page load; succeed on retry. Console-only noise (carry-over from Run 16, confirmed still present)
+- Reports chart label overlap at ~930 px viewport width — "Conversion By Source" title wraps awkwardly into the CSV badge. Cosmetic
+- 404 response shape — Express HTML 404 vs JSON elsewhere (e.g. `PATCH /api/crm/tenant-settings` method-not-allowed). Cosmetic
+- Other currency-formatting surfaces (LeadDetail Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals) not audited for the `$${num}` anti-pattern that produced Run 14's bugs
+- `DELETE /api/documents/:id` returns 200 `{ deleted: false }` for missing rows; sibling DELETEs return 404 `{ error }`. Cosmetic shape inconsistency. Tracked since Run 20
+- `POST /api/webhooks/hearth` permissive on missing fields — empty-body returns 200 `{status:"ignored",reason:"no application_id"}` instead of 400. Worth a future security audit; out of scope here. Tracked since Run 21
+- `GET /api/skip-trace/job/:jobId` returns 503 when `TRACERFY_API_KEY` unset — intentional graceful-degrade, not a bug
+- Admin panel requires global super_admin role to fully exercise
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration for live delivery testing
+- Webhook signature paths (`/webhooks/tracerfy`, `/webhooks/hearth`, `/payments/webhook`) — empty-body paths covered (Runs 21 + 22); valid-signature delivery paths still need real signing keys
+- File upload paths (`POST /documents/upload`, `POST /properties/import-csv`) — no-file / empty-rows paths covered Run 22; success paths with real binary fixtures still untested. `qa-fixtures/` directory does not yet exist
+- `subcontractors.js.bak` cleanup — tracked backup file with 8 dead routes (not imported, not callable). Inflates raw `router.(get|post|...)` grep to 280 vs. 272 active. Easy `git rm`; deferred per "don't refactor working code" task constraint (new carry-over this run)
+- CSV export download verified by 200 status only, not by binary content-type and download triggering
+- QuickBooks, Twilio, Stripe integrations not implemented (pre-existing, not regressions)
+- Mobile responsive sweep at 375 px / 768 px — none performed this run; full sweep across all 14 routes still pending; last full sweep was Run 6 (17 runs ago)
+- Browser-interactive (Playwright) click/fill/drag write coverage absent since Run 6 — this run captured only 1 page screenshot before s2 max_turns. Biggest remaining gap (17 runs)
+- Pages not walked by s2 this run (max_turns at 81 turns): every UI page except `/storm-map` — `/dashboard`, `/pipeline`, `/leads`, `/leads/:id`, `/estimates`, `/invoices`, `/work-orders`, `/tasks`, `/calendar`, `/reports`, `/canvassing`, `/storm-catalog`, `/content-studio`, plus all 12 `/settings/*` tabs (Profile, Company, Team, Storm Alerts, Notifications, Email/SMTP, Financing, Integrations, Drip Sequences, Custom Fields, Contracts, Reviews). Last full primary-route walk was Run 22; last full walk including settings tabs was Run 18
+- s5 report-writing session has been 0-byte for 15 consecutive runs — fold into s4 with a longer turn budget, or drop entirely
+- s2 frontend-test session consistently hits max_turns; turn budget needs raising or route list needs splitting (Run 23 was a regression vs. Run 22 — only 1 screenshot vs. 12 from prior run with the same nominal turn budget)

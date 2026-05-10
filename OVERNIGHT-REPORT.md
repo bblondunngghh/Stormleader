@@ -1,36 +1,36 @@
-# Overnight QA Report — 2026-05-09 (Run 22)
+# Overnight QA Report — 2026-05-10 (Run 23)
 
-Branch: `feat/financing` · Pre-run checkpoint: `0ebefc2` (`overnight-checkpoint-20260509`) · Head: `7169023`
+Branch: `feat/financing` · Pre-run checkpoint: `c07170b` (`overnight-checkpoint-20260510`) · Head: `c07170b` (no source-code commits this run)
 
 ## QA Test Summary
 
 | Metric | Count |
 |---|---|
-| API endpoints tested | **265** (253 baseline + 12 newly covered this run) |
+| API endpoints tested | **265** (unchanged from Run 22) |
 | API handler coverage | 265 / 272 = **97.4 %** |
-| Pages walked (frontend) | 12 routes screenshotted by s2 + 4 verify screenshots from s4 |
+| Pages walked (frontend) | **0** (s2 captured 1 screenshot — `qa-run24-storm-map.png` — before max_turns; no full walk) |
 | Bugs found (production 5xx) | **0** |
 | Bugs fixed | **0** |
 | New findings (deferred, not fixed) | 0 |
-| UI inconsistencies found | **0** |
+| UI inconsistencies found | **0** (Dashboard SVG audit: 71/71 Heroicons before s3 max_turns) |
 | UI inconsistencies fixed | **0** |
-| Commits this run | 1 (`7169023` — harness expansion) |
-| Production 5xx after run | **0** (eighth consecutive run) |
+| Commits this run (source) | **0** — `git diff overnight-checkpoint-20260510..HEAD` is empty |
+| Production 5xx after run | **0** (ninth consecutive run) |
 | Intentional 503s | 1 (`GET /api/skip-trace/job/:jobId` when `TRACERFY_API_KEY` unset) |
 
-This is the **eighth consecutive overnight QA run with 0 production-code 5xx**
-(Runs 15–22). The +12 endpoint harness expansion is the largest single jump
-since Run 19; coverage moved from 93.0 % to 97.4 % in one run. Every fix from
-Runs 13–19 still holds. Frontend stages (s2/s3/s4) all hit max_turns but s2
-captured a complete 12-route walk before exhaustion and s4 captured 4
-verification screenshots; no UI regressions surfaced. s5 was 0 bytes (14th
-consecutive).
+This is the **ninth consecutive overnight QA run with 0 production-code 5xx**
+(Runs 15–23). No fixes were needed this run: zero server-side commits exist
+between the Run 22 harness commit (`7169023`) and the Run 23 pre-overnight
+checkpoint (`c07170b`), so the harness re-ran against an identical tree and
+produced an identical clean tally. s1 fully completed for the **fifth
+consecutive run** (Runs 19–23). s2/s3/s4 each hit max_turns and s5 was 0
+bytes (**15th consecutive** 0-byte s5).
 
 ## Backend API Test Results
 
-The expanded harness (`qa-api-test.mjs`, now 265 calls) was run end-to-end
-against `http://localhost:3001`. Final tally from `qa-api-test-results.json`
-(re-verified post-run):
+The harness (`qa-api-test.mjs`, 265 calls — unchanged from Run 22) was run
+end-to-end against `http://localhost:3001`. Final tally from
+`qa-api-test-results.json` (re-verified post-run):
 
 ```
 Total: 265
@@ -52,60 +52,55 @@ NETERR: 0
 | DELETE | 18 | yes |
 | **Total** | **265** | **yes** |
 
-### Newly covered endpoints (Run 22 expansion, +12)
-
-`qa-api-test.mjs` now covers 12 endpoints from the previously skipped list.
-Each was handler-reviewed first to confirm an input-validation guard runs
-**before** any external API / heavy work / Stripe call. Commit `7169023`:
-
-| Endpoint | Method | Status | Response | Notes |
-|---|---|---:|---|---|
-| `/api/properties/import-csv` | POST | 400 | `rows array is required` | JSON body endpoint (not multipart). Handler:208 rejects before `batchGeocode()`. |
-| `/api/documents/upload` | POST | 400 | `No file uploaded` | Multer leaves `req.file` undefined when not multipart; handler:57 catches. |
-| `/api/properties/fema-live` | GET | 400 | `bbox required` | Returns before `fetchByBbox` hits FEMA NSI. |
-| `/api/properties/fema-live-polygon` | POST | 400 | `GeoJSON geometry required in body` | Returns before `fetchByPolygon` hits FEMA NSI. |
-| `/api/counties/:id/import` | POST | 404 | `County not found` | Returns before `triggerImport` runs. |
-| `/api/payments/create-intent` | POST | 400 | `estimateId is required` | Returns before any Stripe call. |
-| `/api/payments/public/create-intent` | POST | 400 | `Estimate token is required` | Returns before any Stripe call. |
-| `/api/skip-trace/setup-payment` | POST | 400 | `paymentMethodId required` | Returns before Stripe customer / payment-method calls. |
-| `/api/onboarding/select-plan` | POST | 400 | Zod `{"planKey":["Required"]}` | Schema rejects before DB writes. |
-| `/api/onboarding/setup-payment` | POST | 400 | Zod `{"paymentMethodId":["Required"]}` | Schema rejects before Stripe call. |
-| `/api/onboarding/enable-addons` | POST | 400 | Zod `{"skipTrace":["Required"],"roofMeasurement":["Required"]}` | Schema rejects. |
-| `/api/onboarding/complete` | POST | 200 | `{ok:true}` | **Idempotent** — sets `onboarding_completed=true`; already true on Waterloo, only side effect is `updated_at` bump. Verified safe before adding. |
-
 ### Coverage by route category
 
-| Category | Result |
-|---|---|
-| Auth (`/api/auth/*`) | clean |
-| Storms (`/api/storms*`) | clean |
-| Properties (`/api/properties/*`) | clean (incl. new fema-live + fema-live-polygon + import-csv) |
-| CRM core (`/api/crm/*`) | clean |
-| Leads / activities / contacts | clean |
-| Estimates / Invoices / Work-orders | clean |
-| Tasks / Documents / Drip / Custom-fields | clean (incl. new documents/upload) |
-| Subcontractors / Materials / Expenses / Contracts | clean |
-| Drift / Counties / Parcels | clean (incl. new counties/:id/import) |
-| Skip-trace (Tracerfy) | clean (1 intentional 503; new setup-payment now covered) |
-| Webhooks (Tracerfy, Hearth, Stripe) | clean (Run 21's Hearth carry-over still open) |
-| Notifications / Search / Reports | clean |
-| Team / Profile / Tenant settings | clean |
-| Public estimate / Onboarding | clean (4 onboarding endpoints newly covered) |
-| Payments (Stripe-touching) | clean (3 new endpoints — guards run before Stripe) |
+| Category | Result | Fixes this run |
+|---|---|---|
+| Auth (`/api/auth/*`) | clean | 0 |
+| Storms (`/api/storms*`) | clean | 0 |
+| Properties (`/api/properties/*`) | clean (incl. fema-live, fema-live-polygon, import-csv) | 0 |
+| CRM core (`/api/crm/*`) | clean | 0 |
+| Leads / activities / contacts | clean | 0 |
+| Estimates / Invoices / Work-orders | clean | 0 |
+| Tasks / Documents / Drip / Custom-fields | clean | 0 |
+| Subcontractors / Materials / Expenses / Contracts | clean | 0 |
+| Drift / Counties / Parcels | clean | 0 |
+| Skip-trace (Tracerfy) | clean (1 intentional 503) | 0 |
+| Webhooks (Tracerfy, Hearth, Stripe) | clean (Run 21 Hearth carry-over open) | 0 |
+| Notifications / Search / Reports | clean | 0 |
+| Team / Profile / Tenant settings | clean | 0 |
+| Public estimate / Onboarding | clean | 0 |
+| Payments (Stripe-touching) | clean | 0 |
+| Financing (`/api/crm/financing/*`) | clean (public-token endpoints return 200 `[]` for invalid tokens by design — JOIN-based filter avoids leaking token existence) | 0 |
 
-### Coverage gaps (7 untested handlers)
+### Diff vs. Run 22
 
-Of the 272 total handlers in `server/src/routes/*.js`, 7 remain untested.
-Run 21 listed 19; Run 22 reduced to 7. The previously listed "5 heavy-job
-triggers" included `properties/fema-live-polygon`, `properties/fema-live`,
-and `counties/:id/import`, which **do** have early input guards and are now
-in coverage. The remaining 7:
+- `git diff 7169023..c07170b -- server/src/routes/` — empty.
+- `git diff 7169023..c07170b -- qa-api-test.mjs` — empty.
+- Harness coverage unchanged at 265 / 272 (97.4 %).
+- No new fixes, no new commits, no new findings.
+
+### Investigated and dismissed
+
+- **"280 routes" raw grep vs. 272 active**: traced to
+  `server/src/routes/subcontractors.js.bak`, a tracked backup file with 8
+  router-method matches. Not imported anywhere; not a bug; not a regression.
+  Logged as carry-over #14 (cleanup candidate, deferred per "don't refactor
+  working state" task constraint).
+- **`/api/crm/financing/public/:token/{plans,applications}`** returning
+  `200 []` for invalid tokens: re-verified handler. Service uses a JOIN on
+  `e.public_token = $1`; non-match yields empty rows. Correct-by-design —
+  avoids leaking token existence. Not a bug.
+
+### Coverage gaps (7 untested handlers — unchanged from Run 22)
+
+Of the 272 total handlers in `server/src/routes/*.js`, 7 remain untested:
 
 - **2 auth flows** — `POST /auth/{register,login}` (login is exercised
   implicitly by harness preamble; register skipped to avoid creating
   accounts).
 - **1 onboarding flow** — `POST /onboarding/create-tenant` (would create a
-  real tenant).
+  real tenant — destructive, one-time per tenant).
 - **2 Stripe-touching POSTs** — `POST /payments/connect/{onboard,refresh}`
   (both call `stripe.accountLinks.create` regardless of body — no
   body-validation guard runs first).
@@ -115,81 +110,78 @@ in coverage. The remaining 7:
 
 ## Frontend Feature Test Results
 
-Stage 2 (Playwright walk) hit `max_turns` at 81 turns but **completed a full
-12-route walk** before exhaustion, capturing `qa-2026-05-09/01-12.png`. **No
-new bugs were surfaced** before exhaustion; no commits were produced by
-stage 2 or stage 3. Stage 4 captured 4 additional verification screenshots
-in the project root (`qa-2026-05-09-*.png`).
-
-### s2 walk — 12 routes captured
+Stage 2 (Playwright walk) hit `max_turns` at 81 turns. Unlike Run 22 (which
+captured a complete 12-route walk before exhaustion), Run 23's s2 produced
+only **1 screenshot** before running out of turn budget:
 
 | Route | Screenshot | Notes |
 |---|---|---|
-| `/dashboard` | `01-dashboard.png` (446 KB) | Stat cards, funnel, activity feed, tasks-due-today, leaderboard all render. Glass styles intact. |
-| `/storm-map` | `02-storm-map.png` (534 KB) | Map renders, layer panel visible. FEMA properties not exercised per task constraint. |
-| `/pipeline` | `03-pipeline.png` (475 KB) | Kanban renders all stages. `Add Lead` CTA visible. |
-| `/leads` | `04-leads.png` (326 KB) | Table renders with filters, pagination, stage chips. |
-| `/leads/:id` | `05-lead-detail.png` (200 KB) | Detail view renders with editable fields and tabs. |
-| `/estimates` | `06-estimates.png` (361 KB) | List with templates and builder route accessible. |
-| `/invoices` | `07-invoices.png` (354 KB) | Stat cards, list, Overdue counter render correctly. |
-| `/work-orders` | `08-work-orders.png` (529 KB) | List + milestone view renders. |
-| `/tasks` | `09-tasks.png` (386 KB) | Filter tabs, list render. |
-| `/calendar` | `10-calendar.png` (279 KB) | Calendar grid renders (placeholder view). |
-| `/reports` | `11-reports.png` (421 KB) | Charts and stat cards render. |
-| `/canvassing` | `12-canvassing.png` (1.2 MB) | Territory drawing UI renders with map. |
+| `/storm-map` | `qa-run24-storm-map.png` (526 KB, captured at 05:06) | Map and layer panel render. (Filename mislabeled "run24" by the s2 agent — actual run is Run 23. File is on disk untracked at the project root.) |
 
-### s4 verify — 4 additional screenshots
+Stage 4 produced no additional verification screenshots (max_turns at 41
+turns, lower turn budget than s2/s3 — this is the s4 default).
 
-| Screenshot | Purpose |
-|---|---|
-| `qa-2026-05-09-dashboard.png` (455 KB) | Re-verify dashboard glass styles after report write. |
-| `qa-2026-05-09-leads.png` (336 KB) | Re-verify leads table renders. |
-| `qa-2026-05-09-pipeline.png` (484 KB) | Re-verify pipeline kanban renders. |
-| `qa-2026-05-09-add-lead-modal.png` (237 KB) | Pipeline `Add Lead` slideover modal opens cleanly. |
+### Routes not walked Run 23
 
-### Routes not walked this run
+Every UI page **except** `/storm-map`. None of the standard 12 primary
+routes (`/dashboard`, `/pipeline`, `/leads`, `/leads/:id`, `/estimates`,
+`/invoices`, `/work-orders`, `/tasks`, `/calendar`, `/reports`,
+`/canvassing`, `/storm-catalog`, `/content-studio`) were captured. The 12
+`/settings/*` tabs were not walked. Last full primary-route walk was Run 22
+(2026-05-09); last full walk including settings tabs was Run 18
+(2026-05-04).
 
-`/storm-catalog`, plus all 12 `/settings/*` tabs (Profile, Company, Team,
-Storm Alerts, Notifications, Email/SMTP, Financing, Integrations, Drip
-Sequences, Custom Fields, Contracts, Reviews), `/content-studio`. Last full
-walk including settings tabs was Run 18 (2026-05-04). Tracked as carry-over.
+### What was tested / what passed / what was broken
+
+- `/storm-map` — **passed** (renders, no console errors visible at capture).
+- All other routes — **not tested this run** (s2 max_turns).
+- **Nothing was broken.** No commits, no diffs, no findings.
+
+### What still needs attention
+
+Tracked as carry-overs — see "Known Issues" below. No new attention items
+surfaced this run because no testing reached the surfaces.
 
 ## UI Consistency Audit Results
 
-Stage 3 hit `max_turns` at 61 turns and produced no commits. A `git grep`
-sanity-check post-run confirmed the icon-discipline baseline still holds:
+Stage 3 hit `max_turns` at 61 turns and produced no commits. The partial
+`/tmp/ui-audit-results.txt` (12 lines) shows the audit reached only the
+Dashboard before exhaustion:
 
 | Audit category | Finding | Fixed? |
 |---|---|---|
-| **Icons** — non-Heroicon imports | 0 hits for `lucide-react`, `@fortawesome`, `react-icons`, `feather-icons`, `@heroicons/react/24/solid`, `@heroicons/react/20/`, `material-symbols-*`, raw `&times;` | n/a — clean |
-| **Icons** — inline SVGs as icons | 0 (decorative SVGs in map/chart layers only, not used as UI icons) | n/a — clean |
-| **Buttons** — primary CTA height alignment | All toolbar primary CTAs use `.auth-btn`; no outliers found by code grep | n/a — Run 17 fix (`a16ac46`) and Run 13 standardization (`23c3746`) still hold |
-| **Buttons** — danger / delete styling | Consistent `.btn-danger` usage across LeadDetail, EstimatesView, WorkOrders | n/a — clean |
-| **Toolbars / Headers** | TopBar `viewTitles` correct on `/storm-catalog` (Run 18 fix `29d4a34` still holds) | n/a — clean |
-| **Sidebar / Nav** | Active states, icon set, spacing all consistent in s2 snapshots | n/a — clean |
-| **Forms** — `.form-input` class | 16 search-input fields still lack the explicit class (cosmetic carry-over from Run 13) | not fixed — cosmetic, tracked |
-| **Forms** — native `<select>` / `<input type="date">` | 0 found in components — `CustomSelect` and `DatePicker` used everywhere | n/a — clean |
-| **Spacing & Alignment** | Stat-card gaps, glass-panel padding consistent in dashboard/leads/pipeline screenshots | n/a — clean |
-| **Modals** | Pipeline Add-Lead slideover renders with correct backdrop and scale-in animation; `XMarkIcon` close positioned consistently (`qa-2026-05-09-add-lead-modal.png`) | n/a — clean |
+| **Icons** — Dashboard SVG audit | **71 / 71 Heroicons (24×24), 0 decorative/other** — clean | n/a — clean |
+| **Icons** — non-Heroicon imports (full-repo grep) | 0 hits for `lucide-react`, `@fortawesome`, `react-icons`, `feather-icons`, `@heroicons/react/24/solid`, `@heroicons/react/20/`, `material-symbols-*`, raw `&times;` (re-verified post-run) | n/a — clean |
+| **Icons** — inline SVGs as icons | 0 (decorative SVGs in map/chart layers only) | n/a — clean |
+| **Buttons** — primary CTA height alignment | All toolbar primary CTAs use `.auth-btn` (Run 17 fix `a16ac46` and Run 13 `23c3746` still hold) | n/a — clean |
+| **Buttons** — danger / delete styling | Consistent `.btn-danger` (re-verified by code grep — no inline red colors) | n/a — clean |
+| **Toolbars / Headers** | TopBar `viewTitles` complete (Run 18 fix `29d4a34` still holds) | n/a — clean |
+| **Sidebar / Nav** | Not screenshot-walked this run; no code changes since Run 22 | n/a — assumed clean |
+| **Forms** — `.form-input` class | 16 search-input fields still lack the explicit class (cosmetic carry-over from Run 13) | not fixed — cosmetic |
+| **Forms** — native `<select>` / `<input type="date">` | 0 found in components — `CustomSelect` and `DatePicker` used everywhere (per CLAUDE.md feedback memories) | n/a — clean |
+| **Spacing & Alignment** | Not re-walked beyond Dashboard this run; no CSS changes since Run 22 | n/a — assumed clean |
+| **Modals** | Not re-screenshotted this run; no JSX changes since Run 22 | n/a — assumed clean |
 
-## Bugs Fixed (Run 22)
+Note: the s3 agent labeled its output "Run 24" in the markdown header. The
+s1 agent (authoritative) and resume file label this Run 23. The s3 numbering
+is a mislabel; this report uses **Run 23** throughout.
 
-None. The s1 agent's expanded harness exercised 12 previously-untested
-endpoints and all 12 returned the correct status codes (10 × 400, 1 × 404,
-1 × 200 for the idempotent onboarding/complete). No production 5xx surfaced;
-no UI regressions surfaced before s2/s3/s4 hit max_turns.
+## Bugs Fixed (Run 23)
+
+**None.** Zero commits between `7169023` (Run 22 harness expansion) and
+`c07170b` (Run 23 pre-overnight checkpoint). The harness ran against an
+identical server-side tree and produced an identical clean tally (265
+endpoints, 0 unintended 5xx). No bugs surfaced; no fixes were needed.
 
 ## Known Issues (Not Fixed)
 
-Carry-overs unchanged from Run 21 (Run 21's Hearth-webhook security
-observation remains the most recent new finding):
+Carry-overs unchanged from Run 22, plus #14 added this run:
 
 1. **Heavy-work guards** on `POST /drift/correct-all`,
    `POST /properties/trigger-import`, and `POST /crm/leads/score-all` —
-   accept empty bodies, immediately trigger full job. Tracked since Run 11.
-   (`properties/fema-live-polygon`, `properties/fema-live`, and
-   `counties/:id/import` previously listed as heavy-work were verified to
-   have early guards this run and added to harness coverage.)
+   accept empty bodies, immediately trigger full job. `trigger-import` has
+   an in-flight guard (`already_running`); the other two run unconditionally.
+   `score-all` is capped at 100 leads/call. Tracked since Run 11.
 2. **`form-audit.json` cleanup** — 16 search-input fields lack `.form-input`
    class. Cosmetic. Tracked since Run 13.
 3. **Pre-token-attach 401 noise** — three endpoints
@@ -221,28 +213,37 @@ observation remains the most recent new finding):
 11. **Email-send endpoints** — `/crm/test-email`, `/invoices/:id/send-email`
     need SMTP configuration for live delivery testing.
 12. **Webhook signature paths** — `/webhooks/tracerfy`, `/webhooks/hearth`,
-    `/payments/webhook` empty-body paths covered (Run 21); valid-signature
-    delivery paths still need real signing keys.
+    `/payments/webhook` empty-body paths covered (Runs 21 + 22);
+    valid-signature delivery paths still need real signing keys.
 13. **File upload paths** — `POST /documents/upload` no-file path covered
-    this run (Run 22); success path with a real binary fixture still
-    untested. `POST /properties/import-csv` empty-rows path covered this
-    run; success path intentionally skipped per "no bulk DB writes".
-14. **CSV export download** — verified by 200 status only, not by binary
+    (Run 22); success path with a real binary fixture still untested.
+    `POST /properties/import-csv` empty-rows path covered; success path
+    intentionally skipped per "no bulk DB writes" constraint.
+14. **`subcontractors.js.bak` cleanup** *(new this run as a carry-over —
+    investigated and dismissed)* — tracked backup file with 8 dead routes
+    (not imported, not callable). Inflates raw `router.(get|post|...)` grep
+    to 280 (vs. 272 active). Easy `git rm`; deferred per "don't refactor
+    working code" task constraint.
+15. **CSV export download** — verified by 200 status only, not by binary
     content-type and download triggering.
-15. **QuickBooks, Twilio, Stripe integrations** — not implemented
+16. **QuickBooks, Twilio, Stripe integrations** — not implemented
     (pre-existing, not regressions).
 
 ## Test Coverage Gaps
 
 - **Browser-interactive write flows** absent since Run 6 — drag a kanban
   card, create a lead end-to-end, record an invoice payment, toggle a
-  work-order milestone, upload a document. Biggest remaining gap (16 runs).
+  work-order milestone, upload a document. Biggest remaining gap (**17
+  runs**).
 - **Mobile responsive sweep** at 375 px and 768 px — none performed since
   Run 6.
+- **Frontend full-route walk** — last full 12-route walk was Run 22
+  (1 day ago); last full walk including settings tabs was Run 18
+  (6 days ago). s2 max_turns this run captured only `/storm-map`.
 - **Multipart upload SUCCESS path** — `POST /documents/upload` with a real
   PNG/PDF and `POST /properties/import-csv` with a real row would need a
   small `qa-fixtures/` directory and FormData support in the harness
-  `call()`.
+  `call()`. (`qa-fixtures/` does not yet exist.)
 - **Stripe / Tracerfy live-call paths** — would require sandbox accounts
   and signing keys.
 - **Onboarding `create-tenant`** — destructive (one-time per tenant), not
@@ -252,39 +253,68 @@ observation remains the most recent new finding):
   empty bodies and fire work. Each is auth-only and tenant-scoped (limited
   blast radius), but a `?confirm=true` body sentinel would prevent
   accidental fires.
-- **Pages not walked Run 22** — `/storm-catalog`, `/content-studio`, all
-  12 `/settings/*` tabs.
+- **Pages not walked Run 23** — every UI page except `/storm-map`.
 
 ## Session Integrity
 
-| Stage | Outcome | Turns | Output tokens | Cost (USD) | Commits |
-|---|---|---:|---:|---:|---|
-| s1 api-test | **completed** | 41 | 24 335 | 3.02 | 1 (`7169023`) |
-| s2 frontend-test | error_max_turns | 81 | 21 227 | 4.33 | 0 (12 screenshots produced) |
-| s3 ui-audit | error_max_turns | 61 | 20 493 | 3.85 | 0 |
-| s4 verify | error_max_turns | 41 | 7 349 | 2.03 | 0 (4 screenshots produced) |
-| s5 report | 0 bytes | 0 | 0 | 0.00 | 0 (this report written in a follow-up session) |
-| **Total** | | | **73 404** | **~13.23** | **1** |
+| Stage | Outcome | Turns | Output tokens | Cost (USD) | Commits | Artifacts |
+|---|---|---:|---:|---:|---|---|
+| s1 api-test | **completed** | 44 | 16 438 | 2.20 | 0 | `/tmp/api-test-results.txt` (35 KB), `qa-api-test-results.json` re-written, resume file updated |
+| s2 frontend-test | error_max_turns | 81 | 19 013 | 4.51 | 0 | `qa-run24-storm-map.png` (526 KB; mislabeled — Run 23) |
+| s3 ui-audit | error_max_turns | 61 | 15 637 | 3.29 | 0 | `/tmp/ui-audit-results.txt` (12 lines, Dashboard only; mislabeled "Run 24") |
+| s4 verify | error_max_turns | 41 | 8 829 | 2.08 | 0 | none |
+| s5 report | 0 bytes | 0 | 0 | 0.00 | 0 | none (this report written in a follow-up session — **15th consecutive 0-byte s5** since Run 8) |
+| **Total** | | | **59 917** | **~12.08** | **0** | |
 
-- s1 fully completed for the **fourth consecutive run** (Runs 19–22).
-- s2 hit max_turns at 81 but **walked all 12 primary routes** before
-  exhaustion — best s2 outcome since Run 18.
-- s5 has been 0 bytes for **14 consecutive runs** since Run 8 — recommend
-  folding into s4 with a longer turn budget, or dropping entirely.
-- **Eight consecutive runs** now where every fix landed as a real commit on
-  HEAD before the report was written.
+- **s1 fully completed for the 5th consecutive run** (Runs 19–23). Lowest
+  s1 cost since Run 21 ($2.20 vs Run 22 $3.02) — no harness expansion
+  needed this run, so s1 simply re-ran the existing 265-call harness and
+  reported clean.
+- **s2 / s3 / s4 all hit max_turns** for the 4th consecutive run. s2's
+  output dropped sharply vs. Run 22 (1 screenshot vs. 12); the s2 plan
+  appears to have spent more turns on inventory/discovery before
+  screenshotting this run.
+- **s5 has been 0 bytes for 15 consecutive runs** (since Run 8) — fold
+  into s4 with a longer turn budget, or drop entirely.
+- **s2 / s3 numbering mismatch**: both stages labeled themselves "Run 24"
+  in their output. The authoritative source (s1 + resume file) calls this
+  Run 23. Worth investigating whether the orchestrator is passing run
+  numbers inconsistently across stages.
+- **Nine consecutive runs** now where every fix landed as a real commit on
+  HEAD before the report was written (or, in this run's case, where there
+  was nothing to fix and HEAD was already at the pre-overnight checkpoint).
 
 ## Final build check
 
-`cd /c/Projects/stormleads/client && npx vite build` — passes (re-verified
-during s1 prior to commit `7169023`; re-run at end of this report write).
+`cd /c/Projects/stormleads/client && npx vite build` — not re-run this run
+because no source changes were made between Run 22 (last green build,
+7.79 s) and Run 23. The build artifact tree under `client/dist/` is
+unchanged.
 
 ## Files in this report
 
-- `OVERNIGHT-REPORT.md` (this file)
-- `docs/overnight-history.md` (appended)
-- `qa-api-test-results.json` (~95 KB, 265 endpoints, full per-endpoint payload previews)
-- `qa-api-test.mjs` (harness, +33 lines for the 12 new endpoints)
-- `qa-2026-05-09/` — 12 frontend screenshots from s2 (all primary routes)
-- `qa-2026-05-09-{dashboard,leads,pipeline,add-lead-modal}.png` — 4 verify screenshots from s4
-- `claude-overnight-20260509-s{1..5}-*.json` — per-stage orchestrator metadata
+- `OVERNIGHT-REPORT.md` (this file — overwritten from Run 22)
+- `docs/overnight-history.md` (appended with Run 23 entry)
+- `qa-api-test-results.json` (~95 KB, 265 endpoints, full per-endpoint
+  payload previews — re-written by s1, identical content shape to Run 22)
+- `qa-token.txt` (re-written by s1 with fresh access token)
+- `qa-run24-storm-map.png` (526 KB; mislabeled — actual Run 23)
+- `claude-overnight-20260510-s{1..5}-*.json` — per-stage orchestrator
+  metadata (s5 is 0 bytes)
+
+## Diffs against pre-run state
+
+```
+git diff overnight-checkpoint-20260510..HEAD --stat
+(empty — zero source-code commits this run)
+```
+
+The Run 23 report commit (this report only, plus history append, plus the
+untracked artifacts) will follow as the lone commit:
+
+```
+(docs: QA report 2026-05-10)              ← this commit (forthcoming)
+c07170b checkpoint: pre-overnight-run 2026-05-10   ← pre-run baseline (= HEAD pre-report)
+fcae3a7 docs: QA report 2026-05-09 (Run 22) — 0 fixes, harness +12 to 265/272
+7169023 test(api): expand QA harness +12 to 265/272 (Run 22)
+```
