@@ -1574,3 +1574,57 @@ and what should be prioritized next. Future agents MUST read this before startin
 - Pages not walked by s2 this run (max_turns at 81 turns): every UI page except `/storm-map` — `/dashboard`, `/pipeline`, `/leads`, `/leads/:id`, `/estimates`, `/invoices`, `/work-orders`, `/tasks`, `/calendar`, `/reports`, `/canvassing`, `/storm-catalog`, `/content-studio`, plus all 12 `/settings/*` tabs (Profile, Company, Team, Storm Alerts, Notifications, Email/SMTP, Financing, Integrations, Drip Sequences, Custom Fields, Contracts, Reviews). Last full primary-route walk was Run 22; last full walk including settings tabs was Run 18
 - s5 report-writing session has been 0-byte for 15 consecutive runs — fold into s4 with a longer turn budget, or drop entirely
 - s2 frontend-test session consistently hits max_turns; turn budget needs raising or route list needs splitting (Run 23 was a regression vs. Run 22 — only 1 screenshot vs. 12 from prior run with the same nominal turn budget)
+
+---
+## QA Run: 2026-05-11 (Runs 24 + 25)
+
+Branch: `feat/financing` · Pre-run checkpoint: `e5994c7` · Head: `e5994c7` (no source-code commits this run)
+
+### Test Results
+- Pages tested: **13 / 14** routes + 14 `/settings` tabs (Playwright walk via s2)
+- API endpoints tested: **265** (unchanged from Run 23)
+- Bugs found: **0**
+- Bugs fixed: **0**
+- UI inconsistencies found: **0**
+- UI inconsistencies fixed: **0**
+- Production 5xx: **0** (10th consecutive run)
+- Intentional 503s: 1 (`/api/skip-trace/job/:id` — TRACERFY_API_KEY graceful-degrade)
+
+### Fixes Made
+- None. Zero server-side commits between Run 23 baseline (`c07170b`) and Run 24 checkpoint (`e5994c7`); harness re-ran against identical tree and produced identical clean tally.
+
+### UI Consistency Fixes
+- None. Run 20 sweep (37/37 source files clean, 38/38 Heroicons) remains the latest authoritative audit. s3 produced `audit-all-pages.json` + `audit-headers.json` artifacts (untracked) showing no new inconsistencies before hitting max_turns at turn 60.
+
+### Known Issues Remaining
+- Heavy-work guards on `POST /drift/correct-all`, `POST /properties/trigger-import`, `POST /crm/leads/score-all` — accept empty bodies (Run 11)
+- 16 search-input fields lack explicit `.form-input` class — cosmetic (Run 13, `form-audit.json`)
+- Pre-token-attach 401 noise on `/api/notifications/unread-count`, `/api/properties/import-progress`, `/api/crm/tenant-settings` — Run 25 confirmed root cause is token expiry at boot, not missing header; request interceptor at `client/src/api/client.js:8-14` IS synchronous and DOES attach the token; real fix is proactive expiry check (behavioural, deferred)
+- Reports chart label overlap at ~930 px viewport width — cosmetic
+- 404 response shape — Express HTML 404 vs JSON elsewhere (e.g. `PATCH /api/crm/tenant-settings` method-not-allowed). Cosmetic
+- Currency-formatting surfaces (LeadDetail Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals) not audited for `$${num}` anti-pattern
+- `DELETE /api/documents/:id` returns 200 `{ deleted: false }` for missing rows; sibling DELETEs return 404. Cosmetic (Run 20)
+- `POST /api/webhooks/hearth` permissive on missing fields — empty-body returns 200 `{status:"ignored"}` instead of 400. Security audit candidate (Run 21)
+- `GET /api/skip-trace/job/:jobId` returns 503 when `TRACERFY_API_KEY` unset — intentional graceful-degrade
+- Admin panel requires global super_admin role to fully exercise
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration for live delivery testing
+- Webhook signature delivery paths (`/webhooks/tracerfy`, `/webhooks/hearth`, `/payments/webhook`) — valid-signature paths still need real signing keys
+- File upload success paths with real binary fixtures still untested (`qa-fixtures/` does not exist)
+- `subcontractors.js.bak` cleanup — tracked backup file with 8 dead routes; safe `git rm`, deferred
+- CSV export download verified by 200 only, not by binary content-type and download trigger
+- QuickBooks, Twilio, Stripe live flows not fully wired (pre-existing)
+- Mobile responsive sweep at 375 px / 768 px — last full sweep was Run 6 (19 runs ago)
+- Browser-interactive **write coverage** (drag, submit, toggle, upload, save) — Run 25 walked all pages and confirmed render but did NOT exercise writes. Carry-over #4 sharpened: pages render, now exercise submits.
+- `/content-studio` orphan reference — referenced in old docs but never implemented; catch-all `*` redirects to `/`. Build or scrub.
+- s5 report-writing session 0-byte for **17 consecutive runs** — fold into s4 or drop entirely
+- Run-number labelling inconsistent across stages (s1 self-labelled "Run 24," s2 self-labelled "Run 25") — orchestrator script needs fixing
+
+### Session Integrity
+- s1 api-test: **completed** (23 turns, $1.51) — 6th consecutive fully-completed s1
+- s2 frontend-test: **completed** (102 turns, $5.22) — first fully-completed s2 since Run 22; **closes carry-over #11** (full UI walk after 19 runs without one)
+- s3 ui-audit: error_max_turns (60 turns, $3.56) — produced 2 untracked JSON artifacts, no commit
+- s4 verify: error_max_turns (40 turns, $2.48) — no verification commit (acceptable, nothing to verify)
+- s5 report: 0 bytes — 17th consecutive non-functional s5
+- Total cost across 4 working sessions: ~$12.77
+
+---
