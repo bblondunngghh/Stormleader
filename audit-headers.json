@@ -1,0 +1,332 @@
+{
+  "/": {
+    "children": [
+      {
+        "tag": "header",
+        "cls": "flex items-end justify-between gap-6 flex-wrap py-1",
+        "height": 65,
+        "padding": "3.5px 0px",
+        "margin": "0px",
+        "headingText": "Good morning, Brandon",
+        "headingTag": "h1",
+        "headingFs": "28px",
+        "headingFw": "820"
+      },
+      {
+        "tag": "div",
+        "cls": "",
+        "height": 28,
+        "padding": "0px 2px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      },
+      {
+        "tag": "div",
+        "cls": "grid grid-cols-5 gap-[var(--space-md)]",
+        "height": 137,
+        "padding": "0px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      }
+    ]
+  },
+  "/pipeline": {
+    "children": [
+      {
+        "tag": "div",
+        "cls": "glass px-4 py-2.5 mt-[var(--space-lg)] flex items-center gap-3 shadow-[0_8px_32px_oklch(0_0_0/0.25),inset_0_1px_0_oklch(",
+        "height": 56,
+        "padding": "8.75px 14px",
+        "margin": "16px 0px 0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      },
+      {
+        "tag": "div",
+        "cls": "overflow-auto pb-4 pt-2",
+        "height": 702,
+        "padding": "7px 0px 14px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      }
+    ]
+  },
+  "/leads": {
+    "children": [
+      {
+        "tag": "div",
+        "cls": "lead-list-toolbar glass",
+        "height": 110,
+        "padding": "12px 24px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      },
+      {
+        "tag": "div",
+        "cls": "",
+        "height": 0,
+        "padding": "0px 0px 0px 8px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      },
+      {
+        "tag": "div",
+        "cls": "glass",
+        "height": 631,
+        "padding": "0px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      }
+    ]
+  },
+  "/estimates": {
+    "children": [
+      {
+        "tag": "div",
+        "cls": "stats-grid",
+        "height": 161,
+        "padding": "0px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      },
+      {
+        "tag": "div",
+        "cls": "glass",
+        "height": 70,
+        "padding": "16px 24px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      },
+      {
+        "tag": "div",
+        "cls": "glass",
+        "height": 510,
+        "padding": "0px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      }
+    ]
+  },
+  "/invoices": {
+    "children": [
+      {
+        "tag": "div",
+        "cls": "stats-grid",
+        "height": 145,
+        "padding": "0px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      },
+      {
+        "tag": "div",
+        "cls": "glass",
+        "height": 108,
+        "padding": "12px 24px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      },
+      {
+        "tag": "div",
+        "cls": "glass",
+        "height": 96,
+        "padding": "16px 24px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      }
+    ]
+  },
+  "/work-orders": {
+    "children": [
+      {
+        "tag": "div",
+        "cls": "glass",
+        "height": 62,
+        "padding": "12px 24px",
+        "margin": "0px",
+        "headingText": "Work Orders",
+        "headingTag": "h1",
+        "headingFs": "20px",
+        "headingFw": "800"
+      },
+      {
+        "tag": "div",
+        "cls": "",
+        "height": 711,
+        "padding": "16px 28px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      }
+    ]
+  },
+  "/tasks": {
+    "children": [
+      {
+        "tag": "div",
+        "cls": "",
+        "height": 40,
+        "padding": "0px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      },
+      {
+        "tag": "div",
+        "cls": "glass",
+        "height": 530,
+        "padding": "0px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      }
+    ]
+  },
+  "/calendar": {
+    "children": [
+      {
+        "tag": "div",
+        "cls": "calendar-view glass",
+        "height": 773,
+        "padding": "16px",
+        "margin": "0px",
+        "headingText": "May 2026",
+        "headingTag": "h2",
+        "headingFs": "24.5px",
+        "headingFw": "700"
+      }
+    ]
+  },
+  "/reports": {
+    "children": [
+      {
+        "tag": "div",
+        "cls": "",
+        "height": 78,
+        "padding": "0px",
+        "margin": "0px 0px 20px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      },
+      {
+        "tag": "div",
+        "cls": "reports-grid",
+        "height": 1242,
+        "padding": "0px",
+        "margin": "0px",
+        "headingText": "Revenue",
+        "headingTag": "h3",
+        "headingFs": "15px",
+        "headingFw": "600"
+      }
+    ]
+  },
+  "/canvassing": {
+    "children": [
+      {
+        "tag": "div",
+        "cls": "",
+        "height": 773,
+        "padding": "0px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      },
+      {
+        "tag": "div",
+        "cls": "",
+        "height": 38,
+        "padding": "0px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      },
+      {
+        "tag": "div",
+        "cls": "",
+        "height": 40,
+        "padding": "0px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      }
+    ]
+  },
+  "/settings": {
+    "children": [
+      {
+        "tag": "div",
+        "cls": "",
+        "height": 507,
+        "padding": "6px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      },
+      {
+        "tag": "div",
+        "cls": "",
+        "height": 773,
+        "padding": "0px 16px 16px",
+        "margin": "0px",
+        "headingText": null,
+        "headingTag": null,
+        "headingFs": null,
+        "headingFw": null
+      }
+    ]
+  }
+}

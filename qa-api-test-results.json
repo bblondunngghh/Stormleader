@@ -2,7 +2,7 @@
   "ids": {
     "lead": "3fa29df8-589c-44a6-ac4d-88cb78243cbe",
     "storm": null,
-    "estimate": "0b65fc91-d026-45f6-93b7-eb665f19aa76",
+    "estimate": "c24c65e8-bd9e-459d-bc61-76f29c3817b6",
     "invoice": "63453e95-a2e8-4851-abf7-e5059eff61cc",
     "workOrder": "c8a5cae5-fe01-4c6e-92d5-cf3d02a0601d",
     "contract": "74049fb1-aaea-4548-818b-2d86b71a9569",
@@ -30,7 +30,7 @@
       "method": "GET",
       "path": "/api/auth/me",
       "status": 200,
-      "ms": 4,
+      "ms": 3,
       "preview": "{\"user\":{\"id\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"email\":\"brandon@accessvaletparking.com\",\"firstName\":\"Brandon\",\"lastName\":\"Admin\",\"role\":\"super_admin\",\"tenantId\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\"},\"tenant\":{\"tenantName\":\"Waterloo",
       "label": "auth.me"
     },
@@ -39,7 +39,7 @@
       "path": "/api/storms",
       "status": 200,
       "ms": 18,
-      "preview": "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"id\":\"4ef4a667-35b9-4c9b-8f5d-581f757a9d55\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-99.142543139,35.318790454],[-99.142584799,35.318438581],[-99.142636829,35.318088385],[-99.1",
+      "preview": "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"id\":\"f1d38bab-af49-479c-9844-bcb560d908cc\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-99.314795571,31.179627772],[-99.31480781,31.179517724],[-99.314823141,31.179408197],[-99.31",
       "label": "storms.list"
     },
     {
@@ -54,7 +54,7 @@
       "method": "GET",
       "path": "/api/map/swaths",
       "status": 400,
-      "ms": 3,
+      "ms": 1,
       "preview": "{\"error\":\"bbox required\"}",
       "label": "map.swaths"
     },
@@ -63,15 +63,15 @@
       "path": "/api/dashboard/stats",
       "status": 200,
       "ms": 4,
-      "preview": "{\"pipelineValue\":905080.14,\"leadCount\":28,\"closeRate\":0,\"avgDaysToClose\":0}",
+      "preview": "{\"pipelineValue\":1085631.16,\"leadCount\":28,\"closeRate\":0,\"avgDaysToClose\":0}",
       "label": "dashboard.stats"
     },
     {
       "method": "GET",
       "path": "/api/dashboard/funnel",
       "status": 200,
-      "ms": 1,
-      "preview": "[{\"stage\":\"new\",\"count\":20,\"value\":7600},{\"stage\":\"contacted\",\"count\":5,\"value\":877230.14},{\"stage\":\"appt_set\",\"count\":1,\"value\":0},{\"stage\":\"inspected\",\"count\":1,\"value\":0},{\"stage\":\"estimate_sent\",\"count\":1,\"value\":20250}]",
+      "ms": 2,
+      "preview": "[{\"stage\":\"new\",\"count\":20,\"value\":7600},{\"stage\":\"contacted\",\"count\":5,\"value\":1057781.16},{\"stage\":\"appt_set\",\"count\":1,\"value\":0},{\"stage\":\"inspected\",\"count\":1,\"value\":0},{\"stage\":\"estimate_sent\",\"count\":1,\"value\":20250}]",
       "label": "dashboard.funnel"
     },
     {
@@ -102,7 +102,7 @@
       "method": "GET",
       "path": "/api/properties/reverse-geocode?lat=43.4643&lng=-80.5204",
       "status": 200,
-      "ms": 326,
+      "ms": 296,
       "preview": "{\"matched\":false}",
       "label": "properties.reverseGeocode"
     },
@@ -126,7 +126,7 @@
       "method": "GET",
       "path": "/api/leads/3fa29df8-589c-44a6-ac4d-88cb78243cbe",
       "status": 200,
-      "ms": 3,
+      "ms": 2,
       "preview": "{\"id\":\"3fa29df8-589c-44a6-ac4d-88cb78243cbe\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"property_id\":\"63622be1-20c2-4b1d-8393-a1af1a38e090\",\"storm_event_id\":null,\"assigned_rep_id\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"stage\":\"new",
       "label": "leads.byId"
     },
@@ -135,7 +135,7 @@
       "path": "/api/skip-trace/config",
       "status": 200,
       "ms": 2,
-      "preview": "{\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"enabled\":true,\"stripe_payment_method_id\":null,\"card_last_four\":null,\"card_brand\":null,\"markup_cents\":20,\"created_at\":\"2026-03-22T18:18:39.075Z\",\"updated_at\":\"2026-05-09T10:04:23.303Z\",\"ro",
+      "preview": "{\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"enabled\":true,\"stripe_payment_method_id\":null,\"card_last_four\":null,\"card_brand\":null,\"markup_cents\":20,\"created_at\":\"2026-03-22T18:18:39.075Z\",\"updated_at\":\"2026-05-10T10:01:21.647Z\",\"ro",
       "label": "skipTrace.config"
     },
     {
@@ -166,7 +166,7 @@
       "method": "GET",
       "path": "/api/skip-trace/jobs",
       "status": 200,
-      "ms": 1,
+      "ms": 2,
       "preview": "[]",
       "label": "skipTrace.jobs"
     },
@@ -174,7 +174,7 @@
       "method": "GET",
       "path": "/api/alerts/config",
       "status": 200,
-      "ms": 3,
+      "ms": 2,
       "preview": "{\"id\":\"b48b40ff-8065-4a70-84ad-d1762704871c\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"enabled\":true,\"email_enabled\":true,\"sms_enabled\":false,\"email_recipients\":[],\"sms_recipients\":[],\"min_hail_size_in\":\"1.00\",\"min_wind_speed_mph\"",
       "label": "alerts.config"
     },
@@ -182,7 +182,7 @@
       "method": "GET",
       "path": "/api/alerts/history",
       "status": 200,
-      "ms": 2,
+      "ms": 3,
       "preview": "[]",
       "label": "alerts.history"
     },
@@ -190,7 +190,7 @@
       "method": "GET",
       "path": "/api/drift/00000000-0000-0000-0000-000000000000",
       "status": 404,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"Storm event not found\"}",
       "label": "drift.byStorm"
     },
@@ -214,7 +214,7 @@
       "method": "GET",
       "path": "/api/crm/leads/3fa29df8-589c-44a6-ac4d-88cb78243cbe",
       "status": 200,
-      "ms": 29,
+      "ms": 27,
       "preview": "{\"id\":\"3fa29df8-589c-44a6-ac4d-88cb78243cbe\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"property_id\":\"63622be1-20c2-4b1d-8393-a1af1a38e090\",\"storm_event_id\":null,\"assigned_rep_id\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"stage\":\"new",
       "label": "crm.leads.byId"
     },
@@ -238,7 +238,7 @@
       "method": "GET",
       "path": "/api/crm/pipeline/stages",
       "status": 200,
-      "ms": 3,
+      "ms": 2,
       "preview": "{\"stages\":[{\"key\":\"new\",\"label\":\"New\",\"color\":\"oklch(0.72 0.19 250)\",\"position\":0},{\"key\":\"contacted\",\"label\":\"Contacted\",\"color\":\"oklch(0.75 0.15 200)\",\"position\":1},{\"key\":\"appt_set\",\"label\":\"Appt Set\",\"color\":\"oklch(0.78 0.17 85)\",\"posit",
       "label": "crm.pipeline.stages"
     },
@@ -246,7 +246,7 @@
       "method": "GET",
       "path": "/api/crm/pipeline/metrics",
       "status": 200,
-      "ms": 4,
+      "ms": 5,
       "preview": "{\"funnel\":[{\"stage\":\"New\",\"key\":\"new\",\"count\":15,\"value\":7600,\"color\":\"oklch(0.72 0.19 250)\"},{\"stage\":\"Contacted\",\"key\":\"contacted\",\"count\":3,\"value\":32125,\"color\":\"oklch(0.75 0.15 200)\"},{\"stage\":\"Appt Set\",\"key\":\"appt_set\",\"count\":1,\"val",
       "label": "crm.pipeline.metrics"
     },
@@ -254,15 +254,15 @@
       "method": "GET",
       "path": "/api/crm/dashboard/stats",
       "status": 200,
-      "ms": 3,
-      "preview": "{\"stats\":[{\"label\":\"Pipeline Value\",\"value\":\"$60K\",\"change\":\"+0%\",\"icon\":\"dollar\",\"color\":\"oklch(0.75 0.18 155)\"},{\"label\":\"New Leads (7d)\",\"value\":\"1\",\"change\":\"-2\",\"icon\":\"leads\",\"color\":\"oklch(0.72 0.19 250)\"},{\"label\":\"Close Rate\",\"valu",
+      "ms": 2,
+      "preview": "{\"stats\":[{\"label\":\"Pipeline Value\",\"value\":\"$60K\",\"change\":\"+0%\",\"icon\":\"dollar\",\"color\":\"oklch(0.75 0.18 155)\"},{\"label\":\"New Leads (7d)\",\"value\":\"1\",\"change\":\"-1\",\"icon\":\"leads\",\"color\":\"oklch(0.72 0.19 250)\"},{\"label\":\"Close Rate\",\"valu",
       "label": "crm.dashboard.stats"
     },
     {
       "method": "GET",
       "path": "/api/crm/dashboard/activity",
       "status": 200,
-      "ms": 17,
+      "ms": 2,
       "preview": "{\"activity\":[{\"id\":\"69ade113-80d5-4974-8b7a-41763fafa4f7\",\"lead_id\":\"d9573041-95c8-4369-97d7-6f1c0ab7399d\",\"type\":\"call\",\"text\":\"QA Probe Run 10 1777197905 — note logged\",\"time\":\"4/28/2026\"},{\"id\":\"eef2a01c-e3a9-495e-b428-f243624b9664\",\"lea",
       "label": "crm.dashboard.activity"
     },
@@ -286,23 +286,23 @@
       "method": "GET",
       "path": "/api/crm/dashboard/properties-affected",
       "status": 200,
-      "ms": 77,
-      "preview": "{\"uncontacted\":11037,\"contacted\":1,\"total\":11038}",
+      "ms": 88,
+      "preview": "{\"uncontacted\":13039,\"contacted\":3,\"total\":13042}",
       "label": "crm.dashboard.propsAffected"
     },
     {
       "method": "GET",
       "path": "/api/crm/dashboard/properties-affected/list",
       "status": 200,
-      "ms": 111,
-      "preview": "{\"properties\":[{\"id\":\"0012784b-da61-4856-8c14-bde0fdde3bd9\",\"address_line1\":\"67 BLANKS , TIOGA, TX 76271\",\"city\":\"TIOGA\",\"state\":\"TX\",\"zip\":\"76271\",\"owner_first_name\":null,\"owner_last_name\":\"DENNIS SCOTT\",\"owner_phone\":null,\"owner_email\"",
+      "ms": 123,
+      "preview": "{\"properties\":[{\"id\":\"12f060f3-4ac5-4b54-ac3c-f3628453b298\",\"address_line1\":\", ,\",\"city\":\" \",\"state\":\"TX\",\"zip\":\" \",\"owner_first_name\":null,\"owner_last_name\":\"GARDNER, JOHN WILLIAM\",\"owner_phone\":null,\"owner_email\":null,\"assessed_value\":\"15",
       "label": "crm.dashboard.propsAffectedList"
     },
     {
       "method": "GET",
       "path": "/api/crm/dashboard/followups",
       "status": 200,
-      "ms": 3,
+      "ms": 2,
       "preview": "{\"followups\":[]}",
       "label": "crm.dashboard.followups"
     },
@@ -319,7 +319,7 @@
       "path": "/api/crm/dashboard/estimate-summary",
       "status": 200,
       "ms": 3,
-      "preview": "{\"draft\":57,\"sent\":12,\"viewed\":0,\"accepted\":1,\"declined\":1,\"expired\":0,\"accepted_value\":4500,\"pending_value\":192902.5}",
+      "preview": "{\"draft\":56,\"sent\":12,\"viewed\":0,\"accepted\":1,\"declined\":1,\"expired\":0,\"accepted_value\":4500,\"pending_value\":237483}",
       "label": "crm.dashboard.estimateSummary"
     },
     {
@@ -334,8 +334,8 @@
       "method": "GET",
       "path": "/api/crm/dashboard/estimating-conversion",
       "status": 200,
-      "ms": 2,
-      "preview": "{\"total_sent\":15,\"accepted\":1,\"declined\":1,\"conversion_rate\":\"6.7\"}",
+      "ms": 1,
+      "preview": "{\"total_sent\":16,\"accepted\":1,\"declined\":1,\"conversion_rate\":\"6.3\"}",
       "label": "crm.dashboard.estimatingConv"
     },
     {
@@ -359,7 +359,7 @@
       "path": "/api/crm/dashboard/days-in-stage",
       "status": 200,
       "ms": 2,
-      "preview": "{\"stages\":[{\"stage\":\"contacted\",\"label\":\"Contacted\",\"avg_days\":8,\"lead_count\":3,\"stuck_leads\":3},{\"stage\":\"estimate_sent\",\"label\":\"Estimate Sent\",\"avg_days\":8,\"lead_count\":1,\"stuck_leads\":1},{\"stage\":\"appt_set\",\"label\":\"Appt Set\",\"avg_days\"",
+      "preview": "{\"stages\":[{\"stage\":\"contacted\",\"label\":\"Contacted\",\"avg_days\":9,\"lead_count\":3,\"stuck_leads\":3},{\"stage\":\"estimate_sent\",\"label\":\"Estimate Sent\",\"avg_days\":9,\"lead_count\":1,\"stuck_leads\":1},{\"stage\":\"appt_set\",\"label\":\"Appt Set\",\"avg_days\"",
       "label": "crm.dashboard.daysInStage"
     },
     {
@@ -367,15 +367,15 @@
       "path": "/api/crm/dashboard/stale-leads",
       "status": 200,
       "ms": 2,
-      "preview": "{\"stale_leads\":[{\"id\":\"41ba287e-5753-4232-bee0-37985fc931b5\",\"contact_name\":null,\"stage\":\"new\",\"assigned_to\":\" \",\"days_stale\":7,\"last_activity\":\"2026-05-02T10:04:48.288Z\"},{\"id\":\"7a410718-0405-4740-addb-7cb2b0023d58\",\"contact_name\":null,\"st",
+      "preview": "{\"stale_leads\":[{\"id\":\"41ba287e-5753-4232-bee0-37985fc931b5\",\"contact_name\":null,\"stage\":\"new\",\"assigned_to\":\" \",\"days_stale\":8,\"last_activity\":\"2026-05-02T10:04:48.288Z\"},{\"id\":\"7a410718-0405-4740-addb-7cb2b0023d58\",\"contact_name\":null,\"st",
       "label": "crm.dashboard.staleLeads"
     },
     {
       "method": "GET",
       "path": "/api/crm/dashboard/customer-storm-alerts",
       "status": 200,
-      "ms": 3,
-      "preview": "{\"alerts\":[{\"lead_id\":\"7f41d088-e87f-4311-9121-20bf30dad6ae\",\"contact_name\":\"BAISDON HANNAH\",\"address\":\"345 TOMLINSON , SOUR LAKE, TX 77659\",\"stage\":\"new\",\"estimated_value\":\"1000.00\",\"storm_type\":\"nws_alert\",\"storm_date\":\"2026-05-09T04:12:",
+      "ms": 4,
+      "preview": "{\"alerts\":[{\"lead_id\":\"7d2ca8f5-bd06-4381-8260-45b05fd66862\",\"contact_name\":\"LAWRENCE CHRISTOPHER & AMBER\",\"address\":\"165 HILDA , LUMBERTON, TX 77657\",\"stage\":\"new\",\"estimated_value\":\"3600.00\",\"storm_type\":\"spc_report\",\"storm_date\":\"2026-0",
       "label": "crm.dashboard.customerStormAlerts"
     },
     {
@@ -390,7 +390,7 @@
       "method": "GET",
       "path": "/api/crm/prospect-lists",
       "status": 200,
-      "ms": 3,
+      "ms": 2,
       "preview": "{\"lists\":[{\"id\":\"66a88836-aef0-4a24-9a55-87ff44e69c3c\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"Test Prospect List\",\"storm_event_id\":\"8d2a94b1-c60f-4b55-85aa-6a16a358e5a3\",\"property_count\":0,\"created_by\":\"93fb33ea-e7d8-461",
       "label": "crm.prospectLists"
     },
@@ -398,7 +398,7 @@
       "method": "GET",
       "path": "/api/crm/calendar",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"start and end query params required\"}",
       "label": "crm.calendar"
     },
@@ -414,24 +414,24 @@
       "method": "GET",
       "path": "/api/estimates",
       "status": 200,
-      "ms": 6,
-      "preview": "{\"estimates\":[{\"id\":\"0b65fc91-d026-45f6-93b7-eb665f19aa76\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"f1510118-b1b1-4dad-b71b-5e1285cf0808\",\"created_by\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"estimate_number\":\"EST-072\",\"",
+      "ms": 4,
+      "preview": "{\"estimates\":[{\"id\":\"c24c65e8-bd9e-459d-bc61-76f29c3817b6\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"f1510118-b1b1-4dad-b71b-5e1285cf0808\",\"created_by\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"estimate_number\":\"EST-076\",\"",
       "label": "estimates.list"
     },
     {
       "method": "GET",
       "path": "/api/estimates/templates",
       "status": 200,
-      "ms": 2,
+      "ms": 3,
       "preview": "{\"templates\":[{\"id\":\"276bb802-bde8-48f9-92be-0b328f8d9eac\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"Tear Off & Replace\",\"description\":\"Remove existing shingles and install new\",\"unit\":\"sq\",\"default_unit_price\":\"400.00\",\"se",
       "label": "estimates.templates"
     },
     {
       "method": "GET",
-      "path": "/api/estimates/0b65fc91-d026-45f6-93b7-eb665f19aa76",
+      "path": "/api/estimates/c24c65e8-bd9e-459d-bc61-76f29c3817b6",
       "status": 200,
-      "ms": 3,
-      "preview": "{\"id\":\"0b65fc91-d026-45f6-93b7-eb665f19aa76\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"f1510118-b1b1-4dad-b71b-5e1285cf0808\",\"created_by\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"estimate_number\":\"EST-072\",\"status\":\"draft",
+      "ms": 2,
+      "preview": "{\"id\":\"c24c65e8-bd9e-459d-bc61-76f29c3817b6\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"f1510118-b1b1-4dad-b71b-5e1285cf0808\",\"created_by\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"estimate_number\":\"EST-076\",\"status\":\"draft",
       "label": "estimates.byId"
     },
     {
@@ -446,7 +446,7 @@
       "method": "GET",
       "path": "/api/notifications/unread-count",
       "status": 200,
-      "ms": 1,
+      "ms": 2,
       "preview": "{\"count\":0}",
       "label": "notifications.unreadCount"
     },
@@ -470,7 +470,7 @@
       "method": "GET",
       "path": "/api/documents",
       "status": 200,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"documents\":[],\"total\":0}",
       "label": "documents.list"
     },
@@ -486,7 +486,7 @@
       "method": "GET",
       "path": "/api/roof-measurement/usage",
       "status": 200,
-      "ms": 2,
+      "ms": 3,
       "preview": "{\"total_measurements\":\"2\",\"total_cost_cents\":\"20\"}",
       "label": "roofMeas.usage"
     },
@@ -494,7 +494,7 @@
       "method": "GET",
       "path": "/api/roof-measurement/balance",
       "status": 200,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"unbilled_measurements\":\"2\",\"unbilled_cents\":\"20\"}",
       "label": "roofMeas.balance"
     },
@@ -518,7 +518,7 @@
       "method": "GET",
       "path": "/api/admin/revenue",
       "status": 200,
-      "ms": 4,
+      "ms": 3,
       "preview": "{\"monthly\":[{\"month\":\"2025-06\",\"subscriptions\":0,\"skipTrace\":0,\"roofMeasurement\":0,\"total\":0},{\"month\":\"2025-07\",\"subscriptions\":0,\"skipTrace\":0,\"roofMeasurement\":0,\"total\":0},{\"month\":\"2025-08\",\"subscriptions\":0,\"skipTrace\":0,\"roofMeasurem",
       "label": "admin.revenue"
     },
@@ -526,7 +526,7 @@
       "method": "GET",
       "path": "/api/admin/usage",
       "status": 200,
-      "ms": 2,
+      "ms": 3,
       "preview": "{\"skipTrace\":{\"total\":0,\"last30d\":0,\"topTenants\":[]},\"roofMeasurement\":{\"total\":2,\"last30d\":0,\"topTenants\":[{\"tenantId\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"tenantName\":\"Waterloo Roofing\",\"count\":2}]}}",
       "label": "admin.usage"
     },
@@ -534,7 +534,7 @@
       "method": "GET",
       "path": "/api/payments/connect/status",
       "status": 200,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"connected\":false,\"onboardingComplete\":false,\"accountId\":null}",
       "label": "payments.connectStatus"
     },
@@ -558,7 +558,7 @@
       "method": "GET",
       "path": "/api/materials/branches",
       "status": 200,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"branches\":[{\"id\":\"srs-branch-sat\",\"name\":\"SRS San Antonio\",\"address\":\"8503 Fourwinds Dr, San Antonio, TX 78239\",\"phone\":\"(210) 590-3899\",\"hours\":\"Mon-Fri 6:00 AM - 4:00 PM, Sat 7:00 AM - 12:00 PM\",\"lat\":29.4907,\"lng\":-98.3936,\"distance_mi",
       "label": "materials.branches"
     },
@@ -574,7 +574,7 @@
       "method": "GET",
       "path": "/api/materials/credentials",
       "status": 200,
-      "ms": 3,
+      "ms": 2,
       "preview": "{\"configured\":true,\"id\":\"8ea48658-6b6d-4f1d-909b-fba13029b98d\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"preferred_branch_id\":null,\"preferred_branch_name\":null,\"created_at\":\"2026-04-16T10:05:30.767Z\",\"has_api_key\":false,\"has_accou",
       "label": "materials.credentials"
     },
@@ -614,7 +614,7 @@
       "method": "GET",
       "path": "/api/crm/invoices",
       "status": 200,
-      "ms": 6,
+      "ms": 5,
       "preview": "{\"invoices\":[{\"id\":\"63453e95-a2e8-4851-abf7-e5059eff61cc\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"d9573041-95c8-4369-97d7-6f1c0ab7399d\",\"estimate_id\":null,\"invoice_number\":\"INV-0016\",\"status\":\"sent\",\"line_items\":[{\"qty",
       "label": "invoices.list"
     },
@@ -638,8 +638,8 @@
       "method": "GET",
       "path": "/api/crm/canvass-pins/stats",
       "status": 200,
-      "ms": 1,
-      "preview": "{\"date\":\"2026-05-10\",\"total\":0,\"outcomes\":[]}",
+      "ms": 2,
+      "preview": "{\"date\":\"2026-05-11\",\"total\":0,\"outcomes\":[]}",
       "label": "canvass.stats"
     },
     {
@@ -679,7 +679,7 @@
       "path": "/api/crm/reports/stage-duration",
       "status": 200,
       "ms": 2,
-      "preview": "[{\"stage\":\"contacted\",\"avg_days\":\"8.0\"},{\"stage\":\"estimate_sent\",\"avg_days\":\"8.0\"},{\"stage\":\"appt_set\",\"avg_days\":\"8.0\"},{\"stage\":\"new\",\"avg_days\":\"7.3\"},{\"stage\":\"inspected\",\"avg_days\":\"8.0\"}]",
+      "preview": "[{\"stage\":\"contacted\",\"avg_days\":\"9.0\"},{\"stage\":\"estimate_sent\",\"avg_days\":\"9.0\"},{\"stage\":\"appt_set\",\"avg_days\":\"9.0\"},{\"stage\":\"new\",\"avg_days\":\"8.3\"},{\"stage\":\"inspected\",\"avg_days\":\"9.0\"}]",
       "label": "reports.stageDuration"
     },
     {
@@ -694,7 +694,7 @@
       "method": "GET",
       "path": "/api/crm/work-orders/milestone-templates",
       "status": 200,
-      "ms": 3,
+      "ms": 2,
       "preview": "{\"templates\":[{\"key\":\"default\",\"label\":\"General (Default)\",\"milestones\":[\"Permit Pulled\",\"Materials Delivered\",\"Tear-off\",\"Install\",\"Cleanup\",\"Final Inspection\",\"Complete\"],\"photo_required\":[false,true,true,true,true,true,false],\"count\":7},",
       "label": "wo.milestoneTemplates"
     },
@@ -702,7 +702,7 @@
       "method": "GET",
       "path": "/api/crm/work-orders",
       "status": 200,
-      "ms": 5,
+      "ms": 4,
       "preview": "{\"workOrders\":[{\"id\":\"c8a5cae5-fe01-4c6e-92d5-cf3d02a0601d\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"f1510118-b1b1-4dad-b71b-5e1285cf0808\",\"estimate_id\":\"d788790e-a680-4d47-80af-4e8ca077740b\",\"title\":\"Work Order - 123 Q",
       "label": "wo.list"
     },
@@ -710,7 +710,7 @@
       "method": "GET",
       "path": "/api/crm/work-orders/c8a5cae5-fe01-4c6e-92d5-cf3d02a0601d",
       "status": 200,
-      "ms": 2,
+      "ms": 3,
       "preview": "{\"id\":\"c8a5cae5-fe01-4c6e-92d5-cf3d02a0601d\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"f1510118-b1b1-4dad-b71b-5e1285cf0808\",\"estimate_id\":\"d788790e-a680-4d47-80af-4e8ca077740b\",\"title\":\"Work Order - 123 QA Street, Test",
       "label": "wo.byId"
     },
@@ -726,7 +726,7 @@
       "method": "GET",
       "path": "/api/crm/drip-sequences",
       "status": 200,
-      "ms": 4,
+      "ms": 5,
       "preview": "[]",
       "label": "drip.list"
     },
@@ -734,7 +734,7 @@
       "method": "GET",
       "path": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000",
       "status": 404,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"Sequence not found\"}",
       "label": "drip.byId"
     },
@@ -742,7 +742,7 @@
       "method": "GET",
       "path": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000/enrollments",
       "status": 200,
-      "ms": 3,
+      "ms": 2,
       "preview": "[]",
       "label": "drip.enrollments"
     },
@@ -774,7 +774,7 @@
       "method": "GET",
       "path": "/api/crm/expenses",
       "status": 200,
-      "ms": 4,
+      "ms": 3,
       "preview": "{\"expenses\":[{\"id\":\"bfe5df21-efcd-4e16-9a88-6b234a984c64\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":null,\"category\":\"materials\",\"amount\":\"10.00\",\"date\":\"2026-04-28T05:00:00.000Z\",\"notes\":\"qa test\",\"created_by\":null,\"creat",
       "label": "expenses.list"
     },
@@ -782,7 +782,7 @@
       "method": "GET",
       "path": "/api/crm/expenses/summary/3fa29df8-589c-44a6-ac4d-88cb78243cbe",
       "status": 200,
-      "ms": 3,
+      "ms": 2,
       "preview": "{\"totalExpenses\":0,\"estimateTotal\":0,\"profit\":0,\"profitPercent\":0}",
       "label": "expenses.summary"
     },
@@ -790,7 +790,7 @@
       "method": "GET",
       "path": "/api/crm/subcontractors",
       "status": 200,
-      "ms": 3,
+      "ms": 4,
       "preview": "{\"subcontractors\":[{\"id\":\"339cd4b4-a4cc-4133-8ec9-675073022a4c\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"QA Roofing\",\"company\":null,\"phone\":\"555-1234\",\"email\":null,\"specialty\":\"general\",\"hourly_rate\":null,\"notes\":null,\"sta",
       "label": "subs.list"
     },
@@ -814,7 +814,7 @@
       "method": "GET",
       "path": "/api/crm/territories/dca7cea0-622b-4c40-a1e0-4a9e18d9abe2",
       "status": 200,
-      "ms": 2,
+      "ms": 3,
       "preview": "{\"id\":\"dca7cea0-622b-4c40-a1e0-4a9e18d9abe2\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"QA Territory Updated\",\"color\":\"oklch(0.65 0.27 29)\",\"polygon\":\"0103000020E6100000010000000500000000000000004058C00000000000003E400000000",
       "label": "territories.byId"
     },
@@ -822,7 +822,7 @@
       "method": "GET",
       "path": "/api/crm/territories/dca7cea0-622b-4c40-a1e0-4a9e18d9abe2/pins",
       "status": 200,
-      "ms": 3,
+      "ms": 2,
       "preview": "[]",
       "label": "territories.pins"
     },
@@ -838,7 +838,7 @@
       "method": "GET",
       "path": "/api/storm-history?lat=43.4643&lng=-80.5204",
       "status": 200,
-      "ms": 895,
+      "ms": 1,
       "preview": "{\"location\":{\"lat\":43.4643,\"lng\":-80.5204},\"radiusMiles\":5,\"yearsSearched\":5,\"events\":[],\"summary\":{\"totalEvents\":0,\"hailCount\":0,\"tornadoCount\":0,\"maxHailSizeInches\":0,\"averageEventsPerYear\":0,\"riskLevel\":\"low\",\"byYear\":{}}}",
       "label": "stormHist.list"
     },
@@ -854,7 +854,7 @@
       "method": "GET",
       "path": "/api/data/fema-housing?lat=43.4643&lng=-80.5204",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"zip query parameter required\"}",
       "label": "data.femaHousing"
     },
@@ -870,7 +870,7 @@
       "method": "POST",
       "path": "/api/crm/leads",
       "status": 400,
-      "ms": 2,
+      "ms": 3,
       "preview": "{\"error\":\"propertyId is required\"}",
       "label": "crm.leads.create.empty"
     },
@@ -878,7 +878,7 @@
       "method": "POST",
       "path": "/api/crm/leads/quick",
       "status": 400,
-      "ms": 1,
+      "ms": 2,
       "preview": "{\"error\":\"contact_name or address is required\"}",
       "label": "crm.leads.quick.empty"
     },
@@ -886,7 +886,7 @@
       "method": "POST",
       "path": "/api/crm/activities",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"lead_id required\"}",
       "label": "crm.activities.create.empty"
     },
@@ -894,7 +894,7 @@
       "method": "POST",
       "path": "/api/crm/tasks",
       "status": 400,
-      "ms": 1,
+      "ms": 2,
       "preview": "{\"error\":\"title required\"}",
       "label": "crm.tasks.create.empty"
     },
@@ -910,7 +910,7 @@
       "method": "POST",
       "path": "/api/crm/leads/bulk-status",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"leadIds array and stage required\"}",
       "label": "crm.leads.bulkStatus.empty"
     },
@@ -950,7 +950,7 @@
       "method": "POST",
       "path": "/api/crm/contracts",
       "status": 400,
-      "ms": 1,
+      "ms": 2,
       "preview": "{\"error\":\"lead_id is required\"}",
       "label": "contracts.create.empty"
     },
@@ -958,7 +958,7 @@
       "method": "POST",
       "path": "/api/crm/contracts/templates",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"name and type are required\"}",
       "label": "contracts.templates.create.empty"
     },
@@ -966,7 +966,7 @@
       "method": "POST",
       "path": "/api/crm/expenses",
       "status": 400,
-      "ms": 1,
+      "ms": 2,
       "preview": "{\"error\":\"category, amount, and date are required\"}",
       "label": "expenses.create.empty"
     },
@@ -1006,7 +1006,7 @@
       "method": "POST",
       "path": "/api/crm/automations",
       "status": 400,
-      "ms": 1,
+      "ms": 2,
       "preview": "{\"error\":\"name, trigger_type, and action_type are required\"}",
       "label": "automations.create.empty"
     },
@@ -1014,7 +1014,7 @@
       "method": "POST",
       "path": "/api/crm/financing/lenders",
       "status": 400,
-      "ms": 1,
+      "ms": 2,
       "preview": "{\"error\":\"provider, apiKey, and merchantId are required\"}",
       "label": "financing.lenders.create.empty"
     },
@@ -1030,7 +1030,7 @@
       "method": "POST",
       "path": "/api/crm/prospect-lists",
       "status": 400,
-      "ms": 1,
+      "ms": 2,
       "preview": "{\"error\":\"stormEventId is required\"}",
       "label": "crm.prospectLists.create.empty"
     },
@@ -1038,7 +1038,7 @@
       "method": "POST",
       "path": "/api/crm/custom-fields",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"field_label is required\"}",
       "label": "crm.customFields.create.empty"
     },
@@ -1054,7 +1054,7 @@
       "method": "POST",
       "path": "/api/crm/test-email",
       "status": 400,
-      "ms": 1,
+      "ms": 2,
       "preview": "{\"error\":\"Recipient email required\"}",
       "label": "crm.testEmail.empty"
     },
@@ -1070,7 +1070,7 @@
       "method": "POST",
       "path": "/api/skip-trace/submit",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"propertyIds array is required\"}",
       "label": "skipTrace.submit.empty"
     },
@@ -1086,7 +1086,7 @@
       "method": "POST",
       "path": "/api/roof-measurement/manual",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"propertyId is required\"}",
       "label": "roofMeas.manual.empty"
     },
@@ -1102,7 +1102,7 @@
       "method": "POST",
       "path": "/api/properties/geocode",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"address is required\"}",
       "label": "properties.geocode.empty"
     },
@@ -1116,9 +1116,9 @@
     },
     {
       "method": "GET",
-      "path": "/api/estimates/0b65fc91-d026-45f6-93b7-eb665f19aa76/pdf",
+      "path": "/api/estimates/c24c65e8-bd9e-459d-bc61-76f29c3817b6/pdf",
       "status": 200,
-      "ms": 386,
+      "ms": 33,
       "preview": "%PDF-1.3 %���� 8 0 obj << /Type /ExtGState /ca 1 >> endobj 9 0 obj << /Type /ExtGState /ca 1 /CA 1 >> endobj 11 0 obj << /Type /ExtGState /CA 1 >> endobj 7 0 obj << /Type /Page /Parent 1 0 R /MediaBox [0 0 595.28 841.89] /Contents 5 0 R /Re",
       "label": "estimates.pdf"
     },
@@ -1126,7 +1126,7 @@
       "method": "GET",
       "path": "/api/crm/contracts/74049fb1-aaea-4548-818b-2d86b71a9569/pdf",
       "status": 200,
-      "ms": 13,
+      "ms": 14,
       "preview": "%PDF-1.3 %���� 8 0 obj << /Type /ExtGState /ca 1 /CA 1 >> endobj 10 0 obj << /Type /ExtGState /CA 1 >> endobj 7 0 obj << /Type /Page /Parent 1 0 R /MediaBox [0 0 595.28 841.89] /Contents 5 0 R /Resources 6 0 R >> endobj 6 0 obj << /ProcSet",
       "label": "contracts.pdf"
     },
@@ -1142,7 +1142,7 @@
       "method": "PATCH",
       "path": "/api/crm/leads/3fa29df8-589c-44a6-ac4d-88cb78243cbe",
       "status": 200,
-      "ms": 5,
+      "ms": 9,
       "preview": "{\"id\":\"3fa29df8-589c-44a6-ac4d-88cb78243cbe\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"property_id\":\"63622be1-20c2-4b1d-8393-a1af1a38e090\",\"storm_event_id\":null,\"assigned_rep_id\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"stage\":\"new",
       "label": "crm.leads.patch.empty"
     },
@@ -1150,23 +1150,23 @@
       "method": "PATCH",
       "path": "/api/crm/tasks/1ea88a7e-d501-4d6f-8425-59a8ab00874b",
       "status": 400,
-      "ms": 1,
+      "ms": 2,
       "preview": "{\"error\":\"No fields to update\"}",
       "label": "crm.tasks.patch.empty"
     },
     {
       "method": "PATCH",
-      "path": "/api/estimates/0b65fc91-d026-45f6-93b7-eb665f19aa76",
+      "path": "/api/estimates/c24c65e8-bd9e-459d-bc61-76f29c3817b6",
       "status": 200,
-      "ms": 4,
-      "preview": "{\"id\":\"0b65fc91-d026-45f6-93b7-eb665f19aa76\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"f1510118-b1b1-4dad-b71b-5e1285cf0808\",\"created_by\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"estimate_number\":\"EST-072\",\"status\":\"draft",
+      "ms": 3,
+      "preview": "{\"id\":\"c24c65e8-bd9e-459d-bc61-76f29c3817b6\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"f1510118-b1b1-4dad-b71b-5e1285cf0808\",\"created_by\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"estimate_number\":\"EST-076\",\"status\":\"draft",
       "label": "estimates.patch.empty"
     },
     {
       "method": "PATCH",
       "path": "/api/crm/invoices/63453e95-a2e8-4851-abf7-e5059eff61cc",
       "status": 200,
-      "ms": 2,
+      "ms": 4,
       "preview": "{\"id\":\"63453e95-a2e8-4851-abf7-e5059eff61cc\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"d9573041-95c8-4369-97d7-6f1c0ab7399d\",\"estimate_id\":null,\"invoice_number\":\"INV-0016\",\"status\":\"sent\",\"line_items\":[{\"qty\":1,\"unit_pri",
       "label": "invoices.patch.empty"
     },
@@ -1214,7 +1214,7 @@
       "method": "PATCH",
       "path": "/api/crm/canvass-pins/e91c7d1c-2844-4060-bac1-dc1582813e8c",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"No fields to update\"}",
       "label": "canvass.patch.empty"
     },
@@ -1246,7 +1246,7 @@
       "method": "PATCH",
       "path": "/api/auth/me",
       "status": 400,
-      "ms": 1,
+      "ms": 2,
       "preview": "{\"error\":\"No fields to update\"}",
       "label": "auth.me.patch.empty"
     },
@@ -1254,7 +1254,7 @@
       "method": "PUT",
       "path": "/api/alerts/config",
       "status": 200,
-      "ms": 3,
+      "ms": 2,
       "preview": "{\"id\":\"b48b40ff-8065-4a70-84ad-d1762704871c\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"enabled\":true,\"email_enabled\":true,\"sms_enabled\":false,\"email_recipients\":[],\"sms_recipients\":[],\"min_hail_size_in\":\"1.00\",\"min_wind_speed_mph\"",
       "label": "alerts.config.put.empty"
     },
@@ -1302,7 +1302,7 @@
       "method": "GET",
       "path": "/api/estimates/public/bogus-token-zzz",
       "status": 404,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"Estimate not found\"}",
       "label": "estimates.public.byToken"
     },
@@ -1350,7 +1350,7 @@
       "method": "GET",
       "path": "/api/crm/prospect-lists/00000000-0000-0000-0000-000000000000/items",
       "status": 404,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"List not found\"}",
       "label": "crm.prospectLists.items"
     },
@@ -1391,7 +1391,7 @@
       "path": "/api/properties/import-progress",
       "status": 200,
       "ms": 1,
-      "preview": "{\"active\":false,\"clusters\":{\"total\":0,\"completed\":0},\"current\":null,\"propertiesImported\":0,\"propertiesTotal\":0,\"startedAt\":null}",
+      "preview": "{\"active\":false,\"clusters\":{\"total\":722,\"completed\":371},\"current\":null,\"propertiesImported\":0,\"propertiesTotal\":0,\"startedAt\":\"2026-05-11T03:00:00.505Z\"}",
       "label": "properties.importProgress"
     },
     {
@@ -1414,7 +1414,7 @@
       "method": "GET",
       "path": "/api/properties/00000000-0000-0000-0000-000000000000/weather-history/pdf",
       "status": 404,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"Property not found\"}",
       "label": "properties.weatherHistory.pdf"
     },
@@ -1422,7 +1422,7 @@
       "method": "GET",
       "path": "/api/properties/00000000-0000-0000-0000-000000000000/report/pdf",
       "status": 404,
-      "ms": 2,
+      "ms": 28,
       "preview": "{\"error\":\"Property not found\"}",
       "label": "properties.report.pdf"
     },
@@ -1430,7 +1430,7 @@
       "method": "GET",
       "path": "/api/roof-measurement/segments/00000000-0000-0000-0000-000000000000",
       "status": 200,
-      "ms": 2,
+      "ms": 3,
       "preview": "{\"segments\":[]}",
       "label": "roofMeas.segments"
     },
@@ -1462,7 +1462,7 @@
       "method": "GET",
       "path": "/api/map/properties?bbox=-80.6,43.4,-80.4,43.5",
       "status": 200,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"type\":\"FeatureCollection\",\"features\":[]}",
       "label": "map.properties"
     },
@@ -1478,7 +1478,7 @@
       "method": "PATCH",
       "path": "/api/crm/automations/00000000-0000-0000-0000-000000000000",
       "status": 400,
-      "ms": 3,
+      "ms": 2,
       "preview": "{\"error\":\"No fields to update\"}",
       "label": "automations.patch.empty"
     },
@@ -1486,7 +1486,7 @@
       "method": "PATCH",
       "path": "/api/crm/automations/00000000-0000-0000-0000-000000000000/toggle",
       "status": 404,
-      "ms": 2,
+      "ms": 3,
       "preview": "{\"error\":\"Automation not found\"}",
       "label": "automations.toggle.empty"
     },
@@ -1510,7 +1510,7 @@
       "method": "PATCH",
       "path": "/api/crm/team/00000000-0000-0000-0000-000000000000/role",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"Invalid role\"}",
       "label": "crm.team.role.empty"
     },
@@ -1574,7 +1574,7 @@
       "method": "PATCH",
       "path": "/api/crm/work-orders/c8a5cae5-fe01-4c6e-92d5-cf3d02a0601d/milestones/00000000-0000-0000-0000-000000000000",
       "status": 404,
-      "ms": 4,
+      "ms": 3,
       "preview": "{\"error\":\"Milestone not found\"}",
       "label": "wo.milestone.empty"
     },
@@ -1598,7 +1598,7 @@
       "method": "PUT",
       "path": "/api/properties/00000000-0000-0000-0000-000000000000/location",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"lat and lng are required\"}",
       "label": "properties.location.put.empty"
     },
@@ -1622,7 +1622,7 @@
       "method": "POST",
       "path": "/api/crm/contracts/74049fb1-aaea-4548-818b-2d86b71a9569/void",
       "status": 404,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"Contract not found\"}",
       "label": "contracts.void.empty"
     },
@@ -1630,7 +1630,7 @@
       "method": "POST",
       "path": "/api/crm/leads/3fa29df8-589c-44a6-ac4d-88cb78243cbe/score",
       "status": 200,
-      "ms": 210,
+      "ms": 116,
       "preview": "{\"score\":2,\"factors\":{\"hailSizeIn\":null,\"windSpeedMph\":null,\"assessedValue\":0,\"roofSqft\":0,\"daysSinceStorm\":null,\"hailRiskLevel\":\"low\",\"maxHistoricalHailIn\":0,\"hailHistoryCount\":0,\"femaRiskScore\":null,\"homeAge\":null,\"ownerOccupiedRate\":null",
       "label": "crm.leads.score.empty"
     },
@@ -1638,7 +1638,7 @@
       "method": "POST",
       "path": "/api/crm/leads/3fa29df8-589c-44a6-ac4d-88cb78243cbe/contacts",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"At least one of first_name, last_name, email, or phone is required\"}",
       "label": "crm.leads.contacts.empty"
     },
@@ -1646,7 +1646,7 @@
       "method": "POST",
       "path": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000/enroll",
       "status": 400,
-      "ms": 1,
+      "ms": 2,
       "preview": "{\"error\":\"leadId is required\"}",
       "label": "drip.enroll.empty"
     },
@@ -1654,29 +1654,29 @@
       "method": "POST",
       "path": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000/cancel",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"leadId is required\"}",
       "label": "drip.cancel.empty"
     },
     {
       "method": "POST",
-      "path": "/api/estimates/0b65fc91-d026-45f6-93b7-eb665f19aa76/send",
+      "path": "/api/estimates/c24c65e8-bd9e-459d-bc61-76f29c3817b6/send",
       "status": 200,
-      "ms": 3,
-      "preview": "{\"id\":\"0b65fc91-d026-45f6-93b7-eb665f19aa76\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"f1510118-b1b1-4dad-b71b-5e1285cf0808\",\"created_by\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"estimate_number\":\"EST-072\",\"status\":\"sent\"",
+      "ms": 9,
+      "preview": "{\"id\":\"c24c65e8-bd9e-459d-bc61-76f29c3817b6\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"f1510118-b1b1-4dad-b71b-5e1285cf0808\",\"created_by\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"estimate_number\":\"EST-076\",\"status\":\"sent\"",
       "label": "estimates.send.empty"
     },
     {
       "method": "POST",
-      "path": "/api/estimates/0b65fc91-d026-45f6-93b7-eb665f19aa76/duplicate",
+      "path": "/api/estimates/c24c65e8-bd9e-459d-bc61-76f29c3817b6/duplicate",
       "status": 201,
-      "ms": 10,
-      "preview": "{\"id\":\"c7ac7d21-17b2-467f-8076-2444af86555c\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"f1510118-b1b1-4dad-b71b-5e1285cf0808\",\"created_by\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"estimate_number\":\"EST-073\",\"status\":\"draft",
+      "ms": 5,
+      "preview": "{\"id\":\"8a45fb03-3585-454a-add6-60dd4988dd43\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"f1510118-b1b1-4dad-b71b-5e1285cf0808\",\"created_by\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"estimate_number\":\"EST-077\",\"status\":\"draft",
       "label": "estimates.duplicate.empty"
     },
     {
       "method": "POST",
-      "path": "/api/estimates/0b65fc91-d026-45f6-93b7-eb665f19aa76/sign-in-person",
+      "path": "/api/estimates/c24c65e8-bd9e-459d-bc61-76f29c3817b6/sign-in-person",
       "status": 400,
       "ms": 1,
       "preview": "{\"error\":\"signer_name required\"}",
@@ -1684,17 +1684,17 @@
     },
     {
       "method": "POST",
-      "path": "/api/estimates/0b65fc91-d026-45f6-93b7-eb665f19aa76/generate-tiers",
+      "path": "/api/estimates/c24c65e8-bd9e-459d-bc61-76f29c3817b6/generate-tiers",
       "status": 201,
-      "ms": 8,
-      "preview": "{\"tiers\":[{\"id\":\"ab50c9a4-02c5-4612-a00c-b575403d77ef\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"f1510118-b1b1-4dad-b71b-5e1285cf0808\",\"created_by\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"estimate_number\":\"EST-074\",\"stat",
+      "ms": 6,
+      "preview": "{\"tiers\":[{\"id\":\"08c71d05-686c-4735-8c85-fc4ecad277d3\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"f1510118-b1b1-4dad-b71b-5e1285cf0808\",\"created_by\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"estimate_number\":\"EST-078\",\"stat",
       "label": "estimates.generateTiers.empty"
     },
     {
       "method": "POST",
       "path": "/api/crm/invoices/63453e95-a2e8-4851-abf7-e5059eff61cc/payment",
       "status": 400,
-      "ms": 1,
+      "ms": 2,
       "preview": "{\"error\":\"Valid amount required\"}",
       "label": "invoices.payment.empty"
     },
@@ -1719,14 +1719,14 @@
       "path": "/api/leads/3fa29df8-589c-44a6-ac4d-88cb78243cbe/status-token",
       "status": 200,
       "ms": 2,
-      "preview": "{\"token\":\"6586548911de5562f10473db2e41072d67edb7c9f96724093abc79d6fc1b6bd5\",\"url\":\"/status/6586548911de5562f10473db2e41072d67edb7c9f96724093abc79d6fc1b6bd5\"}",
+      "preview": "{\"token\":\"51b26591d0098ae9d26ded47fd6d1ae8233d53948a275ba391bffe0d85ec0049\",\"url\":\"/status/51b26591d0098ae9d26ded47fd6d1ae8233d53948a275ba391bffe0d85ec0049\"}",
       "label": "leads.statusToken.empty"
     },
     {
       "method": "POST",
       "path": "/api/notifications/mark-all-read",
       "status": 200,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"updated\":0}",
       "label": "notifications.markAllRead.empty"
     },
@@ -1758,7 +1758,7 @@
       "method": "POST",
       "path": "/api/drift/00000000-0000-0000-0000-000000000000/correct",
       "status": 404,
-      "ms": 2,
+      "ms": 3,
       "preview": "{\"error\":\"Storm event not found\"}",
       "label": "drift.correct.empty"
     },
@@ -1798,7 +1798,7 @@
       "method": "POST",
       "path": "/api/estimates/public/bogus-token-zzz/accept",
       "status": 400,
-      "ms": 1,
+      "ms": 0,
       "preview": "{\"error\":\"signer_name required\"}",
       "label": "estimates.public.accept.empty"
     },
@@ -1838,7 +1838,7 @@
       "method": "DELETE",
       "path": "/api/crm/leads/00000000-0000-0000-0000-000000000000",
       "status": 404,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"Lead not found\"}",
       "label": "crm.leads.delete.missing"
     },
@@ -1870,7 +1870,7 @@
       "method": "DELETE",
       "path": "/api/crm/custom-fields/00000000-0000-0000-0000-000000000000",
       "status": 404,
-      "ms": 3,
+      "ms": 2,
       "preview": "{\"error\":\"Field definition not found\"}",
       "label": "crm.customFields.delete.missing"
     },
@@ -1886,7 +1886,7 @@
       "method": "DELETE",
       "path": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000",
       "status": 404,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"Sequence not found\"}",
       "label": "drip.delete.missing"
     },
@@ -1902,7 +1902,7 @@
       "method": "DELETE",
       "path": "/api/estimates/00000000-0000-0000-0000-000000000000",
       "status": 404,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"Estimate not found\"}",
       "label": "estimates.delete.missing"
     },
@@ -1910,7 +1910,7 @@
       "method": "DELETE",
       "path": "/api/crm/expenses/00000000-0000-0000-0000-000000000000",
       "status": 404,
-      "ms": 1,
+      "ms": 2,
       "preview": "{\"error\":\"Expense not found\"}",
       "label": "expenses.delete.missing"
     },
@@ -1918,7 +1918,7 @@
       "method": "DELETE",
       "path": "/api/crm/financing/lenders/00000000-0000-0000-0000-000000000000",
       "status": 404,
-      "ms": 3,
+      "ms": 2,
       "preview": "{\"error\":\"Lender not found\"}",
       "label": "financing.lenders.delete.missing"
     },
@@ -1934,7 +1934,7 @@
       "method": "DELETE",
       "path": "/api/crm/subcontractors/00000000-0000-0000-0000-000000000000",
       "status": 404,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"Subcontractor not found\"}",
       "label": "subs.delete.missing"
     },
@@ -1958,7 +1958,7 @@
       "method": "DELETE",
       "path": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000/milestones/00000000-0000-0000-0000-000000000000",
       "status": 404,
-      "ms": 3,
+      "ms": 2,
       "preview": "{\"error\":\"Work order not found\"}",
       "label": "wo.milestone.delete.missing"
     },
@@ -1966,7 +1966,7 @@
       "method": "POST",
       "path": "/api/properties",
       "status": 400,
-      "ms": 1,
+      "ms": 2,
       "preview": "{\"error\":\"address_line1, lat, and lng are required\"}",
       "label": "properties.create.empty"
     },
@@ -1990,7 +1990,7 @@
       "method": "POST",
       "path": "/api/crm/financing/plans/sync",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"lenderId is required\"}",
       "label": "financing.plans.sync.empty"
     },
@@ -1998,7 +1998,7 @@
       "method": "POST",
       "path": "/api/crm/invoices/from-estimate/00000000-0000-0000-0000-000000000000",
       "status": 404,
-      "ms": 2,
+      "ms": 3,
       "preview": "{\"error\":\"Estimate not found\"}",
       "label": "invoices.fromEstimate.empty"
     },
@@ -2014,7 +2014,7 @@
       "method": "POST",
       "path": "/api/crm/work-orders/c8a5cae5-fe01-4c6e-92d5-cf3d02a0601d/milestones",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"Milestone name required\"}",
       "label": "wo.milestones.create.empty"
     },
@@ -2022,7 +2022,7 @@
       "method": "POST",
       "path": "/api/auth/refresh",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"Validation failed\",\"details\":{\"refreshToken\":[\"Required\"]}}",
       "label": "auth.refresh.empty"
     },
@@ -2030,7 +2030,7 @@
       "method": "POST",
       "path": "/api/webhooks/tracerfy",
       "status": 200,
-      "ms": 1,
+      "ms": 0,
       "preview": "{\"received\":true}",
       "label": "webhooks.tracerfy.empty"
     },
@@ -2038,7 +2038,7 @@
       "method": "POST",
       "path": "/api/webhooks/hearth",
       "status": 200,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"status\":\"ignored\",\"reason\":\"no application_id\"}",
       "label": "webhooks.hearth.empty"
     },
@@ -2046,7 +2046,7 @@
       "method": "POST",
       "path": "/api/payments/webhook",
       "status": 400,
-      "ms": 1,
+      "ms": 2,
       "preview": "{\"error\":\"Webhook signature verification failed: No stripe-signature header value was provided.\"}",
       "label": "payments.webhook.empty"
     },
@@ -2054,7 +2054,7 @@
       "method": "POST",
       "path": "/api/properties/import-csv",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"rows array is required\"}",
       "label": "properties.importCsv.empty"
     },
@@ -2062,7 +2062,7 @@
       "method": "POST",
       "path": "/api/documents/upload",
       "status": 400,
-      "ms": 2,
+      "ms": 3,
       "preview": "{\"error\":\"No file uploaded\"}",
       "label": "documents.upload.empty"
     },
@@ -2070,7 +2070,7 @@
       "method": "GET",
       "path": "/api/properties/fema-live",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"bbox required\"}",
       "label": "properties.femaLive.empty"
     },
@@ -2102,7 +2102,7 @@
       "method": "POST",
       "path": "/api/payments/public/create-intent",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"Estimate token is required\"}",
       "label": "payments.publicCreateIntent.empty"
     },
@@ -2126,7 +2126,7 @@
       "method": "POST",
       "path": "/api/onboarding/setup-payment",
       "status": 400,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"error\":\"Validation failed\",\"details\":{\"paymentMethodId\":[\"Required\"]}}",
       "label": "onboarding.setupPayment.empty"
     },
@@ -2134,7 +2134,7 @@
       "method": "POST",
       "path": "/api/onboarding/enable-addons",
       "status": 400,
-      "ms": 1,
+      "ms": 2,
       "preview": "{\"error\":\"Validation failed\",\"details\":{\"skipTrace\":[\"Required\"],\"roofMeasurement\":[\"Required\"]}}",
       "label": "onboarding.enableAddons.empty"
     },
@@ -2142,7 +2142,7 @@
       "method": "POST",
       "path": "/api/onboarding/complete",
       "status": 200,
-      "ms": 2,
+      "ms": 1,
       "preview": "{\"success\":true,\"tenant\":{\"id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"Waterloo Roofing\",\"slug\":\"waterloo\",\"onboarding_completed\":true,\"subscription_tier\":\"enterprise\",\"subscription_status\":\"active\"}}",
       "label": "onboarding.complete.idempotent"
     }

@@ -1,0 +1,930 @@
+{
+  "/": {
+    "headers": [],
+    "buttonGroups": {
+      "<inline>": {
+        "count": 17,
+        "heights": [
+          23,
+          36,
+          21
+        ],
+        "brs": [
+          "999px",
+          "12px",
+          "6px"
+        ],
+        "fs": [
+          "11px",
+          "13px"
+        ]
+      },
+      "text-[11px]": {
+        "count": 11,
+        "heights": [
+          26,
+          13,
+          27
+        ],
+        "brs": [
+          "12px",
+          "0px"
+        ],
+        "fs": [
+          "11px"
+        ]
+      },
+      "mapboxgl-ctrl-attrib-button": {
+        "count": 1,
+        "heights": [
+          24
+        ],
+        "brs": [
+          "12px"
+        ],
+        "fs": [
+          "13.3333px"
+        ]
+      },
+      "text-[10px]": {
+        "count": 3,
+        "heights": [
+          16
+        ],
+        "brs": [
+          "3.35544e+07px"
+        ],
+        "fs": [
+          "10px"
+        ]
+      },
+      "w-4": {
+        "count": 7,
+        "heights": [
+          14
+        ],
+        "brs": [
+          "5px"
+        ],
+        "fs": [
+          "13.3333px"
+        ]
+      }
+    },
+    "formStats": {
+      "total": 0,
+      "withFormInput": 0,
+      "native": {
+        "input": 0,
+        "select": 0,
+        "textarea": 0,
+        "dateInput": 0
+      }
+    },
+    "nonFormInput": []
+  },
+  "/storm-map": {
+    "headers": [],
+    "buttonGroups": {
+      "map-controls__dropdown-trigger": {
+        "count": 1,
+        "heights": [
+          38
+        ],
+        "brs": [
+          "12px"
+        ],
+        "fs": [
+          "13px"
+        ]
+      },
+      "<inline>": {
+        "count": 2,
+        "heights": [
+          0,
+          14
+        ],
+        "brs": [
+          "0px"
+        ],
+        "fs": [
+          "13.3333px",
+          "10px"
+        ]
+      },
+      "gm-control-active": {
+        "count": 3,
+        "heights": [
+          40
+        ],
+        "brs": [
+          "50%",
+          "0px"
+        ],
+        "fs": [
+          "13.3333px"
+        ]
+      },
+      "map-legend__info-btn": {
+        "count": 1,
+        "heights": [
+          18
+        ],
+        "brs": [
+          "50%"
+        ],
+        "fs": [
+          "11px"
+        ]
+      }
+    },
+    "formStats": {
+      "total": 8,
+      "withFormInput": 0,
+      "native": {
+        "input": 8,
+        "select": 0,
+        "textarea": 0,
+        "dateInput": 0
+      }
+    },
+    "nonFormInput": [
+      {
+        "tag": "input",
+        "type": "text",
+        "cls": "address-search__input",
+        "placeholder": "Search address..."
+      },
+      {
+        "tag": "input",
+        "type": "range",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      }
+    ]
+  },
+  "/pipeline": {
+    "headers": [],
+    "buttonGroups": {
+      "shrink-0": {
+        "count": 4,
+        "heights": [
+          25,
+          36
+        ],
+        "brs": [
+          "8px",
+          "14px / 12px"
+        ],
+        "fs": [
+          "12px",
+          "13.3333px"
+        ]
+      },
+      "<inline>": {
+        "count": 10,
+        "heights": [
+          36,
+          13
+        ],
+        "brs": [
+          "12px",
+          "0px"
+        ],
+        "fs": [
+          "13px",
+          "13.3333px"
+        ]
+      },
+      "auth-btn": {
+        "count": 1,
+        "heights": [
+          36
+        ],
+        "brs": [
+          "14px / 12px"
+        ],
+        "fs": [
+          "13px"
+        ]
+      }
+    },
+    "formStats": {
+      "total": 0,
+      "withFormInput": 0,
+      "native": {
+        "input": 0,
+        "select": 0,
+        "textarea": 0,
+        "dateInput": 0
+      }
+    },
+    "nonFormInput": []
+  },
+  "/leads": {
+    "headers": [
+      {
+        "cls": "lead-list-toolbar glass",
+        "tag": "div",
+        "h": 110,
+        "padTop": "12px",
+        "padBot": "12px",
+        "padLeft": "24px"
+      }
+    ],
+    "buttonGroups": {
+      "<inline>": {
+        "count": 4,
+        "heights": [
+          36
+        ],
+        "brs": [
+          "12px"
+        ],
+        "fs": [
+          "13px"
+        ]
+      },
+      "quick-action-btn": {
+        "count": 5,
+        "heights": [
+          36,
+          21
+        ],
+        "brs": [
+          "14px / 12px"
+        ],
+        "fs": [
+          "13px",
+          "11px"
+        ]
+      }
+    },
+    "formStats": {
+      "total": 23,
+      "withFormInput": 1,
+      "native": {
+        "input": 23,
+        "select": 0,
+        "textarea": 0,
+        "dateInput": 0
+      }
+    },
+    "nonFormInput": [
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "tag": "input",
+        "type": "checkbox",
+        "cls": "",
+        "placeholder": ""
+      }
+    ]
+  },
+  "/estimates": {
+    "headers": [],
+    "buttonGroups": {
+      "<inline>": {
+        "count": 1,
+        "heights": [
+          36
+        ],
+        "brs": [
+          "12px"
+        ],
+        "fs": [
+          "13px"
+        ]
+      },
+      "auth-btn": {
+        "count": 1,
+        "heights": [
+          36
+        ],
+        "brs": [
+          "14px / 12px"
+        ],
+        "fs": [
+          "13px"
+        ]
+      }
+    },
+    "formStats": {
+      "total": 0,
+      "withFormInput": 0,
+      "native": {
+        "input": 0,
+        "select": 0,
+        "textarea": 0,
+        "dateInput": 0
+      }
+    },
+    "nonFormInput": []
+  },
+  "/invoices": {
+    "headers": [],
+    "buttonGroups": {
+      "<inline>": {
+        "count": 5,
+        "heights": [
+          29
+        ],
+        "brs": [
+          "999px"
+        ],
+        "fs": [
+          "12px"
+        ]
+      },
+      "quick-action-btn": {
+        "count": 17,
+        "heights": [
+          36,
+          31
+        ],
+        "brs": [
+          "14px / 12px"
+        ],
+        "fs": [
+          "13px",
+          "11px"
+        ]
+      },
+      "auth-btn": {
+        "count": 1,
+        "heights": [
+          36
+        ],
+        "brs": [
+          "14px / 12px"
+        ],
+        "fs": [
+          "13px"
+        ]
+      }
+    },
+    "formStats": {
+      "total": 0,
+      "withFormInput": 0,
+      "native": {
+        "input": 0,
+        "select": 0,
+        "textarea": 0,
+        "dateInput": 0
+      }
+    },
+    "nonFormInput": []
+  },
+  "/work-orders": {
+    "headers": [],
+    "buttonGroups": {
+      "<inline>": {
+        "count": 2,
+        "heights": [
+          36,
+          18
+        ],
+        "brs": [
+          "14px / 12px",
+          "0px"
+        ],
+        "fs": [
+          "13px",
+          "13.3333px"
+        ]
+      },
+      "auth-btn": {
+        "count": 1,
+        "heights": [
+          36
+        ],
+        "brs": [
+          "14px / 12px"
+        ],
+        "fs": [
+          "13px"
+        ]
+      }
+    },
+    "formStats": {
+      "total": 0,
+      "withFormInput": 0,
+      "native": {
+        "input": 0,
+        "select": 0,
+        "textarea": 0,
+        "dateInput": 0
+      }
+    },
+    "nonFormInput": []
+  },
+  "/tasks": {
+    "headers": [],
+    "buttonGroups": {
+      "task-filter-tab": {
+        "count": 2,
+        "heights": [
+          32
+        ],
+        "brs": [
+          "8px"
+        ],
+        "fs": [
+          "13px"
+        ]
+      },
+      "auth-btn": {
+        "count": 1,
+        "heights": [
+          36
+        ],
+        "brs": [
+          "14px / 12px"
+        ],
+        "fs": [
+          "13px"
+        ]
+      },
+      "task-check": {
+        "count": 6,
+        "heights": [
+          22
+        ],
+        "brs": [
+          "6px"
+        ],
+        "fs": [
+          "13.3333px"
+        ]
+      }
+    },
+    "formStats": {
+      "total": 0,
+      "withFormInput": 0,
+      "native": {
+        "input": 0,
+        "select": 0,
+        "textarea": 0,
+        "dateInput": 0
+      }
+    },
+    "nonFormInput": []
+  },
+  "/calendar": {
+    "headers": [
+      {
+        "cls": "fc-header-toolbar fc-toolbar fc-toolbar-ltr",
+        "tag": "div",
+        "h": 38,
+        "padTop": "0px",
+        "padBot": "0px",
+        "padLeft": "0px"
+      },
+      {
+        "cls": "fc-toolbar-chunk",
+        "tag": "div",
+        "h": 38,
+        "padTop": "0px",
+        "padBot": "0px",
+        "padLeft": "0px"
+      },
+      {
+        "cls": "fc-toolbar-chunk",
+        "tag": "div",
+        "h": 37,
+        "padTop": "0px",
+        "padBot": "0px",
+        "padLeft": "0px"
+      },
+      {
+        "cls": "fc-toolbar-title",
+        "tag": "h2",
+        "h": 37,
+        "padTop": "0px",
+        "padBot": "0px",
+        "padLeft": "0px"
+      },
+      {
+        "cls": "fc-toolbar-chunk",
+        "tag": "div",
+        "h": 36,
+        "padTop": "0px",
+        "padBot": "0px",
+        "padLeft": "0px"
+      },
+      {
+        "cls": "fc-scrollgrid-section fc-scrollgrid-section-header  fc-scrollgrid-section-sticky",
+        "tag": "tr",
+        "h": 25,
+        "padTop": "0px",
+        "padBot": "0px",
+        "padLeft": "0px"
+      },
+      {
+        "cls": "fc-col-header ",
+        "tag": "table",
+        "h": 25,
+        "padTop": "0px",
+        "padBot": "0px",
+        "padLeft": "0px"
+      },
+      {
+        "cls": "fc-col-header-cell fc-day fc-day-sun",
+        "tag": "th",
+        "h": 24,
+        "padTop": "0px",
+        "padBot": "0px",
+        "padLeft": "0px"
+      }
+    ],
+    "buttonGroups": {
+      "fc-prev-button": {
+        "count": 1,
+        "heights": [
+          36
+        ],
+        "brs": [
+          "3.5px 0px 0px 3.5px"
+        ],
+        "fs": [
+          "14px"
+        ]
+      },
+      "fc-next-button": {
+        "count": 1,
+        "heights": [
+          36
+        ],
+        "brs": [
+          "0px 3.5px 3.5px 0px"
+        ],
+        "fs": [
+          "14px"
+        ]
+      },
+      "fc-today-button": {
+        "count": 1,
+        "heights": [
+          34
+        ],
+        "brs": [
+          "3.5px"
+        ],
+        "fs": [
+          "14px"
+        ]
+      },
+      "fc-dayGridMonth-button": {
+        "count": 1,
+        "heights": [
+          34
+        ],
+        "brs": [
+          "3.5px 0px 0px 3.5px"
+        ],
+        "fs": [
+          "14px"
+        ]
+      },
+      "fc-timeGridWeek-button": {
+        "count": 1,
+        "heights": [
+          34
+        ],
+        "brs": [
+          "0px"
+        ],
+        "fs": [
+          "14px"
+        ]
+      },
+      "fc-timeGridDay-button": {
+        "count": 1,
+        "heights": [
+          34
+        ],
+        "brs": [
+          "0px"
+        ],
+        "fs": [
+          "14px"
+        ]
+      },
+      "fc-listWeek-button": {
+        "count": 1,
+        "heights": [
+          34
+        ],
+        "brs": [
+          "0px 3.5px 3.5px 0px"
+        ],
+        "fs": [
+          "14px"
+        ]
+      }
+    },
+    "formStats": {
+      "total": 0,
+      "withFormInput": 0,
+      "native": {
+        "input": 0,
+        "select": 0,
+        "textarea": 0,
+        "dateInput": 0
+      }
+    },
+    "nonFormInput": []
+  },
+  "/reports": {
+    "headers": [],
+    "buttonGroups": {
+      "reports-preset-btn": {
+        "count": 5,
+        "heights": [
+          30
+        ],
+        "brs": [
+          "8px"
+        ],
+        "fs": [
+          "13px"
+        ]
+      },
+      "<inline>": {
+        "count": 9,
+        "heights": [
+          36,
+          29,
+          23
+        ],
+        "brs": [
+          "12px",
+          "8px"
+        ],
+        "fs": [
+          "13px",
+          "12px",
+          "11px"
+        ]
+      }
+    },
+    "formStats": {
+      "total": 0,
+      "withFormInput": 0,
+      "native": {
+        "input": 0,
+        "select": 0,
+        "textarea": 0,
+        "dateInput": 0
+      }
+    },
+    "nonFormInput": []
+  },
+  "/canvassing": {
+    "headers": [],
+    "buttonGroups": {
+      "<inline>": {
+        "count": 5,
+        "heights": [
+          0,
+          14,
+          40,
+          56
+        ],
+        "brs": [
+          "0px",
+          "8px",
+          "999px"
+        ],
+        "fs": [
+          "13.3333px",
+          "10px",
+          "15px"
+        ]
+      },
+      "gm-control-active": {
+        "count": 2,
+        "heights": [
+          40
+        ],
+        "brs": [
+          "0px"
+        ],
+        "fs": [
+          "13.3333px"
+        ]
+      }
+    },
+    "formStats": {
+      "total": 0,
+      "withFormInput": 0,
+      "native": {
+        "input": 0,
+        "select": 0,
+        "textarea": 0,
+        "dateInput": 0
+      }
+    },
+    "nonFormInput": []
+  },
+  "/settings": {
+    "headers": [],
+    "buttonGroups": {
+      "<inline>": {
+        "count": 15,
+        "heights": [
+          31
+        ],
+        "brs": [
+          "8px"
+        ],
+        "fs": [
+          "12px"
+        ]
+      },
+      "quick-action-btn": {
+        "count": 1,
+        "heights": [
+          29
+        ],
+        "brs": [
+          "14px / 12px"
+        ],
+        "fs": [
+          "12px"
+        ]
+      }
+    },
+    "formStats": {
+      "total": 0,
+      "withFormInput": 0,
+      "native": {
+        "input": 0,
+        "select": 0,
+        "textarea": 0,
+        "dateInput": 0
+      }
+    },
+    "nonFormInput": []
+  }
+}
