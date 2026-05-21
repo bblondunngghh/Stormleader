@@ -48,10 +48,11 @@ hit GET  /auth/me
 hit GET  /storms
 hit GET  /storms/$FAKE_UUID
 
-# map
-hit GET  /map/properties
-hit GET  /map/affected-properties
-hit GET  /map/swaths
+# map (bbox required: west,south,east,north)
+BBOX="-100,30,-95,35"
+hit GET  "/map/properties?bbox=$BBOX"
+hit GET  "/map/affected-properties?bbox=$BBOX"
+hit GET  "/map/swaths?bbox=$BBOX"
 
 # dashboard
 hit GET  /dashboard/stats
@@ -59,11 +60,11 @@ hit GET  /dashboard/funnel
 hit GET  /dashboard/activity
 
 # properties
-hit GET  /properties
+hit GET  "/properties?bbox=$BBOX"
 hit GET  /properties/import-progress
 hit GET  /properties/in-swath/$FAKE_UUID/count
 hit GET  /properties/in-swath/$FAKE_UUID
-hit GET  "/properties/reverse-geocode?lat=40.5&lon=-80.5"
+hit GET  "/properties/reverse-geocode?lat=40.5&lng=-80.5"
 hit GET  /properties/$FAKE_UUID
 
 # leads
@@ -119,7 +120,7 @@ hit GET  /crm/dashboard/lead-source-revenue
 # crm — prospect lists / calendar / custom-fields
 hit GET  /crm/prospect-lists
 hit GET  /crm/prospect-lists/$FAKE_UUID/items
-hit GET  /crm/calendar
+hit GET  "/crm/calendar?start=2026-05-01&end=2026-05-31"
 hit GET  /crm/custom-fields
 
 # estimates
@@ -216,13 +217,13 @@ hit GET  /crm/territories/$FAKE_UUID
 hit GET  /crm/territories/$FAKE_UUID/pins
 
 # disaster-declarations / storm-history
-hit GET  /disaster-declarations
-hit GET  /storm-history
-hit GET  /storm-history/heatmap
+hit GET  "/disaster-declarations?state=TX&county=Dallas"
+hit GET  "/storm-history?lat=32.7&lng=-96.8"
+hit GET  "/storm-history/heatmap?bbox=$BBOX"
 
 # data
-hit GET  "/data/fema-housing?lat=40.5&lon=-80.5"
-hit GET  "/data/directions?fromLat=40.5&fromLon=-80.5&toLat=40.6&toLon=-80.6"
+hit GET  "/data/fema-housing?zip=75201"
+hit GET  "/data/directions?fromLat=40.5&fromLng=-80.5&toLat=40.6&toLng=-80.6"
 
 # onboarding
 hit GET  /onboarding/plans
@@ -300,7 +301,7 @@ hit POST  /roof-measurement/manual '{}' 400
 hit POST  /drift/correct-all '{}' 400
 hit POST  /drift/simulate '{}' 400
 hit POST  /drift/calibrate '{}' 400
-hit POST  /dataApis/optimize-route '{}' 400 || true
+hit POST  /data/optimize-route '{}' 400
 
 echo
 echo "=== DONE ==="
