@@ -1628,3 +1628,79 @@ Branch: `feat/financing` · Pre-run checkpoint: `e5994c7` · Head: `e5994c7` (no
 - Total cost across 4 working sessions: ~$12.77
 
 ---
+## QA Run: 2026-05-21 (Run 26 — API-only)
+
+Branch: `feat/financing` · Pre-run checkpoint: `55552c4` (`pre-overnight-20260521`) · Head: `0a20174` · Commits this run: **1** (test-harness fix only)
+
+### Test Results
+- Pages tested: **0 this run** (s2 max_turns at turn 81 before walking) — last full walk Run 25 (2026-05-11); client diff empty since then
+- API endpoints exercised: **265+ GET + 34 PATCH/PUT empty-body + 36 empty-body POST + 27 BAD-UUID probes**
+- Final harness tally: **2xx=101, 4xx=82, 5xx=0**
+- Bugs found (production 5xx): **0** (11th consecutive run)
+- Bugs fixed (server): **0**
+- Harness defects fixed: **11** (10 wrong param names + 1 wrong path in `qa-api-test.mjs`)
+- UI inconsistencies found: **0** (s3 max_turns, no audit artifact; client diff empty since Run 20 sweep)
+- UI inconsistencies fixed: **0**
+- Intentional 503s: 1 (`/api/skip-trace/job/:id` — TRACERFY_API_KEY graceful-degrade)
+- Intentional empty-body 200s: 2 (`POST /alerts/test`, `POST /drift/correct-all`)
+
+### Fixes Made
+- `0a20174` fix(qa): correct param names and path in API harness — 10 wrong param names + 1 wrong path that had been producing spurious 400s in past reports. The server was correctly rejecting malformed requests; the test script was sending malformed requests. After fix, harness reports cleanly: positive-GET section fully 2xx, negative section unchanged.
+
+Detailed fix table:
+| Endpoint | Defect | Fix |
+|---|---|---|
+| GET /map/{properties,affected-properties,swaths} | Missing required `bbox` | Added `?bbox=-100,30,-95,35` |
+| GET /properties | Missing required `bbox` | Added `?bbox=$BBOX` |
+| GET /properties/reverse-geocode | Sent `lon=`, handler wants `lng=` | Renamed to `lng=` |
+| GET /crm/calendar | Missing required `start` and `end` | Added `?start=2026-05-01&end=2026-05-31` |
+| GET /disaster-declarations | Missing required `state` and `county` | Added `?state=TX&county=Dallas` |
+| GET /storm-history | Missing required `lat`/`lng` | Added `?lat=32.7&lng=-96.8` |
+| GET /storm-history/heatmap | Missing required `bbox` | Added `?bbox=$BBOX` |
+| GET /data/fema-housing | Sent lat/lon, handler wants `zip=` | Replaced with `?zip=75201` |
+| GET /data/directions | Sent `fromLon/toLon`, handler wants `fromLng/toLng` | Renamed |
+| POST /dataApis/optimize-route | Wrong path (route mounted on `/data`) | Renamed to `/data/optimize-route` |
+
+### UI Consistency Fixes
+- None. s3 hit max_turns at turn 61 with no artifact committed. Run 20 sweep (37/37 source files clean, 38/38 Heroicons) remains latest authoritative audit. No client-side commits between Run 20 head and Run 26 head, so audit remains valid.
+
+### Known Issues Remaining
+- Heavy-work guards on `POST /drift/correct-all`, `POST /properties/trigger-import`, `POST /crm/leads/score-all` — accept empty bodies (Run 11)
+- 16 search-input fields lack explicit `.form-input` class — cosmetic (Run 13, `form-audit.json`)
+- Pre-token-attach 401 noise — Run 25 confirmed token expiry at boot; real fix is proactive expiry check in `client/src/api/client.js` interceptor (deferred, behavioural)
+- Reports chart label overlap at ~930 px viewport — cosmetic
+- 404 response shape — Express HTML 404 vs JSON elsewhere — cosmetic
+- Currency-formatting surfaces (LeadDetail, Reports, ContractsView, ExpensesView, EstimatesView totals) not audited for `$${num}` anti-pattern
+- `DELETE /api/documents/:id` returns 200 `{deleted:false}` for missing rows vs sibling 404s — cosmetic (Run 20)
+- `POST /api/webhooks/hearth` permissive on missing fields — empty-body returns 200, not 400 — security audit candidate (Run 21)
+- `GET /api/skip-trace/job/:jobId` returns 503 when `TRACERFY_API_KEY` unset — intentional graceful-degrade
+- Admin panel requires global super_admin role to fully exercise
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration for live delivery testing
+- Webhook signature delivery paths — valid-signature paths need real signing keys
+- File upload success paths with real binary fixtures still untested (`qa-fixtures/` does not exist)
+- `subcontractors.js.bak` cleanup — 8 dead routes; safe `git rm`, deferred
+- CSV export download verified by 200 only, not by binary content-type and download trigger
+- QuickBooks, Twilio, Stripe live flows not fully wired (pre-existing)
+- Mobile responsive sweep at 375 px / 768 px — last full sweep was Run 6 (20 runs ago)
+- Browser-interactive write coverage (drag, submit, toggle, upload, save) — Run 25 walked pages but did NOT exercise writes; not advanced this run (s2 max_turns)
+- `/content-studio` orphan reference — referenced in old docs but never implemented; catch-all `*` redirects to `/`. Build or scrub.
+- s5 report-writing session 0-byte for **18 consecutive runs** — drop or fold into s4
+- s2 frontend-test regression vs Run 25 — Run 25 completed in 102 turns; Run 26 hit max_turns at 81. Turn budget at the edge.
+
+### Session Integrity
+- s1 api-test: **completed** (55 turns, $2.45) — 7th consecutive fully-completed s1 (Runs 19–26); produced the only commit on HEAD (`0a20174`)
+- s2 frontend-test: error_max_turns (81 turns, $4.08) — no commits; regression vs Run 25's 102-turn completion
+- s3 ui-audit: error_max_turns (61 turns, $4.17) — no commits, no audit artifact
+- s4 verify: error_max_turns (41 turns, $1.82) — no verification commit (acceptable — only fix was a self-evident harness change visible in immediate re-run tally)
+- s5 report: 0 bytes — 18th consecutive non-functional s5
+- Total cost across 4 working sessions: ~$12.52 (vs Run 25's $12.77)
+- 3 / 5 sessions hit max_turns (s2, s3, s4); pattern consistent with last 6 overnight runs
+
+### Investigated and Dismissed
+- The 11 "unexpected 400s" reported in past runs were not server bugs — they were harness defects. The server has been correctly rejecting malformed test requests. Past reports that counted these toward "unexpected 400" overstated noise levels. Going forward, the corrected harness will show a cleaner tally that reflects actual server behaviour.
+
+### Diff vs. Run 25
+- `git diff e5994c7..0a20174 -- server/src/routes/` empty
+- `git diff e5994c7..0a20174 -- client/src/` empty
+- Only change: `qa-api-test.mjs` (test-harness only)
+- Harness coverage unchanged at 265+ GET / 34 PATCH-PUT / 36 POST / 27 BAD-UUID probes
