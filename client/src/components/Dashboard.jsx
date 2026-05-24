@@ -669,7 +669,7 @@ export default function Dashboard() {
 
   const handleToggleTask = async (task) => {
     try {
-      await updateTask(task.id, { status: 'completed' });
+      await updateTask(task.id, { completed_at: new Date().toISOString() });
       setTasksToday(prev => prev.filter(t => t.id !== task.id));
     } catch {}
   };

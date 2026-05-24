@@ -732,7 +732,7 @@ function MobileTaskCard({ task, borderColor, cardStyle, onToggle, onEdit }) {
         </span>
         <input
           type="checkbox"
-          checked={task.status === 'completed'}
+          checked={!!task.completed_at}
           onChange={onToggle}
           onClick={e => e.stopPropagation()}
           style={{
