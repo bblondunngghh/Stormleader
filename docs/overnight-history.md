@@ -1704,3 +1704,76 @@ Detailed fix table:
 - `git diff e5994c7..0a20174 -- client/src/` empty
 - Only change: `qa-api-test.mjs` (test-harness only)
 - Harness coverage unchanged at 265+ GET / 34 PATCH-PUT / 36 POST / 27 BAD-UUID probes
+
+---
+## QA Run: 2026-05-23 (Runs 27 + 28)
+
+Branch: `feat/financing` · Pre-run checkpoint: `257a658` (`pre-overnight-20260523`) · Head: `257a658` · Commits this run: **0**
+
+### Test Results
+- Pages tested: **14** routes + full `/settings` tab tree (Playwright walk via s2; Run 28)
+- API endpoints exercised (Run 27 s1): **183 harness probes + 72 supplemental gap probes = 255+ endpoints**
+- Final harness tally: **2xx = 100, 4xx = 82, 5xx = 0, 0xx = 1** (known `POST /drift/correct-all` curl-timeout carry-over since Run 11)
+- Bugs found (production 5xx): **0** (12th consecutive run)
+- Bugs fixed (server): **0**
+- Harness defects fixed: **0**
+- UI inconsistencies found: **0** (s3 `max_turns`, no artifact; client diff empty since Run 20 audit)
+- UI inconsistencies fixed: **0**
+- Intentional 503s: 1 (`/api/skip-trace/job/:id` — TRACERFY_API_KEY graceful-degrade)
+- Intentional empty-body 200s: 2 (`POST /alerts/test`, `POST /drift/correct-all`)
+- Source-code commits this run: **0** (`git diff overnight-checkpoint-20260523..HEAD` empty before report write)
+
+### Fixes Made
+- **None.** Both API surface (Runs 24–27, 4 consecutive zero-bug runs) and frontend-render surface (Run 28, all 14 routes clean) are saturated. Nothing surfaced to fix.
+
+### UI Consistency Fixes
+- None. s3 hit `max_turns` at turn 61 with no committed audit artifact (4th consecutive `max_turns` for s3). Run 20 sweep (37/37 source files clean, 38/38 Heroicons) remains the latest authoritative audit; no client-side commits between Run 20 head and Run 28 head, so audit remains valid.
+
+### Audit Evidence Captured
+- `/tmp/api-test-results.txt` (124 lines — Run 27 baseline; 100 ok, 8 4xx, 0 5xx in positive section)
+- `qa-run29-globalsearch-empty.png` (369 KB, captured 05:24 by s4/verify — TopBar GlobalSearch empty state; filename mislabelled "run29" per run-number labelling inconsistency carry-over)
+- s2 (Run 28) page walk results captured inline in `memory/overnight_resume.md` — every route loaded with status 200, real data, zero console errors
+
+### Investigated and Dismissed
+- **CRM sub-router coverage gap:** s1 perceived several CRM sub-routers might be under-covered. Investigation ran 72 supplemental probes (43 GET + 29 POST/PATCH) — all 2xx/4xx, zero 5xx. Subsequent harness re-inspection confirmed all 145 unique GET paths spanning every mounted router are already covered. Perceived gap was a prefix-grouping artifact, not a real coverage hole.
+
+### Diff vs. Run 26
+- `git diff 0a20174..HEAD -- server/src/` empty
+- `git diff 0a20174..HEAD -- client/src/` empty
+- `git diff 0a20174..HEAD -- qa-api-test.mjs` empty
+- HEAD is the pre-overnight checkpoint commit `257a658` (re-points the tag; no functional change)
+- Harness coverage unchanged from Run 26's corrected baseline
+
+### Session Integrity
+- s1 api-test (Run 27): **completed** (33 turns, 19 622 output tokens, $1.87) — **8th consecutive fully-completed s1** (Runs 19–27); no commits (nothing to fix)
+- s2 frontend-test (Run 28): `error_max_turns` (81 turns, 24 982 output tokens, $5.32) — no commits, but **14 routes walked** before exhaustion; `closes coverage gap` for render surface, opens write-flow gap (carry-over #4)
+- s3 ui-audit: `error_max_turns` (61 turns, 26 186 output tokens, $4.46) — no audit artifact committed (4th consecutive `max_turns` for s3)
+- s4 verify: `error_max_turns` (41 turns, 8 917 output tokens, $1.95) — no commits (acceptable, nothing to verify); 1 verification screenshot captured
+- s5 report: 0 bytes — **20th consecutive non-functional s5**; this report written in a follow-up session
+- Total cost across the four working sessions: ~$13.60 (vs Run 26's $12.52)
+- 3 / 5 sessions hit `max_turns`; pattern consistent with last 7 overnight runs
+- Run-number labelling still inconsistent across stages: s1 self-labelled "Run 27", s2 / resume file labelled "Run 28", s4 screenshot filename uses "run29"
+
+### Known Issues Remaining
+- Heavy-work guards on `POST /drift/correct-all`, `POST /properties/trigger-import`, `POST /crm/leads/score-all` — accept empty bodies (Run 11)
+- 16 search-input fields lack explicit `.form-input` class — cosmetic (Run 13, `form-audit.json`)
+- Pre-token-attach 401 noise on `/api/notifications/unread-count`, `/api/properties/import-progress`, `/api/crm/tenant-settings` — Run 25 confirmed token expiry at boot; real fix is proactive expiry check in `client/src/api/client.js` interceptor (~10 lines, contained)
+- Reports chart label overlap at ~930 px viewport — cosmetic
+- 404 response shape — Express HTML 404 vs JSON elsewhere — cosmetic
+- Currency-formatting surfaces (LeadDetail Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals) not audited for `$${num}` anti-pattern
+- `DELETE /api/documents/:id` returns 200 `{deleted:false}` for missing rows vs sibling 404s — cosmetic (Run 20)
+- `POST /api/webhooks/hearth` permissive on missing fields — security audit candidate (Run 21)
+- `GET /api/skip-trace/job/:jobId` returns 503 when `TRACERFY_API_KEY` unset — intentional graceful-degrade
+- Admin panel requires global `super_admin` role to fully exercise
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration for live delivery testing
+- Webhook signature delivery paths — valid-signature paths need real signing keys
+- File upload success paths with real binary fixtures still untested (`qa-fixtures/` does not exist)
+- `subcontractors.js.bak` cleanup — 8 dead routes; safe `git rm`, deferred per "don't refactor working state"
+- CSV export download verified by 200 only, not by binary content-type and download trigger
+- QuickBooks, Twilio, Stripe live flows not fully wired (pre-existing)
+- Mobile responsive sweep at 375 px / 768 px — last full sweep was Run 6 (22 runs ago)
+- Browser-interactive **write coverage** (drag, submit, toggle, upload, save) — Run 28 walked all pages and confirmed render but did NOT exercise writes; **only meaningful QA frontier going forward**
+- `/content-studio` orphan reference — referenced in old docs but never implemented; catch-all `*` redirects to `/`. Build or scrub.
+- s5 report-writing session 0-byte for **20 consecutive runs** — drop the stage or fold into s4
+- Run-number labelling inconsistency across stages persists — orchestrator script needs to pass a stable run number into each stage's prompt
+
