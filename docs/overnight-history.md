@@ -1777,3 +1777,89 @@ Branch: `feat/financing` · Pre-run checkpoint: `257a658` (`pre-overnight-202605
 - s5 report-writing session 0-byte for **20 consecutive runs** — drop the stage or fold into s4
 - Run-number labelling inconsistency across stages persists — orchestrator script needs to pass a stable run number into each stage's prompt
 
+---
+## QA Run: 2026-05-24 (Runs 29 + 30)
+
+Branch: `feat/financing` · Pre-run checkpoint: `022b2e6` (`overnight-checkpoint-20260524`) · Head: `87d7230` · Commits this run: **2**
+
+### Test Results
+- Pages tested: **19** (every authenticated route walked via Playwright)
+- API endpoints tested: **144** (84 GET-sweep + 8 404-test + 3 400-UUID + 26 400-empty + 4 public-bad-token + 3 heavy-work + 2 round-trip + 14 misc)
+- Final harness tally: **2xx = 100, 4xx = 44, 5xx = 0**
+- Bugs found: **3** (1 backend contract, 2 UI parity-CSS)
+- Bugs fixed: **3** (100%)
+- UI inconsistencies found: **2** (both modal backdrops)
+- UI inconsistencies fixed: **2** (100%)
+- Production 5xx after run: **0** (**13th consecutive run**)
+- Commits this run: **2** (`2eb2135`, `87d7230`)
+
+### Fixes Made
+- **`client/src/components/Dashboard.jsx:672`** — `handleCompleteTask` sent `{status:"completed"}` to `PATCH /api/crm/tasks/:id`, but the server route only accepts `{completed_at}`. Task disappeared from local state but the DB row never updated (the 400 was silently swallowed). Fix: send `{completed_at: new Date().toISOString()}`. Commit `2eb2135`.
+- **`client/src/components/TasksView.jsx:735`** — checkbox was bound to `task.status === "completed"` but the `tasks` table has no `status` column. Always rendered unchecked. Fix: bind to `!!task.completed_at`. Commit `2eb2135` (same commit as above — one bug class, two files).
+
+### UI Consistency Fixes
+- **`client/src/components/ImportLeadsModal.jsx:166`** — `<div className="modal-backdrop">` had no inline `style` props. The `.modal-backdrop` CSS class only carries the fade-in animation; it intentionally does NOT set position/inset/background/blur. Result: clicking "Import" on `/leads` opened the modal panel with no darkened backdrop, leaving the underlying page click-through. Fix: added the standard inline block (`position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(8px)'`) — matching the pattern used by ExpensesView, CalendarView, MaterialsView, etc. Commit `87d7230`.
+- **`client/src/components/DripSequences.jsx:572`** — same bug pattern on the delete-confirmation modal. Same fix. Commit `87d7230` (same commit as above).
+- Verified post-fix via Playwright `getComputedStyle` round-trip on the Import Leads modal — dark blurred backdrop now renders correctly. Screenshots: `verify-import-modal.png` (pre-fix), `verify-import-modal-fixed.png` (post-fix).
+
+### Audit Evidence Captured
+- `/tmp/api-test-results.txt` (163 lines — Run 29 baseline; 100 ok, 44 4xx, 0 5xx)
+- `ui-audit-results.txt` (Run 30 7-audit deliverable)
+- `audit-pass1.json`, `audit-buttons.json`, `audit-modals.json`, `audit-spacing.json` (per-page metrics)
+- `snapshot-dashboard.md`, `snapshot-pipeline.md` (Playwright accessibility snapshots)
+- `qa-run30-{01-dashboard,02-pipeline,03-pipeline-preview,04-import-modal-fixed}.png` (4 screenshots)
+- `verify-import-modal.png`, `verify-import-modal-fixed.png` (before/after fix verification)
+
+### Investigated and Dismissed
+- **9 non-Heroicon SVGs on `/reports`** — investigation confirmed these are Recharts library SVGs (chart legend swatches, chart wrappers), not UI icons. PASS.
+- **`.address-search__input` on `/storm-map` not `.form-input`** — intentional compact map-overlay control. PASS.
+- **TopBar global search not `.form-input`** — intentional `.topbar__search` toolbar styling. PASS.
+- **`/alerts` stepper number inputs not `.form-input`** — intentional sub-control of +/- group. PASS.
+- **`/leads` "25/50/100" page-size pills (h=21) and `/subcontractors` Prev/Next (h=25) shorter than 36-px quick-action-btn** — intentional compact pagination variants. PASS.
+- **`/subcontractors` has both H1 and H2 reading "Subcontractors"** — content choice, not consistency defect. PASS.
+
+### Session Integrity
+- s1 api-test (Run 29): **completed** — produced commit `2eb2135` (1 commit, 2 files, 1 bug class). Harness coverage = 144 endpoints (down from Run 27's 255+ because Run 29 used a leaner targeted probe set, not a regression in coverage).
+- s2 frontend-test (Run 29): `error_max_turns` (81 turns, 16 747 output tokens, $4.39) — no commits. Page-walk happened but writes did not exercise (carry-over #1).
+- s3 ui-audit (Run 30): **completed** with deliverable — produced commit `87d7230` (1 commit, 2 files, 1 bug class), plus `ui-audit-results.txt` and 4 JSON metric files. **First successful s3 completion in 5 runs.**
+- s4 verify (Run 30): `error_max_turns` (41 turns, 16 893 output tokens, $2.56) — no commits, but captured 6 screenshots and 2 accessibility snapshots.
+- s5 report: 0 bytes — **22nd consecutive non-functional s5**; this report written in a follow-up session.
+- Total cost across the four working sessions: ~$10–12 (s1 + s2 + s4 measured at $6.95; s3 not measured).
+- 2 / 4 working sessions hit `max_turns` (s2, s4) — **improvement** over Runs 27+28 (3 / 4) thanks to s3 completing.
+
+### Diff vs. Run 28
+- `git diff 257a658..87d7230 -- server/src/` empty
+- `git diff 257a658..87d7230 -- client/src/components/Dashboard.jsx` 1-line change (handleCompleteTask payload)
+- `git diff 257a658..87d7230 -- client/src/components/TasksView.jsx` 1-line change (checkbox binding)
+- `git diff 257a658..87d7230 -- client/src/components/ImportLeadsModal.jsx` 6 lines added (modal-backdrop inline style)
+- `git diff 257a658..87d7230 -- client/src/components/DripSequences.jsx` 6 lines added (modal-backdrop inline style)
+- `git diff 257a658..87d7230 -- qa-api-test.mjs` empty
+- HEAD advanced: `257a658` → `2eb2135` → `87d7230`
+
+### Known Issues Remaining
+- Heavy-work guards on `POST /drift/correct-all`, `POST /properties/trigger-import`, `POST /crm/leads/score-all` — accept empty bodies (Run 11)
+- 16 search-input fields lack explicit `.form-input` class — cosmetic (Run 13, `form-audit.json`)
+- Pre-token-attach 401 noise on `/api/notifications/unread-count`, `/api/properties/import-progress`, `/api/crm/tenant-settings` — Run 25 confirmed token expiry at boot; real fix is proactive expiry check in `client/src/api/client.js` interceptor (~10 lines, contained)
+- Reports chart label overlap at ~930 px viewport — cosmetic
+- 404 response shape — Express HTML 404 vs JSON elsewhere — cosmetic
+- Currency-formatting surfaces (LeadDetail Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals) not audited for `$${num}` anti-pattern
+- `DELETE /api/documents/:id` returns 200 `{deleted:false}` for missing rows vs sibling 404s — cosmetic (Run 20)
+- `POST /api/webhooks/hearth` permissive on missing fields — security audit candidate (Run 21)
+- `GET /api/skip-trace/job/:jobId` returns 503 when `TRACERFY_API_KEY` unset — intentional graceful-degrade
+- `/crm/financing/public/:token/plans` returns `200 []` for invalid tokens (vs 404 from siblings) — cosmetic shape mismatch (Run 28)
+- Storm-source enum errors leak DB internals (`invalid input value for enum storm_source`) — security-audit candidate (Run 22)
+- `.modal-backdrop` CSS class still requires inline styling at each call site (16 sites repeat ~6 lines of position/background/blur) — refactor opportunity to absorb boilerplate and prevent the exact bug class fixed this run; deliberately skipped per "don't refactor working features" rule (Run 30)
+- Admin panel requires global `super_admin` role to fully exercise
+- Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration for live delivery testing
+- Webhook signature delivery paths — valid-signature paths need real signing keys
+- File upload success paths with real binary fixtures still untested (`qa-fixtures/` does not exist)
+- `subcontractors.js.bak` cleanup — 8 dead routes; safe `git rm`, deferred per "don't refactor working state"
+- CSV export download verified by 200 only, not by binary content-type and download trigger
+- QuickBooks, Twilio, Stripe live flows not fully wired (pre-existing)
+- Mobile responsive sweep at 375 px / 768 px — last full sweep was Run 6 (**24 runs ago**)
+- Browser-interactive **write coverage** (drag, submit, toggle, upload, save) — Run 30 pivoted to UI consistency instead; **still the highest-yield frontier for Run 31**
+- `/content-studio` orphan reference — referenced in old docs but never implemented; catch-all `*` redirects to `/`. Build or scrub.
+- `/subcontractors` has both H1 and H2 "Subcontractors" — content choice, not consistency defect (Run 30)
+- s5 report-writing session 0-byte for **22 consecutive runs** — drop the stage or fold into s4
+- Run-number labelling inconsistency across stages persists (s1 self-labelled "Run 29", s3 self-labelled "Run 30") — orchestrator script needs to pass a stable run number into each stage's prompt
+
