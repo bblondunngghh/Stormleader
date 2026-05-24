@@ -569,7 +569,11 @@ export default function DripSequences() {
       )}
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="modal-backdrop" onClick={() => setDeleteConfirm(null)}>
+        <div className="modal-backdrop" onClick={() => setDeleteConfirm(null)} style={{
+          position: 'fixed', inset: 0, zIndex: 9999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(8px)',
+        }}>
           <div
             className="glass modal-scale-in"
             onClick={e => e.stopPropagation()}

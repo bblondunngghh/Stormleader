@@ -163,7 +163,11 @@ export default function ImportLeadsModal({ onClose, onImported }) {
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-backdrop" onClick={onClose} style={{
+      position: 'fixed', inset: 0, zIndex: 9999,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(8px)',
+    }}>
       <div className="glass" onClick={e => e.stopPropagation()} style={{
         width: '100%', maxWidth: 720, maxHeight: '85vh', overflow: 'auto',
         borderRadius: 'var(--radius-2xl)', padding: 'var(--space-2xl)',
