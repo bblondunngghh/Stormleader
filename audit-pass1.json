@@ -1,0 +1,2468 @@
+{
+  "/": {
+    "svgs": 59,
+    "heroOut": 59,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 51,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link is-active",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "600",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Finance",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Operations",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      13,
+      14,
+      16,
+      21,
+      22,
+      23,
+      24,
+      26,
+      27,
+      36,
+      38,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "999px",
+      "3.35544e+07px",
+      "5px"
+    ],
+    "inputs": 1,
+    "noFormInput": 1,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/pipeline": {
+    "svgs": 66,
+    "heroOut": 66,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 34,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link is-active",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "600",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Finance",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Operations",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      13,
+      21,
+      22,
+      25,
+      26,
+      36,
+      38,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "8px",
+      "14px / 12px"
+    ],
+    "inputs": 1,
+    "noFormInput": 1,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/leads": {
+    "svgs": 27,
+    "heroOut": 27,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 28,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link is-active",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "600",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Finance",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Operations",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      21,
+      22,
+      26,
+      36,
+      38,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "14px / 12px"
+    ],
+    "inputs": 2,
+    "noFormInput": 1,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/storm-map": {
+    "svgs": 23,
+    "heroOut": 23,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 21,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link is-active",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "600",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Finance",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Operations",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      18,
+      21,
+      22,
+      26,
+      38,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "50%"
+    ],
+    "inputs": 3,
+    "noFormInput": 3,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      },
+      {
+        "type": "text",
+        "name": null,
+        "cls": "address-search__input",
+        "placeholder": "Search address..."
+      },
+      {
+        "type": "range",
+        "name": null,
+        "cls": "",
+        "placeholder": ""
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/storm-catalog": {
+    "svgs": 1020,
+    "heroOut": 1020,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 33,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link is-active",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "600",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Finance",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Operations",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      21,
+      22,
+      23,
+      26,
+      29,
+      36,
+      38,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "14px / 12px",
+      "999px"
+    ],
+    "inputs": 2,
+    "noFormInput": 1,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/alerts": {
+    "svgs": 23,
+    "heroOut": 23,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 25,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Finance",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Operations",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      21,
+      22,
+      26,
+      28,
+      34,
+      36,
+      38,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "999px",
+      "8px 0px 0px 8px",
+      "0px 8px 8px 0px"
+    ],
+    "inputs": 4,
+    "noFormInput": 3,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      },
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": ""
+      },
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": ""
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/tasks": {
+    "svgs": 25,
+    "heroOut": 25,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 33,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Finance",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Operations",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      21,
+      22,
+      26,
+      32,
+      36,
+      38,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "8px",
+      "14px / 12px",
+      "6px"
+    ],
+    "inputs": 1,
+    "noFormInput": 1,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/calendar": {
+    "svgs": 25,
+    "heroOut": 25,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 31,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Finance",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Operations",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      21,
+      22,
+      26,
+      34,
+      36,
+      38,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "3.5px 0px 0px 3.5px",
+      "0px 3.5px 3.5px 0px",
+      "3.5px"
+    ],
+    "inputs": 1,
+    "noFormInput": 1,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/canvassing": {
+    "svgs": 28,
+    "heroOut": 28,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 27,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Finance",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Operations",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      21,
+      22,
+      26,
+      38,
+      40,
+      42,
+      56
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "8px",
+      "999px"
+    ],
+    "inputs": 1,
+    "noFormInput": 1,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/estimates": {
+    "svgs": 35,
+    "heroOut": 35,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 30,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Estimates",
+        "cls": "nav-link nav-link--child is-active",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "600",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Contracts",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      21,
+      22,
+      26,
+      36,
+      38,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "14px / 12px"
+    ],
+    "inputs": 1,
+    "noFormInput": 1,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/invoices": {
+    "svgs": 37,
+    "heroOut": 37,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 53,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Estimates",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Contracts",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      21,
+      22,
+      26,
+      29,
+      31,
+      36,
+      38,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "999px",
+      "14px / 12px"
+    ],
+    "inputs": 1,
+    "noFormInput": 1,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/reports": {
+    "svgs": 49,
+    "heroOut": 40,
+    "otherSvg": 9,
+    "otherSvgSamples": [
+      {
+        "vb": "0 0 32 32",
+        "fill": null,
+        "parent": "LI.recharts-legend-item legend-item-0"
+      },
+      {
+        "vb": "0 0 32 32",
+        "fill": null,
+        "parent": "LI.recharts-legend-item legend-item-1"
+      },
+      {
+        "vb": "0 0 133 300",
+        "fill": null,
+        "parent": "DIV.recharts-wrapper"
+      },
+      {
+        "vb": "0 0 362 300",
+        "fill": null,
+        "parent": "DIV.recharts-wrapper"
+      },
+      {
+        "vb": "0 0 32 32",
+        "fill": null,
+        "parent": "LI.recharts-legend-item legend-item-0"
+      }
+    ],
+    "buttons": 44,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Estimates",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Contracts",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      21,
+      22,
+      23,
+      26,
+      29,
+      30,
+      36,
+      38,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "8px"
+    ],
+    "inputs": 1,
+    "noFormInput": 1,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/materials": {
+    "svgs": 442,
+    "heroOut": 442,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 183,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Estimates",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Contracts",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      21,
+      22,
+      26,
+      27,
+      32,
+      38,
+      41,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "14px / 12px"
+    ],
+    "inputs": 2,
+    "noFormInput": 1,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/work-orders": {
+    "svgs": 33,
+    "heroOut": 33,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 33,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Estimates",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Contracts",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      18,
+      21,
+      22,
+      26,
+      36,
+      38,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "14px / 12px"
+    ],
+    "inputs": 1,
+    "noFormInput": 1,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/contracts": {
+    "svgs": 37,
+    "heroOut": 37,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 50,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Estimates",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Contracts",
+        "cls": "nav-link nav-link--child is-active",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "600",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      21,
+      22,
+      26,
+      31,
+      36,
+      38,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "14px / 12px"
+    ],
+    "inputs": 1,
+    "noFormInput": 1,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/expenses": {
+    "svgs": 46,
+    "heroOut": 46,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 42,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Estimates",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Contracts",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      21,
+      22,
+      25,
+      26,
+      36,
+      38,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "14px / 12px"
+    ],
+    "inputs": 1,
+    "noFormInput": 1,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/subcontractors": {
+    "svgs": 44,
+    "heroOut": 44,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 46,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Estimates",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Contracts",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      21,
+      22,
+      25,
+      26,
+      28,
+      36,
+      38,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "14px / 12px",
+      "8px"
+    ],
+    "inputs": 2,
+    "noFormInput": 1,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/settings": {
+    "svgs": 31,
+    "heroOut": 31,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 46,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Estimates",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Contracts",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      21,
+      22,
+      26,
+      29,
+      31,
+      38,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "8px",
+      "14px / 12px"
+    ],
+    "inputs": 1,
+    "noFormInput": 1,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  },
+  "/admin": {
+    "svgs": 32,
+    "heroOut": 32,
+    "otherSvg": 0,
+    "otherSvgSamples": [],
+    "buttons": 34,
+    "btnSample": [
+      {
+        "text": "Dashboard",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Map",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Storm Archive",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Pipeline",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Leads",
+        "cls": "nav-link",
+        "h": 42,
+        "pad": "12px 16px",
+        "br": "12px",
+        "fs": "13.5px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Jobs",
+        "cls": "nav-group__header",
+        "h": 22,
+        "pad": "4px 16px",
+        "br": "0px",
+        "fs": "11px",
+        "fw": "700",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Estimates",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      },
+      {
+        "text": "Contracts",
+        "cls": "nav-link nav-link--child",
+        "h": 42,
+        "pad": "12px 16px 12px 28px",
+        "br": "12px",
+        "fs": "13px",
+        "fw": "500",
+        "bg": "rgba(0, 0, 0, 0)",
+        "hasIcon": true
+      }
+    ],
+    "btnHeights": [
+      0,
+      21,
+      22,
+      26,
+      32,
+      38,
+      42
+    ],
+    "btnRadii": [
+      "12px",
+      "0px",
+      "10px / 8px",
+      "8px"
+    ],
+    "inputs": 1,
+    "noFormInput": 1,
+    "noFormInputSamples": [
+      {
+        "type": "text",
+        "name": null,
+        "cls": "",
+        "placeholder": "Search leads, contacts... (Ctrl+K)"
+      }
+    ],
+    "nativeSelects": 0,
+    "nativeDates": 0,
+    "headerH": 56
+  }
+}

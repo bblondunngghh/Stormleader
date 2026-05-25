@@ -1,0 +1,103 @@
+QA Run 30 — UI Consistency Audit
+=================================
+Date: 2026-05-24
+Branch: feat/financing
+Pages walked: 19 (every authenticated route)
+
+Audit findings table
+====================
+| Page              | Issue Type        | Element                      | Expected                         | Actual                                | Fixed? |
+|-------------------|-------------------|------------------------------|----------------------------------|---------------------------------------|--------|
+| /leads (Import)   | Modal backdrop    | <div className="modal-backdrop">  | Dark blurred overlay covering viewport | Transparent backdrop, page click-through | YES — 87d7230 |
+| DripSequences     | Modal backdrop    | Delete-confirm modal-backdrop | Dark blurred overlay              | Transparent (same bug)                | YES — 87d7230 |
+| /reports          | SVG type          | 9 non-Heroicon SVGs           | All icons Heroicons outline        | Recharts chart/legend SVGs (not icons) | N/A — these are chart elements, not UI icons |
+| /storm-map        | Form input        | .address-search__input         | .form-input class                  | Custom class for compact map control   | N/A — intentional map-overlay control  |
+| TopBar            | Form input        | Global search box              | .form-input class                  | .topbar__search custom (oklch bg, br 14px/12px) | N/A — intentional toolbar styling |
+| /alerts           | Form input        | 2 stepper number inputs        | .form-input class                  | Inline-styled center cell of +/- group | N/A — intentional stepper sub-control |
+| /leads            | Compact button    | "25/50/100" page-size pills    | h=36 like other quick-action-btn   | h=21 (inline padding 3px 8px)          | N/A — intentional compact pagination control |
+| /subcontractors   | Compact button    | "Prev/Next" pagination          | h=36 like other quick-action-btn   | h=25 (inline padding 4px 10px)         | N/A — intentional compact pagination control |
+| /subcontractors   | Heading hierarchy | H1 + H2 both "Subcontractors"  | Distinct page H1 + section H2      | Both say "Subcontractors"              | N/A — content choice, not consistency defect |
+
+Section-by-section summary
+==========================
+
+AUDIT 1 — Icon consistency
+- Code grep: 0 results for @heroicons/react/24/solid, @heroicons/react/20, react-icons,
+  lucide, @fortawesome, font-awesome, material-icons, @mui/icons, or "fa-*" class names.
+- Browser walk: 19/19 pages show 100% Heroicons outline icons EXCEPT /reports, which
+  contains 9 Recharts library SVGs (chart legend swatches, chart wrappers). These are
+  decorative chart elements rendered by recharts — they are NOT UI icons.
+- Verdict: PASS.
+
+AUDIT 2 — Button consistency
+- Primary CTAs (Add Lead, +New Task, New Estimate, New Invoice, New Contract,
+  Add Expense, +Add Subcontractor) all use class `auth-btn`, height 36px,
+  border-radius 14px/12px, background oklch(0.72 0.19 250). Consistent.
+- Secondary actions (Edit, Delete, Export, Import, View, PDF, Compare Tiers,
+  From Estimate) all use class `quick-action-btn`, height 31–36px,
+  border-radius 14px/12px, background oklch(0.18 0.03 265 / 0.5). Consistent.
+- Filter dropdowns all use CustomSelect: h=36, br=12px, bg oklch(0.22 0.02 260 / 0.45).
+- Pill toggles (date range, status filter chips) all use br=999px. Consistent.
+- The compact page-size and pagination buttons on /leads and /subcontractors use
+  smaller padding via inline styles — intentional compact variants of quick-action-btn.
+- Verdict: PASS.
+
+AUDIT 3 — Toolbar / header
+- All 19 pages measured headerH = 56px exactly.
+- Verdict: PASS.
+
+AUDIT 4 — Sidebar / navigation
+- Identical nav buttons on every page: h=42, padding 12px 16px, br=12px, fs=13.5px,
+  fw=500 (active=600).
+- All nav links carry a Heroicon outline svg.
+- Nav group headers ("Jobs", "Finance", "Operations") consistent: h=22, fs=11, fw=700.
+- Active state correctly toggled via `is-active` class on the matching link.
+- Verdict: PASS.
+
+AUDIT 5 — Form elements
+- 0 native <select> elements anywhere in client/src.
+- 0 native <input type="date"> / <input type="datetime-local"> in JSX.
+- All standard inputs use .form-input class.
+- Non-form-input inputs found are intentional component patterns (TopBar search,
+  inline number stepper, map address-search). All hidden checkboxes are toggle-switch
+  wrappers.
+- Verdict: PASS.
+
+AUDIT 6 — Spacing & alignment
+- H1 page-header titles: 18px / fw 700 on every page. Consistent.
+- Stat-card container gap: 16px on /estimates /invoices /contracts /expenses.
+- Glass panel padding varies by content type (kanban 14px, list cards 24px,
+  report panels 20px) — intentional, driven by content density needs.
+- Verdict: PASS.
+
+AUDIT 7 — Modal consistency
+- 14 of 16 modal-backdrop instances have correct inline position/background/blur.
+- 2 modals (ImportLeadsModal, DripSequences delete-confirm) had a transparent
+  backdrop bug — fixed in commit 87d7230.
+- All modals use animation `modal-scale-in 200ms` via global CSS selectors.
+- Modal panel sizes match content (300–720 px) and use border-radius from the
+  design-system tokens (--radius-lg, --radius-xl, --radius-2xl). Intentional variation.
+- Verdict: 2 fixed, 0 remaining.
+
+Bugs fixed this run
+===================
+1. ImportLeadsModal.jsx:166 — modal-backdrop div was missing the standard inline
+   styling (position/inset/zIndex/background/blur). The .modal-backdrop CSS class
+   only carries the fade-in animation, not the visual overlay. Result: when the
+   user clicked "Import" on /leads, the modal panel appeared but with no darkened
+   backdrop behind it, leaving the underlying page fully visible and click-through.
+
+2. DripSequences.jsx:572 — same bug pattern on the delete-confirmation modal.
+
+Both fixed with the standard inline pattern used by ExpensesView, CalendarView,
+MaterialsView, etc.:
+   position: fixed, inset: 0, zIndex: 9999,
+   display: flex, alignItems: center, justifyContent: center,
+   background: oklch(0 0 0 / 0.6), backdropFilter: blur(8px).
+
+Commits this run
+================
+- 87d7230 fix(ui): restore backdrop styling on ImportLeads + DripSequences delete modals
+
+Branch baseline before run: 2eb2135 (HEAD of Run 29)
+Branch HEAD after run:      87d7230

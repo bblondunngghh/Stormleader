@@ -1,0 +1,684 @@
+{
+  "/": {
+    "totalMain": 32,
+    "groups": [
+      [
+        "h=14 br=5px bg=oklch(0.12 0.01 265 / 0.3)",
+        {
+          "count": 11,
+          "samples": [
+            {
+              "text": "",
+              "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc"
+            },
+            {
+              "text": "",
+              "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc"
+            }
+          ]
+        }
+      ],
+      [
+        "h=13 br=0px bg=rgba(0, 0, 0, 0)",
+        {
+          "count": 8,
+          "samples": [
+            {
+              "text": "View All",
+              "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.1"
+            },
+            {
+              "text": "Full Map",
+              "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.1"
+            }
+          ]
+        }
+      ],
+      [
+        "h=23 br=999px bg=rgba(0, 0, 0, 0)",
+        {
+          "count": 4,
+          "samples": [
+            {
+              "text": "7 Days",
+              "cls": ""
+            },
+            {
+              "text": "30 Days",
+              "cls": ""
+            }
+          ]
+        }
+      ],
+      [
+        "h=36 br=12px bg=oklch(0.22 0.02 260 / 0.45)",
+        {
+          "count": 2,
+          "samples": [
+            {
+              "text": "All Reps",
+              "cls": ""
+            },
+            {
+              "text": "All Sources",
+              "cls": ""
+            }
+          ]
+        }
+      ],
+      [
+        "h=16 br=3.35544e+07px bg=rgba(0, 0, 0, 0)",
+        {
+          "count": 2,
+          "samples": [
+            {
+              "text": "24h",
+              "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(-"
+            },
+            {
+              "text": "7d",
+              "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(-"
+            }
+          ]
+        }
+      ],
+      [
+        "h=23 br=999px bg=oklch(0.72 0.15 250 / 0.12)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "All Time",
+              "cls": ""
+            }
+          ]
+        }
+      ],
+      [
+        "h=26 br=12px bg=oklch(0.72 0.19 250 / 0.12)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "Set Goal",
+              "cls": "text-[11px] font-bold px-3 py-1.5 rounded-[12px]"
+            }
+          ]
+        }
+      ],
+      [
+        "h=24 br=12px bg=rgba(255, 255, 255, 0.5)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "",
+              "cls": "mapboxgl-ctrl-attrib-button"
+            }
+          ]
+        }
+      ]
+    ]
+  },
+  "/pipeline": {
+    "totalMain": 15,
+    "groups": [
+      [
+        "h=13 br=0px bg=rgba(0, 0, 0, 0)",
+        {
+          "count": 7,
+          "samples": [
+            {
+              "text": "",
+              "cls": ""
+            },
+            {
+              "text": "",
+              "cls": ""
+            }
+          ]
+        }
+      ],
+      [
+        "h=36 br=12px bg=oklch(0.22 0.02 260 / 0.45)",
+        {
+          "count": 3,
+          "samples": [
+            {
+              "text": "All Priorities",
+              "cls": ""
+            },
+            {
+              "text": "All Sources",
+              "cls": ""
+            }
+          ]
+        }
+      ],
+      [
+        "h=25 br=8px bg=rgba(0, 0, 0, 0)",
+        {
+          "count": 2,
+          "samples": [
+            {
+              "text": "Production",
+              "cls": "shrink-0"
+            },
+            {
+              "text": "Billing",
+              "cls": "shrink-0"
+            }
+          ]
+        }
+      ],
+      [
+        "h=25 br=8px bg=oklch(0.78 0.12 200)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "Sales",
+              "cls": "shrink-0"
+            }
+          ]
+        }
+      ],
+      [
+        "h=36 br=14px / 12px bg=oklch(0.22 0.02 260 / 0.45)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "",
+              "cls": "shrink-0"
+            }
+          ]
+        }
+      ],
+      [
+        "h=36 br=14px / 12px bg=oklch(0.72 0.19 250)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "Add Lead",
+              "cls": "auth-btn shrink-0"
+            }
+          ]
+        }
+      ]
+    ]
+  },
+  "/leads": {
+    "totalMain": 9,
+    "groups": [
+      [
+        "h=36 br=12px bg=oklch(0.22 0.02 260 / 0.45)",
+        {
+          "count": 4,
+          "samples": [
+            {
+              "text": "All Stages",
+              "cls": ""
+            },
+            {
+              "text": "All Priorities",
+              "cls": ""
+            }
+          ]
+        }
+      ],
+      [
+        "h=36 br=14px / 12px bg=oklch(0.18 0.03 265 / 0.5)",
+        {
+          "count": 2,
+          "samples": [
+            {
+              "text": "Import",
+              "cls": "quick-action-btn"
+            },
+            {
+              "text": "Export",
+              "cls": "quick-action-btn"
+            }
+          ]
+        }
+      ],
+      [
+        "h=21 br=14px / 12px bg=oklch(0.18 0.03 265 / 0.5)",
+        {
+          "count": 2,
+          "samples": [
+            {
+              "text": "50",
+              "cls": "quick-action-btn"
+            },
+            {
+              "text": "100",
+              "cls": "quick-action-btn"
+            }
+          ]
+        }
+      ],
+      [
+        "h=21 br=14px / 12px bg=oklch(0.5 0.15 250 / 0.15)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "25",
+              "cls": "quick-action-btn"
+            }
+          ]
+        }
+      ]
+    ]
+  },
+  "/tasks": {
+    "totalMain": 9,
+    "groups": [
+      [
+        "h=22 br=6px bg=rgba(0, 0, 0, 0)",
+        {
+          "count": 6,
+          "samples": [
+            {
+              "text": "",
+              "cls": "task-check "
+            },
+            {
+              "text": "",
+              "cls": "task-check "
+            }
+          ]
+        }
+      ],
+      [
+        "h=32 br=8px bg=oklch(0.28 0.04 260 / 0.6)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "Pending6",
+              "cls": "task-filter-tab is-active"
+            }
+          ]
+        }
+      ],
+      [
+        "h=32 br=8px bg=rgba(0, 0, 0, 0)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "Completed5",
+              "cls": "task-filter-tab "
+            }
+          ]
+        }
+      ],
+      [
+        "h=36 br=14px / 12px bg=oklch(0.72 0.19 250)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "+ New Task",
+              "cls": "auth-btn"
+            }
+          ]
+        }
+      ]
+    ]
+  },
+  "/estimates": {
+    "totalMain": 153,
+    "groups": [
+      [
+        "h=31 br=14px / 12px bg=oklch(0.18 0.03 265 / 0.5)",
+        {
+          "count": 150,
+          "samples": [
+            {
+              "text": "Edit",
+              "cls": "quick-action-btn"
+            },
+            {
+              "text": "Delete",
+              "cls": "quick-action-btn"
+            }
+          ]
+        }
+      ],
+      [
+        "h=36 br=12px bg=oklch(0.22 0.02 260 / 0.45)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "All Statuses",
+              "cls": ""
+            }
+          ]
+        }
+      ],
+      [
+        "h=36 br=14px / 12px bg=oklch(0.18 0.03 265 / 0.5)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "Compare Tiers",
+              "cls": "quick-action-btn"
+            }
+          ]
+        }
+      ],
+      [
+        "h=36 br=14px / 12px bg=oklch(0.72 0.19 250)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "New Estimate",
+              "cls": "auth-btn"
+            }
+          ]
+        }
+      ]
+    ]
+  },
+  "/invoices": {
+    "totalMain": 23,
+    "groups": [
+      [
+        "h=31 br=14px / 12px bg=oklch(0.18 0.03 265 / 0.5)",
+        {
+          "count": 16,
+          "samples": [
+            {
+              "text": "Edit",
+              "cls": "quick-action-btn"
+            },
+            {
+              "text": "Edit",
+              "cls": "quick-action-btn"
+            }
+          ]
+        }
+      ],
+      [
+        "h=29 br=999px bg=rgba(0, 0, 0, 0)",
+        {
+          "count": 4,
+          "samples": [
+            {
+              "text": "Draft",
+              "cls": ""
+            },
+            {
+              "text": "Sent",
+              "cls": ""
+            }
+          ]
+        }
+      ],
+      [
+        "h=29 br=999px bg=oklch(0.7 0.15 220 / 0.12)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "All",
+              "cls": ""
+            }
+          ]
+        }
+      ],
+      [
+        "h=36 br=14px / 12px bg=oklch(0.18 0.03 265 / 0.5)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "From Estimate",
+              "cls": "quick-action-btn"
+            }
+          ]
+        }
+      ],
+      [
+        "h=36 br=14px / 12px bg=oklch(0.72 0.19 250)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "New Invoice",
+              "cls": "auth-btn"
+            }
+          ]
+        }
+      ]
+    ]
+  },
+  "/contracts": {
+    "totalMain": 20,
+    "groups": [
+      [
+        "h=31 br=14px / 12px bg=oklch(0.18 0.03 265 / 0.5)",
+        {
+          "count": 18,
+          "samples": [
+            {
+              "text": "View",
+              "cls": "quick-action-btn"
+            },
+            {
+              "text": "PDF",
+              "cls": "quick-action-btn"
+            }
+          ]
+        }
+      ],
+      [
+        "h=36 br=12px bg=oklch(0.22 0.02 260 / 0.45)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "All Statuses",
+              "cls": ""
+            }
+          ]
+        }
+      ],
+      [
+        "h=36 br=14px / 12px bg=oklch(0.72 0.19 250)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "New Contract",
+              "cls": "auth-btn"
+            }
+          ]
+        }
+      ]
+    ]
+  },
+  "/expenses": {
+    "totalMain": 12,
+    "groups": [
+      [
+        "h=25 br=12px bg=oklch(0.5 0.12 250 / 0.15)",
+        {
+          "count": 4,
+          "samples": [
+            {
+              "text": "",
+              "cls": ""
+            },
+            {
+              "text": "",
+              "cls": ""
+            }
+          ]
+        }
+      ],
+      [
+        "h=25 br=12px bg=oklch(0.5 0.15 25 / 0.15)",
+        {
+          "count": 4,
+          "samples": [
+            {
+              "text": "",
+              "cls": ""
+            },
+            {
+              "text": "",
+              "cls": ""
+            }
+          ]
+        }
+      ],
+      [
+        "h=36 br=12px bg=oklch(0.22 0.02 260 / 0.45)",
+        {
+          "count": 3,
+          "samples": [
+            {
+              "text": "All Categories",
+              "cls": ""
+            },
+            {
+              "text": "Start date",
+              "cls": ""
+            }
+          ]
+        }
+      ],
+      [
+        "h=36 br=14px / 12px bg=oklch(0.72 0.19 250)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "Add Expense",
+              "cls": "auth-btn"
+            }
+          ]
+        }
+      ]
+    ]
+  },
+  "/subcontractors": {
+    "totalMain": 16,
+    "groups": [
+      [
+        "h=28 br=8px bg=rgba(0, 0, 0, 0)",
+        {
+          "count": 10,
+          "samples": [
+            {
+              "text": "",
+              "cls": ""
+            },
+            {
+              "text": "",
+              "cls": ""
+            }
+          ]
+        }
+      ],
+      [
+        "h=36 br=12px bg=oklch(0.22 0.02 260 / 0.45)",
+        {
+          "count": 3,
+          "samples": [
+            {
+              "text": "All",
+              "cls": ""
+            },
+            {
+              "text": "Active",
+              "cls": ""
+            }
+          ]
+        }
+      ],
+      [
+        "h=25 br=14px / 12px bg=oklch(0.18 0.03 265 / 0.5)",
+        {
+          "count": 2,
+          "samples": [
+            {
+              "text": "Prev",
+              "cls": "quick-action-btn"
+            },
+            {
+              "text": "Next",
+              "cls": "quick-action-btn"
+            }
+          ]
+        }
+      ],
+      [
+        "h=36 br=14px / 12px bg=oklch(0.72 0.19 250)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "+ Add Subcontractor",
+              "cls": "auth-btn"
+            }
+          ]
+        }
+      ]
+    ]
+  },
+  "/settings": {
+    "totalMain": 16,
+    "groups": [
+      [
+        "h=31 br=8px bg=rgba(0, 0, 0, 0)",
+        {
+          "count": 14,
+          "samples": [
+            {
+              "text": "Company",
+              "cls": ""
+            },
+            {
+              "text": "Billing",
+              "cls": ""
+            }
+          ]
+        }
+      ],
+      [
+        "h=31 br=8px bg=oklch(0.3 0.05 250 / 0.6)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "Profile",
+              "cls": ""
+            }
+          ]
+        }
+      ],
+      [
+        "h=29 br=14px / 12px bg=oklch(0.18 0.03 265 / 0.5)",
+        {
+          "count": 1,
+          "samples": [
+            {
+              "text": "Edit Profile",
+              "cls": "quick-action-btn"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

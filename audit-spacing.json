@@ -1,0 +1,211 @@
+{
+  "/": {
+    "panelPaddings": {
+      "8.75px 21px": 2,
+      "17.5px": 7,
+      "10.5px 17.5px": 1
+    },
+    "mainPad": "0px",
+    "headings": [
+      {
+        "tag": "H1",
+        "text": "Dashboard",
+        "fs": "18px",
+        "fw": "700",
+        "mt": "0px",
+        "mb": "0px"
+      },
+      {
+        "tag": "H1",
+        "text": "Good morning, Brandon",
+        "fs": "28px",
+        "fw": "820",
+        "mt": "0px",
+        "mb": "0px"
+      },
+      {
+        "tag": "H2",
+        "text": "Pipeline",
+        "fs": "12.25px",
+        "fw": "720",
+        "mt": "0px",
+        "mb": "0px"
+      }
+    ],
+    "statContainerGap": null
+  },
+  "/pipeline": {
+    "panelPaddings": {
+      "8.75px 14px": 1,
+      "10.5px 14px": 1,
+      "14px": 8
+    },
+    "mainPad": "0px",
+    "headings": [
+      {
+        "tag": "H1",
+        "text": "Pipeline",
+        "fs": "18px",
+        "fw": "700",
+        "mt": "0px",
+        "mb": "0px"
+      }
+    ],
+    "statContainerGap": null
+  },
+  "/leads": {
+    "panelPaddings": {
+      "12px 24px": 1,
+      "0px": 1
+    },
+    "mainPad": "0px",
+    "headings": [
+      {
+        "tag": "H1",
+        "text": "Leads",
+        "fs": "18px",
+        "fw": "700",
+        "mt": "0px",
+        "mb": "0px"
+      }
+    ],
+    "statContainerGap": null
+  },
+  "/tasks": {
+    "panelPaddings": {
+      "0px": 1
+    },
+    "mainPad": "0px",
+    "headings": [
+      {
+        "tag": "H1",
+        "text": "Tasks",
+        "fs": "18px",
+        "fw": "700",
+        "mt": "0px",
+        "mb": "0px"
+      }
+    ],
+    "statContainerGap": null
+  },
+  "/estimates": {
+    "panelPaddings": {
+      "24px": 4,
+      "16px 24px": 1,
+      "0px": 1
+    },
+    "mainPad": "0px",
+    "headings": [
+      {
+        "tag": "H1",
+        "text": "Estimates",
+        "fs": "18px",
+        "fw": "700",
+        "mt": "0px",
+        "mb": "0px"
+      }
+    ],
+    "statContainerGap": "16px"
+  },
+  "/invoices": {
+    "panelPaddings": {
+      "24px": 4,
+      "12px 24px": 1,
+      "16px 24px": 1,
+      "0px": 1
+    },
+    "mainPad": "0px",
+    "headings": [
+      {
+        "tag": "H1",
+        "text": "Invoices",
+        "fs": "18px",
+        "fw": "700",
+        "mt": "0px",
+        "mb": "0px"
+      }
+    ],
+    "statContainerGap": "16px"
+  },
+  "/contracts": {
+    "panelPaddings": {
+      "24px": 4,
+      "16px 24px": 1,
+      "0px": 1
+    },
+    "mainPad": "0px",
+    "headings": [
+      {
+        "tag": "H1",
+        "text": "Contracts",
+        "fs": "18px",
+        "fw": "700",
+        "mt": "0px",
+        "mb": "0px"
+      }
+    ],
+    "statContainerGap": "16px"
+  },
+  "/expenses": {
+    "panelPaddings": {
+      "24px": 3,
+      "16px 24px": 1,
+      "0px": 1
+    },
+    "mainPad": "0px",
+    "headings": [
+      {
+        "tag": "H1",
+        "text": "Expenses",
+        "fs": "18px",
+        "fw": "700",
+        "mt": "0px",
+        "mb": "0px"
+      }
+    ],
+    "statContainerGap": "16px"
+  },
+  "/subcontractors": {
+    "panelPaddings": {
+      "16px": 1,
+      "0px": 1
+    },
+    "mainPad": "0px",
+    "headings": [
+      {
+        "tag": "H1",
+        "text": "Subcontractors",
+        "fs": "18px",
+        "fw": "700",
+        "mt": "0px",
+        "mb": "0px"
+      },
+      {
+        "tag": "H2",
+        "text": "Subcontractors",
+        "fs": "22px",
+        "fw": "800",
+        "mt": "0px",
+        "mb": "0px"
+      }
+    ],
+    "statContainerGap": null
+  },
+  "/reports": {
+    "panelPaddings": {
+      "20px": 6
+    },
+    "mainPad": "24px",
+    "headings": [
+      {
+        "tag": "H1",
+        "text": "Reports",
+        "fs": "18px",
+        "fw": "700",
+        "mt": "0px",
+        "mb": "0px"
+      }
+    ],
+    "statContainerGap": null
+  }
+}

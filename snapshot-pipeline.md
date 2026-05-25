@@ -1,0 +1,169 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - img "StormPipe" [ref=e6] [cursor=pointer]
+    - navigation [ref=e7]:
+      - button "Dashboard" [ref=e8] [cursor=pointer]:
+        - img [ref=e9]
+        - text: Dashboard
+      - button "Storm Map" [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+        - text: Storm Map
+      - button "Storm Archive" [ref=e14] [cursor=pointer]:
+        - img [ref=e15]
+        - text: Storm Archive
+      - button "Pipeline" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - text: Pipeline
+      - button "Leads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+        - text: Leads
+      - button "Jobs" [ref=e24] [cursor=pointer]:
+        - text: Jobs
+        - img [ref=e25]
+      - button "Finance" [ref=e28] [cursor=pointer]:
+        - text: Finance
+        - img [ref=e29]
+      - button "Operations" [ref=e32] [cursor=pointer]:
+        - text: Operations
+        - img [ref=e33]
+    - button "Settings" [ref=e35] [cursor=pointer]:
+      - img [ref=e36]
+      - text: Settings
+    - button "Admin" [ref=e38] [cursor=pointer]:
+      - img [ref=e39]
+      - text: Admin
+    - generic [ref=e41]:
+      - generic [ref=e42]: BA
+      - generic [ref=e43]:
+        - generic [ref=e44]: Brandon A.
+        - generic [ref=e45]: super_admin
+      - button "Sign out" [ref=e46] [cursor=pointer]:
+        - img [ref=e47]
+  - generic [ref=e49]:
+    - banner [ref=e50]:
+      - heading "Pipeline" [level=1] [ref=e663]
+      - generic [ref=e52]:
+        - img
+        - textbox "Search leads, contacts... (Ctrl+K)" [ref=e53]
+      - generic [ref=e54]:
+        - 'generic "Importing properties: 0 properties" [ref=e55]':
+          - generic [ref=e58]: 0 properties
+        - button "Help" [ref=e60] [cursor=pointer]:
+          - img [ref=e61]
+        - button "Notifications" [ref=e64] [cursor=pointer]:
+          - img [ref=e65]
+        - button "enterprise" [ref=e67] [cursor=pointer]:
+          - img [ref=e68]
+          - generic [ref=e70]: enterprise
+    - generic [ref=e664]:
+      - generic [ref=e665]:
+        - generic [ref=e666]:
+          - button "Sales" [ref=e667] [cursor=pointer]:
+            - img [ref=e668]
+            - text: Sales
+          - button "Production" [ref=e670] [cursor=pointer]:
+            - img [ref=e671]
+            - text: Production
+          - button "Billing" [ref=e673] [cursor=pointer]:
+            - img [ref=e674]
+            - text: Billing
+        - img [ref=e677]
+        - button "All Priorities" [ref=e680] [cursor=pointer]:
+          - generic [ref=e681]: All Priorities
+          - img [ref=e682]
+        - button "All Sources" [ref=e685] [cursor=pointer]:
+          - generic [ref=e686]: All Sources
+          - img [ref=e687]
+        - button "All Reps" [ref=e690] [cursor=pointer]:
+          - generic [ref=e691]: All Reps
+          - img [ref=e692]
+        - button "Refresh" [ref=e695] [cursor=pointer]:
+          - img [ref=e696]
+        - button "Add Lead" [ref=e698] [cursor=pointer]:
+          - img [ref=e699]
+          - text: Add Lead
+      - generic [ref=e702]:
+        - generic [ref=e703]:
+          - generic [ref=e704]:
+            - generic [ref=e706]: New
+            - generic [ref=e707]: "17"
+            - generic [ref=e708]: $7.6K
+            - button "Collapse column" [ref=e709] [cursor=pointer]
+            - img [ref=e712]
+          - generic [ref=e714]:
+            - generic [ref=e715] [cursor=pointer]
+            - generic [ref=e729] [cursor=pointer]
+            - generic [ref=e743] [cursor=pointer]
+            - generic [ref=e754] [cursor=pointer]
+            - generic [ref=e765] [cursor=pointer]
+            - generic [ref=e777] [cursor=pointer]
+            - generic [ref=e795] [cursor=pointer]
+            - generic [ref=e808] [cursor=pointer]
+            - generic [ref=e822] [cursor=pointer]
+            - generic [ref=e835] [cursor=pointer]
+            - generic [ref=e853] [cursor=pointer]
+            - generic [ref=e867] [cursor=pointer]
+            - generic [ref=e884] [cursor=pointer]
+            - generic [ref=e898] [cursor=pointer]
+            - generic [ref=e912] [cursor=pointer]
+            - generic [ref=e929] [cursor=pointer]
+            - generic [ref=e947] [cursor=pointer]
+        - generic "18% of New leads are in Contacted" [ref=e963]: 18%
+        - generic [ref=e965]:
+          - generic [ref=e966]:
+            - generic [ref=e968]: Contacted
+            - generic [ref=e969]: "3"
+            - generic [ref=e970]: $32.1K
+            - button "Collapse column" [ref=e971] [cursor=pointer]
+            - img [ref=e974]
+          - generic [ref=e976]:
+            - generic [ref=e977] [cursor=pointer]
+            - generic [ref=e991] [cursor=pointer]
+            - generic [ref=e1006] [cursor=pointer]
+        - generic "33% of Contacted leads are in Appt Set" [ref=e1022]: 33%
+        - generic [ref=e1024]:
+          - generic [ref=e1025]:
+            - generic [ref=e1027]: Appt Set
+            - generic [ref=e1028]: "1"
+            - button "Collapse column" [ref=e1029] [cursor=pointer]
+            - img [ref=e1032]
+          - generic [ref=e1035] [cursor=pointer]:
+            - img [ref=e1038]
+            - generic [ref=e1040]
+            - generic [ref=e1045]
+        - generic "100% of Appt Set leads are in Inspected" [ref=e1050]: 100%
+        - generic [ref=e1052]:
+          - generic [ref=e1053]:
+            - generic [ref=e1055]: Inspected
+            - generic [ref=e1056]: "1"
+            - button "Collapse column" [ref=e1057] [cursor=pointer]
+            - img [ref=e1060]
+          - generic [ref=e1063] [cursor=pointer]:
+            - img [ref=e1066]
+            - generic [ref=e1068]
+            - generic [ref=e1073]
+        - generic "100% of Inspected leads are in Estimate Sent" [ref=e1078]: 100%
+        - generic [ref=e1080]:
+          - generic [ref=e1081]:
+            - generic [ref=e1083]: Estimate Sent
+            - generic [ref=e1084]: "1"
+            - generic [ref=e1085]: $20.3K
+            - button "Collapse column" [ref=e1086] [cursor=pointer]
+            - img [ref=e1089]
+          - generic [ref=e1092] [cursor=pointer]:
+            - generic [ref=e1093]
+            - generic [ref=e1099]
+            - generic [ref=e1101]
+        - generic [ref=e1109]:
+          - generic [ref=e1110]:
+            - generic [ref=e1112]: Negotiating
+            - generic [ref=e1113]: "0"
+            - button "Collapse column" [ref=e1114] [cursor=pointer]
+            - img [ref=e1117]
+          - generic [ref=e1120]: No leads in this stage
+        - generic [ref=e1123]:
+          - generic [ref=e1124]:
+            - generic [ref=e1126]: Sold
+            - generic [ref=e1127]: "0"
+            - button "Collapse column" [ref=e1128] [cursor=pointer]
+          - generic [ref=e1132]: No leads in this stage

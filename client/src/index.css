@@ -907,7 +907,9 @@ ul, ol { list-style: none; }
   gap: var(--space-xl);
   background: transparent;
   position: relative;
-  z-index: 0;
+  /* No z-index here: creating a stacking context traps modal-backdrops
+     (z-index: 9999) inside .main-content, letting the sidebar
+     (z-index: 10 on .app children) render on top of "modals". */
 }
 
 /* ============================================================

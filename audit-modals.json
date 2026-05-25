@@ -1,0 +1,66 @@
+[
+  {
+    "path": "/leads",
+    "triggerSel": "button.quick-action-btn",
+    "triggerText": "Import",
+    "hasBackdrop": true,
+    "backdropCls": "modal-backdrop",
+    "backdropBg": "rgba(0, 0, 0, 0)",
+    "hasAnimation": true,
+    "panelClass": "glass",
+    "panelW": 653,
+    "panelBr": "14px",
+    "panelAnim": "modal-scale-in",
+    "headers": [
+      {
+        "tag": "H2",
+        "text": "Import Leads from CSV",
+        "fs": "20px",
+        "fw": "700"
+      }
+    ],
+    "closeBtnCount": 1,
+    "firstCloseBtnPos": {
+      "topPx": 44,
+      "rightPx": 33
+    }
+  },
+  {
+    "path": "/leads",
+    "triggerSel": ".auth-btn",
+    "triggerText": "Add Lead",
+    "error": "trigger-not-found"
+  },
+  {
+    "path": "/tasks",
+    "triggerSel": ".auth-btn",
+    "triggerText": "+ New Task",
+    "error": "modal-did-not-open"
+  },
+  {
+    "path": "/expenses",
+    "triggerSel": ".auth-btn",
+    "triggerText": "Add Expense",
+    "hasBackdrop": true,
+    "backdropCls": "modal-backdrop",
+    "backdropBg": "oklch(0 0 0 / 0.6)",
+    "hasAnimation": true,
+    "panelClass": "glass",
+    "panelW": 480,
+    "panelBr": "20px",
+    "panelAnim": "modal-scale-in",
+    "headers": [
+      {
+        "tag": "H3",
+        "text": "Add Expense",
+        "fs": "16px",
+        "fw": "700"
+      }
+    ],
+    "closeBtnCount": 1,
+    "firstCloseBtnPos": {
+      "topPx": 13,
+      "rightPx": 13
+    }
+  }
+]
