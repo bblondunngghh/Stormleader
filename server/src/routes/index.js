@@ -76,4 +76,9 @@ router.use('/disaster-declarations', disasterDeclarationsRouter);
 router.use('/storm-history', stormHistoryRouter);
 router.use('/data', dataApisRouter);
 
+// JSON 404 for unmatched /api routes (otherwise Express returns an HTML page)
+router.use((req, res) => {
+  res.status(404).json({ error: 'Not found', path: req.originalUrl });
+});
+
 export default router;

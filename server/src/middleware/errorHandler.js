@@ -21,6 +21,11 @@ export default function errorHandler(err, req, res, _next) {
     status = 400;
     if (err.code === '23503') {
       message = 'Referenced resource does not exist or is not accessible';
+    } else if (err.code === '22P02') {
+      // 22P02 surfaces internal type/enum names — sanitize before returning.
+      // Examples we don't want to leak: "invalid input value for enum storm_source: ..."
+      //                                "invalid input syntax for type uuid: ..."
+      message = 'Invalid value provided for one or more fields';
     } else {
       message = err.message || 'Invalid input';
     }

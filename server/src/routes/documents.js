@@ -77,6 +77,9 @@ router.post('/upload', upload.single('file'), async (req, res, next) => {
 router.delete('/:id', validateId(), async (req, res, next) => {
   try {
     const result = await documentService.deleteDocument(req.tenantId, req.params.id);
+    if (!result.deleted) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
     res.json(result);
   } catch (err) {
     next(err);

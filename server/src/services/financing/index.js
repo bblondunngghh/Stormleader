@@ -281,7 +281,20 @@ export async function handleWebhook(provider, rawBody, signature) {
 
 // --- Public helpers (for token-based access) ---
 
+async function assertEstimateByToken(estimateToken) {
+  const { rows } = await pool.query(
+    'SELECT id FROM estimates WHERE public_token = $1',
+    [estimateToken]
+  );
+  if (!rows[0]) {
+    const err = new Error('Estimate not found');
+    err.status = 404;
+    throw err;
+  }
+}
+
 export async function getPublicPlans(estimateToken) {
+  await assertEstimateByToken(estimateToken);
   const { rows } = await pool.query(
     `SELECT fp.id, fp.name, fp.term_months, fp.apr, fp.min_amount, fp.max_amount
      FROM estimates e
@@ -298,6 +311,7 @@ export async function getPublicPlans(estimateToken) {
 }
 
 export async function getPublicApplications(estimateToken) {
+  await assertEstimateByToken(estimateToken);
   const { rows } = await pool.query(
     `SELECT fa.id, fa.status, fa.amount, fa.approved_amount, fa.monthly_payment, fa.plan_id,
             fp.name as plan_name, fp.term_months, fp.apr
