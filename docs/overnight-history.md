@@ -1863,3 +1863,49 @@ Branch: `feat/financing` · Pre-run checkpoint: `022b2e6` (`overnight-checkpoint
 - s5 report-writing session 0-byte for **22 consecutive runs** — drop the stage or fold into s4
 - Run-number labelling inconsistency across stages persists (s1 self-labelled "Run 29", s3 self-labelled "Run 30") — orchestrator script needs to pass a stable run number into each stage's prompt
 
+
+---
+## QA Run: 2026-05-25 (Runs 31 + 32)
+### Test Results
+- Pages tested: 19
+- API endpoints tested: 41 + 3 CRUD round-trips
+- Bugs found: 5
+- Bugs fixed: 5 (4 backend, 1 UI)
+- UI inconsistencies found: 1
+- UI inconsistencies fixed: 1
+- Production 5xx during sweep: 0 (14th consecutive zero-5xx run)
+### Fixes Made
+- DELETE /api/documents/:id now returns 404 on missing rows (was 200 deleted:false) — `76fc4f9` (server/src/routes/documents.js:77-86)
+- GET /api/crm/financing/public/:token/{plans,applications} now 404 on invalid token (was 200 []) — `76fc4f9` (server/src/services/financing/index.js:282-298)
+- Postgres 22P02 enum errors sanitized to a generic 400 (stop leaking column/type names) — `76fc4f9` (server/src/middleware/errorHandler.js:15-32)
+- Unmatched /api/* paths now return JSON 404 (was Express HTML 404) — `76fc4f9` (server/src/routes/index.js:79-83)
+### UI Consistency Fixes
+- Admin sidebar nav link uses standard .nav-link.is-active styling (removed inline blue/muted override) — `01e9ec4` (client/src/components/Sidebar.jsx)
+### Known Issues Remaining
+- DELETE /api/crm/tasks/:id handler missing (surfaced by JSON 404 fix; no UI usage; deferred per "no new endpoints" rule)
+- POST /api/crm/tasks malformed-JSON 400 echoes request body verbatim (2-line fix in app.js)
+- Heavy-work guards still missing on POST /drift/correct-all, /properties/trigger-import, /crm/leads/score-all
+- Hearth webhook permissive on missing fields — security-audit candidate
+- Currency-format anti-pattern sweep across LeadDetail/Reports/Contracts/Expenses/Estimates totals
+- Pre-token-attach 401 noise on /notifications/unread-count, /properties/import-progress, /crm/tenant-settings
+- Reports chart label overlap at ~930 px viewport
+- .modal-backdrop CSS class refactor opportunity (16 sites repeat ~6 lines of inline overlay style)
+- /subcontractors has both H1 and H2 "Subcontractors" — content choice, not a consistency defect
+- subcontractors.js.bak cleanup
+- Browser-driven write flows (Add Lead submit, kanban drag persist, Invoice → Record Payment, Work Order checklist toggle, doc upload) still untested
+- Mobile responsive sweep at 375 / 768 px (last done Run 6)
+- s5 report-writing session 0 bytes for 23 consecutive runs — drop the stage or fold into s4
+### Artifacts
+- `claude-overnight-20260525-s{1,2,3,4,5}-*.json` (5 session metadata files; s5 0 bytes)
+- `btn-audit.txt`, `primary-btns.txt`, `header-audit.txt`, `form-audit.txt`, `spacing-audit.txt` (5 per-page UI metric dumps from s3)
+- `qa-run32-{01-dashboard,02-pipeline,03-leads,estimates-list,expenses-header,modal-addlead,modal-task,subcontractors}.png` (8 screenshots from s4)
+- `OVERNIGHT-REPORT.md` (this run)
+### Session Integrity
+- s1 api-test: `max_turns` (51/50, $4.48) — produced commit `76fc4f9` before timeout
+- s2 frontend-test: `max_turns` (81/80, $4.13) — no commits, read paths only
+- s3 ui-audit: `max_turns` (61/60, $5.05) — produced commit `01e9ec4` and 5 audit dumps before timeout
+- s4 verify: `max_turns` (41/40, $2.41) — 8 screenshots, no commits
+- s5 report: 0 bytes (23rd consecutive non-functional s5)
+- Total measured spend: ~$16.07
+- 2 / 5 sessions delivered a commit; 4 / 5 produced concrete artifacts despite max_turns terminations
+---

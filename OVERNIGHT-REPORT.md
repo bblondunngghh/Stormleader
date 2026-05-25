@@ -1,229 +1,113 @@
-# Overnight QA Report — 2026-05-24 (QA Runs 29 + 30)
+# Overnight QA Report — 2026-05-25 (Runs 31 + 32)
 
-Branch: `feat/financing` · Pre-run checkpoint: `022b2e6` (`overnight-checkpoint-20260524`) · Head: `87d7230` · Commits this run: **2**
-
-This is the **29th + 30th overnight QA run** since the harness was formalised, consolidated into a single report because both stages execute against the same baseline tree on the same date. Unlike Runs 27+28 (which produced zero commits), this run produced **two real bug fixes** — one server-contract bug surfaced by the API harness and one CSS bug surfaced by the UI consistency audit.
-
-- **s1 (api-test) — Run 29:** 144 endpoints exercised, 100 2xx / 44 4xx, 0 5xx; surfaced + fixed a Tasks contract mismatch.
-- **s3 (ui-audit) — Run 30:** 7 audits across 19 authenticated pages; surfaced + fixed 2 transparent-backdrop modals.
-- **s2 / s4 / s5** continued the long-running `max_turns` pattern; see Session Integrity below.
-
----
+Branch: `feat/financing`  ·  Baseline: `00f507f` (`pre-overnight-20260525`)  ·  Final HEAD: `01e9ec4`
 
 ## QA Test Summary
 
 | Metric | Count |
 |---|---|
-| Frontend pages walked / audited (Run 30 s3) | **19** (every authenticated route) |
-| API endpoints tested (Run 29 s1) | **144** (84 GET-sweep + 8 404-test + 3 400-UUID + 26 400-empty + 4 public-bad-token + 3 heavy-work + 2 round-trip + 1 mark-all-read + 1 delete-missing + 1 admin-tenant + 11 misc) |
-| Bugs found (real, server-side or UI) | **3** (1 backend contract, 2 UI parity-CSS) |
-| Bugs fixed | **3** (100% of those found) |
-| Production 5xx after run | **0** (**13th consecutive run**) |
-| UI inconsistencies found | **2** (both modal backdrops) |
-| UI inconsistencies fixed | **2** (100%) |
-| Commits this run | **2** (`2eb2135`, `87d7230`) |
-| Intentional 503s | 1 (`GET /api/skip-trace/job/:jobId` when `TRACERFY_API_KEY` unset) |
-| Intentional empty-body 200s | 3 (`POST /alerts/test`, `POST /drift/correct-all`, `POST /properties/trigger-import`) |
-
----
+| Pages walked (UI consistency audit) | 19 |
+| API endpoints exercised | 41 (regression) + 3 CRUD round-trips + targeted edge-case probes |
+| Bugs found | 5 |
+| Bugs fixed | 5 (4 backend, 1 UI) |
+| UI inconsistencies found | 1 |
+| UI inconsistencies fixed | 1 |
+| Commits landed | 2 (`76fc4f9`, `01e9ec4`) |
+| Files modified | 5 |
+| Production 5xx during sweep | 0 (14th consecutive zero-5xx run) |
 
 ## Backend API Test Results
 
-Single endpoint table covering 144 probes; see `/tmp/api-test-results.txt` for the full row-by-row sweep. Coverage by category:
+Single API session (s1). 41-endpoint regression sweep + 3 CRUD round-trips (leads, tasks, documents) + targeted edge-case probes on the 4 named carry-overs from 2026-05-24.
 
-| Category | Endpoints exercised | 2xx | 4xx | 5xx | Notes |
-|---|---|---|---|---|---|
-| Auth | 1 | 1 | 0 | 0 | `/auth/me` |
-| Storms / map / properties | 11 | 11 | 0 | 0 | bbox-bounded reads, includes `/properties/import-progress`, `/storms/*`, `/storm-history/*` |
-| Dashboard (legacy `/dashboard/*`) | 3 | 3 | 0 | 0 | stats / funnel / activity |
-| Leads | 1 | 1 | 0 | 0 | `/leads` |
-| Skip-trace | 5 | 5 | 0 | 0 | config / balance / invoices / usage / jobs |
-| Alerts | 2 | 2 | 0 | 0 | config + history |
-| Counties | 1 | 1 | 0 | 0 | |
-| CRM core | 12 | 12 | 0 | 0 | `/crm/{leads,tasks,team,tenant-settings,pipeline/*,activities,dashboard/*}` |
-| CRM dashboard widgets | 11 | 11 | 0 | 0 | properties-affected, follow-ups, conversion, AR, leaderboard, tasks-today, days-in-stage, stale, storm-alerts, lead-source-revenue, estimating-conversion |
-| CRM prospect / calendar / custom fields | 3 | 3 | 0 | 0 | |
-| CRM contracts + financing | 5 | 5 | 0 | 0 | contracts, templates, lenders, plans, applications |
-| CRM automations + drip + canvass | 5 | 5 | 0 | 0 | |
-| CRM reports | 6 | 6 | 0 | 0 | revenue, pipeline, conversion, rep-performance, stage-duration, lead-sources |
-| CRM work orders / expenses / subs / territories / invoices | 9 | 9 | 0 | 0 | |
-| Estimates | 2 | 2 | 0 | 0 | list + templates |
-| Notifications | 3 | 3 | 0 | 0 | list, unread-count, preferences |
-| Search + documents | 2 | 2 | 0 | 0 | |
-| Roof-measurement | 3 | 3 | 0 | 0 | config / usage / balance |
-| Onboarding + admin | 4 | 4 | 0 | 0 | plans, admin overview/tenants/revenue/usage |
-| Payments | 2 | 2 | 0 | 0 | connect status, history |
-| Materials | 4 | 4 | 0 | 0 | products, branches, orders, credentials |
-| Disaster declarations + storm-history | 2 | 2 | 0 | 0 | |
-| 404-tests (well-formed missing UUID) | 8 | 0 | 8 | 0 | all return canonical `{"error":"<entity> not found"}` |
-| 400-tests (malformed UUID) | 3 | 0 | 3 | 0 | all return `{"error":"Invalid id format"}` |
-| 400-tests (empty POST body) | 26 | 0 | 26 | 0 | every endpoint returns a specific required-field message |
-| public-bad-token probes | 4 | 1 | 3 | 0 | 1 intentional-200 carry-over: `/crm/financing/public/:token/plans` returns `[]` for bad tokens (item 13, carry-over) |
-| heavy-work probes | 3 | 3 | 0 | 0 | accept empty bodies — see Known Issues |
-| round-trip create + complete | 2 | 2 | 0 | 0 | created task, then patched `completed_at` — both 200 |
-| Miscellaneous | 2 | 2 | 0 | 0 | mark-all-read no-op, delete-missing document |
+| Category | Tested | Passed | Failed | Fix |
+|---|---|---|---|---|
+| Auth | 3 | 3 | 0 | — |
+| CRM leads | 8 | 8 | 0 | — |
+| CRM tasks | 4 | 4 | 0 | — (new finding: no DELETE handler — see Known Issues) |
+| Estimates / financing | 6 | 6 | 0 | Public-token routes now 404 (`76fc4f9`) |
+| Documents | 4 | 4 | 0 | DELETE now 404 on missing rows (`76fc4f9`) |
+| Storms / properties | 6 | 6 | 0 | Postgres 22P02 sanitized (`76fc4f9`) |
+| Notifications / search / settings | 5 | 5 | 0 | — |
+| Catch-all / 404 shape | 5 | 5 | 0 | Unmatched `/api/*` now JSON (`76fc4f9`) |
 
-**Total: 144 / 144 endpoints returned the expected status family. Zero unexpected 5xx. Zero unexpected 4xx.**
-
-### Backend bug fixed
-
-| File:Line | Bug | Fix | Commit |
-|---|---|---|---|
-| `client/src/components/Dashboard.jsx:672` and `client/src/components/TasksView.jsx:735` | UI sent `{status:"completed"}` to `PATCH /api/crm/tasks/:id`, but the server route only accepts `{completed_at}`. The 400 was silently swallowed, so the task disappeared from local state but the DB row was never updated. The TasksView checkbox was also bound to the non-existent `task.status === "completed"` field, so the checkbox always rendered unchecked. | Now sends `{completed_at: new Date().toISOString()}` from Dashboard, and binds the checkbox to `!!task.completed_at` in TasksView. | `2eb2135 fix(tasks): use completed_at field instead of non-existent status field` |
-
-This bug was surfaced by the round-trip test in the harness, not by the static sweep. The endpoint returned 200 to the harness only after the field rename.
-
----
+All 4 fixes shipped in one commit. End-to-end re-tested with curl after each edit (positive and negative cases). Final 41-endpoint regression sweep: 0 5xx, 0 transport errors.
 
 ## Frontend Feature Test Results
 
-Run 30 (s3) walked every authenticated route via the Playwright MCP browser, calling `mcp__plugin_playwright_playwright__browser_evaluate` to collect computed styles, button signatures, form controls, modal triggers, and header metrics on each page. Code-side static greps (`@heroicons/24/solid`, `react-icons`, `lucide`, `@fortawesome`, native `<select>`, `<input type="date">`) ran in parallel.
+s2 (frontend-test) and s4 (verify) both hit `max_turns` and produced no commits, but generated 8 screenshots and exercised the read paths below.
 
-| Page | What was tested | Verdict | Notes |
+| Page | Tested | Result | Notes |
 |---|---|---|---|
-| `/dashboard` | Header h1, stat cards, glass panels, sidebar nav, TopBar search, notifications | **PASS** | Snapshot captured to `snapshot-dashboard.md` |
-| `/storm-map` | Map control, address-search input, layer toggles, sidebar nav | **PASS** | `.address-search__input` deliberately not `.form-input` (compact map overlay control) |
-| `/storms` (Storm Archive) | List, filters, pagination | **PASS** | |
-| `/pipeline` | Kanban columns, drag handles, filter dropdowns, refresh, Add Lead | **PASS** | Snapshot captured to `snapshot-pipeline.md` — 14 stages, all render |
-| `/leads` | List columns, bulk-select, page-size pills, CSV export, Import modal | **FIXED** | `Import` modal had transparent backdrop — fixed in `87d7230` |
-| `/leads/:id` (LeadDetail) | Editable fields, documents, activity modal, weather history, billing | **PASS** | All modals confirmed render dark backdrop |
-| `/jobs` (Work Orders + sub-tabs) | List, create modal, milestone toggles | **PASS** | |
-| `/finance` (Estimates / Invoices / Contracts / Expenses) | Stat cards, list, create, edit, builder preview, expense capture | **PASS** | All 4 sub-tabs render, stat cards consistent |
-| `/operations` (Materials / Subcontractors / Canvassing / Territories / Reports / Calendar / Automations / Drip Sequences) | List + modals across all 8 sub-tabs | **FIXED** | Drip Sequences `delete-confirm` modal had transparent backdrop — fixed in `87d7230` |
-| `/settings` (all 12 sub-tabs) | Profile, Team, Storm Alerts, Notifications, Skip Trace, Roof Measurement, etc. | **PASS** | All tabs render and switch correctly |
-| `/admin` | Overview, tenants, revenue, usage | **PASS** | Requires super_admin role |
-| `/reports` | Charts, filters | **PASS** | 9 non-Heroicon SVGs flagged but those are Recharts chart elements, not UI icons |
-| `/calendar` | Month view, event tiles | **PASS** | |
-| `/canvass-pins` | Map pins, stats, create | **PASS** | |
-| `/notifications` | List, mark-all-read | **PASS** | |
-| `/tasks` | Filter tabs, create modal, checkbox toggle | **FIXED** | Task complete-toggle was no-op against DB until backend contract fix (`2eb2135`) |
-| TopBar | Global search (Cmd-K), notifications bell, importing-properties chip | **PASS** | Global search box deliberately uses `.topbar__search` not `.form-input` (intentional toolbar styling) |
-| Sidebar | Nav links, group headers, collapse state | **PASS** | Identical button signature on every page: h=42, padding 12 16, br=12, fs=13.5, fw=500 (active 600) |
-| `/alerts` | Stepper number inputs | **PASS** | Stepper inputs deliberately not `.form-input` (intentional sub-control of +/- group) |
+| Dashboard `/` | Render + stat cards + activity feed | PASS | Screenshot `qa-run32-01-dashboard.png` |
+| Pipeline `/pipeline` | Render + stage column counts | PASS | Screenshot `qa-run32-02-pipeline.png`; kanban drag-to-persist still unverified |
+| Leads `/leads` | List render + filter chips + page-size pills | PASS | Screenshot `qa-run32-03-leads.png` |
+| Estimates `/estimates` | List + status pills | PASS | Screenshot `qa-run32-estimates-list.png` |
+| Expenses `/expenses` | Page header + glass panel | PASS | Screenshot `qa-run32-expenses-header.png` |
+| Subcontractors `/subcontractors` | List + compact pagination | PASS | Screenshot `qa-run32-subcontractors.png` |
+| Add Lead modal | Open + backdrop blur | PASS | Screenshot `qa-run32-modal-addlead.png` |
+| Task modal | Open + form fields | PASS | Screenshot `qa-run32-modal-task.png` |
 
-**Total: 19 routes / 19 PASS or FIXED. Zero routes broken at end of run.**
-
-### What still needs attention (frontend)
-
-- **Browser-driven write flows** still not exercised end-to-end against persistence: form-submit on Add Lead, kanban drag persists stage, Invoice Record Payment status transition, Work Order checklist toggle, Lead doc upload (real file). Carry-over from Runs 25–29; Run 30 pivoted to UI consistency instead. Highest-yield frontier for Run 31.
-- **Mobile sweep at 375 px / 768 px** — last full sweep was Run 6 (24 runs ago).
-
----
+**Still needs attention:** Browser-driven *write* flows (Add Lead submit, kanban drag persist, Invoice → Record Payment, Work Order checklist toggle, document upload, mobile 375/768 px sweep) — open carry-over from Run 29.
 
 ## UI Consistency Audit Results
 
-Detailed report in `ui-audit-results.txt`. Raw per-page metrics in `audit-pass1.json`, `audit-buttons.json`, `audit-modals.json`, `audit-spacing.json`.
+Audit ran as s3 over all 19 authenticated routes; metrics dumped to `btn-audit.txt`, `primary-btns.txt`, `header-audit.txt`, `form-audit.txt`, `spacing-audit.txt`.
 
-| Audit | Method | Verdict | Findings |
-|---|---|---|---|
-| **1 — Icons** | Code grep + browser walk for non-Heroicon SVGs | **PASS** | 0 results across `@heroicons/24/solid`, `@heroicons/20`, `react-icons`, `lucide`, `@fortawesome`, `font-awesome`, `material-icons`, `@mui/icons`, `fa-*` classes. 19/19 pages render Heroicons-only icons. `/reports` contains 9 Recharts SVGs which are decorative chart elements, not UI icons. |
-| **2 — Buttons** | Class-signature grouping per page | **PASS** | All primary CTAs use `auth-btn` (h=36, br=14/12, bg oklch 0.72 0.19 250). All secondary actions use `quick-action-btn` (h=31–36, br=14/12, bg oklch 0.18 0.03 265/0.5). All filter dropdowns use `CustomSelect` (h=36, br=12, bg oklch 0.22 0.02 260/0.45). Pill toggles use br=999. Compact pagination buttons on `/leads` and `/subcontractors` use smaller padding via inline styles — intentional compact variants of `quick-action-btn`. |
-| **3 — Toolbar / Header** | Computed height measurement | **PASS** | All 19 pages measured `headerH = 56px` exactly. |
-| **4 — Sidebar / Nav** | Per-page nav-button computed style + active-state class | **PASS** | Identical nav buttons on every page: h=42, padding 12 16, br=12, fs=13.5, fw=500 (active 600). All nav links carry a Heroicon outline svg. Nav group headers ("Jobs", "Finance", "Operations") consistent: h=22, fs=11, fw=700. Active state correctly toggled via `is-active` class on the matching link. |
-| **5 — Forms** | Native `<select>` + native `<input type="date">` count + `.form-input` class probe | **PASS** | **0 native `<select>` elements anywhere in `client/src`.** **0 native `<input type="date">` / `<input type="datetime-local">` in JSX.** All standard inputs use `.form-input`. Non-form-input inputs are intentional component patterns (TopBar search, inline number stepper, map address-search). All hidden checkboxes are toggle-switch wrappers. |
-| **6 — Spacing & Alignment** | H1/H2 font sizes, stat-card gap, glass-panel padding | **PASS** | H1 page-header titles: 18px / fw 700 on every page. Stat-card container gap: 16px on `/estimates`, `/invoices`, `/contracts`, `/expenses`. Glass panel padding varies by content type (kanban 14px, list cards 24px, report panels 20px) — intentional, driven by content density needs. |
-| **7 — Modals** | Modal-open round-trip per modal trigger, asserting backdrop styles | **FIXED** | 14 of 16 `.modal-backdrop` instances render correct inline position/background/blur. 2 modals had a transparent-backdrop bug — fixed (see below). All modals use animation `modal-scale-in 200ms` via global CSS selectors. Modal panel sizes match content (300–720 px) and use border-radius from design-system tokens (`--radius-lg`, `--radius-xl`, `--radius-2xl`). Intentional variation. |
+| Audit | Result | Action |
+|---|---|---|
+| Icons | All Heroicons outline. The 9 SVGs on `/reports` are Recharts library chart elements (not UI icons). | PASS — no fixes needed |
+| Primary buttons | `auth-btn`: 36 px / 14 px-12 px radius / oklch(0.72 0.19 250). Consistent across every page. | PASS |
+| Secondary buttons | `quick-action-btn`: 36 px / 14 px-12 px radius / oklch(0.18 0.03 265 / 0.5). Consistent. | PASS |
+| Compact button variants | Pagination pills h=21 (`/leads`), Prev/Next h=25 (`/subcontractors`) — intentional compact variants. | PASS |
+| Headers / toolbars | `topbar.glass` measured **exactly 56 px** on all 19 pages, identical bg / border tokens. | PASS |
+| Sidebar / nav | Nav links 42 px, 12 px-16 px padding, 13.5 px font, weight 500 (active 600). All carry a Heroicon. | **1 fix** — Admin link had an inline color override; now uses standard `.nav-link.is-active` (`01e9ec4`) |
+| Forms | 0 native `<select>`, 0 native `<input type="date">` in JSX. All standard inputs use `.form-input`. Topbar search and stepper sub-controls intentionally custom. | PASS |
+| Spacing | H1 18 px / weight 700 across every page. Glass radius `20px / 18px` everywhere. Glass padding varies by content density (kanban 14 px, list cards 24 px, report panels 20 px) — intentional. | PASS |
+| Modals | 14/16 modal-backdrops correct; the other 2 (ImportLeadsModal, DripSequences delete-confirm) were fixed in the prior run (`87d7230`). | PASS |
 
-### UI bugs fixed
+## Bugs Fixed
 
-| File:Line | Bug | Fix | Commit |
-|---|---|---|---|
-| `client/src/components/ImportLeadsModal.jsx:166` | `<div className="modal-backdrop">` had no inline `style` props. The `.modal-backdrop` CSS class in `client/src/index.css:4419` only carries the fade-in animation — it intentionally does NOT set position/inset/background/blur. Result: clicking "Import" on `/leads` opened the modal panel with no darkened backdrop, leaving the underlying page fully visible and click-through. | Added the standard inline block: `position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'oklch(0 0 0 / 0.6), backdropFilter: 'blur(8px)'` — matching the pattern used by ExpensesView, CalendarView, MaterialsView, etc. | `87d7230 fix(ui): restore backdrop styling on ImportLeads + DripSequences delete modals` |
-| `client/src/components/DripSequences.jsx:572` | Same bug pattern on the delete-confirmation modal. | Same fix as above. | `87d7230` (same commit) |
-
-Fix verified via Playwright `getComputedStyle` round-trip on the Import Leads modal after the fix; the dark blurred backdrop now renders correctly. Screenshots: `verify-import-modal.png` (pre-fix), `verify-import-modal-fixed.png` (post-fix).
-
----
-
-## Bugs Fixed (numbered list)
-
-1. **Dashboard.jsx `handleCompleteTask` (line 672)** — Sent `{status:"completed"}` to `PATCH /api/crm/tasks/:id`, but the route only accepts `{completed_at}`. Task disappeared from local state but the DB row never updated (the 400 was silently swallowed). **Fix:** Send `{completed_at: new Date().toISOString()}`. Commit `2eb2135`.
-2. **TasksView.jsx checkbox binding (line 735)** — Checkbox bound to `task.status === "completed"`, but the `tasks` table has no `status` column. Always rendered unchecked. **Fix:** Bind to `!!task.completed_at`. Commit `2eb2135`.
-3. **ImportLeadsModal.jsx modal backdrop (line 166)** — Missing inline position/background/blur on the `.modal-backdrop` div. Modal opened with transparent backdrop and page click-through. **Fix:** Added standard inline style block. Commit `87d7230`.
-4. **DripSequences.jsx delete-confirm modal backdrop (line 572)** — Same bug pattern as #3. **Fix:** Same as #3. Commit `87d7230`.
-
-Total: **2 commits, 3 files touched, 4 defects fixed** (the Tasks fix is one commit touching two files for one bug class).
-
----
+1. **DELETE /api/documents/:id** — returned `200 {"deleted":false}` for missing rows, conflating "deleted" with "never existed". → Now returns `404 {"error":"Document not found"}` when the row doesn't exist; `200 {"deleted":true}` on real delete. (`76fc4f9` — `server/src/routes/documents.js:77-86`)
+2. **GET /api/crm/financing/public/:token/{plans,applications}** — returned `200 []` for any bogus token. → Added `assertEstimateByToken()` helper that throws `{status:404,"Estimate not found"}` if the token doesn't match an estimate row. (`76fc4f9` — `server/src/services/financing/index.js:282-298`)
+3. **Postgres 22P02 enum errors leaking DB internals** — e.g. `?source=bogus` returned `400 "invalid input value for enum storm_source: \"bogus\""`. → `errorHandler` collapses any 22P02 to `400 {"error":"Invalid value provided for one or more fields"}`. (`76fc4f9` — `server/src/middleware/errorHandler.js:15-32`)
+4. **Unmatched /api/\* returned Express HTML 404** — inconsistent with every other JSON error response. → Catch-all JSON 404 at the bottom of routes/index.js: `404 {"error":"Not found","path":"/api/foo"}`. SPA fallback in app.js untouched. (`76fc4f9` — `server/src/routes/index.js:79-83`)
+5. **Admin sidebar nav link** had an inline color override (blue active, darker muted inactive) that diverged from every other nav entry. → Removed the inline override so Admin uses the standard `.nav-link.is-active` treatment (white text, weight 600, accent rail via `::before`). (`01e9ec4` — `client/src/components/Sidebar.jsx`)
 
 ## Known Issues (Not Fixed)
 
-These are pre-existing carry-overs not introduced by tonight's work. Each is documented with the run that first surfaced it and the reason it remains deferred.
-
-| # | Issue | First Surfaced | Why Not Fixed |
-|---|---|---|---|
-| 1 | Heavy-work guards accept empty bodies (`POST /drift/correct-all`, `POST /properties/trigger-import`, `POST /crm/leads/score-all`) | Run 11 | Returns 200 with idempotent-noop body when nothing to do; not a defect per existing contract |
-| 2 | 16 search-input fields lack explicit `.form-input` class | Run 13 (`form-audit.json`) | Cosmetic; visual styling matches |
-| 3 | Pre-token-attach 401 noise on `/api/notifications/unread-count`, `/api/properties/import-progress`, `/api/crm/tenant-settings` | Run 25 | Behavioural — needs proactive expiry check in `client/src/api/client.js` interceptor (~10 lines); deferred |
-| 4 | Reports chart label overlap at ~930 px viewport | Run 9 | Cosmetic; needs responsive label-rotation in Recharts config |
-| 5 | 404 response shape — Express HTML 404 vs JSON elsewhere | Run 12 | Cosmetic; needs custom 404 handler middleware |
-| 6 | Currency-format anti-pattern sweep not done (`$${num}`) — LeadDetail Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals | Run 14 | Carry-over; needs a sweep with `formatCurrency()` helper |
-| 7 | `DELETE /api/documents/:id` returns 200 `{"deleted":false}` for missing rows instead of 404 | Run 20 | Cosmetic shape mismatch with sibling DELETE endpoints |
-| 8 | `POST /api/webhooks/hearth` permissive on missing fields — empty-body returns 200 not 400 | Run 21 | Security-audit candidate; needs a webhook-fixture validator |
-| 9 | `GET /api/skip-trace/job/:jobId` returns 503 when `TRACERFY_API_KEY` unset | n/a | Intentional graceful-degrade |
-| 10 | Admin panel requires global `super_admin` role to fully exercise | n/a | Test-tenant scoping decision; not a defect |
-| 11 | Email-send endpoints (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP for live delivery | n/a | Configuration; needs SMTP setup |
-| 12 | Webhook signature delivery paths — valid-signature paths need real signing keys | n/a | Configuration; needs key material |
-| 13 | `/crm/financing/public/:token/plans` returns `200 []` for invalid tokens (vs 404 from siblings) | Run 28 | Cosmetic shape mismatch |
-| 14 | `.modal-backdrop` CSS class still requires inline styling at each call site (16 sites repeat ~6 lines of position/background/blur) | Run 30 | Refactor — could absorb boilerplate to prevent the exact bug class fixed in #3+#4, but deliberately skipped this run per "don't refactor working features" rule; Run 31+ could reconsider |
-| 15 | `subcontractors.js.bak` — 8 dead routes | Run 17 | Safe `git rm` deferred per "don't refactor working state" |
-| 16 | `/content-studio` orphan reference in old docs but never implemented | Run 18 | Decision: build or scrub |
-| 17 | `/subcontractors` has both H1 "Subcontractors" and H2 "Subcontractors" | Run 30 | Content choice, not consistency defect |
-| 18 | Storm-source enum errors leak DB internals (`invalid input value for enum storm_source`) | Run 22 | Security-audit candidate |
-| 19 | `qa-fixtures/` does not exist — file upload success paths untested with real binaries | Run 19 | Needs fixture material |
-
----
+- **DELETE /api/crm/tasks/:id handler missing** — surfaced by the new catch-all 404; previously hid behind Express HTML 404. Client never calls DELETE on tasks, so no UI impact. Rule "don't add new endpoints autonomously" — deferred. *(new this run — Finding A)*
+- **POST /api/crm/tasks malformed-JSON error echoes the request body** — Express 5 default JSON parser includes a snippet of the offending body in the 400. Low impact (client-supplied content, no server-secret leak) but same anti-pattern as defect 3. 2-line fix in `app.js`. *(new this run — Finding B)*
+- **Heavy-work guards** on `POST /drift/correct-all`, `POST /properties/trigger-import`, `POST /crm/leads/score-all` — no `?confirm=true` gate. Contract change; needs deliberate decision, not autonomous.
+- **Hearth webhook permissive on missing fields** — security-audit candidate.
+- **Currency-format anti-pattern sweep** (LeadDetail Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals) — not yet audited for `$${num}` cases.
+- **Pre-token-attach 401 noise** in `client/src/api/client.js` — ~10-line interceptor fix.
+- **Reports chart label overlap** at ~930 px viewport — cosmetic.
+- **`.modal-backdrop` CSS class** only carries animation; each of 16 sites repeats ~6 lines of inline position/background/blur. Refactor opportunity, deliberately skipped per "don't refactor working features".
+- **`/subcontractors`** has both H1 and H2 reading "Subcontractors" — content choice, not a consistency defect.
+- **`subcontractors.js.bak`** cleanup — safe `git rm`, deferred.
 
 ## Test Coverage Gaps
 
-| Area | Why not fully tested |
-|---|---|
-| **Browser-driven WRITE flows** (form-submit, kanban drag, Invoice Record Payment, Work Order checklist toggle, Lead doc upload) | Carry-over from Runs 25–29. Runs 28–30 walked render-only. Highest-yield frontier for Run 31. |
-| **Mobile responsive sweep at 375 px / 768 px** | Last full sweep was Run 6 (24 runs ago). Carry-over. |
-| **CSV import success path with real file** | "No bulk DB writes" rule — needs targeted fixture write. |
-| **Multipart upload SUCCESS path with binary content** | `qa-fixtures/` missing; needs fixture material. |
-| **CSV export download** | Verified by 200 status only, not by `Content-Type` and download trigger. |
-| **QuickBooks / Twilio / Stripe live flows** | Pre-existing; needs live API keys. |
-| **Email delivery** (`/crm/test-email`, `/invoices/:id/send-email`) | Needs SMTP configuration. |
-| **Webhook valid-signature paths** | Needs real signing keys. |
-| **Admin panel full surface** | Requires global `super_admin`. |
-
----
+- **Browser write flows** — Add Lead submit, kanban drag persist, Invoice → Record Payment, Work Order checklist toggle, document upload. s2 hit `max_turns` before writes ran. Highest-yield frontier for next run.
+- **Mobile responsive 375 px / 768 px sweep** — last full sweep was Run 6 (24 runs ago).
+- **Multipart file-upload success path** — `qa-fixtures/` does not exist; would need real binary fixtures.
+- **CSV import success path** — paused per "no bulk DB writes" rule (Neon free tier).
+- **CSV export download** — verified by HTTP 200, not by binary content-type or download trigger.
+- **Admin panel** requires global `super_admin` role to fully exercise.
+- **Email-send endpoints** (`/crm/test-email`, `/invoices/:id/send-email`) — need SMTP configuration for live delivery testing.
+- **Webhook valid-signature paths** — need real signing keys.
+- **QuickBooks / Twilio / Stripe live flows** — not wired (pre-existing).
+- **s5 report-writing session** ran out of turns at 0 bytes for the 23rd consecutive run. This report was written in a follow-up session.
 
 ## Session Integrity
 
-| Stage | Run # | Outcome | Turns | Cost | Commits |
-|---|---|---|---|---|---|
-| s1 api-test | 29 | **completed** | (harness ran cleanly, 144 endpoints) | — | `2eb2135` (1 commit, 2 files for one bug class) |
-| s2 frontend-test | 29 | `error_max_turns` | 81 | $4.39 | 0 — render walk only |
-| s3 ui-audit | 30 | **completed** with deliverable | — | — | `87d7230` (1 commit, 2 files for one bug class) |
-| s4 verify | 30 | `error_max_turns` | 41 | $2.56 | 0 — captured `verify-import-modal-fixed.png`, `qa-run30-{01-04}-*.png`, `snapshot-{dashboard,pipeline}.md` |
-| s5 report | 30 | written in follow-up session | — | — | this file + `docs/overnight-history.md` append |
+| Session | Turns | Outcome | Cost |
+|---|---|---|---|
+| s1 api-test | 51 / 50 | `max_turns` — but produced commit `76fc4f9` (4 fixes) before timeout | $4.48 |
+| s2 frontend-test | 81 / 80 | `max_turns` — page walks executed, no writes, no commits | $4.13 |
+| s3 ui-audit | 61 / 60 | `max_turns` — produced commit `01e9ec4` and 5 audit dumps before timeout | $5.05 |
+| s4 verify | 41 / 40 | `max_turns` — 8 screenshots captured, no commits | $2.41 |
+| s5 report | n/a | 0 bytes (23rd consecutive non-functional s5) | — |
 
-**This is the first run since Run 26 to produce real source-code commits** (the prior three runs each produced zero). After 4 consecutive zero-fix runs (Runs 26–28), Run 29's API harness round-trip surfaced the Tasks contract bug, and Run 30's modal round-trip surfaced the backdrop bug. Both bug classes had been latent for an unknown number of runs because the harness previously only tested static reads, not round-trip writes; and the audit previously only tested static SVG/class signatures, not modal-open round-trips.
-
-Run-number labelling inconsistency persists across stages: s1 self-labelled "Run 29", s3 self-labelled "Run 30", screenshots use `qa-run30-*` prefix. Orchestrator script still needs to pass a stable run number into each stage's prompt.
-
----
-
-## Diff vs. Run 28 (last reported baseline)
-
-- `git diff 257a658..87d7230 -- server/src/` — empty
-- `git diff 257a658..87d7230 -- client/src/components/Dashboard.jsx` — 1-line change (`handleCompleteTask` payload)
-- `git diff 257a658..87d7230 -- client/src/components/TasksView.jsx` — 1-line change (checkbox binding)
-- `git diff 257a658..87d7230 -- client/src/components/ImportLeadsModal.jsx` — 6 lines added (modal-backdrop inline style)
-- `git diff 257a658..87d7230 -- client/src/components/DripSequences.jsx` — 6 lines added (modal-backdrop inline style)
-- `git diff 257a658..87d7230 -- qa-api-test.mjs` — empty (harness unchanged from Run 26's corrected baseline)
-
-Branch `feat/financing` advanced from `257a658` → `2eb2135` → `87d7230`.
-
----
-
-## Next Run Plan (Run 31)
-
-The two consecutive UI-driven runs (Run 29 API round-trip + Run 30 UI modal round-trip) have each found exactly one fix. The **browser-write-flow phase of carry-over #1 is still untouched and remains the highest-yield frontier**. Plan:
-
-1. Real form-submit round-trips against each write surface: Add Lead, kanban drag persists stage, Invoice Record Payment, Work Order checklist toggle, Lead doc upload (real file).
-2. Mobile viewport sweep at 375 px / 768 px (24 runs since last full sweep).
-3. If still low yield, pivot to currency-format consistency sweep (carry-over #6 above).
-4. Consider absorbing modal-backdrop boilerplate into `.modal-backdrop` CSS class (carry-over #14) to prevent recurrence of the bug class fixed this run.
+Total measured spend: ~$16.07. 4 / 5 sessions still produced useful work in spite of `max_turns`; **2 commits, 5 defects fixed**.
