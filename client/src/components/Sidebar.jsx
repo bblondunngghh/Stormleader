@@ -186,9 +186,6 @@ export default function Sidebar({ activeView, onNavigate }) {
           className={`nav-link${activeView === 'admin' ? ' is-active' : ''}`}
           onClick={() => onNavigate('admin')}
           title={collapsed ? 'Admin' : undefined}
-          style={{
-            color: activeView === 'admin' ? 'oklch(0.72 0.18 250)' : 'var(--text-muted)',
-          }}
         >
           <ChartBarIcon width={20} height={20} className="nav-link__icon" />
           {!collapsed && 'Admin'}
