@@ -89,7 +89,9 @@ export async function generateLeadsFromStorm(tenantId, stormEventId, propertyIds
       [stormEventId]
     );
     if (stormRows.length === 0) {
-      throw new Error('Storm event not found');
+      const err = new Error('Storm event not found');
+      err.status = 404;
+      throw err;
     }
     const hailSize = stormRows[0].hail_size_max_in;
     const windSpeed = stormRows[0].wind_speed_max_mph;
