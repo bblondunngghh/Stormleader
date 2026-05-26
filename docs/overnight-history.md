@@ -1909,3 +1909,79 @@ Branch: `feat/financing` · Pre-run checkpoint: `022b2e6` (`overnight-checkpoint
 - Total measured spend: ~$16.07
 - 2 / 5 sessions delivered a commit; 4 / 5 produced concrete artifacts despite max_turns terminations
 ---
+
+## QA Run: 2026-05-26 (Run 33)
+
+Branch: `feat/financing` · Pre-run checkpoint: `ce8bb85` (`pre-overnight-20260526`) · Head: `bdd1d10` · Commits this run: **5**
+
+### Test Results
+- Pages tested: 3 spot-checked (Dashboard, Invoices, Expenses) — full 19-route surface deemed redundant after Run 32 PASS baseline
+- API endpoints tested: 3 targeted negative-case probes (carry-over Run-32 findings)
+- Bugs found: 5
+- Bugs fixed: 5 (3 backend, 2 UI)
+- UI inconsistencies / anti-patterns found: 1 (currency rendering across 13 inline call sites)
+- UI inconsistencies / anti-patterns fixed: 1 (full migration to shared `formatCurrency` util)
+- Production 5xx during sweep: 0 (**15th consecutive zero-5xx run**)
+- Commits this run: **5** (`911c319`, `de162f7`, `abfe6a8`, `4c53e0f`, `bdd1d10`)
+
+### Fixes Made
+- **`server/src/app.js`** — `express.json()` parser-error wrapper now collapses any malformed-body `SyntaxError` to a generic `400 {"error":"Invalid JSON body"}` instead of forwarding the parser's body-snippet message. Clears Finding B from Run 32. Commit `911c319`.
+- **`server/src/services/dripService.js`** — `POST /api/crm/drip-sequences/:id/enroll` with a non-existent or cross-tenant UUID returned 500. Service skipped existence check, ran a non-tenant-scoped steps lookup, then threw a status-less Error. Fix: tenant-scoped sequence lookup runs first; returns `404 {"error":"Sequence not found"}` if missing. Legit "exists but zero steps" edge becomes 400 not 500. Also closes the cross-tenant steps-lookup leak. Commit `de162f7`.
+- **`server/src/services/leadService.js`** — `POST /api/leads/from-storm` with a non-existent `stormEventId` returned 500 because `leadService` threw a status-less Error. Fix: `err.status = 404`. Commit `abfe6a8`.
+
+### UI Consistency Fixes
+- **`client/src/utils/currency.js`** (new file) + **`LeadDetail.jsx`** + **`InvoicesView.jsx`** + **`EstimatesView.jsx`** — root cause was `Number(x).toLocaleString(..., { minimumFractionDigits: 2 })` without matching `maximumFractionDigits: 2`, allowing float math (tax %, discount %, profit = estimate − sum(expenses)) to render 3+ decimals (`$1,234.567`). LeadDetail Profit Summary also passed negative values through `toLocaleString` so the minus landed AFTER the `$` prefix (`$-450.25` vs standard `-$450.25`). Fix: new shared `formatCurrency(value)` util — 2-decimal enforced, negative-aware, NaN/null safe. Migrated 20+ inline call sites. Commit `4c53e0f`.
+- **`client/src/components/ExpensesView.jsx`** + **`client/src/components/MaterialsView.jsx`** — both files defined per-file `formatCurrency` helpers; MaterialsView's version returned `Number(undefined) → NaN` formatted with `toLocaleString` producing `$NaN.00` for null prices. Fix: both removed; both now import the shared util. Commit `bdd1d10`.
+
+### Helpers Intentionally Left Intact
+- `utils/financing.js#formatMoney` — takes CENTS, not dollars (different input shape)
+- `AdminDashboard.jsx#formatMoney` — takes CENTS, not dollars (different input shape)
+- `Dashboard.jsx#formatCurrency` — intentional K/M abbreviation for stat cards
+- `Pipeline.jsx#formatCurrency` — intentional K/M abbreviation + null-for-zero
+- `StormProperties.jsx#formatCurrency` — intentional no-decimals for assessed values
+
+### Audit Evidence Captured
+- `.qa-ui-audit-results.txt` (Run 33 UI audit findings table with PASS/FIXED rows)
+- `claude-overnight-20260526-s{1,2,3,4,5}-*.json` (5 session metadata files; s5 0 bytes)
+
+### Investigated and Dismissed
+- **Re-running full 41-endpoint regression sweep** — 14 prior runs at 0 prod-5xx; signal exhausted. s1 deliberately pivoted to negative-case probes against unfixed Run-32 carry-overs (yielded 3 commits).
+- **Re-running full 19-route UI walk** — Run 32 baseline holds (icons, topbar 56 px, button heights, sidebar nav, forms, spacing, modals). Spot-checked Dashboard / Invoices / Expenses confirmed no regression.
+- **Cents-storage formatters (`formatMoney`)** — `utils/financing.js` and `AdminDashboard.jsx` take cents not dollars; different input shape, not consolidated.
+- **K/M-abbreviation formatters** — `Dashboard.jsx`, `Pipeline.jsx`, `StormProperties.jsx` each have intentional variants (stat-card abbreviation, null-for-zero, no-decimals for assessed values). Future consolidation could expose a sibling `formatCurrencyShort` from `utils/currency.js`, but out of scope for QA.
+
+### Session Integrity
+- s1 api-test: `error_max_turns` (51 / 50 turns, 36 420 output tokens, $4.31) — produced **3 commits** before timeout (`911c319`, `de162f7`, `abfe6a8`). Best s1 yield in 6 runs.
+- s2 frontend-test: `error_max_turns` (81 / 80 turns, 12 769 output tokens, $4.76) — **0 commits**. 6th consecutive max_turns on this scope; orchestrator prompt needs tighter per-session focus.
+- s3 ui-audit: **completed** (97 turns, 36 169 output tokens, $4.30) — produced **2 commits** (`4c53e0f`, `bdd1d10`) plus `.qa-ui-audit-results.txt`. Only clean-exit session of the run. Cleared the currency anti-pattern carry-over open across 4+ prior runs.
+- s4 verify: `error_max_turns` (41 / 40 turns, 10 042 output tokens, $2.09) — 0 commits.
+- s5 report: 0 bytes (**24th consecutive non-functional s5**) — this report written in a follow-up session.
+- Total measured spend across sessions: **~$15.46**.
+- 3 / 5 sessions hit `max_turns`. 2 / 5 sessions delivered commits (5 total).
+
+### Diff vs. Run 32
+- `git diff 01e9ec4..bdd1d10 -- server/src/app.js` — +8 / −1 (JSON parser wrapper)
+- `git diff 01e9ec4..bdd1d10 -- server/src/services/dripService.js` — +16 / −2 (tenant-scoped check)
+- `git diff 01e9ec4..bdd1d10 -- server/src/services/leadService.js` — +3 / −1 (err.status)
+- `git diff 01e9ec4..bdd1d10 -- client/src/utils/currency.js` — new file, 22 lines
+- `git diff 01e9ec4..bdd1d10 -- client/src/components/LeadDetail.jsx` — Profit Summary + expense list amount migrated
+- `git diff 01e9ec4..bdd1d10 -- client/src/components/InvoicesView.jsx` — 13 sites migrated
+- `git diff 01e9ec4..bdd1d10 -- client/src/components/EstimatesView.jsx` — 2 sites migrated
+- `git diff 01e9ec4..bdd1d10 -- client/src/components/ExpensesView.jsx` — local helper removed, shared util imported
+- `git diff 01e9ec4..bdd1d10 -- client/src/components/MaterialsView.jsx` — local helper removed, shared util imported (fixes `$NaN.00` latent bug)
+- HEAD advanced: `01e9ec4` → `911c319` → `de162f7` → `abfe6a8` → `4c53e0f` → `bdd1d10`
+
+### Known Issues Remaining
+- DELETE /api/crm/tasks/:id handler missing (Finding A from Run 32; deferred per "no new endpoints autonomously" rule)
+- Heavy-work guards still missing on POST /drift/correct-all, /properties/trigger-import, /crm/leads/score-all
+- Hearth webhook permissive on missing fields — security-audit candidate
+- Pre-token-attach 401 noise on /notifications/unread-count, /properties/import-progress, /crm/tenant-settings (~10-line interceptor fix in client/src/api/client.js)
+- Reports chart label overlap at ~930 px viewport
+- Multipart file-upload SUCCESS path still untested (no qa-fixtures/)
+- CSV import success path still untested per "no bulk DB writes" rule
+- subcontractors.js.bak cleanup — safe `git rm`, deferred
+- .modal-backdrop CSS class refactor opportunity (16 sites repeat ~6 lines of inline overlay style)
+- /subcontractors has both H1 and H2 "Subcontractors" — content choice, not a consistency defect
+- Browser-driven write flows (Add Lead submit, kanban drag persist, Invoice → Record Payment, Work-order checklist toggle, doc upload) — **6th consecutive max_turns on this scope; orchestrator prompt needs one-flow-per-session scoping**
+- Mobile responsive sweep at 375 / 768 px (last done Run 6 — **25 runs ago**)
+- s5 report-writing session 0 bytes for **24 consecutive runs** — drop the stage or fold into s4

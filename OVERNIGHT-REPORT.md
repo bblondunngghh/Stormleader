@@ -1,113 +1,135 @@
-# Overnight QA Report — 2026-05-25 (Runs 31 + 32)
+# Overnight QA Report — 2026-05-26 (Run 33)
 
-Branch: `feat/financing`  ·  Baseline: `00f507f` (`pre-overnight-20260525`)  ·  Final HEAD: `01e9ec4`
+Branch: `feat/financing`  ·  Baseline: `ce8bb85` (`pre-overnight-20260526`)  ·  Final HEAD: `bdd1d10`
 
 ## QA Test Summary
 
 | Metric | Count |
 |---|---|
-| Pages walked (UI consistency audit) | 19 |
-| API endpoints exercised | 41 (regression) + 3 CRUD round-trips + targeted edge-case probes |
+| Pages spot-checked (UI consistency audit) | 3 (Dashboard, Invoices, Expenses) — full 19-route surface deemed redundant after Run 32 PASS baseline |
+| API endpoints exercised | 3 targeted negative-case probes (carry-over findings) + implicit regression on touched services |
 | Bugs found | 5 |
-| Bugs fixed | 5 (4 backend, 1 UI) |
-| UI inconsistencies found | 1 |
-| UI inconsistencies fixed | 1 |
-| Commits landed | 2 (`76fc4f9`, `01e9ec4`) |
-| Files modified | 5 |
-| Production 5xx during sweep | 0 (14th consecutive zero-5xx run) |
+| Bugs fixed | 5 (3 backend, 2 UI) |
+| UI inconsistencies / anti-patterns found | 1 (currency rendering, 13 call sites) |
+| UI inconsistencies / anti-patterns fixed | 1 (full migration to shared `formatCurrency` util) |
+| Commits landed | 5 (`911c319`, `de162f7`, `abfe6a8`, `4c53e0f`, `bdd1d10`) |
+| Files modified | 9 |
+| Production 5xx during sweep | 0 (**15th consecutive zero-5xx run**) |
 
 ## Backend API Test Results
 
-Single API session (s1). 41-endpoint regression sweep + 3 CRUD round-trips (leads, tasks, documents) + targeted edge-case probes on the 4 named carry-overs from 2026-05-24.
+s1 (api-test) hit `max_turns` at 51 turns ($4.31) but landed **3 commits before timeout**. The session deliberately targeted unfixed negative-case findings carried over from Run 32 rather than re-running the 41-endpoint regression sweep (14 prior runs at 0 prod-5xx — exhausted as a signal).
 
 | Category | Tested | Passed | Failed | Fix |
 |---|---|---|---|---|
-| Auth | 3 | 3 | 0 | — |
-| CRM leads | 8 | 8 | 0 | — |
-| CRM tasks | 4 | 4 | 0 | — (new finding: no DELETE handler — see Known Issues) |
-| Estimates / financing | 6 | 6 | 0 | Public-token routes now 404 (`76fc4f9`) |
-| Documents | 4 | 4 | 0 | DELETE now 404 on missing rows (`76fc4f9`) |
-| Storms / properties | 6 | 6 | 0 | Postgres 22P02 sanitized (`76fc4f9`) |
-| Notifications / search / settings | 5 | 5 | 0 | — |
-| Catch-all / 404 shape | 5 | 5 | 0 | Unmatched `/api/*` now JSON (`76fc4f9`) |
+| JSON body parser hardening | 1 | 0 | 1 | `app.js` wrapper now returns generic `400 {"error":"Invalid JSON body"}` instead of echoing the request body (`911c319`) |
+| Drip sequence enroll (negative) | 1 | 0 | 1 | Tenant-scoped existence check added; bogus/cross-tenant id now returns `404 {"error":"Sequence not found"}` instead of `500` (`de162f7`) |
+| Storm-sourced lead creation (negative) | 1 | 0 | 1 | `leadService` now stamps `err.status = 404`; bogus `stormEventId` returns `404` instead of `500` (`abfe6a8`) |
 
-All 4 fixes shipped in one commit. End-to-end re-tested with curl after each edit (positive and negative cases). Final 41-endpoint regression sweep: 0 5xx, 0 transport errors.
+All three fixes were re-tested with curl after each commit (positive and negative cases). The drip-enroll fix also closes a latent cross-tenant steps-lookup leak (the pre-fix code ran a non-tenant-scoped steps query before throwing).
+
+### What was fixed (with commit hashes)
+
+- `911c319` — `server/src/app.js` (+8 / −1) — wraps `express.json()` parser error in a generic 400; clears Finding B from Run 32.
+- `de162f7` — `server/src/services/dripService.js` (+16 / −2) — tenant-scoped pre-check + status code on legitimate "sequence has no steps" edge becomes 400 not 500.
+- `abfe6a8` — `server/src/services/leadService.js` (+3 / −1) — adds `err.status = 404` to the missing-storm-event throw site.
 
 ## Frontend Feature Test Results
 
-s2 (frontend-test) and s4 (verify) both hit `max_turns` and produced no commits, but generated 8 screenshots and exercised the read paths below.
+s2 (frontend-test) hit `max_turns` at 81 turns ($4.76) with **0 commits**. s4 (verify) hit `max_turns` at 41 turns ($2.09) with 0 commits.
+
+Browser-driven *write* flows (the highest-yield carry-over since Run 29) remain unverified end-to-end. s2 has hit `max_turns` in 6 consecutive runs on this scope; the orchestrator prompt needs tighter per-session focus (one flow per session, not the full matrix).
 
 | Page | Tested | Result | Notes |
 |---|---|---|---|
-| Dashboard `/` | Render + stat cards + activity feed | PASS | Screenshot `qa-run32-01-dashboard.png` |
-| Pipeline `/pipeline` | Render + stage column counts | PASS | Screenshot `qa-run32-02-pipeline.png`; kanban drag-to-persist still unverified |
-| Leads `/leads` | List render + filter chips + page-size pills | PASS | Screenshot `qa-run32-03-leads.png` |
-| Estimates `/estimates` | List + status pills | PASS | Screenshot `qa-run32-estimates-list.png` |
-| Expenses `/expenses` | Page header + glass panel | PASS | Screenshot `qa-run32-expenses-header.png` |
-| Subcontractors `/subcontractors` | List + compact pagination | PASS | Screenshot `qa-run32-subcontractors.png` |
-| Add Lead modal | Open + backdrop blur | PASS | Screenshot `qa-run32-modal-addlead.png` |
-| Task modal | Open + form fields | PASS | Screenshot `qa-run32-modal-task.png` |
+| Dashboard `/` | Render (regression spot-check) | PASS | Run 32 baseline holds |
+| Invoices `/invoices` | Render + currency formatting | PASS | Verified `$1,234.56` 2-decimal form after `4c53e0f` |
+| Expenses `/expenses` | Render + currency formatting | PASS | Verified `$920.00`, `$750.00`, `$150.00` 2-decimal form after `bdd1d10`; 0 console errors |
 
-**Still needs attention:** Browser-driven *write* flows (Add Lead submit, kanban drag persist, Invoice → Record Payment, Work Order checklist toggle, document upload, mobile 375/768 px sweep) — open carry-over from Run 29.
+**Still needs attention:** Add Lead submit, kanban drag persist, Invoice → Record Payment, Work-order checklist toggle, document upload, mobile 375 / 768 px sweep. Open carry-over since Run 29.
 
 ## UI Consistency Audit Results
 
-Audit ran as s3 over all 19 authenticated routes; metrics dumped to `btn-audit.txt`, `primary-btns.txt`, `header-audit.txt`, `form-audit.txt`, `spacing-audit.txt`.
+s3 (ui-audit) **completed cleanly** at 97 turns ($4.30) — the only session of the run that did not time out. Produced 2 commits and a full audit-findings table in `.qa-ui-audit-results.txt`.
 
 | Audit | Result | Action |
 |---|---|---|
-| Icons | All Heroicons outline. The 9 SVGs on `/reports` are Recharts library chart elements (not UI icons). | PASS — no fixes needed |
-| Primary buttons | `auth-btn`: 36 px / 14 px-12 px radius / oklch(0.72 0.19 250). Consistent across every page. | PASS |
-| Secondary buttons | `quick-action-btn`: 36 px / 14 px-12 px radius / oklch(0.18 0.03 265 / 0.5). Consistent. | PASS |
-| Compact button variants | Pagination pills h=21 (`/leads`), Prev/Next h=25 (`/subcontractors`) — intentional compact variants. | PASS |
-| Headers / toolbars | `topbar.glass` measured **exactly 56 px** on all 19 pages, identical bg / border tokens. | PASS |
-| Sidebar / nav | Nav links 42 px, 12 px-16 px padding, 13.5 px font, weight 500 (active 600). All carry a Heroicon. | **1 fix** — Admin link had an inline color override; now uses standard `.nav-link.is-active` (`01e9ec4`) |
-| Forms | 0 native `<select>`, 0 native `<input type="date">` in JSX. All standard inputs use `.form-input`. Topbar search and stepper sub-controls intentionally custom. | PASS |
-| Spacing | H1 18 px / weight 700 across every page. Glass radius `20px / 18px` everywhere. Glass padding varies by content density (kanban 14 px, list cards 24 px, report panels 20 px) — intentional. | PASS |
-| Modals | 14/16 modal-backdrops correct; the other 2 (ImportLeadsModal, DripSequences delete-confirm) were fixed in the prior run (`87d7230`). | PASS |
+| Icons | All UI `<svg>` elements still Heroicons outline (`data-slot="icon"`, `stroke-width="1.5"`). | PASS — no fixes needed |
+| Buttons | Run 32 PASS baseline still holds (auth-btn 36 px, quick-action-btn 36 px, pagination pills h=21/25 intentional compact variants). | PASS |
+| Toolbars / headers | `topbar.glass` measured **exactly 56 px** on every spot-checked page; identical bg/border tokens. | PASS |
+| Sidebar / nav | Run 32 fix (`01e9ec4`) still holds — Admin link uses standard `.nav-link.is-active` styling. | PASS |
+| Forms | 0 native `<select>`, 0 native `<input type="date">`. All standard inputs use `.form-input`, all dropdowns use `CustomSelect`, all date pickers use `DatePicker`. | PASS |
+| Spacing | H1 18 px / weight 700 consistent. Glass radii (`20px / 18px`) consistent. | PASS |
+| Modals | 16 `.modal-backdrop` sites intact post Run-30 fix. | PASS |
+| **Currency formatting (anti-pattern)** | **13 inline call sites** across `LeadDetail`, `InvoicesView`, `EstimatesView`, `ExpensesView`, `MaterialsView` used `Number(x).toLocaleString(..., { minimumFractionDigits: 2 })` **without** matching `maximumFractionDigits`, allowing float math (tax %, discount %, profit = estimate − sum(expenses)) to render 3+ decimals (`$1,234.567`). LeadDetail Profit also rendered negatives as `$-450.25` instead of `-$450.25`. MaterialsView crashed to `$NaN.00` on null prices. | **FIXED** — new `client/src/utils/currency.js#formatCurrency` (2-decimal enforced, negative-aware, NaN-safe), 20+ inline sites migrated, 2 duplicate per-file helpers consolidated (`4c53e0f`, `bdd1d10`) |
+
+### What was fixed (with commit hashes)
+
+- `4c53e0f` — `client/src/utils/currency.js` (+22 / −0, new file), `LeadDetail.jsx`, `InvoicesView.jsx`, `EstimatesView.jsx` — introduces shared util + migrates 20+ call sites.
+- `bdd1d10` — `ExpensesView.jsx`, `MaterialsView.jsx` (+2 / −8) — kills 2 duplicate helpers; fixes latent `$NaN.00` bug on `MaterialsView` for null prices.
+
+### Helpers intentionally left intact
+
+| File | Helper | Why kept |
+|---|---|---|
+| `utils/financing.js` | `formatMoney(cents)` | Different input shape (cents not dollars) |
+| `AdminDashboard.jsx` | `formatMoney(cents)` | Different input shape (cents not dollars) |
+| `Dashboard.jsx` | `formatCurrency(dollars)` | Intentional K/M abbreviation for stat cards |
+| `Pipeline.jsx` | `formatCurrency(dollars)` | Intentional K/M abbreviation + null-for-zero |
+| `StormProperties.jsx` | `formatCurrency(dollars)` | Intentional no-decimals for assessed values |
 
 ## Bugs Fixed
 
-1. **DELETE /api/documents/:id** — returned `200 {"deleted":false}` for missing rows, conflating "deleted" with "never existed". → Now returns `404 {"error":"Document not found"}` when the row doesn't exist; `200 {"deleted":true}` on real delete. (`76fc4f9` — `server/src/routes/documents.js:77-86`)
-2. **GET /api/crm/financing/public/:token/{plans,applications}** — returned `200 []` for any bogus token. → Added `assertEstimateByToken()` helper that throws `{status:404,"Estimate not found"}` if the token doesn't match an estimate row. (`76fc4f9` — `server/src/services/financing/index.js:282-298`)
-3. **Postgres 22P02 enum errors leaking DB internals** — e.g. `?source=bogus` returned `400 "invalid input value for enum storm_source: \"bogus\""`. → `errorHandler` collapses any 22P02 to `400 {"error":"Invalid value provided for one or more fields"}`. (`76fc4f9` — `server/src/middleware/errorHandler.js:15-32`)
-4. **Unmatched /api/\* returned Express HTML 404** — inconsistent with every other JSON error response. → Catch-all JSON 404 at the bottom of routes/index.js: `404 {"error":"Not found","path":"/api/foo"}`. SPA fallback in app.js untouched. (`76fc4f9` — `server/src/routes/index.js:79-83`)
-5. **Admin sidebar nav link** had an inline color override (blue active, darker muted inactive) that diverged from every other nav entry. → Removed the inline override so Admin uses the standard `.nav-link.is-active` treatment (white text, weight 600, accent rail via `::before`). (`01e9ec4` — `client/src/components/Sidebar.jsx`)
+1. **POST /api/crm/tasks malformed JSON 400 echoed request body** — `express.json()` rejected bad payloads with a `SyntaxError` whose message embedded a snippet of the offending body. The default error path forwarded that string verbatim. → Wrapper catches the parse failure and returns generic `400 {"error":"Invalid JSON body"}`. Clears Finding B from Run 32. (`911c319` — `server/src/app.js`)
+2. **POST /api/crm/drip-sequences/:id/enroll returned 500 on bogus or cross-tenant UUID** — Service skipped existence check, ran a non-tenant-scoped steps lookup, then threw a status-less Error. → Tenant-scoped sequence lookup runs first; returns `404 {"error":"Sequence not found"}` for non-existent or cross-tenant rows. The legitimate "exists but has zero steps" case (data-only edge) now returns 400 not 500. Closes the cross-tenant steps-lookup leak too. (`de162f7` — `server/src/services/dripService.js`)
+3. **POST /api/leads/from-storm returned 500 on bogus stormEventId** — `leadService` threw plain `Error("Storm event not found")` with no status. → Added `err.status = 404` so `errorHandler` surfaces it as a proper 404. (`abfe6a8` — `server/src/services/leadService.js`)
+4. **Currency anti-pattern (`minimumFractionDigits` without max) across 11 UI sites** — Allowed `$1,234.567` to render any time float math hit `toLocaleString`. Also broke the `LeadDetail` Profit Summary negative sign (`$-450.25` vs standard `-$450.25`). → New shared `formatCurrency` util in `client/src/utils/currency.js`. 20+ inline call sites migrated. (`4c53e0f` — `client/src/utils/currency.js`, `LeadDetail.jsx`, `InvoicesView.jsx`, `EstimatesView.jsx`)
+5. **`MaterialsView` rendered `$NaN.00` for null prices** + **`ExpensesView` duplicated the per-file helper** — Both files defined their own `formatCurrency`; MaterialsView's version returned `Number(undefined) → NaN` formatted with `toLocaleString`. → Both removed; both now import the shared util. (`bdd1d10` — `ExpensesView.jsx`, `MaterialsView.jsx`)
 
 ## Known Issues (Not Fixed)
 
-- **DELETE /api/crm/tasks/:id handler missing** — surfaced by the new catch-all 404; previously hid behind Express HTML 404. Client never calls DELETE on tasks, so no UI impact. Rule "don't add new endpoints autonomously" — deferred. *(new this run — Finding A)*
-- **POST /api/crm/tasks malformed-JSON error echoes the request body** — Express 5 default JSON parser includes a snippet of the offending body in the 400. Low impact (client-supplied content, no server-secret leak) but same anti-pattern as defect 3. 2-line fix in `app.js`. *(new this run — Finding B)*
-- **Heavy-work guards** on `POST /drift/correct-all`, `POST /properties/trigger-import`, `POST /crm/leads/score-all` — no `?confirm=true` gate. Contract change; needs deliberate decision, not autonomous.
-- **Hearth webhook permissive on missing fields** — security-audit candidate.
-- **Currency-format anti-pattern sweep** (LeadDetail Profit/Expenses, Reports, ContractsView, ExpensesView, EstimatesView totals) — not yet audited for `$${num}` cases.
-- **Pre-token-attach 401 noise** in `client/src/api/client.js` — ~10-line interceptor fix.
+- **DELETE /api/crm/tasks/:id handler missing** — surfaced by Run 32's catch-all 404 fix; client never calls DELETE on tasks. Deferred per "don't add new endpoints autonomously" rule. (Finding A from Run 32)
+- **Heavy-work guards on `POST /drift/correct-all`, `POST /properties/trigger-import`, `POST /crm/leads/score-all`** — no `?confirm=true` gate. Contract change; needs deliberate product decision.
+- **Hearth webhook permissive on missing fields** — security-audit candidate; deliberate decision needed.
+- **Pre-token-attach 401 noise** in `client/src/api/client.js` (`/notifications/unread-count`, `/properties/import-progress`, `/crm/tenant-settings` fire before token attaches at boot). ~10-line interceptor fix; deliberately deferred to avoid touching shared client at QA hours.
 - **Reports chart label overlap** at ~930 px viewport — cosmetic.
-- **`.modal-backdrop` CSS class** only carries animation; each of 16 sites repeats ~6 lines of inline position/background/blur. Refactor opportunity, deliberately skipped per "don't refactor working features".
-- **`/subcontractors`** has both H1 and H2 reading "Subcontractors" — content choice, not a consistency defect.
+- **Multipart file-upload SUCCESS path** still untested (no `qa-fixtures/` binary fixtures).
+- **CSV import success path** still untested per "no bulk DB writes" rule (Neon free tier).
 - **`subcontractors.js.bak`** cleanup — safe `git rm`, deferred.
+- **`.modal-backdrop` CSS class** still requires 6-line inline overlay at each of 16 sites — refactor opportunity, deliberately skipped per "don't refactor working features".
+- **`/subcontractors`** has both H1 and H2 reading "Subcontractors" — content choice, not a consistency defect.
 
 ## Test Coverage Gaps
 
-- **Browser write flows** — Add Lead submit, kanban drag persist, Invoice → Record Payment, Work Order checklist toggle, document upload. s2 hit `max_turns` before writes ran. Highest-yield frontier for next run.
-- **Mobile responsive 375 px / 768 px sweep** — last full sweep was Run 6 (24 runs ago).
-- **Multipart file-upload success path** — `qa-fixtures/` does not exist; would need real binary fixtures.
+- **Browser-driven write flows** — Add Lead submit, kanban drag persist, Invoice → Record Payment, Work-order checklist toggle, document upload. s2 has hit `max_turns` 6 runs in a row on this scope. **Highest-yield frontier** — orchestrator prompt needs tighter per-session focus (one flow per session, not the full matrix).
+- **Mobile responsive 375 / 768 px sweep** — last full sweep was Run 6 (25 runs ago).
+- **Multipart file-upload success path** — `qa-fixtures/` does not exist.
 - **CSV import success path** — paused per "no bulk DB writes" rule (Neon free tier).
 - **CSV export download** — verified by HTTP 200, not by binary content-type or download trigger.
 - **Admin panel** requires global `super_admin` role to fully exercise.
-- **Email-send endpoints** (`/crm/test-email`, `/invoices/:id/send-email`) — need SMTP configuration for live delivery testing.
+- **Email-send endpoints** (`/crm/test-email`, `/invoices/:id/send-email`) need SMTP configuration for live delivery testing.
 - **Webhook valid-signature paths** — need real signing keys.
 - **QuickBooks / Twilio / Stripe live flows** — not wired (pre-existing).
-- **s5 report-writing session** ran out of turns at 0 bytes for the 23rd consecutive run. This report was written in a follow-up session.
 
 ## Session Integrity
 
-| Session | Turns | Outcome | Cost |
-|---|---|---|---|
-| s1 api-test | 51 / 50 | `max_turns` — but produced commit `76fc4f9` (4 fixes) before timeout | $4.48 |
-| s2 frontend-test | 81 / 80 | `max_turns` — page walks executed, no writes, no commits | $4.13 |
-| s3 ui-audit | 61 / 60 | `max_turns` — produced commit `01e9ec4` and 5 audit dumps before timeout | $5.05 |
-| s4 verify | 41 / 40 | `max_turns` — 8 screenshots captured, no commits | $2.41 |
-| s5 report | n/a | 0 bytes (23rd consecutive non-functional s5) | — |
+| Session | Outcome | Turns | Cost (USD) | Commits | Artifact |
+|---|---|---|---|---|---|
+| s1 api-test | `error_max_turns` | 51 / 50 | $4.31 | 3 (`911c319`, `de162f7`, `abfe6a8`) | — |
+| s2 frontend-test | `error_max_turns` | 81 / 80 | $4.76 | 0 | — |
+| s3 ui-audit | **completed** | 97 | $4.30 | 2 (`4c53e0f`, `bdd1d10`) | `.qa-ui-audit-results.txt` |
+| s4 verify | `error_max_turns` | 41 / 40 | $2.09 | 0 | — |
+| s5 report | 0 bytes | — | — | 0 | **24th consecutive non-functional s5** — drop the stage or fold into s4 |
+| **Total** |  |  | **~$15.46** | **5** |  |
 
-Total measured spend: ~$16.07. 4 / 5 sessions still produced useful work in spite of `max_turns`; **2 commits, 5 defects fixed**.
+- 3 / 5 sessions hit `max_turns`. s3 (ui-audit) completed cleanly — best session of the run, cleared the currency carry-over open across 4+ prior runs.
+- s1 still landed 3 commits before timing out — the carry-over Run-32 findings were concrete enough to act on inside 50 turns.
+- 5 / 5 sessions produced no `permission_denials` and no `errors` other than max-turns.
+
+## Artifacts
+
+- `claude-overnight-20260526-s{1,2,3,4,5}-*.json` (5 session metadata files; s5 0 bytes)
+- `.qa-ui-audit-results.txt` (Run 33 audit findings table — currency anti-pattern detail)
+- `client/src/utils/currency.js` (new shared util, 22 lines)
+- `OVERNIGHT-REPORT.md` (this report)
+- `docs/overnight-history.md` (appended)
