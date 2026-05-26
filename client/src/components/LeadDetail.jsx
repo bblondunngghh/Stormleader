@@ -7,6 +7,7 @@ import { getDocuments, uploadDocument, deleteDocument } from '../api/documents';
 import { submitTrace } from '../api/skipTrace';
 import { getDisasterDeclarations } from '../api/storms';
 import { measureRoof, manualRoofEntry, getSolarSegments, getSolarPotential } from '../api/roofMeasurement';
+import { formatCurrency } from '../utils/currency';
 import mapboxgl from 'mapbox-gl';
 import { IconX, IconPhone, IconMail, IconCalendar, IconClipboard, IconDollar, IconCamera, IconSend, IconTrash } from './Icons';
 import {
@@ -1523,13 +1524,13 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                   <div>
                     <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Estimate Total</div>
                     <div style={{ fontSize: 16, fontWeight: 700, color: 'oklch(0.78 0.14 250)' }}>
-                      ${Number(jobCostSummary.estimateTotal).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      {formatCurrency(jobCostSummary.estimateTotal)}
                     </div>
                   </div>
                   <div>
                     <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Total Expenses</div>
                     <div style={{ fontSize: 16, fontWeight: 700, color: 'oklch(0.78 0.14 25)' }}>
-                      ${Number(jobCostSummary.totalExpenses).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      {formatCurrency(jobCostSummary.totalExpenses)}
                     </div>
                   </div>
                   <div>
@@ -1538,7 +1539,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                       fontSize: 16, fontWeight: 700,
                       color: jobCostSummary.profit >= 0 ? 'oklch(0.78 0.14 145)' : 'oklch(0.78 0.14 25)',
                     }}>
-                      ${Number(jobCostSummary.profit).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      {formatCurrency(jobCostSummary.profit)}
                       <span style={{ fontSize: 11, fontWeight: 400, marginLeft: 4 }}>
                         ({Number(jobCostSummary.profitPercent).toFixed(1)}%)
                       </span>
@@ -1567,7 +1568,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                             {exp.notes && <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{exp.notes}</span>}
                           </div>
                           <span style={{ fontWeight: 700, fontFamily: 'monospace', fontSize: 13 }}>
-                            ${Number(exp.amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            {formatCurrency(exp.amount)}
                           </span>
                         </div>
                         <div style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '4px' }}>

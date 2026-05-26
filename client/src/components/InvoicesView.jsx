@@ -8,6 +8,7 @@ import CustomSelect from './CustomSelect';
 import DatePicker from './DatePicker';
 import { showToast } from './Toast';
 import { BanknotesIcon, DocumentCheckIcon, ClockIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { formatCurrency } from '../utils/currency';
 
 const statusColors = {
   draft: 'oklch(0.6 0 0)',
@@ -281,10 +282,10 @@ export default function InvoicesView() {
                         </span>
                       )}
                     </td>
-                    <td style={{ fontWeight: 700 }}>${Number(inv.total).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                    <td style={{ color: 'oklch(0.75 0.18 145)' }}>${Number(inv.amount_paid || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                    <td style={{ fontWeight: 700 }}>{formatCurrency(inv.total)}</td>
+                    <td style={{ color: 'oklch(0.75 0.18 145)' }}>{formatCurrency(inv.amount_paid || 0)}</td>
                     <td style={{ fontWeight: 700, color: balance > 0 ? 'oklch(0.65 0.2 25)' : 'oklch(0.75 0.18 145)' }}>
-                      {balance < 0 ? '-' : ''}${Math.abs(balance).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      {formatCurrency(balance)}
                     </td>
                     <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                       {inv.due_date ? new Date(inv.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}
@@ -374,7 +375,7 @@ function EstimatePicker({ onSelect, onCancel }) {
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontWeight: 700, color: 'oklch(0.75 0.18 145)', fontSize: 16 }}>
-                    ${Number(est.total).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    {formatCurrency(est.total)}
                   </div>
                   <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
                     {new Date(est.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -851,7 +852,7 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
                   className="form-input" style={{ textAlign: 'right' }}
                 />
                 <div style={{ fontWeight: 600, textAlign: 'right', fontSize: 13, padding: '8px 0' }}>
-                  ${lineTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  {formatCurrency(lineTotal)}
                 </div>
                 <button onClick={() => removeLineItem(idx)} className="quick-action-btn" style={{ padding: 6, color: 'oklch(0.65 0.2 25)' }}>
                   <IconTrash style={{ width: 14, height: 14 }} />
@@ -906,15 +907,15 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
                 <span style={{ color: 'var(--text-muted)' }}>Subtotal</span>
-                <span style={{ fontWeight: 600 }}>${subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                <span style={{ fontWeight: 600 }}>{formatCurrency(subtotal)}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
                 <span style={{ color: 'var(--text-muted)' }}>Tax ({(taxRate * 100).toFixed(2)}%)</span>
-                <span style={{ fontWeight: 600 }}>${taxAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                <span style={{ fontWeight: 600 }}>{formatCurrency(taxAmount)}</span>
               </div>
               <div style={{ borderTop: '1px solid oklch(0.3 0.03 260)', paddingTop: 'var(--space-md)', display: 'flex', justifyContent: 'space-between', fontSize: 18 }}>
                 <span style={{ fontWeight: 700 }}>Total</span>
-                <span style={{ fontWeight: 700, color: 'oklch(0.75 0.18 145)' }}>${total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                <span style={{ fontWeight: 700, color: 'oklch(0.75 0.18 145)' }}>{formatCurrency(total)}</span>
               </div>
 
               {isEdit && Number(invoice.amount_paid) > 0 && (
@@ -922,13 +923,13 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
                     <span style={{ color: 'var(--text-muted)' }}>Amount Paid</span>
                     <span style={{ fontWeight: 600, color: 'oklch(0.75 0.18 145)' }}>
-                      ${Number(invoice.amount_paid).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      {formatCurrency(invoice.amount_paid)}
                     </span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
                     <span style={{ color: 'var(--text-muted)' }}>Balance Due</span>
                     <span style={{ fontWeight: 700, color: 'oklch(0.65 0.2 25)' }}>
-                      ${(Number(invoice.total) - Number(invoice.amount_paid)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      {formatCurrency(Number(invoice.total) - Number(invoice.amount_paid))}
                     </span>
                   </div>
                 </>
@@ -1025,7 +1026,7 @@ function PaymentModal({ invoice, onClose, onRecorded }) {
     setSaving(true);
     try {
       await invoicesApi.recordPayment(invoice.id, val);
-      showToast(`Payment of $${val.toLocaleString(undefined, { minimumFractionDigits: 2 })} recorded via ${paymentMethod}`, 'success');
+      showToast(`Payment of ${formatCurrency(val)} recorded via ${paymentMethod}`, 'success');
       onRecorded();
     } catch {
       showToast('Failed to record payment', 'error');
@@ -1070,16 +1071,16 @@ function PaymentModal({ invoice, onClose, onRecorded }) {
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 6 }}>
             <span style={{ color: 'var(--text-muted)' }}>Invoice Total</span>
-            <span style={{ fontWeight: 600 }}>${Number(invoice.total).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+            <span style={{ fontWeight: 600 }}>{formatCurrency(invoice.total)}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 6 }}>
             <span style={{ color: 'var(--text-muted)' }}>Already Paid</span>
-            <span style={{ fontWeight: 600, color: 'oklch(0.75 0.18 145)' }}>${Number(invoice.amount_paid || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+            <span style={{ fontWeight: 600, color: 'oklch(0.75 0.18 145)' }}>{formatCurrency(invoice.amount_paid || 0)}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, borderTop: '1px solid oklch(0.3 0.03 260)', paddingTop: 6 }}>
             <span style={{ fontWeight: 600 }}>Balance Due</span>
             <span style={{ fontWeight: 800, fontSize: 16, color: balance > 0 ? 'oklch(0.65 0.2 25)' : 'oklch(0.75 0.18 145)' }}>
-              ${balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              {formatCurrency(balance)}
             </span>
           </div>
         </div>

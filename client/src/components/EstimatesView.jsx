@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import * as estimatesApi from '../api/estimates';
 import client from '../api/client';
 import { calcMonthlyPayment, formatMoney } from '../utils/financing';
+import { formatCurrency } from '../utils/currency';
 import { IconX, IconFileText, IconDollar, IconSend, IconClipboard, IconTrash, IconPlusCircle, IconArrowLeft, IconEye, IconEyeOff, IconChevronDown, IconRefresh } from './Icons';
 import CustomSelect from './CustomSelect';
 import DatePicker from './DatePicker';
@@ -2404,7 +2405,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                       ];
                     })().filter(x => Number(x.val) > 0).map(item => (
                       <div key={item.label} style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: 15, fontWeight: 800, color: item.color }}>${Number(item.val).toLocaleString('en-US', { minimumFractionDigits: 2 })}</div>
+                        <div style={{ fontSize: 15, fontWeight: 800, color: item.color }}>{formatCurrency(item.val)}</div>
                         <div style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>{item.label}</div>
                       </div>
                     ))}
@@ -2468,7 +2469,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                   }}>
                     <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)' }}>Selected Upgrades Total</span>
                     <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--accent-green)' }}>
-                      +${upgrades.filter(u => u.selected).reduce((sum, u) => sum + (Number(u.price) || 0), 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      +{formatCurrency(upgrades.filter(u => u.selected).reduce((sum, u) => sum + (Number(u.price) || 0), 0))}
                     </span>
                   </div>
                 )}
