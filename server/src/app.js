@@ -25,7 +25,14 @@ app.use((req, res, next) => {
     return next();
   }
   express.json()(req, res, (err) => {
-    if (err) return next(err);
+    if (err) {
+      // Don't leak the malformed body back to the client — the default
+      // SyntaxError message embeds a snippet of the request payload.
+      if (err.type === 'entity.parse.failed' || err instanceof SyntaxError) {
+        return res.status(400).json({ error: 'Invalid JSON body' });
+      }
+      return next(err);
+    }
     // Guarantee req.body is always an object so handlers can safely destructure
     // even when clients omit Content-Type or send no body at all.
     if (req.body == null) req.body = {};
