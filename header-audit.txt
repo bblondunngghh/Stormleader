@@ -1,0 +1,157 @@
+{
+  "/": [
+    {
+      "cls": "topbar glass",
+      "h": "56px",
+      "pad": "0px 32px",
+      "bg": "oklch(0.16 0.015 260 / 0.35)",
+      "bd": "1px solid oklch(0.5 0.02 260 / 0.15)",
+      "rectH": "56.0",
+      "text": "Dashboard | Enterprise"
+    },
+    {
+      "cls": "flex items-end justify-between gap-6 flex-wrap py-1",
+      "h": "65px",
+      "pad": "3.5px 0px",
+      "bg": "rgba(0, 0, 0, 0)",
+      "bd": "0px none oklch(0.95 0.005 260)",
+      "rectH": "65.0",
+      "text": "Good morning, Brandon |  | Monday, May 25 |  | Storm Map | View Leads"
+    }
+  ],
+  "/storm-map": [
+    {
+      "cls": "topbar glass",
+      "h": "56px",
+      "pad": "0px 32px",
+      "bg": "oklch(0.16 0.015 260 / 0.35)",
+      "bd": "1px solid oklch(0.5 0.02 260 / 0.15)",
+      "rectH": "56.0",
+      "text": "Storm Map | Enterprise"
+    }
+  ],
+  "/storm-archive": [
+    {
+      "cls": "topbar glass",
+      "h": "56px",
+      "pad": "0px 32px",
+      "bg": "oklch(0.16 0.015 260 / 0.35)",
+      "bd": "1px solid oklch(0.5 0.02 260 / 0.15)",
+      "rectH": "56.0",
+      "text": "Dashboard | Enterprise"
+    },
+    {
+      "cls": "flex items-end justify-between gap-6 flex-wrap py-1",
+      "h": "65px",
+      "pad": "3.5px 0px",
+      "bg": "rgba(0, 0, 0, 0)",
+      "bd": "0px none oklch(0.95 0.005 260)",
+      "rectH": "65.0",
+      "text": "Good morning, Brandon |  | Monday, May 25 |  | Storm Map | View Leads"
+    }
+  ],
+  "/pipeline": [
+    {
+      "cls": "topbar glass",
+      "h": "56px",
+      "pad": "0px 32px",
+      "bg": "oklch(0.16 0.015 260 / 0.35)",
+      "bd": "1px solid oklch(0.5 0.02 260 / 0.15)",
+      "rectH": "56.0",
+      "text": "Pipeline | Enterprise"
+    }
+  ],
+  "/leads": [
+    {
+      "cls": "topbar glass",
+      "h": "56px",
+      "pad": "0px 32px",
+      "bg": "oklch(0.16 0.015 260 / 0.35)",
+      "bd": "1px solid oklch(0.5 0.02 260 / 0.15)",
+      "rectH": "56.0",
+      "text": "Leads | Enterprise"
+    }
+  ],
+  "/jobs": [
+    {
+      "cls": "topbar glass",
+      "h": "56px",
+      "pad": "0px 32px",
+      "bg": "oklch(0.16 0.015 260 / 0.35)",
+      "bd": "1px solid oklch(0.5 0.02 260 / 0.15)",
+      "rectH": "56.0",
+      "text": "Dashboard | Enterprise"
+    },
+    {
+      "cls": "flex items-end justify-between gap-6 flex-wrap py-1",
+      "h": "65px",
+      "pad": "3.5px 0px",
+      "bg": "rgba(0, 0, 0, 0)",
+      "bd": "0px none oklch(0.95 0.005 260)",
+      "rectH": "65.0",
+      "text": "Good morning, Brandon |  | Monday, May 25 |  | Storm Map | View Leads"
+    }
+  ],
+  "/finance": [
+    {
+      "cls": "topbar glass",
+      "h": "56px",
+      "pad": "0px 32px",
+      "bg": "oklch(0.16 0.015 260 / 0.35)",
+      "bd": "1px solid oklch(0.5 0.02 260 / 0.15)",
+      "rectH": "56.0",
+      "text": "Dashboard | Enterprise"
+    },
+    {
+      "cls": "flex items-end justify-between gap-6 flex-wrap py-1",
+      "h": "65px",
+      "pad": "3.5px 0px",
+      "bg": "rgba(0, 0, 0, 0)",
+      "bd": "0px none oklch(0.95 0.005 260)",
+      "rectH": "65.0",
+      "text": "Good morning, Brandon |  | Monday, May 25 |  | Storm Map | View Leads"
+    }
+  ],
+  "/operations": [
+    {
+      "cls": "topbar glass",
+      "h": "56px",
+      "pad": "0px 32px",
+      "bg": "oklch(0.16 0.015 260 / 0.35)",
+      "bd": "1px solid oklch(0.5 0.02 260 / 0.15)",
+      "rectH": "56.0",
+      "text": "Dashboard | Enterprise"
+    },
+    {
+      "cls": "flex items-end justify-between gap-6 flex-wrap py-1",
+      "h": "65px",
+      "pad": "3.5px 0px",
+      "bg": "rgba(0, 0, 0, 0)",
+      "bd": "0px none oklch(0.95 0.005 260)",
+      "rectH": "65.0",
+      "text": "Good morning, Brandon |  | Monday, May 25 |  | Storm Map | View Leads"
+    }
+  ],
+  "/settings": [
+    {
+      "cls": "topbar glass",
+      "h": "56px",
+      "pad": "0px 32px",
+      "bg": "oklch(0.16 0.015 260 / 0.35)",
+      "bd": "1px solid oklch(0.5 0.02 260 / 0.15)",
+      "rectH": "56.0",
+      "text": "Settings | Enterprise"
+    }
+  ],
+  "/admin": [
+    {
+      "cls": "topbar glass",
+      "h": "56px",
+      "pad": "0px 32px",
+      "bg": "oklch(0.16 0.015 260 / 0.35)",
+      "bd": "1px solid oklch(0.5 0.02 260 / 0.15)",
+      "rectH": "56.0",
+      "text": "Admin | Enterprise"
+    }
+  ]
+}

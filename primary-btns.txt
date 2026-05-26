@@ -1,0 +1,500 @@
+{
+  "/leads": [
+    {
+      "text": "Enterprise",
+      "cls": "",
+      "h": "26px",
+      "pad": "4px 10px",
+      "rad": "10px / 8px",
+      "bg": "oklch(0.75 0.15 60 / 0.12)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "All Stages",
+      "cls": "",
+      "h": "36px",
+      "pad": "0px 16px",
+      "rad": "12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "fs": "13px",
+      "fw": "500"
+    },
+    {
+      "text": "All Priorities",
+      "cls": "",
+      "h": "36px",
+      "pad": "0px 16px",
+      "rad": "12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "fs": "13px",
+      "fw": "500"
+    },
+    {
+      "text": "All Sources",
+      "cls": "",
+      "h": "36px",
+      "pad": "0px 16px",
+      "rad": "12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "fs": "13px",
+      "fw": "500"
+    },
+    {
+      "text": "All Scores",
+      "cls": "",
+      "h": "36px",
+      "pad": "0px 16px",
+      "rad": "12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "fs": "13px",
+      "fw": "500"
+    },
+    {
+      "text": "Import",
+      "cls": "quick-action-btn",
+      "h": "36px",
+      "pad": "8px 16px",
+      "rad": "14px / 12px",
+      "bg": "oklch(0.18 0.03 265 / 0.5)",
+      "fs": "13px",
+      "fw": "600"
+    },
+    {
+      "text": "Export",
+      "cls": "quick-action-btn",
+      "h": "36px",
+      "pad": "8px 16px",
+      "rad": "14px / 12px",
+      "bg": "oklch(0.18 0.03 265 / 0.5)",
+      "fs": "13px",
+      "fw": "600"
+    },
+    {
+      "text": "25",
+      "cls": "quick-action-btn",
+      "h": "21px",
+      "pad": "3px 8px",
+      "rad": "14px / 12px",
+      "bg": "oklch(0.5 0.15 250 / 0.15)",
+      "fs": "11px",
+      "fw": "700"
+    },
+    {
+      "text": "50",
+      "cls": "quick-action-btn",
+      "h": "21px",
+      "pad": "3px 8px",
+      "rad": "14px / 12px",
+      "bg": "oklch(0.18 0.03 265 / 0.5)",
+      "fs": "11px",
+      "fw": "400"
+    },
+    {
+      "text": "100",
+      "cls": "quick-action-btn",
+      "h": "21px",
+      "pad": "3px 8px",
+      "rad": "14px / 12px",
+      "bg": "oklch(0.18 0.03 265 / 0.5)",
+      "fs": "11px",
+      "fw": "400"
+    }
+  ],
+  "/finance": [
+    {
+      "text": "Enterprise",
+      "cls": "",
+      "h": "26px",
+      "pad": "4px 10px",
+      "rad": "10px / 8px",
+      "bg": "oklch(0.75 0.15 60 / 0.12)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "All Time",
+      "cls": "",
+      "h": "23px",
+      "pad": "4px 12px",
+      "rad": "999px",
+      "bg": "oklch(0.72 0.15 250 / 0.12)",
+      "fs": "11px",
+      "fw": "600"
+    },
+    {
+      "text": "All Reps",
+      "cls": "",
+      "h": "36px",
+      "pad": "0px 16px",
+      "rad": "12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "fs": "13px",
+      "fw": "500"
+    },
+    {
+      "text": "All Sources",
+      "cls": "",
+      "h": "36px",
+      "pad": "0px 16px",
+      "rad": "12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "fs": "13px",
+      "fw": "500"
+    },
+    {
+      "text": "Set Goal",
+      "cls": "text-[11px] font-bold px-3 py-1.5 rounded-[12px]",
+      "h": "25.5px",
+      "pad": "5.25px 10.5px",
+      "rad": "12px",
+      "bg": "oklch(0.72 0.19 250 / 0.12)",
+      "fs": "11px",
+      "fw": "700"
+    },
+    {
+      "text": "",
+      "cls": "mapboxgl-ctrl-attrib-button",
+      "h": "24px",
+      "pad": "0px",
+      "rad": "12px",
+      "bg": "rgba(255, 255, 255, 0.5)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "30d",
+      "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors bg-[oklch(0",
+      "h": "15.5px",
+      "pad": "1.75px 7px",
+      "rad": "3.35544e+07px",
+      "bg": "oklch(0.72 0.19 250 / 0.15)",
+      "fs": "10px",
+      "fw": "600"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    }
+  ],
+  "/settings": [
+    {
+      "text": "Enterprise",
+      "cls": "",
+      "h": "26px",
+      "pad": "4px 10px",
+      "rad": "10px / 8px",
+      "bg": "oklch(0.75 0.15 60 / 0.12)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "Profile",
+      "cls": "",
+      "h": "31px",
+      "pad": "8px 12px",
+      "rad": "8px",
+      "bg": "oklch(0.3 0.05 250 / 0.6)",
+      "fs": "12px",
+      "fw": "600"
+    },
+    {
+      "text": "Edit Profile",
+      "cls": "quick-action-btn",
+      "h": "29px",
+      "pad": "6px 14px",
+      "rad": "14px / 12px",
+      "bg": "oklch(0.18 0.03 265 / 0.5)",
+      "fs": "12px",
+      "fw": "600"
+    }
+  ],
+  "/operations": [
+    {
+      "text": "Enterprise",
+      "cls": "",
+      "h": "26px",
+      "pad": "4px 10px",
+      "rad": "10px / 8px",
+      "bg": "oklch(0.75 0.15 60 / 0.12)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "All Time",
+      "cls": "",
+      "h": "23px",
+      "pad": "4px 12px",
+      "rad": "999px",
+      "bg": "oklch(0.72 0.15 250 / 0.12)",
+      "fs": "11px",
+      "fw": "600"
+    },
+    {
+      "text": "All Reps",
+      "cls": "",
+      "h": "36px",
+      "pad": "0px 16px",
+      "rad": "12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "fs": "13px",
+      "fw": "500"
+    },
+    {
+      "text": "All Sources",
+      "cls": "",
+      "h": "36px",
+      "pad": "0px 16px",
+      "rad": "12px",
+      "bg": "oklch(0.22 0.02 260 / 0.45)",
+      "fs": "13px",
+      "fw": "500"
+    },
+    {
+      "text": "Set Goal",
+      "cls": "text-[11px] font-bold px-3 py-1.5 rounded-[12px]",
+      "h": "25.5px",
+      "pad": "5.25px 10.5px",
+      "rad": "12px",
+      "bg": "oklch(0.72 0.19 250 / 0.12)",
+      "fs": "11px",
+      "fw": "700"
+    },
+    {
+      "text": "",
+      "cls": "mapboxgl-ctrl-attrib-button",
+      "h": "24px",
+      "pad": "0px",
+      "rad": "12px",
+      "bg": "rgba(255, 255, 255, 0.5)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "30d",
+      "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors bg-[oklch(0",
+      "h": "15.5px",
+      "pad": "1.75px 7px",
+      "rad": "3.35544e+07px",
+      "bg": "oklch(0.72 0.19 250 / 0.15)",
+      "fs": "10px",
+      "fw": "600"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    },
+    {
+      "text": "",
+      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
+      "h": "14px",
+      "pad": "0px",
+      "rad": "5px",
+      "bg": "oklch(0.12 0.01 265 / 0.3)",
+      "fs": "13.3333px",
+      "fw": "400"
+    }
+  ]
+}

@@ -1,0 +1,380 @@
+{
+  "/": {
+    "totalButtons": 46,
+    "uniqueStyles": 17,
+    "top": [
+      {
+        "key": "14px|0px|5px|13.3333px|400|oklch(0.12 0.01 265 / 0.3)",
+        "count": 11,
+        "sampleText": "",
+        "sampleClasses": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc"
+      },
+      {
+        "key": "13px|0px|0px|11px|600|rgba(0, 0, 0, 0)",
+        "count": 7,
+        "sampleText": "View All",
+        "sampleClasses": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.1"
+      },
+      {
+        "key": "42px|12px 16px|12px|13.5px|500|rgba(0, 0, 0, 0)",
+        "count": 6,
+        "sampleText": "Storm Map",
+        "sampleClasses": "nav-link"
+      },
+      {
+        "key": "23px|4px 12px|999px|11px|600|rgba(0, 0, 0, 0)",
+        "count": 4,
+        "sampleText": "7 Days",
+        "sampleClasses": ""
+      },
+      {
+        "key": "22px|4px 16px|0px|11px|700|rgba(0, 0, 0, 0)",
+        "count": 3,
+        "sampleText": "JOBS",
+        "sampleClasses": "nav-group__header"
+      },
+      {
+        "key": "38px|0px|12px|13.3333px|400|rgba(0, 0, 0, 0)",
+        "count": 2,
+        "sampleText": "",
+        "sampleClasses": "topbar__btn"
+      },
+      {
+        "key": "36px|0px 16px|12px|13px|500|oklch(0.22 0.02 260 / 0.45)",
+        "count": 2,
+        "sampleText": "All Reps",
+        "sampleClasses": ""
+      },
+      {
+        "key": "15.5px|1.75px 7px|3.35544e+07px|10px|600|rgba(0, 0, 0, 0)",
+        "count": 2,
+        "sampleText": "24h",
+        "sampleClasses": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(-"
+      }
+    ]
+  },
+  "/pipeline": {
+    "totalButtons": 29,
+    "uniqueStyles": 12,
+    "top": [
+      {
+        "key": "13px|0px|0px|13.3333px|400|rgba(0, 0, 0, 0)",
+        "count": 7,
+        "sampleText": "",
+        "sampleClasses": ""
+      },
+      {
+        "key": "42px|12px 16px|12px|13.5px|500|rgba(0, 0, 0, 0)",
+        "count": 6,
+        "sampleText": "Dashboard",
+        "sampleClasses": "nav-link"
+      },
+      {
+        "key": "22px|4px 16px|0px|11px|700|rgba(0, 0, 0, 0)",
+        "count": 3,
+        "sampleText": "JOBS",
+        "sampleClasses": "nav-group__header"
+      },
+      {
+        "key": "36px|0px 16px|12px|13px|500|oklch(0.22 0.02 260 / 0.45)",
+        "count": 3,
+        "sampleText": "All Priorities",
+        "sampleClasses": ""
+      },
+      {
+        "key": "38px|0px|12px|13.3333px|400|rgba(0, 0, 0, 0)",
+        "count": 2,
+        "sampleText": "",
+        "sampleClasses": "topbar__btn"
+      },
+      {
+        "key": "25px|5px 12px|8px|12px|700|rgba(0, 0, 0, 0)",
+        "count": 2,
+        "sampleText": "Production",
+        "sampleClasses": "shrink-0"
+      },
+      {
+        "key": "42px|12px 16px|12px|13.5px|600|rgba(0, 0, 0, 0)",
+        "count": 1,
+        "sampleText": "Pipeline",
+        "sampleClasses": "nav-link is-active"
+      },
+      {
+        "key": "21px|0px|0px|13.3333px|400|rgba(0, 0, 0, 0)",
+        "count": 1,
+        "sampleText": "",
+        "sampleClasses": ""
+      }
+    ]
+  },
+  "/leads": {
+    "totalButtons": 23,
+    "uniqueStyles": 10,
+    "top": [
+      {
+        "key": "42px|12px 16px|12px|13.5px|500|rgba(0, 0, 0, 0)",
+        "count": 6,
+        "sampleText": "Dashboard",
+        "sampleClasses": "nav-link"
+      },
+      {
+        "key": "36px|0px 16px|12px|13px|500|oklch(0.22 0.02 260 / 0.45)",
+        "count": 4,
+        "sampleText": "All Stages",
+        "sampleClasses": ""
+      },
+      {
+        "key": "22px|4px 16px|0px|11px|700|rgba(0, 0, 0, 0)",
+        "count": 3,
+        "sampleText": "JOBS",
+        "sampleClasses": "nav-group__header"
+      },
+      {
+        "key": "38px|0px|12px|13.3333px|400|rgba(0, 0, 0, 0)",
+        "count": 2,
+        "sampleText": "",
+        "sampleClasses": "topbar__btn"
+      },
+      {
+        "key": "36px|8px 16px|14px / 12px|13px|600|oklch(0.18 0.03 265 / 0.5)",
+        "count": 2,
+        "sampleText": "Import",
+        "sampleClasses": "quick-action-btn"
+      },
+      {
+        "key": "21px|3px 8px|14px / 12px|11px|400|oklch(0.18 0.03 265 / 0.5)",
+        "count": 2,
+        "sampleText": "50",
+        "sampleClasses": "quick-action-btn"
+      },
+      {
+        "key": "42px|12px 16px|12px|13.5px|600|rgba(0, 0, 0, 0)",
+        "count": 1,
+        "sampleText": "Leads",
+        "sampleClasses": "nav-link is-active"
+      },
+      {
+        "key": "21px|0px|0px|13.3333px|400|rgba(0, 0, 0, 0)",
+        "count": 1,
+        "sampleText": "",
+        "sampleClasses": ""
+      }
+    ]
+  },
+  "/jobs": {
+    "totalButtons": 46,
+    "uniqueStyles": 17,
+    "top": [
+      {
+        "key": "14px|0px|5px|13.3333px|400|oklch(0.12 0.01 265 / 0.3)",
+        "count": 11,
+        "sampleText": "",
+        "sampleClasses": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc"
+      },
+      {
+        "key": "13px|0px|0px|11px|600|rgba(0, 0, 0, 0)",
+        "count": 7,
+        "sampleText": "View All",
+        "sampleClasses": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.1"
+      },
+      {
+        "key": "42px|12px 16px|12px|13.5px|500|rgba(0, 0, 0, 0)",
+        "count": 6,
+        "sampleText": "Storm Map",
+        "sampleClasses": "nav-link"
+      },
+      {
+        "key": "23px|4px 12px|999px|11px|600|rgba(0, 0, 0, 0)",
+        "count": 4,
+        "sampleText": "7 Days",
+        "sampleClasses": ""
+      },
+      {
+        "key": "22px|4px 16px|0px|11px|700|rgba(0, 0, 0, 0)",
+        "count": 3,
+        "sampleText": "JOBS",
+        "sampleClasses": "nav-group__header"
+      },
+      {
+        "key": "38px|0px|12px|13.3333px|400|rgba(0, 0, 0, 0)",
+        "count": 2,
+        "sampleText": "",
+        "sampleClasses": "topbar__btn"
+      },
+      {
+        "key": "36px|0px 16px|12px|13px|500|oklch(0.22 0.02 260 / 0.45)",
+        "count": 2,
+        "sampleText": "All Reps",
+        "sampleClasses": ""
+      },
+      {
+        "key": "15.5px|1.75px 7px|3.35544e+07px|10px|600|rgba(0, 0, 0, 0)",
+        "count": 2,
+        "sampleText": "24h",
+        "sampleClasses": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(-"
+      }
+    ]
+  },
+  "/finance": {
+    "totalButtons": 46,
+    "uniqueStyles": 17,
+    "top": [
+      {
+        "key": "14px|0px|5px|13.3333px|400|oklch(0.12 0.01 265 / 0.3)",
+        "count": 11,
+        "sampleText": "",
+        "sampleClasses": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc"
+      },
+      {
+        "key": "13px|0px|0px|11px|600|rgba(0, 0, 0, 0)",
+        "count": 7,
+        "sampleText": "View All",
+        "sampleClasses": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.1"
+      },
+      {
+        "key": "42px|12px 16px|12px|13.5px|500|rgba(0, 0, 0, 0)",
+        "count": 6,
+        "sampleText": "Storm Map",
+        "sampleClasses": "nav-link"
+      },
+      {
+        "key": "23px|4px 12px|999px|11px|600|rgba(0, 0, 0, 0)",
+        "count": 4,
+        "sampleText": "7 Days",
+        "sampleClasses": ""
+      },
+      {
+        "key": "22px|4px 16px|0px|11px|700|rgba(0, 0, 0, 0)",
+        "count": 3,
+        "sampleText": "JOBS",
+        "sampleClasses": "nav-group__header"
+      },
+      {
+        "key": "38px|0px|12px|13.3333px|400|rgba(0, 0, 0, 0)",
+        "count": 2,
+        "sampleText": "",
+        "sampleClasses": "topbar__btn"
+      },
+      {
+        "key": "36px|0px 16px|12px|13px|500|oklch(0.22 0.02 260 / 0.45)",
+        "count": 2,
+        "sampleText": "All Reps",
+        "sampleClasses": ""
+      },
+      {
+        "key": "15.5px|1.75px 7px|3.35544e+07px|10px|600|rgba(0, 0, 0, 0)",
+        "count": 2,
+        "sampleText": "24h",
+        "sampleClasses": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(-"
+      }
+    ]
+  },
+  "/operations": {
+    "totalButtons": 46,
+    "uniqueStyles": 17,
+    "top": [
+      {
+        "key": "14px|0px|5px|13.3333px|400|oklch(0.12 0.01 265 / 0.3)",
+        "count": 11,
+        "sampleText": "",
+        "sampleClasses": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc"
+      },
+      {
+        "key": "13px|0px|0px|11px|600|rgba(0, 0, 0, 0)",
+        "count": 7,
+        "sampleText": "View All",
+        "sampleClasses": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.1"
+      },
+      {
+        "key": "42px|12px 16px|12px|13.5px|500|rgba(0, 0, 0, 0)",
+        "count": 6,
+        "sampleText": "Storm Map",
+        "sampleClasses": "nav-link"
+      },
+      {
+        "key": "23px|4px 12px|999px|11px|600|rgba(0, 0, 0, 0)",
+        "count": 4,
+        "sampleText": "7 Days",
+        "sampleClasses": ""
+      },
+      {
+        "key": "22px|4px 16px|0px|11px|700|rgba(0, 0, 0, 0)",
+        "count": 3,
+        "sampleText": "JOBS",
+        "sampleClasses": "nav-group__header"
+      },
+      {
+        "key": "38px|0px|12px|13.3333px|400|rgba(0, 0, 0, 0)",
+        "count": 2,
+        "sampleText": "",
+        "sampleClasses": "topbar__btn"
+      },
+      {
+        "key": "36px|0px 16px|12px|13px|500|oklch(0.22 0.02 260 / 0.45)",
+        "count": 2,
+        "sampleText": "All Reps",
+        "sampleClasses": ""
+      },
+      {
+        "key": "15.5px|1.75px 7px|3.35544e+07px|10px|600|rgba(0, 0, 0, 0)",
+        "count": 2,
+        "sampleText": "24h",
+        "sampleClasses": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(-"
+      }
+    ]
+  },
+  "/settings": {
+    "totalButtons": 30,
+    "uniqueStyles": 9,
+    "top": [
+      {
+        "key": "31px|8px 12px|8px|12px|600|rgba(0, 0, 0, 0)",
+        "count": 14,
+        "sampleText": "Company",
+        "sampleClasses": ""
+      },
+      {
+        "key": "42px|12px 16px|12px|13.5px|500|rgba(0, 0, 0, 0)",
+        "count": 6,
+        "sampleText": "Dashboard",
+        "sampleClasses": "nav-link"
+      },
+      {
+        "key": "22px|4px 16px|0px|11px|700|rgba(0, 0, 0, 0)",
+        "count": 3,
+        "sampleText": "JOBS",
+        "sampleClasses": "nav-group__header"
+      },
+      {
+        "key": "38px|0px|12px|13.3333px|400|rgba(0, 0, 0, 0)",
+        "count": 2,
+        "sampleText": "",
+        "sampleClasses": "topbar__btn"
+      },
+      {
+        "key": "42px|12px 16px|12px|13.5px|600|rgba(0, 0, 0, 0)",
+        "count": 1,
+        "sampleText": "Settings",
+        "sampleClasses": "nav-link is-active"
+      },
+      {
+        "key": "21px|0px|0px|13.3333px|400|rgba(0, 0, 0, 0)",
+        "count": 1,
+        "sampleText": "",
+        "sampleClasses": ""
+      },
+      {
+        "key": "26px|4px 10px|10px / 8px|13.3333px|400|oklch(0.75 0.15 60 / 0.12)",
+        "count": 1,
+        "sampleText": "Enterprise",
+        "sampleClasses": ""
+      },
+      {
+        "key": "31px|8px 12px|8px|12px|600|oklch(0.3 0.05 250 / 0.6)",
+        "count": 1,
+        "sampleText": "Profile",
+        "sampleClasses": ""
+      }
+    ]
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "/settings": {
+    "nativeSelectCount": 0,
+    "nativeDateCount": 0,
+    "inputCount": 1,
+    "uniqueClasses": [
+      [
+        "(none)",
+        1
+      ]
+    ],
+    "uniqueSizes": [
+      [
+        "42px|12px 16px 12px 42px|14px / 12px|13px",
+        1
+      ]
+    ]
+  },
+  "/estimates": {
+    "nativeSelectCount": 0,
+    "nativeDateCount": 0,
+    "inputCount": 1,
+    "uniqueClasses": [
+      [
+        "(none)",
+        1
+      ]
+    ],
+    "uniqueSizes": [
+      [
+        "42px|12px 16px 12px 42px|14px / 12px|13px",
+        1
+      ]
+    ]
+  },
+  "/invoices": {
+    "nativeSelectCount": 0,
+    "nativeDateCount": 0,
+    "inputCount": 1,
+    "uniqueClasses": [
+      [
+        "(none)",
+        1
+      ]
+    ],
+    "uniqueSizes": [
+      [
+        "42px|12px 16px 12px 42px|14px / 12px|13px",
+        1
+      ]
+    ]
+  },
+  "/tasks": {
+    "nativeSelectCount": 0,
+    "nativeDateCount": 0,
+    "inputCount": 1,
+    "uniqueClasses": [
+      [
+        "(none)",
+        1
+      ]
+    ],
+    "uniqueSizes": [
+      [
+        "42px|12px 16px 12px 42px|14px / 12px|13px",
+        1
+      ]
+    ]
+  }
+}
