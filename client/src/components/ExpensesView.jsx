@@ -7,6 +7,7 @@ import CustomSelect from './CustomSelect';
 import DatePicker from './DatePicker';
 import { showToast } from './Toast';
 import { BanknotesIcon, TagIcon, FunnelIcon } from '@heroicons/react/24/outline';
+import { formatCurrency } from '../utils/currency';
 
 const CATEGORIES = [
   { value: 'materials', label: 'Materials' },
@@ -36,10 +37,6 @@ function CategoryBadge({ category }) {
       {category}
     </span>
   );
-}
-
-function formatCurrency(v) {
-  return `$${Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 // ============================================================

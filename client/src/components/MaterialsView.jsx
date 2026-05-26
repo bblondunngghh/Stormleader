@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import * as materialsApi from '../api/materials';
 import { IconSearch, IconX, IconPackage, IconShoppingCart, IconTruck, IconMinus, IconPlus, IconCheck, IconPlusCircle, IconArrowLeft } from './Icons';
 import { showToast } from './Toast';
+import { formatCurrency } from '../utils/currency';
 
 const CATEGORIES = ['All', 'Shingles', 'Starter & Ridge', 'Hip & Ridge', 'Underlayment', 'Ice & Water Shield', 'Ventilation', 'Flashing & Metals', 'Pipe Boots', 'Fasteners', 'Accessories', 'Modified Bitumen', 'Coatings', 'Delivery'];
 
@@ -12,10 +13,6 @@ const STATUS_COLORS = {
   shipped: 'oklch(0.70 0.15 200)',
   delivered: 'var(--accent-green)',
 };
-
-function formatCurrency(val) {
-  return '$' + Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
 
 export default function MaterialsView() {
   const [tab, setTab] = useState('catalog');
