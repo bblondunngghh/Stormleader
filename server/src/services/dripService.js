@@ -142,13 +142,27 @@ export async function deleteSequence(tenantId, id) {
  * Enroll a lead in a drip sequence. Sets next_run_at to now + first step delay.
  */
 export async function enrollLead(tenantId, sequenceId, leadId) {
-  // Get first step delay
+  // Confirm the sequence exists for this tenant first — otherwise a bogus or
+  // cross-tenant sequenceId would fall through to the steps lookup and surface
+  // as a 500.
+  const { rows: seqRows } = await pool.query(
+    `SELECT id FROM drip_sequences WHERE id = $1 AND tenant_id = $2`,
+    [sequenceId, tenantId]
+  );
+  if (seqRows.length === 0) {
+    const err = new Error('Sequence not found');
+    err.status = 404;
+    throw err;
+  }
+  // Get first step delay (tenant-scoped via the join above; sequence_id is now trusted)
   const { rows: steps } = await pool.query(
     `SELECT delay_days FROM drip_sequence_steps WHERE sequence_id = $1 ORDER BY step_order ASC LIMIT 1`,
     [sequenceId]
   );
   if (steps.length === 0) {
-    throw new Error('Sequence has no steps');
+    const err = new Error('Sequence has no steps');
+    err.status = 400;
+    throw err;
   }
 
   const delayDays = steps[0].delay_days;
