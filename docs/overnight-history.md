@@ -1985,3 +1985,61 @@ Branch: `feat/financing` · Pre-run checkpoint: `ce8bb85` (`pre-overnight-202605
 - Browser-driven write flows (Add Lead submit, kanban drag persist, Invoice → Record Payment, Work-order checklist toggle, doc upload) — **6th consecutive max_turns on this scope; orchestrator prompt needs one-flow-per-session scoping**
 - Mobile responsive sweep at 375 / 768 px (last done Run 6 — **25 runs ago**)
 - s5 report-writing session 0 bytes for **24 consecutive runs** — drop the stage or fold into s4
+
+---
+
+## QA Run: 2026-05-27 (Run 34)
+
+Branch: `feat/financing` · Pre-run checkpoint: `e2ac767` (`overnight-checkpoint-20260527`) · Head: `f4e7aa3` · Commits this run: **1**
+
+### Test Results
+- Pages tested: 13 protected routes via UI consistency audit + 16 routes via empty-state sweep + 9 routes via Playwright browser pass
+- API endpoints tested: 126 total (96 broad sweep + 19 financing negative cases + 11 creation-endpoint empty-body)
+- Bugs found: 1
+- Bugs fixed: 1 (backend)
+- UI inconsistencies found: 0
+- UI inconsistencies fixed: 0
+- Production 5xx during sweep: 0 (**16th consecutive zero-5xx run**)
+- Commits this run: **1** (`f4e7aa3`)
+
+### Fixes Made
+- **`server/src/services/financing/index.js`** — `syncPlans` (line 107) and `createApplication` (line 193) threw plain `Error()` with no `err.status`, so the generic error handler surfaced bogus-UUID failures as 500. Now both attach `err.status = 404`. Same pattern as Run 33's `abfe6a8` fix for `leads/from-storm`. Verified `POST /api/crm/financing/plans/sync` with bogus `lenderId` → `404 "Lender not found"`, and `POST /api/crm/financing/applications` referencing a missing plan → `404 "Plan not found or inactive"`. Commit `f4e7aa3`.
+
+### UI Consistency Fixes
+- None. All 7 audit axes (icons, buttons, toolbars/headers, sidebar, forms, spacing, modals) passed across 13 routes. **Third consecutive zero-defect UI audit.** Surface has converged; the resume recommends pivoting away from sweep audits next run.
+
+### Verified Carry-Overs
+- **Add Lead browser write flow** (open since Run 29; 6 consecutive max_turns) — **now passes end-to-end.** Created lead `fa4d1995` via the UI form, verified in DB via API, confirmed kanban "New" column updated (16→17 leads, $7.6K→$20.1K), cleaned up the test row. Browser workaround: `browser_evaluate` + `form.requestSubmit()` (the `browser_click` MCP tool silently fails on portal-rendered modal buttons).
+- **Pre-token-attach 401 noise** (Run 33 carry-over) — **resolved as misdiagnosis.** Root cause was the orchestrator's stale `brandon/1234` creds failing login. With valid prefilled creds (`waterlooconstruction1@gmail.com / 2Wealth&health / waterloo`), login → dashboard produces zero console errors. No interceptor fix needed.
+- **Financing 404 fix** re-verified end-to-end by s4.
+- **Empty-body validation across 11 creation endpoints** — all return clean 400 with field-specific messages; zero 500s.
+- **Mobile 375 px sweep** — Dashboard / Pipeline / Leads / Estimates / Invoices clean; no horizontal overflow; sidebar collapses to width 0.
+
+### Session Integrity
+- s1 api-test: `error_max_turns` (51 / 50 turns, ~37k output tokens, $4.25) — produced **1 commit before timeout** (`f4e7aa3`) plus `.qa-api-results.txt` (96 endpoints) and `.qa-financing-neg-results.txt` (19 financing negative cases).
+- s2 frontend-test: **completed** (98 turns, ~33k output tokens, $5.82) — **first clean exit of s2 in 6 consecutive runs.** 0 commits by design (verification, not fixes). Cleared the Add Lead carry-over open since Run 29.
+- s3 ui-audit: **completed** (73 turns, ~25k output tokens, $4.03) — full 7-axis audit. Produced `qa-reports/ui-audit-results-2026-05-27.md`. 0 commits, 0 defects.
+- s4 verify: **completed** (28 turns, ~10k output tokens, $3.49) — re-verified financing fix + 16-route empty-state sweep + 11-endpoint validation + mobile 375 px + final build (`✓ built in 7.46s`).
+- s5 report: 0 bytes (**25th consecutive non-functional s5**) — this report written in a follow-up session.
+- Total measured spend across sessions: **~$17.59**.
+- 3 / 5 sessions completed cleanly (best ratio since Run 26). 1 / 5 delivered a commit; 4 / 5 produced concrete artifacts.
+
+### Diff vs. Run 33
+- `git diff bdd1d10..f4e7aa3 -- server/src/services/financing/index.js` — +10 / −2 (two `err.status = 404` attach sites in `syncPlans` and `createApplication`)
+- HEAD advanced: `bdd1d10` → `e2ac767` (checkpoint) → `f4e7aa3`
+
+### Known Issues Remaining
+- **Financing applications snake_case-vs-camelCase contract bug (latent)** — `server/src/routes/financing.js:122-127` validates `lead_id` / `lender_id` (snake_case), but `server/src/services/financing/index.js:181` destructures camelCase (`leadId`, `planId`). Caller sending `lead_id` has the service ignore it and insert `null`. No frontend caller found, so latent. NEW Carry-over #11.
+- **DEV_BYPASS admin 403 noise** — `VITE_DEV_BYPASS_AUTH=true` in `/.env` hardcodes sidebar to `Brandon Admin / super_admin` (DEV_USER) regardless of who logged in. Admin link renders → `GET /api/admin/overview` returns 403 (because real JWT is `admin` not `super_admin`). AdminDashboard handles gracefully. Dev-only artifact; not a production bug.
+- DELETE /api/crm/tasks/:id handler missing (Finding A from Run 32 — still deferred)
+- Heavy-work guards on POST /drift/correct-all, /properties/trigger-import, /crm/leads/score-all
+- Hearth webhook permissive on missing fields — security-audit candidate
+- Reports chart label overlap at ~930 px viewport
+- Multipart file-upload SUCCESS path still untested (no qa-fixtures/)
+- CSV import success path still untested (Neon free tier rule)
+- subcontractors.js.bak cleanup — safe `git rm`, deferred
+- .modal-backdrop CSS class refactor opportunity (16 sites repeat ~6 lines of inline overlay style)
+- /subcontractors has both H1 and H2 "Subcontractors" — content choice, not a consistency defect
+- **Remaining browser write flows untested:** Invoice → Record Payment, Work-order checklist toggle, kanban drag persist round-trip, document multipart upload. Pick exactly one per run going forward.
+- Mobile responsive sweep at 768 px (375 px was spot-checked this run; last comprehensive 768 px sweep was Run 6 — **26 runs ago**)
+- s5 report-writing session 0 bytes for **25 consecutive runs** — drop the stage or fold into s4
