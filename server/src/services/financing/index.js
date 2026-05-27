@@ -104,7 +104,11 @@ export async function syncPlans(tenantId, lenderId) {
     'SELECT * FROM financing_lenders WHERE tenant_id = $1 AND id = $2',
     [tenantId, lenderId]
   );
-  if (!lender) throw new Error('Lender not found');
+  if (!lender) {
+    const err = new Error('Lender not found');
+    err.status = 404;
+    throw err;
+  }
 
   const adapter = getAdapter(lender.provider);
   const apiKey = decrypt(lender.api_key_encrypted);
@@ -190,7 +194,11 @@ export async function createApplication(tenantId, { estimateId, leadId, planId, 
      WHERE fp.tenant_id = $1 AND fp.id = $2 AND fp.is_active = true AND fl.is_active = true`,
     [tenantId, planId]
   );
-  if (!plan) throw new Error('Plan not found or inactive');
+  if (!plan) {
+    const err = new Error('Plan not found or inactive');
+    err.status = 404;
+    throw err;
+  }
 
   const adapter = getAdapter(plan.provider);
   const apiKey = decrypt(plan.api_key_encrypted);
