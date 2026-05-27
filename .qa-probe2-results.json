@@ -1,0 +1,450 @@
+[
+  {
+    "label": "from-storm bogus",
+    "method": "POST",
+    "path": "/api/leads/from-storm",
+    "status": 500,
+    "bad": true,
+    "body": "{\"error\":\"Internal server error\"}"
+  },
+  {
+    "label": "from-storm empty",
+    "method": "POST",
+    "path": "/api/leads/from-storm",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"stormEventId is required\"}"
+  },
+  {
+    "label": "roof-measure bogus prop",
+    "method": "POST",
+    "path": "/api/roof-measurement/measure",
+    "status": 403,
+    "bad": false,
+    "body": "{\"error\":\"Roof measurement is not enabled for your account\"}"
+  },
+  {
+    "label": "roof-measure empty",
+    "method": "POST",
+    "path": "/api/roof-measurement/measure",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"propertyId is required\"}"
+  },
+  {
+    "label": "roof-manual bogus prop",
+    "method": "POST",
+    "path": "/api/roof-measurement/manual",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"roof_sqft or edge measurements are required\"}"
+  },
+  {
+    "label": "roof-manual empty",
+    "method": "POST",
+    "path": "/api/roof-measurement/manual",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"propertyId is required\"}"
+  },
+  {
+    "label": "roof-manual no-fields",
+    "method": "POST",
+    "path": "/api/roof-measurement/manual",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"roof_sqft or edge measurements are required\"}"
+  },
+  {
+    "label": "sub post no-name",
+    "method": "POST",
+    "path": "/api/crm/subcontractors",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"name is required\"}"
+  },
+  {
+    "label": "sub post empty-name",
+    "method": "POST",
+    "path": "/api/crm/subcontractors",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"name is required\"}"
+  },
+  {
+    "label": "financing lender bad-provider",
+    "method": "POST",
+    "path": "/api/crm/financing/lenders",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"provider, apiKey, and merchantId are required\"}"
+  },
+  {
+    "label": "financing lender missing",
+    "method": "POST",
+    "path": "/api/crm/financing/lenders",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"provider, apiKey, and merchantId are required\"}"
+  },
+  {
+    "label": "financing app bogus-plan",
+    "method": "POST",
+    "path": "/api/crm/financing/applications",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"lead_id is required\"}"
+  },
+  {
+    "label": "drift correct bogus",
+    "method": "POST",
+    "path": "/api/drift/00000000-0000-0000-0000-000000000000/correct",
+    "status": 404,
+    "bad": false,
+    "body": "{\"error\":\"Storm event not found\"}"
+  },
+  {
+    "label": "census skip-trace submit empty",
+    "method": "POST",
+    "path": "/api/skip-trace/submit",
+    "status": 402,
+    "bad": false,
+    "body": "{\"error\":\"No payment method configured. Add a card in Settings.\"}"
+  },
+  {
+    "label": "estimate post no-lead",
+    "method": "POST",
+    "path": "/api/estimates",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"lead_id is required\"}"
+  },
+  {
+    "label": "estimate post empty",
+    "method": "POST",
+    "path": "/api/estimates",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"lead_id is required\"}"
+  },
+  {
+    "label": "invoice post no-lead",
+    "method": "POST",
+    "path": "/api/crm/invoices",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"lead_id is required\"}"
+  },
+  {
+    "label": "invoice post empty",
+    "method": "POST",
+    "path": "/api/crm/invoices",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"lead_id is required\"}"
+  },
+  {
+    "label": "contract post empty",
+    "method": "POST",
+    "path": "/api/crm/contracts",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"lead_id is required\"}"
+  },
+  {
+    "label": "contract post no-lead",
+    "method": "POST",
+    "path": "/api/crm/contracts",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"lead_id is required\"}"
+  },
+  {
+    "label": "work-order post empty",
+    "method": "POST",
+    "path": "/api/crm/work-orders",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"title is required\"}"
+  },
+  {
+    "label": "work-order post no-lead",
+    "method": "POST",
+    "path": "/api/crm/work-orders",
+    "status": 201,
+    "bad": false,
+    "body": "{\"id\":\"d93dc780-64cd-4c17-82c6-3303d138b918\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":null,\"estimate_id\":null,\"title\":\"qa\",\"description\":null,\"status\":\"pending\",\"assigned_to\":null,..."
+  },
+  {
+    "label": "automation post empty",
+    "method": "POST",
+    "path": "/api/crm/automations",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"name, trigger_type, and action_type are required\"}"
+  },
+  {
+    "label": "automation post bad-trigger",
+    "method": "POST",
+    "path": "/api/crm/automations",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"name, trigger_type, and action_type are required\"}"
+  },
+  {
+    "label": "property post empty",
+    "method": "POST",
+    "path": "/api/properties",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"address_line1, lat, and lng are required\"}"
+  },
+  {
+    "label": "property put-location bad-coords",
+    "method": "PUT",
+    "path": "/api/properties/00000000-0000-0000-0000-000000000000/location",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"Invalid value provided for one or more fields\"}"
+  },
+  {
+    "label": "property post bad-lat",
+    "method": "POST",
+    "path": "/api/properties",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"address_line1, lat, and lng are required\"}"
+  },
+  {
+    "label": "drift simulate empty",
+    "method": "POST",
+    "path": "/api/drift/simulate",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"hail_size_in is required\"}"
+  },
+  {
+    "label": "drift calibrate empty",
+    "method": "POST",
+    "path": "/api/drift/calibrate",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"storm_event_id, lat, and lng are required\"}"
+  },
+  {
+    "label": "counties post empty",
+    "method": "POST",
+    "path": "/api/counties",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"county_name, arcgis_url, field_map, and data_source_tag are required\"}"
+  },
+  {
+    "label": "counties import bogus",
+    "method": "POST",
+    "path": "/api/counties/00000000-0000-0000-0000-000000000000/import",
+    "status": 404,
+    "bad": false,
+    "body": "{\"error\":\"County not found\"}"
+  },
+  {
+    "label": "dataapis optimize empty",
+    "method": "POST",
+    "path": "/api/data/optimize-route",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"stops array with at least 2 items required\"}"
+  },
+  {
+    "label": "dataapis optimize bad",
+    "method": "POST",
+    "path": "/api/data/optimize-route",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"stops array with at least 2 items required\"}"
+  },
+  {
+    "label": "drip post empty",
+    "method": "POST",
+    "path": "/api/crm/drip-sequences",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"name and trigger_type are required\"}"
+  },
+  {
+    "label": "drip post missing-steps",
+    "method": "POST",
+    "path": "/api/crm/drip-sequences",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"At least one step is required\"}"
+  },
+  {
+    "label": "expense post bad-amount",
+    "method": "POST",
+    "path": "/api/crm/expenses",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"category, amount, and date are required\"}"
+  },
+  {
+    "label": "expense post negative-amount",
+    "method": "POST",
+    "path": "/api/crm/expenses",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"category, amount, and date are required\"}"
+  },
+  {
+    "label": "canvass post bad-coords",
+    "method": "POST",
+    "path": "/api/crm/canvass-pins",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"Invalid value provided for one or more fields\"}"
+  },
+  {
+    "label": "canvass post missing",
+    "method": "POST",
+    "path": "/api/crm/canvass-pins",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"lat and lng are required\"}"
+  },
+  {
+    "label": "territory post bad-geo",
+    "method": "POST",
+    "path": "/api/crm/territories",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"coordinates must be an array of at least 3 [lng, lat] pairs\"}"
+  },
+  {
+    "label": "alerts config put bad",
+    "method": "PUT",
+    "path": "/api/alerts/config",
+    "status": 200,
+    "bad": false,
+    "body": "{\"id\":\"b48b40ff-8065-4a70-84ad-d1762704871c\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"enabled\":true,\"email_enabled\":true,\"sms_enabled\":false,\"email_recipients\":[],\"sms_recipients\":[],\"min_h..."
+  },
+  {
+    "label": "alerts config put empty",
+    "method": "PUT",
+    "path": "/api/alerts/config",
+    "status": 200,
+    "bad": false,
+    "body": "{\"id\":\"b48b40ff-8065-4a70-84ad-d1762704871c\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"enabled\":true,\"email_enabled\":true,\"sms_enabled\":false,\"email_recipients\":[],\"sms_recipients\":[],\"min_h..."
+  },
+  {
+    "label": "crm bulk-assign empty",
+    "method": "POST",
+    "path": "/api/crm/leads/bulk-assign",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"leadIds array and assignedRepId required\"}"
+  },
+  {
+    "label": "crm bulk-status empty",
+    "method": "POST",
+    "path": "/api/crm/leads/bulk-status",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"leadIds array and stage required\"}"
+  },
+  {
+    "label": "crm bulk-assign bad-array",
+    "method": "POST",
+    "path": "/api/crm/leads/bulk-assign",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"leadIds array and assignedRepId required\"}"
+  },
+  {
+    "label": "crm team invite empty",
+    "method": "POST",
+    "path": "/api/crm/team/invite",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"Email, first name, last name, and password are required\"}"
+  },
+  {
+    "label": "crm team invite bad-email",
+    "method": "POST",
+    "path": "/api/crm/team/invite",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"Email, first name, last name, and password are required\"}"
+  },
+  {
+    "label": "crm test-email empty",
+    "method": "POST",
+    "path": "/api/crm/test-email",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"Recipient email required\"}"
+  },
+  {
+    "label": "crm tenant-settings empty",
+    "method": "PUT",
+    "path": "/api/crm/tenant-settings",
+    "status": 200,
+    "bad": false,
+    "body": "{\"name\":\"Waterloo Roofing\",\"slug\":\"waterloo\",\"senderEmail\":null,\"companyPhone\":null,\"companyWebsite\":null,\"companyAddress\":null,\"googlePlaceId\":\"\",\"reviewMessageTemplate\":\"\",\"smtpHost\":\"\",\"smtpPort\":5..."
+  },
+  {
+    "label": "crm activity empty",
+    "method": "POST",
+    "path": "/api/crm/activities",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"lead_id required\"}"
+  },
+  {
+    "label": "crm activity bogus-lead",
+    "method": "POST",
+    "path": "/api/crm/activities",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"lead_id required\"}"
+  },
+  {
+    "label": "crm prospect-list post empty",
+    "method": "POST",
+    "path": "/api/crm/prospect-lists",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"stormEventId is required\"}"
+  },
+  {
+    "label": "crm contact add empty",
+    "method": "POST",
+    "path": "/api/crm/leads/00000000-0000-0000-0000-000000000000/contacts",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"At least one of first_name, last_name, email, or phone is required\"}"
+  },
+  {
+    "label": "materials orders empty",
+    "method": "POST",
+    "path": "/api/materials/orders",
+    "status": 400,
+    "bad": false,
+    "body": "{\"error\":\"items array is required\"}"
+  },
+  {
+    "label": "materials credentials put empty",
+    "method": "PUT",
+    "path": "/api/materials/credentials",
+    "status": 200,
+    "bad": false,
+    "body": "{\"id\":\"8ea48658-6b6d-4f1d-909b-fba13029b98d\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"preferred_branch_id\":null,\"preferred_branch_name\":null,\"created_at\":\"2026-04-16T10:05:30.767Z\"}"
+  },
+  {
+    "label": "materials auto-order bogus",
+    "method": "POST",
+    "path": "/api/materials/estimate/00000000-0000-0000-0000-000000000000/auto-order",
+    "status": 404,
+    "bad": false,
+    "body": "{\"error\":\"Estimate not found\"}"
+  }
+]

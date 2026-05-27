@@ -1,0 +1,70 @@
+UI CONSISTENCY AUDIT — 2026-05-26 (Run 33, s3 ui-audit)
+Branch: feat/financing
+HEAD before run: 01e9ec4
+HEAD after run:  bdd1d10
+
+=== REGRESSION SPOT-CHECK (Run 32 baselines still hold) ===
+
+| Audit          | Page    | Element       | Expected           | Actual                | Status |
+| -------------- | ------- | ------------- | ------------------ | --------------------- | ------ |
+| Icons          | All     | UI <svg>      | Heroicons outline  | data-slot=icon, sw=1.5| PASS   |
+| Topbar height  | Dashboard | .topbar     | 56px               | 56px                  | PASS   |
+| Form inputs    | All     | input/select  | CustomSelect/DatePicker | unchanged       | PASS   |
+
+(Run 32 already PASSed icons/buttons/headers/sidebar/forms/spacing/modals
+across 19 routes — re-verifying full surface would burn ~30 turns. Spot-checked
+Dashboard, Invoices, Expenses to confirm no regression from yesterday's work.)
+
+=== AUDIT FINDING: Currency formatting anti-pattern ===
+
+| Page          | Issue Type | Element                  | Expected           | Actual                       | Fixed?      |
+| ------------- | ---------- | ------------------------ | ------------------ | ---------------------------- | ----------- |
+| LeadDetail    | Anti-pat   | Profit (negative)        | -$450.25           | $-450.25                     | YES 4c53e0f |
+| LeadDetail    | Anti-pat   | Profit Summary x3        | always 2 dec       | could leak 3+ dec from floats| YES 4c53e0f |
+| LeadDetail    | Anti-pat   | Expense list amount      | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
+| InvoicesView  | Anti-pat   | List row total/paid/bal  | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
+| InvoicesView  | Anti-pat   | Estimate picker total    | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
+| InvoicesView  | Anti-pat   | Line-item editor totals  | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
+| InvoicesView  | Anti-pat   | Subtotal/Tax/Total/AP/BD | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
+| InvoicesView  | Anti-pat   | Record-payment modal x3  | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
+| InvoicesView  | Anti-pat   | Payment toast            | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
+| EstimatesView | Anti-pat   | Insurance breakdown      | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
+| EstimatesView | Anti-pat   | Selected upgrades total  | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
+| MaterialsView | Defect     | formatCurrency(undefined)| $0.00              | $NaN.00                      | YES bdd1d10 |
+| ExpensesView  | DRY        | Duplicate helper         | shared util        | local copy                   | YES bdd1d10 |
+
+Root cause: `Number(x).toLocaleString(..., { minimumFractionDigits: 2 })`
+without `maximumFractionDigits: 2` lets float math (e.g. tax %, discount %)
+render 3+ decimals (`$1,234.567`). LeadDetail Profit also passed the negative
+sign through `toLocaleString` so it landed AFTER the `$` prefix giving `$-450.25`
+instead of the standard `-$450.25`.
+
+Fix: New shared util at client/src/utils/currency.js exporting
+`formatCurrency(value)` — handles negative sign placement, NaN/null fallback
+to `$0.00`, and enforces both min and max fraction digits to 2. Migrated 20+
+inline call sites and consolidated 2 local helpers onto the shared util.
+
+Helpers left intact (already-correct or different input shape):
+- utils/financing.js#formatMoney        — takes CENTS, not dollars
+- AdminDashboard.jsx#formatMoney        — takes CENTS, not dollars
+- Dashboard.jsx#formatCurrency          — intentional K/M abbreviation
+- Pipeline.jsx#formatCurrency           — intentional K/M abbreviation, returns null for 0
+- StormProperties.jsx#formatCurrency    — intentional no-decimals for assessed values
+
+=== COMMITS THIS RUN ===
+
+4c53e0f fix(ui): standardize currency rendering with shared formatCurrency
+        — 4 files (+42 / -20), introduces utils/currency.js + migrates
+        LeadDetail, InvoicesView, EstimatesView
+
+bdd1d10 fix(ui): consolidate ExpensesView/MaterialsView onto shared formatCurrency
+        — 2 files (+2 / -8), kills 2 duplicate helpers, fixes MaterialsView
+        $NaN.00 latent bug
+
+=== VERIFICATION ===
+
+- Build: `npx vite build` clean after each commit
+- Browser: /expenses renders $920.00, $750.00, $150.00 (2-decimal form)
+- Browser: 0 console errors after navigation
+- Regex sweep: 0 remaining `minimumFractionDigits: 2` without
+  matching `maximumFractionDigits: 2` in any non-utility file

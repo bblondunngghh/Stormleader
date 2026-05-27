@@ -398,7 +398,7 @@ export async function updateTask(tenantId, taskId, updates) {
     updates.completed_at = updates.completed ? new Date().toISOString() : null;
   }
 
-  const allowedFields = ['title', 'description', 'due_date', 'assigned_to', 'priority', 'completed_at'];
+  const allowedFields = ['title', 'description', 'due_date', 'assigned_to', 'priority', 'completed_at', 'status'];
   const setClauses = [];
   const params = [tenantId, taskId];
 
@@ -409,7 +409,11 @@ export async function updateTask(tenantId, taskId, updates) {
     }
   }
 
-  if (setClauses.length === 0) return null;
+  if (setClauses.length === 0) {
+    const err = new Error(`No valid fields to update. Allowed: ${allowedFields.join(', ')}, completed`);
+    err.status = 400;
+    throw err;
+  }
 
   const { rows } = await pool.query(
     `UPDATE tasks SET ${setClauses.join(', ')} WHERE id = $2 AND tenant_id = $1 RETURNING *`,

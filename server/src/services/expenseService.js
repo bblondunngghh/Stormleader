@@ -65,7 +65,11 @@ export async function updateExpense(tenantId, id, data) {
     }
   }
 
-  if (setClauses.length === 1) return null;
+  if (setClauses.length === 1) {
+    const err = new Error(`No valid fields to update. Allowed: ${allowedFields.join(', ')}`);
+    err.status = 400;
+    throw err;
+  }
 
   const { rows } = await pool.query(
     `UPDATE expenses SET ${setClauses.join(', ')}

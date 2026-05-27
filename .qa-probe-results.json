@@ -1,0 +1,618 @@
+[
+  {
+    "label": "crm patch lead bogus",
+    "method": "PATCH",
+    "path": "/api/crm/leads/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Lead not found\"}"
+  },
+  {
+    "label": "crm delete lead bogus",
+    "method": "DELETE",
+    "path": "/api/crm/leads/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Lead not found\"}"
+  },
+  {
+    "label": "crm patch lead bad-uuid",
+    "method": "PATCH",
+    "path": "/api/crm/leads/not-a-uuid",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Invalid id format\"}"
+  },
+  {
+    "label": "crm patch lead bad-stage",
+    "method": "PATCH",
+    "path": "/api/crm/leads/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"stage must be one of: new, contacted, appt_set, inspected, estimate_sent, sold, lost, negotiating, in_production, on_hold\"}"
+  },
+  {
+    "label": "crm patch lead.roof-type bogus",
+    "method": "PATCH",
+    "path": "/api/crm/leads/00000000-0000-0000-0000-000000000000/roof-type",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"roof_type required\"}"
+  },
+  {
+    "label": "crm score lead bogus",
+    "method": "POST",
+    "path": "/api/crm/leads/00000000-0000-0000-0000-000000000000/score",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Lead not found\"}"
+  },
+  {
+    "label": "crm add contact bogus lead",
+    "method": "POST",
+    "path": "/api/crm/leads/00000000-0000-0000-0000-000000000000/contacts",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"At least one of first_name, last_name, email, or phone is required\"}"
+  },
+  {
+    "label": "crm patch task bogus",
+    "method": "PATCH",
+    "path": "/api/crm/tasks/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Task not found\"}"
+  },
+  {
+    "label": "crm patch task bad-priority",
+    "method": "POST",
+    "path": "/api/crm/tasks",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"priority must be one of: hot, warm, cold\"}"
+  },
+  {
+    "label": "crm prospect-list bogus delete",
+    "method": "DELETE",
+    "path": "/api/crm/prospect-lists/00000000-0000-0000-0000-000000000000/items/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"List not found\"}"
+  },
+  {
+    "label": "estimate patch bogus",
+    "method": "PATCH",
+    "path": "/api/estimates/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "label": "estimate delete bogus",
+    "method": "DELETE",
+    "path": "/api/estimates/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "label": "estimate send bogus",
+    "method": "POST",
+    "path": "/api/estimates/00000000-0000-0000-0000-000000000000/send",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Estimate not found or already sent\"}"
+  },
+  {
+    "label": "estimate dup bogus",
+    "method": "POST",
+    "path": "/api/estimates/00000000-0000-0000-0000-000000000000/duplicate",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "label": "estimate sign bogus",
+    "method": "POST",
+    "path": "/api/estimates/00000000-0000-0000-0000-000000000000/sign-in-person",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"signer_name required\"}"
+  },
+  {
+    "label": "estimate generate-tiers bogus",
+    "method": "POST",
+    "path": "/api/estimates/00000000-0000-0000-0000-000000000000/generate-tiers",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "label": "estimate template patch bogus",
+    "method": "PATCH",
+    "path": "/api/estimates/templates/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Template not found\"}"
+  },
+  {
+    "label": "estimate template delete bogus",
+    "method": "DELETE",
+    "path": "/api/estimates/templates/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Template not found\"}"
+  },
+  {
+    "label": "estimate public accept bad-token",
+    "method": "POST",
+    "path": "/api/estimates/public/garbage_token_xxx/accept",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"signer_name required\"}"
+  },
+  {
+    "label": "estimate public decline bad-token",
+    "method": "POST",
+    "path": "/api/estimates/public/garbage_token_xxx/decline",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Estimate not found or already resolved\"}"
+  },
+  {
+    "label": "invoice patch bogus",
+    "method": "PATCH",
+    "path": "/api/crm/invoices/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Invoice not found\"}"
+  },
+  {
+    "label": "invoice pay bogus",
+    "method": "POST",
+    "path": "/api/crm/invoices/00000000-0000-0000-0000-000000000000/payment",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Invoice not found\"}"
+  },
+  {
+    "label": "invoice send bogus",
+    "method": "POST",
+    "path": "/api/crm/invoices/00000000-0000-0000-0000-000000000000/send",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Invoice not found\"}"
+  },
+  {
+    "label": "invoice email bogus",
+    "method": "POST",
+    "path": "/api/crm/invoices/00000000-0000-0000-0000-000000000000/send-email",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Recipient email required\"}"
+  },
+  {
+    "label": "invoice from-estimate bogus",
+    "method": "POST",
+    "path": "/api/crm/invoices/from-estimate/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "label": "wo patch bogus",
+    "method": "PATCH",
+    "path": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Work order not found\"}"
+  },
+  {
+    "label": "wo complete bogus",
+    "method": "PATCH",
+    "path": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000/complete",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Work order not found\"}"
+  },
+  {
+    "label": "wo from-estimate bogus",
+    "method": "POST",
+    "path": "/api/crm/work-orders/from-estimate/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "label": "wo milestone add bogus wo",
+    "method": "POST",
+    "path": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000/milestones",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Work order not found\"}"
+  },
+  {
+    "label": "wo milestone delete bogus",
+    "method": "DELETE",
+    "path": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000/milestones/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Work order not found\"}"
+  },
+  {
+    "label": "wo milestone patch bogus",
+    "method": "PATCH",
+    "path": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000/milestones/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Work order not found\"}"
+  },
+  {
+    "label": "contract patch bogus",
+    "method": "PATCH",
+    "path": "/api/crm/contracts/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Contract not found or not in draft status\"}"
+  },
+  {
+    "label": "contract send bogus",
+    "method": "POST",
+    "path": "/api/crm/contracts/00000000-0000-0000-0000-000000000000/send",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Contract not found or not in draft status\"}"
+  },
+  {
+    "label": "contract void bogus",
+    "method": "POST",
+    "path": "/api/crm/contracts/00000000-0000-0000-0000-000000000000/void",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Contract not found\"}"
+  },
+  {
+    "label": "contract template patch bogus",
+    "method": "PATCH",
+    "path": "/api/crm/contracts/templates/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Template not found or not editable\"}"
+  },
+  {
+    "label": "contract template delete bogus",
+    "method": "DELETE",
+    "path": "/api/crm/contracts/templates/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Template not found or cannot be deleted\"}"
+  },
+  {
+    "label": "contract public sign bad-token",
+    "method": "POST",
+    "path": "/api/crm/contracts/public/garbage_token_xxx/sign",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"signerName is required\"}"
+  },
+  {
+    "label": "expense patch bogus",
+    "method": "PATCH",
+    "path": "/api/crm/expenses/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Expense not found\"}"
+  },
+  {
+    "label": "expense delete bogus",
+    "method": "DELETE",
+    "path": "/api/crm/expenses/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Expense not found\"}"
+  },
+  {
+    "label": "expense post missing-amount",
+    "method": "POST",
+    "path": "/api/crm/expenses",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"category, amount, and date are required\"}"
+  },
+  {
+    "label": "sub patch bogus",
+    "method": "PATCH",
+    "path": "/api/crm/subcontractors/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Subcontractor not found\"}"
+  },
+  {
+    "label": "sub delete bogus",
+    "method": "DELETE",
+    "path": "/api/crm/subcontractors/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Subcontractor not found\"}"
+  },
+  {
+    "label": "sub assign missing",
+    "method": "POST",
+    "path": "/api/crm/subcontractors/assign",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"work_order_id and subcontractor_id are required\"}"
+  },
+  {
+    "label": "sub unassign bogus",
+    "method": "DELETE",
+    "path": "/api/crm/subcontractors/work-order/00000000-0000-0000-0000-000000000000/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Assignment not found\"}"
+  },
+  {
+    "label": "territory patch bogus",
+    "method": "PATCH",
+    "path": "/api/crm/territories/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Territory not found\"}"
+  },
+  {
+    "label": "territory delete bogus",
+    "method": "DELETE",
+    "path": "/api/crm/territories/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Territory not found\"}"
+  },
+  {
+    "label": "territory post missing",
+    "method": "POST",
+    "path": "/api/crm/territories",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"name is required\"}"
+  },
+  {
+    "label": "automation patch bogus",
+    "method": "PATCH",
+    "path": "/api/crm/automations/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Automation not found\"}"
+  },
+  {
+    "label": "automation delete bogus",
+    "method": "DELETE",
+    "path": "/api/crm/automations/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Automation not found\"}"
+  },
+  {
+    "label": "automation toggle bogus",
+    "method": "PATCH",
+    "path": "/api/crm/automations/00000000-0000-0000-0000-000000000000/toggle",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Automation not found\"}"
+  },
+  {
+    "label": "drip patch bogus",
+    "method": "PATCH",
+    "path": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Sequence not found\"}"
+  },
+  {
+    "label": "drip delete bogus",
+    "method": "DELETE",
+    "path": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Sequence not found\"}"
+  },
+  {
+    "label": "drip enroll bogus",
+    "method": "POST",
+    "path": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000/enroll",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Sequence not found\"}"
+  },
+  {
+    "label": "drip cancel bogus",
+    "method": "POST",
+    "path": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000/cancel",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Active enrollment not found\"}"
+  },
+  {
+    "label": "canvass patch bogus",
+    "method": "PATCH",
+    "path": "/api/crm/canvass-pins/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"No fields to update\"}"
+  },
+  {
+    "label": "canvass convert bogus",
+    "method": "POST",
+    "path": "/api/crm/canvass-pins/00000000-0000-0000-0000-000000000000/convert",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Pin not found\"}"
+  },
+  {
+    "label": "canvass post missing-coords",
+    "method": "POST",
+    "path": "/api/crm/canvass-pins",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"lat and lng are required\"}"
+  },
+  {
+    "label": "financing lender patch bogus",
+    "method": "PATCH",
+    "path": "/api/crm/financing/lenders/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Lender not found\"}"
+  },
+  {
+    "label": "financing lender delete bogus",
+    "method": "DELETE",
+    "path": "/api/crm/financing/lenders/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Lender not found\"}"
+  },
+  {
+    "label": "financing plan patch bogus",
+    "method": "PATCH",
+    "path": "/api/crm/financing/plans/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Plan not found\"}"
+  },
+  {
+    "label": "financing public apply bad-token",
+    "method": "POST",
+    "path": "/api/crm/financing/public/garbage_token_xxx/apply",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"planId is required\"}"
+  },
+  {
+    "label": "notif patch bogus read",
+    "method": "PATCH",
+    "path": "/api/notifications/00000000-0000-0000-0000-000000000000/read",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Notification not found\"}"
+  },
+  {
+    "label": "doc delete bogus int",
+    "method": "DELETE",
+    "path": "/api/documents/999999999",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Invalid id format\"}"
+  },
+  {
+    "label": "doc delete bad-id",
+    "method": "DELETE",
+    "path": "/api/documents/not-an-int",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Invalid id format\"}"
+  },
+  {
+    "label": "admin tenant put bogus",
+    "method": "PUT",
+    "path": "/api/admin/tenants/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Provide at least one of: subscriptionTier, subscriptionStatus\"}"
+  },
+  {
+    "label": "property location put bogus",
+    "method": "PUT",
+    "path": "/api/properties/00000000-0000-0000-0000-000000000000/location",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Property not found\"}"
+  },
+  {
+    "label": "property fema-lookup bogus",
+    "method": "POST",
+    "path": "/api/properties/00000000-0000-0000-0000-000000000000/fema-lookup",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Property not found\"}"
+  },
+  {
+    "label": "leads patch bogus",
+    "method": "PATCH",
+    "path": "/api/leads/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Lead not found\"}"
+  },
+  {
+    "label": "leads status-token bogus",
+    "method": "POST",
+    "path": "/api/leads/00000000-0000-0000-0000-000000000000/status-token",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Referenced resource does not exist or is not accessible\"}"
+  },
+  {
+    "label": "material order post empty",
+    "method": "POST",
+    "path": "/api/materials/orders",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"items array is required\"}"
+  },
+  {
+    "label": "drift correct bogus storm",
+    "method": "POST",
+    "path": "/api/drift/00000000-0000-0000-0000-000000000000/correct",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"Storm event not found\"}"
+  },
+  {
+    "label": "counties post empty",
+    "method": "POST",
+    "path": "/api/counties",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"county_name, arcgis_url, field_map, and data_source_tag are required\"}"
+  },
+  {
+    "label": "counties import bogus",
+    "method": "POST",
+    "path": "/api/counties/00000000-0000-0000-0000-000000000000/import",
+    "status": 404,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"County not found\"}"
+  },
+  {
+    "label": "skip-trace submit empty",
+    "method": "POST",
+    "path": "/api/skip-trace/submit",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"propertyIds array is required\"}"
+  },
+  {
+    "label": "roof measure empty",
+    "method": "POST",
+    "path": "/api/roof-measurement/measure",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"propertyId is required\"}"
+  },
+  {
+    "label": "roof manual empty",
+    "method": "POST",
+    "path": "/api/roof-measurement/manual",
+    "status": 400,
+    "ok": true,
+    "bodyPreview": "{\"error\":\"propertyId is required\"}"
+  },
+  {
+    "label": "alerts test empty",
+    "method": "POST",
+    "path": "/api/alerts/test",
+    "status": 200,
+    "ok": false,
+    "bodyPreview": "{\"message\":\"Test alerts sent\",\"results\":[]}"
+  }
+]
