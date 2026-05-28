@@ -1762,12 +1762,12 @@ function FinancingTab() {
         merchantId: form.merchantId,
       });
       setLender(data);
-      setForm({ apiKey: '', merchantId: '' });
+      setForm(f => ({ provider: f.provider, apiKey: '', merchantId: '' }));
       // Auto-sync plans
       setSyncing(true);
       const { data: synced } = await client.post('/crm/financing/plans/sync', { lenderId: data.id });
       setPlans(synced);
-      showToast('Hearth connected and plans synced');
+      showToast(`${form.provider === 'mock' ? 'Mock Provider' : 'Hearth'} connected and plans synced`);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to connect');
     } finally {
@@ -1782,7 +1782,7 @@ function FinancingTab() {
     try {
       const { data } = await client.post('/crm/financing/plans/sync', { lenderId: lender.id });
       setPlans(data);
-      showToast('Plans synced from Hearth');
+      showToast(`Plans synced from ${lender.provider === 'mock' ? 'Mock Provider' : 'Hearth'}`);
     } catch (err) {
       showToast('Failed to sync plans');
     } finally {
@@ -1794,9 +1794,10 @@ function FinancingTab() {
     if (!lender) return;
     try {
       await client.delete(`/crm/financing/lenders/${lender.id}`);
+      const providerLabel = lender.provider === 'mock' ? 'Mock Provider' : 'Hearth';
       setLender(null);
       setPlans([]);
-      showToast('Hearth disconnected');
+      showToast(`${providerLabel} disconnected`);
     } catch (err) {
       showToast('Failed to disconnect');
     }
@@ -1856,12 +1857,12 @@ function FinancingTab() {
           <div className="form-group" style={{ marginBottom: 'var(--space-md)' }}>
             <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>API Key</label>
             <input className="form-input" type="password" value={form.apiKey} onChange={e => setForm(f => ({ ...f, apiKey: e.target.value }))}
-              placeholder="Enter your Hearth API key" />
+              placeholder={form.provider === 'mock' ? 'Enter your Mock Provider API key' : 'Enter your Hearth API key'} />
           </div>
           <div className="form-group" style={{ marginBottom: 'var(--space-lg)' }}>
             <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 4 }}>Merchant ID</label>
             <input className="form-input" type="text" value={form.merchantId} onChange={e => setForm(f => ({ ...f, merchantId: e.target.value }))}
-              placeholder="Enter your Hearth merchant ID" />
+              placeholder={form.provider === 'mock' ? 'Enter your Mock Provider merchant ID' : 'Enter your Hearth merchant ID'} />
           </div>
           <button type="submit" disabled={connecting || !form.apiKey || !form.merchantId}
             style={{
