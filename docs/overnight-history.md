@@ -2043,3 +2043,50 @@ Branch: `feat/financing` · Pre-run checkpoint: `e2ac767` (`overnight-checkpoint
 - **Remaining browser write flows untested:** Invoice → Record Payment, Work-order checklist toggle, kanban drag persist round-trip, document multipart upload. Pick exactly one per run going forward.
 - Mobile responsive sweep at 768 px (375 px was spot-checked this run; last comprehensive 768 px sweep was Run 6 — **26 runs ago**)
 - s5 report-writing session 0 bytes for **25 consecutive runs** — drop the stage or fold into s4
+
+---
+
+## QA Run: 2026-05-28 (Run 35)
+
+### Test Results
+- Pages tested: 2 (Settings → Financing tab, Invoice list — with evidence PNGs)
+- API endpoints tested: 338 (244 standard sweep + 72 deep negative-case probe + 22 pagination edge probe)
+- Bugs found: 16 (2 fixed, 14 deferred as single-root-cause pagination class)
+- Bugs fixed: 2
+- UI inconsistencies found: 1 (financing tab hardcoded "Hearth" labels with Mock provider selected)
+- UI inconsistencies fixed: 1
+
+### Fixes Made
+- `cdbbb70` — fix(api): financing applications validation drift (snake → camel). Route required `lead_id`/`lender_id` (snake_case) but service destructures camelCase (`leadId`/`planId`); satisfying the route would insert `lead_id=null`. Route now requires `leadId` + `planId`. Closes Run 34 Carry-over #11. (`server/src/routes/financing.js`, +4/-4)
+- `8ed3d7c` — fix(ui): financing tab provider-aware labels (mock vs hearth). 4 hardcoded "Hearth" strings (1 placeholder, 3 toasts) replaced with `form.provider === 'mock' ? 'Mock Provider' : 'Hearth'`; `setForm` reset preserves the provider field. (`client/src/components/SettingsView.jsx`, +7/-6)
+
+### UI Consistency Fixes
+- Financing tab (Settings): Mock provider selector now produces consistent labels and toasts throughout (`8ed3d7c`)
+
+### Sessions
+- s1 api-test: `error_max_turns` (51/50, $3.18) — **landed `cdbbb70` before timeout**
+- s2 frontend-test: `error_max_turns` (81/80, $5.51) — **landed `8ed3d7c` before timeout**; produced `qa-run35-financing-tab.png` + `qa-run35-invoice-list.png`
+- s3 ui-audit: `error_max_turns` (61/60, $4.31) — no full audit report produced (per Run 34 guidance, surface has converged across 7 axes; light spot-check only)
+- s4 verify: `error_max_turns` (41/40, $2.14) — re-verified both commits; reproduced pagination 5xx finding
+- s5 report: 0 bytes (**26th consecutive non-functional s5**) — this report written in a follow-up session
+- Total measured spend: **~$15.14**. **0 / 5 sessions completed cleanly** (regression from Run 34's 3/5), but both fixes still landed.
+
+### Diff vs. Run 34
+- `git diff f4e7aa3..8ed3d7c --stat` — 2 files, +11 / −10
+- HEAD advanced: `f4e7aa3` → `c329826` (checkpoint) → `cdbbb70` → `8ed3d7c`
+
+### Known Issues Remaining
+- **NEW Carry-over #12: 14 list endpoints return 500 on negative `?limit=-1` or `?offset=-N`** — single root cause (pg rejects negative LIMIT/OFFSET). Affected: `/api/crm/leads`, `/tasks`, `/leads/:id/activities`, `/estimates`, `/expenses`, `/invoices`, `/contracts`, `/work-orders`, `/notifications`, `/alerts/history`, `/documents`, `/dashboard/activity`, `/storms`, `/payments/history`. Fix: shared `parsePagination` helper or `Math.max(0, parseInt(x)||default)` at each route. Evidence: `.qa-pagination-broken.json`.
+- **Uncommitted modal-overlay refactor experiment** in working tree (`CreateLeadModal.jsx`, `EmailModal.jsx`, `LeadDetail.jsx` — converts `<>{backdrop, glass}</>` to `<backdrop>{glass with stopPropagation}</backdrop>`). Surfaced during s2; build passes with it in place, but it was never committed. Review and decide before Run 36.
+- **DEV_BYPASS admin 403 noise** — dev-only artifact, not a production bug.
+- DELETE /api/crm/tasks/:id handler missing (Finding A from Run 32 — still deferred)
+- Heavy-work guards on POST /drift/correct-all, /properties/trigger-import, /crm/leads/score-all
+- Hearth webhook permissive on missing fields — security-audit candidate
+- Reports chart label overlap at ~930 px viewport
+- Multipart file-upload SUCCESS path still untested (no qa-fixtures/)
+- CSV import success path still untested (Neon free tier rule)
+- subcontractors.js.bak cleanup — safe `git rm`, deferred
+- /subcontractors has both H1 and H2 "Subcontractors" — content choice
+- **Remaining browser write flows untested:** Invoice → Record Payment (Invoice list reached this run — modal write step pending), Work-order checklist toggle, kanban drag persist, document multipart upload
+- Mobile responsive sweep at 768 px (last done Run 6 — **27 runs ago**)
+- s5 report-writing session 0 bytes for **26 consecutive runs** — drop the stage or fold into s4
