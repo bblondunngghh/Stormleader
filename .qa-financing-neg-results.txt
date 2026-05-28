@@ -1,0 +1,135 @@
+[
+  {
+    "method": "PATCH",
+    "path": "/crm/financing/lenders/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "expect": "expect 404",
+    "summary": "Lender not found"
+  },
+  {
+    "method": "DELETE",
+    "path": "/crm/financing/lenders/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "expect": "expect 404",
+    "summary": "Lender not found"
+  },
+  {
+    "method": "PATCH",
+    "path": "/crm/financing/lenders/not-a-uuid-at-all",
+    "status": 400,
+    "expect": "expect 400 invalid uuid",
+    "summary": "Invalid id format"
+  },
+  {
+    "method": "DELETE",
+    "path": "/crm/financing/lenders/not-a-uuid-at-all",
+    "status": 400,
+    "expect": "expect 400 invalid uuid",
+    "summary": "Invalid id format"
+  },
+  {
+    "method": "PATCH",
+    "path": "/crm/financing/plans/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "expect": "expect 404",
+    "summary": "Plan not found"
+  },
+  {
+    "method": "GET",
+    "path": "/crm/financing/applications/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "expect": "expect 404",
+    "summary": "Application not found"
+  },
+  {
+    "method": "GET",
+    "path": "/crm/financing/applications/not-a-uuid-at-all",
+    "status": 400,
+    "expect": "expect 400 invalid uuid",
+    "summary": "Invalid id format"
+  },
+  {
+    "method": "POST",
+    "path": "/crm/financing/lenders",
+    "status": 400,
+    "expect": "expect 400 missing provider",
+    "summary": "provider, apiKey, and merchantId are required"
+  },
+  {
+    "method": "POST",
+    "path": "/crm/financing/lenders",
+    "status": 400,
+    "expect": "expect 400 missing apiKey/merchantId",
+    "summary": "provider, apiKey, and merchantId are required"
+  },
+  {
+    "method": "POST",
+    "path": "/crm/financing/plans/sync",
+    "status": 400,
+    "expect": "expect 400 missing lenderId",
+    "summary": "lenderId is required"
+  },
+  {
+    "method": "POST",
+    "path": "/crm/financing/plans/sync",
+    "status": 404,
+    "expect": "expect 404 or proper error",
+    "summary": "Lender not found"
+  },
+  {
+    "method": "POST",
+    "path": "/crm/financing/plans/sync",
+    "status": 400,
+    "expect": "expect 400 invalid uuid (no validateId on body)",
+    "summary": "Invalid value provided for one or more fields"
+  },
+  {
+    "method": "POST",
+    "path": "/crm/financing/applications",
+    "status": 400,
+    "expect": "expect 400 lead_id required",
+    "summary": "lead_id is required"
+  },
+  {
+    "method": "POST",
+    "path": "/crm/financing/applications",
+    "status": 400,
+    "expect": "expect 400 lender_id required",
+    "summary": "lender_id is required"
+  },
+  {
+    "method": "POST",
+    "path": "/crm/financing/applications",
+    "status": 404,
+    "expect": "expect 4xx/proper",
+    "summary": "Plan not found or inactive"
+  },
+  {
+    "method": "GET",
+    "path": "/crm/financing/public/definitely-not-a-real-token-just-garbage/plans",
+    "status": 404,
+    "expect": "expect 4xx noauth",
+    "summary": "Estimate not found"
+  },
+  {
+    "method": "GET",
+    "path": "/crm/financing/public/definitely-not-a-real-token-just-garbage/applications",
+    "status": 404,
+    "expect": "expect 4xx noauth",
+    "summary": "Estimate not found"
+  },
+  {
+    "method": "POST",
+    "path": "/crm/financing/public/definitely-not-a-real-token-just-garbage/apply",
+    "status": 404,
+    "expect": "expect 404 noauth",
+    "summary": "Estimate not found or financing not enabled"
+  },
+  {
+    "method": "POST",
+    "path": "/crm/financing/public/definitely-not-a-real-token-just-garbage/apply",
+    "status": 400,
+    "expect": "expect 400 missing planId",
+    "summary": "planId is required"
+  }
+]

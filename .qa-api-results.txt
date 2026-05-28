@@ -1,0 +1,100 @@
+| Endpoint | Method | Status | Bytes | Note | Preview |
+|---|---|---|---|---|---|
+| /auth/me | GET | 200 | 404 |  | keys:user,tenant |
+| /dashboard/stats | GET | 200 | 76 |  | keys:pipelineValue,leadCount,closeRate,avgDaysToClose |
+| /dashboard/funnel | GET | 200 | 225 |  | array[5] |
+| /dashboard/activity | GET | 200 | 3262 |  | array[12] |
+| /crm/dashboard/stats | GET | 200 | 512 |  | keys:stats |
+| /crm/dashboard/activity | GET | 200 | 2061 |  | keys:activity |
+| /crm/dashboard/properties-affected | GET | 200 | 49 |  | keys:uncontacted,contacted,total |
+| /crm/dashboard/properties-affected/list | GET | 200 | 36194 |  | keys:properties,total |
+| /crm/dashboard/followups | GET | 200 | 16 |  | keys:followups |
+| /crm/dashboard/conversion-by-storm | GET | 200 | 13 |  | keys:storms |
+| /crm/dashboard/estimate-summary | GET | 200 | 115 |  | keys:draft,sent,viewed,accepted,declined |
+| /crm/dashboard/ar-summary | GET | 200 | 142 |  | keys:outstanding_count,outstanding_total,overdue_count,overdue_total,due_30 |
+| /crm/dashboard/estimating-conversion | GET | 200 | 67 |  | keys:total_sent,accepted,declined,conversion_rate |
+| /crm/dashboard/leaderboard | GET | 200 | 914 |  | keys:leaderboard |
+| /crm/dashboard/tasks-today | GET | 200 | 5833 |  | keys:tasks |
+| /crm/dashboard/days-in-stage | GET | 200 | 440 |  | keys:stages |
+| /crm/dashboard/stale-leads | GET | 200 | 18 |  | keys:stale_leads |
+| /crm/dashboard/customer-storm-alerts | GET | 200 | 1615 |  | keys:alerts |
+| /crm/dashboard/lead-source-revenue | GET | 200 | 330 |  | keys:sources |
+| /crm/leads | GET | 200 | 37255 |  | keys:leads,total,limit,offset |
+| /crm/leads?stage=new | GET | 200 | 25910 |  | keys:leads,total,limit,offset |
+| /crm/leads?recent=true | GET | 200 | 37255 |  | keys:leads,total,limit,offset |
+| /crm/leads/3fa29df8-589c-44a6-ac4d-88cb78243cbe | GET | 200 | 2839 |  | keys:id,tenant_id,property_id,storm_event_id,assigned_rep_id |
+| /crm/leads/3fa29df8-589c-44a6-ac4d-88cb78243cbe/activities | GET | 200 | 436 |  | keys:activities,total |
+| /crm/leads/00000000-0000-0000-0000-000000000000 | GET | 404 | 26 | ✓expected404 | Lead not found |
+| /crm/tasks | GET | 200 | 5963 |  | keys:tasks |
+| /crm/pipeline/stages | GET | 200 | 1191 |  | keys:stages |
+| /crm/pipeline/metrics | GET | 200 | 1297 |  | keys:funnel |
+| /crm/team | GET | 200 | 863 |  | keys:members |
+| /crm/tenant-settings | GET | 200 | 386 |  | keys:name,slug,companyPhone,companyWebsite,companyAddress |
+| /crm/calendar | GET | 400 | 47 |  | start and end query params required |
+| /crm/custom-fields | GET | 200 | 2 |  | array[0] |
+| /crm/prospect-lists | GET | 200 | 517 |  | keys:lists |
+| /crm/automations | GET | 200 | 2 |  | array[0] |
+| /crm/invoices | GET | 200 | 9376 |  | keys:invoices,total |
+| /crm/canvass-pins | GET | 200 | 6187 |  | array[15] |
+| /crm/canvass-pins/stats | GET | 200 | 45 |  | keys:date,total,outcomes |
+| /crm/reports/revenue | GET | 200 | 270 |  | array[3] |
+| /crm/reports/pipeline | GET | 200 | 279 |  | array[5] |
+| /crm/reports/conversion | GET | 200 | 254 |  | array[4] |
+| /crm/reports/rep-performance | GET | 200 | 579 |  | array[4] |
+| /crm/reports/stage-duration | GET | 200 | 193 |  | array[5] |
+| /crm/reports/lead-sources | GET | 200 | 229 |  | array[4] |
+| /crm/work-orders | GET | 200 | 9412 |  | keys:workOrders,total |
+| /crm/work-orders/milestone-templates | GET | 200 | 3383 |  | keys:templates |
+| /crm/drip-sequences | GET | 200 | 2 |  | array[0] |
+| /crm/expenses | GET | 200 | 1422 |  | keys:expenses,total |
+| /crm/expenses/summary/3fa29df8-589c-44a6-ac4d-88cb78243cbe | GET | 200 | 66 |  | keys:totalExpenses,estimateTotal,profit,profitPercent |
+| /crm/subcontractors | GET | 200 | 1601 |  | keys:subcontractors,total |
+| /crm/territories | GET | 200 | 1217 |  | array[2] |
+| /crm/contracts | GET | 200 | 3410 |  | keys:contracts,total |
+| /crm/contracts/templates | GET | 200 | 5790 |  | keys:templates |
+| /crm/financing/lenders | GET | 200 | 2 |  | array[0] |
+| /crm/financing/plans | GET | 200 | 2 |  | array[0] |
+| /crm/financing/applications | GET | 200 | 2 |  | array[0] |
+| /crm/financing/applications/00000000-0000-0000-0000-000000000000 | GET | 404 | 33 | ✓expected404 | Application not found |
+| /estimates | GET | 200 | 85999 |  | keys:estimates,total |
+| /estimates/templates | GET | 200 | 4647 |  | keys:templates |
+| /storms | GET | 200 | 167883 |  | keys:type,features |
+| /notifications | GET | 200 | 20 |  | keys:notifications |
+| /notifications/unread-count | GET | 200 | 11 |  | keys:count |
+| /notifications/preferences | GET | 200 | 2007 |  | keys:preferences |
+| /search?q=test | GET | 200 | 2573 |  | keys:leads,contacts,estimates |
+| /documents | GET | 200 | 26 |  | keys:documents,total |
+| /properties | GET | 400 | 68 |  | bbox query parameter is required (west,south,east,north) |
+| /counties | GET | 200 | 2314 |  | array[6] |
+| /alerts/config | GET | 200 | 369 |  | keys:id,tenant_id,enabled,email_enabled,sms_enabled |
+| /alerts/history | GET | 200 | 2 |  | array[0] |
+| /map/properties | GET | 400 | 25 |  | bbox required |
+| /map/swaths | GET | 400 | 25 |  | bbox required |
+| /disaster-declarations | GET | 400 | 48 |  | state and county parameters required |
+| /storm-history | GET | 400 | 59 |  | Valid lat and lng query parameters are required |
+| /storm-history/heatmap | GET | 400 | 58 |  | bbox parameter required: west,south,east,north |
+| /materials/products | GET | 200 | 35768 |  | keys:products,total |
+| /materials/branches | GET | 200 | 1079 |  | keys:branches |
+| /materials/orders | GET | 200 | 1025 |  | keys:orders,total |
+| /materials/credentials | GET | 200 | 253 |  | keys:configured,id,tenant_id,preferred_branch_id,preferred_branch_name |
+| /skip-trace/config | GET | 200 | 269 |  | keys:tenant_id,enabled,stripe_payment_method_id,card_last_four,card_brand |
+| /skip-trace/balance | GET | 200 | 65 |  | keys:unbilled_jobs,unbilled_records,unbilled_cents |
+| /skip-trace/invoices | GET | 200 | 2 |  | array[0] |
+| /skip-trace/usage | GET | 200 | 84 |  | keys:total_jobs,total_requested,total_returned,total_cost_cents |
+| /skip-trace/jobs | GET | 200 | 2 |  | array[0] |
+| /roof-measurement/config | GET | 200 | 34 |  | keys:roof_measurement_enabled |
+| /roof-measurement/usage | GET | 200 | 50 |  | keys:total_measurements,total_cost_cents |
+| /roof-measurement/balance | GET | 200 | 51 |  | keys:unbilled_measurements,unbilled_cents |
+| /onboarding/plans | GET | 200 | 675 |  | keys:plans |
+| /admin/overview | GET | 200 | 195 |  | keys:totalTenants,activeTenants,trialTenants,newTenantsThisMonth,totalUsers |
+| /admin/tenants | GET | 200 | 2022 |  | array[5] |
+| /admin/revenue | GET | 200 | 2071 |  | keys:monthly,skipTraceVolume,roofMeasurementVolume |
+| /admin/usage | GET | 200 | 204 |  | keys:skipTrace,roofMeasurement |
+| /payments/connect/status | GET | 200 | 63 |  | keys:connected,onboardingComplete,accountId |
+| /payments/history | GET | 200 | 25 |  | keys:payments,total |
+| /estimates/public/9efaf018e533c98c86553aa92b37f3abb18871baa45985c50f0bd9383d2cdbdc | GET | 200 | 2094 | public | keys:id,tenant_id,lead_id,created_by,estimate_number |
+| /crm/contracts/public/9efaf018e533c98c86553aa92b37f3abb18871baa45985c50f0bd9383d2cdbdc | GET | 404 | 30 | public | Contract not found |
+| /crm/financing/public/9efaf018e533c98c86553aa92b37f3abb18871baa45985c50f0bd9383d2cdbdc/plans | GET | 200 | 2 | public | array[0] |
+| /crm/financing/public/9efaf018e533c98c86553aa92b37f3abb18871baa45985c50f0bd9383d2cdbdc/applications | GET | 200 | 2 | public | array[0] |
+
+Total: 96 | 2xx: 86 | 400: 7 | 401: 0 | 404: 3 | 5xx/ERR: 0
