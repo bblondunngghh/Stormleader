@@ -119,11 +119,11 @@ router.get('/applications/:id', validateId(), async (req, res, next) => {
 
 router.post('/applications', async (req, res, next) => {
   try {
-    if (!req.body.lead_id) {
-      return res.status(400).json({ error: 'lead_id is required' });
+    if (!req.body.leadId) {
+      return res.status(400).json({ error: 'leadId is required' });
     }
-    if (!req.body.lender_id) {
-      return res.status(400).json({ error: 'lender_id is required' });
+    if (!req.body.planId) {
+      return res.status(400).json({ error: 'planId is required' });
     }
     const app = await svc.createApplication(req.tenantId, req.body);
     res.status(201).json(app);
