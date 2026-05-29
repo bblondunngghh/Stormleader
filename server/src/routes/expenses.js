@@ -3,6 +3,7 @@ import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
 import validateId from '../middleware/validateId.js';
 import * as expenseService from '../services/expenseService.js';
+import { parsePagination } from '../utils/pagination.js';
 
 const router = Router();
 router.use(authenticate);
@@ -11,14 +12,15 @@ router.use(tenantScope);
 // List expenses
 router.get('/', async (req, res, next) => {
   try {
-    const { lead_id, category, start_date, end_date, limit = '50', offset = '0' } = req.query;
+    const { lead_id, category, start_date, end_date } = req.query;
+    const { limit, offset } = parsePagination(req.query);
     const result = await expenseService.listExpenses(req.tenantId, {
       leadId: lead_id || undefined,
       category: category || undefined,
       startDate: start_date || undefined,
       endDate: end_date || undefined,
-      limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10),
+      limit,
+      offset,
     });
     res.json(result);
   } catch (err) {

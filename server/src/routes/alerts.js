@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import { getAlertConfig, updateAlertConfig, getAlertHistory } from '../services/alertService.js';
+import { parsePagination } from '../utils/pagination.js';
 
 const router = Router();
 
@@ -25,8 +26,7 @@ router.put('/config', async (req, res, next) => {
 // GET /api/alerts/history
 router.get('/history', async (req, res, next) => {
   try {
-    const limit = parseInt(req.query.limit) || 50;
-    const offset = parseInt(req.query.offset) || 0;
+    const { limit, offset } = parsePagination(req.query);
     const alerts = await getAlertHistory(req.user.tenantId, { limit, offset });
     res.json(alerts);
   } catch (err) { next(err); }

@@ -4,6 +4,7 @@ import tenantScope from '../middleware/tenantScope.js';
 import validateId from '../middleware/validateId.js';
 import * as invoiceService from '../services/invoiceService.js';
 import pool from '../db/pool.js';
+import { parsePagination } from '../utils/pagination.js';
 
 const router = Router();
 router.use(authenticate);
@@ -12,11 +13,12 @@ router.use(tenantScope);
 // List invoices
 router.get('/', async (req, res, next) => {
   try {
-    const { status, limit = '50', offset = '0' } = req.query;
+    const { status } = req.query;
+    const { limit, offset } = parsePagination(req.query);
     const result = await invoiceService.getInvoices(req.tenantId, {
       status: status || undefined,
-      limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10),
+      limit,
+      offset,
     });
     res.json(result);
   } catch (err) {

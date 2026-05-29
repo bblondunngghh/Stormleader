@@ -4,6 +4,7 @@ import tenantScope from '../middleware/tenantScope.js';
 import validateId from '../middleware/validateId.js';
 import * as workOrderService from '../services/workOrderService.js';
 import pool from '../db/pool.js';
+import { parsePagination } from '../utils/pagination.js';
 
 const router = Router();
 router.use(authenticate);
@@ -24,12 +25,13 @@ router.get('/milestone-templates', (req, res) => {
 // List work orders
 router.get('/', async (req, res, next) => {
   try {
-    const { status, assigned_to, limit = '50', offset = '0' } = req.query;
+    const { status, assigned_to } = req.query;
+    const { limit, offset } = parsePagination(req.query);
     const result = await workOrderService.getWorkOrders(req.tenantId, {
       status: status || undefined,
       assignedTo: assigned_to || undefined,
-      limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10),
+      limit,
+      offset,
     });
     res.json(result);
   } catch (err) {

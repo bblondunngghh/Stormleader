@@ -7,6 +7,7 @@ import * as crmService from '../services/crmService.js';
 import pool from '../db/pool.js';
 import { fireTrigger } from '../services/automationEngine.js';
 import logger from '../utils/logger.js';
+import { parsePagination } from '../utils/pagination.js';
 
 const router = Router();
 router.use(authenticate);
@@ -19,7 +20,8 @@ router.use(tenantScope);
 // GET /api/crm/leads — Enhanced lead list with filters, search, pagination
 router.get('/leads', async (req, res, next) => {
   try {
-    const { stage, priority, source, assigned_rep_id, search, sort_by, sort_dir, min_score, limit = '50', offset = '0' } = req.query;
+    const { stage, priority, source, assigned_rep_id, search, sort_by, sort_dir, min_score } = req.query;
+    const { limit, offset } = parsePagination(req.query);
     const result = await crmService.getLeads(req.tenantId, {
       stage: stage || undefined,
       priority: priority || undefined,
@@ -29,8 +31,8 @@ router.get('/leads', async (req, res, next) => {
       min_score: min_score || undefined,
       sortBy: sort_by || undefined,
       sortDir: sort_dir || undefined,
-      limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10),
+      limit,
+      offset,
     });
     res.json(result);
   } catch (err) {
@@ -349,10 +351,10 @@ router.post('/activities', async (req, res, next) => {
 // GET /api/crm/leads/:id/activities
 router.get('/leads/:id/activities', validateId(), async (req, res, next) => {
   try {
-    const { limit = '30', offset = '0' } = req.query;
+    const { limit, offset } = parsePagination(req.query, { defaultLimit: 30 });
     const result = await crmService.getActivities(req.tenantId, req.params.id, {
-      limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10),
+      limit,
+      offset,
     });
     res.json(result);
   } catch (err) {
@@ -367,13 +369,14 @@ router.get('/leads/:id/activities', validateId(), async (req, res, next) => {
 // GET /api/crm/tasks
 router.get('/tasks', async (req, res, next) => {
   try {
-    const { lead_id, assigned_to, completed, limit = '50', offset = '0' } = req.query;
+    const { lead_id, assigned_to, completed } = req.query;
+    const { limit, offset } = parsePagination(req.query);
     const result = await crmService.getTasks(req.tenantId, {
       lead_id: lead_id || undefined,
       assigned_to: assigned_to || undefined,
       completed: completed || undefined,
-      limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10),
+      limit,
+      offset,
     });
     res.json(result);
   } catch (err) {

@@ -4,6 +4,7 @@ import tenantScope from '../middleware/tenantScope.js';
 import validateId from '../middleware/validateId.js';
 import * as estimateService from '../services/estimateService.js';
 import pool from '../db/pool.js';
+import { parsePagination } from '../utils/pagination.js';
 
 const router = Router();
 
@@ -53,12 +54,13 @@ router.use(tenantScope);
 // List estimates
 router.get('/', async (req, res, next) => {
   try {
-    const { status, lead_id, limit = '50', offset = '0' } = req.query;
+    const { status, lead_id } = req.query;
+    const { limit, offset } = parsePagination(req.query);
     const result = await estimateService.getEstimates(req.tenantId, {
       status: status || undefined,
       lead_id: lead_id || undefined,
-      limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10),
+      limit,
+      offset,
     });
     res.json(result);
   } catch (err) {

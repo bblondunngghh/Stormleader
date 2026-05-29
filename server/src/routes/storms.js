@@ -1,17 +1,19 @@
 import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import * as stormService from '../services/stormService.js';
+import { parsePagination } from '../utils/pagination.js';
 
 const router = Router();
 router.use(authenticate);
 
 router.get('/', async (req, res, next) => {
   try {
-    const { source, limit = '50', offset = '0', timeRange, dateFrom, dateTo } = req.query;
+    const { source, timeRange, dateFrom, dateTo } = req.query;
+    const { limit, offset } = parsePagination(req.query);
     const result = await stormService.listEvents({
       source: source || undefined,
-      limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10),
+      limit,
+      offset,
       timeRange: timeRange || undefined,
       dateFrom: dateFrom || undefined,
       dateTo: dateTo || undefined,

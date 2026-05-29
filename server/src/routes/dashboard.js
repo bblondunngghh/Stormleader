@@ -2,6 +2,7 @@ import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
 import * as dashboardService from '../services/dashboardService.js';
+import { parsePagination } from '../utils/pagination.js';
 
 const router = Router();
 router.use(authenticate);
@@ -36,7 +37,7 @@ router.get('/funnel', async (req, res, next) => {
 
 router.get('/activity', async (req, res, next) => {
   try {
-    const limit = parseInt(req.query.limit, 10) || 20;
+    const { limit } = parsePagination(req.query, { defaultLimit: 20 });
     const activity = await dashboardService.getActivity(req.tenantId, limit, extractFilters(req.query));
     res.json(activity);
   } catch (err) {

@@ -4,6 +4,7 @@ import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
 import pool from '../db/pool.js';
 import logger from '../utils/logger.js';
+import { parsePagination } from '../utils/pagination.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -251,7 +252,8 @@ router.post('/create-intent', authenticate, tenantScope, async (req, res, next) 
 // GET /api/payments/history — Payment history for tenant
 router.get('/history', authenticate, tenantScope, async (req, res, next) => {
   try {
-    const { status, limit = '50', offset = '0' } = req.query;
+    const { status } = req.query;
+    const { limit, offset } = parsePagination(req.query);
 
     let query = `
       SELECT p.id, p.estimate_id, p.stripe_payment_intent_id, p.amount, p.application_fee,
@@ -271,7 +273,7 @@ router.get('/history', authenticate, tenantScope, async (req, res, next) => {
     }
 
     query += ` ORDER BY p.created_at DESC LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`;
-    params.push(parseInt(limit, 10), parseInt(offset, 10));
+    params.push(limit, offset);
 
     const { rows } = await pool.query(query, params);
 

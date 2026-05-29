@@ -2,6 +2,7 @@ import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import validateId from '../middleware/validateId.js';
 import * as notificationService from '../services/notificationService.js';
+import { parsePagination } from '../utils/pagination.js';
 
 const router = Router();
 router.use(authenticate);
@@ -9,10 +10,11 @@ router.use(authenticate);
 // GET /api/notifications — list for current user
 router.get('/', async (req, res, next) => {
   try {
-    const { limit = '30', offset = '0', is_read } = req.query;
+    const { is_read } = req.query;
+    const { limit, offset } = parsePagination(req.query, { defaultLimit: 30 });
     const notifications = await notificationService.getNotifications(req.user.id, {
-      limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10),
+      limit,
+      offset,
       is_read,
     });
     res.json({ notifications });

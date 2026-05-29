@@ -6,6 +6,7 @@ import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
 import validateId from '../middleware/validateId.js';
 import * as documentService from '../services/documentService.js';
+import { parsePagination } from '../utils/pagination.js';
 
 const router = Router();
 router.use(authenticate);
@@ -39,11 +40,12 @@ const upload = multer({
 // GET /api/documents
 router.get('/', async (req, res, next) => {
   try {
-    const { lead_id, type, limit, offset } = req.query;
+    const { lead_id, type } = req.query;
+    const { limit, offset } = parsePagination(req.query);
     const result = await documentService.getDocuments(req.tenantId, {
       leadId: lead_id, type,
-      limit: parseInt(limit) || 50,
-      offset: parseInt(offset) || 0,
+      limit,
+      offset,
     });
     res.json(result);
   } catch (err) {

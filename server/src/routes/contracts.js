@@ -3,6 +3,7 @@ import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
 import validateId from '../middleware/validateId.js';
 import * as contractService from '../services/contractService.js';
+import { parsePagination } from '../utils/pagination.js';
 
 const router = Router();
 
@@ -88,12 +89,13 @@ router.delete('/templates/:id', validateId(), async (req, res, next) => {
 
 router.get('/', async (req, res, next) => {
   try {
-    const { status, lead_id, limit = '50', offset = '0' } = req.query;
+    const { status, lead_id } = req.query;
+    const { limit, offset } = parsePagination(req.query);
     const result = await contractService.listContracts(req.tenantId, {
       status: status || undefined,
       leadId: lead_id || undefined,
-      limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10),
+      limit,
+      offset,
     });
     res.json(result);
   } catch (err) {
