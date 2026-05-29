@@ -89,14 +89,13 @@ export default function EmailModal({ leadId, lead, onSave, onClose }) {
   };
 
   return (
-    <>
-      <div className="modal-backdrop" style={{
-        position: 'fixed', inset: 0, zIndex: 200,
-        background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(4px)',
-      }} onClick={onClose} />
-      <div className="glass" style={{
-        position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-        zIndex: 201, width: '90vw', maxWidth: 580,
+    <div className="modal-backdrop" style={{
+      position: 'fixed', inset: 0, zIndex: 200,
+      background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(4px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }} onClick={onClose}>
+      <div className="glass" onClick={e => e.stopPropagation()} style={{
+        width: '90vw', maxWidth: 580,
         borderRadius: 12, boxShadow: '0 20px 60px oklch(0 0 0 / 0.6)',
         display: 'flex', flexDirection: 'column', maxHeight: '92vh',
       }}>
@@ -181,7 +180,7 @@ export default function EmailModal({ leadId, lead, onSave, onClose }) {
           >{sending ? 'Sending...' : 'Send Email'}</button>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

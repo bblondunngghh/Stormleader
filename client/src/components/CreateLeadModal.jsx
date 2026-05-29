@@ -75,18 +75,16 @@ export default function CreateLeadModal({ onClose, onCreated }) {
   };
 
   return createPortal(
-    <>
-      <div
-        className="modal-backdrop"
-        onClick={onClose}
-        style={{
-          position: 'fixed', inset: 0, zIndex: 300,
-          background: 'oklch(0 0 0 / 0.5)', backdropFilter: 'blur(4px)',
-        }}
-      />
-      <div className="glass" style={{
-        position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-        zIndex: 301,
+    <div
+      className="modal-backdrop"
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 300,
+        background: 'oklch(0 0 0 / 0.5)', backdropFilter: 'blur(4px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}
+    >
+      <div className="glass" onClick={e => e.stopPropagation()} style={{
         width: 440, overflow: 'visible',
         borderRadius: '20px / 18px',
         boxShadow: '0 8px 32px oklch(0 0 0 / 0.4), inset 0 1px 0 oklch(1 0 0 / 0.05)',
@@ -171,7 +169,7 @@ export default function CreateLeadModal({ onClose, onCreated }) {
           </button>
         </form>
       </div>
-    </>,
+    </div>,
     document.body
   );
 }

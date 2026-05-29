@@ -2627,17 +2627,16 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
           : `https://www.google.com/maps/search/${encodeURIComponent(fullAddr)}`;
 
         return createPortal(
-          <>
-            <div onClick={() => {
-              if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; }
-              setShowStreetView(false); setMapMode('street');
-            }} className="modal-backdrop" style={{
-              position: 'fixed', inset: 0, zIndex: 99998,
-              background: 'oklch(0 0 0 / 0.7)', backdropFilter: 'blur(4px)',
-            }} />
-            <div className="glass" style={{
-              position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-              zIndex: 99999, width: '90vw', maxWidth: 800,
+          <div onClick={() => {
+            if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; }
+            setShowStreetView(false); setMapMode('street');
+          }} className="modal-backdrop" style={{
+            position: 'fixed', inset: 0, zIndex: 99998,
+            background: 'oklch(0 0 0 / 0.7)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <div className="glass" onClick={e => e.stopPropagation()} style={{
+              width: '90vw', maxWidth: 800,
               borderRadius: 12,
               boxShadow: '0 20px 60px oklch(0 0 0 / 0.6)', overflow: 'hidden',
             }}>
@@ -2732,7 +2731,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 </a>
               </div>
             </div>
-          </>,
+          </div>,
           document.body
         );
       })()}
