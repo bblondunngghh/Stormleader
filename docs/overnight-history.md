@@ -2090,3 +2090,60 @@ Branch: `feat/financing` · Pre-run checkpoint: `e2ac767` (`overnight-checkpoint
 - **Remaining browser write flows untested:** Invoice → Record Payment (Invoice list reached this run — modal write step pending), Work-order checklist toggle, kanban drag persist, document multipart upload
 - Mobile responsive sweep at 768 px (last done Run 6 — **27 runs ago**)
 - s5 report-writing session 0 bytes for **26 consecutive runs** — drop the stage or fold into s4
+
+---
+
+## QA Run: 2026-06-02 (Run 38)
+
+Branch: `feat/financing` · Pre-run checkpoint: `4c72116` (`overnight-checkpoint-20260602`) · Head: `4782de5` · Commits this run: **1**
+
+### Test Results
+- Pages tested: 20 routes (full UI consistency audit) + dashboard tile inspection
+- API endpoints tested: **193 total** (118 standard sweep + 35 write/validation + 11 edge + **22 new tenant isolation** + **7 new multipart upload**)
+- Bugs found: 3
+- Bugs fixed: 1 (backend)
+- UI inconsistencies found: 0
+- UI inconsistencies fixed: 0
+- Production 5xx during sweep: 0 unintentional (**19th consecutive zero-5xx run**) — 1 expected 503 from `skip-trace` env-gate
+- Commits this run: **1** (`4782de5`)
+
+### Fixes Made
+- **`4782de5`** — `server/src/routes/crm.js` (+5/−5) — Dashboard AR-summary was showing "Overdue: -$1.0K" for tenant `waterloo` because the aging query summed `(total - amount_paid)` and invoice `INV-0013` had `total=$0` / `amount_paid=$1000` (overpayment). Wrapped per-row delta in `GREATEST(..., 0)` across all five aging buckets. Verified post-commit: `overdue_total: -1000` → `0`. Screenshot `verify-ar-aging-overdue-zero.png`.
+
+### UI Consistency Fixes
+- None. **7/7 axes PASS, 19th consecutive zero-defect sweep.** Full report at `.qa-ui-audit-results.txt`. Icons (37 files, Heroicons-outline only), buttons (1,059 sampled, internally uniform), header/toolbar (uniform across 17 routes), sidebar (240 px / 18 nav-links / 1 active per page), forms (0 native selects / 0 native dates / 9/9 form-input in Create Lead modal), spacing (.glass uniform 20 px / 18 px radius), modals (.modal-backdrop on 13 modal components; 7 fixed-position non-modal exclusions correctly identified).
+
+### New Probes This Run
+- **Tenant isolation probe** (`.qa-api-tenant-isolation-probe.mjs` → `.qa-api-tenant-isolation-results.json`) — 22 probes across foreign-tenant id reads, query-string `tenant_id` injection on 15 list endpoints, body-field `tenant_id` injection on POST tasks, `X-Tenant-Id` header spoof, and platform-admin gate. **All 22 PASS.** First clean cross-tenant isolation evidence in QA history. Strong baseline for future auth changes.
+- **Multipart upload probe** (`.qa-api-upload-probe.mjs` → `.qa-api-upload-results.json`) — 7 probes. CSV import paths (4) all clean. **`POST /api/documents/upload` returns 500 on valid PNG and on `.exe` payload** — NEW Carry-over #13.
+
+### Verified Carry-Overs
+- **Run 35 pagination clamping** (`dcc904c`) re-verified — `?limit=999999` and `?offset=-1` both return clean 200. Defect class #12 stays closed.
+- **Run 34 financing 404** (`f4e7aa3`) re-verified — bogus UUIDs still return 404, not 500.
+
+### Session Integrity
+- s1 api-test: `error_max_turns` (51/50, $2.93) — 0 commits.
+- s2 frontend-test: `error_max_turns` (81/80, $4.50) — **landed `4782de5`** via dashboard tile inspection tracing back to the SQL aggregate.
+- s3 ui-audit: **completed cleanly** (`end_turn`, 99 turns, $4.95) — first clean s3 exit in 4 runs. Full 7-axis audit at `.qa-ui-audit-results.txt`.
+- s4 verify: `error_max_turns` (41/40, $2.58) — re-verified AR fix + tenant-isolation + multipart upload defect repro + final build (`✓ built in 7.52s`).
+- s5 report: 0 bytes (**27th consecutive non-functional s5**) — this report written in a follow-up session.
+- Total measured spend: **~$14.96**. **1 / 5 sessions completed cleanly.**
+
+### Diff vs. Run 37
+- `git diff 4c72116..4782de5 --stat` — 1 file, +5 / −5 (`server/src/routes/crm.js`)
+- HEAD advanced: `4c72116` (checkpoint) → `4782de5`
+- New artifacts left in working tree (reusable): `.qa-api-tenant-isolation-probe.mjs`, `.qa-api-tenant-isolation-results.json`, `.qa-api-upload-probe.mjs`, `.qa-api-upload-results.json`, `.qa-mint-token.mjs`, `verify-ar-aging-overdue-zero.png`.
+
+### Known Issues Remaining
+- **NEW Carry-over #13: `POST /api/documents/upload` returns 500** on valid PNG and on disallowed file types. Multer is mounted (the "no file" probe returns 400 "No file uploaded"), so the throw is inside the handler when `req.file` is populated. Needs server-log capture during a failing request.
+- **#5 Hearth webhook permissive on missing fields** — security-audit candidate.
+- **#6 Heavy-work guards** on `/drift/correct-all`, `/properties/trigger-import`, `/crm/leads/score-all` — contract change.
+- **#8 Mobile responsive sweep at 768 px** — **30 runs stale** (last done Run 6). Highest-value untouched surface.
+- **#9 `DELETE /api/crm/tasks/:id`** handler missing.
+- **Uncommitted modal-overlay refactor experiment** in working tree (carry-over from Run 35). Decide before Run 39.
+- **DEV_BYPASS admin 403 noise** — dev-only artifact.
+- Reports chart label overlap at ~930 px viewport — cosmetic.
+- `subcontractors.js.bak` cleanup — safe `git rm`, deferred.
+- `/subcontractors` has H1 + H2 both reading "Subcontractors" — content choice.
+- **Remaining browser write flows untested:** Invoice → Record Payment, Work-order checklist toggle, kanban drag persist, document multipart upload (now confirmed broken at API).
+- s5 report-writing session 0 bytes for **27 consecutive runs** — drop the stage or fold into s4.
