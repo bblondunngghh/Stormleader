@@ -749,12 +749,12 @@ router.get('/dashboard/ar-summary', async (req, res, next) => {
     const { rows } = await pool.query(`
       SELECT
         COUNT(*) FILTER (WHERE status IN ('sent','viewed'))::int AS outstanding_count,
-        COALESCE(SUM(total - amount_paid) FILTER (WHERE status IN ('sent','viewed')), 0)::numeric AS outstanding_total,
+        COALESCE(SUM(GREATEST(total - amount_paid, 0)) FILTER (WHERE status IN ('sent','viewed')), 0)::numeric AS outstanding_total,
         COUNT(*) FILTER (WHERE status = 'overdue' OR (due_date < CURRENT_DATE AND status IN ('sent','viewed')))::int AS overdue_count,
-        COALESCE(SUM(total - amount_paid) FILTER (WHERE status = 'overdue' OR (due_date < CURRENT_DATE AND status IN ('sent','viewed'))), 0)::numeric AS overdue_total,
-        COALESCE(SUM(total - amount_paid) FILTER (WHERE due_date >= CURRENT_DATE AND due_date < CURRENT_DATE + 30 AND status IN ('sent','viewed')), 0)::numeric AS due_30,
-        COALESCE(SUM(total - amount_paid) FILTER (WHERE due_date >= CURRENT_DATE + 30 AND due_date < CURRENT_DATE + 60 AND status IN ('sent','viewed')), 0)::numeric AS due_60,
-        COALESCE(SUM(total - amount_paid) FILTER (WHERE due_date >= CURRENT_DATE + 60 AND status IN ('sent','viewed')), 0)::numeric AS due_90_plus
+        COALESCE(SUM(GREATEST(total - amount_paid, 0)) FILTER (WHERE status = 'overdue' OR (due_date < CURRENT_DATE AND status IN ('sent','viewed'))), 0)::numeric AS overdue_total,
+        COALESCE(SUM(GREATEST(total - amount_paid, 0)) FILTER (WHERE due_date >= CURRENT_DATE AND due_date < CURRENT_DATE + 30 AND status IN ('sent','viewed')), 0)::numeric AS due_30,
+        COALESCE(SUM(GREATEST(total - amount_paid, 0)) FILTER (WHERE due_date >= CURRENT_DATE + 30 AND due_date < CURRENT_DATE + 60 AND status IN ('sent','viewed')), 0)::numeric AS due_60,
+        COALESCE(SUM(GREATEST(total - amount_paid, 0)) FILTER (WHERE due_date >= CURRENT_DATE + 60 AND status IN ('sent','viewed')), 0)::numeric AS due_90_plus
       FROM invoices WHERE tenant_id = $1
     `, [req.tenantId]);
     res.json(rows[0] || {});
