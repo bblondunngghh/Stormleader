@@ -1,0 +1,46 @@
+{
+  "malformed-json": {
+    "status": 400,
+    "body": "{\"error\":\"Invalid JSON body\"}"
+  },
+  "bad-uuid-leads": {
+    "status": 400,
+    "body": "{\"error\":\"Invalid id format\"}"
+  },
+  "bad-uuid-estimates": {
+    "status": 400,
+    "body": "{\"error\":\"Invalid id format\"}"
+  },
+  "numeric-id-property": {
+    "status": 400,
+    "body": "{\"error\":\"Invalid id format\"}"
+  },
+  "no-auth-leads": {
+    "status": 401,
+    "body": "{\"error\":\"Missing or invalid authorization header\"}"
+  },
+  "bad-token-leads": {
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
+  },
+  "unknown-route": {
+    "status": 404,
+    "body": "{\"error\":\"Not found\",\"path\":\"/api/nonsense-route\"}"
+  },
+  "sql-inj-search": {
+    "status": 200,
+    "body": "{\"leads\":[],\"contacts\":[],\"estimates\":[]}"
+  },
+  "huge-limit": {
+    "status": 200,
+    "body": "{\"leads\":[{\"id\":\"dc8135aa-b210-4f33-bbe1-ad8f0997d3dd\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"stage\":\"contacted\",\"priority\":\"warm\",\"estimated_value\":\"100.00\",\"actual_value\":null,\"source\":"
+  },
+  "neg-offset": {
+    "status": 200,
+    "body": "{\"leads\":[{\"id\":\"dc8135aa-b210-4f33-bbe1-ad8f0997d3dd\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"stage\":\"contacted\",\"priority\":\"warm\",\"estimated_value\":\"100.00\",\"actual_value\":null,\"source\":"
+  },
+  "wrong-method": {
+    "status": 404,
+    "body": "{\"error\":\"Not found\",\"path\":\"/api/crm/dashboard/stats\"}"
+  }
+}

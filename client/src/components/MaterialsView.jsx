@@ -591,7 +591,6 @@ function CartSidebar({ cart, cartTotal, branches, selectedBranch, setSelectedBra
         borderRadius: '20px 0 0 20px', padding: 0,
         display: 'flex', flexDirection: 'column',
         borderRight: 'none',
-        animation: 'slideInRight 0.25s ease-out',
       }}>
         {/* Header */}
         <div style={{
@@ -716,13 +715,6 @@ function CartSidebar({ cart, cartTotal, branches, selectedBranch, setSelectedBra
           </div>
         )}
       </div>
-
-      <style>{`
-        @keyframes slideInRight {
-          from { transform: translateX(100%); }
-          to { transform: translateX(0); }
-        }
-      `}</style>
     </div>
   );
 }

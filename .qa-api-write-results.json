@@ -1,0 +1,419 @@
+[
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/alerts/test",
+    "status": 200,
+    "body": {
+      "message": "Test alerts sent",
+      "results": []
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/automations",
+    "status": 400,
+    "body": {
+      "error": "name, trigger_type, and action_type are required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/canvass-pins",
+    "status": 400,
+    "body": {
+      "error": "lat and lng are required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/contracts/templates",
+    "status": 400,
+    "body": {
+      "error": "name and type are required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/contracts",
+    "status": 400,
+    "body": {
+      "error": "lead_id is required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/counties",
+    "status": 400,
+    "body": {
+      "error": "county_name, arcgis_url, field_map, and data_source_tag are required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/leads",
+    "status": 400,
+    "body": {
+      "error": "propertyId is required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/leads/quick",
+    "status": 400,
+    "body": {
+      "error": "contact_name or address is required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/leads/bulk-assign",
+    "status": 400,
+    "body": {
+      "error": "leadIds array and assignedRepId required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/leads/bulk-status",
+    "status": 400,
+    "body": {
+      "error": "leadIds array and stage required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/activities",
+    "status": 400,
+    "body": {
+      "error": "lead_id required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/tasks",
+    "status": 400,
+    "body": {
+      "error": "title required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/team/invite",
+    "status": 400,
+    "body": {
+      "error": "Email, first name, last name, and password are required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/test-email",
+    "status": 400,
+    "body": {
+      "error": "Recipient email required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/prospect-lists",
+    "status": 400,
+    "body": {
+      "error": "stormEventId is required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/custom-fields",
+    "status": 400,
+    "body": {
+      "error": "field_label is required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/drip-sequences",
+    "status": 400,
+    "body": {
+      "error": "name and trigger_type are required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/estimates",
+    "status": 400,
+    "body": {
+      "error": "lead_id is required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/estimates/templates",
+    "status": 400,
+    "body": {
+      "error": "Name is required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/expenses",
+    "status": 400,
+    "body": {
+      "error": "category, amount, and date are required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/financing/lenders",
+    "status": 400,
+    "body": {
+      "error": "provider, apiKey, and merchantId are required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/invoices",
+    "status": 400,
+    "body": {
+      "error": "lead_id is required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/materials/orders",
+    "status": 400,
+    "body": {
+      "error": "items array is required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/notifications/mark-all-read",
+    "status": 200,
+    "body": {
+      "updated": 0
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/properties",
+    "status": 400,
+    "body": {
+      "error": "address_line1, lat, and lng are required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/properties/geocode",
+    "status": 400,
+    "body": {
+      "error": "address is required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/roof-measurement/measure",
+    "status": 400,
+    "body": {
+      "error": "propertyId is required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/roof-measurement/manual",
+    "status": 400,
+    "body": {
+      "error": "propertyId is required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/skip-trace/submit",
+    "status": 400,
+    "body": {
+      "error": "propertyIds array is required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/subcontractors",
+    "status": 400,
+    "body": {
+      "error": "name is required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/subcontractors/assign",
+    "status": 400,
+    "body": {
+      "error": "work_order_id and subcontractor_id are required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/territories",
+    "status": 400,
+    "body": {
+      "error": "name is required"
+    }
+  },
+  {
+    "method": "POST",
+    "url": "http://localhost:3001/api/crm/work-orders",
+    "status": 400,
+    "body": {
+      "error": "title is required"
+    }
+  },
+  {
+    "method": "PATCH",
+    "url": "http://localhost:3001/api/crm/leads/3fa29df8-589c-44a6-ac4d-88cb78243cbe",
+    "status": 200,
+    "body": {
+      "id": "3fa29df8-589c-44a6-ac4d-88cb78243cbe",
+      "tenant_id": "791bb51d-3293-4839-92e9-bd4d4f873af2",
+      "property_id": "63622be1-20c2-4b1d-8393-a1af1a38e090",
+      "storm_event_id": null,
+      "assigned_rep_id": "93fb33ea-e7d8-461f-87e4-bba4e55acc9e",
+      "stage": "new",
+      "priority": "warm",
+      "estimated_value": null,
+      "insurance_company": null,
+      "insurance_claim_number": null,
+      "hail_size_in": null,
+      "contact_name": null,
+      "contact_phone": null,
+      "contact_email": null,
+      "damage_notes": null,
+      "address": null,
+      "city": null,
+      "created_at": "2026-05-05T10:03:11.099Z",
+      "updated_at": "2026-05-24T10:08:25.360Z",
+      "source": "canvassing",
+      "tags": [],
+      "actual_value": null,
+      "notes": null,
+      "last_contact_at": null,
+      "next_follow_up": null,
+      "lost_reason": null,
+      "deleted_at": null,
+      "custom_fields": {},
+      "lead_score": 3,
+      "lead_score_factors": {
+        "homeAge": null,
+        "hasEmail": false,
+        "hasPhone": false,
+        "roofSqft": 0,
+        "hailSizeIn": null,
+        "hasAddress": false,
+        "hasEstimate": false,
+        "hasFemaData": false,
+        "hasRoofType": false,
+        "hasInsurance": false,
+        "hasOwnerInfo": false,
+        "hasYearBuilt": false,
+        "recencyScore": 0,
+        "windSpeedMph": null,
+        "assessedValue": 0,
+        "femaRiskScore": null,
+        "hailRiskLevel": "low",
+        "hailRiskScore": 2,
+        "daysSinceStorm": null,
+        "engagementScore": 1,
+        "dataQualityScore": 0,
+        "hailHistoryCount": 0,
+        "stormDamageScore": 0,
+        "disasterZoneScore": 0,
+        "ownerOccupiedRate": null,
+        "hasUpcomingFollowUp": null,
+        "maxHistoricalHailIn": 0,
+        "recentActivityCount": 1,
+        "propertyProfileScore": 0
+      },
+      "lead_score_updated_at": "2026-05-24T10:08:25.360Z",
+      "address_line1": null,
+      "address_line2": null,
+      "property_city": null,
+      "state": "TX",
+      "zip": null,
+      "owner_first_name": null,
+      "owner_last_name": null,
+      "owner_phone": null,
+      "owner_email": null,
+      "roof_type": null,
+      "roof_sqft": null,
+      "roof_pitch_degrees": null,
+      "roof_segments": null,
+      "roof_ridge_ft": null,
+      "roof_valley_ft": null,
+      "roof_eave_ft": null,
+      "roof_rake_ft": null,
+      "roof_hip_ft": null,
+      "roof_drip_edge_ft": null,
+      "roof_flashing_ft": null,
+      "year_built": null,
+      "assessed_value": null,
+      "homestead_exempt": false,
+      "county_parcel_id": null,
+      "property_county": null,
+      "property_sqft": null,
+      "fema_bldg_type": null,
+      "fema_num_stories": null,
+      "fema_foundation_type": null,
+      "fema_occupancy_type": null,
+      "fema_ground_elevation": null,
+      "property_geometry": {
+        "type": "Point",
+        "coordinates": [
+          0,
+          91
+        ]
+      },
+      "storm_source": null,
+      "storm_hail_max": null,
+      "storm_wind_max": null,
+      "storm_start": null,
+      "storm_type": null,
+      "storm_raw_data": null,
+      "storm_geometry": null,
+      "roof_measurement_source": null,
+      "rep_first_name": "Brandon",
+      "rep_last_name": "Admin",
+      "rep_email": "brandon@accessvaletparking.com",
+      "contacts": [],
+      "activities": [
+        {
+          "id": "6c4ee7bc-3dfb-45f7-8e6f-5aea8f7bdcd1",
+          "tenant_id": "791bb51d-3293-4839-92e9-bd4d4f873af2",
+          "lead_id": "3fa29df8-589c-44a6-ac4d-88cb78243cbe",
+          "user_id": "93fb33ea-e7d8-461f-87e4-bba4e55acc9e",
+          "type": "note",
+          "subject": null,
+          "notes": "QA Run 29 smoke test activity",
+          "outcome": null,
+          "duration_seconds": null,
+          "metadata": {},
+          "created_at": "2026-05-24T10:04:56.285Z",
+          "user_first_name": "Brandon",
+          "user_last_name": "Admin"
+        }
+      ],
+      "tasks": []
+    }
+  },
+  {
+    "method": "PATCH",
+    "url": "http://localhost:3001/api/auth/me",
+    "status": 400,
+    "body": {
+      "error": "No fields to update"
+    }
+  },
+  {
+    "method": "PATCH",
+    "url": "http://localhost:3001/api/notifications/preferences",
+    "status": 400,
+    "body": {
+      "error": "notification_type required"
+    }
+  }
+]
