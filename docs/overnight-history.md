@@ -2147,3 +2147,74 @@ Branch: `feat/financing` · Pre-run checkpoint: `4c72116` (`overnight-checkpoint
 - `/subcontractors` has H1 + H2 both reading "Subcontractors" — content choice.
 - **Remaining browser write flows untested:** Invoice → Record Payment, Work-order checklist toggle, kanban drag persist, document multipart upload (now confirmed broken at API).
 - s5 report-writing session 0 bytes for **27 consecutive runs** — drop the stage or fold into s4.
+
+---
+
+## QA Run: 2026-06-03 (Run 39)
+
+### Test Results
+- Pages tested: 20 routes (full UI consistency audit, 7 axes) + targeted modal probe on 10 pages
+- API endpoints tested: **3 targeted re-probes** of `POST /api/documents/upload` (PNG / .exe / no-file). Standard 118-endpoint sweep skipped — client/server surfaces unchanged since Run 38 baseline (`4782de5`) where it passed 117/118 with 0 unintentional 5xx.
+- Bugs found: 1 functional + 1 cosmetic
+- Bugs fixed: 1 functional (`ee7aaee` — documents upload 500)
+- UI inconsistencies found: 1 cosmetic (modal-backdrop inline-style drift across 4 modals; undefined `--radius-2xl` CSS variable referenced in `ImportLeadsModal.jsx:173`)
+- UI inconsistencies fixed: 0 (no functional defect — held under "don't refactor working features" rule)
+- Commits this run: **1** (`ee7aaee`)
+
+### Fixes Made
+- **`ee7aaee`** — `server/src/routes/documents.js` (+29/−3) — Closes Carry-over #13 from Run 38. Two defects in `POST /api/documents/upload`:
+  1. Valid PNG → 500 with `ENOENT`. Multer `diskStorage` `destination` was resolved via `process.cwd() + 'uploads'`; server runs from project root where no `uploads/` exists (only `server/uploads/`). Resolved destination relative to the route module via `fileURLToPath(import.meta.url)` and `mkdirSync({recursive:true})` at load.
+  2. Rejected `.exe` → 500 (should be 400). `fileFilter` `cb(new Error(...))` had no `.status`, so global error handler emitted 500. Now: `status:400` attached to rejection error; `upload.single('file')` wrapped to translate multer's own `MulterError` (`LIMIT_FILE_SIZE → 413`, others → 400).
+  - Verified post-commit with `.qa-api-upload-probe.mjs`: PNG → 201, .exe → 400, no file → 400.
+
+### UI Consistency Fixes
+- None. **7/7 axes PASS, 20th consecutive zero-functional-defect UI sweep, 20th consecutive zero-icon-defect sweep, 20th consecutive uniform-header sweep.** Full report at `.qa-ui-audit-results.txt`. Audit 1 (icons): 37 files Heroicons-outline only. Audit 2 (buttons): 1,059 sampled, all internally uniform within visual role. Audit 3 (header): 56 px / `oklch(0.16 0.015 260 / 0.35)` / `topbar glass` uniform across 20 routes. Audit 4 (sidebar): 240 px wide, 1 active per page, nav-link 42 px uniform. Audit 5 (forms): 0 native `<select>`, 0 native date inputs, CustomSelect + DatePicker universally adopted. Audit 6 (spacing): Apple-style 20/18 asymmetric corner dominates per design system. Audit 7 (modals): all 4 modal-backdrop overlays open/animate/close/stack correctly.
+
+### New Probes This Run
+- **Dashboard probe** (`.qa-ui-audit-dash.mjs`) — uses `domcontentloaded` wait + `waitForTimeout` because root route hangs forever on `networkidle` (Mapbox / activity polling).
+- **Modal probe** (`.qa-ui-modal-only.mjs`) — clicks each page's primary "create" button via text-matching `[...document.querySelectorAll('button')].find(b => b.textContent.includes(...))` (Playwright `:has-text()` is a locator only — does NOT work inside `page.evaluate()`).
+- **Modal sidebar probe** (`.qa-ui-modal-sidebar.mjs`) and **modal screenshot probe** (`.qa-ui-modal-screenshot.mjs`) — visual / structural comparison of the same modal across pages.
+
+### Audit 7 Cosmetic Finding (NEW Carry-over #14)
+
+4 `.modal-backdrop` modals share the class + animation but carry divergent inline styles:
+
+| Route | z-index | bg-opacity | child border-radius | width |
+|---|---|---|---|---|
+| `/pipeline` (Add Lead) | 300 | 0.5 | 20 px / 18 px | 440 |
+| `/leads` (Import Leads) | 9999 | 0.6 | 14 px | 720 |
+| `/expenses` (Add Expense) | 9999 | 0.6 | 20 px | 480 |
+| `/work-orders` (Add Work Order) | 1000 | 0.6 | 20 px | 520 |
+
+Root cause: `.modal-backdrop` CSS only declares animation; each component re-asserts `position: fixed; inset: 0; z-index: …; background: …; backdrop-filter: …` inline. Also `ImportLeadsModal.jsx:173` references undefined `var(--radius-2xl)` (only `--space-2xl` is defined) — that is why Import Leads shows 14 px corners instead of 20 px. Functional impact: none — all modals stack below the 9999 CustomSelect portal layer, so portaled dropdowns still render above any modal correctly.
+
+### Verified Carry-Overs
+- **Carry-over #13** (Run 38 documents upload 500) — now **CLOSED** by `ee7aaee`. Verified all three probe paths.
+
+### Session Integrity
+- s1 api-test: `error_max_turns` (51/50, $3.05) — **landed `ee7aaee`** before timing out.
+- s2 frontend-test: `error_max_turns` (81/80, $4.79) — 0 commits, no usable transcript.
+- s3 ui-audit: **completed cleanly** (`end_turn`, 85 turns, $3.60) — full 7-axis audit at `.qa-ui-audit-results.txt`. **First 2-in-a-row clean s3 exit** (Run 38 was also clean).
+- s4 verify: `error_max_turns` (41/40, $2.44) — no usable transcript.
+- s5 report: 0 bytes (**28th consecutive non-functional s5**) — this report written in a follow-up session.
+- Total measured spend: **~$13.88**. **1 / 5 sessions completed cleanly.**
+
+### Diff vs. Run 38
+- `git diff bf91a2d..ee7aaee --stat` — 1 file, +29 / −3 (`server/src/routes/documents.js`)
+- HEAD advanced: `bf91a2d` (checkpoint) → `ee7aaee`
+- New reusable artifacts left in working tree: `.qa-ui-audit-dash.mjs`, `.qa-ui-modal-only.mjs`, `.qa-ui-modal-results.json`, `.qa-ui-modal-sidebar.mjs`, `.qa-ui-modal-sidebar.json`, `.qa-ui-modal-screenshot.mjs`, `qa-run39-modal-pipeline.png`, `qa-run39-modal-import.png`, `qa-run39-dashboard.png`, `qa-run39-storm-map.png`, `qa-run39-stage4-lead-detail.png`.
+
+### Known Issues Remaining
+- **NEW Carry-over #14: modal-backdrop inline-style drift** (cosmetic). 4 modals diverge in z-index / bg-opacity / child border-radius. Plus undefined `--radius-2xl` CSS variable in `ImportLeadsModal.jsx:173`.
+- **#5 Hearth webhook permissive on missing fields** — security-audit candidate.
+- **#6 Heavy-work guards** on `/drift/correct-all`, `/properties/trigger-import`, `/crm/leads/score-all` — contract change.
+- **#8 Mobile responsive sweep at 768 px** — **31 runs stale**. Highest-value untouched surface.
+- **#9 `DELETE /api/crm/tasks/:id`** handler missing.
+- **DEV_BYPASS admin 403 noise** — dev-only artifact.
+- Reports chart label overlap at ~930 px viewport — cosmetic.
+- `subcontractors.js.bak` cleanup — safe `git rm`, deferred.
+- `/subcontractors` has H1 + H2 both reading "Subcontractors" — content choice.
+- **Remaining browser write flows untested:** Invoice → Record Payment, Work-order checklist toggle, kanban drag persist, document multipart upload (now clean at API; browser walkthrough still pending).
+- s5 report-writing session 0 bytes for **28 consecutive runs** — drop the stage or fold into s4.
+
+---
