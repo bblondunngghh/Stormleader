@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { randomUUID } from 'crypto';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
@@ -12,10 +14,16 @@ const router = Router();
 router.use(authenticate);
 router.use(tenantScope);
 
+// Resolve uploads dir to a stable absolute path (independent of process CWD)
+// and ensure it exists at startup so multer.diskStorage never fails with ENOENT.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const UPLOAD_DIR = path.resolve(__dirname, '../../uploads');
+fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+
 // Configure multer for local uploads (swap for S3 in production)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(process.cwd(), 'uploads'));
+    cb(null, UPLOAD_DIR);
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
@@ -32,10 +40,28 @@ const upload = multer({
     if (allowed.test(ext)) {
       cb(null, true);
     } else {
-      cb(new Error('File type not allowed'));
+      const err = new Error('File type not allowed');
+      err.status = 400;
+      cb(err);
     }
   },
 });
+
+// Multer wraps fileFilter rejections and size-limit errors so they surface as
+// the route's normal error path. Translate them to 4xx instead of 500.
+function handleUpload(req, res, next) {
+  upload.single('file')(req, res, (err) => {
+    if (!err) return next();
+    if (err instanceof multer.MulterError) {
+      // LIMIT_FILE_SIZE → 413; other multer errors (unexpected field, etc.) → 400
+      const status = err.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+      return res.status(status).json({ error: err.message });
+    }
+    // fileFilter rejection: use status attached above
+    if (err.status) return res.status(err.status).json({ error: err.message });
+    return next(err);
+  });
+}
 
 // GET /api/documents
 router.get('/', async (req, res, next) => {
@@ -54,7 +80,7 @@ router.get('/', async (req, res, next) => {
 });
 
 // POST /api/documents/upload
-router.post('/upload', upload.single('file'), async (req, res, next) => {
+router.post('/upload', handleUpload, async (req, res, next) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
