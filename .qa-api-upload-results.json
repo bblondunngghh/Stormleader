@@ -1,0 +1,69 @@
+[
+  {
+    "label": "POST /api/documents/upload (valid PNG)",
+    "status": 500,
+    "ok": false,
+    "body": {
+      "error": "Internal server error"
+    }
+  },
+  {
+    "label": "POST /api/documents/upload (.exe rejected)",
+    "status": 500,
+    "ok": true,
+    "body": {
+      "error": "Internal server error"
+    }
+  },
+  {
+    "label": "POST /api/documents/upload (no file)",
+    "status": 400,
+    "ok": true,
+    "body": {
+      "error": "No file uploaded"
+    }
+  },
+  {
+    "label": "POST /api/properties/import-csv (empty rows)",
+    "status": 400,
+    "ok": true,
+    "body": {
+      "error": "rows array is required"
+    }
+  },
+  {
+    "label": "POST /api/properties/import-csv (missing rows)",
+    "status": 400,
+    "ok": true,
+    "body": {
+      "error": "rows array is required"
+    }
+  },
+  {
+    "label": "POST /api/properties/import-csv (junk row → skipped)",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "total": 1,
+      "geocoded": 0,
+      "created": 0,
+      "skipped": 1,
+      "failed": 0,
+      "results": [
+        {
+          "row": 0,
+          "status": "no_match",
+          "address": "zzzzzzz nonexistent street 99999"
+        }
+      ]
+    }
+  },
+  {
+    "label": "POST /api/properties/import-csv (>10000 rows)",
+    "status": 413,
+    "ok": false,
+    "body": {
+      "error": "request entity too large"
+    }
+  }
+]

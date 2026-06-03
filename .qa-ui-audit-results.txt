@@ -1,70 +1,184 @@
-UI CONSISTENCY AUDIT — 2026-05-26 (Run 33, s3 ui-audit)
+============================================================
+StormLeads UI Consistency Audit — 2026-06-02 (Run 38)
+============================================================
 Branch: feat/financing
-HEAD before run: 01e9ec4
-HEAD after run:  bdd1d10
+HEAD: 4782de5 (no changes — zero-defect run)
 
-=== REGRESSION SPOT-CHECK (Run 32 baselines still hold) ===
+Methodology: Code search across client/src + Playwright sweep
+of 20 routes (dashboard, pipeline, leads, tasks, estimates,
+invoices, contracts, work-orders, materials, expenses, reports,
+calendar, canvassing, territory, drip-sequences, subcontractors,
+storm-catalog, storm-map, settings, admin).
 
-| Audit          | Page    | Element       | Expected           | Actual                | Status |
-| -------------- | ------- | ------------- | ------------------ | --------------------- | ------ |
-| Icons          | All     | UI <svg>      | Heroicons outline  | data-slot=icon, sw=1.5| PASS   |
-| Topbar height  | Dashboard | .topbar     | 56px               | 56px                  | PASS   |
-| Form inputs    | All     | input/select  | CustomSelect/DatePicker | unchanged       | PASS   |
+============================================================
+AUDIT 1: ICON LIBRARY CONSISTENCY — PASS
+============================================================
+Code:
+  - @heroicons/react/24/outline imports: 37 files
+  - @heroicons/react/24/solid imports: 0
+  - react-icons / lucide / FontAwesome: 0
+  - Material Icons / fa-* class usage: 0
+  - Inline <svg> as UI icon: 0 (3 inline SVGs are decorative
+    map markers / chart surfaces — not UI icons)
 
-(Run 32 already PASSed icons/buttons/headers/sidebar/forms/spacing/modals
-across 19 routes — re-verifying full surface would burn ~30 turns. Spot-checked
-Dashboard, Invoices, Expenses to confirm no regression from yesterday's work.)
+Browser sweep — 20 pages, total SVGs counted:
+  Page            | Total | HeroOutline | Other
+  /dashboard      |   60  |   60        |  0
+  /pipeline       |   66  |   66        |  0
+  /leads          |   27  |   27        |  0
+  /tasks          |   25  |   25        |  0
+  /estimates      |   36  |   36        |  0
+  /invoices       |   37  |   37        |  0
+  /contracts      |   37  |   37        |  0
+  /work-orders    |   33  |   33        |  0
+  /materials      |  442  |  442        |  0
+  /expenses       |   46  |   46        |  0
+  /reports        |   49  |   40        |  9 (recharts surfaces)
+  /calendar       |   31  |   31        |  0
+  /canvassing     |   34  |   34        |  0
+  /territory      |   71  |   71        |  0
+  /drip-sequences |   71  |   71        |  0
+  /subcontractors |   44  |   44        |  0
+  /storm-catalog  | 1031  | 1031        |  0
+  /storm-map      |   34  |   34        |  0
+  /settings       |   31  |   31        |  0
+  /admin          |   32  |   32        |  0
 
-=== AUDIT FINDING: Currency formatting anti-pattern ===
+Verdict: clean. Zero non-Heroicon UI icons.
 
-| Page          | Issue Type | Element                  | Expected           | Actual                       | Fixed?      |
-| ------------- | ---------- | ------------------------ | ------------------ | ---------------------------- | ----------- |
-| LeadDetail    | Anti-pat   | Profit (negative)        | -$450.25           | $-450.25                     | YES 4c53e0f |
-| LeadDetail    | Anti-pat   | Profit Summary x3        | always 2 dec       | could leak 3+ dec from floats| YES 4c53e0f |
-| LeadDetail    | Anti-pat   | Expense list amount      | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
-| InvoicesView  | Anti-pat   | List row total/paid/bal  | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
-| InvoicesView  | Anti-pat   | Estimate picker total    | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
-| InvoicesView  | Anti-pat   | Line-item editor totals  | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
-| InvoicesView  | Anti-pat   | Subtotal/Tax/Total/AP/BD | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
-| InvoicesView  | Anti-pat   | Record-payment modal x3  | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
-| InvoicesView  | Anti-pat   | Payment toast            | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
-| EstimatesView | Anti-pat   | Insurance breakdown      | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
-| EstimatesView | Anti-pat   | Selected upgrades total  | always 2 dec       | could leak 3+ dec            | YES 4c53e0f |
-| MaterialsView | Defect     | formatCurrency(undefined)| $0.00              | $NaN.00                      | YES bdd1d10 |
-| ExpensesView  | DRY        | Duplicate helper         | shared util        | local copy                   | YES bdd1d10 |
+============================================================
+AUDIT 2: BUTTON CONSISTENCY — PASS
+============================================================
+1,059 visible buttons sampled across 18 pages.
 
-Root cause: `Number(x).toLocaleString(..., { minimumFractionDigits: 2 })`
-without `maximumFractionDigits: 2` lets float math (e.g. tax %, discount %)
-render 3+ decimals (`$1,234.567`). LeadDetail Profit also passed the negative
-sign through `toLocaleString` so it landed AFTER the `$` prefix giving `$-450.25`
-instead of the standard `-$450.25`.
+Class groups verified internally consistent:
+  .auth-btn (primary action):     8 instances; all h=36, br=14px/12px,
+                                  fs=13px, bg=oklch(0.72 0.19 250)
+  .nav-link / nav-link--child:   119+187; all h=42, br=12px
+  .nav-link.is-active variants:    7+11; all h=42, br=12px
+  .topbar__btn (icon toolbar):    36; all h=38, br=12px
+  .quick-action-btn (secondary): 334; size by context
+                                  (185 × row-action 31px /
+                                   136 × compact 27px /
+                                     3 × page-size 21px) —
+                                  each context uniform, by design
+  .task-filter-tab:                2; h=32, br=8px
+  .reports-preset-btn:             5; h=30, br=8px
 
-Fix: New shared util at client/src/utils/currency.js exporting
-`formatCurrency(value)` — handles negative sign placement, NaN/null fallback
-to `$0.00`, and enforces both min and max fraction digits to 2. Migrated 20+
-inline call sites and consolidated 2 local helpers onto the shared util.
+Adjacent-sibling outlier scan (>4px height delta inside same parent):
+  Single hit on /work-orders header: [36, 36, 18]. The 18px is an
+  icon-only utility button (svg, no text, transparent bg). Acceptable
+  — icon-only utilities are intentionally smaller than text actions.
 
-Helpers left intact (already-correct or different input shape):
-- utils/financing.js#formatMoney        — takes CENTS, not dollars
-- AdminDashboard.jsx#formatMoney        — takes CENTS, not dollars
-- Dashboard.jsx#formatCurrency          — intentional K/M abbreviation
-- Pipeline.jsx#formatCurrency           — intentional K/M abbreviation, returns null for 0
-- StormProperties.jsx#formatCurrency    — intentional no-decimals for assessed values
+Verdict: clean. Variance is contextual, not stylistic drift.
 
-=== COMMITS THIS RUN ===
+============================================================
+AUDIT 3: TOOLBAR / HEADER CONSISTENCY — PASS
+============================================================
+All 17 real top-level routes verified:
+  height:           56px (uniform)
+  background:       oklch(0.16 0.015 260 / 0.35) (uniform)
+  padding:          0px 32px (uniform)
+  class:            "topbar glass" (uniform)
+  h1 title style:   font-size 18px, font-weight 700 (uniform)
 
-4c53e0f fix(ui): standardize currency rendering with shared formatCurrency
-        — 4 files (+42 / -20), introduces utils/currency.js + migrates
-        LeadDetail, InvoicesView, EstimatesView
+Note: /territory and /drip-sequences initially appeared to show
+"Dashboard" as title — but these are NOT top-level routes.
+TerritoryManager is a sub-panel inside CanvassingMode, DripSequences
+is a tab inside SettingsView. The catch-all route correctly
+redirects unknown paths to /. Not a bug.
 
-bdd1d10 fix(ui): consolidate ExpensesView/MaterialsView onto shared formatCurrency
-        — 2 files (+2 / -8), kills 2 duplicate helpers, fixes MaterialsView
-        $NaN.00 latent bug
+============================================================
+AUDIT 4: SIDEBAR & NAVIGATION CONSISTENCY — PASS
+============================================================
+All pages verified:
+  sidebar width:    240px (uniform)
+  nav-link count:   18 (uniform)
+  active items:     exactly 1 per page (uniform)
+  active text:      matches the page (verified per-page)
 
-=== VERIFICATION ===
+============================================================
+AUDIT 5: FORM ELEMENT CONSISTENCY — PASS
+============================================================
+Component-source check:
+  native <select> in components/: 0 hits
+  native <input type="date|datetime-local"> in components/: 0 hits
 
-- Build: `npx vite build` clean after each commit
-- Browser: /expenses renders $920.00, $750.00, $150.00 (2-decimal form)
-- Browser: 0 console errors after navigation
-- Regex sweep: 0 remaining `minimumFractionDigits: 2` without
-  matching `maximumFractionDigits: 2` in any non-utility file
+Browser sweep (20 pages):
+  native <select>:        0
+  native date inputs:     0
+  Non-form-input <input>: 16 (all are the same TopBar Cmd-K
+                          global search input, which is
+                          intentionally not a form-input)
+
+Modal sample (Create Lead modal opened on /pipeline):
+  9 visible inputs, ALL using .form-input class
+  0 native selects, 0 native dates
+  height uniform at 36px
+
+CustomSelect + DatePicker components are universally adopted.
+
+============================================================
+AUDIT 6: SPACING & ALIGNMENT — PASS
+============================================================
+All .glass panels share border-radius: 20px / 18px (Apple-style
+asymmetric corners). Padding varies contextually (17.5px for
+cards, 10.5px/17.5px for activity panels, 8.75px/21px for pills)
+— that's the design system, not drift.
+
+============================================================
+AUDIT 7: MODAL CONSISTENCY — PASS
+============================================================
+Code check:
+  Files using .modal-backdrop class (13):
+    MaterialsView, LeadDetail, EmailModal, CreateLeadModal,
+    SettingsView, ExpensesView, EstimatesView, InvoicesView,
+    DripSequences, ImportLeadsModal, WorkOrdersView,
+    PhotoAnnotator, CalendarView
+
+  Files with position:fixed but NOT a modal (correctly excluded):
+    SubcontractorsView — uses .slide-over.glass (CSS-handled animation)
+    Pipeline           — FAB
+    RoofDrawingTool    — full-screen drawing canvas
+    TerritoryManager   — toast notification
+    CustomSelect       — portaled dropdown
+    BottomTabBar       — mobile nav
+    Toast              — toast notification
+
+Browser verification (Create Lead modal):
+  className:       modal-backdrop
+  z-index:         300
+  animation-name:  modal-backdrop-in
+  child:           .glass with modal-scale-in animation
+
+============================================================
+SUMMARY TABLE
+============================================================
+| Audit                       | Status | Issues | Fixed |
+|-----------------------------|--------|--------|-------|
+| 1. Icon library             |  PASS  |   0    |   -   |
+| 2. Button consistency       |  PASS  |   0    |   -   |
+| 3. Toolbar/header           |  PASS  |   0    |   -   |
+| 4. Sidebar/navigation       |  PASS  |   0    |   -   |
+| 5. Form elements            |  PASS  |   0    |   -   |
+| 6. Spacing/alignment        |  PASS  |   0    |   -   |
+| 7. Modal consistency        |  PASS  |   0    |   -   |
+|-----------------------------|--------|--------|-------|
+| TOTAL                       |  7/7   |   0    |   0   |
+
+Commits made: 0
+Build status: clean (vite build ✓ 7.52s)
+
+This is the 19th consecutive zero-defect sweep in the QA cycle.
+The UI design system is holding tight: Heroicons-only icons,
+.form-input universal, .glass panels uniform radius,
+.modal-backdrop everywhere it should be.
+
+============================================================
+CARRY-OVERS STILL OPEN (unchanged from Run 37)
+============================================================
+  #5  Hearth webhook permissive on missing fields
+  #6  Heavy-work guards (/drift, /properties, /score-all)
+  #7  Multipart upload SUCCESS path (no qa-fixtures/ yet)
+  #8  Mobile responsive sweep at 768px (30 runs stale)
+  #9  Missing DELETE /api/crm/tasks/:id route

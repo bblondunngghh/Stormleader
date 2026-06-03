@@ -1,0 +1,318 @@
+[
+  {
+    "label": "GET foreign estimate by id",
+    "method": "GET",
+    "path": "/api/estimates/1a6d63d8-ed9c-4fb9-967b-0ad58fda76d4",
+    "status": 404,
+    "ok": true,
+    "body": {
+      "error": "Estimate not found"
+    }
+  },
+  {
+    "label": "PATCH foreign estimate (forbidden)",
+    "method": "PATCH",
+    "path": "/api/estimates/1a6d63d8-ed9c-4fb9-967b-0ad58fda76d4",
+    "status": 404,
+    "ok": true,
+    "body": {
+      "error": "Estimate not found"
+    }
+  },
+  {
+    "label": "PUT foreign estimate (forbidden)",
+    "method": "PUT",
+    "path": "/api/estimates/1a6d63d8-ed9c-4fb9-967b-0ad58fda76d4",
+    "status": 404,
+    "ok": true,
+    "body": {
+      "error": "Not found",
+      "path": "/api/estimates/1a6d63d8-ed9c-4fb9-967b-0ad58fda76d4"
+    }
+  },
+  {
+    "label": "DELETE foreign estimate (forbidden)",
+    "method": "DELETE",
+    "path": "/api/estimates/1a6d63d8-ed9c-4fb9-967b-0ad58fda76d4",
+    "status": 404,
+    "ok": true,
+    "body": {
+      "error": "Estimate not found"
+    }
+  },
+  {
+    "label": "tenant_id query injection",
+    "method": "GET",
+    "path": "/api/crm/leads",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "baselineCount": 23,
+      "injectedCount": 23
+    }
+  },
+  {
+    "label": "tenant_id query injection",
+    "method": "GET",
+    "path": "/api/crm/tasks",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "baselineCount": 15,
+      "injectedCount": 15
+    }
+  },
+  {
+    "label": "tenant_id query injection",
+    "method": "GET",
+    "path": "/api/estimates",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "baselineCount": 50,
+      "injectedCount": 50
+    }
+  },
+  {
+    "label": "tenant_id query injection",
+    "method": "GET",
+    "path": "/api/documents",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "baselineCount": 0,
+      "injectedCount": 0
+    }
+  },
+  {
+    "label": "tenant_id query injection",
+    "method": "GET",
+    "path": "/api/notifications",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "baselineCount": 0,
+      "injectedCount": 0
+    }
+  },
+  {
+    "label": "tenant_id query injection",
+    "method": "GET",
+    "path": "/api/crm/financing/applications",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "baselineCount": 0,
+      "injectedCount": 0
+    }
+  },
+  {
+    "label": "tenant_id query injection",
+    "method": "GET",
+    "path": "/api/crm/invoices",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "baselineCount": 16,
+      "injectedCount": 16
+    }
+  },
+  {
+    "label": "tenant_id query injection",
+    "method": "GET",
+    "path": "/api/crm/automations",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "baselineCount": 0,
+      "injectedCount": 0
+    }
+  },
+  {
+    "label": "tenant_id query injection",
+    "method": "GET",
+    "path": "/api/crm/contracts",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "baselineCount": 5,
+      "injectedCount": 5
+    }
+  },
+  {
+    "label": "tenant_id query injection",
+    "method": "GET",
+    "path": "/api/crm/expenses",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "baselineCount": 4,
+      "injectedCount": 4
+    }
+  },
+  {
+    "label": "tenant_id query injection",
+    "method": "GET",
+    "path": "/api/crm/subcontractors",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "baselineCount": 5,
+      "injectedCount": 5
+    }
+  },
+  {
+    "label": "tenant_id query injection",
+    "method": "GET",
+    "path": "/api/crm/territories",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "baselineCount": 2,
+      "injectedCount": 2
+    }
+  },
+  {
+    "label": "tenant_id query injection",
+    "method": "GET",
+    "path": "/api/crm/work-orders",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "baselineCount": 15,
+      "injectedCount": 15
+    }
+  },
+  {
+    "label": "tenant_id query injection",
+    "method": "GET",
+    "path": "/api/crm/drip-sequences",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "baselineCount": 0,
+      "injectedCount": 0
+    }
+  },
+  {
+    "label": "tenant_id query injection",
+    "method": "GET",
+    "path": "/api/crm/canvass-pins",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "baselineCount": 15,
+      "injectedCount": 15
+    }
+  },
+  {
+    "label": "POST /tasks ignores tenant_id in body",
+    "method": "POST",
+    "path": "/api/crm/tasks",
+    "status": 201,
+    "ok": true,
+    "body": {
+      "actualTenant": "791bb51d-3293-4839-92e9-bd4d4f873af2",
+      "attemptedTenant": "84d2b23c-2408-4cfb-a9d6-5a00c8f2f4b2"
+    }
+  },
+  {
+    "label": "GET leads with X-Tenant-Id header spoof",
+    "method": "GET",
+    "path": "/api/crm/leads?limit=1",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "leads": [
+        {
+          "id": "dc8135aa-b210-4f33-bbe1-ad8f0997d3dd",
+          "tenant_id": "791bb51d-3293-4839-92e9-bd4d4f873af2",
+          "stage": "contacted",
+          "priority": "warm",
+          "estimated_value": "100.00",
+          "actual_value": null,
+          "source": "storm_map",
+          "tags": [],
+          "address": "10706 LOCH NESS CV AUSTIN 78750",
+          "city": "AUSTIN",
+          "hail_size_in": null,
+          "insurance_company": null,
+          "contact_name": null,
+          "contact_phone": null,
+          "contact_email": null,
+          "last_contact_at": null,
+          "next_follow_up": null,
+          "notes": "qa-test 1779790065510",
+          "lost_reason": null,
+          "created_at": "2026-05-11T18:48:08.652Z",
+          "updated_at": "2026-05-26T10:07:46.639Z",
+          "deleted_at": null,
+          "property_id": "cc1dcdc6-0def-4425-9a7c-9fa1e0b4d4a5",
+          "storm_event_id": null,
+          "assigned_rep_id": null,
+          "custom_fields": {},
+          "lead_score": 7,
+          "lead_score_factors": {
+            "homeAge": null,
+            "hasEmail": false,
+            "hasPhone": false,
+            "roofSqft": 0,
+            "hailSizeIn": null,
+            "hasAddress": true,
+            "hasEstimate": false,
+            "hasFemaData": true,
+            "hasRoofType": false,
+            "hasInsurance": false,
+            "hasOwnerInfo": false,
+            "hasYearBuilt": true,
+            "recencyScore": 0,
+            "windSpeedMph": null,
+            "assessedValue": 0,
+            "femaRiskScore": null,
+            "hailRiskLevel": "low",
+            "hailRiskScore": 2,
+            "daysSinceStorm": null,
+            "engagementScore": 0,
+            "dataQualityScore": 5,
+            "hailHistoryCount": 0,
+            "stormDamageScore": 0,
+            "disasterZoneScore": 0,
+            "ownerOccupiedRate": null,
+            "hasUpcomingFollowUp": null,
+            "maxHistoricalHailIn": 0,
+            "recentActivityCount": 0,
+            "propertyProfileScore": 0
+          },
+          "lead_score_updated_at": "2026-05-26T10:07:46.639Z",
+          "contact_first_name": null,
+          "contact_last_name": null,
+          "primary_phone": null,
+          "primary_email": null,
+          "rep_first_name": null,
+          "rep_last_name": null,
+          "rep_email": null,
+          "roof_type": null,
+          "roof_sqft": null,
+          "year_built": null,
+          "assessed_value": null,
+          "financing_status": null,
+          "task_total": 1,
+          "task_done": 0
+        }
+      ],
+      "total": 23,
+      "limit": 1,
+      "offset": 0
+    }
+  },
+  {
+    "label": "GET /api/admin/tenants (non-platform-admin)",
+    "method": "GET",
+    "path": "/api/admin/tenants",
+    "status": 403,
+    "ok": true,
+    "body": {
+      "error": "Insufficient permissions"
+    }
+  }
+]
