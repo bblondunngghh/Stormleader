@@ -229,8 +229,13 @@ export async function handleWebhook(provider, rawBody, signature) {
   // forged payload, but no mutations occur until after signature verification. This is acceptable
   // because: (1) the lookup is a simple SELECT, (2) no state changes without valid signature,
   // (3) the alternative (global webhook secret) would prevent per-tenant lender isolation.
-  const parsed = JSON.parse(rawBody);
-  const appId = parsed.application_id;
+  let parsed;
+  try {
+    parsed = JSON.parse(rawBody);
+  } catch {
+    return { status: 'ignored', reason: 'invalid json' };
+  }
+  const appId = parsed && typeof parsed === 'object' ? parsed.application_id : null;
   if (!appId) return { status: 'ignored', reason: 'no application_id' };
 
   const { rows: [app] } = await pool.query(
