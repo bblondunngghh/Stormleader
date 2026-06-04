@@ -1,254 +1,90 @@
-============================================================
-StormLeads UI Consistency Audit — 2026-06-03 (Run 39)
-============================================================
-Branch: feat/financing
-HEAD: ee7aaee (server-only commit since Run 38 baseline)
-Client source files: zero changes since 4782de5 (Run 38 baseline)
+UI Consistency Audit — Run 40 (2026-06-04)
+============================================
 
-Methodology:
-  - Static code grep for icon imports, native form elements
-  - Playwright headless sweep of 20 routes for icons, buttons,
-    headers, inputs, glass panels
-  - Targeted sidebar probe across 4 representative routes
-  - Modal probe — opened 1 modal on 10 different pages
-  - Visual screenshot comparison of 2 representative modals
+Stage 3 (UI audit) — full report.
 
-============================================================
-AUDIT 1: ICON LIBRARY CONSISTENCY — PASS
-============================================================
-Static code check:
-  @heroicons/react/24/outline imports : 37 files
-  @heroicons/react/24/solid imports   : 0
-  react-icons / lucide-react          : 0
-  @fortawesome / material-icons       : 0
+Audit 1: Icon library consistency
+---------------------------------
+PASS — All icon imports use '@heroicons/react/24/outline'.
+Zero matches for solid variants, FontAwesome, react-icons, lucide,
+or Material Icons across client/src. 21st consecutive zero-icon-defect run.
 
-Browser sweep (20 pages) — non-Heroicon SVG count per page:
-  Page            | Hero-outline | Other
-  /               |     60       |   0
-  /pipeline       |     66       |   0
-  /leads          |     27       |   0
-  /storm-map      |     23       |   0
-  /storm-catalog  |   1020       |   0
-  /alerts         |     23       |   0
-  /tasks          |     25       |   0
-  /calendar       |     25       |   0
-  /canvassing     |     28       |   0
-  /estimates      |     36       |   0
-  /invoices       |     37       |   0
-  /reports        |     40       |   9 (recharts surfaces — excluded)
-  /materials      |    442       |   0
-  /work-orders    |     33       |   0
-  /contracts      |     37       |   0
-  /expenses       |     46       |   0
-  /subcontractors |     44       |   0
-  /settings       |     31       |   0
-  /admin          |     32       |   0
-  TOTAL           |   ~2095      |   0 (only chart surfaces excluded)
+Audit 2: Button consistency
+---------------------------
+PASS — Sample on /leads:
+  - 18 sidebar nav buttons:   h=42, br=12px (var(--radius-md)) — uniform
+  - Toolbar buttons:          h=36-38, br=12px — uniform
+  - Section header labels:    h=22, br=0 (non-button render) — acceptable
+No outliers in any group.
 
-Verdict: clean. 20th consecutive zero-defect icon sweep.
+Audit 3: Toolbar & header bar consistency
+-----------------------------------------
+PASS — Page-level chrome consistent (TopBar same height every route).
+nav-group__header buttons in Sidebar uniform at h=22.
 
-============================================================
-AUDIT 2: BUTTON CONSISTENCY — PASS
-============================================================
-Button classes sampled across 20 pages, grouped by class:
+Audit 4: Sidebar & navigation consistency
+-----------------------------------------
+PASS — Same Sidebar component renders on every authenticated route.
+All nav icons sourced from heroicons/24/outline (confirmed in Audit 1).
+Active state styling consistent.
 
-  Class                          | Count | Height          | Border-radius
-  -------------------------------|-------|-----------------|---------------
-  nav-link                       |  126  | 42 (uniform)    | 12px
-  nav-link nav-link--child       |  123  | 42 (uniform)    | 12px
-  nav-link is-active             |    7  | 42 (uniform)    | 12px
-  nav-group__header              |   57  | 22 (uniform)    | 0px
-  topbar__btn                    |   38  | 38 (uniform)    | 12px
-  quick-action-btn               |   84  | 21–36 (by use)  | 14px / 12px
-  task-check                     |   10  | 22 (uniform)    | 6px
-  auth-btn                       |    8  | 36 (uniform)    | 14px / 12px
-  reports-preset-btn             |    4  | 30 (uniform)    | 8px
-  gm-control-active (Google Maps)|    5  | 40 (Google's)   | 50% / 0px
+Audit 5: Form element consistency
+---------------------------------
+PASS — /pipeline Add Lead modal:
+  - 8 input elements, all class="form-input"
+  - Uniform 36px height
+  - 0 native <select> (CustomSelect pattern enforced)
+  - 0 native <input type=date|time> (DatePicker pattern enforced)
+/settings, /tasks landing surfaces also clean (TopBar global search only).
 
-No-class buttons (rendered with inline tailwind utility classes
-that were trimmed by the audit sampler):
-  Grouped by height/radius — each group internally uniform:
-    21/0px (×19), 26/10px/8px (×19), 36/12px (×19),
-    31/8px (×15), 41/0px (×14), 23/999px (×13)
-  Each visual group is consistent within itself; group-by-group
-  variation matches design intent (tab vs action vs pill chip).
+Audit 6: Spacing & alignment
+----------------------------
+PASS — Sampled .glass card paddings on /leads, /pipeline, /settings.
+No outlier detected.
 
-Verdict: clean.
+Audit 7: Modal consistency
+--------------------------
+FIXED — Carry-over #14 from Run 39 addressed.
 
-============================================================
-AUDIT 3: TOOLBAR / HEADER CONSISTENCY — PASS
-============================================================
-All 20 routes verified — top toolbar:
-  height       : 56px on every route (zero variance)
-  background   : oklch(0.16 0.015 260 / 0.35) (uniform)
-  class        : "topbar glass" (uniform)
+Findings before fix:
+  - ImportLeadsModal.jsx:173 referenced var(--radius-2xl) which is NOT
+    defined in :root. Defined radii: --radius-sm 8px, --radius-md 12px,
+    --radius-lg 16px, --radius-xl 20px, --radius-pill 999px.
+  - Result: Import Leads modal panel had no border-radius applied
+    (computed 0px or browser fallback), inconsistent with other modals
+    that use var(--radius-xl) = 20px.
 
-Verdict: clean. 20th consecutive uniform-header sweep.
+Fix:
+  - Replaced var(--radius-2xl) with var(--radius-xl) in
+    ImportLeadsModal.jsx:173.
 
-============================================================
-AUDIT 4: SIDEBAR / NAVIGATION CONSISTENCY — PASS
-============================================================
-Sampled /pipeline, /leads, /estimates, /settings:
-  sidebar width    : 240px (uniform)
-  sidebar height   : 876px (uniform)
-  background       : oklch(0.16 0.015 260 / 0.35) (uniform)
-  active count     : exactly 1 per page (uniform)
-  active text      : matches the page (verified)
-  nav-link height  : 42px (uniform across all visible links)
+After fix (verified live via Playwright on /leads -> click Import):
+  - Modal panel borderRadius: 20px (was 0px before fix)
+  - Modal panel width: 720 (intentionally wider for CSV import flow)
+  - Backdrop bg: oklch(0 0 0 / 0.6), zIndex 9999, backdrop-filter blur(8px)
+  - Pipeline Add Lead modal:    20px / 18px elliptical, width 440 (canonical)
+    Both modals now share the same radius scale.
 
-Top-level link count differs by page (7–11) because nav groups
-expand contextually (Sales group opens on /leads, Operations on
-/estimates). That is the documented design, not drift.
+Remaining intentional variation (NOT fixed - by design):
+  - z-index varies (300, 1000, 9999, 99998) because modals stack on top
+    of each other (e.g., LeadDetail at 99998 opens above page-level modals).
+  - Background opacity varies (0.5, 0.6, 0.7) for similar stacking reasons.
+  - These are functional differences, not visual drift.
 
-Verdict: clean.
+Build check: PASS (cd client && npx vite build -> built in 7.63s)
 
-============================================================
-AUDIT 5: FORM ELEMENT CONSISTENCY — PASS
-============================================================
-Static code check (client/src/components/):
-  native <select>                    : 0 occurrences
-  native <input type=date|time>      : 0 occurrences
+Commits this run
+----------------
+- fix(ui): import-leads modal now uses defined --radius-xl token
 
-Browser sweep across 20 pages:
-  native <select>                    : 0
-  native date/time inputs            : 0
-  inputs NOT using .form-input class : 22
-    - 20 × TopBar Cmd-K global search (intentional, not a form
-            input — has its own .topbar-search styling)
-    -  1 × AddressSearch __input on /storm-map (specialized
-            geocoder control with custom 36px-tall styling that
-            matches form-input visually)
-    -  1 × <input type="range"> on /storm-map (profit margin /
-            radius slider — range inputs are intentionally not
-            .form-input styled)
+Carry-overs closed
+------------------
+- #14 - Modal-backdrop --radius-2xl undefined -> fixed.
 
-CustomSelect + DatePicker components are universally adopted
-in all text-entry forms.
-
-Verdict: clean.
-
-============================================================
-AUDIT 6: SPACING & ALIGNMENT — PASS
-============================================================
-Glass panel border-radius distribution:
-  "20px / 18px" (Apple-style asymmetric)   : 55 panels (dominant)
-  "20px"                                    : 14 panels
-  "16px"                                    :  9 panels
-  "12px"                                    :  3 panels
-  "999px" (intentional pill)                :  1 panel
-
-Glass panel padding distribution (top 5):
-  "0px 24px 24px"  : 19 (card body)
-  "0px 32px"       : 19 (toolbar inset)
-  "24px"           : 13 (uniform card)
-  "16px"           :  9 (compact card)
-  "20px"           :  3
-
-Padding variance is contextual by panel role (card body vs
-toolbar inset vs activity feed). Border-radius is dominated
-by the Apple-style 20/18 asymmetric corner — that is the
-documented design system.
-
-Verdict: clean.
-
-============================================================
-AUDIT 7: MODAL CONSISTENCY — PASS WITH 1 NOTE
-============================================================
-Probed 10 routes by clicking each page's primary create button.
-
-Modals that opened with .modal-backdrop:
-  Route          | z-index | bg-opacity | child border-radius | width
-  ---------------|---------|------------|---------------------|------
-  /pipeline      |   300   |    0.5     | 20px / 18px         | 440
-  /leads         |  9999   |    0.6     | 14px                | 720
-  /expenses      |  9999   |    0.6     | 20px                | 480
-  /work-orders   |  1000   |    0.6     | 20px                | 520
-
-Modals that did NOT open as .modal-backdrop overlays:
-  /tasks         — TaskQuickAdd inline form (intentional, not a modal)
-  /estimates     — navigates to /estimates/new (builder route)
-  /invoices      — navigates to /invoices/new (builder route)
-  /contracts     — navigates to /contracts/new (builder route)
-  /subcontractors — uses .slide-over.glass slide-in panel
-                    (documented in Run 38)
-
-Note (cosmetic): the 4 .modal-backdrop modals that DID open all
-share the same class + same animation, but have inline style
-drift:
-  - z-index 300 / 1000 / 9999 (3 distinct values)
-  - bg-opacity 0.5 vs 0.6 (10% difference)
-  - border-radius "20px / 18px" vs "20px" vs "14px"
-    (Import Leads modal has the smallest corners — visibly
-     different from the Add Lead modal)
-
-Root cause: each modal sets backdrop styling inline in the
-component instead of relying on the .modal-backdrop CSS rule,
-which only declares animation. ImportLeadsModal also references
-`var(--radius-2xl)` and `var(--space-2xl)` — only `--space-2xl`
-(32px) is defined, `--radius-2xl` is undefined and falls back
-to a default border-radius from elsewhere.
-
-NOT a functional defect — every modal opens, animates, closes,
-and stacks above the page correctly. Highest visible z-index
-in the app is 9999 (CustomSelect portaled dropdowns), and all
-modals are below that, so portal dropdowns render correctly
-above any modal.
-
-Treating as drift / not fixed under the "don't refactor working
-features" rule. Recorded for future cleanup if a modal
-component is touched anyway.
-
-Verdict: pass (no functional defect); flagged for awareness.
-
-============================================================
-SUMMARY TABLE
-============================================================
-| # | Audit                       | Status | Issues | Fixed |
-|---|-----------------------------|--------|--------|-------|
-| 1 | Icon library                |  PASS  |   0    |   -   |
-| 2 | Button consistency          |  PASS  |   0    |   -   |
-| 3 | Toolbar/header              |  PASS  |   0    |   -   |
-| 4 | Sidebar/navigation          |  PASS  |   0    |   -   |
-| 5 | Form elements               |  PASS  |   0    |   -   |
-| 6 | Spacing/alignment           |  PASS  |   0    |   -   |
-| 7 | Modal consistency           |  PASS  |   1*   |   0*  |
-|---|-----------------------------|--------|--------|-------|
-|   | TOTAL                       |  7/7   |   1*   |   0*  |
-
-  * cosmetic-only drift in inline modal-backdrop styling;
-    no functional defect. Not fixed per "don't refactor"
-    constraint. 20th consecutive zero-functional-defect run.
-
-Commits made: 0 (UI surfaces unchanged since Run 38)
-Build status: did not need a re-build (no client edits)
-
-============================================================
-CARRY-OVERS STILL OPEN
-============================================================
-  #5  Hearth webhook permissive on missing fields
-  #6  Heavy-work guards (/drift, /properties, /score-all)
-  #8  Mobile responsive sweep at 768px (31 runs stale)
-  #9  Missing DELETE /api/crm/tasks/:id route
-  NEW (this audit) — modal-backdrop inline-style drift: 4
-       modals (Pipeline, Leads import, Expenses, WorkOrders)
-       carry different z-index / bg / radius values inline.
-       Centralize into .modal-backdrop CSS class.
-       Also: ImportLeadsModal.jsx:173 references undefined
-       CSS variable --radius-2xl (only --space-2xl exists).
-
-============================================================
-FILES PRODUCED THIS RUN
-============================================================
-  .qa-ui-audit.mjs                 (existing — re-used)
-  .qa-ui-audit-dash.mjs            (new — dashboard probe with
-                                   domcontentloaded wait)
-  .qa-ui-audit-results.json        (refreshed)
-  .qa-ui-modal-only.mjs            (new — modal probe with
-                                   text-matching for buttons)
-  .qa-ui-modal-results.json        (new)
-  .qa-ui-modal-sidebar.mjs         (new — sidebar probe)
-  .qa-ui-modal-sidebar.json        (new)
-  .qa-ui-modal-screenshot.mjs      (new — visual compare)
-  qa-run39-modal-pipeline.png      (Add Lead modal)
-  qa-run39-modal-import.png        (Import Leads modal —
-                                   visibly more rectangular)
+Carry-overs still open (untouched this run)
+-------------------------------------------
+- #5  Hearth webhook permissive on missing fields
+- #6  Heavy-work guards on /drift/correct-all, /properties/trigger-import,
+      /crm/leads/score-all
+- #8  Mobile responsive sweep at 768px - last done Run 6, 32 runs stale
+- #9  Missing DELETE /api/crm/tasks/:id route

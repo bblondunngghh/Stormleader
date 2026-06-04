@@ -170,7 +170,7 @@ export default function ImportLeadsModal({ onClose, onImported }) {
     }}>
       <div className="glass" onClick={e => e.stopPropagation()} style={{
         width: '100%', maxWidth: 720, maxHeight: '85vh', overflow: 'auto',
-        borderRadius: 'var(--radius-2xl)', padding: 'var(--space-2xl)',
+        borderRadius: 'var(--radius-xl)', padding: 'var(--space-2xl)',
         animation: 'modal-scale-in 0.25s ease-out',
       }}>
         {/* Header */}
