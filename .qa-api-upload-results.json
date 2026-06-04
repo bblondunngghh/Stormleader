@@ -1,18 +1,38 @@
 [
   {
     "label": "POST /api/documents/upload (valid PNG)",
-    "status": 500,
-    "ok": false,
+    "status": 201,
+    "ok": "502a2ecb-da8f-4808-b15e-53f48464be33",
     "body": {
-      "error": "Internal server error"
+      "id": "502a2ecb-da8f-4808-b15e-53f48464be33",
+      "tenant_id": "791bb51d-3293-4839-92e9-bd4d4f873af2",
+      "lead_id": null,
+      "estimate_id": null,
+      "uploaded_by": "45cc729d-cc5b-44b5-93ca-7c01b427fc26",
+      "type": "photo",
+      "filename": "qa-probe.png",
+      "file_url": "/uploads/24b3d91b-e881-4c03-b0c8-0699f713e0eb.png",
+      "file_size": 68,
+      "mime_type": "image/png",
+      "description": "QA probe upload — safe to delete",
+      "tags": null,
+      "created_at": "2026-06-03T10:22:31.405Z"
+    }
+  },
+  {
+    "label": "DELETE /api/documents/:id (cleanup)",
+    "status": 200,
+    "ok": true,
+    "body": {
+      "deleted": true
     }
   },
   {
     "label": "POST /api/documents/upload (.exe rejected)",
-    "status": 500,
+    "status": 400,
     "ok": true,
     "body": {
-      "error": "Internal server error"
+      "error": "File type not allowed"
     }
   },
   {

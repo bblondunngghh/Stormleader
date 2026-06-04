@@ -1,0 +1,94 @@
+{
+  "/pipeline": {
+    "opener": "Add Lead",
+    "found": true,
+    "bdCls": "modal-backdrop",
+    "bdZ": "300",
+    "bdAnim": "modal-backdrop-in",
+    "bdBg": "oklch(0 0 0 / 0.5)",
+    "bdPos": "fixed",
+    "childCls": "glass",
+    "childAnim": "modal-scale-in",
+    "childBR": "20px / 18px",
+    "childW": 440,
+    "childMaxW": "none",
+    "closeBtn": true,
+    "title": "Add Lead"
+  },
+  "/leads": {
+    "opener": "Import",
+    "found": true,
+    "bdCls": "modal-backdrop",
+    "bdZ": "9999",
+    "bdAnim": "modal-backdrop-in",
+    "bdBg": "oklch(0 0 0 / 0.6)",
+    "bdPos": "fixed",
+    "childCls": "glass",
+    "childAnim": "modal-scale-in",
+    "childBR": "14px",
+    "childW": 720,
+    "childMaxW": "720px",
+    "closeBtn": false,
+    "title": "Import Leads from CSV"
+  },
+  "/tasks": {
+    "opener": "New Task",
+    "found": false,
+    "overlays": 2
+  },
+  "/estimates": {
+    "opener": "New Estimate",
+    "found": false,
+    "overlays": 0
+  },
+  "/expenses": {
+    "opener": "Add Expense",
+    "found": true,
+    "bdCls": "modal-backdrop",
+    "bdZ": "9999",
+    "bdAnim": "modal-backdrop-in",
+    "bdBg": "oklch(0 0 0 / 0.6)",
+    "bdPos": "fixed",
+    "childCls": "glass",
+    "childAnim": "modal-scale-in",
+    "childBR": "20px",
+    "childW": 480,
+    "childMaxW": "480px",
+    "closeBtn": false,
+    "title": "Add Expense"
+  },
+  "/invoices": {
+    "opener": "New Invoice",
+    "found": false,
+    "overlays": 0
+  },
+  "/work-orders": {
+    "opener": "New Work Order",
+    "found": true,
+    "bdCls": "modal-backdrop",
+    "bdZ": "1000",
+    "bdAnim": "modal-backdrop-in",
+    "bdBg": "oklch(0 0 0 / 0.6)",
+    "bdPos": "fixed",
+    "childCls": "glass no-scrollbar",
+    "childAnim": "modal-scale-in",
+    "childBR": "20px",
+    "childW": 520,
+    "childMaxW": "520px",
+    "closeBtn": false,
+    "title": "New Work Order"
+  },
+  "/contracts": {
+    "opener": "New Contract",
+    "found": false,
+    "overlays": 0
+  },
+  "/subcontractors": {
+    "opener": "Add Subcontractor",
+    "found": false,
+    "overlays": 0
+  },
+  "/materials": {
+    "error": "no opener found"
+  }
+}

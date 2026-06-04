@@ -1,0 +1,95 @@
+{
+  "sidebar": {
+    "/pipeline": {
+      "found": true,
+      "cls": "sidebar glass ",
+      "w": 240,
+      "h": 876,
+      "bg": "oklch(0.16 0.015 260 / 0.35)",
+      "linkCount": 7,
+      "activeCount": 1,
+      "activeText": "Pipeline",
+      "linkHeights": [
+        42,
+        42,
+        42,
+        42,
+        42
+      ]
+    },
+    "/leads": {
+      "found": true,
+      "cls": "sidebar glass ",
+      "w": 240,
+      "h": 876,
+      "bg": "oklch(0.16 0.015 260 / 0.35)",
+      "linkCount": 7,
+      "activeCount": 1,
+      "activeText": "Leads",
+      "linkHeights": [
+        42,
+        42,
+        42,
+        42,
+        42
+      ]
+    },
+    "/estimates": {
+      "found": true,
+      "cls": "sidebar glass ",
+      "w": 240,
+      "h": 876,
+      "bg": "oklch(0.16 0.015 260 / 0.35)",
+      "linkCount": 11,
+      "activeCount": 1,
+      "activeText": "Estimates",
+      "linkHeights": [
+        42,
+        42,
+        42,
+        42,
+        42
+      ]
+    },
+    "/settings": {
+      "found": true,
+      "cls": "sidebar glass ",
+      "w": 240,
+      "h": 876,
+      "bg": "oklch(0.16 0.015 260 / 0.35)",
+      "linkCount": 11,
+      "activeCount": 1,
+      "activeText": "Settings",
+      "linkHeights": [
+        42,
+        42,
+        42,
+        42,
+        42
+      ]
+    }
+  },
+  "modals": {
+    "/pipeline": {
+      "error": "page.evaluate: SyntaxError: Failed to execute 'querySelector' on 'Document': 'button:has-text(\"Add Lead\")' is not a vali"
+    },
+    "/leads": {
+      "error": "page.evaluate: SyntaxError: Failed to execute 'querySelector' on 'Document': 'button:has-text(\"Import\")' is not a valid "
+    },
+    "/tasks": {
+      "error": "page.evaluate: SyntaxError: Failed to execute 'querySelector' on 'Document': 'button:has-text(\"New Task\")' is not a vali"
+    },
+    "/estimates": {
+      "error": "page.evaluate: SyntaxError: Failed to execute 'querySelector' on 'Document': 'button:has-text(\"New Estimate\")' is not a "
+    },
+    "/expenses": {
+      "error": "page.evaluate: SyntaxError: Failed to execute 'querySelector' on 'Document': 'button:has-text(\"Add Expense\")' is not a v"
+    },
+    "/invoices": {
+      "error": "page.evaluate: SyntaxError: Failed to execute 'querySelector' on 'Document': 'button:has-text(\"New Invoice\")' is not a v"
+    },
+    "/settings": {
+      "error": "page.evaluate: SyntaxError: Failed to execute 'querySelector' on 'Document': 'button:has-text(\"Invite\")' is not a valid "
+    }
+  }
+}
