@@ -2218,3 +2218,55 @@ Root cause: `.modal-backdrop` CSS only declares animation; each component re-ass
 - s5 report-writing session 0 bytes for **28 consecutive runs** — drop the stage or fold into s4.
 
 ---
+
+## QA Run: 2026-06-04 (Run 40)
+
+### Test Results
+- Pages tested: ~20 routes (full UI consistency audit, 7 axes) + targeted modal probe on Add Lead and Import Leads
+- API endpoints tested: 244 read + 36 write probes re-run against live server (timestamps in `.qa-api-results.json` / `.qa-api-write-results.json` advanced 2026-06-02 → 2026-06-04). 0 unintentional 5xx — **21st consecutive zero-5xx run**.
+- Bugs found: 2 (1 API permissive-parse, 1 UI undefined CSS token)
+- Bugs fixed: 2 (`abc7b7c`, `5526fa2`)
+- UI inconsistencies found: 1 (Import Leads modal radius 0 px because of undefined `--radius-2xl` reference)
+- UI inconsistencies fixed: 1 (`5526fa2`)
+- Commits this run: **2** (`abc7b7c`, `5526fa2`)
+
+### Fixes Made
+- **`abc7b7c`** — `server/src/services/financing/index.js` (+7/−2) — `POST /api/webhooks/hearth` with `body=null` or any non-JSON payload was hitting an unhandled `JSON.parse` / property-access `TypeError`, which the route handler surfaced verbatim as `400 "Cannot read properties of null (reading 'application_id')"`. Guarded the parse step and the property access; malformed input now returns the same `{status:'ignored'}` envelope as the missing-`application_id` path, matching the webhook's permissive contract. Partially closes Carry-over #5 (null/malformed-body subpath only — missing-fields permissiveness on otherwise-valid JSON remains a security-audit candidate).
+- **`5526fa2`** — `client/src/components/ImportLeadsModal.jsx` (+1/−1) — `ImportLeadsModal.jsx:173` referenced `var(--radius-2xl)`, which is **not defined** in `:root`. Defined radii are `--radius-sm` (8 px), `--radius-md` (12 px), `--radius-lg` (16 px), `--radius-xl` (20 px), `--radius-pill` (999 px) — no `--radius-2xl`. The undefined reference fell through to `0px`, so the Import Leads modal rendered with sharp corners while the rest of the modal family rendered at 20 px. Replaced with the defined `var(--radius-xl)` token. Verified live via Playwright (`qa-run40-import-modal-fixed.png`): computed `border-radius = 20px`. Closes Carry-over #14 from Run 39.
+
+### UI Consistency Fixes
+- **Audit 7 modal radius drift** — fixed in `5526fa2`. Import Leads modal now matches the canonical 20 px radius shared by Add Lead, Add Work Order, Add Expense, and all Settings modals. Other Audit 7 sub-findings from Run 39 (z-index variance, bg-opacity variance) confirmed as intentional design choices — modals stack on top of each other deliberately (e.g., `LeadDetail` at z-99998 opens above page-level modals). Not flagged.
+- **7/7 axes PASS, 21st consecutive zero-functional-defect UI sweep, 21st consecutive zero-icon-defect sweep, 21st consecutive uniform-header sweep.** Full report at `.qa-ui-audit-results.txt`. Audit 1 (icons): 100% `@heroicons/react/24/outline`. Audit 2 (buttons): sidebar h=42 br=12, toolbar h=36–38 br=12, uniform within visual role. Audit 3 (header): TopBar height uniform. Audit 4 (sidebar): same component everywhere, all icons Heroicons-outline, active state consistent. Audit 5 (forms): 8/8 inputs on Add Lead modal use `.form-input`, 0 native `<select>`, 0 native date inputs. Audit 6 (spacing): no outliers in `.glass` card paddings on `/leads`, `/pipeline`, `/settings`.
+
+### Verified Carry-Overs
+- **Carry-over #5** (Hearth webhook permissive on bad bodies) — **partially CLOSED** by `abc7b7c` (null / malformed-JSON path). Missing-fields permissiveness on otherwise-valid JSON remains open as a security-audit candidate.
+- **Carry-over #14** (Run 39 modal radius drift — Import Leads at 0 px corners due to undefined `--radius-2xl`) — **CLOSED** by `5526fa2`. Side-by-side Playwright comparison with Add Lead modal confirms shared 20 px radius scale.
+
+### Session Integrity
+- s1 api-test: `error_max_turns` (51/50, $2.94) — **landed `abc7b7c`** before timing out.
+- s2 frontend-test: `error_max_turns` (81/80, $3.68) — 0 commits, no usable transcript.
+- s3 ui-audit: **completed cleanly** (`end_turn`, 57 turns, $2.96) — **landed `5526fa2`**; full 7-axis audit at `.qa-ui-audit-results.txt`. **Second consecutive clean s3 exit** (Run 39 also clean).
+- s4 verify: `error_max_turns` (41/40, $2.71) — no transcript, but produced 2 verification screenshots (`qa-run40-s4-empty-leads.png`, `qa-run40-s4-import-modal-verify.png`).
+- s5 report: 0 bytes (**29th consecutive non-functional s5**) — this report written in a follow-up session.
+- Total measured spend: **~$12.29**. **1 / 5 sessions completed cleanly.**
+
+### Diff vs. Run 39
+- `git diff 713959a..5526fa2 --stat` — 3 files (2 source + 1 audit log), +98 / −257 total.
+- HEAD advanced: `713959a` (checkpoint) → `abc7b7c` → `5526fa2`.
+- Source file changes: `server/src/services/financing/index.js` (+7/−2), `client/src/components/ImportLeadsModal.jsx` (+1/−1).
+- Updated artifact: `.qa-ui-audit-results.txt` (Run 40 report — shorter than Run 39 because there was less to flag).
+- New artifacts left in working tree: `claude-overnight-20260604-s{1-5}-*.json` (stage transcripts), `qa-run40-dashboard.png`, `qa-run40-pipeline.png`, `qa-run40-import-modal-fixed.png` (visual verification of the radius fix), `qa-run40-s4-empty-leads.png`, `qa-run40-s4-import-modal-verify.png`.
+
+### Known Issues Remaining
+- **#5 (remaining) Hearth webhook permissive on missing required fields** — the `abc7b7c` fix only hardens the null/malformed-JSON path. Missing-field permissiveness on otherwise-valid bodies remains a security-audit candidate.
+- **#6 Heavy-work guards** on `/drift/correct-all`, `/properties/trigger-import`, `/crm/leads/score-all` — contract change.
+- **#8 Mobile responsive sweep at 768 px** — **32 runs stale** (last done Run 6). Highest-value untouched surface.
+- **#9 `DELETE /api/crm/tasks/:id`** handler missing.
+- **DEV_BYPASS admin 403 noise** — dev-only artifact.
+- Reports chart label overlap at ~930 px viewport — cosmetic.
+- `subcontractors.js.bak` cleanup — safe `git rm`, deferred.
+- `/subcontractors` has H1 + H2 both reading "Subcontractors" — content choice.
+- **Remaining browser write flows untested:** Invoice → Record Payment, Work-order checklist toggle, kanban drag persist, document multipart upload (clean at API layer since Run 39).
+- s5 report-writing session 0 bytes for **29 consecutive runs** — drop the stage or fold into s4.
+
+---
