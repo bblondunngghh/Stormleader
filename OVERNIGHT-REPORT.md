@@ -171,8 +171,8 @@ Stage 3 timed out before running the icon, sidebar, and modal sub-audits. Last c
 
 ## Build Check
 
-Run by report-writer at end-of-report:
+Run by report-writer at end-of-report (`cd /c/Projects/stormleads/client && npx vite build`):
 ```
-cd /c/Projects/stormleads/client && npx vite build
+✓ built in 7.58s
 ```
-Result: *see commit / build verification step at end of session*.
+Same chunk-size warnings as Run 40 (Mapbox 1.70 MB and `index` 593 kB above the 500 kB threshold — both pre-existing, not introduced by Run 41).
