@@ -7,7 +7,11 @@ const adapters = { hearth: hearthAdapter, mock: mockAdapter };
 
 function getAdapter(provider) {
   const adapter = adapters[provider];
-  if (!adapter) throw new Error(`Unknown financing provider: ${provider}`);
+  if (!adapter) {
+    const err = new Error(`Unknown financing provider: ${provider}`);
+    err.status = 400;
+    throw err;
+  }
   return adapter;
 }
 
