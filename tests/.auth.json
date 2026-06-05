@@ -6,7 +6,7 @@
       "localStorage": [
         {
           "name": "token",
-          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ1Y2M3MjlkLWNjNWItNDRiNS05M2NhLTdjMDFiNDI3ZmMyNiIsInRlbmFudElkIjoiNzkxYmI1MWQtMzI5My00ODM5LTkyZTktYmQ0ZDRmODczYWYyIiwiZW1haWwiOiJ3YXRlcmxvb2NvbnN0cnVjdGlvbjFAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzc5NjEzMjIyLCJleHAiOjE3Nzk2MTQxMjJ9.wBNrmrBHiF4cMXa4XMsjvfsIwnbZwomWajM-1A6TWhY"
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ1Y2M3MjlkLWNjNWItNDRiNS05M2NhLTdjMDFiNDI3ZmMyNiIsInRlbmFudElkIjoiNzkxYmI1MWQtMzI5My00ODM5LTkyZTktYmQ0ZDRmODczYWYyIiwiZW1haWwiOiJ3YXRlcmxvb2NvbnN0cnVjdGlvbjFAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzgwNjUwMDE0LCJleHAiOjE3ODA2NTA5MTR9.LylKd8ld_XT-FvUvagqdBs_h0uV8cd-vCP61NbedkGQ"
         },
         {
           "name": "user",
@@ -14,7 +14,7 @@
         },
         {
           "name": "refreshToken",
-          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ1Y2M3MjlkLWNjNWItNDRiNS05M2NhLTdjMDFiNDI3ZmMyNiIsInRlbmFudElkIjoiNzkxYmI1MWQtMzI5My00ODM5LTkyZTktYmQ0ZDRmODczYWYyIiwiZW1haWwiOiJ3YXRlcmxvb2NvbnN0cnVjdGlvbjFAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzc5NjEzMjIyLCJleHAiOjE3ODAyMTgwMjJ9.EQg0KULvAsHSIjg2D_kK1_KTTyrFuoNkHZh3PbPXUTw"
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQ1Y2M3MjlkLWNjNWItNDRiNS05M2NhLTdjMDFiNDI3ZmMyNiIsInRlbmFudElkIjoiNzkxYmI1MWQtMzI5My00ODM5LTkyZTktYmQ0ZDRmODczYWYyIiwiZW1haWwiOiJ3YXRlcmxvb2NvbnN0cnVjdGlvbjFAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzgwNjUwMDE0LCJleHAiOjE3ODEyNTQ4MTR9.vOKwI_-ofTqVkb_j4D5ne3ds_7-O3hxXEU6U6j29Qv8"
         }
       ]
     }
