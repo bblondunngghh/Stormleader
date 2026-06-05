@@ -2270,3 +2270,63 @@ Root cause: `.modal-backdrop` CSS only declares animation; each component re-ass
 - s5 report-writing session 0 bytes for **29 consecutive runs** — drop the stage or fold into s4.
 
 ---
+
+## QA Run: 2026-06-05 (Run 41)
+
+Branch: `feat/financing` · Pre-run checkpoint: `11458bd` (`overnight-checkpoint-20260605`) · Head: `5f108be` · Commits this run: **2**
+
+### Test Results
+- Pages tested: 17 routes (header axis) / 14 routes (form + spacing axes) — UI consistency audit partial; full UI sweep not completed (s3 timed out before icon/sidebar/modal sub-audits)
+- API endpoints tested: **252 total** (118 GET + 36 POST + 11 edge + **38 new Hearth/financing** + **49 new PATCH/PUT/DELETE**)
+- Bugs found: 2 (both backend)
+- Bugs fixed: 2 (`bc9214f`, `5f108be`)
+- UI inconsistencies found: 2 cosmetic (`/alerts` raw inputs missing `.form-input`, `/reports`+`/settings` use 16 px radius)
+- UI inconsistencies fixed: 0 (held — no functional regression, design-decision territory)
+- Production 5xx during sweep: 0 unintentional (**22nd consecutive zero-5xx run**) — 1 expected 503 from `skip-trace` env-gate
+- Commits this run: **2** (`bc9214f`, `5f108be`)
+
+### Fixes Made
+- **`bc9214f`** — `server/src/services/financing/index.js` (+12/−6) — Closes Carry-over #5 in full. Hearth webhook called `req.body.toString('utf8')` on the assumption `body-parser`'s `raw()` always produced a `Buffer`. When no body was sent or content-type was wrong, `req.body` was `undefined` or `{}` and the call threw `TypeError`, which the global handler surfaced as a 400 with the JS error verbatim. Guarded with `Buffer.isBuffer(req.body)` before `toString`; catch block stopped echoing `err.message` so signature-verification failures no longer leak *why* the body was rejected. Permissive happy path (`{status:'ignored', reason:...}`) still returns informative reasons for legitimate-but-non-actionable bodies.
+- **`5f108be`** — `server/src/services/financing/providers/index.js` (+1/−0) — `POST /api/crm/financing/lenders` with `provider:'fake'` returned bare 500. Root cause: `getAdapter('fake')` threw `Error('Unknown financing provider: fake')` with no `status` property, so global handler defaulted to 500. Added `err.status = 400` to the throw — service-layer fix, all three callers benefit (`connectLender`, `syncPlans`, `handleWebhook`).
+
+### UI Consistency Fixes
+- None this run. Stage 3 partial coverage produced 4 audit JSONs (`button-audit.json`, `header-audit.json`, `form-audit.json`, `spacing-audit.json`) before timing out. Two cosmetic findings logged but held: (a) `/alerts` page has 2 raw `<input type="text">` without `.form-input` styling, (b) `/reports` and `/settings` use `--radius-lg` (16 px) on their `.glass` cards while the rest of the app uses `--radius-xl` (20 px). Both pre-existing since their respective pages shipped — not regressions. Flagged for design call.
+
+### New Probes This Run
+- **Hearth/financing probe** (`.qa-hearth-fin.mjs` → `.qa-hearth-fin-results.json`) — **38 probes**. 10 Hearth webhook edge cases (empty body, null, bad JSON, missing event/data fields, bad signature, array body, nested-null fields, both-fields-empty, huge payload) and 28 financing-route probes covering every `/api/crm/financing/*` and `/api/financing/public/*` endpoint with bad tokens, missing fields, malformed UUIDs, zero-UUIDs, and unknown providers. **Caught both 5xx bugs fixed this run.**
+- **PATCH/PUT/DELETE probe** (`.qa-patch-delete-probe.mjs` → `.qa-patch-delete-results.json`) — **49 probes**. First systematic coverage of mutating verbs with empty bodies + zero-UUID path params. Complements `.qa-api-write-probe.mjs` which only covered POST. **0 5xx surfaced** — all routes correctly emit 400 (validation) or 404 (not found).
+
+### Verified Carry-Overs
+- **Carry-over #5** (Hearth webhook hardening) — **FULLY CLOSED** by `bc9214f`. Run 40's `abc7b7c` covered the null/malformed-JSON path; this run's `bc9214f` covers the undefined-body and missing-Buffer paths and the leaky catch block. Remaining "permissive on missing required fields" sub-finding is now reframed as the webhook's *intentional* permissive contract (returns informative `{status:'ignored', reason:...}` for legitimate-but-non-actionable bodies). No further action needed.
+- **`dcc904c` pagination clamping** (from Run 35) — re-verified, `?limit=-1` and `?offset=-N` still return clean 200.
+
+### Session Integrity
+- s1 api-test: **completed cleanly** (`end_turn`, 49 turns, $3.39) — **landed both `bc9214f` and `5f108be`** before exiting. First clean s1 exit since Run 36.
+- s2 frontend-test: `error_max_turns` (81/80, $4.14) — 0 commits, 5 screenshots saved (`qa-run42-*.png` — agent-side label slip, all timestamps confirm Run 41 artifacts).
+- s3 ui-audit: `error_max_turns` (61/60, $4.64) — 0 commits, 4 audit JSONs written before timing out (button / header / form / spacing).
+- s4 verify: `error_max_turns` (41/40, $1.86) — no transcript, no commits, no screenshots.
+- s5 report: 0 bytes (**30th consecutive non-functional s5**) — this report written in a follow-up session.
+- Total measured spend: **~$14.03**. **1 / 5 sessions completed cleanly.**
+
+### Diff vs. Run 40
+- `git diff 11458bd..5f108be --stat` — 2 files (both backend), +13 / −6 total.
+- HEAD advanced: `11458bd` (checkpoint) → `bc9214f` → `5f108be`.
+- Source file changes: `server/src/services/financing/index.js` (+12/−6), `server/src/services/financing/providers/index.js` (+1/−0).
+- New reusable artifacts left in working tree (keep): `.qa-hearth-fin.mjs`, `.qa-hearth-fin-results.json`, `.qa-patch-delete-probe.mjs`, `.qa-patch-delete-results.json`.
+- Audit artifacts left in working tree (overwritable each run): `header-audit.json`, `form-audit.json`, `spacing-audit.json`, `button-audit.json`.
+- Run-specific screenshots (safe to delete after report acceptance): `qa-run42-01-dashboard.png`, `qa-run42-02-financing.png`, `qa-run42-03-financing-connected.png`, `qa-run42-04-import-modal.png`, `qa-run42-financing-tab.png`.
+
+### Known Issues Remaining
+- **#6 Heavy-work guards** on `/drift/correct-all`, `/properties/trigger-import`, `/crm/leads/score-all` — contract change.
+- **#8 Mobile responsive sweep at 768 px** — **33 runs stale** (last done Run 6). Highest-value untouched surface.
+- **#9 `DELETE /api/crm/tasks/:id`** handler missing. Missing **feature**, not a broken endpoint.
+- **(NEW cosmetic)** `/alerts` page has 2 raw `<input type="text">` without `.form-input` glass styling. No functional regression — pre-existing since alert-config page shipped.
+- **(NEW cosmetic)** `/reports` and `/settings` use 16 px corner radius on `.glass` cards while the rest of the app uses 20 px. Pre-existing — not a regression.
+- **DEV_BYPASS admin 403 noise** — dev-only artifact.
+- Reports chart label overlap at ~930 px viewport — cosmetic.
+- `subcontractors.js.bak` cleanup — safe `git rm`, deferred.
+- `/subcontractors` has H1 + H2 both reading "Subcontractors" — content choice.
+- **Remaining browser write flows untested:** Connect Lender modal submit (s2 reached the modal but did not submit), Plan Sync button, applications list, Invoice → Record Payment, Work-order checklist toggle, kanban drag persist, document multipart upload (clean at API since Run 39).
+- s5 report-writing session 0 bytes for **30 consecutive runs** — drop the stage or fold into s4.
+
+---
