@@ -129,7 +129,9 @@ router.get('/:id/milestones', validateId(), async (req, res, next) => {
 router.post('/:id/milestones', validateId(), async (req, res, next) => {
   try {
     const { name } = req.body;
-    if (!name?.trim()) return res.status(400).json({ error: 'Milestone name required' });
+    if (typeof name !== 'string' || !name.trim()) {
+      return res.status(400).json({ error: 'Milestone name required' });
+    }
     const wo = await workOrderService.getWorkOrder(req.tenantId, req.params.id);
     if (!wo) return res.status(404).json({ error: 'Work order not found' });
     const { rows: [maxOrder] } = await pool.query(

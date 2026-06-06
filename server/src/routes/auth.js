@@ -121,6 +121,14 @@ router.get('/me', authenticate, async (req, res, next) => {
 router.patch('/me', authenticate, async (req, res, next) => {
   try {
     const { firstName, lastName, email } = req.body;
+    for (const [k, v] of [['firstName', firstName], ['lastName', lastName], ['email', email]]) {
+      if (v !== undefined && typeof v !== 'string') {
+        return res.status(400).json({ error: `${k} must be a string` });
+      }
+    }
+    if (email !== undefined && !email.trim()) {
+      return res.status(400).json({ error: 'email must be a non-empty string' });
+    }
     const sets = [];
     const params = [];
     if (firstName !== undefined) { params.push(firstName); sets.push(`first_name = $${params.length}`); }
