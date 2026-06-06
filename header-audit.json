@@ -1,0 +1,374 @@
+[
+  {
+    "page": "/",
+    "h1": "Dashboard",
+    "h1Style": {
+      "size": "18px",
+      "weight": "700",
+      "color": "oklch(0.95 0.005 260)"
+    },
+    "headerCount": 2,
+    "headers": [
+      {
+        "tag": "HEADER",
+        "cls": "topbar glass",
+        "h": 56,
+        "padding": "0px 32px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      },
+      {
+        "tag": "HEADER",
+        "cls": "flex items-end justify-between gap-6 flex-wrap py-1",
+        "h": 65,
+        "padding": "3.5px 0px",
+        "paddingTop": "3.5px",
+        "paddingBottom": "3.5px"
+      }
+    ]
+  },
+  {
+    "page": "/pipeline",
+    "h1": "Pipeline",
+    "h1Style": {
+      "size": "18px",
+      "weight": "700",
+      "color": "oklch(0.95 0.005 260)"
+    },
+    "headerCount": 1,
+    "headers": [
+      {
+        "tag": "HEADER",
+        "cls": "topbar glass",
+        "h": 56,
+        "padding": "0px 32px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      }
+    ]
+  },
+  {
+    "page": "/leads",
+    "h1": "Leads",
+    "h1Style": {
+      "size": "18px",
+      "weight": "700",
+      "color": "oklch(0.95 0.005 260)"
+    },
+    "headerCount": 2,
+    "headers": [
+      {
+        "tag": "HEADER",
+        "cls": "topbar glass",
+        "h": 56,
+        "padding": "0px 32px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      },
+      {
+        "tag": "DIV",
+        "cls": "lead-list-toolbar glass",
+        "h": 110,
+        "padding": "12px 24px",
+        "paddingTop": "12px",
+        "paddingBottom": "12px"
+      }
+    ]
+  },
+  {
+    "page": "/tasks",
+    "h1": "Tasks",
+    "h1Style": {
+      "size": "18px",
+      "weight": "700",
+      "color": "oklch(0.95 0.005 260)"
+    },
+    "headerCount": 1,
+    "headers": [
+      {
+        "tag": "HEADER",
+        "cls": "topbar glass",
+        "h": 56,
+        "padding": "0px 32px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      }
+    ]
+  },
+  {
+    "page": "/calendar",
+    "h1": "Calendar",
+    "h1Style": {
+      "size": "18px",
+      "weight": "700",
+      "color": "oklch(0.95 0.005 260)"
+    },
+    "headerCount": 6,
+    "headers": [
+      {
+        "tag": "HEADER",
+        "cls": "topbar glass",
+        "h": 56,
+        "padding": "0px 32px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      },
+      {
+        "tag": "DIV",
+        "cls": "fc-header-toolbar fc-toolbar fc-toolbar-ltr",
+        "h": 38,
+        "padding": "0px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      },
+      {
+        "tag": "DIV",
+        "cls": "fc-toolbar-chunk",
+        "h": 38,
+        "padding": "0px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      }
+    ]
+  },
+  {
+    "page": "/estimates",
+    "h1": "Estimates",
+    "h1Style": {
+      "size": "18px",
+      "weight": "700",
+      "color": "oklch(0.95 0.005 260)"
+    },
+    "headerCount": 1,
+    "headers": [
+      {
+        "tag": "HEADER",
+        "cls": "topbar glass",
+        "h": 56,
+        "padding": "0px 32px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      }
+    ]
+  },
+  {
+    "page": "/invoices",
+    "h1": "Invoices",
+    "h1Style": {
+      "size": "18px",
+      "weight": "700",
+      "color": "oklch(0.95 0.005 260)"
+    },
+    "headerCount": 1,
+    "headers": [
+      {
+        "tag": "HEADER",
+        "cls": "topbar glass",
+        "h": 56,
+        "padding": "0px 32px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      }
+    ]
+  },
+  {
+    "page": "/reports",
+    "h1": "Reports",
+    "h1Style": {
+      "size": "18px",
+      "weight": "700",
+      "color": "oklch(0.95 0.005 260)"
+    },
+    "headerCount": 1,
+    "headers": [
+      {
+        "tag": "HEADER",
+        "cls": "topbar glass",
+        "h": 56,
+        "padding": "0px 32px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      }
+    ]
+  },
+  {
+    "page": "/materials",
+    "h1": "Materials",
+    "h1Style": {
+      "size": "18px",
+      "weight": "700",
+      "color": "oklch(0.95 0.005 260)"
+    },
+    "headerCount": 1,
+    "headers": [
+      {
+        "tag": "HEADER",
+        "cls": "topbar glass",
+        "h": 56,
+        "padding": "0px 32px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      }
+    ]
+  },
+  {
+    "page": "/work-orders",
+    "h1": "Work Orders",
+    "h1Style": {
+      "size": "18px",
+      "weight": "700",
+      "color": "oklch(0.95 0.005 260)"
+    },
+    "headerCount": 1,
+    "headers": [
+      {
+        "tag": "HEADER",
+        "cls": "topbar glass",
+        "h": 56,
+        "padding": "0px 32px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      }
+    ]
+  },
+  {
+    "page": "/contracts",
+    "h1": "Contracts",
+    "h1Style": {
+      "size": "18px",
+      "weight": "700",
+      "color": "oklch(0.95 0.005 260)"
+    },
+    "headerCount": 1,
+    "headers": [
+      {
+        "tag": "HEADER",
+        "cls": "topbar glass",
+        "h": 56,
+        "padding": "0px 32px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      }
+    ]
+  },
+  {
+    "page": "/expenses",
+    "h1": "Expenses",
+    "h1Style": {
+      "size": "18px",
+      "weight": "700",
+      "color": "oklch(0.95 0.005 260)"
+    },
+    "headerCount": 1,
+    "headers": [
+      {
+        "tag": "HEADER",
+        "cls": "topbar glass",
+        "h": 56,
+        "padding": "0px 32px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      }
+    ]
+  },
+  {
+    "page": "/subcontractors",
+    "h1": "Subcontractors",
+    "h1Style": {
+      "size": "18px",
+      "weight": "700",
+      "color": "oklch(0.95 0.005 260)"
+    },
+    "headerCount": 1,
+    "headers": [
+      {
+        "tag": "HEADER",
+        "cls": "topbar glass",
+        "h": 56,
+        "padding": "0px 32px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      }
+    ]
+  },
+  {
+    "page": "/settings",
+    "h1": "Settings",
+    "h1Style": {
+      "size": "18px",
+      "weight": "700",
+      "color": "oklch(0.95 0.005 260)"
+    },
+    "headerCount": 1,
+    "headers": [
+      {
+        "tag": "HEADER",
+        "cls": "topbar glass",
+        "h": 56,
+        "padding": "0px 32px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      }
+    ]
+  },
+  {
+    "page": "/storm-map",
+    "h1": "Storm Map",
+    "h1Style": {
+      "size": "18px",
+      "weight": "700",
+      "color": "oklch(0.95 0.005 260)"
+    },
+    "headerCount": 1,
+    "headers": [
+      {
+        "tag": "HEADER",
+        "cls": "topbar glass",
+        "h": 56,
+        "padding": "0px 32px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      }
+    ]
+  },
+  {
+    "page": "/storm-catalog",
+    "h1": "Storm Archive",
+    "h1Style": {
+      "size": "18px",
+      "weight": "700",
+      "color": "oklch(0.95 0.005 260)"
+    },
+    "headerCount": 1,
+    "headers": [
+      {
+        "tag": "HEADER",
+        "cls": "topbar glass",
+        "h": 56,
+        "padding": "0px 32px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      }
+    ]
+  },
+  {
+    "page": "/alerts",
+    "h1": "Alerts",
+    "h1Style": {
+      "size": "18px",
+      "weight": "700",
+      "color": "oklch(0.95 0.005 260)"
+    },
+    "headerCount": 1,
+    "headers": [
+      {
+        "tag": "HEADER",
+        "cls": "topbar glass",
+        "h": 56,
+        "padding": "0px 32px",
+        "paddingTop": "0px",
+        "paddingBottom": "0px"
+      }
+    ]
+  }
+]

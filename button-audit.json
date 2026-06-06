@@ -1,3126 +1,1110 @@
 {
-  "/": [
-    {
-      "text": "",
-      "cls": "topbar__btn",
-      "h": 38,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "topbar__btn",
-      "h": 38,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "Enterprise",
-      "cls": "",
-      "h": 26,
-      "bg": "oklch(0.75 0.15 60 / 0.12)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "10px / 8px",
-      "pad": "4px 10px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Time",
-      "cls": "",
-      "h": 23,
-      "bg": "oklch(0.72 0.15 250 / 0.12)",
-      "fg": "oklch(0.8 0.12 250)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "7 Days",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "30 Days",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "90 Days",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "YTD",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Reps",
-      "cls": "",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "12px",
-      "pad": "0px 16px",
-      "fs": "13px",
-      "fw": "500",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Sources",
-      "cls": "",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "12px",
-      "pad": "0px 16px",
-      "fs": "13px",
-      "fw": "500",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Set Goal",
-      "cls": "text-[11px] font-bold px-3 py-1.5 rounded-[12px]",
-      "h": 26,
-      "bg": "oklch(0.72 0.19 250 / 0.12)",
-      "fg": "oklch(0.8 0.19 250)",
-      "br": "12px",
-      "pad": "5.25px 10.5px",
-      "fs": "11px",
-      "fw": "700",
-      "bd": "1px solid"
-    },
-    {
-      "text": "View All",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Full Map",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "mapboxgl-ctrl-attrib-button",
-      "h": 24,
-      "bg": "rgba(255, 255, 255, 0.5)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "24h",
-      "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(--text-muted)] hover:text-[var(--text-secondary)]",
-      "h": 16,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "3.35544e+07px",
-      "pad": "1.75px 7px",
-      "fs": "10px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "7d",
-      "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(--text-muted)] hover:text-[var(--text-secondary)]",
-      "h": 16,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "3.35544e+07px",
-      "pad": "1.75px 7px",
-      "fs": "10px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "30d",
-      "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors bg-[oklch(0.72_0.19_250/0.15)] text-[oklch(0.82_0.16_250)]",
-      "h": 16,
-      "bg": "oklch(0.72 0.19 250 / 0.15)",
-      "fg": "oklch(0.82 0.16 250)",
-      "br": "3.35544e+07px",
-      "pad": "1.75px 7px",
-      "fs": "10px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "+44 more events",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] text-center py-2 w-full transition-colors",
-      "h": 27,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "7px 0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "All Tasks",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "View All",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View Leads",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View Invoices",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View Estimates",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View All",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "View Pipeline",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    }
-  ],
-  "/storm-archive": [
-    {
-      "text": "",
-      "cls": "topbar__btn",
-      "h": 38,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "topbar__btn",
-      "h": 38,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "Enterprise",
-      "cls": "",
-      "h": 26,
-      "bg": "oklch(0.75 0.15 60 / 0.12)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "10px / 8px",
-      "pad": "4px 10px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Time",
-      "cls": "",
-      "h": 23,
-      "bg": "oklch(0.72 0.15 250 / 0.12)",
-      "fg": "oklch(0.8 0.12 250)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "7 Days",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "30 Days",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "90 Days",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "YTD",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Reps",
-      "cls": "",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "12px",
-      "pad": "0px 16px",
-      "fs": "13px",
-      "fw": "500",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Sources",
-      "cls": "",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "12px",
-      "pad": "0px 16px",
-      "fs": "13px",
-      "fw": "500",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Set Goal",
-      "cls": "text-[11px] font-bold px-3 py-1.5 rounded-[12px]",
-      "h": 26,
-      "bg": "oklch(0.72 0.19 250 / 0.12)",
-      "fg": "oklch(0.8 0.19 250)",
-      "br": "12px",
-      "pad": "5.25px 10.5px",
-      "fs": "11px",
-      "fw": "700",
-      "bd": "1px solid"
-    },
-    {
-      "text": "View All",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Full Map",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "mapboxgl-ctrl-attrib-button",
-      "h": 24,
-      "bg": "rgba(255, 255, 255, 0.5)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "24h",
-      "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(--text-muted)] hover:text-[var(--text-secondary)]",
-      "h": 16,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "3.35544e+07px",
-      "pad": "1.75px 7px",
-      "fs": "10px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "7d",
-      "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(--text-muted)] hover:text-[var(--text-secondary)]",
-      "h": 16,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "3.35544e+07px",
-      "pad": "1.75px 7px",
-      "fs": "10px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "30d",
-      "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors bg-[oklch(0.72_0.19_250/0.15)] text-[oklch(0.82_0.16_250)]",
-      "h": 16,
-      "bg": "oklch(0.72 0.19 250 / 0.15)",
-      "fg": "oklch(0.82 0.16 250)",
-      "br": "3.35544e+07px",
-      "pad": "1.75px 7px",
-      "fs": "10px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "+44 more events",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] text-center py-2 w-full transition-colors",
-      "h": 27,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "7px 0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "All Tasks",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "View All",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View Leads",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View Invoices",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View Estimates",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View All",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "View Pipeline",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    }
-  ],
-  "/pipeline": [
-    {
-      "text": "",
-      "cls": "topbar__btn",
-      "h": 38,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "topbar__btn",
-      "h": 38,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "Enterprise",
-      "cls": "",
-      "h": 26,
-      "bg": "oklch(0.75 0.15 60 / 0.12)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "10px / 8px",
-      "pad": "4px 10px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Sales",
-      "cls": "shrink-0",
-      "h": 25,
-      "bg": "oklch(0.78 0.12 200)",
-      "fg": "oklch(0.15 0.04 200)",
-      "br": "8px",
-      "pad": "5px 12px",
-      "fs": "12px",
-      "fw": "700",
-      "bd": "0px none"
-    },
-    {
-      "text": "Production",
-      "cls": "shrink-0",
-      "h": 25,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "8px",
-      "pad": "5px 12px",
-      "fs": "12px",
-      "fw": "700",
-      "bd": "0px none"
-    },
-    {
-      "text": "Billing",
-      "cls": "shrink-0",
-      "h": 25,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "8px",
-      "pad": "5px 12px",
-      "fs": "12px",
-      "fw": "700",
-      "bd": "0px none"
-    },
-    {
-      "text": "All Priorities",
-      "cls": "",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "12px",
-      "pad": "0px 16px",
-      "fs": "13px",
-      "fw": "500",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Sources",
-      "cls": "",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "12px",
-      "pad": "0px 16px",
-      "fs": "13px",
-      "fw": "500",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Reps",
-      "cls": "",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "12px",
-      "pad": "0px 16px",
-      "fs": "13px",
-      "fw": "500",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "shrink-0",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "14px / 12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Add Lead",
-      "cls": "auth-btn shrink-0",
-      "h": 36,
-      "bg": "oklch(0.72 0.19 250)",
-      "fg": "oklch(0.15 0.02 260)",
-      "br": "14px / 12px",
-      "pad": "0px 24px",
-      "fs": "13px",
-      "fw": "700",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    }
-  ],
-  "/leads": [
-    {
-      "text": "",
-      "cls": "topbar__btn",
-      "h": 38,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "topbar__btn",
-      "h": 38,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "Enterprise",
-      "cls": "",
-      "h": 26,
-      "bg": "oklch(0.75 0.15 60 / 0.12)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "10px / 8px",
-      "pad": "4px 10px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Stages",
-      "cls": "",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "12px",
-      "pad": "0px 16px",
-      "fs": "13px",
-      "fw": "500",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Priorities",
-      "cls": "",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "12px",
-      "pad": "0px 16px",
-      "fs": "13px",
-      "fw": "500",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Sources",
-      "cls": "",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "12px",
-      "pad": "0px 16px",
-      "fs": "13px",
-      "fw": "500",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Scores",
-      "cls": "",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "12px",
-      "pad": "0px 16px",
-      "fs": "13px",
-      "fw": "500",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Import",
-      "cls": "quick-action-btn",
-      "h": 36,
-      "bg": "oklch(0.18 0.03 265 / 0.5)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "14px / 12px",
-      "pad": "8px 16px",
-      "fs": "13px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Export",
-      "cls": "quick-action-btn",
-      "h": 36,
-      "bg": "oklch(0.18 0.03 265 / 0.5)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "14px / 12px",
-      "pad": "8px 16px",
-      "fs": "13px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "25",
-      "cls": "quick-action-btn",
-      "h": 21,
-      "bg": "oklch(0.5 0.15 250 / 0.15)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "14px / 12px",
-      "pad": "3px 8px",
-      "fs": "11px",
-      "fw": "700",
-      "bd": "1px solid"
-    },
-    {
-      "text": "50",
-      "cls": "quick-action-btn",
-      "h": 21,
-      "bg": "oklch(0.18 0.03 265 / 0.5)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "14px / 12px",
-      "pad": "3px 8px",
-      "fs": "11px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "100",
-      "cls": "quick-action-btn",
-      "h": 21,
-      "bg": "oklch(0.18 0.03 265 / 0.5)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "14px / 12px",
-      "pad": "3px 8px",
-      "fs": "11px",
-      "fw": "400",
-      "bd": "1px solid"
-    }
-  ],
-  "/jobs": [
-    {
-      "text": "",
-      "cls": "topbar__btn",
-      "h": 38,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "topbar__btn",
-      "h": 38,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "Enterprise",
-      "cls": "",
-      "h": 26,
-      "bg": "oklch(0.75 0.15 60 / 0.12)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "10px / 8px",
-      "pad": "4px 10px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Time",
-      "cls": "",
-      "h": 23,
-      "bg": "oklch(0.72 0.15 250 / 0.12)",
-      "fg": "oklch(0.8 0.12 250)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "7 Days",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "30 Days",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "90 Days",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "YTD",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Reps",
-      "cls": "",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "12px",
-      "pad": "0px 16px",
-      "fs": "13px",
-      "fw": "500",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Sources",
-      "cls": "",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "12px",
-      "pad": "0px 16px",
-      "fs": "13px",
-      "fw": "500",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Set Goal",
-      "cls": "text-[11px] font-bold px-3 py-1.5 rounded-[12px]",
-      "h": 26,
-      "bg": "oklch(0.72 0.19 250 / 0.12)",
-      "fg": "oklch(0.8 0.19 250)",
-      "br": "12px",
-      "pad": "5.25px 10.5px",
-      "fs": "11px",
-      "fw": "700",
-      "bd": "1px solid"
-    },
-    {
-      "text": "View All",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Full Map",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "mapboxgl-ctrl-attrib-button",
-      "h": 24,
-      "bg": "rgba(255, 255, 255, 0.5)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "24h",
-      "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(--text-muted)] hover:text-[var(--text-secondary)]",
-      "h": 16,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "3.35544e+07px",
-      "pad": "1.75px 7px",
-      "fs": "10px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "7d",
-      "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(--text-muted)] hover:text-[var(--text-secondary)]",
-      "h": 16,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "3.35544e+07px",
-      "pad": "1.75px 7px",
-      "fs": "10px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "30d",
-      "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors bg-[oklch(0.72_0.19_250/0.15)] text-[oklch(0.82_0.16_250)]",
-      "h": 16,
-      "bg": "oklch(0.72 0.19 250 / 0.15)",
-      "fg": "oklch(0.82 0.16 250)",
-      "br": "3.35544e+07px",
-      "pad": "1.75px 7px",
-      "fs": "10px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "+44 more events",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] text-center py-2 w-full transition-colors",
-      "h": 27,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "7px 0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "All Tasks",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "View All",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View Leads",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View Invoices",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View Estimates",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View All",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "View Pipeline",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    }
-  ],
-  "/finance": [
-    {
-      "text": "",
-      "cls": "topbar__btn",
-      "h": 38,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "topbar__btn",
-      "h": 38,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "Enterprise",
-      "cls": "",
-      "h": 26,
-      "bg": "oklch(0.75 0.15 60 / 0.12)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "10px / 8px",
-      "pad": "4px 10px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Time",
-      "cls": "",
-      "h": 23,
-      "bg": "oklch(0.72 0.15 250 / 0.12)",
-      "fg": "oklch(0.8 0.12 250)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "7 Days",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "30 Days",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "90 Days",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "YTD",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Reps",
-      "cls": "",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "12px",
-      "pad": "0px 16px",
-      "fs": "13px",
-      "fw": "500",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Sources",
-      "cls": "",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "12px",
-      "pad": "0px 16px",
-      "fs": "13px",
-      "fw": "500",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Set Goal",
-      "cls": "text-[11px] font-bold px-3 py-1.5 rounded-[12px]",
-      "h": 26,
-      "bg": "oklch(0.72 0.19 250 / 0.12)",
-      "fg": "oklch(0.8 0.19 250)",
-      "br": "12px",
-      "pad": "5.25px 10.5px",
-      "fs": "11px",
-      "fw": "700",
-      "bd": "1px solid"
-    },
-    {
-      "text": "View All",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Full Map",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "mapboxgl-ctrl-attrib-button",
-      "h": 24,
-      "bg": "rgba(255, 255, 255, 0.5)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "24h",
-      "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(--text-muted)] hover:text-[var(--text-secondary)]",
-      "h": 16,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "3.35544e+07px",
-      "pad": "1.75px 7px",
-      "fs": "10px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "7d",
-      "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(--text-muted)] hover:text-[var(--text-secondary)]",
-      "h": 16,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "3.35544e+07px",
-      "pad": "1.75px 7px",
-      "fs": "10px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "30d",
-      "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors bg-[oklch(0.72_0.19_250/0.15)] text-[oklch(0.82_0.16_250)]",
-      "h": 16,
-      "bg": "oklch(0.72 0.19 250 / 0.15)",
-      "fg": "oklch(0.82 0.16 250)",
-      "br": "3.35544e+07px",
-      "pad": "1.75px 7px",
-      "fs": "10px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "+44 more events",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] text-center py-2 w-full transition-colors",
-      "h": 27,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "7px 0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "All Tasks",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "View All",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View Leads",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View Invoices",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View Estimates",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View All",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "View Pipeline",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    }
-  ],
-  "/operations": [
-    {
-      "text": "",
-      "cls": "topbar__btn",
-      "h": 38,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "topbar__btn",
-      "h": 38,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "Enterprise",
-      "cls": "",
-      "h": 26,
-      "bg": "oklch(0.75 0.15 60 / 0.12)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "10px / 8px",
-      "pad": "4px 10px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Time",
-      "cls": "",
-      "h": 23,
-      "bg": "oklch(0.72 0.15 250 / 0.12)",
-      "fg": "oklch(0.8 0.12 250)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "7 Days",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "30 Days",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "90 Days",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "YTD",
-      "cls": "",
-      "h": 23,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "999px",
-      "pad": "4px 12px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Reps",
-      "cls": "",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "12px",
-      "pad": "0px 16px",
-      "fs": "13px",
-      "fw": "500",
-      "bd": "1px solid"
-    },
-    {
-      "text": "All Sources",
-      "cls": "",
-      "h": 36,
-      "bg": "oklch(0.22 0.02 260 / 0.45)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "12px",
-      "pad": "0px 16px",
-      "fs": "13px",
-      "fw": "500",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Set Goal",
-      "cls": "text-[11px] font-bold px-3 py-1.5 rounded-[12px]",
-      "h": 26,
-      "bg": "oklch(0.72 0.19 250 / 0.12)",
-      "fg": "oklch(0.8 0.19 250)",
-      "br": "12px",
-      "pad": "5.25px 10.5px",
-      "fs": "11px",
-      "fw": "700",
-      "bd": "1px solid"
-    },
-    {
-      "text": "View All",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Full Map",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "mapboxgl-ctrl-attrib-button",
-      "h": 24,
-      "bg": "rgba(255, 255, 255, 0.5)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "24h",
-      "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(--text-muted)] hover:text-[var(--text-secondary)]",
-      "h": 16,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "3.35544e+07px",
-      "pad": "1.75px 7px",
-      "fs": "10px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "7d",
-      "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(--text-muted)] hover:text-[var(--text-secondary)]",
-      "h": 16,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "3.35544e+07px",
-      "pad": "1.75px 7px",
-      "fs": "10px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "30d",
-      "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors bg-[oklch(0.72_0.19_250/0.15)] text-[oklch(0.82_0.16_250)]",
-      "h": 16,
-      "bg": "oklch(0.72 0.19 250 / 0.15)",
-      "fg": "oklch(0.82 0.16 250)",
-      "br": "3.35544e+07px",
-      "pad": "1.75px 7px",
-      "fs": "10px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "+44 more events",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] text-center py-2 w-full transition-colors",
-      "h": 27,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "7px 0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "All Tasks",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "",
-      "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0",
-      "h": 14,
-      "bg": "oklch(0.12 0.01 265 / 0.3)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "5px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "View All",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View Leads",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View Invoices",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View Estimates",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "View All",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Contact",
-      "cls": "",
-      "h": 21,
-      "bg": "oklch(0.72 0.19 250 / 0.1)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "6px",
-      "pad": "3px 10px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "1px solid"
-    },
-    {
-      "text": "View Pipeline",
-      "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.16_250)] transition-colors",
-      "h": 13,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.65 0.12 250)",
-      "br": "0px",
-      "pad": "0px",
-      "fs": "11px",
-      "fw": "600",
-      "bd": "0px none"
-    }
-  ],
-  "/settings": [
-    {
-      "text": "",
-      "cls": "topbar__btn",
-      "h": 38,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "",
-      "cls": "topbar__btn",
-      "h": 38,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "12px",
-      "pad": "0px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "0px none"
-    },
-    {
-      "text": "Enterprise",
-      "cls": "",
-      "h": 26,
-      "bg": "oklch(0.75 0.15 60 / 0.12)",
-      "fg": "oklch(0.95 0.005 260)",
-      "br": "10px / 8px",
-      "pad": "4px 10px",
-      "fs": "13.3333px",
-      "fw": "400",
-      "bd": "1px solid"
-    },
-    {
-      "text": "Profile",
-      "cls": "",
-      "h": 31,
-      "bg": "oklch(0.3 0.05 250 / 0.6)",
-      "fg": "oklch(0.72 0.19 250)",
-      "br": "8px",
-      "pad": "8px 12px",
-      "fs": "12px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Company",
-      "cls": "",
-      "h": 31,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "8px",
-      "pad": "8px 12px",
-      "fs": "12px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Billing",
-      "cls": "",
-      "h": 31,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "8px",
-      "pad": "8px 12px",
-      "fs": "12px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Payments",
-      "cls": "",
-      "h": 31,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "8px",
-      "pad": "8px 12px",
-      "fs": "12px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Team",
-      "cls": "",
-      "h": 31,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "8px",
-      "pad": "8px 12px",
-      "fs": "12px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Storm Alerts",
-      "cls": "",
-      "h": 31,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "8px",
-      "pad": "8px 12px",
-      "fs": "12px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Notifications",
-      "cls": "",
-      "h": 31,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "8px",
-      "pad": "8px 12px",
-      "fs": "12px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Email / SMTP",
-      "cls": "",
-      "h": 31,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "8px",
-      "pad": "8px 12px",
-      "fs": "12px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Financing",
-      "cls": "",
-      "h": 31,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "8px",
-      "pad": "8px 12px",
-      "fs": "12px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Automations",
-      "cls": "",
-      "h": 31,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "8px",
-      "pad": "8px 12px",
-      "fs": "12px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Drip Sequences",
-      "cls": "",
-      "h": 31,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "8px",
-      "pad": "8px 12px",
-      "fs": "12px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Custom Fields",
-      "cls": "",
-      "h": 31,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "8px",
-      "pad": "8px 12px",
-      "fs": "12px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Pricing / Line Items",
-      "cls": "",
-      "h": 31,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "8px",
-      "pad": "8px 12px",
-      "fs": "12px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Contracts",
-      "cls": "",
-      "h": 31,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "8px",
-      "pad": "8px 12px",
-      "fs": "12px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Reviews",
-      "cls": "",
-      "h": 31,
-      "bg": "rgba(0, 0, 0, 0)",
-      "fg": "oklch(0.55 0.01 260)",
-      "br": "8px",
-      "pad": "8px 12px",
-      "fs": "12px",
-      "fw": "600",
-      "bd": "0px none"
-    },
-    {
-      "text": "Edit Profile",
-      "cls": "quick-action-btn",
-      "h": 29,
-      "bg": "oklch(0.18 0.03 265 / 0.5)",
-      "fg": "oklch(0.72 0.01 260)",
-      "br": "14px / 12px",
-      "pad": "6px 14px",
-      "fs": "12px",
-      "fw": "600",
-      "bd": "1px solid"
-    }
-  ]
+  "/": {
+    "total": 36,
+    "uniqueShapes": 10,
+    "top5": [
+      {
+        "key": {
+          "h": 14,
+          "p": "0px",
+          "r": "5px",
+          "fs": "13.3333px",
+          "fw": "400",
+          "bg": "oklch(0.12 0.01 265 / 0.3)"
+        },
+        "count": 16,
+        "samples": [
+          {
+            "text": "",
+            "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch"
+          },
+          {
+            "text": "",
+            "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 13,
+          "p": "0px",
+          "r": "0px",
+          "fs": "11px",
+          "fw": "600",
+          "bg": "transparent"
+        },
+        "count": 7,
+        "samples": [
+          {
+            "text": "View All",
+            "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_25"
+          },
+          {
+            "text": "All Tasks",
+            "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_25"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 23,
+          "p": "4px 12px",
+          "r": "999px",
+          "fs": "11px",
+          "fw": "600",
+          "bg": "transparent"
+        },
+        "count": 4,
+        "samples": [
+          {
+            "text": "7 Days",
+            "cls": ""
+          },
+          {
+            "text": "30 Days",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 16px",
+          "r": "12px",
+          "fs": "13px",
+          "fw": "500",
+          "bg": "oklch(0.22 0.02 260 / 0.45)"
+        },
+        "count": 2,
+        "samples": [
+          {
+            "text": "All Reps",
+            "cls": ""
+          },
+          {
+            "text": "All Sources",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 16,
+          "p": "1.75px 7px",
+          "r": "3.35544e+07px",
+          "fs": "10px",
+          "fw": "600",
+          "bg": "transparent"
+        },
+        "count": 2,
+        "samples": [
+          {
+            "text": "24h",
+            "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full"
+          },
+          {
+            "text": "7d",
+            "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full"
+          }
+        ]
+      }
+    ]
+  },
+  "/pipeline": {
+    "total": 15,
+    "uniqueShapes": 6,
+    "top5": [
+      {
+        "key": {
+          "h": 13,
+          "p": "0px",
+          "r": "0px",
+          "fs": "13.3333px",
+          "fw": "400",
+          "bg": "transparent"
+        },
+        "count": 7,
+        "samples": [
+          {
+            "text": "",
+            "cls": ""
+          },
+          {
+            "text": "",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 16px",
+          "r": "12px",
+          "fs": "13px",
+          "fw": "500",
+          "bg": "oklch(0.22 0.02 260 / 0.45)"
+        },
+        "count": 3,
+        "samples": [
+          {
+            "text": "All Priorities",
+            "cls": ""
+          },
+          {
+            "text": "All Sources",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 25,
+          "p": "5px 12px",
+          "r": "8px",
+          "fs": "12px",
+          "fw": "700",
+          "bg": "transparent"
+        },
+        "count": 2,
+        "samples": [
+          {
+            "text": "Production",
+            "cls": "shrink-0"
+          },
+          {
+            "text": "Billing",
+            "cls": "shrink-0"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 25,
+          "p": "5px 12px",
+          "r": "8px",
+          "fs": "12px",
+          "fw": "700",
+          "bg": "oklch(0.78 0.12 200)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "Sales",
+            "cls": "shrink-0"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "0px",
+          "r": "14px / 12px",
+          "fs": "13.3333px",
+          "fw": "400",
+          "bg": "oklch(0.22 0.02 260 / 0.45)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "",
+            "cls": "shrink-0"
+          }
+        ]
+      }
+    ]
+  },
+  "/leads": {
+    "total": 9,
+    "uniqueShapes": 4,
+    "top5": [
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 16px",
+          "r": "12px",
+          "fs": "13px",
+          "fw": "500",
+          "bg": "oklch(0.22 0.02 260 / 0.45)"
+        },
+        "count": 4,
+        "samples": [
+          {
+            "text": "All Stages",
+            "cls": ""
+          },
+          {
+            "text": "All Priorities",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "8px 16px",
+          "r": "14px / 12px",
+          "fs": "13px",
+          "fw": "600",
+          "bg": "oklch(0.18 0.03 265 / 0.5)"
+        },
+        "count": 2,
+        "samples": [
+          {
+            "text": "Import",
+            "cls": "quick-action-btn"
+          },
+          {
+            "text": "Export",
+            "cls": "quick-action-btn"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 21,
+          "p": "3px 8px",
+          "r": "14px / 12px",
+          "fs": "11px",
+          "fw": "400",
+          "bg": "oklch(0.18 0.03 265 / 0.5)"
+        },
+        "count": 2,
+        "samples": [
+          {
+            "text": "50",
+            "cls": "quick-action-btn"
+          },
+          {
+            "text": "100",
+            "cls": "quick-action-btn"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 21,
+          "p": "3px 8px",
+          "r": "14px / 12px",
+          "fs": "11px",
+          "fw": "700",
+          "bg": "oklch(0.5 0.15 250 / 0.15)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "25",
+            "cls": "quick-action-btn"
+          }
+        ]
+      }
+    ]
+  },
+  "/tasks": {
+    "total": 13,
+    "uniqueShapes": 4,
+    "top5": [
+      {
+        "key": {
+          "h": 22,
+          "p": "0px",
+          "r": "6px",
+          "fs": "13.3333px",
+          "fw": "400",
+          "bg": "transparent"
+        },
+        "count": 10,
+        "samples": [
+          {
+            "text": "",
+            "cls": "task-check "
+          },
+          {
+            "text": "",
+            "cls": "task-check "
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 32,
+          "p": "8px 16px",
+          "r": "8px",
+          "fs": "13px",
+          "fw": "600",
+          "bg": "oklch(0.28 0.04 260 / 0.6)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "Pending10",
+            "cls": "task-filter-tab is-active"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 32,
+          "p": "8px 16px",
+          "r": "8px",
+          "fs": "13px",
+          "fw": "600",
+          "bg": "transparent"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "Completed6",
+            "cls": "task-filter-tab "
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 24px",
+          "r": "14px / 12px",
+          "fs": "13px",
+          "fw": "700",
+          "bg": "oklch(0.72 0.19 250)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "+ New Task",
+            "cls": "auth-btn"
+          }
+        ]
+      }
+    ]
+  },
+  "/estimates": {
+    "total": 154,
+    "uniqueShapes": 4,
+    "top5": [
+      {
+        "key": {
+          "h": 31,
+          "p": "8px 14px",
+          "r": "14px / 12px",
+          "fs": "11px",
+          "fw": "600",
+          "bg": "oklch(0.18 0.03 265 / 0.5)"
+        },
+        "count": 151,
+        "samples": [
+          {
+            "text": "Edit",
+            "cls": "quick-action-btn"
+          },
+          {
+            "text": "Delete",
+            "cls": "quick-action-btn"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 16px",
+          "r": "12px",
+          "fs": "13px",
+          "fw": "500",
+          "bg": "oklch(0.22 0.02 260 / 0.45)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "All Statuses",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 16px",
+          "r": "14px / 12px",
+          "fs": "13px",
+          "fw": "600",
+          "bg": "oklch(0.18 0.03 265 / 0.5)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "Compare Tiers",
+            "cls": "quick-action-btn"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 24px",
+          "r": "14px / 12px",
+          "fs": "13px",
+          "fw": "700",
+          "bg": "oklch(0.72 0.19 250)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "New Estimate",
+            "cls": "auth-btn"
+          }
+        ]
+      }
+    ]
+  },
+  "/invoices": {
+    "total": 23,
+    "uniqueShapes": 5,
+    "top5": [
+      {
+        "key": {
+          "h": 31,
+          "p": "8px 14px",
+          "r": "14px / 12px",
+          "fs": "11px",
+          "fw": "600",
+          "bg": "oklch(0.18 0.03 265 / 0.5)"
+        },
+        "count": 16,
+        "samples": [
+          {
+            "text": "Edit",
+            "cls": "quick-action-btn"
+          },
+          {
+            "text": "Edit",
+            "cls": "quick-action-btn"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 29,
+          "p": "6px 14px",
+          "r": "999px",
+          "fs": "12px",
+          "fw": "600",
+          "bg": "transparent"
+        },
+        "count": 4,
+        "samples": [
+          {
+            "text": "Draft",
+            "cls": ""
+          },
+          {
+            "text": "Sent",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 29,
+          "p": "6px 14px",
+          "r": "999px",
+          "fs": "12px",
+          "fw": "600",
+          "bg": "oklch(0.7 0.15 220 / 0.12)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "All",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 16px",
+          "r": "14px / 12px",
+          "fs": "13px",
+          "fw": "600",
+          "bg": "oklch(0.18 0.03 265 / 0.5)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "From Estimate",
+            "cls": "quick-action-btn"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 24px",
+          "r": "14px / 12px",
+          "fs": "13px",
+          "fw": "700",
+          "bg": "oklch(0.72 0.19 250)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "New Invoice",
+            "cls": "auth-btn"
+          }
+        ]
+      }
+    ]
+  },
+  "/reports": {
+    "total": 14,
+    "uniqueShapes": 5,
+    "top5": [
+      {
+        "key": {
+          "h": 23,
+          "p": "4px 10px",
+          "r": "8px",
+          "fs": "11px",
+          "fw": "600",
+          "bg": "oklch(0.22 0.02 260 / 0.5)"
+        },
+        "count": 6,
+        "samples": [
+          {
+            "text": "CSV",
+            "cls": ""
+          },
+          {
+            "text": "CSV",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 30,
+          "p": "6px 14px",
+          "r": "8px",
+          "fs": "13px",
+          "fw": "500",
+          "bg": "oklch(0.15 0.01 260 / 0.6)"
+        },
+        "count": 4,
+        "samples": [
+          {
+            "text": "This Week",
+            "cls": "reports-preset-btn"
+          },
+          {
+            "text": "This Month",
+            "cls": "reports-preset-btn"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 16px",
+          "r": "12px",
+          "fs": "13px",
+          "fw": "500",
+          "bg": "oklch(0.22 0.02 260 / 0.45)"
+        },
+        "count": 2,
+        "samples": [
+          {
+            "text": "1/1/2026",
+            "cls": ""
+          },
+          {
+            "text": "6/5/2026",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 30,
+          "p": "6px 14px",
+          "r": "8px",
+          "fs": "13px",
+          "fw": "500",
+          "bg": "oklch(0.35 0.12 250 / 0.5)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "This Year",
+            "cls": "reports-preset-btn is-active"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 29,
+          "p": "6px 14px",
+          "r": "8px",
+          "fs": "12px",
+          "fw": "600",
+          "bg": "oklch(0.18 0.01 260 / 0.5)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "Compare",
+            "cls": ""
+          }
+        ]
+      }
+    ]
+  },
+  "/materials": {
+    "total": 153,
+    "uniqueShapes": 5,
+    "top5": [
+      {
+        "key": {
+          "h": 27,
+          "p": "6px 14px",
+          "r": "12px",
+          "fs": "11px",
+          "fw": "600",
+          "bg": "oklch(0.55 0.18 250 / 0.15)"
+        },
+        "count": 136,
+        "samples": [
+          {
+            "text": "Add",
+            "cls": "quick-action-btn"
+          },
+          {
+            "text": "Add",
+            "cls": "quick-action-btn"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 41,
+          "p": "12px 20px",
+          "r": "0px",
+          "fs": "12px",
+          "fw": "600",
+          "bg": "transparent"
+        },
+        "count": 14,
+        "samples": [
+          {
+            "text": "All",
+            "cls": ""
+          },
+          {
+            "text": "Shingles",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 38,
+          "p": "10px 20px",
+          "r": "14px / 12px",
+          "fs": "13px",
+          "fw": "600",
+          "bg": "oklch(0.18 0.03 265 / 0.5)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "Cart",
+            "cls": "quick-action-btn"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 32,
+          "p": "8px 20px",
+          "r": "14px / 12px",
+          "fs": "13px",
+          "fw": "600",
+          "bg": "oklch(0.72 0.19 250)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "Product Catalog",
+            "cls": "quick-action-btn"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 32,
+          "p": "8px 20px",
+          "r": "14px / 12px",
+          "fs": "13px",
+          "fw": "600",
+          "bg": "transparent"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "Order History",
+            "cls": "quick-action-btn"
+          }
+        ]
+      }
+    ]
+  },
+  "/work-orders": {
+    "total": 3,
+    "uniqueShapes": 3,
+    "top5": [
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 16px",
+          "r": "14px / 12px",
+          "fs": "13px",
+          "fw": "600",
+          "bg": "oklch(0.75 0.15 55 / 0.12)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "From Estimate",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 24px",
+          "r": "14px / 12px",
+          "fs": "13px",
+          "fw": "700",
+          "bg": "oklch(0.72 0.19 250)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "New Work Order",
+            "cls": "auth-btn"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 18,
+          "p": "0px",
+          "r": "0px",
+          "fs": "13.3333px",
+          "fw": "400",
+          "bg": "transparent"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "",
+            "cls": ""
+          }
+        ]
+      }
+    ]
+  },
+  "/contracts": {
+    "total": 20,
+    "uniqueShapes": 3,
+    "top5": [
+      {
+        "key": {
+          "h": 31,
+          "p": "8px 14px",
+          "r": "14px / 12px",
+          "fs": "11px",
+          "fw": "600",
+          "bg": "oklch(0.18 0.03 265 / 0.5)"
+        },
+        "count": 18,
+        "samples": [
+          {
+            "text": "View",
+            "cls": "quick-action-btn"
+          },
+          {
+            "text": "PDF",
+            "cls": "quick-action-btn"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 16px",
+          "r": "12px",
+          "fs": "13px",
+          "fw": "500",
+          "bg": "oklch(0.22 0.02 260 / 0.45)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "All Statuses",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 24px",
+          "r": "14px / 12px",
+          "fs": "13px",
+          "fw": "700",
+          "bg": "oklch(0.72 0.19 250)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "New Contract",
+            "cls": "auth-btn"
+          }
+        ]
+      }
+    ]
+  },
+  "/expenses": {
+    "total": 12,
+    "uniqueShapes": 4,
+    "top5": [
+      {
+        "key": {
+          "h": 25,
+          "p": "4px 8px",
+          "r": "12px",
+          "fs": "13.3333px",
+          "fw": "400",
+          "bg": "oklch(0.5 0.12 250 / 0.15)"
+        },
+        "count": 4,
+        "samples": [
+          {
+            "text": "",
+            "cls": ""
+          },
+          {
+            "text": "",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 25,
+          "p": "4px 8px",
+          "r": "12px",
+          "fs": "13.3333px",
+          "fw": "400",
+          "bg": "oklch(0.5 0.15 25 / 0.15)"
+        },
+        "count": 4,
+        "samples": [
+          {
+            "text": "",
+            "cls": ""
+          },
+          {
+            "text": "",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 16px",
+          "r": "12px",
+          "fs": "13px",
+          "fw": "500",
+          "bg": "oklch(0.22 0.02 260 / 0.45)"
+        },
+        "count": 3,
+        "samples": [
+          {
+            "text": "All Categories",
+            "cls": ""
+          },
+          {
+            "text": "Start date",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 24px",
+          "r": "14px / 12px",
+          "fs": "13px",
+          "fw": "700",
+          "bg": "oklch(0.72 0.19 250)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "Add Expense",
+            "cls": "auth-btn"
+          }
+        ]
+      }
+    ]
+  },
+  "/subcontractors": {
+    "total": 16,
+    "uniqueShapes": 4,
+    "top5": [
+      {
+        "key": {
+          "h": 28,
+          "p": "0px",
+          "r": "8px",
+          "fs": "13.3333px",
+          "fw": "400",
+          "bg": "transparent"
+        },
+        "count": 10,
+        "samples": [
+          {
+            "text": "",
+            "cls": ""
+          },
+          {
+            "text": "",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 16px",
+          "r": "12px",
+          "fs": "13px",
+          "fw": "500",
+          "bg": "oklch(0.22 0.02 260 / 0.45)"
+        },
+        "count": 3,
+        "samples": [
+          {
+            "text": "All",
+            "cls": ""
+          },
+          {
+            "text": "Active",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 25,
+          "p": "4px 12px",
+          "r": "14px / 12px",
+          "fs": "12px",
+          "fw": "600",
+          "bg": "oklch(0.18 0.03 265 / 0.5)"
+        },
+        "count": 2,
+        "samples": [
+          {
+            "text": "Prev",
+            "cls": "quick-action-btn"
+          },
+          {
+            "text": "Next",
+            "cls": "quick-action-btn"
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 36,
+          "p": "0px 24px",
+          "r": "14px / 12px",
+          "fs": "13px",
+          "fw": "700",
+          "bg": "oklch(0.72 0.19 250)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "+ Add Subcontractor",
+            "cls": "auth-btn"
+          }
+        ]
+      }
+    ]
+  },
+  "/settings": {
+    "total": 16,
+    "uniqueShapes": 3,
+    "top5": [
+      {
+        "key": {
+          "h": 31,
+          "p": "8px 12px",
+          "r": "8px",
+          "fs": "12px",
+          "fw": "600",
+          "bg": "transparent"
+        },
+        "count": 14,
+        "samples": [
+          {
+            "text": "Company",
+            "cls": ""
+          },
+          {
+            "text": "Billing",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 31,
+          "p": "8px 12px",
+          "r": "8px",
+          "fs": "12px",
+          "fw": "600",
+          "bg": "oklch(0.3 0.05 250 / 0.6)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "Profile",
+            "cls": ""
+          }
+        ]
+      },
+      {
+        "key": {
+          "h": 29,
+          "p": "6px 14px",
+          "r": "14px / 12px",
+          "fs": "12px",
+          "fw": "600",
+          "bg": "oklch(0.18 0.03 265 / 0.5)"
+        },
+        "count": 1,
+        "samples": [
+          {
+            "text": "Edit Profile",
+            "cls": "quick-action-btn"
+          }
+        ]
+      }
+    ]
+  }
 }

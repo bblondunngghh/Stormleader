@@ -1,0 +1,430 @@
+[
+  {
+    "method": "PATCH",
+    "path": "/api/auth/me",
+    "status": 400,
+    "resp": {
+      "error": "No fields to update"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/automations/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "resp": {
+      "error": "No fields to update"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/automations/00000000-0000-0000-0000-000000000000/toggle",
+    "status": 404,
+    "resp": {
+      "error": "Automation not found"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/canvass-pins/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "resp": {
+      "error": "No fields to update"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/contracts/templates/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Template not found or not editable"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/contracts/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "resp": {
+      "error": "No fields to update"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/leads/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Lead not found"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/leads/00000000-0000-0000-0000-000000000000/roof-type",
+    "status": 400,
+    "resp": {
+      "error": "roof_type required"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/tasks/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "resp": {
+      "error": "No fields to update"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/team/00000000-0000-0000-0000-000000000000/role",
+    "status": 400,
+    "resp": {
+      "error": "Invalid role"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Sequence not found"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/estimates/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Estimate not found"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/estimates/templates/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "resp": {
+      "error": "No fields to update"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/expenses/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "resp": {
+      "error": "No fields to update"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/financing/lenders/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Lender not found"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/financing/plans/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Plan not found"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/invoices/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Invoice not found"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/leads/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Lead not found"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/notifications/00000000-0000-0000-0000-000000000000/read",
+    "status": 404,
+    "resp": {
+      "error": "Notification not found"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/notifications/preferences",
+    "status": 400,
+    "resp": {
+      "error": "notification_type required"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/subcontractors/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "resp": {
+      "error": "No fields to update"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/territories/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "resp": {
+      "error": "No fields to update"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Work order not found"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000/complete",
+    "status": 404,
+    "resp": {
+      "error": "Work order not found"
+    }
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000/milestones/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Work order not found"
+    }
+  },
+  {
+    "method": "PUT",
+    "path": "/api/alerts/config",
+    "status": 200,
+    "resp": {
+      "id": "b48b40ff-8065-4a70-84ad-d1762704871c",
+      "tenant_id": "791bb51d-3293-4839-92e9-bd4d4f873af2",
+      "enabled": true,
+      "email_enabled": true,
+      "sms_enabled": false,
+      "email_recipients": [],
+      "sms_recipients": [],
+      "min_hail_size_in": "1.00",
+      "min_wind_speed_mph": "58.0",
+      "alert_mode": "immediate",
+      "digest_hour": 7,
+      "created_at": "2026-03-22T18:28:30.144Z",
+      "updated_at": "2026-04-10T10:11:53.693Z"
+    }
+  },
+  {
+    "method": "PUT",
+    "path": "/api/admin/tenants/00000000-0000-0000-0000-000000000000",
+    "status": 403,
+    "resp": {
+      "error": "Insufficient permissions"
+    }
+  },
+  {
+    "method": "PUT",
+    "path": "/api/crm/tenant-settings",
+    "status": 200,
+    "resp": {
+      "name": "Waterloo Roofing",
+      "slug": "waterloo",
+      "senderEmail": null,
+      "companyPhone": null,
+      "companyWebsite": null,
+      "companyAddress": null,
+      "googlePlaceId": "",
+      "reviewMessageTemplate": "",
+      "smtpHost": "",
+      "smtpPort": 587,
+      "smtpUser": "",
+      "smtpFrom": "",
+      "smtpConfigured": false
+    }
+  },
+  {
+    "method": "PUT",
+    "path": "/api/materials/credentials",
+    "status": 200,
+    "resp": {
+      "id": "8ea48658-6b6d-4f1d-909b-fba13029b98d",
+      "tenant_id": "791bb51d-3293-4839-92e9-bd4d4f873af2",
+      "preferred_branch_id": null,
+      "preferred_branch_name": null,
+      "created_at": "2026-04-16T10:05:30.767Z"
+    }
+  },
+  {
+    "method": "PUT",
+    "path": "/api/properties/00000000-0000-0000-0000-000000000000/location",
+    "status": 400,
+    "resp": {
+      "error": "lat and lng are required"
+    }
+  },
+  {
+    "method": "PUT",
+    "path": "/api/roof-measurement/config",
+    "status": 200,
+    "resp": {
+      "roof_measurement_enabled": null
+    }
+  },
+  {
+    "method": "PUT",
+    "path": "/api/skip-trace/config",
+    "status": 400,
+    "resp": {
+      "error": "enabled (boolean) is required"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/crm/automations/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Automation not found"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/crm/leads/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Lead not found"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/crm/leads/00000000-0000-0000-0000-000000000000/contacts/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Contact not found"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/crm/contracts/templates/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Template not found or cannot be deleted"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Sequence not found"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/estimates/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Estimate not found"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/estimates/templates/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Template not found"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/crm/expenses/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Expense not found"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/crm/financing/lenders/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Lender not found"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/documents/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Document not found"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/crm/prospect-lists/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "List not found"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/crm/prospect-lists/00000000-0000-0000-0000-000000000000/items/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "List not found"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/crm/custom-fields/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Field definition not found"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/skip-trace/payment-method",
+    "status": 404,
+    "resp": {
+      "error": "No payment method"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/crm/subcontractors/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Subcontractor not found"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/crm/subcontractors/work-order/00000000-0000-0000-0000-000000000000/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Assignment not found"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/crm/territories/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Territory not found"
+    }
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000/milestones/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "resp": {
+      "error": "Work order not found"
+    }
+  }
+]

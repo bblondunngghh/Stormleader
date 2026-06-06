@@ -1,0 +1,264 @@
+[
+  {
+    "name": "HEARTH:empty-body",
+    "status": 400,
+    "resp": {
+      "error": "Missing or invalid request body"
+    }
+  },
+  {
+    "name": "HEARTH:null-body",
+    "status": 200,
+    "resp": {
+      "status": "ignored",
+      "reason": "no application_id"
+    }
+  },
+  {
+    "name": "HEARTH:bad-json",
+    "status": 200,
+    "resp": {
+      "status": "ignored",
+      "reason": "invalid json"
+    }
+  },
+  {
+    "name": "HEARTH:missing-event",
+    "status": 200,
+    "resp": {
+      "status": "ignored",
+      "reason": "no application_id"
+    }
+  },
+  {
+    "name": "HEARTH:missing-data",
+    "status": 200,
+    "resp": {
+      "status": "ignored",
+      "reason": "no application_id"
+    }
+  },
+  {
+    "name": "HEARTH:bad-signature",
+    "status": 200,
+    "resp": {
+      "status": "ignored",
+      "reason": "no application_id"
+    }
+  },
+  {
+    "name": "HEARTH:array-body",
+    "status": 200,
+    "resp": {
+      "status": "ignored",
+      "reason": "no application_id"
+    }
+  },
+  {
+    "name": "HEARTH:nested-null",
+    "status": 200,
+    "resp": {
+      "status": "ignored",
+      "reason": "no application_id"
+    }
+  },
+  {
+    "name": "HEARTH:both-fields-empty",
+    "status": 200,
+    "resp": {
+      "status": "ignored",
+      "reason": "no application_id"
+    }
+  },
+  {
+    "name": "HEARTH:huge-payload",
+    "status": 200,
+    "resp": {
+      "status": "ignored",
+      "reason": "no application_id"
+    }
+  },
+  {
+    "name": "FIN-PUB:plans-bad-token",
+    "status": 404,
+    "resp": {
+      "error": "Estimate not found"
+    }
+  },
+  {
+    "name": "FIN-PUB:apps-bad-token",
+    "status": 404,
+    "resp": {
+      "error": "Estimate not found"
+    }
+  },
+  {
+    "name": "FIN-PUB:apply-no-plan",
+    "status": 400,
+    "resp": {
+      "error": "planId is required"
+    }
+  },
+  {
+    "name": "FIN-PUB:apply-bad-plan",
+    "status": 404,
+    "resp": {
+      "error": "Estimate not found or financing not enabled"
+    }
+  },
+  {
+    "name": "FIN-PUB:apply-uuid-plan",
+    "status": 404,
+    "resp": {
+      "error": "Estimate not found or financing not enabled"
+    }
+  },
+  {
+    "name": "FIN-PUB:apply-bad-json",
+    "status": 400,
+    "resp": {
+      "error": "Invalid JSON body"
+    }
+  },
+  {
+    "name": "FIN-AUTH:lenders-list",
+    "status": 200,
+    "resp": []
+  },
+  {
+    "name": "FIN-AUTH:lender-no-fields",
+    "status": 400,
+    "resp": {
+      "error": "provider, apiKey, and merchantId are required"
+    }
+  },
+  {
+    "name": "FIN-AUTH:lender-bad-provider",
+    "status": 400,
+    "resp": {
+      "error": "Unknown financing provider: fake"
+    }
+  },
+  {
+    "name": "FIN-AUTH:lender-patch-bad-id",
+    "status": 400,
+    "resp": {
+      "error": "Invalid id format"
+    }
+  },
+  {
+    "name": "FIN-AUTH:lender-patch-zero",
+    "status": 404,
+    "resp": {
+      "error": "Lender not found"
+    }
+  },
+  {
+    "name": "FIN-AUTH:lender-del-bad-id",
+    "status": 400,
+    "resp": {
+      "error": "Invalid id format"
+    }
+  },
+  {
+    "name": "FIN-AUTH:lender-del-zero",
+    "status": 404,
+    "resp": {
+      "error": "Lender not found"
+    }
+  },
+  {
+    "name": "FIN-AUTH:plans-list",
+    "status": 200,
+    "resp": []
+  },
+  {
+    "name": "FIN-AUTH:plans-bad-lender",
+    "status": 400,
+    "resp": {
+      "error": "Invalid value provided for one or more fields"
+    }
+  },
+  {
+    "name": "FIN-AUTH:plans-sync-no-lender",
+    "status": 400,
+    "resp": {
+      "error": "lenderId is required"
+    }
+  },
+  {
+    "name": "FIN-AUTH:plans-sync-bad-lender",
+    "status": 400,
+    "resp": {
+      "error": "Invalid value provided for one or more fields"
+    }
+  },
+  {
+    "name": "FIN-AUTH:plans-sync-zero",
+    "status": 404,
+    "resp": {
+      "error": "Lender not found"
+    }
+  },
+  {
+    "name": "FIN-AUTH:plan-patch-bad-id",
+    "status": 400,
+    "resp": {
+      "error": "Invalid id format"
+    }
+  },
+  {
+    "name": "FIN-AUTH:plan-patch-zero",
+    "status": 404,
+    "resp": {
+      "error": "Plan not found"
+    }
+  },
+  {
+    "name": "FIN-AUTH:apps-list",
+    "status": 200,
+    "resp": []
+  },
+  {
+    "name": "FIN-AUTH:apps-bad-id",
+    "status": 400,
+    "resp": {
+      "error": "Invalid id format"
+    }
+  },
+  {
+    "name": "FIN-AUTH:apps-zero-uuid",
+    "status": 404,
+    "resp": {
+      "error": "Application not found"
+    }
+  },
+  {
+    "name": "FIN-AUTH:apps-create-empty",
+    "status": 400,
+    "resp": {
+      "error": "leadId is required"
+    }
+  },
+  {
+    "name": "FIN-AUTH:apps-create-no-plan",
+    "status": 400,
+    "resp": {
+      "error": "planId is required"
+    }
+  },
+  {
+    "name": "FIN-AUTH:apps-create-bad-ids",
+    "status": 400,
+    "resp": {
+      "error": "Invalid value provided for one or more fields"
+    }
+  },
+  {
+    "name": "FIN-AUTH:apps-create-zero",
+    "status": 404,
+    "resp": {
+      "error": "Plan not found or inactive"
+    }
+  }
+]
