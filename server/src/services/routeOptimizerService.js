@@ -38,6 +38,9 @@ export async function optimizeRoute(stops) {
     return { error: 'Maximum 100 stops per route' };
   }
 
+  const invalid = stops.some(s => !s || !Number.isFinite(Number(s.lat)) || !Number.isFinite(Number(s.lng)));
+  if (invalid) return { error: 'Each stop must include numeric lat and lng' };
+
   evictExpired();
 
   // Build coordinate string: lng,lat;lng,lat;...
