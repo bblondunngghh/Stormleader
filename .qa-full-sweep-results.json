@@ -1,0 +1,2450 @@
+[
+  {
+    "file": "admin.js",
+    "mount": "/api/admin",
+    "method": "GET",
+    "path": "/overview",
+    "full": "/api/admin/overview",
+    "status": 403,
+    "body": "{\"error\":\"Insufficient permissions\"}"
+  },
+  {
+    "file": "admin.js",
+    "mount": "/api/admin",
+    "method": "GET",
+    "path": "/tenants",
+    "full": "/api/admin/tenants",
+    "status": 403,
+    "body": "{\"error\":\"Insufficient permissions\"}"
+  },
+  {
+    "file": "admin.js",
+    "mount": "/api/admin",
+    "method": "GET",
+    "path": "/tenants/:id",
+    "full": "/api/admin/tenants/00000000-0000-0000-0000-000000000000",
+    "status": 403,
+    "body": "{\"error\":\"Insufficient permissions\"}"
+  },
+  {
+    "file": "admin.js",
+    "mount": "/api/admin",
+    "method": "PUT",
+    "path": "/tenants/:id",
+    "full": "/api/admin/tenants/00000000-0000-0000-0000-000000000000",
+    "status": 403,
+    "body": "{\"error\":\"Insufficient permissions\"}"
+  },
+  {
+    "file": "admin.js",
+    "mount": "/api/admin",
+    "method": "GET",
+    "path": "/revenue",
+    "full": "/api/admin/revenue",
+    "status": 403,
+    "body": "{\"error\":\"Insufficient permissions\"}"
+  },
+  {
+    "file": "admin.js",
+    "mount": "/api/admin",
+    "method": "GET",
+    "path": "/usage",
+    "full": "/api/admin/usage",
+    "status": 403,
+    "body": "{\"error\":\"Insufficient permissions\"}"
+  },
+  {
+    "file": "alerts.js",
+    "mount": "/api/alerts",
+    "method": "GET",
+    "path": "/config",
+    "full": "/api/alerts/config",
+    "status": 200,
+    "body": "{\"id\":\"b48b40ff-8065-4a70-84ad-d1762704871c\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"enabled\":true,\"email_enabled\":true,\"sms_enabled\":false,\"email_recipients\":[],\"sms_recipients\":[],\"min_hail_size_in\":\"1.00\",\"min_wind_speed_mph\":\"58.0\",\"a"
+  },
+  {
+    "file": "alerts.js",
+    "mount": "/api/alerts",
+    "method": "PUT",
+    "path": "/config",
+    "full": "/api/alerts/config",
+    "status": 200,
+    "body": "{\"id\":\"b48b40ff-8065-4a70-84ad-d1762704871c\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"enabled\":true,\"email_enabled\":true,\"sms_enabled\":false,\"email_recipients\":[],\"sms_recipients\":[],\"min_hail_size_in\":\"1.00\",\"min_wind_speed_mph\":\"58.0\",\"a"
+  },
+  {
+    "file": "alerts.js",
+    "mount": "/api/alerts",
+    "method": "GET",
+    "path": "/history",
+    "full": "/api/alerts/history",
+    "status": 200,
+    "body": "[]"
+  },
+  {
+    "file": "alerts.js",
+    "mount": "/api/alerts",
+    "method": "POST",
+    "path": "/test",
+    "full": "/api/alerts/test",
+    "status": 200,
+    "body": "{\"message\":\"Test alerts sent\",\"results\":[]}"
+  },
+  {
+    "file": "auth.js",
+    "mount": "/api/auth",
+    "method": "POST",
+    "path": "/register",
+    "full": "/api/auth/register",
+    "status": "SKIP",
+    "body": "intentionally skipped"
+  },
+  {
+    "file": "auth.js",
+    "mount": "/api/auth",
+    "method": "POST",
+    "path": "/login",
+    "full": "/api/auth/login",
+    "status": "SKIP",
+    "body": "intentionally skipped"
+  },
+  {
+    "file": "auth.js",
+    "mount": "/api/auth",
+    "method": "GET",
+    "path": "/me",
+    "full": "/api/auth/me",
+    "status": 200,
+    "body": "{\"user\":{\"id\":\"45cc729d-cc5b-44b5-93ca-7c01b427fc26\",\"email\":\"waterlooconstruction1@gmail.com\",\"firstName\":\"Miles\",\"lastName\":\"Martin\",\"role\":\"admin\",\"tenantId\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\"},\"tenant\":{\"tenantName\":\"Waterloo Roofing\",\"tenant"
+  },
+  {
+    "file": "auth.js",
+    "mount": "/api/auth",
+    "method": "PATCH",
+    "path": "/me",
+    "full": "/api/auth/me",
+    "status": 400,
+    "body": "{\"error\":\"No fields to update\"}"
+  },
+  {
+    "file": "auth.js",
+    "mount": "/api/auth",
+    "method": "POST",
+    "path": "/refresh",
+    "full": "/api/auth/refresh",
+    "status": "SKIP",
+    "body": "intentionally skipped"
+  },
+  {
+    "file": "automations.js",
+    "mount": "/api/crm/automations",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/automations/",
+    "status": 200,
+    "body": "[]"
+  },
+  {
+    "file": "automations.js",
+    "mount": "/api/crm/automations",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/automations/",
+    "status": 400,
+    "body": "{\"error\":\"name, trigger_type, and action_type are required\"}"
+  },
+  {
+    "file": "automations.js",
+    "mount": "/api/crm/automations",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/automations/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "body": "{\"error\":\"No fields to update\"}"
+  },
+  {
+    "file": "automations.js",
+    "mount": "/api/crm/automations",
+    "method": "DELETE",
+    "path": "/:id",
+    "full": "/api/crm/automations/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Automation not found\"}"
+  },
+  {
+    "file": "automations.js",
+    "mount": "/api/crm/automations",
+    "method": "PATCH",
+    "path": "/:id/toggle",
+    "full": "/api/crm/automations/00000000-0000-0000-0000-000000000000/toggle",
+    "status": 404,
+    "body": "{\"error\":\"Automation not found\"}"
+  },
+  {
+    "file": "canvassing.js",
+    "mount": "/api/crm/canvass-pins",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/canvass-pins/",
+    "status": 200,
+    "body": "[{\"id\":\"0511bf3a-f329-4927-b669-bdc23aa7e83c\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"user_id\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"lead_id\":null,\"location\":\"0101000020E61000000000000000A056C00000000000404440\",\"address\":null,\"outcome\":"
+  },
+  {
+    "file": "canvassing.js",
+    "mount": "/api/crm/canvass-pins",
+    "method": "GET",
+    "path": "/stats",
+    "full": "/api/crm/canvass-pins/stats",
+    "status": 200,
+    "body": "{\"date\":\"2026-06-06\",\"total\":0,\"outcomes\":[]}"
+  },
+  {
+    "file": "canvassing.js",
+    "mount": "/api/crm/canvass-pins",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/canvass-pins/",
+    "status": 400,
+    "body": "{\"error\":\"lat and lng are required\"}"
+  },
+  {
+    "file": "canvassing.js",
+    "mount": "/api/crm/canvass-pins",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/canvass-pins/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "body": "{\"error\":\"No fields to update\"}"
+  },
+  {
+    "file": "canvassing.js",
+    "mount": "/api/crm/canvass-pins",
+    "method": "POST",
+    "path": "/:id/convert",
+    "full": "/api/crm/canvass-pins/00000000-0000-0000-0000-000000000000/convert",
+    "status": 404,
+    "body": "{\"error\":\"Pin not found\"}"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "GET",
+    "path": "/public/:token",
+    "full": "/api/crm/contracts/public/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Contract not found\"}"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "POST",
+    "path": "/public/:token/sign",
+    "full": "/api/crm/contracts/public/00000000-0000-0000-0000-000000000000/sign",
+    "status": 400,
+    "body": "{\"error\":\"signerName is required\"}"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "GET",
+    "path": "/templates",
+    "full": "/api/crm/contracts/templates",
+    "status": 200,
+    "body": "{\"templates\":[{\"id\":\"357db96d-9990-4fa5-ac2a-6e305e4cfff9\",\"tenant_id\":null,\"name\":\"Financing Contract\",\"type\":\"financing\",\"content\":{\"sections\":[{\"body\":\"The Contractor agrees to perform the following work at {{address}} for {{customer_name}}:\\n\\n{{"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "POST",
+    "path": "/templates",
+    "full": "/api/crm/contracts/templates",
+    "status": 400,
+    "body": "{\"error\":\"name and type are required\"}"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "PATCH",
+    "path": "/templates/:id",
+    "full": "/api/crm/contracts/templates/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Template not found or not editable\"}"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "DELETE",
+    "path": "/templates/:id",
+    "full": "/api/crm/contracts/templates/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Template not found or cannot be deleted\"}"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/contracts/",
+    "status": 200,
+    "body": "{\"contracts\":[{\"id\":\"74049fb1-aaea-4548-818b-2d86b71a9569\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"94877e87-9018-4363-8cf3-86b081417b9c\",\"estimate_id\":null,\"template_type\":\"standard\",\"status\":\"voided\",\"content\":{},\"signer_name\":"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/crm/contracts/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Contract not found\"}"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/contracts/",
+    "status": 400,
+    "body": "{\"error\":\"lead_id is required\"}"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/contracts/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "body": "{\"error\":\"No fields to update\"}"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "POST",
+    "path": "/:id/send",
+    "full": "/api/crm/contracts/00000000-0000-0000-0000-000000000000/send",
+    "status": 404,
+    "body": "{\"error\":\"Contract not found or not in draft status\"}"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "POST",
+    "path": "/:id/void",
+    "full": "/api/crm/contracts/00000000-0000-0000-0000-000000000000/void",
+    "status": 404,
+    "body": "{\"error\":\"Contract not found\"}"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "GET",
+    "path": "/:id/pdf",
+    "full": "/api/crm/contracts/00000000-0000-0000-0000-000000000000/pdf",
+    "status": 404,
+    "body": "{\"error\":\"Contract not found\"}"
+  },
+  {
+    "file": "counties.js",
+    "mount": "/api/counties",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/counties/",
+    "status": 200,
+    "body": "[{\"id\":\"d11dc8ec-79af-479d-b3ee-ddb2866d8cc6\",\"county_name\":\"_TX_STATEWIDE\",\"state\":\"TX\",\"fips_code\":\"48\",\"arcgis_url\":\"https://feature.tnris.org/arcgis/rest/services/Parcels/stratmap25_land_parcels_48/MapServer/0/query\",\"data_source_tag\":\"tnris_stat"
+  },
+  {
+    "file": "counties.js",
+    "mount": "/api/counties",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/counties/",
+    "status": 400,
+    "body": "{\"error\":\"county_name, arcgis_url, field_map, and data_source_tag are required\"}"
+  },
+  {
+    "file": "counties.js",
+    "mount": "/api/counties",
+    "method": "POST",
+    "path": "/:id/import",
+    "full": "/api/counties/00000000-0000-0000-0000-000000000000/import",
+    "status": 404,
+    "body": "{\"error\":\"County not found\"}"
+  },
+  {
+    "file": "counties.js",
+    "mount": "/api/counties",
+    "method": "GET",
+    "path": "/:id/status",
+    "full": "/api/counties/00000000-0000-0000-0000-000000000000/status",
+    "status": 404,
+    "body": "{\"error\":\"County not found\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/leads",
+    "full": "/api/crm/leads",
+    "status": 200,
+    "body": "{\"leads\":[{\"id\":\"dc8135aa-b210-4f33-bbe1-ad8f0997d3dd\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"stage\":\"contacted\",\"priority\":\"warm\",\"estimated_value\":\"100.00\",\"actual_value\":null,\"source\":\"storm_map\",\"tags\":[],\"address\":\"10706 LOCH NESS C"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/leads",
+    "full": "/api/crm/leads",
+    "status": 400,
+    "body": "{\"error\":\"propertyId is required\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/leads/quick",
+    "full": "/api/crm/leads/quick",
+    "status": 400,
+    "body": "{\"error\":\"contact_name or address is required\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/leads/:id",
+    "full": "/api/crm/leads/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Lead not found\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "PATCH",
+    "path": "/leads/:id",
+    "full": "/api/crm/leads/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Lead not found\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "DELETE",
+    "path": "/leads/:id",
+    "full": "/api/crm/leads/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Lead not found\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "PATCH",
+    "path": "/leads/:id/roof-type",
+    "full": "/api/crm/leads/00000000-0000-0000-0000-000000000000/roof-type",
+    "status": 400,
+    "body": "{\"error\":\"roof_type required\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/leads/bulk-assign",
+    "full": "/api/crm/leads/bulk-assign",
+    "status": 400,
+    "body": "{\"error\":\"leadIds array and assignedRepId required\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/leads/bulk-status",
+    "full": "/api/crm/leads/bulk-status",
+    "status": 400,
+    "body": "{\"error\":\"leadIds array and stage required\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/leads/:id/score",
+    "full": "/api/crm/leads/00000000-0000-0000-0000-000000000000/score",
+    "status": 404,
+    "body": "{\"error\":\"Lead not found\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/leads/score-all",
+    "full": "/api/crm/leads/score-all",
+    "status": 200,
+    "body": "{\"scored\":23,\"results\":[{\"id\":\"dc8135aa-b210-4f33-bbe1-ad8f0997d3dd\",\"score\":10},{\"id\":\"16486c58-5539-4572-94bd-7a9fef62f00b\",\"score\":7},{\"id\":\"3fa29df8-589c-44a6-ac4d-88cb78243cbe\",\"score\":3},{\"id\":\"e25ad9f6-f3dc-4ca7-a5da-63b6c3ee6d14\",\"score\":0},{"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/leads/:id/contacts",
+    "full": "/api/crm/leads/00000000-0000-0000-0000-000000000000/contacts",
+    "status": 400,
+    "body": "{\"error\":\"At least one of first_name, last_name, email, or phone is required\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "DELETE",
+    "path": "/leads/:leadId/contacts/:contactId",
+    "full": "/api/crm/leads/3fa29df8-589c-44a6-ac4d-88cb78243cbe/contacts/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Contact not found\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/activities",
+    "full": "/api/crm/activities",
+    "status": 400,
+    "body": "{\"error\":\"lead_id required\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/leads/:id/activities",
+    "full": "/api/crm/leads/00000000-0000-0000-0000-000000000000/activities",
+    "status": 200,
+    "body": "{\"activities\":[],\"total\":0}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/tasks",
+    "full": "/api/crm/tasks",
+    "status": 200,
+    "body": "{\"tasks\":[{\"id\":\"1ea88a7e-d501-4d6f-8425-59a8ab00874b\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":null,\"assigned_to\":null,\"title\":\"Updated test task\",\"description\":null,\"due_date\":\"2026-04-15T05:00:00.000Z\",\"completed_at\":null,\"prio"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/tasks",
+    "full": "/api/crm/tasks",
+    "status": 400,
+    "body": "{\"error\":\"title required\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "PATCH",
+    "path": "/tasks/:id",
+    "full": "/api/crm/tasks/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "body": "{\"error\":\"No fields to update\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/pipeline/stages",
+    "full": "/api/crm/pipeline/stages",
+    "status": 200,
+    "body": "{\"stages\":[{\"key\":\"new\",\"label\":\"New\",\"color\":\"oklch(0.72 0.19 250)\",\"position\":0},{\"key\":\"contacted\",\"label\":\"Contacted\",\"color\":\"oklch(0.75 0.15 200)\",\"position\":1},{\"key\":\"appt_set\",\"label\":\"Appt Set\",\"color\":\"oklch(0.78 0.17 85)\",\"position\":2},{\""
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/pipeline/metrics",
+    "full": "/api/crm/pipeline/metrics",
+    "status": 200,
+    "body": "{\"funnel\":[{\"stage\":\"New\",\"key\":\"new\",\"count\":16,\"value\":7600,\"color\":\"oklch(0.72 0.19 250)\"},{\"stage\":\"Contacted\",\"key\":\"contacted\",\"count\":4,\"value\":32225,\"color\":\"oklch(0.75 0.15 200)\"},{\"stage\":\"Appt Set\",\"key\":\"appt_set\",\"count\":1,\"value\":0,\"col"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/stats",
+    "full": "/api/crm/dashboard/stats",
+    "status": 200,
+    "body": "{\"stats\":[{\"label\":\"Pipeline Value\",\"value\":\"$60K\",\"change\":\"+0%\",\"icon\":\"dollar\",\"color\":\"oklch(0.75 0.18 155)\"},{\"label\":\"New Leads (7d)\",\"value\":\"0\",\"change\":\"—\",\"icon\":\"leads\",\"color\":\"oklch(0.72 0.19 250)\"},{\"label\":\"Close Rate\",\"value\":\"0%\",\"ch"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/activity",
+    "full": "/api/crm/dashboard/activity",
+    "status": 200,
+    "body": "{\"activity\":[{\"id\":\"4524f052-ddf7-41f0-ae23-744a181ee79c\",\"lead_id\":\"dc8135aa-b210-4f33-bbe1-ad8f0997d3dd\",\"type\":\"call\",\"text\":\"10706 LOCH NESS CV AUSTIN 78750 — note logged\",\"time\":\"5/26/2026\"},{\"id\":\"6c4ee7bc-3dfb-45f7-8e6f-5aea8f7bdcd1\",\"lead_id\""
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/team",
+    "full": "/api/crm/team",
+    "status": 200,
+    "body": "{\"members\":[{\"id\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"first_name\":\"Brandon\",\"last_name\":\"Admin\",\"email\":\"brandon@accessvaletparking.com\",\"role\":\"super_admin\",\"created_at\":\"2026-03-21T22:04:42.132Z\",\"active_leads\":\"4\",\"sold_count\":\"0\"},{\"id\":\"780e"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "PATCH",
+    "path": "/team/:userId/role",
+    "full": "/api/crm/team/00000000-0000-0000-0000-000000000000/role",
+    "status": 400,
+    "body": "{\"error\":\"Invalid role\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/team/invite",
+    "full": "/api/crm/team/invite",
+    "status": 400,
+    "body": "{\"error\":\"Email, first name, last name, and password are required\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/tenant-settings",
+    "full": "/api/crm/tenant-settings",
+    "status": 200,
+    "body": "{\"name\":\"Waterloo Roofing\",\"slug\":\"waterloo\",\"companyPhone\":null,\"companyWebsite\":null,\"companyAddress\":null,\"senderEmail\":null,\"subscriptionTier\":\"enterprise\",\"subscriptionStatus\":\"active\",\"onboardingCompleted\":true,\"planChangedAt\":\"2026-03-22T18:18"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "PUT",
+    "path": "/tenant-settings",
+    "full": "/api/crm/tenant-settings",
+    "status": 200,
+    "body": "{\"name\":\"Waterloo Roofing\",\"slug\":\"waterloo\",\"senderEmail\":null,\"companyPhone\":null,\"companyWebsite\":null,\"companyAddress\":null,\"googlePlaceId\":\"\",\"reviewMessageTemplate\":\"\",\"smtpHost\":\"\",\"smtpPort\":587,\"smtpUser\":\"\",\"smtpFrom\":\"\",\"smtpConfigured\":fa"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/test-email",
+    "full": "/api/crm/test-email",
+    "status": 400,
+    "body": "{\"error\":\"Recipient email required\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/properties-affected",
+    "full": "/api/crm/dashboard/properties-affected",
+    "status": 200,
+    "body": "{\"uncontacted\":2496,\"contacted\":0,\"total\":2496}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/properties-affected/list",
+    "full": "/api/crm/dashboard/properties-affected/list",
+    "status": 200,
+    "body": "{\"properties\":[{\"id\":\"137dfff7-6410-4e01-b144-c71f807a9556\",\"address_line1\":\", Archer County, TX\",\"city\":\" \",\"state\":\"TX\",\"zip\":\" \",\"owner_first_name\":null,\"owner_last_name\":\"BEASLEY CODY\",\"owner_phone\":null,\"owner_email\":null,\"assessed_value\":\"48750"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/followups",
+    "full": "/api/crm/dashboard/followups",
+    "status": 200,
+    "body": "{\"followups\":[]}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/conversion-by-storm",
+    "full": "/api/crm/dashboard/conversion-by-storm",
+    "status": 200,
+    "body": "{\"storms\":[]}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/estimate-summary",
+    "full": "/api/crm/dashboard/estimate-summary",
+    "status": 200,
+    "body": "{\"draft\":20,\"sent\":5,\"viewed\":0,\"accepted\":0,\"declined\":0,\"expired\":0,\"accepted_value\":0,\"pending_value\":191985.1}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/ar-summary",
+    "full": "/api/crm/dashboard/ar-summary",
+    "status": 200,
+    "body": "{\"outstanding_count\":5,\"outstanding_total\":\"4400.00\",\"overdue_count\":1,\"overdue_total\":\"0\",\"due_30\":\"0\",\"due_60\":\"0\",\"due_90_plus\":\"0\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/estimating-conversion",
+    "full": "/api/crm/dashboard/estimating-conversion",
+    "status": 200,
+    "body": "{\"total_sent\":17,\"accepted\":1,\"declined\":1,\"conversion_rate\":\"5.9\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/leaderboard",
+    "full": "/api/crm/dashboard/leaderboard",
+    "status": 200,
+    "body": "{\"leaderboard\":[{\"id\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"first_name\":\"Brandon\",\"last_name\":\"Admin\",\"leads_assigned\":\"4\",\"contacted\":\"1\",\"appointments\":\"1\",\"inspections\":\"1\",\"estimates_sent\":\"1\",\"sold\":\"0\",\"revenue\":\"0\",\"close_rate\":\"0\"},{\"id\":\"7"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/tasks-today",
+    "full": "/api/crm/dashboard/tasks-today",
+    "status": 200,
+    "body": "{\"tasks\":[{\"id\":\"1ea88a7e-d501-4d6f-8425-59a8ab00874b\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":null,\"assigned_to\":null,\"title\":\"Updated test task\",\"description\":null,\"due_date\":\"2026-04-15T05:00:00.000Z\",\"completed_at\":null,\"prio"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/days-in-stage",
+    "full": "/api/crm/dashboard/days-in-stage",
+    "status": 200,
+    "body": "{\"stages\":[{\"stage\":\"contacted\",\"label\":\"Contacted\",\"avg_days\":0,\"lead_count\":4,\"stuck_leads\":0},{\"stage\":\"estimate_sent\",\"label\":\"Estimate Sent\",\"avg_days\":0,\"lead_count\":1,\"stuck_leads\":0},{\"stage\":\"new\",\"label\":\"New\",\"avg_days\":0,\"lead_count\":16,\""
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/stale-leads",
+    "full": "/api/crm/dashboard/stale-leads",
+    "status": 200,
+    "body": "{\"stale_leads\":[]}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/customer-storm-alerts",
+    "full": "/api/crm/dashboard/customer-storm-alerts",
+    "status": 200,
+    "body": "{\"alerts\":[{\"lead_id\":\"16486c58-5539-4572-94bd-7a9fef62f00b\",\"contact_name\":null,\"address\":\"9903 WINDING OAK CIR AUSTIN 78750\",\"stage\":\"new\",\"estimated_value\":null,\"storm_type\":\"nws_alert\",\"storm_date\":\"2026-05-20T01:54:00.000Z\",\"hail_size\":\"1.00\",\"w"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/lead-source-revenue",
+    "full": "/api/crm/dashboard/lead-source-revenue",
+    "status": 200,
+    "body": "{\"sources\":[{\"source\":\"canvassing\",\"lead_count\":3,\"sold_count\":0,\"revenue\":0,\"close_rate\":0},{\"source\":\"storm_map\",\"lead_count\":5,\"sold_count\":0,\"revenue\":0,\"close_rate\":0},{\"source\":\"fema_nsi\",\"lead_count\":6,\"sold_count\":0,\"revenue\":0,\"close_rate\":0"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/prospect-lists",
+    "full": "/api/crm/prospect-lists",
+    "status": 400,
+    "body": "{\"error\":\"stormEventId is required\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/prospect-lists",
+    "full": "/api/crm/prospect-lists",
+    "status": 200,
+    "body": "{\"lists\":[{\"id\":\"66a88836-aef0-4a24-9a55-87ff44e69c3c\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"Test Prospect List\",\"storm_event_id\":\"8d2a94b1-c60f-4b55-85aa-6a16a358e5a3\",\"property_count\":0,\"created_by\":\"93fb33ea-e7d8-461f-87e4-bba"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/prospect-lists/:id/items",
+    "full": "/api/crm/prospect-lists/00000000-0000-0000-0000-000000000000/items",
+    "status": 404,
+    "body": "{\"error\":\"List not found\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "DELETE",
+    "path": "/prospect-lists/:id/items/:propertyId",
+    "full": "/api/crm/prospect-lists/00000000-0000-0000-0000-000000000000/items/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"List not found\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "DELETE",
+    "path": "/prospect-lists/:id",
+    "full": "/api/crm/prospect-lists/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"List not found\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/calendar",
+    "full": "/api/crm/calendar",
+    "status": 400,
+    "body": "{\"error\":\"start and end query params required\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/custom-fields",
+    "full": "/api/crm/custom-fields",
+    "status": 200,
+    "body": "[]"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/custom-fields",
+    "full": "/api/crm/custom-fields",
+    "status": 400,
+    "body": "{\"error\":\"field_label is required\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "PATCH",
+    "path": "/custom-fields/:id",
+    "full": "/api/crm/custom-fields/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "body": "{\"error\":\"No fields to update\"}"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "DELETE",
+    "path": "/custom-fields/:id",
+    "full": "/api/crm/custom-fields/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Field definition not found\"}"
+  },
+  {
+    "file": "dashboard.js",
+    "mount": "/api/dashboard",
+    "method": "GET",
+    "path": "/stats",
+    "full": "/api/dashboard/stats",
+    "status": 200,
+    "body": "{\"pipelineValue\":1314892.39,\"leadCount\":32,\"closeRate\":0,\"avgDaysToClose\":0}"
+  },
+  {
+    "file": "dashboard.js",
+    "mount": "/api/dashboard",
+    "method": "GET",
+    "path": "/funnel",
+    "full": "/api/dashboard/funnel",
+    "status": 200,
+    "body": "[{\"stage\":\"new\",\"count\":22,\"value\":20100},{\"stage\":\"contacted\",\"count\":7,\"value\":1274542.39},{\"stage\":\"appt_set\",\"count\":1,\"value\":0},{\"stage\":\"inspected\",\"count\":1,\"value\":0},{\"stage\":\"estimate_sent\",\"count\":1,\"value\":20250}]"
+  },
+  {
+    "file": "dashboard.js",
+    "mount": "/api/dashboard",
+    "method": "GET",
+    "path": "/activity",
+    "full": "/api/dashboard/activity",
+    "status": 200,
+    "body": "[{\"id\":\"4524f052-ddf7-41f0-ae23-744a181ee79c\",\"type\":\"note\",\"direction\":null,\"outcome\":null,\"notes\":\"qa-roundtrip 1779790065544\",\"createdAt\":\"2026-05-26T10:07:45.548Z\",\"leadId\":\"dc8135aa-b210-4f33-bbe1-ad8f0997d3dd\",\"contactName\":null,\"address\":\"1070"
+  },
+  {
+    "file": "dataApis.js",
+    "mount": "/api/data",
+    "method": "GET",
+    "path": "/fema-housing",
+    "full": "/api/data/fema-housing",
+    "status": 400,
+    "body": "{\"error\":\"zip query parameter required\"}"
+  },
+  {
+    "file": "dataApis.js",
+    "mount": "/api/data",
+    "method": "POST",
+    "path": "/optimize-route",
+    "full": "/api/data/optimize-route",
+    "status": 400,
+    "body": "{\"error\":\"stops array with at least 2 items required\"}"
+  },
+  {
+    "file": "dataApis.js",
+    "mount": "/api/data",
+    "method": "GET",
+    "path": "/directions",
+    "full": "/api/data/directions",
+    "status": 400,
+    "body": "{\"error\":\"fromLat, fromLng, toLat, toLng required\"}"
+  },
+  {
+    "file": "disasterDeclarations.js",
+    "mount": "/api/disaster-declarations",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/disaster-declarations/",
+    "status": 400,
+    "body": "{\"error\":\"state and county parameters required\"}"
+  },
+  {
+    "file": "documents.js",
+    "mount": "/api/documents",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/documents/",
+    "status": 200,
+    "body": "{\"documents\":[],\"total\":0}"
+  },
+  {
+    "file": "documents.js",
+    "mount": "/api/documents",
+    "method": "POST",
+    "path": "/upload",
+    "full": "/api/documents/upload",
+    "status": 400,
+    "body": "{\"error\":\"No file uploaded\"}"
+  },
+  {
+    "file": "documents.js",
+    "mount": "/api/documents",
+    "method": "DELETE",
+    "path": "/:id",
+    "full": "/api/documents/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Document not found\"}"
+  },
+  {
+    "file": "drift.js",
+    "mount": "/api/drift",
+    "method": "GET",
+    "path": "/:stormEventId",
+    "full": "/api/drift/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Storm event not found\"}"
+  },
+  {
+    "file": "drift.js",
+    "mount": "/api/drift",
+    "method": "POST",
+    "path": "/:stormEventId/correct",
+    "full": "/api/drift/00000000-0000-0000-0000-000000000000/correct",
+    "status": 404,
+    "body": "{\"error\":\"Storm event not found\"}"
+  },
+  {
+    "file": "drift.js",
+    "mount": "/api/drift",
+    "method": "POST",
+    "path": "/correct-all",
+    "full": "/api/drift/correct-all",
+    "status": 200,
+    "body": "{\"corrected\":20}"
+  },
+  {
+    "file": "drift.js",
+    "mount": "/api/drift",
+    "method": "POST",
+    "path": "/simulate",
+    "full": "/api/drift/simulate",
+    "status": 400,
+    "body": "{\"error\":\"hail_size_in is required\"}"
+  },
+  {
+    "file": "drift.js",
+    "mount": "/api/drift",
+    "method": "POST",
+    "path": "/calibrate",
+    "full": "/api/drift/calibrate",
+    "status": 400,
+    "body": "{\"error\":\"storm_event_id, lat, and lng are required\"}"
+  },
+  {
+    "file": "drip.js",
+    "mount": "/api/crm/drip-sequences",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/drip-sequences/",
+    "status": 200,
+    "body": "[]"
+  },
+  {
+    "file": "drip.js",
+    "mount": "/api/crm/drip-sequences",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Sequence not found\"}"
+  },
+  {
+    "file": "drip.js",
+    "mount": "/api/crm/drip-sequences",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/drip-sequences/",
+    "status": 400,
+    "body": "{\"error\":\"name and trigger_type are required\"}"
+  },
+  {
+    "file": "drip.js",
+    "mount": "/api/crm/drip-sequences",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Sequence not found\"}"
+  },
+  {
+    "file": "drip.js",
+    "mount": "/api/crm/drip-sequences",
+    "method": "DELETE",
+    "path": "/:id",
+    "full": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Sequence not found\"}"
+  },
+  {
+    "file": "drip.js",
+    "mount": "/api/crm/drip-sequences",
+    "method": "POST",
+    "path": "/:id/enroll",
+    "full": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000/enroll",
+    "status": 400,
+    "body": "{\"error\":\"leadId is required\"}"
+  },
+  {
+    "file": "drip.js",
+    "mount": "/api/crm/drip-sequences",
+    "method": "POST",
+    "path": "/:id/cancel",
+    "full": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000/cancel",
+    "status": 400,
+    "body": "{\"error\":\"leadId is required\"}"
+  },
+  {
+    "file": "drip.js",
+    "mount": "/api/crm/drip-sequences",
+    "method": "GET",
+    "path": "/:id/enrollments",
+    "full": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000/enrollments",
+    "status": 200,
+    "body": "[]"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "GET",
+    "path": "/public/:token",
+    "full": "/api/estimates/public/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "POST",
+    "path": "/public/:token/accept",
+    "full": "/api/estimates/public/00000000-0000-0000-0000-000000000000/accept",
+    "status": 400,
+    "body": "{\"error\":\"signer_name required\"}"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "POST",
+    "path": "/public/:token/decline",
+    "full": "/api/estimates/public/00000000-0000-0000-0000-000000000000/decline",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found or already resolved\"}"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/estimates/",
+    "status": 200,
+    "body": "{\"estimates\":[{\"id\":\"b4603e30-2bf0-4239-b214-f5c0c6d310b7\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"dc8135aa-b210-4f33-bbe1-ad8f0997d3dd\",\"created_by\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"estimate_number\":\"EST-082\",\"status\":\"d"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "GET",
+    "path": "/templates",
+    "full": "/api/estimates/templates",
+    "status": 200,
+    "body": "{\"templates\":[{\"id\":\"276bb802-bde8-48f9-92be-0b328f8d9eac\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"Tear Off & Replace\",\"description\":\"Remove existing shingles and install new\",\"unit\":\"sq\",\"default_unit_price\":\"400.00\",\"section\":\"Ro"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "POST",
+    "path": "/templates",
+    "full": "/api/estimates/templates",
+    "status": 400,
+    "body": "{\"error\":\"Name is required\"}"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "PATCH",
+    "path": "/templates/:id",
+    "full": "/api/estimates/templates/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "body": "{\"error\":\"No fields to update\"}"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "DELETE",
+    "path": "/templates/:id",
+    "full": "/api/estimates/templates/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Template not found\"}"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/estimates/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/estimates/",
+    "status": 400,
+    "body": "{\"error\":\"lead_id is required\"}"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/estimates/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "DELETE",
+    "path": "/:id",
+    "full": "/api/estimates/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "POST",
+    "path": "/:id/send",
+    "full": "/api/estimates/00000000-0000-0000-0000-000000000000/send",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found or already sent\"}"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "POST",
+    "path": "/:id/duplicate",
+    "full": "/api/estimates/00000000-0000-0000-0000-000000000000/duplicate",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "GET",
+    "path": "/:id/pdf",
+    "full": "/api/estimates/00000000-0000-0000-0000-000000000000/pdf",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "POST",
+    "path": "/:id/sign-in-person",
+    "full": "/api/estimates/00000000-0000-0000-0000-000000000000/sign-in-person",
+    "status": 400,
+    "body": "{\"error\":\"signer_name required\"}"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "POST",
+    "path": "/:id/generate-tiers",
+    "full": "/api/estimates/00000000-0000-0000-0000-000000000000/generate-tiers",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "file": "expenses.js",
+    "mount": "/api/crm/expenses",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/expenses/",
+    "status": 200,
+    "body": "{\"expenses\":[{\"id\":\"bfe5df21-efcd-4e16-9a88-6b234a984c64\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":null,\"category\":\"materials\",\"amount\":\"10.00\",\"date\":\"2026-04-28T05:00:00.000Z\",\"notes\":\"qa test\",\"created_by\":null,\"created_at\":\"20"
+  },
+  {
+    "file": "expenses.js",
+    "mount": "/api/crm/expenses",
+    "method": "GET",
+    "path": "/summary/:leadId",
+    "full": "/api/crm/expenses/summary/3fa29df8-589c-44a6-ac4d-88cb78243cbe",
+    "status": 200,
+    "body": "{\"totalExpenses\":0,\"estimateTotal\":0,\"profit\":0,\"profitPercent\":0}"
+  },
+  {
+    "file": "expenses.js",
+    "mount": "/api/crm/expenses",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/expenses/",
+    "status": 400,
+    "body": "{\"error\":\"category, amount, and date are required\"}"
+  },
+  {
+    "file": "expenses.js",
+    "mount": "/api/crm/expenses",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/expenses/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "body": "{\"error\":\"No fields to update\"}"
+  },
+  {
+    "file": "expenses.js",
+    "mount": "/api/crm/expenses",
+    "method": "DELETE",
+    "path": "/:id",
+    "full": "/api/crm/expenses/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Expense not found\"}"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "GET",
+    "path": "/public/:token/plans",
+    "full": "/api/crm/financing/public/00000000-0000-0000-0000-000000000000/plans",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "GET",
+    "path": "/public/:token/applications",
+    "full": "/api/crm/financing/public/00000000-0000-0000-0000-000000000000/applications",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "POST",
+    "path": "/public/:token/apply",
+    "full": "/api/crm/financing/public/00000000-0000-0000-0000-000000000000/apply",
+    "status": 400,
+    "body": "{\"error\":\"planId is required\"}"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "GET",
+    "path": "/lenders",
+    "full": "/api/crm/financing/lenders",
+    "status": 200,
+    "body": "[{\"id\":\"c95698b8-eb31-4884-b4d1-115c22ca76d2\",\"provider\":\"mock\",\"merchant_id\":\"test-merchant-456\",\"is_active\":true,\"config\":{},\"created_at\":\"2026-06-05T10:10:06.693Z\",\"updated_at\":\"2026-06-05T10:10:06.693Z\"}]"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "POST",
+    "path": "/lenders",
+    "full": "/api/crm/financing/lenders",
+    "status": 400,
+    "body": "{\"error\":\"provider, apiKey, and merchantId are required\"}"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "PATCH",
+    "path": "/lenders/:id",
+    "full": "/api/crm/financing/lenders/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Lender not found\"}"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "DELETE",
+    "path": "/lenders/:id",
+    "full": "/api/crm/financing/lenders/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Lender not found\"}"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "GET",
+    "path": "/plans",
+    "full": "/api/crm/financing/plans",
+    "status": 200,
+    "body": "[{\"id\":\"39f9d453-73b1-49fb-ab58-835517cb2dde\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lender_id\":\"c95698b8-eb31-4884-b4d1-115c22ca76d2\",\"external_plan_id\":\"plan_12mo_0apr\",\"name\":\"12 Months 0% APR\",\"term_months\":12,\"apr\":\"0.00\",\"dealer_fe"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "POST",
+    "path": "/plans/sync",
+    "full": "/api/crm/financing/plans/sync",
+    "status": 400,
+    "body": "{\"error\":\"lenderId is required\"}"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "PATCH",
+    "path": "/plans/:id",
+    "full": "/api/crm/financing/plans/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Plan not found\"}"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "GET",
+    "path": "/applications",
+    "full": "/api/crm/financing/applications",
+    "status": 200,
+    "body": "[]"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "GET",
+    "path": "/applications/:id",
+    "full": "/api/crm/financing/applications/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Application not found\"}"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "POST",
+    "path": "/applications",
+    "full": "/api/crm/financing/applications",
+    "status": 400,
+    "body": "{\"error\":\"leadId is required\"}"
+  },
+  {
+    "file": "hearthWebhook.js",
+    "mount": "/api/webhooks/hearth",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/webhooks/hearth/",
+    "status": "SKIP",
+    "body": "intentionally skipped"
+  },
+  {
+    "file": "invoices.js",
+    "mount": "/api/crm/invoices",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/invoices/",
+    "status": 200,
+    "body": "{\"invoices\":[{\"id\":\"63453e95-a2e8-4851-abf7-e5059eff61cc\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"d9573041-95c8-4369-97d7-6f1c0ab7399d\",\"estimate_id\":null,\"invoice_number\":\"INV-0016\",\"status\":\"sent\",\"line_items\":[{\"qty\":1,\"unit_"
+  },
+  {
+    "file": "invoices.js",
+    "mount": "/api/crm/invoices",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/crm/invoices/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Invoice not found\"}"
+  },
+  {
+    "file": "invoices.js",
+    "mount": "/api/crm/invoices",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/invoices/",
+    "status": 400,
+    "body": "{\"error\":\"lead_id is required\"}"
+  },
+  {
+    "file": "invoices.js",
+    "mount": "/api/crm/invoices",
+    "method": "POST",
+    "path": "/from-estimate/:estimateId",
+    "full": "/api/crm/invoices/from-estimate/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "file": "invoices.js",
+    "mount": "/api/crm/invoices",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/invoices/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Invoice not found\"}"
+  },
+  {
+    "file": "invoices.js",
+    "mount": "/api/crm/invoices",
+    "method": "POST",
+    "path": "/:id/payment",
+    "full": "/api/crm/invoices/00000000-0000-0000-0000-000000000000/payment",
+    "status": 400,
+    "body": "{\"error\":\"Valid amount required\"}"
+  },
+  {
+    "file": "invoices.js",
+    "mount": "/api/crm/invoices",
+    "method": "POST",
+    "path": "/:id/send",
+    "full": "/api/crm/invoices/00000000-0000-0000-0000-000000000000/send",
+    "status": 404,
+    "body": "{\"error\":\"Invoice not found\"}"
+  },
+  {
+    "file": "invoices.js",
+    "mount": "/api/crm/invoices",
+    "method": "POST",
+    "path": "/:id/send-email",
+    "full": "/api/crm/invoices/00000000-0000-0000-0000-000000000000/send-email",
+    "status": 400,
+    "body": "{\"error\":\"Recipient email required\"}"
+  },
+  {
+    "file": "leads.js",
+    "mount": "/api/leads",
+    "method": "GET",
+    "path": "/status/public/:token",
+    "full": "/api/leads/status/public/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Not found\"}"
+  },
+  {
+    "file": "leads.js",
+    "mount": "/api/leads",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/leads/",
+    "status": 200,
+    "body": "{\"leads\":[{\"id\":\"fa4d1995-4cf5-4007-9c43-5747ca67605c\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"property_id\":null,\"storm_event_id\":null,\"assigned_rep_id\":null,\"stage\":\"new\",\"priority\":\"warm\",\"estimated_value\":\"12500.00\",\"insurance_company\""
+  },
+  {
+    "file": "leads.js",
+    "mount": "/api/leads",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/leads/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Lead not found\"}"
+  },
+  {
+    "file": "leads.js",
+    "mount": "/api/leads",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/leads/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Lead not found\"}"
+  },
+  {
+    "file": "leads.js",
+    "mount": "/api/leads",
+    "method": "POST",
+    "path": "/:id/status-token",
+    "full": "/api/leads/00000000-0000-0000-0000-000000000000/status-token",
+    "status": 400,
+    "body": "{\"error\":\"Referenced resource does not exist or is not accessible\"}"
+  },
+  {
+    "file": "leads.js",
+    "mount": "/api/leads",
+    "method": "POST",
+    "path": "/from-storm",
+    "full": "/api/leads/from-storm",
+    "status": 400,
+    "body": "{\"error\":\"stormEventId is required\"}"
+  },
+  {
+    "file": "map.js",
+    "mount": "/api/map",
+    "method": "GET",
+    "path": "/properties",
+    "full": "/api/map/properties",
+    "status": 400,
+    "body": "{\"error\":\"bbox required\"}"
+  },
+  {
+    "file": "map.js",
+    "mount": "/api/map",
+    "method": "GET",
+    "path": "/affected-properties",
+    "full": "/api/map/affected-properties",
+    "status": 400,
+    "body": "{\"error\":\"bbox required\"}"
+  },
+  {
+    "file": "map.js",
+    "mount": "/api/map",
+    "method": "GET",
+    "path": "/swaths",
+    "full": "/api/map/swaths",
+    "status": 400,
+    "body": "{\"error\":\"bbox required\"}"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "GET",
+    "path": "/products",
+    "full": "/api/materials/products",
+    "status": 200,
+    "body": "{\"products\":[{\"id\":\"srs-shingle-001\",\"name\":\"GAF Royal Sovereign\",\"category\":\"Shingles\",\"manufacturer\":\"GAF\",\"sku\":\"GAF-RS-3TAB\",\"unit\":\"bundle\",\"price\":37.44,\"price_per_sq\":112.32,\"description\":\"3-tab shingle. Affordable, clean look. Limited lifetim"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "GET",
+    "path": "/products/:id",
+    "full": "/api/materials/products/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Product not found\"}"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "GET",
+    "path": "/branches",
+    "full": "/api/materials/branches",
+    "status": 200,
+    "body": "{\"branches\":[{\"id\":\"srs-branch-sat\",\"name\":\"SRS San Antonio\",\"address\":\"8503 Fourwinds Dr, San Antonio, TX 78239\",\"phone\":\"(210) 590-3899\",\"hours\":\"Mon-Fri 6:00 AM - 4:00 PM, Sat 7:00 AM - 12:00 PM\",\"lat\":29.4907,\"lng\":-98.3936,\"distance_miles\":null}"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "POST",
+    "path": "/orders",
+    "full": "/api/materials/orders",
+    "status": 400,
+    "body": "{\"error\":\"items array is required\"}"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "GET",
+    "path": "/orders",
+    "full": "/api/materials/orders",
+    "status": 200,
+    "body": "{\"orders\":[{\"id\":\"482331e6-7b97-438a-9570-e6a673709d77\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"estimate_id\":null,\"srs_order_id\":\"SRS-MOIGQYK7-Z3KS\",\"status\":\"draft\",\"items\":[{\"qty\":1,\"product_id\":\"x\"}],\"branch_id\":\"not-a-uuid\",\"branch_na"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "GET",
+    "path": "/orders/:id",
+    "full": "/api/materials/orders/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Order not found\"}"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "POST",
+    "path": "/estimate/:estimateId/auto-order",
+    "full": "/api/materials/estimate/00000000-0000-0000-0000-000000000000/auto-order",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "PUT",
+    "path": "/credentials",
+    "full": "/api/materials/credentials",
+    "status": 200,
+    "body": "{\"id\":\"8ea48658-6b6d-4f1d-909b-fba13029b98d\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"preferred_branch_id\":null,\"preferred_branch_name\":null,\"created_at\":\"2026-04-16T10:05:30.767Z\"}"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "GET",
+    "path": "/credentials",
+    "full": "/api/materials/credentials",
+    "status": 200,
+    "body": "{\"configured\":true,\"id\":\"8ea48658-6b6d-4f1d-909b-fba13029b98d\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"preferred_branch_id\":null,\"preferred_branch_name\":null,\"created_at\":\"2026-04-16T10:05:30.767Z\",\"has_api_key\":false,\"has_account_id\":fal"
+  },
+  {
+    "file": "notifications.js",
+    "mount": "/api/notifications",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/notifications/",
+    "status": 200,
+    "body": "{\"notifications\":[]}"
+  },
+  {
+    "file": "notifications.js",
+    "mount": "/api/notifications",
+    "method": "GET",
+    "path": "/unread-count",
+    "full": "/api/notifications/unread-count",
+    "status": 200,
+    "body": "{\"count\":0}"
+  },
+  {
+    "file": "notifications.js",
+    "mount": "/api/notifications",
+    "method": "PATCH",
+    "path": "/:id/read",
+    "full": "/api/notifications/00000000-0000-0000-0000-000000000000/read",
+    "status": 404,
+    "body": "{\"error\":\"Notification not found\"}"
+  },
+  {
+    "file": "notifications.js",
+    "mount": "/api/notifications",
+    "method": "POST",
+    "path": "/mark-all-read",
+    "full": "/api/notifications/mark-all-read",
+    "status": 200,
+    "body": "{\"updated\":0}"
+  },
+  {
+    "file": "notifications.js",
+    "mount": "/api/notifications",
+    "method": "GET",
+    "path": "/preferences",
+    "full": "/api/notifications/preferences",
+    "status": 200,
+    "body": "{\"preferences\":[{\"id\":\"bcfd44fd-b0b0-4c1a-9363-98925e13a837\",\"user_id\":\"45cc729d-cc5b-44b5-93ca-7c01b427fc26\",\"notification_type\":\"lead_assigned\",\"in_app\":true,\"email\":true,\"push\":false,\"email_digest\":\"immediate\"},{\"id\":\"1f757a8b-09d5-4eae-b043-8d00c"
+  },
+  {
+    "file": "notifications.js",
+    "mount": "/api/notifications",
+    "method": "PATCH",
+    "path": "/preferences",
+    "full": "/api/notifications/preferences",
+    "status": 400,
+    "body": "{\"error\":\"notification_type required\"}"
+  },
+  {
+    "file": "onboarding.js",
+    "mount": "/api/onboarding",
+    "method": "POST",
+    "path": "/create-tenant",
+    "full": "/api/onboarding/create-tenant",
+    "status": 400,
+    "body": "{\"error\":\"Validation failed\",\"details\":{\"companyName\":[\"Required\"],\"firstName\":[\"Required\"],\"lastName\":[\"Required\"],\"email\":[\"Required\"],\"password\":[\"Required\"]}}"
+  },
+  {
+    "file": "onboarding.js",
+    "mount": "/api/onboarding",
+    "method": "PUT",
+    "path": "/org",
+    "full": "/api/onboarding/org",
+    "status": 200,
+    "body": "{\"tenant\":{\"id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"Waterloo Roofing\",\"slug\":\"waterloo\",\"subscription_tier\":\"enterprise\",\"subscription_status\":\"active\",\"onboarding_completed\":true,\"trial_ends_at\":\"2026-04-04T22:04:42.132Z\",\"company_phone\":"
+  },
+  {
+    "file": "onboarding.js",
+    "mount": "/api/onboarding",
+    "method": "GET",
+    "path": "/plans",
+    "full": "/api/onboarding/plans",
+    "status": 200,
+    "body": "{\"plans\":[{\"id\":\"88201876-24d7-4c70-898e-ccb6b8ca6551\",\"key\":\"starter\",\"name\":\"Starter\",\"price_cents\":2000,\"features\":[\"Storm map\",\"Lead management\",\"Basic pipeline\"],\"max_users\":3,\"max_leads\":1000},{\"id\":\"2a499d7d-8ae5-4fca-9c1b-31ac1666994d\",\"key\":"
+  },
+  {
+    "file": "onboarding.js",
+    "mount": "/api/onboarding",
+    "method": "POST",
+    "path": "/select-plan",
+    "full": "/api/onboarding/select-plan",
+    "status": 400,
+    "body": "{\"error\":\"Validation failed\",\"details\":{\"planKey\":[\"Required\"]}}"
+  },
+  {
+    "file": "onboarding.js",
+    "mount": "/api/onboarding",
+    "method": "POST",
+    "path": "/setup-payment",
+    "full": "/api/onboarding/setup-payment",
+    "status": 400,
+    "body": "{\"error\":\"Validation failed\",\"details\":{\"paymentMethodId\":[\"Required\"]}}"
+  },
+  {
+    "file": "onboarding.js",
+    "mount": "/api/onboarding",
+    "method": "POST",
+    "path": "/enable-addons",
+    "full": "/api/onboarding/enable-addons",
+    "status": 400,
+    "body": "{\"error\":\"Validation failed\",\"details\":{\"skipTrace\":[\"Required\"],\"roofMeasurement\":[\"Required\"]}}"
+  },
+  {
+    "file": "onboarding.js",
+    "mount": "/api/onboarding",
+    "method": "POST",
+    "path": "/complete",
+    "full": "/api/onboarding/complete",
+    "status": 200,
+    "body": "{\"success\":true,\"tenant\":{\"id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"Waterloo Roofing\",\"slug\":\"waterloo\",\"onboarding_completed\":true,\"subscription_tier\":\"enterprise\",\"subscription_status\":\"active\"}}"
+  },
+  {
+    "file": "payments.js",
+    "mount": "/api/payments",
+    "method": "POST",
+    "path": "/connect/onboard",
+    "full": "/api/payments/connect/onboard",
+    "status": 400,
+    "body": "{\"error\":\"You can only create new accounts if you've signed up for Connect, which you can do at https://dashboard.stripe.com/connect.\"}"
+  },
+  {
+    "file": "payments.js",
+    "mount": "/api/payments",
+    "method": "GET",
+    "path": "/connect/status",
+    "full": "/api/payments/connect/status",
+    "status": 200,
+    "body": "{\"connected\":false,\"onboardingComplete\":false,\"accountId\":null}"
+  },
+  {
+    "file": "payments.js",
+    "mount": "/api/payments",
+    "method": "POST",
+    "path": "/connect/refresh",
+    "full": "/api/payments/connect/refresh",
+    "status": 400,
+    "body": "{\"error\":\"No Stripe account found. Please start onboarding first.\"}"
+  },
+  {
+    "file": "payments.js",
+    "mount": "/api/payments",
+    "method": "POST",
+    "path": "/create-intent",
+    "full": "/api/payments/create-intent",
+    "status": 400,
+    "body": "{\"error\":\"estimateId is required\"}"
+  },
+  {
+    "file": "payments.js",
+    "mount": "/api/payments",
+    "method": "GET",
+    "path": "/history",
+    "full": "/api/payments/history",
+    "status": 200,
+    "body": "{\"payments\":[],\"total\":0}"
+  },
+  {
+    "file": "payments.js",
+    "mount": "/api/payments",
+    "method": "POST",
+    "path": "/public/create-intent",
+    "full": "/api/payments/public/create-intent",
+    "status": 400,
+    "body": "{\"error\":\"Estimate token is required\"}"
+  },
+  {
+    "file": "payments.js",
+    "mount": "/api/payments",
+    "method": "POST",
+    "path": "/webhook",
+    "full": "/api/payments/webhook",
+    "status": 400,
+    "body": "{\"error\":\"Webhook signature verification failed: No stripe-signature header value was provided.\"}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/fema-live",
+    "full": "/api/properties/fema-live",
+    "status": 400,
+    "body": "{\"error\":\"bbox required\"}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "POST",
+    "path": "/fema-live-polygon",
+    "full": "/api/properties/fema-live-polygon",
+    "status": 400,
+    "body": "{\"error\":\"GeoJSON geometry required in body\"}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/import-progress",
+    "full": "/api/properties/import-progress",
+    "status": 200,
+    "body": "{\"active\":false,\"clusters\":{\"total\":0,\"completed\":0},\"current\":null,\"propertiesImported\":0,\"propertiesTotal\":0,\"startedAt\":null}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "POST",
+    "path": "/trigger-import",
+    "full": "/api/properties/trigger-import",
+    "status": 200,
+    "body": "{\"status\":\"started\"}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/properties/",
+    "status": 400,
+    "body": "{\"error\":\"bbox query parameter is required (west,south,east,north)\"}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/in-swath/:stormEventId/count",
+    "full": "/api/properties/in-swath/00000000-0000-0000-0000-000000000000/count",
+    "status": 200,
+    "body": "{\"count\":0}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/in-swath/:stormEventId",
+    "full": "/api/properties/in-swath/00000000-0000-0000-0000-000000000000",
+    "status": 200,
+    "body": "{\"type\":\"FeatureCollection\",\"features\":[]}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/reverse-geocode",
+    "full": "/api/properties/reverse-geocode",
+    "status": 400,
+    "body": "{\"error\":\"lat and lng are required\"}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/properties/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Property not found\"}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "POST",
+    "path": "/generate-leads",
+    "full": "/api/properties/generate-leads",
+    "status": 400,
+    "body": "{\"error\":\"stormEventId is required\"}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "POST",
+    "path": "/geocode",
+    "full": "/api/properties/geocode",
+    "status": 400,
+    "body": "{\"error\":\"address is required\"}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "POST",
+    "path": "/import-csv",
+    "full": "/api/properties/import-csv",
+    "status": 400,
+    "body": "{\"error\":\"rows array is required\"}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/properties/",
+    "status": 400,
+    "body": "{\"error\":\"address_line1, lat, and lng are required\"}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "PUT",
+    "path": "/:id/location",
+    "full": "/api/properties/00000000-0000-0000-0000-000000000000/location",
+    "status": 400,
+    "body": "{\"error\":\"lat and lng are required\"}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "POST",
+    "path": "/:id/fema-lookup",
+    "full": "/api/properties/00000000-0000-0000-0000-000000000000/fema-lookup",
+    "status": 404,
+    "body": "{\"error\":\"Property not found\"}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/:id/weather-history",
+    "full": "/api/properties/00000000-0000-0000-0000-000000000000/weather-history",
+    "status": 404,
+    "body": "{\"error\":\"Property not found\"}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/:id/weather-history/pdf",
+    "full": "/api/properties/00000000-0000-0000-0000-000000000000/weather-history/pdf",
+    "status": 404,
+    "body": "{\"error\":\"Property not found\"}"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/:id/report/pdf",
+    "full": "/api/properties/00000000-0000-0000-0000-000000000000/report/pdf",
+    "status": 404,
+    "body": "{\"error\":\"Property not found\"}"
+  },
+  {
+    "file": "reports.js",
+    "mount": "/api/crm/reports",
+    "method": "GET",
+    "path": "/revenue",
+    "full": "/api/crm/reports/revenue",
+    "status": 200,
+    "body": "[{\"month\":\"2026-03-01T06:00:00.000Z\",\"estimated\":\"14400.00\",\"actual\":\"0\",\"lead_count\":\"9\"},{\"month\":\"2026-04-01T05:00:00.000Z\",\"estimated\":\"45575.00\",\"actual\":\"0\",\"lead_count\":\"11\"},{\"month\":\"2026-05-01T05:00:00.000Z\",\"estimated\":\"100.00\",\"actual\":\"0"
+  },
+  {
+    "file": "reports.js",
+    "mount": "/api/crm/reports",
+    "method": "GET",
+    "path": "/pipeline",
+    "full": "/api/crm/reports/pipeline",
+    "status": 200,
+    "body": "[{\"stage\":\"new\",\"count\":\"16\",\"total_value\":\"7600.00\"},{\"stage\":\"contacted\",\"count\":\"4\",\"total_value\":\"32225.00\"},{\"stage\":\"appt_set\",\"count\":\"1\",\"total_value\":\"0\"},{\"stage\":\"inspected\",\"count\":\"1\",\"total_value\":\"0\"},{\"stage\":\"estimate_sent\",\"count\":\""
+  },
+  {
+    "file": "reports.js",
+    "mount": "/api/crm/reports",
+    "method": "GET",
+    "path": "/conversion",
+    "full": "/api/crm/reports/conversion",
+    "status": 200,
+    "body": "[{\"source\":\"manual\",\"total\":\"9\",\"sold\":\"0\",\"sold_value\":null},{\"source\":\"fema_nsi\",\"total\":\"6\",\"sold\":\"0\",\"sold_value\":null},{\"source\":\"storm_map\",\"total\":\"5\",\"sold\":\"0\",\"sold_value\":null},{\"source\":\"canvassing\",\"total\":\"3\",\"sold\":\"0\",\"sold_value\":nu"
+  },
+  {
+    "file": "reports.js",
+    "mount": "/api/crm/reports",
+    "method": "GET",
+    "path": "/rep-performance",
+    "full": "/api/crm/reports/rep-performance",
+    "status": 200,
+    "body": "[{\"id\":\"45cc729d-cc5b-44b5-93ca-7c01b427fc26\",\"name\":\"Miles Martin\",\"leads_assigned\":\"0\",\"leads_sold\":\"0\",\"sold_value\":null,\"activity_count\":\"0\"},{\"id\":\"780e0023-c634-40b6-bc1d-67b4c1f0c2bd\",\"name\":\"Brandon Admin\",\"leads_assigned\":\"0\",\"leads_sold\":\"0"
+  },
+  {
+    "file": "reports.js",
+    "mount": "/api/crm/reports",
+    "method": "GET",
+    "path": "/stage-duration",
+    "full": "/api/crm/reports/stage-duration",
+    "status": 200,
+    "body": "[{\"stage\":\"contacted\",\"avg_days\":\"0.0\"},{\"stage\":\"estimate_sent\",\"avg_days\":\"0.0\"},{\"stage\":\"new\",\"avg_days\":\"0.0\"},{\"stage\":\"appt_set\",\"avg_days\":\"0.0\"},{\"stage\":\"inspected\",\"avg_days\":\"0.0\"}]"
+  },
+  {
+    "file": "reports.js",
+    "mount": "/api/crm/reports",
+    "method": "GET",
+    "path": "/lead-sources",
+    "full": "/api/crm/reports/lead-sources",
+    "status": 200,
+    "body": "[{\"source\":\"manual\",\"count\":\"9\",\"total_value\":\"45575.00\"},{\"source\":\"fema_nsi\",\"count\":\"6\",\"total_value\":\"9400.00\"},{\"source\":\"storm_map\",\"count\":\"5\",\"total_value\":\"5100.00\"},{\"source\":\"canvassing\",\"count\":\"3\",\"total_value\":\"0\"}]"
+  },
+  {
+    "file": "roofMeasurement.js",
+    "mount": "/api/roof-measurement",
+    "method": "GET",
+    "path": "/config",
+    "full": "/api/roof-measurement/config",
+    "status": 200,
+    "body": "{\"roof_measurement_enabled\":false}"
+  },
+  {
+    "file": "roofMeasurement.js",
+    "mount": "/api/roof-measurement",
+    "method": "PUT",
+    "path": "/config",
+    "full": "/api/roof-measurement/config",
+    "status": 200,
+    "body": "{\"roof_measurement_enabled\":null}"
+  },
+  {
+    "file": "roofMeasurement.js",
+    "mount": "/api/roof-measurement",
+    "method": "POST",
+    "path": "/measure",
+    "full": "/api/roof-measurement/measure",
+    "status": 400,
+    "body": "{\"error\":\"propertyId is required\"}"
+  },
+  {
+    "file": "roofMeasurement.js",
+    "mount": "/api/roof-measurement",
+    "method": "POST",
+    "path": "/manual",
+    "full": "/api/roof-measurement/manual",
+    "status": 400,
+    "body": "{\"error\":\"propertyId is required\"}"
+  },
+  {
+    "file": "roofMeasurement.js",
+    "mount": "/api/roof-measurement",
+    "method": "GET",
+    "path": "/segments/:propertyId",
+    "full": "/api/roof-measurement/segments/00000000-0000-0000-0000-000000000000",
+    "status": 200,
+    "body": "{\"segments\":[]}"
+  },
+  {
+    "file": "roofMeasurement.js",
+    "mount": "/api/roof-measurement",
+    "method": "GET",
+    "path": "/solar/:propertyId",
+    "full": "/api/roof-measurement/solar/00000000-0000-0000-0000-000000000000",
+    "status": 200,
+    "body": "{\"available\":false}"
+  },
+  {
+    "file": "roofMeasurement.js",
+    "mount": "/api/roof-measurement",
+    "method": "GET",
+    "path": "/usage",
+    "full": "/api/roof-measurement/usage",
+    "status": 200,
+    "body": "{\"total_measurements\":\"2\",\"total_cost_cents\":\"20\"}"
+  },
+  {
+    "file": "roofMeasurement.js",
+    "mount": "/api/roof-measurement",
+    "method": "GET",
+    "path": "/balance",
+    "full": "/api/roof-measurement/balance",
+    "status": 200,
+    "body": "{\"unbilled_measurements\":\"2\",\"unbilled_cents\":\"20\"}"
+  },
+  {
+    "file": "search.js",
+    "mount": "/api/search",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/search/",
+    "status": 200,
+    "body": "{\"leads\":[],\"contacts\":[],\"estimates\":[]}"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "GET",
+    "path": "/config",
+    "full": "/api/skip-trace/config",
+    "status": 200,
+    "body": "{\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"enabled\":true,\"stripe_payment_method_id\":null,\"card_last_four\":null,\"card_brand\":null,\"markup_cents\":20,\"created_at\":\"2026-03-22T18:18:39.075Z\",\"updated_at\":\"2026-06-06T10:02:39.203Z\",\"roof_measure"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "PUT",
+    "path": "/config",
+    "full": "/api/skip-trace/config",
+    "status": 400,
+    "body": "{\"error\":\"enabled (boolean) is required\"}"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "POST",
+    "path": "/setup-payment",
+    "full": "/api/skip-trace/setup-payment",
+    "status": 400,
+    "body": "{\"error\":\"paymentMethodId required\"}"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "DELETE",
+    "path": "/payment-method",
+    "full": "/api/skip-trace/payment-method",
+    "status": 404,
+    "body": "{\"error\":\"No payment method\"}"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "POST",
+    "path": "/submit",
+    "full": "/api/skip-trace/submit",
+    "status": 400,
+    "body": "{\"error\":\"propertyIds array is required\"}"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "GET",
+    "path": "/job/:jobId",
+    "full": "/api/skip-trace/job/00000000-0000-0000-0000-000000000000",
+    "status": 503,
+    "body": "{\"error\":\"Skip trace service not configured. Set TRACERFY_API_KEY.\"}"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "GET",
+    "path": "/balance",
+    "full": "/api/skip-trace/balance",
+    "status": 200,
+    "body": "{\"unbilled_jobs\":\"0\",\"unbilled_records\":\"0\",\"unbilled_cents\":\"0\"}"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "GET",
+    "path": "/invoices",
+    "full": "/api/skip-trace/invoices",
+    "status": 200,
+    "body": "[]"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "GET",
+    "path": "/usage",
+    "full": "/api/skip-trace/usage",
+    "status": 200,
+    "body": "{\"total_jobs\":\"0\",\"total_requested\":\"0\",\"total_returned\":\"0\",\"total_cost_cents\":\"0\"}"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "GET",
+    "path": "/jobs",
+    "full": "/api/skip-trace/jobs",
+    "status": 200,
+    "body": "[]"
+  },
+  {
+    "file": "stormHistory.js",
+    "mount": "/api/storm-history",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/storm-history/",
+    "status": 400,
+    "body": "{\"error\":\"Valid lat and lng query parameters are required\"}"
+  },
+  {
+    "file": "stormHistory.js",
+    "mount": "/api/storm-history",
+    "method": "GET",
+    "path": "/heatmap",
+    "full": "/api/storm-history/heatmap",
+    "status": 400,
+    "body": "{\"error\":\"bbox parameter required: west,south,east,north\"}"
+  },
+  {
+    "file": "storms.js",
+    "mount": "/api/storms",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/storms/",
+    "status": 200,
+    "body": "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"id\":\"fa8487cc-d2ea-42dd-b142-0f40728166b2\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-99.364606795,34.359631316],[-99.364619378,34.359521317],[-99.364635166,34.359411837],[-99.364654157,3"
+  },
+  {
+    "file": "storms.js",
+    "mount": "/api/storms",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/storms/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Storm event not found\"}"
+  },
+  {
+    "file": "subcontractors.js",
+    "mount": "/api/crm/subcontractors",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/subcontractors/",
+    "status": 200,
+    "body": "{\"subcontractors\":[{\"id\":\"339cd4b4-a4cc-4133-8ec9-675073022a4c\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"QA Roofing\",\"company\":null,\"phone\":\"555-1234\",\"email\":null,\"specialty\":\"general\",\"hourly_rate\":null,\"notes\":null,\"status\":\"acti"
+  },
+  {
+    "file": "subcontractors.js",
+    "mount": "/api/crm/subcontractors",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/crm/subcontractors/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Subcontractor not found\"}"
+  },
+  {
+    "file": "subcontractors.js",
+    "mount": "/api/crm/subcontractors",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/subcontractors/",
+    "status": 400,
+    "body": "{\"error\":\"name is required\"}"
+  },
+  {
+    "file": "subcontractors.js",
+    "mount": "/api/crm/subcontractors",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/subcontractors/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "body": "{\"error\":\"No fields to update\"}"
+  },
+  {
+    "file": "subcontractors.js",
+    "mount": "/api/crm/subcontractors",
+    "method": "DELETE",
+    "path": "/:id",
+    "full": "/api/crm/subcontractors/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Subcontractor not found\"}"
+  },
+  {
+    "file": "subcontractors.js",
+    "mount": "/api/crm/subcontractors",
+    "method": "POST",
+    "path": "/assign",
+    "full": "/api/crm/subcontractors/assign",
+    "status": 400,
+    "body": "{\"error\":\"work_order_id and subcontractor_id are required\"}"
+  },
+  {
+    "file": "subcontractors.js",
+    "mount": "/api/crm/subcontractors",
+    "method": "GET",
+    "path": "/work-order/:workOrderId",
+    "full": "/api/crm/subcontractors/work-order/00000000-0000-0000-0000-000000000000",
+    "status": 200,
+    "body": "[]"
+  },
+  {
+    "file": "subcontractors.js",
+    "mount": "/api/crm/subcontractors",
+    "method": "DELETE",
+    "path": "/work-order/:workOrderId/:subcontractorId",
+    "full": "/api/crm/subcontractors/work-order/00000000-0000-0000-0000-000000000000/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Assignment not found\"}"
+  },
+  {
+    "file": "territories.js",
+    "mount": "/api/crm/territories",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/territories/",
+    "status": 200,
+    "body": "[{\"id\":\"dca7cea0-622b-4c40-a1e0-4a9e18d9abe2\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"QA Territory Updated\",\"color\":\"oklch(0.65 0.27 29)\",\"polygon\":\"0103000020E6100000010000000500000000000000004058C00000000000003E4000000000000058C0"
+  },
+  {
+    "file": "territories.js",
+    "mount": "/api/crm/territories",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/crm/territories/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Territory not found\"}"
+  },
+  {
+    "file": "territories.js",
+    "mount": "/api/crm/territories",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/territories/",
+    "status": 400,
+    "body": "{\"error\":\"name is required\"}"
+  },
+  {
+    "file": "territories.js",
+    "mount": "/api/crm/territories",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/territories/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "body": "{\"error\":\"No fields to update\"}"
+  },
+  {
+    "file": "territories.js",
+    "mount": "/api/crm/territories",
+    "method": "DELETE",
+    "path": "/:id",
+    "full": "/api/crm/territories/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Territory not found\"}"
+  },
+  {
+    "file": "territories.js",
+    "mount": "/api/crm/territories",
+    "method": "GET",
+    "path": "/:id/pins",
+    "full": "/api/crm/territories/00000000-0000-0000-0000-000000000000/pins",
+    "status": 404,
+    "body": "{\"error\":\"Territory not found\"}"
+  },
+  {
+    "file": "webhook.js",
+    "mount": "/api/webhooks",
+    "method": "POST",
+    "path": "/tracerfy",
+    "full": "/api/webhooks/tracerfy",
+    "status": 200,
+    "body": "{\"received\":true}"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "GET",
+    "path": "/milestone-templates",
+    "full": "/api/crm/work-orders/milestone-templates",
+    "status": 200,
+    "body": "{\"templates\":[{\"key\":\"default\",\"label\":\"General (Default)\",\"milestones\":[\"Permit Pulled\",\"Materials Delivered\",\"Tear-off\",\"Install\",\"Cleanup\",\"Final Inspection\",\"Complete\"],\"photo_required\":[false,true,true,true,true,true,false],\"count\":7},{\"key\":\"sh"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/work-orders/",
+    "status": 200,
+    "body": "{\"workOrders\":[{\"id\":\"d93dc780-64cd-4c17-82c6-3303d138b918\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":null,\"estimate_id\":null,\"title\":\"qa\",\"description\":null,\"status\":\"pending\",\"assigned_to\":null,\"crew_name\":null,\"scheduled_date\":n"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Work order not found\"}"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/work-orders/",
+    "status": 400,
+    "body": "{\"error\":\"title is required\"}"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "POST",
+    "path": "/from-estimate/:estimateId",
+    "full": "/api/crm/work-orders/from-estimate/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Work order not found\"}"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "PATCH",
+    "path": "/:id/complete",
+    "full": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000/complete",
+    "status": 404,
+    "body": "{\"error\":\"Work order not found\"}"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "GET",
+    "path": "/:id/milestones",
+    "full": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000/milestones",
+    "status": 404,
+    "body": "{\"error\":\"Work order not found\"}"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "POST",
+    "path": "/:id/milestones",
+    "full": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000/milestones",
+    "status": 400,
+    "body": "{\"error\":\"Milestone name required\"}"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "DELETE",
+    "path": "/:woId/milestones/:milestoneId",
+    "full": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000/milestones/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Work order not found\"}"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "PATCH",
+    "path": "/:id/milestones/:milestoneId",
+    "full": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000/milestones/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Work order not found\"}"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "GET",
+    "path": "/:id/pdf",
+    "full": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000/pdf",
+    "status": 404,
+    "body": "{\"error\":\"Work order not found\"}"
+  }
+]

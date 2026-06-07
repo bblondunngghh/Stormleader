@@ -1,0 +1,1906 @@
+[
+  {
+    "file": "admin.js",
+    "mount": "/api/admin",
+    "method": "GET",
+    "path": "/overview",
+    "full": "/api/admin/overview"
+  },
+  {
+    "file": "admin.js",
+    "mount": "/api/admin",
+    "method": "GET",
+    "path": "/tenants",
+    "full": "/api/admin/tenants"
+  },
+  {
+    "file": "admin.js",
+    "mount": "/api/admin",
+    "method": "GET",
+    "path": "/tenants/:id",
+    "full": "/api/admin/tenants/:id"
+  },
+  {
+    "file": "admin.js",
+    "mount": "/api/admin",
+    "method": "PUT",
+    "path": "/tenants/:id",
+    "full": "/api/admin/tenants/:id"
+  },
+  {
+    "file": "admin.js",
+    "mount": "/api/admin",
+    "method": "GET",
+    "path": "/revenue",
+    "full": "/api/admin/revenue"
+  },
+  {
+    "file": "admin.js",
+    "mount": "/api/admin",
+    "method": "GET",
+    "path": "/usage",
+    "full": "/api/admin/usage"
+  },
+  {
+    "file": "alerts.js",
+    "mount": "/api/alerts",
+    "method": "GET",
+    "path": "/config",
+    "full": "/api/alerts/config"
+  },
+  {
+    "file": "alerts.js",
+    "mount": "/api/alerts",
+    "method": "PUT",
+    "path": "/config",
+    "full": "/api/alerts/config"
+  },
+  {
+    "file": "alerts.js",
+    "mount": "/api/alerts",
+    "method": "GET",
+    "path": "/history",
+    "full": "/api/alerts/history"
+  },
+  {
+    "file": "alerts.js",
+    "mount": "/api/alerts",
+    "method": "POST",
+    "path": "/test",
+    "full": "/api/alerts/test"
+  },
+  {
+    "file": "auth.js",
+    "mount": "/api/auth",
+    "method": "POST",
+    "path": "/register",
+    "full": "/api/auth/register"
+  },
+  {
+    "file": "auth.js",
+    "mount": "/api/auth",
+    "method": "POST",
+    "path": "/login",
+    "full": "/api/auth/login"
+  },
+  {
+    "file": "auth.js",
+    "mount": "/api/auth",
+    "method": "GET",
+    "path": "/me",
+    "full": "/api/auth/me"
+  },
+  {
+    "file": "auth.js",
+    "mount": "/api/auth",
+    "method": "PATCH",
+    "path": "/me",
+    "full": "/api/auth/me"
+  },
+  {
+    "file": "auth.js",
+    "mount": "/api/auth",
+    "method": "POST",
+    "path": "/refresh",
+    "full": "/api/auth/refresh"
+  },
+  {
+    "file": "automations.js",
+    "mount": "/api/crm/automations",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/automations/"
+  },
+  {
+    "file": "automations.js",
+    "mount": "/api/crm/automations",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/automations/"
+  },
+  {
+    "file": "automations.js",
+    "mount": "/api/crm/automations",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/automations/:id"
+  },
+  {
+    "file": "automations.js",
+    "mount": "/api/crm/automations",
+    "method": "DELETE",
+    "path": "/:id",
+    "full": "/api/crm/automations/:id"
+  },
+  {
+    "file": "automations.js",
+    "mount": "/api/crm/automations",
+    "method": "PATCH",
+    "path": "/:id/toggle",
+    "full": "/api/crm/automations/:id/toggle"
+  },
+  {
+    "file": "canvassing.js",
+    "mount": "/api/crm/canvass-pins",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/canvass-pins/"
+  },
+  {
+    "file": "canvassing.js",
+    "mount": "/api/crm/canvass-pins",
+    "method": "GET",
+    "path": "/stats",
+    "full": "/api/crm/canvass-pins/stats"
+  },
+  {
+    "file": "canvassing.js",
+    "mount": "/api/crm/canvass-pins",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/canvass-pins/"
+  },
+  {
+    "file": "canvassing.js",
+    "mount": "/api/crm/canvass-pins",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/canvass-pins/:id"
+  },
+  {
+    "file": "canvassing.js",
+    "mount": "/api/crm/canvass-pins",
+    "method": "POST",
+    "path": "/:id/convert",
+    "full": "/api/crm/canvass-pins/:id/convert"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "GET",
+    "path": "/public/:token",
+    "full": "/api/crm/contracts/public/:token"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "POST",
+    "path": "/public/:token/sign",
+    "full": "/api/crm/contracts/public/:token/sign"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "GET",
+    "path": "/templates",
+    "full": "/api/crm/contracts/templates"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "POST",
+    "path": "/templates",
+    "full": "/api/crm/contracts/templates"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "PATCH",
+    "path": "/templates/:id",
+    "full": "/api/crm/contracts/templates/:id"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "DELETE",
+    "path": "/templates/:id",
+    "full": "/api/crm/contracts/templates/:id"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/contracts/"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/crm/contracts/:id"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/contracts/"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/contracts/:id"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "POST",
+    "path": "/:id/send",
+    "full": "/api/crm/contracts/:id/send"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "POST",
+    "path": "/:id/void",
+    "full": "/api/crm/contracts/:id/void"
+  },
+  {
+    "file": "contracts.js",
+    "mount": "/api/crm/contracts",
+    "method": "GET",
+    "path": "/:id/pdf",
+    "full": "/api/crm/contracts/:id/pdf"
+  },
+  {
+    "file": "counties.js",
+    "mount": "/api/counties",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/counties/"
+  },
+  {
+    "file": "counties.js",
+    "mount": "/api/counties",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/counties/"
+  },
+  {
+    "file": "counties.js",
+    "mount": "/api/counties",
+    "method": "POST",
+    "path": "/:id/import",
+    "full": "/api/counties/:id/import"
+  },
+  {
+    "file": "counties.js",
+    "mount": "/api/counties",
+    "method": "GET",
+    "path": "/:id/status",
+    "full": "/api/counties/:id/status"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/leads",
+    "full": "/api/crm/leads"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/leads",
+    "full": "/api/crm/leads"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/leads/quick",
+    "full": "/api/crm/leads/quick"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/leads/:id",
+    "full": "/api/crm/leads/:id"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "PATCH",
+    "path": "/leads/:id",
+    "full": "/api/crm/leads/:id"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "DELETE",
+    "path": "/leads/:id",
+    "full": "/api/crm/leads/:id"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "PATCH",
+    "path": "/leads/:id/roof-type",
+    "full": "/api/crm/leads/:id/roof-type"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/leads/bulk-assign",
+    "full": "/api/crm/leads/bulk-assign"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/leads/bulk-status",
+    "full": "/api/crm/leads/bulk-status"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/leads/:id/score",
+    "full": "/api/crm/leads/:id/score"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/leads/score-all",
+    "full": "/api/crm/leads/score-all"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/leads/:id/contacts",
+    "full": "/api/crm/leads/:id/contacts"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "DELETE",
+    "path": "/leads/:leadId/contacts/:contactId",
+    "full": "/api/crm/leads/:leadId/contacts/:contactId"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/activities",
+    "full": "/api/crm/activities"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/leads/:id/activities",
+    "full": "/api/crm/leads/:id/activities"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/tasks",
+    "full": "/api/crm/tasks"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/tasks",
+    "full": "/api/crm/tasks"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "PATCH",
+    "path": "/tasks/:id",
+    "full": "/api/crm/tasks/:id"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/pipeline/stages",
+    "full": "/api/crm/pipeline/stages"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/pipeline/metrics",
+    "full": "/api/crm/pipeline/metrics"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/stats",
+    "full": "/api/crm/dashboard/stats"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/activity",
+    "full": "/api/crm/dashboard/activity"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/team",
+    "full": "/api/crm/team"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "PATCH",
+    "path": "/team/:userId/role",
+    "full": "/api/crm/team/:userId/role"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/team/invite",
+    "full": "/api/crm/team/invite"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/tenant-settings",
+    "full": "/api/crm/tenant-settings"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "PUT",
+    "path": "/tenant-settings",
+    "full": "/api/crm/tenant-settings"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/test-email",
+    "full": "/api/crm/test-email"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/properties-affected",
+    "full": "/api/crm/dashboard/properties-affected"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/properties-affected/list",
+    "full": "/api/crm/dashboard/properties-affected/list"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/followups",
+    "full": "/api/crm/dashboard/followups"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/conversion-by-storm",
+    "full": "/api/crm/dashboard/conversion-by-storm"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/estimate-summary",
+    "full": "/api/crm/dashboard/estimate-summary"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/ar-summary",
+    "full": "/api/crm/dashboard/ar-summary"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/estimating-conversion",
+    "full": "/api/crm/dashboard/estimating-conversion"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/leaderboard",
+    "full": "/api/crm/dashboard/leaderboard"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/tasks-today",
+    "full": "/api/crm/dashboard/tasks-today"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/days-in-stage",
+    "full": "/api/crm/dashboard/days-in-stage"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/stale-leads",
+    "full": "/api/crm/dashboard/stale-leads"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/customer-storm-alerts",
+    "full": "/api/crm/dashboard/customer-storm-alerts"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/dashboard/lead-source-revenue",
+    "full": "/api/crm/dashboard/lead-source-revenue"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/prospect-lists",
+    "full": "/api/crm/prospect-lists"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/prospect-lists",
+    "full": "/api/crm/prospect-lists"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/prospect-lists/:id/items",
+    "full": "/api/crm/prospect-lists/:id/items"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "DELETE",
+    "path": "/prospect-lists/:id/items/:propertyId",
+    "full": "/api/crm/prospect-lists/:id/items/:propertyId"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "DELETE",
+    "path": "/prospect-lists/:id",
+    "full": "/api/crm/prospect-lists/:id"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/calendar",
+    "full": "/api/crm/calendar"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "GET",
+    "path": "/custom-fields",
+    "full": "/api/crm/custom-fields"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "POST",
+    "path": "/custom-fields",
+    "full": "/api/crm/custom-fields"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "PATCH",
+    "path": "/custom-fields/:id",
+    "full": "/api/crm/custom-fields/:id"
+  },
+  {
+    "file": "crm.js",
+    "mount": "/api/crm",
+    "method": "DELETE",
+    "path": "/custom-fields/:id",
+    "full": "/api/crm/custom-fields/:id"
+  },
+  {
+    "file": "dashboard.js",
+    "mount": "/api/dashboard",
+    "method": "GET",
+    "path": "/stats",
+    "full": "/api/dashboard/stats"
+  },
+  {
+    "file": "dashboard.js",
+    "mount": "/api/dashboard",
+    "method": "GET",
+    "path": "/funnel",
+    "full": "/api/dashboard/funnel"
+  },
+  {
+    "file": "dashboard.js",
+    "mount": "/api/dashboard",
+    "method": "GET",
+    "path": "/activity",
+    "full": "/api/dashboard/activity"
+  },
+  {
+    "file": "dataApis.js",
+    "mount": "/api/data",
+    "method": "GET",
+    "path": "/fema-housing",
+    "full": "/api/data/fema-housing"
+  },
+  {
+    "file": "dataApis.js",
+    "mount": "/api/data",
+    "method": "POST",
+    "path": "/optimize-route",
+    "full": "/api/data/optimize-route"
+  },
+  {
+    "file": "dataApis.js",
+    "mount": "/api/data",
+    "method": "GET",
+    "path": "/directions",
+    "full": "/api/data/directions"
+  },
+  {
+    "file": "disasterDeclarations.js",
+    "mount": "/api/disaster-declarations",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/disaster-declarations/"
+  },
+  {
+    "file": "documents.js",
+    "mount": "/api/documents",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/documents/"
+  },
+  {
+    "file": "documents.js",
+    "mount": "/api/documents",
+    "method": "POST",
+    "path": "/upload",
+    "full": "/api/documents/upload"
+  },
+  {
+    "file": "documents.js",
+    "mount": "/api/documents",
+    "method": "DELETE",
+    "path": "/:id",
+    "full": "/api/documents/:id"
+  },
+  {
+    "file": "drift.js",
+    "mount": "/api/drift",
+    "method": "GET",
+    "path": "/:stormEventId",
+    "full": "/api/drift/:stormEventId"
+  },
+  {
+    "file": "drift.js",
+    "mount": "/api/drift",
+    "method": "POST",
+    "path": "/:stormEventId/correct",
+    "full": "/api/drift/:stormEventId/correct"
+  },
+  {
+    "file": "drift.js",
+    "mount": "/api/drift",
+    "method": "POST",
+    "path": "/correct-all",
+    "full": "/api/drift/correct-all"
+  },
+  {
+    "file": "drift.js",
+    "mount": "/api/drift",
+    "method": "POST",
+    "path": "/simulate",
+    "full": "/api/drift/simulate"
+  },
+  {
+    "file": "drift.js",
+    "mount": "/api/drift",
+    "method": "POST",
+    "path": "/calibrate",
+    "full": "/api/drift/calibrate"
+  },
+  {
+    "file": "drip.js",
+    "mount": "/api/crm/drip-sequences",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/drip-sequences/"
+  },
+  {
+    "file": "drip.js",
+    "mount": "/api/crm/drip-sequences",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/crm/drip-sequences/:id"
+  },
+  {
+    "file": "drip.js",
+    "mount": "/api/crm/drip-sequences",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/drip-sequences/"
+  },
+  {
+    "file": "drip.js",
+    "mount": "/api/crm/drip-sequences",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/drip-sequences/:id"
+  },
+  {
+    "file": "drip.js",
+    "mount": "/api/crm/drip-sequences",
+    "method": "DELETE",
+    "path": "/:id",
+    "full": "/api/crm/drip-sequences/:id"
+  },
+  {
+    "file": "drip.js",
+    "mount": "/api/crm/drip-sequences",
+    "method": "POST",
+    "path": "/:id/enroll",
+    "full": "/api/crm/drip-sequences/:id/enroll"
+  },
+  {
+    "file": "drip.js",
+    "mount": "/api/crm/drip-sequences",
+    "method": "POST",
+    "path": "/:id/cancel",
+    "full": "/api/crm/drip-sequences/:id/cancel"
+  },
+  {
+    "file": "drip.js",
+    "mount": "/api/crm/drip-sequences",
+    "method": "GET",
+    "path": "/:id/enrollments",
+    "full": "/api/crm/drip-sequences/:id/enrollments"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "GET",
+    "path": "/public/:token",
+    "full": "/api/estimates/public/:token"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "POST",
+    "path": "/public/:token/accept",
+    "full": "/api/estimates/public/:token/accept"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "POST",
+    "path": "/public/:token/decline",
+    "full": "/api/estimates/public/:token/decline"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/estimates/"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "GET",
+    "path": "/templates",
+    "full": "/api/estimates/templates"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "POST",
+    "path": "/templates",
+    "full": "/api/estimates/templates"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "PATCH",
+    "path": "/templates/:id",
+    "full": "/api/estimates/templates/:id"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "DELETE",
+    "path": "/templates/:id",
+    "full": "/api/estimates/templates/:id"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/estimates/:id"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/estimates/"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/estimates/:id"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "DELETE",
+    "path": "/:id",
+    "full": "/api/estimates/:id"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "POST",
+    "path": "/:id/send",
+    "full": "/api/estimates/:id/send"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "POST",
+    "path": "/:id/duplicate",
+    "full": "/api/estimates/:id/duplicate"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "GET",
+    "path": "/:id/pdf",
+    "full": "/api/estimates/:id/pdf"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "POST",
+    "path": "/:id/sign-in-person",
+    "full": "/api/estimates/:id/sign-in-person"
+  },
+  {
+    "file": "estimates.js",
+    "mount": "/api/estimates",
+    "method": "POST",
+    "path": "/:id/generate-tiers",
+    "full": "/api/estimates/:id/generate-tiers"
+  },
+  {
+    "file": "expenses.js",
+    "mount": "/api/crm/expenses",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/expenses/"
+  },
+  {
+    "file": "expenses.js",
+    "mount": "/api/crm/expenses",
+    "method": "GET",
+    "path": "/summary/:leadId",
+    "full": "/api/crm/expenses/summary/:leadId"
+  },
+  {
+    "file": "expenses.js",
+    "mount": "/api/crm/expenses",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/expenses/"
+  },
+  {
+    "file": "expenses.js",
+    "mount": "/api/crm/expenses",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/expenses/:id"
+  },
+  {
+    "file": "expenses.js",
+    "mount": "/api/crm/expenses",
+    "method": "DELETE",
+    "path": "/:id",
+    "full": "/api/crm/expenses/:id"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "GET",
+    "path": "/public/:token/plans",
+    "full": "/api/crm/financing/public/:token/plans"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "GET",
+    "path": "/public/:token/applications",
+    "full": "/api/crm/financing/public/:token/applications"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "POST",
+    "path": "/public/:token/apply",
+    "full": "/api/crm/financing/public/:token/apply"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "GET",
+    "path": "/lenders",
+    "full": "/api/crm/financing/lenders"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "POST",
+    "path": "/lenders",
+    "full": "/api/crm/financing/lenders"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "PATCH",
+    "path": "/lenders/:id",
+    "full": "/api/crm/financing/lenders/:id"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "DELETE",
+    "path": "/lenders/:id",
+    "full": "/api/crm/financing/lenders/:id"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "GET",
+    "path": "/plans",
+    "full": "/api/crm/financing/plans"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "POST",
+    "path": "/plans/sync",
+    "full": "/api/crm/financing/plans/sync"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "PATCH",
+    "path": "/plans/:id",
+    "full": "/api/crm/financing/plans/:id"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "GET",
+    "path": "/applications",
+    "full": "/api/crm/financing/applications"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "GET",
+    "path": "/applications/:id",
+    "full": "/api/crm/financing/applications/:id"
+  },
+  {
+    "file": "financing.js",
+    "mount": "/api/crm/financing",
+    "method": "POST",
+    "path": "/applications",
+    "full": "/api/crm/financing/applications"
+  },
+  {
+    "file": "hearthWebhook.js",
+    "mount": "/api/webhooks/hearth",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/webhooks/hearth/"
+  },
+  {
+    "file": "invoices.js",
+    "mount": "/api/crm/invoices",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/invoices/"
+  },
+  {
+    "file": "invoices.js",
+    "mount": "/api/crm/invoices",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/crm/invoices/:id"
+  },
+  {
+    "file": "invoices.js",
+    "mount": "/api/crm/invoices",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/invoices/"
+  },
+  {
+    "file": "invoices.js",
+    "mount": "/api/crm/invoices",
+    "method": "POST",
+    "path": "/from-estimate/:estimateId",
+    "full": "/api/crm/invoices/from-estimate/:estimateId"
+  },
+  {
+    "file": "invoices.js",
+    "mount": "/api/crm/invoices",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/invoices/:id"
+  },
+  {
+    "file": "invoices.js",
+    "mount": "/api/crm/invoices",
+    "method": "POST",
+    "path": "/:id/payment",
+    "full": "/api/crm/invoices/:id/payment"
+  },
+  {
+    "file": "invoices.js",
+    "mount": "/api/crm/invoices",
+    "method": "POST",
+    "path": "/:id/send",
+    "full": "/api/crm/invoices/:id/send"
+  },
+  {
+    "file": "invoices.js",
+    "mount": "/api/crm/invoices",
+    "method": "POST",
+    "path": "/:id/send-email",
+    "full": "/api/crm/invoices/:id/send-email"
+  },
+  {
+    "file": "leads.js",
+    "mount": "/api/leads",
+    "method": "GET",
+    "path": "/status/public/:token",
+    "full": "/api/leads/status/public/:token"
+  },
+  {
+    "file": "leads.js",
+    "mount": "/api/leads",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/leads/"
+  },
+  {
+    "file": "leads.js",
+    "mount": "/api/leads",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/leads/:id"
+  },
+  {
+    "file": "leads.js",
+    "mount": "/api/leads",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/leads/:id"
+  },
+  {
+    "file": "leads.js",
+    "mount": "/api/leads",
+    "method": "POST",
+    "path": "/:id/status-token",
+    "full": "/api/leads/:id/status-token"
+  },
+  {
+    "file": "leads.js",
+    "mount": "/api/leads",
+    "method": "POST",
+    "path": "/from-storm",
+    "full": "/api/leads/from-storm"
+  },
+  {
+    "file": "map.js",
+    "mount": "/api/map",
+    "method": "GET",
+    "path": "/properties",
+    "full": "/api/map/properties"
+  },
+  {
+    "file": "map.js",
+    "mount": "/api/map",
+    "method": "GET",
+    "path": "/affected-properties",
+    "full": "/api/map/affected-properties"
+  },
+  {
+    "file": "map.js",
+    "mount": "/api/map",
+    "method": "GET",
+    "path": "/swaths",
+    "full": "/api/map/swaths"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "GET",
+    "path": "/products",
+    "full": "/api/materials/products"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "GET",
+    "path": "/products/:id",
+    "full": "/api/materials/products/:id"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "GET",
+    "path": "/branches",
+    "full": "/api/materials/branches"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "POST",
+    "path": "/orders",
+    "full": "/api/materials/orders"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "GET",
+    "path": "/orders",
+    "full": "/api/materials/orders"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "GET",
+    "path": "/orders/:id",
+    "full": "/api/materials/orders/:id"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "POST",
+    "path": "/estimate/:estimateId/auto-order",
+    "full": "/api/materials/estimate/:estimateId/auto-order"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "PUT",
+    "path": "/credentials",
+    "full": "/api/materials/credentials"
+  },
+  {
+    "file": "materials.js",
+    "mount": "/api/materials",
+    "method": "GET",
+    "path": "/credentials",
+    "full": "/api/materials/credentials"
+  },
+  {
+    "file": "notifications.js",
+    "mount": "/api/notifications",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/notifications/"
+  },
+  {
+    "file": "notifications.js",
+    "mount": "/api/notifications",
+    "method": "GET",
+    "path": "/unread-count",
+    "full": "/api/notifications/unread-count"
+  },
+  {
+    "file": "notifications.js",
+    "mount": "/api/notifications",
+    "method": "PATCH",
+    "path": "/:id/read",
+    "full": "/api/notifications/:id/read"
+  },
+  {
+    "file": "notifications.js",
+    "mount": "/api/notifications",
+    "method": "POST",
+    "path": "/mark-all-read",
+    "full": "/api/notifications/mark-all-read"
+  },
+  {
+    "file": "notifications.js",
+    "mount": "/api/notifications",
+    "method": "GET",
+    "path": "/preferences",
+    "full": "/api/notifications/preferences"
+  },
+  {
+    "file": "notifications.js",
+    "mount": "/api/notifications",
+    "method": "PATCH",
+    "path": "/preferences",
+    "full": "/api/notifications/preferences"
+  },
+  {
+    "file": "onboarding.js",
+    "mount": "/api/onboarding",
+    "method": "POST",
+    "path": "/create-tenant",
+    "full": "/api/onboarding/create-tenant"
+  },
+  {
+    "file": "onboarding.js",
+    "mount": "/api/onboarding",
+    "method": "PUT",
+    "path": "/org",
+    "full": "/api/onboarding/org"
+  },
+  {
+    "file": "onboarding.js",
+    "mount": "/api/onboarding",
+    "method": "GET",
+    "path": "/plans",
+    "full": "/api/onboarding/plans"
+  },
+  {
+    "file": "onboarding.js",
+    "mount": "/api/onboarding",
+    "method": "POST",
+    "path": "/select-plan",
+    "full": "/api/onboarding/select-plan"
+  },
+  {
+    "file": "onboarding.js",
+    "mount": "/api/onboarding",
+    "method": "POST",
+    "path": "/setup-payment",
+    "full": "/api/onboarding/setup-payment"
+  },
+  {
+    "file": "onboarding.js",
+    "mount": "/api/onboarding",
+    "method": "POST",
+    "path": "/enable-addons",
+    "full": "/api/onboarding/enable-addons"
+  },
+  {
+    "file": "onboarding.js",
+    "mount": "/api/onboarding",
+    "method": "POST",
+    "path": "/complete",
+    "full": "/api/onboarding/complete"
+  },
+  {
+    "file": "payments.js",
+    "mount": "/api/payments",
+    "method": "POST",
+    "path": "/connect/onboard",
+    "full": "/api/payments/connect/onboard"
+  },
+  {
+    "file": "payments.js",
+    "mount": "/api/payments",
+    "method": "GET",
+    "path": "/connect/status",
+    "full": "/api/payments/connect/status"
+  },
+  {
+    "file": "payments.js",
+    "mount": "/api/payments",
+    "method": "POST",
+    "path": "/connect/refresh",
+    "full": "/api/payments/connect/refresh"
+  },
+  {
+    "file": "payments.js",
+    "mount": "/api/payments",
+    "method": "POST",
+    "path": "/create-intent",
+    "full": "/api/payments/create-intent"
+  },
+  {
+    "file": "payments.js",
+    "mount": "/api/payments",
+    "method": "GET",
+    "path": "/history",
+    "full": "/api/payments/history"
+  },
+  {
+    "file": "payments.js",
+    "mount": "/api/payments",
+    "method": "POST",
+    "path": "/public/create-intent",
+    "full": "/api/payments/public/create-intent"
+  },
+  {
+    "file": "payments.js",
+    "mount": "/api/payments",
+    "method": "POST",
+    "path": "/webhook",
+    "full": "/api/payments/webhook"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/fema-live",
+    "full": "/api/properties/fema-live"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "POST",
+    "path": "/fema-live-polygon",
+    "full": "/api/properties/fema-live-polygon"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/import-progress",
+    "full": "/api/properties/import-progress"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "POST",
+    "path": "/trigger-import",
+    "full": "/api/properties/trigger-import"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/properties/"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/in-swath/:stormEventId/count",
+    "full": "/api/properties/in-swath/:stormEventId/count"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/in-swath/:stormEventId",
+    "full": "/api/properties/in-swath/:stormEventId"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/reverse-geocode",
+    "full": "/api/properties/reverse-geocode"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/properties/:id"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "POST",
+    "path": "/generate-leads",
+    "full": "/api/properties/generate-leads"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "POST",
+    "path": "/geocode",
+    "full": "/api/properties/geocode"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "POST",
+    "path": "/import-csv",
+    "full": "/api/properties/import-csv"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/properties/"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "PUT",
+    "path": "/:id/location",
+    "full": "/api/properties/:id/location"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "POST",
+    "path": "/:id/fema-lookup",
+    "full": "/api/properties/:id/fema-lookup"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/:id/weather-history",
+    "full": "/api/properties/:id/weather-history"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/:id/weather-history/pdf",
+    "full": "/api/properties/:id/weather-history/pdf"
+  },
+  {
+    "file": "properties.js",
+    "mount": "/api/properties",
+    "method": "GET",
+    "path": "/:id/report/pdf",
+    "full": "/api/properties/:id/report/pdf"
+  },
+  {
+    "file": "reports.js",
+    "mount": "/api/crm/reports",
+    "method": "GET",
+    "path": "/revenue",
+    "full": "/api/crm/reports/revenue"
+  },
+  {
+    "file": "reports.js",
+    "mount": "/api/crm/reports",
+    "method": "GET",
+    "path": "/pipeline",
+    "full": "/api/crm/reports/pipeline"
+  },
+  {
+    "file": "reports.js",
+    "mount": "/api/crm/reports",
+    "method": "GET",
+    "path": "/conversion",
+    "full": "/api/crm/reports/conversion"
+  },
+  {
+    "file": "reports.js",
+    "mount": "/api/crm/reports",
+    "method": "GET",
+    "path": "/rep-performance",
+    "full": "/api/crm/reports/rep-performance"
+  },
+  {
+    "file": "reports.js",
+    "mount": "/api/crm/reports",
+    "method": "GET",
+    "path": "/stage-duration",
+    "full": "/api/crm/reports/stage-duration"
+  },
+  {
+    "file": "reports.js",
+    "mount": "/api/crm/reports",
+    "method": "GET",
+    "path": "/lead-sources",
+    "full": "/api/crm/reports/lead-sources"
+  },
+  {
+    "file": "roofMeasurement.js",
+    "mount": "/api/roof-measurement",
+    "method": "GET",
+    "path": "/config",
+    "full": "/api/roof-measurement/config"
+  },
+  {
+    "file": "roofMeasurement.js",
+    "mount": "/api/roof-measurement",
+    "method": "PUT",
+    "path": "/config",
+    "full": "/api/roof-measurement/config"
+  },
+  {
+    "file": "roofMeasurement.js",
+    "mount": "/api/roof-measurement",
+    "method": "POST",
+    "path": "/measure",
+    "full": "/api/roof-measurement/measure"
+  },
+  {
+    "file": "roofMeasurement.js",
+    "mount": "/api/roof-measurement",
+    "method": "POST",
+    "path": "/manual",
+    "full": "/api/roof-measurement/manual"
+  },
+  {
+    "file": "roofMeasurement.js",
+    "mount": "/api/roof-measurement",
+    "method": "GET",
+    "path": "/segments/:propertyId",
+    "full": "/api/roof-measurement/segments/:propertyId"
+  },
+  {
+    "file": "roofMeasurement.js",
+    "mount": "/api/roof-measurement",
+    "method": "GET",
+    "path": "/solar/:propertyId",
+    "full": "/api/roof-measurement/solar/:propertyId"
+  },
+  {
+    "file": "roofMeasurement.js",
+    "mount": "/api/roof-measurement",
+    "method": "GET",
+    "path": "/usage",
+    "full": "/api/roof-measurement/usage"
+  },
+  {
+    "file": "roofMeasurement.js",
+    "mount": "/api/roof-measurement",
+    "method": "GET",
+    "path": "/balance",
+    "full": "/api/roof-measurement/balance"
+  },
+  {
+    "file": "search.js",
+    "mount": "/api/search",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/search/"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "GET",
+    "path": "/config",
+    "full": "/api/skip-trace/config"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "PUT",
+    "path": "/config",
+    "full": "/api/skip-trace/config"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "POST",
+    "path": "/setup-payment",
+    "full": "/api/skip-trace/setup-payment"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "DELETE",
+    "path": "/payment-method",
+    "full": "/api/skip-trace/payment-method"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "POST",
+    "path": "/submit",
+    "full": "/api/skip-trace/submit"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "GET",
+    "path": "/job/:jobId",
+    "full": "/api/skip-trace/job/:jobId"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "GET",
+    "path": "/balance",
+    "full": "/api/skip-trace/balance"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "GET",
+    "path": "/invoices",
+    "full": "/api/skip-trace/invoices"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "GET",
+    "path": "/usage",
+    "full": "/api/skip-trace/usage"
+  },
+  {
+    "file": "skipTrace.js",
+    "mount": "/api/skip-trace",
+    "method": "GET",
+    "path": "/jobs",
+    "full": "/api/skip-trace/jobs"
+  },
+  {
+    "file": "stormHistory.js",
+    "mount": "/api/storm-history",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/storm-history/"
+  },
+  {
+    "file": "stormHistory.js",
+    "mount": "/api/storm-history",
+    "method": "GET",
+    "path": "/heatmap",
+    "full": "/api/storm-history/heatmap"
+  },
+  {
+    "file": "storms.js",
+    "mount": "/api/storms",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/storms/"
+  },
+  {
+    "file": "storms.js",
+    "mount": "/api/storms",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/storms/:id"
+  },
+  {
+    "file": "subcontractors.js",
+    "mount": "/api/crm/subcontractors",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/subcontractors/"
+  },
+  {
+    "file": "subcontractors.js",
+    "mount": "/api/crm/subcontractors",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/crm/subcontractors/:id"
+  },
+  {
+    "file": "subcontractors.js",
+    "mount": "/api/crm/subcontractors",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/subcontractors/"
+  },
+  {
+    "file": "subcontractors.js",
+    "mount": "/api/crm/subcontractors",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/subcontractors/:id"
+  },
+  {
+    "file": "subcontractors.js",
+    "mount": "/api/crm/subcontractors",
+    "method": "DELETE",
+    "path": "/:id",
+    "full": "/api/crm/subcontractors/:id"
+  },
+  {
+    "file": "subcontractors.js",
+    "mount": "/api/crm/subcontractors",
+    "method": "POST",
+    "path": "/assign",
+    "full": "/api/crm/subcontractors/assign"
+  },
+  {
+    "file": "subcontractors.js",
+    "mount": "/api/crm/subcontractors",
+    "method": "GET",
+    "path": "/work-order/:workOrderId",
+    "full": "/api/crm/subcontractors/work-order/:workOrderId"
+  },
+  {
+    "file": "subcontractors.js",
+    "mount": "/api/crm/subcontractors",
+    "method": "DELETE",
+    "path": "/work-order/:workOrderId/:subcontractorId",
+    "full": "/api/crm/subcontractors/work-order/:workOrderId/:subcontractorId"
+  },
+  {
+    "file": "territories.js",
+    "mount": "/api/crm/territories",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/territories/"
+  },
+  {
+    "file": "territories.js",
+    "mount": "/api/crm/territories",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/crm/territories/:id"
+  },
+  {
+    "file": "territories.js",
+    "mount": "/api/crm/territories",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/territories/"
+  },
+  {
+    "file": "territories.js",
+    "mount": "/api/crm/territories",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/territories/:id"
+  },
+  {
+    "file": "territories.js",
+    "mount": "/api/crm/territories",
+    "method": "DELETE",
+    "path": "/:id",
+    "full": "/api/crm/territories/:id"
+  },
+  {
+    "file": "territories.js",
+    "mount": "/api/crm/territories",
+    "method": "GET",
+    "path": "/:id/pins",
+    "full": "/api/crm/territories/:id/pins"
+  },
+  {
+    "file": "webhook.js",
+    "mount": "/api/webhooks",
+    "method": "POST",
+    "path": "/tracerfy",
+    "full": "/api/webhooks/tracerfy"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "GET",
+    "path": "/milestone-templates",
+    "full": "/api/crm/work-orders/milestone-templates"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "GET",
+    "path": "/",
+    "full": "/api/crm/work-orders/"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "GET",
+    "path": "/:id",
+    "full": "/api/crm/work-orders/:id"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "POST",
+    "path": "/",
+    "full": "/api/crm/work-orders/"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "POST",
+    "path": "/from-estimate/:estimateId",
+    "full": "/api/crm/work-orders/from-estimate/:estimateId"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "PATCH",
+    "path": "/:id",
+    "full": "/api/crm/work-orders/:id"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "PATCH",
+    "path": "/:id/complete",
+    "full": "/api/crm/work-orders/:id/complete"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "GET",
+    "path": "/:id/milestones",
+    "full": "/api/crm/work-orders/:id/milestones"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "POST",
+    "path": "/:id/milestones",
+    "full": "/api/crm/work-orders/:id/milestones"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "DELETE",
+    "path": "/:woId/milestones/:milestoneId",
+    "full": "/api/crm/work-orders/:woId/milestones/:milestoneId"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "PATCH",
+    "path": "/:id/milestones/:milestoneId",
+    "full": "/api/crm/work-orders/:id/milestones/:milestoneId"
+  },
+  {
+    "file": "workOrders.js",
+    "mount": "/api/crm/work-orders",
+    "method": "GET",
+    "path": "/:id/pdf",
+    "full": "/api/crm/work-orders/:id/pdf"
+  }
+]

@@ -123,7 +123,17 @@
   {
     "name": "FIN-AUTH:lenders-list",
     "status": 200,
-    "resp": []
+    "resp": [
+      {
+        "id": "c95698b8-eb31-4884-b4d1-115c22ca76d2",
+        "provider": "mock",
+        "merchant_id": "test-merchant-456",
+        "is_active": true,
+        "config": {},
+        "created_at": "2026-06-05T10:10:06.693Z",
+        "updated_at": "2026-06-05T10:10:06.693Z"
+      }
+    ]
   },
   {
     "name": "FIN-AUTH:lender-no-fields",
@@ -170,7 +180,93 @@
   {
     "name": "FIN-AUTH:plans-list",
     "status": 200,
-    "resp": []
+    "resp": [
+      {
+        "id": "39f9d453-73b1-49fb-ab58-835517cb2dde",
+        "tenant_id": "791bb51d-3293-4839-92e9-bd4d4f873af2",
+        "lender_id": "c95698b8-eb31-4884-b4d1-115c22ca76d2",
+        "external_plan_id": "plan_12mo_0apr",
+        "name": "12 Months 0% APR",
+        "term_months": 12,
+        "apr": "0.00",
+        "dealer_fee_pct": "12.50",
+        "min_amount": 100000,
+        "max_amount": 10000000,
+        "is_active": true,
+        "is_default": false,
+        "created_at": "2026-06-05T10:10:06.703Z",
+        "updated_at": "2026-06-05T10:10:36.839Z",
+        "provider": "mock"
+      },
+      {
+        "id": "c58467de-d29a-4efe-9f5d-bbfe3b54ed47",
+        "tenant_id": "791bb51d-3293-4839-92e9-bd4d4f873af2",
+        "lender_id": "c95698b8-eb31-4884-b4d1-115c22ca76d2",
+        "external_plan_id": "plan_24mo_4.99",
+        "name": "24 Months 4.99% APR",
+        "term_months": 24,
+        "apr": "4.99",
+        "dealer_fee_pct": "8.00",
+        "min_amount": 100000,
+        "max_amount": 10000000,
+        "is_active": true,
+        "is_default": false,
+        "created_at": "2026-06-05T10:10:06.706Z",
+        "updated_at": "2026-06-05T10:10:36.842Z",
+        "provider": "mock"
+      },
+      {
+        "id": "13fa1dae-9786-4e88-9ee4-0c60feb836e2",
+        "tenant_id": "791bb51d-3293-4839-92e9-bd4d4f873af2",
+        "lender_id": "c95698b8-eb31-4884-b4d1-115c22ca76d2",
+        "external_plan_id": "plan_36mo_6.99",
+        "name": "36 Months 6.99% APR",
+        "term_months": 36,
+        "apr": "6.99",
+        "dealer_fee_pct": "5.50",
+        "min_amount": 200000,
+        "max_amount": 15000000,
+        "is_active": true,
+        "is_default": false,
+        "created_at": "2026-06-05T10:10:06.706Z",
+        "updated_at": "2026-06-05T10:10:36.842Z",
+        "provider": "mock"
+      },
+      {
+        "id": "1c25316e-f7e9-40b8-84a2-41cf718b3c3e",
+        "tenant_id": "791bb51d-3293-4839-92e9-bd4d4f873af2",
+        "lender_id": "c95698b8-eb31-4884-b4d1-115c22ca76d2",
+        "external_plan_id": "plan_60mo_9.99",
+        "name": "60 Months 9.99% APR",
+        "term_months": 60,
+        "apr": "9.99",
+        "dealer_fee_pct": "3.00",
+        "min_amount": 500000,
+        "max_amount": 20000000,
+        "is_active": true,
+        "is_default": false,
+        "created_at": "2026-06-05T10:10:06.707Z",
+        "updated_at": "2026-06-05T10:10:36.842Z",
+        "provider": "mock"
+      },
+      {
+        "id": "d04e4680-00d8-412e-9d26-716901a56761",
+        "tenant_id": "791bb51d-3293-4839-92e9-bd4d4f873af2",
+        "lender_id": "c95698b8-eb31-4884-b4d1-115c22ca76d2",
+        "external_plan_id": "plan_120mo_11.99",
+        "name": "120 Months 11.99% APR",
+        "term_months": 120,
+        "apr": "11.99",
+        "dealer_fee_pct": "1.50",
+        "min_amount": 1000000,
+        "max_amount": 50000000,
+        "is_active": true,
+        "is_default": false,
+        "created_at": "2026-06-05T10:10:06.708Z",
+        "updated_at": "2026-06-05T10:10:36.843Z",
+        "provider": "mock"
+      }
+    ]
   },
   {
     "name": "FIN-AUTH:plans-bad-lender",

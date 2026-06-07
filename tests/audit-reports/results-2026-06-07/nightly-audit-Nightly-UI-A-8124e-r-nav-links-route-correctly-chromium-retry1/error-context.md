@@ -1,0 +1,573 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - img "StormPipe" [ref=e6] [cursor=pointer]
+    - navigation [ref=e7]:
+      - button "Dashboard" [ref=e8] [cursor=pointer]:
+        - img [ref=e9]
+        - text: Dashboard
+      - button "Storm Map" [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+        - text: Storm Map
+      - button "Storm Archive" [ref=e14] [cursor=pointer]:
+        - img [ref=e15]
+        - text: Storm Archive
+      - button "Pipeline" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - text: Pipeline
+      - button "Leads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+        - text: Leads
+      - button "Jobs" [ref=e24] [cursor=pointer]:
+        - text: Jobs
+        - img [ref=e25]
+      - button "Finance" [ref=e28] [cursor=pointer]:
+        - text: Finance
+        - img [ref=e29]
+      - button "Operations" [ref=e32] [cursor=pointer]:
+        - text: Operations
+        - img [ref=e33]
+    - button "Settings" [ref=e35] [cursor=pointer]:
+      - img [ref=e36]
+      - text: Settings
+    - button "Admin" [ref=e38] [cursor=pointer]:
+      - img [ref=e39]
+      - text: Admin
+    - generic [ref=e41]:
+      - generic [ref=e42]: BA
+      - generic [ref=e43]:
+        - generic [ref=e44]: Brandon A.
+        - generic [ref=e45]: super_admin
+      - button "Sign out" [ref=e46] [cursor=pointer]:
+        - img [ref=e47]
+  - generic [ref=e49]:
+    - banner [ref=e50]:
+      - heading "Dashboard" [level=1] [ref=e51]
+      - generic [ref=e52]:
+        - img
+        - textbox "Search leads, contacts... (Ctrl+K)" [ref=e53]
+      - generic [ref=e54]:
+        - button "Help" [ref=e56] [cursor=pointer]:
+          - img [ref=e57]
+        - button "Notifications" [ref=e60] [cursor=pointer]:
+          - img [ref=e61]
+        - button "enterprise" [ref=e63] [cursor=pointer]:
+          - img [ref=e64]
+          - generic [ref=e66]: enterprise
+    - generic [ref=e67]:
+      - banner [ref=e68]:
+        - generic [ref=e69]:
+          - heading "Good morning, Brandon" [level=1] [ref=e70]
+          - paragraph [ref=e71]: Sunday, June 7
+        - generic [ref=e72]:
+          - generic [ref=e73] [cursor=pointer]:
+            - img [ref=e74]
+            - text: Storm Map
+          - generic [ref=e76] [cursor=pointer]:
+            - img [ref=e77]
+            - text: View Leads
+      - generic [ref=e79]:
+        - button "All Time" [ref=e80] [cursor=pointer]
+        - button "7 Days" [ref=e81] [cursor=pointer]
+        - button "30 Days" [ref=e82] [cursor=pointer]
+        - button "90 Days" [ref=e83] [cursor=pointer]
+        - button "YTD" [ref=e84] [cursor=pointer]
+        - button "All Reps" [ref=e86] [cursor=pointer]:
+          - generic [ref=e87]: All Reps
+          - img [ref=e88]
+        - button "All Sources" [ref=e91] [cursor=pointer]:
+          - generic [ref=e92]: All Sources
+          - img [ref=e93]
+      - generic [ref=e95]:
+        - generic [ref=e96] [cursor=pointer]:
+          - generic "vs previous week" [ref=e97]: ↑ +0%
+          - img [ref=e98]
+          - generic [ref=e100]: $60K
+          - generic [ref=e101]: Pipeline Value
+        - generic [ref=e102] [cursor=pointer]:
+          - generic "vs previous week" [ref=e103]: —
+          - img [ref=e104]
+          - generic [ref=e106]: "0"
+          - generic [ref=e107]: New Leads (7d)
+        - generic [ref=e108] [cursor=pointer]:
+          - generic "vs previous week" [ref=e109]: —
+          - img [ref=e110]
+          - generic [ref=e112]: 0%
+          - generic [ref=e113]: Close Rate
+        - generic [ref=e114] [cursor=pointer]:
+          - generic "vs previous week" [ref=e115]: —
+          - img [ref=e116]
+          - generic [ref=e118]: —
+          - generic [ref=e119]: Avg Days to Close
+        - generic [ref=e120] [cursor=pointer]:
+          - generic "Avg response time (30d)" [ref=e121]: Slow
+          - img [ref=e122]
+          - generic [ref=e124]: 351h
+          - generic [ref=e125]: Speed to Lead
+      - generic [ref=e126]:
+        - generic [ref=e127]: Set a monthly revenue goal to track progress
+        - button "Set Goal" [ref=e128] [cursor=pointer]
+      - generic [ref=e129]:
+        - generic [ref=e130]:
+          - generic [ref=e131]:
+            - heading "Pipeline" [level=2] [ref=e132]
+            - button "View All" [ref=e133] [cursor=pointer]
+          - generic [ref=e134]:
+            - generic [ref=e135] [cursor=pointer]:
+              - generic [ref=e136]: New
+              - generic [ref=e139]: "16"
+            - generic [ref=e140] [cursor=pointer]:
+              - generic [ref=e141]: Contacted
+              - generic [ref=e144]: "4"
+            - generic [ref=e145] [cursor=pointer]:
+              - generic [ref=e146]: Appt Set
+              - generic [ref=e149]: "1"
+            - generic [ref=e150] [cursor=pointer]:
+              - generic [ref=e151]: Inspected
+              - generic [ref=e154]: "1"
+            - generic [ref=e155] [cursor=pointer]:
+              - generic [ref=e156]: Estimate Sent
+              - generic [ref=e159]: "1"
+            - generic [ref=e160] [cursor=pointer]:
+              - generic [ref=e161]: Negotiating
+              - generic [ref=e163]: "0"
+            - generic [ref=e164] [cursor=pointer]:
+              - generic [ref=e165]: Sold
+              - generic [ref=e167]: "0"
+            - generic [ref=e168] [cursor=pointer]:
+              - generic [ref=e169]: In Production
+              - generic [ref=e171]: "0"
+            - generic [ref=e172] [cursor=pointer]:
+              - generic [ref=e173]: Material Ordered
+              - generic [ref=e175]: "0"
+            - generic [ref=e176] [cursor=pointer]:
+              - generic [ref=e177]: Scheduled
+              - generic [ref=e179]: "0"
+            - generic [ref=e180] [cursor=pointer]:
+              - generic [ref=e181]: Completed
+              - generic [ref=e183]: "0"
+            - generic [ref=e184] [cursor=pointer]:
+              - generic [ref=e185]: Invoiced
+              - generic [ref=e187]: "0"
+            - generic [ref=e188] [cursor=pointer]:
+              - generic [ref=e189]: Paid
+              - generic [ref=e191]: "0"
+            - generic [ref=e192] [cursor=pointer]:
+              - generic [ref=e193]: Collections
+              - generic [ref=e195]: "0"
+        - generic [ref=e196]:
+          - generic [ref=e197]:
+            - heading "Storm Map" [level=2] [ref=e198]
+            - button "Full Map" [ref=e199] [cursor=pointer]
+          - generic [ref=e200]:
+            - region "Map" [ref=e201]
+            - generic:
+              - button "Toggle attribution" [ref=e203] [cursor=pointer]
+              - link "Mapbox homepage" [ref=e206] [cursor=pointer]:
+                - /url: https://www.mapbox.com/
+        - generic [ref=e207]:
+          - heading "Storm Activity 24h 7d 30d" [level=2] [ref=e209]:
+            - generic [ref=e210]:
+              - text: Storm Activity
+              - generic [ref=e211]:
+                - button "24h" [ref=e212] [cursor=pointer]
+                - button "7d" [ref=e213] [cursor=pointer]
+                - button "30d" [ref=e214] [cursor=pointer]
+          - generic [ref=e215]:
+            - generic [ref=e216] [cursor=pointer]:
+              - generic [ref=e217]: Wind
+              - generic [ref=e218]:
+                - generic [ref=e219]:
+                  - generic [ref=e220]: Ada, OK
+                  - generic "1/5 severity" [ref=e221]:
+                    - img [ref=e222]
+                    - img [ref=e224]
+                    - img [ref=e226]
+                    - img [ref=e228]
+                    - img [ref=e230]
+                - generic [ref=e232]: SPC
+              - generic [ref=e233]:
+                - generic [ref=e234]: Jun 7
+                - generic [ref=e235]: 6:05 PM
+            - generic [ref=e236] [cursor=pointer]:
+              - generic [ref=e237]: Wind
+              - generic [ref=e238]:
+                - generic [ref=e239]:
+                  - generic [ref=e240]: Ada, OK
+                  - generic "1/5 severity" [ref=e241]:
+                    - img [ref=e242]
+                    - img [ref=e244]
+                    - img [ref=e246]
+                    - img [ref=e248]
+                    - img [ref=e250]
+                - generic [ref=e252]: SPC
+              - generic [ref=e253]:
+                - generic [ref=e254]: Jun 7
+                - generic [ref=e255]: 6:05 PM
+            - generic [ref=e256] [cursor=pointer]:
+              - generic [ref=e257]: Wind
+              - generic [ref=e258]:
+                - generic [ref=e259]:
+                  - generic [ref=e260]: Ada, OK
+                  - generic "1/5 severity" [ref=e261]:
+                    - img [ref=e262]
+                    - img [ref=e264]
+                    - img [ref=e266]
+                    - img [ref=e268]
+                    - img [ref=e270]
+                - generic [ref=e272]: SPC
+              - generic [ref=e273]:
+                - generic [ref=e274]: Jun 7
+                - generic [ref=e275]: 6:05 PM
+            - generic [ref=e276] [cursor=pointer]:
+              - generic [ref=e277]: Wind
+              - generic [ref=e278]:
+                - generic [ref=e279]:
+                  - generic [ref=e280]: Archer, TX; Baylor, TX
+                  - generic "1/5 severity" [ref=e281]:
+                    - img [ref=e282]
+                    - img [ref=e284]
+                    - img [ref=e286]
+                    - img [ref=e288]
+                    - img [ref=e290]
+                - generic [ref=e292]: 60.0 mph · NWS · Severe
+              - generic [ref=e293]:
+                - generic [ref=e294]: Jun 7
+                - generic [ref=e295]: 3:56 AM
+            - generic [ref=e296] [cursor=pointer]:
+              - generic [ref=e297]: Wind
+              - generic [ref=e298]:
+                - generic [ref=e299]:
+                  - generic [ref=e300]: Camp, TX; Franklin, TX; Titus, TX; Wood, TX
+                  - generic "1/5 severity" [ref=e301]:
+                    - img [ref=e302]
+                    - img [ref=e304]
+                    - img [ref=e306]
+                    - img [ref=e308]
+                    - img [ref=e310]
+                - generic [ref=e312]: NWS · Minor
+              - generic [ref=e313]:
+                - generic [ref=e314]: Jun 7
+                - generic [ref=e315]: 12:53 AM
+            - generic [ref=e316] [cursor=pointer]:
+              - generic [ref=e317]: Hail
+              - generic [ref=e318]:
+                - generic [ref=e319]:
+                  - generic [ref=e320]: Camp, TX; Franklin, TX; Titus, TX; Wood, TX
+                  - generic "3/5 severity" [ref=e321]:
+                    - img [ref=e322]
+                    - img [ref=e324]
+                    - img [ref=e326]
+                    - img [ref=e328]
+                    - img [ref=e330]
+                - generic [ref=e332]: 1.00" · 60.0 mph · NWS · Severe
+              - generic [ref=e333]:
+                - generic [ref=e334]: Jun 7
+                - generic [ref=e335]: 12:43 AM
+            - button "+44 more events" [ref=e336] [cursor=pointer]
+      - generic [ref=e337]:
+        - generic [ref=e338]:
+          - generic [ref=e339]:
+            - heading "Today 4 overdue" [level=2] [ref=e340]:
+              - generic [ref=e341]:
+                - text: Today
+                - generic [ref=e342]: 4 overdue
+            - button "All Tasks" [ref=e343] [cursor=pointer]
+          - generic [ref=e344]:
+            - generic [ref=e345]:
+              - button [ref=e346] [cursor=pointer]
+              - generic [ref=e348]: Updated test task
+              - generic [ref=e349]: warm
+              - generic [ref=e350]: 12:00 AM
+            - generic [ref=e351] [cursor=pointer]:
+              - button [ref=e352]
+              - generic [ref=e353]:
+                - generic [ref=e354]: QA Run 10 follow-up
+                - generic [ref=e355]: QA Probe Run 10 1777197944
+              - generic [ref=e356]: warm
+              - generic [ref=e357]: 12:00 AM
+            - generic [ref=e358]:
+              - button [ref=e359] [cursor=pointer]
+              - generic [ref=e361]: QA Run 29 smoke test
+              - generic [ref=e362]: cold
+              - generic [ref=e363]: 12:00 AM
+            - generic [ref=e364]:
+              - button [ref=e365] [cursor=pointer]
+              - generic [ref=e367]: qa-roundtrip-1779703856844
+              - generic [ref=e368]: cold
+              - generic [ref=e369]: 5:10 AM
+            - generic [ref=e370]:
+              - button [ref=e371] [cursor=pointer]
+              - generic [ref=e373]: qa probe — safe to delete
+              - generic [ref=e374]: warm
+            - generic [ref=e375]:
+              - button [ref=e376] [cursor=pointer]
+              - generic [ref=e378]: qa-roundtrip-finding-b
+              - generic [ref=e379]: warm
+            - generic [ref=e380] [cursor=pointer]:
+              - button [ref=e381]
+              - generic [ref=e383]: qa-rt-task 1779790065643
+              - generic [ref=e384]: warm
+            - generic [ref=e385]:
+              - button [ref=e386] [cursor=pointer]
+              - generic [ref=e388]: QA test task
+              - generic [ref=e389]: warm
+            - generic [ref=e390]:
+              - button [ref=e391] [cursor=pointer]
+              - generic [ref=e393]: qa probe — safe to delete
+              - generic [ref=e394]: warm
+            - generic [ref=e395] [cursor=pointer]:
+              - button [ref=e396]
+              - generic [ref=e398]: QA Test Task
+              - generic [ref=e399]: warm
+            - generic [ref=e400]:
+              - button [ref=e401] [cursor=pointer]
+              - generic [ref=e403]: QA test task
+              - generic [ref=e404]: warm
+            - generic [ref=e405]:
+              - button [ref=e406] [cursor=pointer]
+              - generic [ref=e408]: QA test task
+              - generic [ref=e409]: warm
+            - generic [ref=e410]:
+              - button [ref=e411] [cursor=pointer]
+              - generic [ref=e413]: qa probe task
+              - generic [ref=e414]: warm
+            - generic [ref=e415]:
+              - button [ref=e416] [cursor=pointer]
+              - generic [ref=e418]: QA task test
+              - generic [ref=e419]: warm
+            - generic [ref=e420]:
+              - button [ref=e421] [cursor=pointer]
+              - generic [ref=e423]: QA Run 29 final probe
+              - generic [ref=e424]: cold
+            - generic [ref=e425]:
+              - button [ref=e426] [cursor=pointer]
+              - generic [ref=e428]: QA standalone task
+              - generic [ref=e429]: cold
+        - generic [ref=e430]:
+          - heading "Activity Feed" [level=2] [ref=e432]
+          - generic [ref=e433]:
+            - generic [ref=e434] [cursor=pointer]:
+              - generic [ref=e436]: 10706 LOCH NESS CV AUSTIN 78750 — note logged
+              - generic [ref=e437]: 5/26/2026
+            - generic [ref=e438] [cursor=pointer]:
+              - generic [ref=e440]: Unknown — note logged
+              - generic [ref=e441]: 5/24/2026
+            - generic [ref=e442] [cursor=pointer]:
+              - generic [ref=e444]: QA TestLead — call logged
+              - generic [ref=e445]: 5/14/2026
+            - generic [ref=e446] [cursor=pointer]:
+              - generic [ref=e448]: QA Probe Run 10 1777197905 — note logged
+              - generic [ref=e449]: 4/28/2026
+            - generic [ref=e450] [cursor=pointer]:
+              - generic [ref=e452]: QA Probe Run 10 1777197905 — call logged
+              - generic [ref=e453]: 4/28/2026
+            - generic [ref=e454] [cursor=pointer]:
+              - generic [ref=e456]: QA Probe Run 10 1777197905 — note logged
+              - generic [ref=e457]: 4/28/2026
+            - generic [ref=e458] [cursor=pointer]:
+              - generic [ref=e460]: QA Probe Run 10 1777197905 — note logged
+              - generic [ref=e461]: 4/28/2026
+            - generic [ref=e462] [cursor=pointer]:
+              - generic [ref=e464]: QA Probe Run 10 1777197944 — call logged
+              - generic [ref=e465]: 4/26/2026
+            - generic [ref=e466] [cursor=pointer]:
+              - generic [ref=e468]: Test QALead — call logged
+              - generic [ref=e469]: 4/17/2026
+            - generic [ref=e470] [cursor=pointer]:
+              - generic [ref=e472]: 123 Test St — call logged
+              - generic [ref=e473]: 4/16/2026
+            - generic [ref=e474] [cursor=pointer]:
+              - generic [ref=e476]: QA Test Lead — note logged
+              - generic [ref=e477]: 4/10/2026
+            - generic [ref=e478] [cursor=pointer]:
+              - generic [ref=e480]: 4360 Thomas Court — call logged
+              - generic [ref=e481]: 4/9/2026
+      - generic [ref=e482]:
+        - generic [ref=e483]:
+          - heading "Storm Conversion" [level=2] [ref=e485]
+          - generic [ref=e486]: No conversion data yet
+        - generic [ref=e487]:
+          - generic [ref=e488]:
+            - heading "Estimates" [level=2] [ref=e489]
+            - button "View All" [ref=e490] [cursor=pointer]
+          - generic [ref=e491]:
+            - generic [ref=e492]:
+              - generic [ref=e493]:
+                - generic [ref=e495]: "14"
+                - text: Draft
+              - generic [ref=e496]:
+                - generic [ref=e498]: "3"
+                - text: Sent
+              - generic [ref=e499]:
+                - generic [ref=e501]: "0"
+                - text: Viewed
+              - generic [ref=e502]:
+                - generic [ref=e504]: "0"
+                - text: Accepted
+            - generic [ref=e505]:
+              - generic [ref=e506]:
+                - generic [ref=e507]:
+                  - generic [ref=e508]: Accepted Value
+                  - text: $0
+                - generic [ref=e509]:
+                  - generic [ref=e510]: Pending Value
+                  - text: $135.2K
+              - generic [ref=e511]:
+                - generic [ref=e512]:
+                  - generic [ref=e513]: Declined
+                  - generic [ref=e514]: "0"
+                - generic [ref=e515]:
+                  - generic [ref=e516]: Expired
+                  - generic [ref=e517]: "0"
+      - generic [ref=e518]:
+        - generic [ref=e519]:
+          - heading "Revenue by Lead Source" [level=2] [ref=e520]
+          - button "View Leads" [ref=e521] [cursor=pointer]
+        - generic [ref=e522]:
+          - generic [ref=e523]:
+            - generic [ref=e524]:
+              - generic [ref=e527]: canvassing
+              - generic [ref=e528]: $0
+            - generic [ref=e531]: 0/3 sold · 0%
+          - generic [ref=e532]:
+            - generic [ref=e533]:
+              - generic [ref=e536]: storm map
+              - generic [ref=e537]: $0
+            - generic [ref=e540]: 0/5 sold · 0%
+          - generic [ref=e541]:
+            - generic [ref=e542]:
+              - generic [ref=e545]: fema nsi
+              - generic [ref=e546]: $0
+            - generic [ref=e549]: 0/6 sold · 0%
+          - generic [ref=e550]:
+            - generic [ref=e551]:
+              - generic [ref=e554]: manual
+              - generic [ref=e555]: $0
+            - generic [ref=e558]: 0/9 sold · 0%
+      - generic [ref=e559]:
+        - generic [ref=e560]:
+          - generic [ref=e561]:
+            - heading "Accounts Receivable" [level=2] [ref=e562]
+            - button "View Invoices" [ref=e563] [cursor=pointer]
+          - generic [ref=e564]:
+            - generic [ref=e565]:
+              - generic [ref=e566]:
+                - generic [ref=e567]: Outstanding
+                - text: $4.4K
+                - generic [ref=e568]: 5 invoices
+              - generic [ref=e569]:
+                - generic [ref=e570]: Overdue
+                - text: $0
+                - generic [ref=e571]: 1 invoices
+            - generic [ref=e572]:
+              - generic [ref=e573]:
+                - generic [ref=e574]: $0
+                - text: 0–30 days
+              - generic [ref=e575]:
+                - generic [ref=e576]: $0
+                - text: 30–60 days
+              - generic [ref=e577]:
+                - generic [ref=e578]: $0
+                - text: 60+ days
+        - generic [ref=e579]:
+          - generic [ref=e580]:
+            - heading "Estimating Conversion" [level=2] [ref=e581]
+            - button "View Estimates" [ref=e582] [cursor=pointer]
+          - generic [ref=e583]:
+            - generic [ref=e584]:
+              - generic [ref=e585]: 5.9%
+              - generic [ref=e586]: Acceptance Rate
+            - generic [ref=e590]:
+              - generic [ref=e591]:
+                - generic [ref=e592]: "17"
+                - text: Sent
+              - generic [ref=e593]:
+                - generic [ref=e594]: "1"
+                - text: Accepted
+              - generic [ref=e595]:
+                - generic [ref=e596]: "1"
+                - text: Declined
+      - generic [ref=e597]:
+        - generic [ref=e598]:
+          - heading "Days in Stage" [level=2] [ref=e599]
+          - button "View Pipeline" [ref=e600] [cursor=pointer]
+        - generic [ref=e601]:
+          - generic [ref=e602] [cursor=pointer]:
+            - generic [ref=e603]: "1.0"
+            - generic [ref=e604]: Contacted
+            - generic [ref=e608]: 4 leads
+          - generic [ref=e609] [cursor=pointer]:
+            - generic [ref=e610]: "1.0"
+            - generic [ref=e611]: Estimate Sent
+            - generic [ref=e615]: 1 lead
+          - generic [ref=e616] [cursor=pointer]:
+            - generic [ref=e617]: "1.0"
+            - generic [ref=e618]: New
+            - generic [ref=e622]: 16 leads
+          - generic [ref=e623] [cursor=pointer]:
+            - generic [ref=e624]: "1.0"
+            - generic [ref=e625]: Appt Set
+            - generic [ref=e629]: 1 lead
+          - generic [ref=e630] [cursor=pointer]:
+            - generic [ref=e631]: "1.0"
+            - generic [ref=e632]: Inspection
+            - generic [ref=e636]: 1 lead
+      - generic [ref=e637]:
+        - heading "Team Leaderboard" [level=2] [ref=e639]
+        - table [ref=e641]:
+          - rowgroup [ref=e642]:
+            - row "Rep Leads Contacted Appts Inspections Estimates Sold Revenue Close %" [ref=e643]:
+              - columnheader "Rep" [ref=e644]
+              - columnheader "Leads" [ref=e645]
+              - columnheader "Contacted" [ref=e646]
+              - columnheader "Appts" [ref=e647]
+              - columnheader "Inspections" [ref=e648]
+              - columnheader "Estimates" [ref=e649]
+              - columnheader "Sold" [ref=e650]
+              - columnheader "Revenue" [ref=e651]
+              - columnheader "Close %" [ref=e652]
+          - rowgroup [ref=e653]:
+            - row "Brandon Admin 4 1 1 1 1 0 $0 0%" [ref=e654] [cursor=pointer]:
+              - cell "Brandon Admin" [ref=e655]
+              - cell "4" [ref=e656]
+              - cell "1" [ref=e657]
+              - cell "1" [ref=e658]
+              - cell "1" [ref=e659]
+              - cell "1" [ref=e660]
+              - cell "0" [ref=e661]
+              - cell "$0" [ref=e662]
+              - cell "0%" [ref=e663]
+            - row "Brandon Admin 0 0 0 0 0 0 $0 0%" [ref=e664] [cursor=pointer]:
+              - cell "Brandon Admin" [ref=e665]
+              - cell "0" [ref=e666]
+              - cell "0" [ref=e667]
+              - cell "0" [ref=e668]
+              - cell "0" [ref=e669]
+              - cell "0" [ref=e670]
+              - cell "0" [ref=e671]
+              - cell "$0" [ref=e672]
+              - cell "0%" [ref=e673]
+            - row "Miles Martin 0 0 0 0 0 0 $0 0%" [ref=e674] [cursor=pointer]:
+              - cell "Miles Martin" [ref=e675]
+              - cell "0" [ref=e676]
+              - cell "0" [ref=e677]
+              - cell "0" [ref=e678]
+              - cell "0" [ref=e679]
+              - cell "0" [ref=e680]
+              - cell "0" [ref=e681]
+              - cell "$0" [ref=e682]
+              - cell "0%" [ref=e683]
+            - row "QA User 0 0 0 0 0 0 $0 0%" [ref=e684] [cursor=pointer]:
+              - cell "QA User" [ref=e685]
+              - cell "0" [ref=e686]
+              - cell "0" [ref=e687]
+              - cell "0" [ref=e688]
+              - cell "0" [ref=e689]
+              - cell "0" [ref=e690]
+              - cell "0" [ref=e691]
+              - cell "$0" [ref=e692]
+              - cell "0%" [ref=e693]
+```
