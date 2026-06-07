@@ -293,7 +293,8 @@ export async function deleteContact(tenantId, contactId) {
 // ============================================================
 
 export async function logActivity(tenantId, userId, data) {
-  const { lead_id, type = 'note', subject, notes, outcome, duration_seconds, metadata } = data;
+  const { lead_id, subject, notes, outcome, duration_seconds, metadata } = data;
+  const type = data.type ?? 'note';
 
   const { rows } = await pool.query(
     `INSERT INTO activities (tenant_id, lead_id, user_id, type, subject, notes, outcome, duration_seconds, metadata)
