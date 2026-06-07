@@ -552,7 +552,7 @@ async function syncLeadEstimatedValue(leadId, tenantId) {
 function calculateTotals(lineItems, taxRate, discountType, discountValue) {
   const items = Array.isArray(lineItems) ? lineItems : [];
   const subtotal = items.reduce((sum, item) => {
-    return sum + (Number(item.quantity) || 0) * (Number(item.unit_price) || 0);
+    return sum + (Number(item?.quantity) || 0) * (Number(item?.unit_price) || 0);
   }, 0);
 
   let discount = 0;
