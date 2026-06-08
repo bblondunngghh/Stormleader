@@ -1,0 +1,499 @@
+[
+  {
+    "label": "AUTH:register-empty",
+    "method": "POST",
+    "path": "/api/auth/register",
+    "status": 400,
+    "body": "{\"error\":\"Validation failed\",\"details\":{\"email\":[\"Required\"],\"password\":[\"Required\"],\"firstName\":[\"Required\"],\"lastName\":[\"Required\"],\"tenantSlug\":[\"Required\"]}}"
+  },
+  {
+    "label": "AUTH:register-bad-json",
+    "method": "POST",
+    "path": "/api/auth/register",
+    "status": 400,
+    "body": "{\"error\":\"Invalid JSON body\"}"
+  },
+  {
+    "label": "AUTH:register-partial",
+    "method": "POST",
+    "path": "/api/auth/register",
+    "status": 400,
+    "body": "{\"error\":\"Validation failed\",\"details\":{\"email\":[\"Invalid email\"],\"password\":[\"Required\"],\"firstName\":[\"Required\"],\"lastName\":[\"Required\"],\"tenantSlug\":[\"Required\"]}}"
+  },
+  {
+    "label": "AUTH:refresh-empty",
+    "method": "POST",
+    "path": "/api/auth/refresh",
+    "status": 400,
+    "body": "{\"error\":\"Validation failed\",\"details\":{\"refreshToken\":[\"Required\"]}}"
+  },
+  {
+    "label": "AUTH:refresh-bad-token",
+    "method": "POST",
+    "path": "/api/auth/refresh",
+    "status": 401,
+    "body": "{\"error\":\"Invalid refresh token\"}"
+  },
+  {
+    "label": "AUTH:refresh-bad-json",
+    "method": "POST",
+    "path": "/api/auth/refresh",
+    "status": 400,
+    "body": "{\"error\":\"Invalid JSON body\"}"
+  },
+  {
+    "label": "CANV:convert-zero",
+    "method": "POST",
+    "path": "/api/crm/canvass-pins/00000000-0000-0000-0000-000000000000/convert",
+    "status": 404,
+    "body": "{\"error\":\"Pin not found\"}"
+  },
+  {
+    "label": "CANV:convert-bad-uuid",
+    "method": "POST",
+    "path": "/api/crm/canvass-pins/notauuid/convert",
+    "status": 400,
+    "body": "{\"error\":\"Invalid id format\"}"
+  },
+  {
+    "label": "CONTRACT:public-sign-bad-token",
+    "method": "POST",
+    "path": "/api/crm/contracts/public/notatoken/sign",
+    "status": 400,
+    "body": "{\"error\":\"signerName is required\"}"
+  },
+  {
+    "label": "CONTRACT:send-zero",
+    "method": "POST",
+    "path": "/api/crm/contracts/00000000-0000-0000-0000-000000000000/send",
+    "status": 404,
+    "body": "{\"error\":\"Contract not found or not in draft status\"}"
+  },
+  {
+    "label": "CONTRACT:send-bad-uuid",
+    "method": "POST",
+    "path": "/api/crm/contracts/notauuid/send",
+    "status": 400,
+    "body": "{\"error\":\"Invalid id format\"}"
+  },
+  {
+    "label": "CONTRACT:void-zero",
+    "method": "POST",
+    "path": "/api/crm/contracts/00000000-0000-0000-0000-000000000000/void",
+    "status": 404,
+    "body": "{\"error\":\"Contract not found\"}"
+  },
+  {
+    "label": "CONTRACT:pdf-zero",
+    "method": "GET",
+    "path": "/api/crm/contracts/00000000-0000-0000-0000-000000000000/pdf",
+    "status": 404,
+    "body": "{\"error\":\"Contract not found\"}"
+  },
+  {
+    "label": "LEAD:score-zero",
+    "method": "POST",
+    "path": "/api/crm/leads/00000000-0000-0000-0000-000000000000/score",
+    "status": 404,
+    "body": "{\"error\":\"Lead not found\"}"
+  },
+  {
+    "label": "LEAD:score-bad-uuid",
+    "method": "POST",
+    "path": "/api/crm/leads/notauuid/score",
+    "status": 400,
+    "body": "{\"error\":\"Invalid id format\"}"
+  },
+  {
+    "label": "DATA:opt-route-empty",
+    "method": "POST",
+    "path": "/api/data/optimize-route",
+    "status": 400,
+    "body": "{\"error\":\"stops array with at least 2 items required\"}"
+  },
+  {
+    "label": "DATA:opt-route-bad-json",
+    "method": "POST",
+    "path": "/api/data/optimize-route",
+    "status": 400,
+    "body": "{\"error\":\"Invalid JSON body\"}"
+  },
+  {
+    "label": "DATA:opt-route-no-stops",
+    "method": "POST",
+    "path": "/api/data/optimize-route",
+    "status": 400,
+    "body": "{\"error\":\"stops array with at least 2 items required\"}"
+  },
+  {
+    "label": "DATA:opt-route-junk-stops",
+    "method": "POST",
+    "path": "/api/data/optimize-route",
+    "status": 400,
+    "body": "{\"error\":\"stops array with at least 2 items required\"}"
+  },
+  {
+    "label": "DOC:upload-empty",
+    "method": "POST",
+    "path": "/api/documents/upload",
+    "status": 400,
+    "body": "{\"error\":\"No file uploaded\"}"
+  },
+  {
+    "label": "DOC:upload-bad-ct",
+    "method": "POST",
+    "path": "/api/documents/upload",
+    "status": 400,
+    "body": "{\"error\":\"No file uploaded\"}"
+  },
+  {
+    "label": "DRIFT:correct-zero",
+    "method": "POST",
+    "path": "/api/drift/00000000-0000-0000-0000-000000000000/correct",
+    "status": 404,
+    "body": "{\"error\":\"Storm event not found\"}"
+  },
+  {
+    "label": "DRIFT:correct-bad-uuid",
+    "method": "POST",
+    "path": "/api/drift/notauuid/correct",
+    "status": 400,
+    "body": "{\"error\":\"Invalid stormEventId format\"}"
+  },
+  {
+    "label": "DRIFT:simulate-empty",
+    "method": "POST",
+    "path": "/api/drift/simulate",
+    "status": 400,
+    "body": "{\"error\":\"hail_size_in is required\"}"
+  },
+  {
+    "label": "DRIFT:calibrate-empty",
+    "method": "POST",
+    "path": "/api/drift/calibrate",
+    "status": 400,
+    "body": "{\"error\":\"storm_event_id, lat, and lng are required\"}"
+  },
+  {
+    "label": "DRIP:cancel-zero",
+    "method": "POST",
+    "path": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000/cancel",
+    "status": 400,
+    "body": "{\"error\":\"leadId is required\"}"
+  },
+  {
+    "label": "DRIP:cancel-bad-uuid",
+    "method": "POST",
+    "path": "/api/crm/drip-sequences/notauuid/cancel",
+    "status": 400,
+    "body": "{\"error\":\"Invalid id format\"}"
+  },
+  {
+    "label": "EST:public-accept-bad-token",
+    "method": "POST",
+    "path": "/api/estimates/public/notatoken/accept",
+    "status": 400,
+    "body": "{\"error\":\"signer_name required\"}"
+  },
+  {
+    "label": "EST:public-decline-bad-token",
+    "method": "POST",
+    "path": "/api/estimates/public/notatoken/decline",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found or already resolved\"}"
+  },
+  {
+    "label": "EST:public-accept-empty",
+    "method": "POST",
+    "path": "/api/estimates/public/notatoken/accept",
+    "status": 400,
+    "body": "{\"error\":\"signer_name required\"}"
+  },
+  {
+    "label": "EST:send-zero",
+    "method": "POST",
+    "path": "/api/estimates/00000000-0000-0000-0000-000000000000/send",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found or already sent\"}"
+  },
+  {
+    "label": "EST:send-bad-uuid",
+    "method": "POST",
+    "path": "/api/estimates/notauuid/send",
+    "status": 400,
+    "body": "{\"error\":\"Invalid id format\"}"
+  },
+  {
+    "label": "EST:duplicate-zero",
+    "method": "POST",
+    "path": "/api/estimates/00000000-0000-0000-0000-000000000000/duplicate",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "label": "EST:pdf-zero",
+    "method": "GET",
+    "path": "/api/estimates/00000000-0000-0000-0000-000000000000/pdf",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "label": "EST:pdf-bad-uuid",
+    "method": "GET",
+    "path": "/api/estimates/notauuid/pdf",
+    "status": 400,
+    "body": "{\"error\":\"Invalid id format\"}"
+  },
+  {
+    "label": "EST:sign-in-person-zero",
+    "method": "POST",
+    "path": "/api/estimates/00000000-0000-0000-0000-000000000000/sign-in-person",
+    "status": 400,
+    "body": "{\"error\":\"signer_name required\"}"
+  },
+  {
+    "label": "EST:generate-tiers-zero",
+    "method": "POST",
+    "path": "/api/estimates/00000000-0000-0000-0000-000000000000/generate-tiers",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "label": "INV:from-estimate-zero",
+    "method": "POST",
+    "path": "/api/crm/invoices/from-estimate/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "label": "INV:from-estimate-bad-uuid",
+    "method": "POST",
+    "path": "/api/crm/invoices/from-estimate/notauuid",
+    "status": 400,
+    "body": "{\"error\":\"Invalid estimateId format\"}"
+  },
+  {
+    "label": "INV:send-zero",
+    "method": "POST",
+    "path": "/api/crm/invoices/00000000-0000-0000-0000-000000000000/send",
+    "status": 404,
+    "body": "{\"error\":\"Invoice not found\"}"
+  },
+  {
+    "label": "INV:send-email-zero",
+    "method": "POST",
+    "path": "/api/crm/invoices/00000000-0000-0000-0000-000000000000/send-email",
+    "status": 400,
+    "body": "{\"error\":\"Recipient email required\"}"
+  },
+  {
+    "label": "LEAD:status-token-zero",
+    "method": "POST",
+    "path": "/api/leads/00000000-0000-0000-0000-000000000000/status-token",
+    "status": 400,
+    "body": "{\"error\":\"Referenced resource does not exist or is not accessible\"}"
+  },
+  {
+    "label": "LEAD:from-storm-empty",
+    "method": "POST",
+    "path": "/api/leads/from-storm",
+    "status": 400,
+    "body": "{\"error\":\"stormEventId is required\"}"
+  },
+  {
+    "label": "LEAD:from-storm-bad-json",
+    "method": "POST",
+    "path": "/api/leads/from-storm",
+    "status": 400,
+    "body": "{\"error\":\"Invalid JSON body\"}"
+  },
+  {
+    "label": "MAT:auto-order-zero",
+    "method": "POST",
+    "path": "/api/materials/estimate/00000000-0000-0000-0000-000000000000/auto-order",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "label": "MAT:auto-order-bad-uuid",
+    "method": "POST",
+    "path": "/api/materials/estimate/notauuid/auto-order",
+    "status": 400,
+    "body": "{\"error\":\"Invalid estimateId format\"}"
+  },
+  {
+    "label": "ONB:create-tenant-empty",
+    "method": "POST",
+    "path": "/api/onboarding/create-tenant",
+    "status": 400,
+    "body": "{\"error\":\"Validation failed\",\"details\":{\"companyName\":[\"Required\"],\"firstName\":[\"Required\"],\"lastName\":[\"Required\"],\"email\":[\"Required\"],\"password\":[\"Required\"]}}"
+  },
+  {
+    "label": "ONB:create-tenant-bad-json",
+    "method": "POST",
+    "path": "/api/onboarding/create-tenant",
+    "status": 400,
+    "body": "{\"error\":\"Invalid JSON body\"}"
+  },
+  {
+    "label": "ONB:org-empty",
+    "method": "PUT",
+    "path": "/api/onboarding/org",
+    "status": 200,
+    "body": "{\"tenant\":{\"id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"Waterloo Roofing\",\"slug\":\"waterloo\",\"subscription_tier\":\"enterprise\",\"subscription_status\":\"active\",\"onboarding_completed\":true,\"trial_ends_at\":\"2026-04-04T22:04:42.132Z\",\"company_phone\":null,\"company_website\":null,\"company_address\":null"
+  },
+  {
+    "label": "ONB:select-plan-empty",
+    "method": "POST",
+    "path": "/api/onboarding/select-plan",
+    "status": 400,
+    "body": "{\"error\":\"Validation failed\",\"details\":{\"planKey\":[\"Required\"]}}"
+  },
+  {
+    "label": "ONB:setup-payment-empty",
+    "method": "POST",
+    "path": "/api/onboarding/setup-payment",
+    "status": 400,
+    "body": "{\"error\":\"Validation failed\",\"details\":{\"paymentMethodId\":[\"Required\"]}}"
+  },
+  {
+    "label": "ONB:enable-addons-empty",
+    "method": "POST",
+    "path": "/api/onboarding/enable-addons",
+    "status": 400,
+    "body": "{\"error\":\"Validation failed\",\"details\":{\"skipTrace\":[\"Required\"],\"roofMeasurement\":[\"Required\"]}}"
+  },
+  {
+    "label": "PAY:connect-refresh-empty",
+    "method": "POST",
+    "path": "/api/payments/connect/refresh",
+    "status": 400,
+    "body": "{\"error\":\"No Stripe account found. Please start onboarding first.\"}"
+  },
+  {
+    "label": "PAY:create-intent-empty",
+    "method": "POST",
+    "path": "/api/payments/create-intent",
+    "status": 400,
+    "body": "{\"error\":\"estimateId is required\"}"
+  },
+  {
+    "label": "PAY:create-intent-bad-amount",
+    "method": "POST",
+    "path": "/api/payments/create-intent",
+    "status": 400,
+    "body": "{\"error\":\"estimateId is required\"}"
+  },
+  {
+    "label": "PAY:public-create-intent-empty",
+    "method": "POST",
+    "path": "/api/payments/public/create-intent",
+    "status": 400,
+    "body": "{\"error\":\"Estimate token is required\"}"
+  },
+  {
+    "label": "PROP:reverse-geo-empty",
+    "method": "GET",
+    "path": "/api/properties/reverse-geocode",
+    "status": 400,
+    "body": "{\"error\":\"lat and lng are required\"}"
+  },
+  {
+    "label": "PROP:reverse-geo-bad-coords",
+    "method": "GET",
+    "path": "/api/properties/reverse-geocode?lat=abc&lng=def",
+    "status": 400,
+    "body": "{\"error\":\"lat and lng are required\"}"
+  },
+  {
+    "label": "PROP:reverse-geo-no-lng",
+    "method": "GET",
+    "path": "/api/properties/reverse-geocode?lat=40",
+    "status": 400,
+    "body": "{\"error\":\"lat and lng are required\"}"
+  },
+  {
+    "label": "PROP:weather-history-zero",
+    "method": "GET",
+    "path": "/api/properties/00000000-0000-0000-0000-000000000000/weather-history",
+    "status": 404,
+    "body": "{\"error\":\"Property not found\"}"
+  },
+  {
+    "label": "PROP:weather-history-bad-uuid",
+    "method": "GET",
+    "path": "/api/properties/notauuid/weather-history",
+    "status": 400,
+    "body": "{\"error\":\"Invalid id format\"}"
+  },
+  {
+    "label": "PROP:weather-history-pdf-zero",
+    "method": "GET",
+    "path": "/api/properties/00000000-0000-0000-0000-000000000000/weather-history/pdf",
+    "status": 404,
+    "body": "{\"error\":\"Property not found\"}"
+  },
+  {
+    "label": "PROP:report-pdf-zero",
+    "method": "GET",
+    "path": "/api/properties/00000000-0000-0000-0000-000000000000/report/pdf",
+    "status": 404,
+    "body": "{\"error\":\"Property not found\"}"
+  },
+  {
+    "label": "PROP:report-pdf-bad-uuid",
+    "method": "GET",
+    "path": "/api/properties/notauuid/report/pdf",
+    "status": 400,
+    "body": "{\"error\":\"Invalid id format\"}"
+  },
+  {
+    "label": "ST:setup-payment-empty",
+    "method": "POST",
+    "path": "/api/skip-trace/setup-payment",
+    "status": 400,
+    "body": "{\"error\":\"paymentMethodId required\"}"
+  },
+  {
+    "label": "TRC:webhook-empty",
+    "method": "POST",
+    "path": "/api/webhooks/tracerfy",
+    "status": 200,
+    "body": "{\"received\":true}"
+  },
+  {
+    "label": "TRC:webhook-bad-json",
+    "method": "POST",
+    "path": "/api/webhooks/tracerfy",
+    "status": 400,
+    "body": "{\"error\":\"Invalid JSON body\"}"
+  },
+  {
+    "label": "TRC:webhook-empty-body",
+    "method": "POST",
+    "path": "/api/webhooks/tracerfy",
+    "status": 200,
+    "body": "{\"received\":true}"
+  },
+  {
+    "label": "WO:from-estimate-zero",
+    "method": "POST",
+    "path": "/api/crm/work-orders/from-estimate/00000000-0000-0000-0000-000000000000",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "label": "WO:from-estimate-bad-uuid",
+    "method": "POST",
+    "path": "/api/crm/work-orders/from-estimate/notauuid",
+    "status": 400,
+    "body": "{\"error\":\"Invalid estimateId format\"}"
+  },
+  {
+    "label": "WO:pdf-zero",
+    "method": "GET",
+    "path": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000/pdf",
+    "status": 404,
+    "body": "{\"error\":\"Work order not found\"}"
+  }
+]

@@ -1,348 +1,6 @@
 {
   "/": {
-    "iconHero": 60,
-    "iconOther": 0,
-    "iconOtherSamples": [],
-    "btnCount": 62,
-    "btnData": [
-      {
-        "cls": "nav-link is-active",
-        "h": 42,
-        "br": "12px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "nav-link",
-        "h": 42,
-        "br": "12px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "nav-link",
-        "h": 42,
-        "br": "12px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "nav-link",
-        "h": 42,
-        "br": "12px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "nav-link",
-        "h": 42,
-        "br": "12px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "nav-group__header",
-        "h": 22,
-        "br": "0px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "nav-group__header",
-        "h": 22,
-        "br": "0px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "nav-group__header",
-        "h": 22,
-        "br": "0px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "nav-link",
-        "h": 42,
-        "br": "12px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "nav-link",
-        "h": 42,
-        "br": "12px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "",
-        "h": 21,
-        "br": "0px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "topbar__btn",
-        "h": 38,
-        "br": "12px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "topbar__btn",
-        "h": 38,
-        "br": "12px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "",
-        "h": 26,
-        "br": "10px / 8px",
-        "bg": "oklch(0.75 0.15 60 / 0.12)"
-      },
-      {
-        "cls": "",
-        "h": 23,
-        "br": "999px",
-        "bg": "oklch(0.72 0.15 250 / 0.12)"
-      },
-      {
-        "cls": "",
-        "h": 23,
-        "br": "999px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "",
-        "h": 23,
-        "br": "999px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "",
-        "h": 23,
-        "br": "999px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "",
-        "h": 23,
-        "br": "999px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "",
-        "h": 36,
-        "br": "12px",
-        "bg": "oklch(0.22 0.02 260 / 0.45)"
-      },
-      {
-        "cls": "",
-        "h": 36,
-        "br": "12px",
-        "bg": "oklch(0.22 0.02 260 / 0.45)"
-      },
-      {
-        "cls": "text-[11px] font-bold px-3 py-1.5 rounded-[12px]",
-        "h": 26,
-        "br": "12px",
-        "bg": "oklch(0.72 0.19 250 / 0.12)"
-      },
-      {
-        "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.1",
-        "h": 13,
-        "br": "0px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.1",
-        "h": 13,
-        "br": "0px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "mapboxgl-ctrl-attrib-button",
-        "h": 24,
-        "br": "12px",
-        "bg": "rgba(255, 255, 255, 0.5)"
-      },
-      {
-        "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(-",
-        "h": 16,
-        "br": "3.35544e+07px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors text-[var(-",
-        "h": 16,
-        "br": "3.35544e+07px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors bg-[oklch(0",
-        "h": 16,
-        "br": "3.35544e+07px",
-        "bg": "oklch(0.72 0.19 250 / 0.15)"
-      },
-      {
-        "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.1",
-        "h": 27,
-        "br": "0px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.1",
-        "h": 13,
-        "br": "0px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
-        "h": 14,
-        "br": "5px",
-        "bg": "oklch(0.12 0.01 265 / 0.3)"
-      },
-      {
-        "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
-        "h": 14,
-        "br": "5px",
-        "bg": "oklch(0.12 0.01 265 / 0.3)"
-      },
-      {
-        "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
-        "h": 14,
-        "br": "5px",
-        "bg": "oklch(0.12 0.01 265 / 0.3)"
-      },
-      {
-        "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
-        "h": 14,
-        "br": "5px",
-        "bg": "oklch(0.12 0.01 265 / 0.3)"
-      },
-      {
-        "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
-        "h": 14,
-        "br": "5px",
-        "bg": "oklch(0.12 0.01 265 / 0.3)"
-      },
-      {
-        "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
-        "h": 14,
-        "br": "5px",
-        "bg": "oklch(0.12 0.01 265 / 0.3)"
-      },
-      {
-        "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
-        "h": 14,
-        "br": "5px",
-        "bg": "oklch(0.12 0.01 265 / 0.3)"
-      },
-      {
-        "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
-        "h": 14,
-        "br": "5px",
-        "bg": "oklch(0.12 0.01 265 / 0.3)"
-      },
-      {
-        "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
-        "h": 14,
-        "br": "5px",
-        "bg": "oklch(0.12 0.01 265 / 0.3)"
-      },
-      {
-        "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
-        "h": 14,
-        "br": "5px",
-        "bg": "oklch(0.12 0.01 265 / 0.3)"
-      },
-      {
-        "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
-        "h": 14,
-        "br": "5px",
-        "bg": "oklch(0.12 0.01 265 / 0.3)"
-      },
-      {
-        "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
-        "h": 14,
-        "br": "5px",
-        "bg": "oklch(0.12 0.01 265 / 0.3)"
-      },
-      {
-        "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
-        "h": 14,
-        "br": "5px",
-        "bg": "oklch(0.12 0.01 265 / 0.3)"
-      },
-      {
-        "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
-        "h": 14,
-        "br": "5px",
-        "bg": "oklch(0.12 0.01 265 / 0.3)"
-      },
-      {
-        "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
-        "h": 14,
-        "br": "5px",
-        "bg": "oklch(0.12 0.01 265 / 0.3)"
-      },
-      {
-        "cls": "w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklc",
-        "h": 14,
-        "br": "5px",
-        "bg": "oklch(0.12 0.01 265 / 0.3)"
-      },
-      {
-        "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.1",
-        "h": 13,
-        "br": "0px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.1",
-        "h": 13,
-        "br": "0px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.1",
-        "h": 13,
-        "br": "0px",
-        "bg": "rgba(0, 0, 0, 0)"
-      },
-      {
-        "cls": "text-[11px] font-semibold text-[oklch(0.65_0.12_250)] hover:text-[oklch(0.82_0.1",
-        "h": 13,
-        "br": "0px",
-        "bg": "rgba(0, 0, 0, 0)"
-      }
-    ],
-    "header": {
-      "tag": "HEADER",
-      "cls": "topbar glass",
-      "h": 56,
-      "bg": "oklch(0.16 0.015 260 / 0.35)"
-    },
-    "inputCount": 1,
-    "selectCount": 0,
-    "dateInputCount": 0,
-    "glassCount": 23,
-    "glassSamples": [
-      {
-        "cls": "sidebar glass ",
-        "pad": "0px 24px 24px",
-        "br": "20px / 18px"
-      },
-      {
-        "cls": "topbar glass",
-        "pad": "0px 32px",
-        "br": "20px / 18px"
-      },
-      {
-        "cls": "\n        glass\n        shadow-[0_8px_32px_oklch(0_0_0/0.25),",
-        "pad": "8.75px 21px",
-        "br": "20px / 18px"
-      },
-      {
-        "cls": "\n        glass\n        shadow-[0_8px_32px_oklch(0_0_0/0.25),",
-        "pad": "8.75px 21px",
-        "br": "20px / 18px"
-      },
-      {
-        "cls": "\n        glass\n        shadow-[0_8px_32px_oklch(0_0_0/0.25),",
-        "pad": "17.5px",
-        "br": "20px / 18px"
-      }
-    ]
+    "error": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:5173/\", waiting until \"networkidl"
   },
   "/pipeline": {
     "title": "StormPipe — Roofing CRM",
@@ -2089,7 +1747,7 @@
     "iconHero": 25,
     "iconOther": 0,
     "iconOtherSamples": [],
-    "btnCount": 32,
+    "btnCount": 34,
     "btnData": [
       {
         "cls": "nav-link",
@@ -2309,7 +1967,7 @@
         "fw": "600",
         "bg": "oklch(0.28 0.04 260 / 0.6)",
         "col": "oklch(0.95 0.005 260)",
-        "text": "Pending10"
+        "text": "Pending12"
       },
       {
         "cls": "task-filter-tab ",
@@ -2332,6 +1990,28 @@
         "bg": "oklch(0.72 0.19 250)",
         "col": "oklch(0.15 0.02 260)",
         "text": "+ New Task"
+      },
+      {
+        "cls": "task-check ",
+        "h": 22,
+        "pad": "0px",
+        "fs": "13.3333px",
+        "br": "6px",
+        "fw": "400",
+        "bg": "rgba(0, 0, 0, 0)",
+        "col": "oklch(0.75 0.18 155)",
+        "text": ""
+      },
+      {
+        "cls": "task-check ",
+        "h": 22,
+        "pad": "0px",
+        "fs": "13.3333px",
+        "br": "6px",
+        "fw": "400",
+        "bg": "rgba(0, 0, 0, 0)",
+        "col": "oklch(0.75 0.18 155)",
+        "text": ""
       },
       {
         "cls": "task-check ",
@@ -4782,7 +4462,7 @@
         "fw": "500",
         "bg": "oklch(0.22 0.02 260 / 0.45)",
         "col": "oklch(0.95 0.005 260)",
-        "text": "6/3/2026"
+        "text": "6/7/2026"
       },
       {
         "cls": "",
@@ -6990,10 +6670,10 @@
   },
   "/subcontractors": {
     "title": "StormPipe — Roofing CRM",
-    "iconHero": 44,
+    "iconHero": 60,
     "iconOther": 0,
     "iconOtherSamples": [],
-    "btnCount": 41,
+    "btnCount": 57,
     "btnData": [
       {
         "cls": "nav-link",
@@ -7415,36 +7095,135 @@
       },
       {
         "cls": "",
-        "h": 36,
-        "pad": "0px 16px",
-        "fs": "13px",
-        "br": "12px",
-        "fw": "500",
-        "bg": "oklch(0.22 0.02 260 / 0.45)",
-        "col": "oklch(0.95 0.005 260)",
-        "text": "25 / page"
+        "h": 28,
+        "pad": "0px",
+        "fs": "13.3333px",
+        "br": "8px",
+        "fw": "400",
+        "bg": "rgba(0, 0, 0, 0)",
+        "col": "oklch(0.55 0.01 260)",
+        "text": ""
       },
       {
-        "cls": "quick-action-btn",
-        "h": 25,
-        "pad": "4px 12px",
-        "fs": "12px",
-        "br": "14px / 12px",
-        "fw": "600",
-        "bg": "oklch(0.18 0.03 265 / 0.5)",
-        "col": "oklch(0.72 0.01 260)",
-        "text": "Prev"
+        "cls": "",
+        "h": 28,
+        "pad": "0px",
+        "fs": "13.3333px",
+        "br": "8px",
+        "fw": "400",
+        "bg": "rgba(0, 0, 0, 0)",
+        "col": "oklch(0.55 0.01 260)",
+        "text": ""
       },
       {
-        "cls": "quick-action-btn",
-        "h": 25,
-        "pad": "4px 12px",
-        "fs": "12px",
-        "br": "14px / 12px",
-        "fw": "600",
-        "bg": "oklch(0.18 0.03 265 / 0.5)",
-        "col": "oklch(0.72 0.01 260)",
-        "text": "Next"
+        "cls": "",
+        "h": 28,
+        "pad": "0px",
+        "fs": "13.3333px",
+        "br": "8px",
+        "fw": "400",
+        "bg": "rgba(0, 0, 0, 0)",
+        "col": "oklch(0.55 0.01 260)",
+        "text": ""
+      },
+      {
+        "cls": "",
+        "h": 28,
+        "pad": "0px",
+        "fs": "13.3333px",
+        "br": "8px",
+        "fw": "400",
+        "bg": "rgba(0, 0, 0, 0)",
+        "col": "oklch(0.55 0.01 260)",
+        "text": ""
+      },
+      {
+        "cls": "",
+        "h": 28,
+        "pad": "0px",
+        "fs": "13.3333px",
+        "br": "8px",
+        "fw": "400",
+        "bg": "rgba(0, 0, 0, 0)",
+        "col": "oklch(0.55 0.01 260)",
+        "text": ""
+      },
+      {
+        "cls": "",
+        "h": 28,
+        "pad": "0px",
+        "fs": "13.3333px",
+        "br": "8px",
+        "fw": "400",
+        "bg": "rgba(0, 0, 0, 0)",
+        "col": "oklch(0.55 0.01 260)",
+        "text": ""
+      },
+      {
+        "cls": "",
+        "h": 28,
+        "pad": "0px",
+        "fs": "13.3333px",
+        "br": "8px",
+        "fw": "400",
+        "bg": "rgba(0, 0, 0, 0)",
+        "col": "oklch(0.55 0.01 260)",
+        "text": ""
+      },
+      {
+        "cls": "",
+        "h": 28,
+        "pad": "0px",
+        "fs": "13.3333px",
+        "br": "8px",
+        "fw": "400",
+        "bg": "rgba(0, 0, 0, 0)",
+        "col": "oklch(0.55 0.01 260)",
+        "text": ""
+      },
+      {
+        "cls": "",
+        "h": 28,
+        "pad": "0px",
+        "fs": "13.3333px",
+        "br": "8px",
+        "fw": "400",
+        "bg": "rgba(0, 0, 0, 0)",
+        "col": "oklch(0.55 0.01 260)",
+        "text": ""
+      },
+      {
+        "cls": "",
+        "h": 28,
+        "pad": "0px",
+        "fs": "13.3333px",
+        "br": "8px",
+        "fw": "400",
+        "bg": "rgba(0, 0, 0, 0)",
+        "col": "oklch(0.55 0.01 260)",
+        "text": ""
+      },
+      {
+        "cls": "",
+        "h": 28,
+        "pad": "0px",
+        "fs": "13.3333px",
+        "br": "8px",
+        "fw": "400",
+        "bg": "rgba(0, 0, 0, 0)",
+        "col": "oklch(0.55 0.01 260)",
+        "text": ""
+      },
+      {
+        "cls": "",
+        "h": 28,
+        "pad": "0px",
+        "fs": "13.3333px",
+        "br": "8px",
+        "fw": "400",
+        "bg": "rgba(0, 0, 0, 0)",
+        "col": "oklch(0.55 0.01 260)",
+        "text": ""
       }
     ],
     "header": {
@@ -7505,7 +7284,7 @@
       },
       {
         "cls": "glass",
-        "h": 309,
+        "h": 520,
         "pad": "0px",
         "br": "20px / 18px",
         "bg": "oklch(0.16 0.015 260 / 0.35)",

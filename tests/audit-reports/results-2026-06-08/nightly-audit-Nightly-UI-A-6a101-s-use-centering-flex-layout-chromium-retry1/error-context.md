@@ -1,0 +1,440 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - img "StormPipe" [ref=e6] [cursor=pointer]
+    - navigation [ref=e7]:
+      - button "Dashboard" [ref=e8] [cursor=pointer]:
+        - img [ref=e9]
+        - text: Dashboard
+      - button "Storm Map" [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+        - text: Storm Map
+      - button "Storm Archive" [ref=e14] [cursor=pointer]:
+        - img [ref=e15]
+        - text: Storm Archive
+      - button "Pipeline" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - text: Pipeline
+      - button "Leads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+        - text: Leads
+      - generic [ref=e23]:
+        - button "Jobs" [ref=e24] [cursor=pointer]:
+          - text: Jobs
+          - img [ref=e25]
+        - generic [ref=e27]:
+          - button "Estimates" [ref=e28] [cursor=pointer]:
+            - img [ref=e29]
+            - text: Estimates
+          - button "Contracts" [ref=e31] [cursor=pointer]:
+            - img [ref=e32]
+            - text: Contracts
+          - button "Work Orders" [ref=e34] [cursor=pointer]:
+            - img [ref=e35]
+            - text: Work Orders
+          - button "Materials" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - text: Materials
+      - button "Finance" [ref=e42] [cursor=pointer]:
+        - text: Finance
+        - img [ref=e43]
+      - generic [ref=e45]:
+        - button "Operations" [ref=e46] [cursor=pointer]:
+          - text: Operations
+          - img [ref=e47]
+        - generic [ref=e49]:
+          - button "Tasks" [ref=e50] [cursor=pointer]:
+            - img [ref=e51]
+            - text: Tasks
+          - button "Calendar" [ref=e53] [cursor=pointer]:
+            - img [ref=e54]
+            - text: Calendar
+          - button "Canvassing" [ref=e56] [cursor=pointer]:
+            - img [ref=e57]
+            - text: Canvassing
+          - button "Subcontractors" [ref=e60] [cursor=pointer]:
+            - img [ref=e61]
+            - text: Subcontractors
+          - button "Reports" [ref=e63] [cursor=pointer]:
+            - img [ref=e64]
+            - text: Reports
+    - button "Settings" [ref=e66] [cursor=pointer]:
+      - img [ref=e67]
+      - text: Settings
+    - button "Admin" [ref=e69] [cursor=pointer]:
+      - img [ref=e70]
+      - text: Admin
+    - generic [ref=e72]:
+      - generic [ref=e73]: BA
+      - generic [ref=e74]:
+        - generic [ref=e75]: Brandon A.
+        - generic [ref=e76]: super_admin
+      - button "Sign out" [ref=e77] [cursor=pointer]:
+        - img [ref=e78]
+  - generic [ref=e80]:
+    - banner [ref=e81]:
+      - heading "Estimates" [level=1] [ref=e82]
+      - generic [ref=e83]:
+        - img
+        - textbox "Search leads, contacts... (Ctrl+K)" [ref=e84]
+      - generic [ref=e85]:
+        - button "Help" [ref=e87] [cursor=pointer]:
+          - img [ref=e88]
+        - button "Notifications" [ref=e91] [cursor=pointer]:
+          - img [ref=e92]
+        - button "enterprise" [ref=e94] [cursor=pointer]:
+          - img [ref=e95]
+          - generic [ref=e97]: enterprise
+    - generic [ref=e98]:
+      - generic [ref=e99]:
+        - generic [ref=e100]:
+          - button "Back" [ref=e101] [cursor=pointer]:
+            - img [ref=e102]
+            - text: Back
+          - generic [ref=e104]: New Estimate
+        - generic [ref=e105]:
+          - button "Save Draft" [ref=e106] [cursor=pointer]
+          - button "Review & Share" [ref=e107] [cursor=pointer]:
+            - img [ref=e108]
+            - text: Review & Share
+          - button "Send for Signing" [ref=e111] [cursor=pointer]:
+            - img [ref=e112]
+            - text: Send for Signing
+      - generic [ref=e114]:
+        - generic [ref=e115]:
+          - generic [ref=e116]: Sections
+          - generic [ref=e117] [cursor=pointer]:
+            - generic [ref=e118]: ⠇
+            - generic [ref=e119]: Title
+            - button [ref=e121]
+          - generic [ref=e123] [cursor=pointer]:
+            - generic [ref=e124]: ⠇
+            - generic [ref=e125]: Introduction
+            - button [ref=e127]
+          - generic [ref=e129] [cursor=pointer]:
+            - generic [ref=e130]: ⠇
+            - generic [ref=e131]: Scope of Work
+            - button [ref=e133]
+          - generic [ref=e135] [cursor=pointer]:
+            - generic [ref=e136]: ⠇
+            - generic [ref=e137]: Roof Components
+            - button [ref=e139]
+          - generic [ref=e141] [cursor=pointer]:
+            - generic [ref=e142]: ⠇
+            - generic [ref=e143]: Inspection Notes
+            - button [ref=e145]
+          - generic [ref=e147] [cursor=pointer]:
+            - generic [ref=e148]: ⠇
+            - generic [ref=e149]: Quote Details
+            - button [ref=e151]
+          - generic [ref=e153] [cursor=pointer]:
+            - generic [ref=e154]: ⠇
+            - generic [ref=e155]: Authorization
+            - button [ref=e157]
+          - generic [ref=e159] [cursor=pointer]:
+            - generic [ref=e160]: ⠇
+            - generic [ref=e161]: Terms & Conditions
+            - button [ref=e163]
+          - generic [ref=e165] [cursor=pointer]:
+            - generic [ref=e166]: ⠇
+            - generic [ref=e167]: Warranty
+            - button [ref=e169]
+          - generic [ref=e171] [cursor=pointer]:
+            - generic [ref=e172]: ⠇
+            - generic [ref=e173]: Notes
+            - button [ref=e175]
+        - generic [ref=e177]:
+          - generic [ref=e178]:
+            - generic [ref=e179]: Customer
+            - generic [ref=e180]:
+              - generic [ref=e181]:
+                - generic [ref=e182]: Name
+                - textbox "Customer name" [ref=e183]
+              - generic [ref=e184]:
+                - generic [ref=e185]: Phone
+                - textbox "(512) 555-0000" [ref=e186]
+              - generic [ref=e187]:
+                - generic [ref=e188]: Address
+                - textbox "123 Main St, Austin TX" [ref=e189]
+              - generic [ref=e190]:
+                - generic [ref=e191]: Email
+                - textbox "customer@email.com" [ref=e192]
+          - generic [ref=e193]:
+            - generic [ref=e194]: Title
+            - generic [ref=e195]:
+              - generic [ref=e196]:
+                - generic [ref=e197]: Estimate Name
+                - textbox "e.g. Roof Replacement - Smith Residence" [ref=e198]
+              - generic [ref=e199]:
+                - generic [ref=e200]: Estimate Date
+                - button "6/8/2026" [ref=e202] [cursor=pointer]:
+                  - generic [ref=e203]: 6/8/2026
+                  - img [ref=e204]
+            - generic [ref=e206] [cursor=pointer]:
+              - img [ref=e207]
+              - generic [ref=e209]: Drag & drop a primary image here
+              - generic [ref=e210]: or click to browse files
+            - generic [ref=e211]:
+              - generic [ref=e212]: Valid Until
+              - button "Select expiry date" [ref=e214] [cursor=pointer]:
+                - generic [ref=e215]: Select expiry date
+                - img [ref=e216]
+          - generic [ref=e218]:
+            - generic [ref=e219]:
+              - generic [ref=e220]: Introduction
+              - button "Remove section" [ref=e221] [cursor=pointer]:
+                - img [ref=e222]
+            - generic [ref=e224]:
+              - generic [ref=e225]:
+                - generic [ref=e226]:
+                  - button "B" [ref=e227] [cursor=pointer]:
+                    - generic [ref=e228]: B
+                  - button "I" [ref=e229] [cursor=pointer]:
+                    - generic [ref=e230]: I
+                  - button "U" [ref=e231] [cursor=pointer]:
+                    - generic [ref=e232]: U
+                  - button "Bullet List" [ref=e234] [cursor=pointer]:
+                    - img [ref=e235]
+                  - button "Numbered List" [ref=e237] [cursor=pointer]:
+                    - img [ref=e238]
+                  - button "Insert Link" [ref=e240] [cursor=pointer]:
+                    - img [ref=e241]
+                  - 'button "{ } Token" [ref=e245] [cursor=pointer]':
+                    - generic [ref=e246]: "{ }"
+                    - generic [ref=e247]: Token
+                - generic [ref=e248]: Thank you for choosing us for your roofing needs. We have conducted a thorough inspection of your property and prepared the following estimate for the recommended repairs.
+              - button "Add Image" [ref=e250] [cursor=pointer]:
+                - img [ref=e251]
+                - text: Add Image
+          - generic [ref=e253]:
+            - generic [ref=e254]:
+              - generic [ref=e255]: Scope of Work
+              - button "Remove section" [ref=e256] [cursor=pointer]:
+                - img [ref=e257]
+            - generic [ref=e259]:
+              - generic [ref=e260]:
+                - generic [ref=e261]:
+                  - button "B" [ref=e262] [cursor=pointer]:
+                    - generic [ref=e263]: B
+                  - button "I" [ref=e264] [cursor=pointer]:
+                    - generic [ref=e265]: I
+                  - button "U" [ref=e266] [cursor=pointer]:
+                    - generic [ref=e267]: U
+                  - button "Bullet List" [ref=e269] [cursor=pointer]:
+                    - img [ref=e270]
+                  - button "Numbered List" [ref=e272] [cursor=pointer]:
+                    - img [ref=e273]
+                  - button "Insert Link" [ref=e275] [cursor=pointer]:
+                    - img [ref=e276]
+                  - 'button "{ } Token" [ref=e280] [cursor=pointer]':
+                    - generic [ref=e281]: "{ }"
+                    - generic [ref=e282]: Token
+                - generic [ref=e283]: Describe the work to be performed...
+              - button "Add Image" [active] [ref=e285] [cursor=pointer]:
+                - img [ref=e286]
+                - text: Add Image
+          - generic [ref=e288]:
+            - generic [ref=e289]:
+              - generic [ref=e290]: Roof Components
+              - generic [ref=e291]:
+                - button "From preset..." [ref=e293] [cursor=pointer]:
+                  - generic [ref=e294]:
+                    - img [ref=e295]
+                    - text: From preset...
+                  - img [ref=e297]
+                - button "Add All" [ref=e299] [cursor=pointer]:
+                  - img [ref=e300]
+                  - text: Add All
+                - button "Blank Row" [ref=e302] [cursor=pointer]:
+                  - img [ref=e303]
+                  - text: Blank Row
+                - button "Add from SRS Catalog" [ref=e305] [cursor=pointer]:
+                  - img [ref=e306]
+                  - text: Add from SRS Catalog
+            - generic [ref=e308]: Add line items using presets or blank rows
+          - generic [ref=e309]:
+            - generic [ref=e310]:
+              - generic [ref=e311]: Inspection Notes
+              - button "Remove section" [ref=e312] [cursor=pointer]:
+                - img [ref=e313]
+            - generic [ref=e315]:
+              - generic [ref=e316]:
+                - generic [ref=e317]:
+                  - button "B" [ref=e318] [cursor=pointer]:
+                    - generic [ref=e319]: B
+                  - button "I" [ref=e320] [cursor=pointer]:
+                    - generic [ref=e321]: I
+                  - button "U" [ref=e322] [cursor=pointer]:
+                    - generic [ref=e323]: U
+                  - button "Bullet List" [ref=e325] [cursor=pointer]:
+                    - img [ref=e326]
+                  - button "Numbered List" [ref=e328] [cursor=pointer]:
+                    - img [ref=e329]
+                  - button "Insert Link" [ref=e331] [cursor=pointer]:
+                    - img [ref=e332]
+                - generic [ref=e334]: Document findings from the roof inspection...
+              - button "Add Image" [ref=e336] [cursor=pointer]:
+                - img [ref=e337]
+                - text: Add Image
+          - generic [ref=e339]:
+            - generic [ref=e340]: Quote Details
+            - generic [ref=e341]:
+              - generic [ref=e342]:
+                - generic [ref=e343]: Discounts
+                - button "Add Discount" [ref=e344] [cursor=pointer]:
+                  - img [ref=e345]
+                  - text: Add Discount
+              - generic [ref=e347]: No discounts applied
+            - generic [ref=e349]:
+              - generic [ref=e350]: Tax Rate
+              - button "No Tax" [ref=e352] [cursor=pointer]:
+                - generic [ref=e353]: No Tax
+                - img [ref=e354]
+            - generic [ref=e356]:
+              - generic [ref=e357]:
+                - generic [ref=e358]: Profit margin for this estimate
+                - generic "Calculated as (total - cost) / total * 100" [ref=e359]:
+                  - img [ref=e360]
+              - generic [ref=e362]:
+                - slider [ref=e363] [cursor=pointer]: "30"
+                - generic [ref=e364]:
+                  - spinbutton [ref=e365]: "30"
+                  - generic [ref=e366]: "%"
+              - generic [ref=e367]: "Estimated cost: $0.00 | Estimated profit: $0.00"
+            - generic [ref=e368]:
+              - generic [ref=e369]: Summary
+              - generic [ref=e370]:
+                - generic [ref=e371]:
+                  - generic [ref=e372]: Subtotal
+                  - generic [ref=e373]: $0.00
+                - generic [ref=e374]:
+                  - generic [ref=e375]: Total
+                  - generic [ref=e376]: $0.00
+          - generic [ref=e378]:
+            - generic [ref=e379]:
+              - img [ref=e380]
+              - generic [ref=e382]: Insurance Claim
+            - button [ref=e383] [cursor=pointer]
+          - generic [ref=e385]:
+            - generic [ref=e386]:
+              - generic [ref=e387]:
+                - img [ref=e388]
+                - generic [ref=e390]: Optional Upgrades
+              - button "+ Add Upgrade" [ref=e391] [cursor=pointer]:
+                - generic [ref=e392]: +
+                - text: Add Upgrade
+            - generic [ref=e393]: No upgrades yet. Add optional upsells that customers can select when signing.
+          - generic [ref=e395]:
+            - generic [ref=e396]: Financing Options
+            - button [ref=e397] [cursor=pointer]
+          - generic [ref=e399]:
+            - generic [ref=e400]:
+              - generic [ref=e401]: Authorization
+              - button "Add Additional Signer" [ref=e402] [cursor=pointer]:
+                - img [ref=e403]
+                - text: Add Additional Signer
+            - generic [ref=e406]:
+              - generic [ref=e408]: Primary Signer
+              - generic [ref=e409]:
+                - generic [ref=e410]:
+                  - generic [ref=e411]: First Name
+                  - textbox "First" [ref=e412]
+                - generic [ref=e413]:
+                  - generic [ref=e414]: Last Name
+                  - textbox "Last" [ref=e415]
+                - generic [ref=e416]:
+                  - generic [ref=e417]: Email
+                  - textbox "email@example.com" [ref=e418]
+            - generic [ref=e420]:
+              - button [ref=e421] [cursor=pointer]
+              - generic [ref=e423]: Require deposit upon signing
+          - generic [ref=e424]:
+            - generic [ref=e425]:
+              - generic [ref=e426]: Terms & Conditions
+              - button "Remove section" [ref=e427] [cursor=pointer]:
+                - img [ref=e428]
+            - generic [ref=e431]:
+              - generic [ref=e432]:
+                - button "B" [ref=e433] [cursor=pointer]:
+                  - generic [ref=e434]: B
+                - button "I" [ref=e435] [cursor=pointer]:
+                  - generic [ref=e436]: I
+                - button "U" [ref=e437] [cursor=pointer]:
+                  - generic [ref=e438]: U
+                - button "Bullet List" [ref=e440] [cursor=pointer]:
+                  - img [ref=e441]
+                - button "Numbered List" [ref=e443] [cursor=pointer]:
+                  - img [ref=e444]
+                - button "Insert Link" [ref=e446] [cursor=pointer]:
+                  - img [ref=e447]
+                - 'button "{ } Token" [ref=e451] [cursor=pointer]':
+                  - generic [ref=e452]: "{ }"
+                  - generic [ref=e453]: Token
+              - generic [ref=e454]: Payment due upon completion. All work guaranteed per manufacturer warranty specifications.
+          - generic [ref=e455]:
+            - generic [ref=e456]:
+              - generic [ref=e457]: Warranty
+              - button "Remove section" [ref=e458] [cursor=pointer]:
+                - img [ref=e459]
+            - generic [ref=e462]:
+              - generic [ref=e463]:
+                - button "B" [ref=e464] [cursor=pointer]:
+                  - generic [ref=e465]: B
+                - button "I" [ref=e466] [cursor=pointer]:
+                  - generic [ref=e467]: I
+                - button "U" [ref=e468] [cursor=pointer]:
+                  - generic [ref=e469]: U
+                - button "Bullet List" [ref=e471] [cursor=pointer]:
+                  - img [ref=e472]
+                - button "Numbered List" [ref=e474] [cursor=pointer]:
+                  - img [ref=e475]
+                - button "Insert Link" [ref=e477] [cursor=pointer]:
+                  - img [ref=e478]
+                - 'button "{ } Token" [ref=e482] [cursor=pointer]':
+                  - generic [ref=e483]: "{ }"
+                  - generic [ref=e484]: Token
+              - generic [ref=e485]: Manufacturer warranty details, coverage period, exclusions...
+          - generic [ref=e486]:
+            - generic [ref=e487]:
+              - generic [ref=e488]: Notes
+              - button "Remove section" [ref=e489] [cursor=pointer]:
+                - img [ref=e490]
+            - generic [ref=e493]:
+              - generic [ref=e494]:
+                - button "B" [ref=e495] [cursor=pointer]:
+                  - generic [ref=e496]: B
+                - button "I" [ref=e497] [cursor=pointer]:
+                  - generic [ref=e498]: I
+                - button "U" [ref=e499] [cursor=pointer]:
+                  - generic [ref=e500]: U
+                - button "Bullet List" [ref=e502] [cursor=pointer]:
+                  - img [ref=e503]
+                - button "Numbered List" [ref=e505] [cursor=pointer]:
+                  - img [ref=e506]
+                - button "Insert Link" [ref=e508] [cursor=pointer]:
+                  - img [ref=e509]
+              - generic [ref=e511]: Add a note at the bottom of your estimate...
+          - button "Add Section" [ref=e513] [cursor=pointer]:
+            - img [ref=e514]
+            - text: Add Section
+          - generic [ref=e516]:
+            - generic [ref=e517]: Footer Notes
+            - generic [ref=e518]:
+              - generic [ref=e519]:
+                - button "B" [ref=e520] [cursor=pointer]:
+                  - generic [ref=e521]: B
+                - button "I" [ref=e522] [cursor=pointer]:
+                  - generic [ref=e523]: I
+                - button "U" [ref=e524] [cursor=pointer]:
+                  - generic [ref=e525]: U
+                - button "Bullet List" [ref=e527] [cursor=pointer]:
+                  - img [ref=e528]
+                - button "Numbered List" [ref=e530] [cursor=pointer]:
+                  - img [ref=e531]
+                - button "Insert Link" [ref=e533] [cursor=pointer]:
+                  - img [ref=e534]
+              - generic [ref=e536]: Add a note to the bottom of your estimate...
+          - button "Save All" [ref=e537] [cursor=pointer]
+```

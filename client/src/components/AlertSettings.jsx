@@ -180,12 +180,9 @@ export default function AlertSettings() {
                   style={{ flex: 1, fontSize: '13px' }}
                 />
                 <button
+                  className="auth-btn"
                   onClick={addEmail}
                   disabled={saving}
-                  style={{
-                    padding: '8px 16px', background: 'oklch(0.55 0.18 250)', color: 'oklch(1 0 0)',
-                    borderRadius: 'var(--radius-pill)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none',
-                  }}
                 >
                   Add
                 </button>
@@ -223,16 +220,13 @@ export default function AlertSettings() {
             </div>
             {thresholdsDirty && (
               <button
+                className="auth-btn"
                 onClick={async () => {
                   await save({ min_hail_size_in: parseFloat(thresholds.hail), min_wind_speed_mph: parseFloat(thresholds.wind) });
                   setThresholdsDirty(false);
                 }}
                 disabled={saving}
-                style={{
-                  marginTop: '12px', width: '100%', padding: '8px 16px',
-                  background: 'var(--accent-blue)', color: 'oklch(1 0 0)', border: 'none',
-                  borderRadius: 'var(--radius-pill)', fontSize: '13px', fontWeight: 600, cursor: 'pointer',
-                }}
+                style={{ marginTop: '12px', width: '100%' }}
               >
                 {saving ? 'Updating...' : 'Update Thresholds'}
               </button>
