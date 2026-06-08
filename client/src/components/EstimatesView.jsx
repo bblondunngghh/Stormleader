@@ -1161,15 +1161,14 @@ function SendForSigningModal({ signers, customerEmail, onSend, onClose, sending 
   if (recipients.length === 0 && customerEmail) recipients.push(customerEmail);
 
   return createPortal(
-    <>
-      <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 400, background: 'oklch(0 0 0 / 0.5)', backdropFilter: 'blur(4px)' }} />
-      <div style={{
-        position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 401,
+    <div className="modal-backdrop" onClick={onClose} style={{
+      position: 'fixed', inset: 0, zIndex: 400, background: 'oklch(0 0 0 / 0.5)', backdropFilter: 'blur(4px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+      <div className="glass" onClick={e => e.stopPropagation()} style={{
         width: 520, maxHeight: '85vh', overflow: 'visible',
-        borderRadius: '20px / 18px', background: 'var(--glass-bg)', backdropFilter: 'blur(16px) saturate(1.3)',
-        border: '1px solid var(--glass-border)', boxShadow: '0 8px 32px oklch(0 0 0 / 0.4)',
+        borderRadius: '20px / 18px',
         padding: 24, display: 'flex', flexDirection: 'column', gap: 16,
-        animation: 'modalSlideIn 0.3s ease-out',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>Send for Signing</h2>
@@ -1236,7 +1235,7 @@ function SendForSigningModal({ signers, customerEmail, onSend, onClose, sending 
           </button>
         </div>
       </div>
-    </>,
+    </div>,
     document.body
   );
 }
