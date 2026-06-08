@@ -2330,3 +2330,56 @@ Branch: `feat/financing` · Pre-run checkpoint: `11458bd` (`overnight-checkpoint
 - s5 report-writing session 0 bytes for **30 consecutive runs** — drop the stage or fold into s4.
 
 ---
+
+## QA Run: 2026-06-08 (Run 44)
+
+Branch: `feat/financing` · Pre-run checkpoint: `c8afcb4` (`overnight-checkpoint-20260608`) · Head: `0dc4d36` · Commits this run: **2**
+
+### Test Results
+- Pages tested (Stage 2 frontend): 4 routes + 1 modal verification (Dashboard, Storm Map, Pipeline, Estimate Builder, Send-for-Signing modal)
+- API endpoints tested: **387 total** (118 GET + 36 POST + 50 PATCH/PUT/DELETE + 11 edge + 37 Hearth/financing + 71 negative-gap + **64 NEW** uncovered-route)
+- API route coverage: **141 / 272** inventoried routes hit by at least one probe
+- Bugs found: 1 (frontend — `SendForSigningModal` one-off slide-in animation)
+- Bugs fixed: 1 (`0dc4d36`)
+- UI inconsistencies found: 0 new (Stage 3 max-turn before completing — no fresh audit log)
+- UI inconsistencies fixed: 1 (modal animation drift via `0dc4d36`, also closes the last remaining modal that wasn't on `modal-scale-in`)
+- Production 5xx during sweep: 0 unintentional (**23rd consecutive zero-5xx run**) — 1 expected 503 from `skip-trace` env-gate
+
+### Fixes Made
+- **`dde33fe`** — `.qa-uncovered-probe.mjs` (NEW, 132 lines) + refreshed `.qa-api-results.json` / `.qa-api-write-results.json` — adds 64 probes covering previously uncovered routes: list-collection GETs on 17 resource roots, empty-body POSTs on 11 resource roots, 7 sub-resource POSTs (lead-contacts, wo-milestones, drip-enroll, fin-apps, fin-plans-sync, payments-connect-onboard), 2 custom-fields PATCH variants, 6 public-token bad-token GETs, 3 INV payment variants, 4 PROP bbox variants, 3 onboarding/Stripe-sig variants, 9 malformed-JSON POSTs, and 2 prospect-list item GETs. All 64 returned the expected status. Suite total now 387 probes / 0 unintentional 5xx.
+- **`0dc4d36`** — `client/src/components/EstimatesView.jsx` (+7/−8) — `SendForSigningModal` was rendering a sibling `<div className="modal-backdrop" />` + `<div className="glass" style={{animation: 'modalSlideIn ...'}}>` structure, bypassing the canonical `.modal-backdrop > .glass` CSS rule and using a one-off `modalSlideIn` keyframe that slid in from the right. Restructured to the standard nested `<div className="modal-backdrop"><div className="glass">…</div></div>` so the shared `modal-scale-in` (200 ms ease-apple) rule applies automatically. Inline animation override removed. Verified live via Playwright (`qa-run45-05-send-for-signing-modal.png` — agent-side run-label slip; timestamp confirms Run 44 artifact). **This was the last remaining modal in the app not on the canonical scale-in animation.**
+
+### UI Consistency Fixes
+- Modal-animation drift on `SendForSigningModal` — fixed in `0dc4d36`. The app's modal family is now 100% on the canonical `.modal-backdrop > .glass` + `modal-scale-in` pattern. No other UI audit findings landed this run because Stage 3 hit max-turns at 61/60 before completing the 7-axis sweep.
+
+### Verified Carry-Overs
+- None closed this run (carry-overs #6, #8, #9 untouched per QA charter — heavy work / mobile sweep stale / missing-feature respectively).
+
+### Session Integrity
+- s1 api-test: **completed cleanly** (`end_turn`, 77 turns, $3.89) — landed `dde33fe`. Second clean s1 exit in three runs.
+- s2 frontend-test: `error_max_turns` (81/80, $4.43) — landed `0dc4d36` + verification screenshot before exiting. Did not reach 10 of 14 prompt-listed pages.
+- s3 ui-audit: `error_max_turns` (61/60, $4.98) — 0 commits, no fresh `.qa-ui-audit-results.txt` written (Run 40 snapshot remains on disk).
+- s4 verify: `error_max_turns` (41/40, $2.57) — 0 commits, no transcript output.
+- s5 report: this report.
+- Total measured spend s1–s4: **~$15.87**. **1 / 4 working sessions completed cleanly**, but the two highest-leverage stages (s1 + s2) both landed their intended commits before exiting.
+
+### Diff vs. Run 43
+- `git diff c8afcb4..0dc4d36 --stat` — 5 files (1 source + 4 QA artifacts).
+- HEAD advanced: `c8afcb4` (checkpoint) → `dde33fe` → `0dc4d36`.
+- Source file changes: `client/src/components/EstimatesView.jsx` (+7/−8).
+- New artifacts left in working tree (keep): `.qa-uncovered-probe.mjs`, `.qa-uncovered-results.json`.
+- Refreshed QA artifacts (overwritable each run): `.qa-api-results.json`, `.qa-api-write-results.json`.
+- Run-specific screenshots (safe to delete after report acceptance): `qa-run45-01-dashboard.png`, `qa-run45-02-storm-map.png`, `qa-run45-03-pipeline.png`, `qa-run45-04-estimate-builder.png`, `qa-run45-05-send-for-signing-modal.png` (agent-side label slip — actually Run 44).
+
+### Known Issues Remaining
+- **#6 Heavy-work guards** on `/drift/correct-all`, `/properties/trigger-import`, `/crm/leads/score-all` — contract change, out of scope.
+- **#8 Mobile responsive sweep at 768 px** — **34 runs stale** (last done Run 6). Highest-value untouched surface.
+- **#9 `DELETE /api/crm/tasks/:id`** handler missing — missing feature, not a broken endpoint.
+- **(cosmetic, Run 41)** `/alerts` page has 2 raw `<input type="text">` without `.form-input` glass styling — pre-existing.
+- **(cosmetic, Run 41)** `/reports` and `/settings` use 16 px corner radius on `.glass` cards while the rest of the app uses 20 px — pre-existing.
+- **DEV_BYPASS admin 403 noise** — dev-only artifact.
+- Reports chart label overlap at ~930 px viewport — cosmetic.
+- `subcontractors.js.bak` cleanup — safe `git rm`, deferred.
+- **Pages NOT exercised in s2 this run** (budget exhausted): `/leads`, `/leads/:id`, `/invoices`, `/work-orders`, `/tasks`, `/calendar`, `/reports`, `/canvassing`, `/content-studio`, all `/settings/*` tabs. Backend coverage for these routes remains clean.
+
+---
