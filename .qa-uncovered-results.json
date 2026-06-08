@@ -1,0 +1,450 @@
+[
+  {
+    "label": "LIST:automations",
+    "method": "GET",
+    "path": "/api/crm/automations",
+    "status": 200,
+    "body": "[]"
+  },
+  {
+    "label": "LIST:canvass-pins",
+    "method": "GET",
+    "path": "/api/crm/canvass-pins",
+    "status": 200,
+    "body": "[{\"id\":\"29a71c28-d89f-411c-aa74-c00bd775fba6\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"user_id\":\"45cc729d-cc5b-44b5-93ca-7c01b427fc26\",\"lead_id\":null,\"location\":\"0101000020E6100000000000008087C3C0000000008087C340\",\"address\":null,\"outcome\":null,\"notes\":null,\"created_at\":\"2026-06-06T10:09:3"
+  },
+  {
+    "label": "LIST:contracts",
+    "method": "GET",
+    "path": "/api/crm/contracts",
+    "status": 200,
+    "body": "{\"contracts\":[{\"id\":\"74049fb1-aaea-4548-818b-2d86b71a9569\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"94877e87-9018-4363-8cf3-86b081417b9c\",\"estimate_id\":null,\"template_type\":\"standard\",\"status\":\"voided\",\"content\":{},\"signer_name\":null,\"signature_data\":null,\"signed_at\":null,\"token"
+  },
+  {
+    "label": "LIST:drip-sequences",
+    "method": "GET",
+    "path": "/api/crm/drip-sequences",
+    "status": 200,
+    "body": "[]"
+  },
+  {
+    "label": "LIST:expenses",
+    "method": "GET",
+    "path": "/api/crm/expenses",
+    "status": 200,
+    "body": "{\"expenses\":[{\"id\":\"bfe5df21-efcd-4e16-9a88-6b234a984c64\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":null,\"category\":\"materials\",\"amount\":\"10.00\",\"date\":\"2026-04-28T05:00:00.000Z\",\"notes\":\"qa test\",\"created_by\":null,\"created_at\":\"2026-04-28T10:08:28.494Z\",\"updated_at\":\"2026-05-04T1"
+  },
+  {
+    "label": "LIST:invoices",
+    "method": "GET",
+    "path": "/api/crm/invoices",
+    "status": 200,
+    "body": "{\"invoices\":[{\"id\":\"63453e95-a2e8-4851-abf7-e5059eff61cc\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"d9573041-95c8-4369-97d7-6f1c0ab7399d\",\"estimate_id\":null,\"invoice_number\":\"INV-0016\",\"status\":\"sent\",\"line_items\":[{\"qty\":1,\"unit_price\":1,\"description\":\"x\"}],\"subtotal\":\"0.00\",\"ta"
+  },
+  {
+    "label": "LIST:subcontractors",
+    "method": "GET",
+    "path": "/api/crm/subcontractors",
+    "status": 200,
+    "body": "{\"subcontractors\":[{\"id\":\"780d808d-b2a4-48e8-a1b0-56a86b6b7fbf\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"{\\\"$eq\\\":1}\",\"company\":null,\"phone\":null,\"email\":\"{\\\"foo\\\":\\\"bar\\\"}\",\"specialty\":\"general\",\"hourly_rate\":null,\"notes\":null,\"status\":\"active\",\"created_at\":\"2026-06-06T10:09:35.83"
+  },
+  {
+    "label": "LIST:territories",
+    "method": "GET",
+    "path": "/api/crm/territories",
+    "status": 200,
+    "body": "[{\"id\":\"dca7cea0-622b-4c40-a1e0-4a9e18d9abe2\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"QA Territory Updated\",\"color\":\"oklch(0.65 0.27 29)\",\"polygon\":\"0103000020E6100000010000000500000000000000004058C00000000000003E4000000000000058C00000000000003E4000000000000058C00000000000003F4000"
+  },
+  {
+    "label": "LIST:work-orders",
+    "method": "GET",
+    "path": "/api/crm/work-orders",
+    "status": 200,
+    "body": "{\"workOrders\":[{\"id\":\"d93dc780-64cd-4c17-82c6-3303d138b918\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":null,\"estimate_id\":null,\"title\":\"qa\",\"description\":null,\"status\":\"pending\",\"assigned_to\":null,\"crew_name\":null,\"scheduled_date\":null,\"scheduled_time_start\":null,\"scheduled_time_en"
+  },
+  {
+    "label": "LIST:counties",
+    "method": "GET",
+    "path": "/api/counties",
+    "status": 200,
+    "body": "[{\"id\":\"d11dc8ec-79af-479d-b3ee-ddb2866d8cc6\",\"county_name\":\"_TX_STATEWIDE\",\"state\":\"TX\",\"fips_code\":\"48\",\"arcgis_url\":\"https://feature.tnris.org/arcgis/rest/services/Parcels/stratmap25_land_parcels_48/MapServer/0/query\",\"data_source_tag\":\"tnris_statewide\",\"geometry_type\":\"polygon\",\"enabled\":true,\"l"
+  },
+  {
+    "label": "LIST:estimates",
+    "method": "GET",
+    "path": "/api/estimates",
+    "status": 200,
+    "body": "{\"estimates\":[{\"id\":\"1252940b-b691-4182-8d4f-680ac71a0711\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"3fa29df8-589c-44a6-ac4d-88cb78243cbe\",\"created_by\":\"45cc729d-cc5b-44b5-93ca-7c01b427fc26\",\"estimate_number\":\"EST-083\",\"status\":\"draft\",\"customer_name\":null,\"customer_address\":null"
+  },
+  {
+    "label": "LIST:leads",
+    "method": "GET",
+    "path": "/api/leads",
+    "status": 200,
+    "body": "{\"leads\":[{\"id\":\"fa4d1995-4cf5-4007-9c43-5747ca67605c\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"property_id\":null,\"storm_event_id\":null,\"assigned_rep_id\":null,\"stage\":\"new\",\"priority\":\"warm\",\"estimated_value\":\"12500.00\",\"insurance_company\":null,\"insurance_claim_number\":null,\"hail_size_in\""
+  },
+  {
+    "label": "LIST:notifications",
+    "method": "GET",
+    "path": "/api/notifications",
+    "status": 200,
+    "body": "{\"notifications\":[]}"
+  },
+  {
+    "label": "LIST:documents",
+    "method": "GET",
+    "path": "/api/documents",
+    "status": 200,
+    "body": "{\"documents\":[],\"total\":0}"
+  },
+  {
+    "label": "LIST:disaster-declarations",
+    "method": "GET",
+    "path": "/api/disaster-declarations",
+    "status": 400,
+    "body": "{\"error\":\"state and county parameters required\"}"
+  },
+  {
+    "label": "LIST:storm-history",
+    "method": "GET",
+    "path": "/api/storm-history",
+    "status": 400,
+    "body": "{\"error\":\"Valid lat and lng query parameters are required\"}"
+  },
+  {
+    "label": "LIST:storms",
+    "method": "GET",
+    "path": "/api/storms",
+    "status": 200,
+    "body": "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"id\":\"5d60cbce-9aad-4f3f-9bf8-a522555f2234\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-96.664597171,34.769511698],[-96.66461338,34.769402086],[-96.66463279,34.769293064],[-96.6646554,34.769184631],[-96.66468121,34.769076787],[-96.66471022"
+  },
+  {
+    "label": "POST:automations-empty",
+    "method": "POST",
+    "path": "/api/crm/automations",
+    "status": 400,
+    "body": "{\"error\":\"name, trigger_type, and action_type are required\"}"
+  },
+  {
+    "label": "POST:canvass-empty",
+    "method": "POST",
+    "path": "/api/crm/canvass-pins",
+    "status": 400,
+    "body": "{\"error\":\"lat and lng are required\"}"
+  },
+  {
+    "label": "POST:contracts-empty",
+    "method": "POST",
+    "path": "/api/crm/contracts",
+    "status": 400,
+    "body": "{\"error\":\"lead_id is required\"}"
+  },
+  {
+    "label": "POST:drip-empty",
+    "method": "POST",
+    "path": "/api/crm/drip-sequences",
+    "status": 400,
+    "body": "{\"error\":\"name and trigger_type are required\"}"
+  },
+  {
+    "label": "POST:expenses-empty",
+    "method": "POST",
+    "path": "/api/crm/expenses",
+    "status": 400,
+    "body": "{\"error\":\"category, amount, and date are required\"}"
+  },
+  {
+    "label": "POST:invoices-empty",
+    "method": "POST",
+    "path": "/api/crm/invoices",
+    "status": 400,
+    "body": "{\"error\":\"lead_id is required\"}"
+  },
+  {
+    "label": "POST:subcontractors-empty",
+    "method": "POST",
+    "path": "/api/crm/subcontractors",
+    "status": 400,
+    "body": "{\"error\":\"name is required\"}"
+  },
+  {
+    "label": "POST:territories-empty",
+    "method": "POST",
+    "path": "/api/crm/territories",
+    "status": 400,
+    "body": "{\"error\":\"name is required\"}"
+  },
+  {
+    "label": "POST:work-orders-empty",
+    "method": "POST",
+    "path": "/api/crm/work-orders",
+    "status": 400,
+    "body": "{\"error\":\"title is required\"}"
+  },
+  {
+    "label": "POST:estimates-empty",
+    "method": "POST",
+    "path": "/api/estimates",
+    "status": 400,
+    "body": "{\"error\":\"lead_id is required\"}"
+  },
+  {
+    "label": "POST:properties-empty",
+    "method": "POST",
+    "path": "/api/properties",
+    "status": 400,
+    "body": "{\"error\":\"address_line1, lat, and lng are required\"}"
+  },
+  {
+    "label": "POST:lead-contacts-empty",
+    "method": "POST",
+    "path": "/api/crm/leads/00000000-0000-0000-0000-000000000000/contacts",
+    "status": 400,
+    "body": "{\"error\":\"At least one of first_name, last_name, email, or phone is required\"}"
+  },
+  {
+    "label": "POST:lead-contacts-bad-uuid",
+    "method": "POST",
+    "path": "/api/crm/leads/notauuid/contacts",
+    "status": 400,
+    "body": "{\"error\":\"Invalid id format\"}"
+  },
+  {
+    "label": "POST:wo-milestones-empty",
+    "method": "POST",
+    "path": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000/milestones",
+    "status": 400,
+    "body": "{\"error\":\"Milestone name required\"}"
+  },
+  {
+    "label": "POST:drip-enroll-empty",
+    "method": "POST",
+    "path": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000/enroll",
+    "status": 400,
+    "body": "{\"error\":\"leadId is required\"}"
+  },
+  {
+    "label": "POST:fin-apps-empty",
+    "method": "POST",
+    "path": "/api/crm/financing/applications",
+    "status": 400,
+    "body": "{\"error\":\"leadId is required\"}"
+  },
+  {
+    "label": "POST:fin-plans-sync-empty",
+    "method": "POST",
+    "path": "/api/crm/financing/plans/sync",
+    "status": 400,
+    "body": "{\"error\":\"lenderId is required\"}"
+  },
+  {
+    "label": "POST:payments-connect-onboard",
+    "method": "POST",
+    "path": "/api/payments/connect/onboard",
+    "status": 400,
+    "body": "{\"error\":\"You can only create new accounts if you've signed up for Connect, which you can do at https://dashboard.stripe.com/connect.\"}"
+  },
+  {
+    "label": "PATCH:custom-fields-bad-uuid",
+    "method": "PATCH",
+    "path": "/api/crm/custom-fields/notauuid",
+    "status": 400,
+    "body": "{\"error\":\"Invalid id format\"}"
+  },
+  {
+    "label": "PATCH:custom-fields-zero",
+    "method": "PATCH",
+    "path": "/api/crm/custom-fields/00000000-0000-0000-0000-000000000000",
+    "status": 400,
+    "body": "{\"error\":\"No fields to update\"}"
+  },
+  {
+    "label": "GET:prospect-items-zero",
+    "method": "GET",
+    "path": "/api/crm/prospect-lists/00000000-0000-0000-0000-000000000000/items",
+    "status": 404,
+    "body": "{\"error\":\"List not found\"}"
+  },
+  {
+    "label": "GET:prospect-items-bad-uuid",
+    "method": "GET",
+    "path": "/api/crm/prospect-lists/notauuid/items",
+    "status": 400,
+    "body": "{\"error\":\"Invalid id format\"}"
+  },
+  {
+    "label": "PUB:contract-bad-token",
+    "method": "GET",
+    "path": "/api/crm/contracts/public/notatoken",
+    "status": 404,
+    "body": "{\"error\":\"Contract not found\"}"
+  },
+  {
+    "label": "PUB:estimate-bad-token",
+    "method": "GET",
+    "path": "/api/estimates/public/notatoken",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "label": "PUB:lead-status-bad-token",
+    "method": "GET",
+    "path": "/api/leads/status/public/notatoken",
+    "status": 404,
+    "body": "{\"error\":\"Not found\"}"
+  },
+  {
+    "label": "PUB:fin-plans-bad-token",
+    "method": "GET",
+    "path": "/api/crm/financing/public/notatoken/plans",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "label": "PUB:fin-apps-bad-token",
+    "method": "GET",
+    "path": "/api/crm/financing/public/notatoken/applications",
+    "status": 404,
+    "body": "{\"error\":\"Estimate not found\"}"
+  },
+  {
+    "label": "PUB:fin-apply-bad-token",
+    "method": "POST",
+    "path": "/api/crm/financing/public/notatoken/apply",
+    "status": 400,
+    "body": "{\"error\":\"planId is required\"}"
+  },
+  {
+    "label": "INV:payment-zero",
+    "method": "POST",
+    "path": "/api/crm/invoices/00000000-0000-0000-0000-000000000000/payment",
+    "status": 400,
+    "body": "{\"error\":\"Valid amount required\"}"
+  },
+  {
+    "label": "INV:payment-bad-uuid",
+    "method": "POST",
+    "path": "/api/crm/invoices/notauuid/payment",
+    "status": 400,
+    "body": "{\"error\":\"Invalid id format\"}"
+  },
+  {
+    "label": "INV:payment-bad-amount",
+    "method": "POST",
+    "path": "/api/crm/invoices/00000000-0000-0000-0000-000000000000/payment",
+    "status": 400,
+    "body": "{\"error\":\"Invalid value provided for one or more fields\"}"
+  },
+  {
+    "label": "PROP:list-no-bbox",
+    "method": "GET",
+    "path": "/api/properties",
+    "status": 400,
+    "body": "{\"error\":\"bbox query parameter is required (west,south,east,north)\"}"
+  },
+  {
+    "label": "PROP:list-bad-bbox",
+    "method": "GET",
+    "path": "/api/properties?bbox=garbage",
+    "status": 400,
+    "body": "{\"error\":\"bbox must be 4 comma-separated numbers: west,south,east,north\"}"
+  },
+  {
+    "label": "PROP:list-partial-bbox",
+    "method": "GET",
+    "path": "/api/properties?bbox=1,2",
+    "status": 400,
+    "body": "{\"error\":\"bbox must be 4 comma-separated numbers: west,south,east,north\"}"
+  },
+  {
+    "label": "PROP:list-good-bbox",
+    "method": "GET",
+    "path": "/api/properties?bbox=-180,-90,180,90&limit=1",
+    "status": 200,
+    "body": "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"id\":\"cb7e9417-1a3d-4818-9ecc-4978a5145e1f\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[-97.7431,30.2672]},\"properties\":{\"id\":\"cb7e9417-1a3d-4818-9ecc-4978a5145e1f\",\"address_line1\":\"123 Test St\",\"address_line2\":null,\"city\":null,\"state\":\"TX\",\"zi"
+  },
+  {
+    "label": "ONB:complete-empty",
+    "method": "POST",
+    "path": "/api/onboarding/complete",
+    "status": 200,
+    "body": "{\"success\":true,\"tenant\":{\"id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"Waterloo Roofing\",\"slug\":\"waterloo\",\"onboarding_completed\":true,\"subscription_tier\":\"enterprise\",\"subscription_status\":\"active\"}}"
+  },
+  {
+    "label": "PAY:webhook-empty",
+    "method": "POST",
+    "path": "/api/payments/webhook",
+    "status": 400,
+    "body": "{\"error\":\"Webhook signature verification failed: No stripe-signature header value was provided.\"}"
+  },
+  {
+    "label": "PAY:webhook-bad-sig",
+    "method": "POST",
+    "path": "/api/payments/webhook",
+    "status": 400,
+    "body": "{\"error\":\"Webhook signature verification failed: No stripe-signature header value was provided.\"}"
+  },
+  {
+    "label": "BAD-JSON:expenses",
+    "method": "POST",
+    "path": "/api/crm/expenses",
+    "status": 400,
+    "body": "{\"error\":\"Invalid JSON body\"}"
+  },
+  {
+    "label": "BAD-JSON:invoices",
+    "method": "POST",
+    "path": "/api/crm/invoices",
+    "status": 400,
+    "body": "{\"error\":\"Invalid JSON body\"}"
+  },
+  {
+    "label": "BAD-JSON:contracts",
+    "method": "POST",
+    "path": "/api/crm/contracts",
+    "status": 400,
+    "body": "{\"error\":\"Invalid JSON body\"}"
+  },
+  {
+    "label": "BAD-JSON:work-orders",
+    "method": "POST",
+    "path": "/api/crm/work-orders",
+    "status": 400,
+    "body": "{\"error\":\"Invalid JSON body\"}"
+  },
+  {
+    "label": "BAD-JSON:territories",
+    "method": "POST",
+    "path": "/api/crm/territories",
+    "status": 400,
+    "body": "{\"error\":\"Invalid JSON body\"}"
+  },
+  {
+    "label": "BAD-JSON:subcontractors",
+    "method": "POST",
+    "path": "/api/crm/subcontractors",
+    "status": 400,
+    "body": "{\"error\":\"Invalid JSON body\"}"
+  },
+  {
+    "label": "BAD-JSON:automations",
+    "method": "POST",
+    "path": "/api/crm/automations",
+    "status": 400,
+    "body": "{\"error\":\"Invalid JSON body\"}"
+  },
+  {
+    "label": "BAD-JSON:drip-sequences",
+    "method": "POST",
+    "path": "/api/crm/drip-sequences",
+    "status": 400,
+    "body": "{\"error\":\"Invalid JSON body\"}"
+  },
+  {
+    "label": "BAD-JSON:estimates",
+    "method": "POST",
+    "path": "/api/estimates",
+    "status": 400,
+    "body": "{\"error\":\"Invalid JSON body\"}"
+  }
+]
