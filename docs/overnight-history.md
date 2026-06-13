@@ -2383,3 +2383,36 @@ Branch: `feat/financing` · Pre-run checkpoint: `c8afcb4` (`overnight-checkpoint
 - **Pages NOT exercised in s2 this run** (budget exhausted): `/leads`, `/leads/:id`, `/invoices`, `/work-orders`, `/tasks`, `/calendar`, `/reports`, `/canvassing`, `/content-studio`, all `/settings/*` tabs. Backend coverage for these routes remains clean.
 
 ---
+
+## QA Run: 2026-06-13 (Run 45)
+### Test Results
+- Pages tested: 3 rendered/verified (Dashboard, Settings→Financing, Leads) + 1 mobile viewport (375px) + 1 empty-state
+- API endpoints tested: 272 routes inventoried; 453 probes executed (387 standing + 63 new GET sweep + 3 happy-path writes)
+- Bugs found: 0
+- Bugs fixed: 0
+- UI inconsistencies found: 0 new (s3 audit hit max-turns before completing)
+- UI inconsistencies fixed: 0
+### Fixes Made
+- None. Convergence run — nothing broken to fix. The single commit `60ba290` (`qa(api): add .qa-uncovered-get-probe.mjs covering 63 uncovered GET routes`) added read-only API probe coverage only: a self-minting sweep over every GET route not previously hit by a probe (62 <500, 1 intentional 503 on skip-trace env-gate, 0 unintentional 5xx). Not a fix.
+### UI Consistency Fixes
+- None. s3 ui-audit hit max-turns (61/60) before completing the 7-axis sweep; no fresh findings landed. Modal family remains 100% on canonical `.modal-backdrop > .glass` + `modal-scale-in` since Run 44.
+### Known Issues Remaining
+- **#6 Heavy-work guards** on `/drift/correct-all`, `/properties/trigger-import`, `/crm/leads/score-all` — no rate-limit/concurrency guard; testing does bulk work → needs staging, not prod Neon. Untouched.
+- **#9 `DELETE /api/crm/tasks/:id`** handler missing — missing feature, not a broken endpoint; charter forbids adding endpoints.
+- **(cosmetic, Run 41)** `/alerts` has 2 raw `<input type="text">` without `.form-input` glass styling.
+- **(cosmetic, Run 41)** `/reports` and `/settings` `.glass` cards use 16px radius vs. app-standard 20px.
+- **(cosmetic)** Reports chart label overlap at ~930px viewport.
+- **(observation, not a bug)** `POST /api/crm/financing/public/:token/apply` validates planId before token (400 leaks field hint to unauthenticated callers); never 5xx.
+- **(observation, not a bug)** `POST /api/payments/webhook` echoes Stripe SDK sig-failure string on empty payload; still 400, not 500.
+### Coverage Gaps (carried to next run)
+- Tablet 768px responsive sweep (stalest visual gap, last full sweep Run 6).
+- Frontend page-list visual walk incomplete (s2 max-turns): `/invoices`, `/work-orders`, `/tasks`, `/calendar`, `/reports`, `/canvassing`, `/content-studio`, `/leads/:id`, remaining `/settings/*` tabs.
+- a11y/axe-core — never attempted.
+- Keyboard navigation — never attempted.
+### Session Integrity
+- s1 api-test: ✅ end_turn (35 turns, $2.25) — landed 60ba290.
+- s2 frontend-test: ⚠️ error_max_turns (81/80, $5.33) — no summary, no commit.
+- s3 ui-audit: ⚠️ error_max_turns (61/60, $3.73) — no findings, no commit.
+- s4 verify: ✅ end_turn (34 turns, $1.93) — build + UI + mobile + empty-state verified clean.
+- s5 report: this report. Total s1–s4 spend ~$13.24. 2/4 working stages exited cleanly; both that hit max-turns made no changes.
+---
