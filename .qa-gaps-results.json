@@ -45,15 +45,15 @@
     "label": "CANV:convert-zero",
     "method": "POST",
     "path": "/api/crm/canvass-pins/00000000-0000-0000-0000-000000000000/convert",
-    "status": 404,
-    "body": "{\"error\":\"Pin not found\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "CANV:convert-bad-uuid",
     "method": "POST",
     "path": "/api/crm/canvass-pins/notauuid/convert",
-    "status": 400,
-    "body": "{\"error\":\"Invalid id format\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "CONTRACT:public-sign-bad-token",
@@ -66,50 +66,50 @@
     "label": "CONTRACT:send-zero",
     "method": "POST",
     "path": "/api/crm/contracts/00000000-0000-0000-0000-000000000000/send",
-    "status": 404,
-    "body": "{\"error\":\"Contract not found or not in draft status\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "CONTRACT:send-bad-uuid",
     "method": "POST",
     "path": "/api/crm/contracts/notauuid/send",
-    "status": 400,
-    "body": "{\"error\":\"Invalid id format\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "CONTRACT:void-zero",
     "method": "POST",
     "path": "/api/crm/contracts/00000000-0000-0000-0000-000000000000/void",
-    "status": 404,
-    "body": "{\"error\":\"Contract not found\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "CONTRACT:pdf-zero",
     "method": "GET",
     "path": "/api/crm/contracts/00000000-0000-0000-0000-000000000000/pdf",
-    "status": 404,
-    "body": "{\"error\":\"Contract not found\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "LEAD:score-zero",
     "method": "POST",
     "path": "/api/crm/leads/00000000-0000-0000-0000-000000000000/score",
-    "status": 404,
-    "body": "{\"error\":\"Lead not found\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "LEAD:score-bad-uuid",
     "method": "POST",
     "path": "/api/crm/leads/notauuid/score",
-    "status": 400,
-    "body": "{\"error\":\"Invalid id format\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "DATA:opt-route-empty",
     "method": "POST",
     "path": "/api/data/optimize-route",
-    "status": 400,
-    "body": "{\"error\":\"stops array with at least 2 items required\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "DATA:opt-route-bad-json",
@@ -122,71 +122,71 @@
     "label": "DATA:opt-route-no-stops",
     "method": "POST",
     "path": "/api/data/optimize-route",
-    "status": 400,
-    "body": "{\"error\":\"stops array with at least 2 items required\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "DATA:opt-route-junk-stops",
     "method": "POST",
     "path": "/api/data/optimize-route",
-    "status": 400,
-    "body": "{\"error\":\"stops array with at least 2 items required\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "DOC:upload-empty",
     "method": "POST",
     "path": "/api/documents/upload",
-    "status": 400,
-    "body": "{\"error\":\"No file uploaded\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "DOC:upload-bad-ct",
     "method": "POST",
     "path": "/api/documents/upload",
-    "status": 400,
-    "body": "{\"error\":\"No file uploaded\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "DRIFT:correct-zero",
     "method": "POST",
     "path": "/api/drift/00000000-0000-0000-0000-000000000000/correct",
-    "status": 404,
-    "body": "{\"error\":\"Storm event not found\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "DRIFT:correct-bad-uuid",
     "method": "POST",
     "path": "/api/drift/notauuid/correct",
-    "status": 400,
-    "body": "{\"error\":\"Invalid stormEventId format\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "DRIFT:simulate-empty",
     "method": "POST",
     "path": "/api/drift/simulate",
-    "status": 400,
-    "body": "{\"error\":\"hail_size_in is required\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "DRIFT:calibrate-empty",
     "method": "POST",
     "path": "/api/drift/calibrate",
-    "status": 400,
-    "body": "{\"error\":\"storm_event_id, lat, and lng are required\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "DRIP:cancel-zero",
     "method": "POST",
     "path": "/api/crm/drip-sequences/00000000-0000-0000-0000-000000000000/cancel",
-    "status": 400,
-    "body": "{\"error\":\"leadId is required\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "DRIP:cancel-bad-uuid",
     "method": "POST",
     "path": "/api/crm/drip-sequences/notauuid/cancel",
-    "status": 400,
-    "body": "{\"error\":\"Invalid id format\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "EST:public-accept-bad-token",
@@ -213,92 +213,92 @@
     "label": "EST:send-zero",
     "method": "POST",
     "path": "/api/estimates/00000000-0000-0000-0000-000000000000/send",
-    "status": 404,
-    "body": "{\"error\":\"Estimate not found or already sent\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "EST:send-bad-uuid",
     "method": "POST",
     "path": "/api/estimates/notauuid/send",
-    "status": 400,
-    "body": "{\"error\":\"Invalid id format\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "EST:duplicate-zero",
     "method": "POST",
     "path": "/api/estimates/00000000-0000-0000-0000-000000000000/duplicate",
-    "status": 404,
-    "body": "{\"error\":\"Estimate not found\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "EST:pdf-zero",
     "method": "GET",
     "path": "/api/estimates/00000000-0000-0000-0000-000000000000/pdf",
-    "status": 404,
-    "body": "{\"error\":\"Estimate not found\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "EST:pdf-bad-uuid",
     "method": "GET",
     "path": "/api/estimates/notauuid/pdf",
-    "status": 400,
-    "body": "{\"error\":\"Invalid id format\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "EST:sign-in-person-zero",
     "method": "POST",
     "path": "/api/estimates/00000000-0000-0000-0000-000000000000/sign-in-person",
-    "status": 400,
-    "body": "{\"error\":\"signer_name required\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "EST:generate-tiers-zero",
     "method": "POST",
     "path": "/api/estimates/00000000-0000-0000-0000-000000000000/generate-tiers",
-    "status": 404,
-    "body": "{\"error\":\"Estimate not found\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "INV:from-estimate-zero",
     "method": "POST",
     "path": "/api/crm/invoices/from-estimate/00000000-0000-0000-0000-000000000000",
-    "status": 404,
-    "body": "{\"error\":\"Estimate not found\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "INV:from-estimate-bad-uuid",
     "method": "POST",
     "path": "/api/crm/invoices/from-estimate/notauuid",
-    "status": 400,
-    "body": "{\"error\":\"Invalid estimateId format\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "INV:send-zero",
     "method": "POST",
     "path": "/api/crm/invoices/00000000-0000-0000-0000-000000000000/send",
-    "status": 404,
-    "body": "{\"error\":\"Invoice not found\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "INV:send-email-zero",
     "method": "POST",
     "path": "/api/crm/invoices/00000000-0000-0000-0000-000000000000/send-email",
-    "status": 400,
-    "body": "{\"error\":\"Recipient email required\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "LEAD:status-token-zero",
     "method": "POST",
     "path": "/api/leads/00000000-0000-0000-0000-000000000000/status-token",
-    "status": 400,
-    "body": "{\"error\":\"Referenced resource does not exist or is not accessible\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "LEAD:from-storm-empty",
     "method": "POST",
     "path": "/api/leads/from-storm",
-    "status": 400,
-    "body": "{\"error\":\"stormEventId is required\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "LEAD:from-storm-bad-json",
@@ -311,15 +311,15 @@
     "label": "MAT:auto-order-zero",
     "method": "POST",
     "path": "/api/materials/estimate/00000000-0000-0000-0000-000000000000/auto-order",
-    "status": 404,
-    "body": "{\"error\":\"Estimate not found\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "MAT:auto-order-bad-uuid",
     "method": "POST",
     "path": "/api/materials/estimate/notauuid/auto-order",
-    "status": 400,
-    "body": "{\"error\":\"Invalid estimateId format\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "ONB:create-tenant-empty",
@@ -339,50 +339,50 @@
     "label": "ONB:org-empty",
     "method": "PUT",
     "path": "/api/onboarding/org",
-    "status": 200,
-    "body": "{\"tenant\":{\"id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"Waterloo Roofing\",\"slug\":\"waterloo\",\"subscription_tier\":\"enterprise\",\"subscription_status\":\"active\",\"onboarding_completed\":true,\"trial_ends_at\":\"2026-04-04T22:04:42.132Z\",\"company_phone\":null,\"company_website\":null,\"company_address\":null"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "ONB:select-plan-empty",
     "method": "POST",
     "path": "/api/onboarding/select-plan",
-    "status": 400,
-    "body": "{\"error\":\"Validation failed\",\"details\":{\"planKey\":[\"Required\"]}}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "ONB:setup-payment-empty",
     "method": "POST",
     "path": "/api/onboarding/setup-payment",
-    "status": 400,
-    "body": "{\"error\":\"Validation failed\",\"details\":{\"paymentMethodId\":[\"Required\"]}}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "ONB:enable-addons-empty",
     "method": "POST",
     "path": "/api/onboarding/enable-addons",
-    "status": 400,
-    "body": "{\"error\":\"Validation failed\",\"details\":{\"skipTrace\":[\"Required\"],\"roofMeasurement\":[\"Required\"]}}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "PAY:connect-refresh-empty",
     "method": "POST",
     "path": "/api/payments/connect/refresh",
-    "status": 400,
-    "body": "{\"error\":\"No Stripe account found. Please start onboarding first.\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "PAY:create-intent-empty",
     "method": "POST",
     "path": "/api/payments/create-intent",
-    "status": 400,
-    "body": "{\"error\":\"estimateId is required\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "PAY:create-intent-bad-amount",
     "method": "POST",
     "path": "/api/payments/create-intent",
-    "status": 400,
-    "body": "{\"error\":\"estimateId is required\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "PAY:public-create-intent-empty",
@@ -395,64 +395,64 @@
     "label": "PROP:reverse-geo-empty",
     "method": "GET",
     "path": "/api/properties/reverse-geocode",
-    "status": 400,
-    "body": "{\"error\":\"lat and lng are required\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "PROP:reverse-geo-bad-coords",
     "method": "GET",
     "path": "/api/properties/reverse-geocode?lat=abc&lng=def",
-    "status": 400,
-    "body": "{\"error\":\"lat and lng are required\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "PROP:reverse-geo-no-lng",
     "method": "GET",
     "path": "/api/properties/reverse-geocode?lat=40",
-    "status": 400,
-    "body": "{\"error\":\"lat and lng are required\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "PROP:weather-history-zero",
     "method": "GET",
     "path": "/api/properties/00000000-0000-0000-0000-000000000000/weather-history",
-    "status": 404,
-    "body": "{\"error\":\"Property not found\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "PROP:weather-history-bad-uuid",
     "method": "GET",
     "path": "/api/properties/notauuid/weather-history",
-    "status": 400,
-    "body": "{\"error\":\"Invalid id format\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "PROP:weather-history-pdf-zero",
     "method": "GET",
     "path": "/api/properties/00000000-0000-0000-0000-000000000000/weather-history/pdf",
-    "status": 404,
-    "body": "{\"error\":\"Property not found\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "PROP:report-pdf-zero",
     "method": "GET",
     "path": "/api/properties/00000000-0000-0000-0000-000000000000/report/pdf",
-    "status": 404,
-    "body": "{\"error\":\"Property not found\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "PROP:report-pdf-bad-uuid",
     "method": "GET",
     "path": "/api/properties/notauuid/report/pdf",
-    "status": 400,
-    "body": "{\"error\":\"Invalid id format\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "ST:setup-payment-empty",
     "method": "POST",
     "path": "/api/skip-trace/setup-payment",
-    "status": 400,
-    "body": "{\"error\":\"paymentMethodId required\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "TRC:webhook-empty",
@@ -479,21 +479,21 @@
     "label": "WO:from-estimate-zero",
     "method": "POST",
     "path": "/api/crm/work-orders/from-estimate/00000000-0000-0000-0000-000000000000",
-    "status": 404,
-    "body": "{\"error\":\"Estimate not found\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "WO:from-estimate-bad-uuid",
     "method": "POST",
     "path": "/api/crm/work-orders/from-estimate/notauuid",
-    "status": 400,
-    "body": "{\"error\":\"Invalid estimateId format\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   },
   {
     "label": "WO:pdf-zero",
     "method": "GET",
     "path": "/api/crm/work-orders/00000000-0000-0000-0000-000000000000/pdf",
-    "status": 404,
-    "body": "{\"error\":\"Work order not found\"}"
+    "status": 401,
+    "body": "{\"error\":\"Invalid or expired token\"}"
   }
 ]
