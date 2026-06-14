@@ -3444,6 +3444,13 @@ input[type="checkbox"]:checked::after {
   animation: icon-spin 0.4s ease forwards;
 }
 
+/* Bottom tab bar - hidden by default (desktop), shown on mobile.
+   Declared BEFORE the ≤768px block so the media-query `display: flex`
+   wins on small screens via source order (equal specificity). */
+.bottom-tab-bar {
+  display: none;
+}
+
 /* ============================================================
    MOBILE RESPONSIVE (≤768px)
    ============================================================ */
@@ -3464,6 +3471,7 @@ input[type="checkbox"]:checked::after {
   }
 
   .content-area {
+    grid-column: 1;
     gap: var(--space-sm);
   }
 
@@ -3651,11 +3659,6 @@ input[type="checkbox"]:checked::after {
     width: 100vw !important;
     max-width: 100vw !important;
   }
-}
-
-/* Bottom tab bar - hidden by default (desktop), shown on mobile */
-.bottom-tab-bar {
-  display: none;
 }
 
 .show-mobile {
