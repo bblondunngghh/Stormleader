@@ -2416,3 +2416,37 @@ Branch: `feat/financing` · Pre-run checkpoint: `c8afcb4` (`overnight-checkpoint
 - s4 verify: ✅ end_turn (34 turns, $1.93) — build + UI + mobile + empty-state verified clean.
 - s5 report: this report. Total s1–s4 spend ~$13.24. 2/4 working stages exited cleanly; both that hit max-turns made no changes.
 ---
+
+## QA Run: 2026-06-14 (Run 46)
+### Test Results
+- Pages tested: 6 exercised at runtime (Dashboard desktop, Dashboard tablet 768px, Invoices, Settings, Tasks, Estimates list + builder) + Dashboard re-verified at 1280px and 768px
+- API endpoints tested: 272 routes inventoried; full standing probe suite re-run (63 GET sweep + 71 negative-case gaps + edge/type-fuzz/patch-delete + 2 happy-path writes + tenant-isolation checks)
+- Bugs found: 1
+- Bugs fixed: 1
+- UI inconsistencies found: 0
+- UI inconsistencies fixed: 0
+### Fixes Made
+- **`7339032` fix(ui): tablet 768px dashboard** — at the ≤768px breakpoint `.content-area` inherited the desktop grid's column 2, squishing all dashboard content into a narrow right-hand strip; and a global `.bottom-tab-bar { display: none }` declared *after* the `@media (max-width:768px)` block overrode the mobile `display:flex` by source order, hiding the bottom tab bar at every width. Fix: `.content-area { grid-column: 1 }` inside the ≤768px block + moved the desktop `.bottom-tab-bar { display: none }` to *before* the media query so the mobile `display:flex` wins on small screens while desktop stays hidden. Found by s4 (uncommitted, with a desktop regression); completed + corrected + committed by s5. Verified via Playwright: desktop 1280px tab bar display:none/h0; tablet 768px tab bar display:flex visible, content grid-column 1 / full-bleed (left 8px, width 746px). `vite build` clean (7.92s).
+- `8d12947` qa(api): probe-snapshot refresh — read-only API probe coverage re-run. Not a fix (0 broken endpoints, 0 unintentional 5xx — 6th converged backend run).
+### UI Consistency Fixes
+- None. s3 UI audit completed all 7 axes (icons / buttons / headers / sidebar / forms / spacing / modals), code-level + runtime — converged, 0 inconsistencies, 0 changes. Modal family, icon set (100% hero-outline), and form-element enforcement (0 native select/date) all remain clean.
+### Known Issues Remaining
+- **#6 Heavy-work guards** on `/drift/correct-all`, `/properties/trigger-import`, `/crm/leads/score-all` — no rate-limit/concurrency guard; needs staging, not prod Neon. Untouched.
+- **#9 `DELETE /api/crm/tasks/:id`** handler missing — missing feature, charter forbids adding endpoints.
+- **(cosmetic)** `/alerts` has 2 raw `<input type="text">` without `.form-input` glass styling.
+- **(cosmetic)** `/reports` and `/settings` `.glass` cards use 16px radius vs. app-standard 20px.
+- **(cosmetic)** Reports chart label overlap at ~930px viewport.
+- **(observation)** `POST /api/crm/financing/public/:token/apply` validates planId before token (400 field hint to unauthenticated callers); never 5xx.
+- **(observation)** `POST /api/payments/webhook` echoes Stripe SDK sig-failure string on empty payload; still 400, not 500.
+### Coverage Gaps (carried to next run)
+- Frontend page-list visual walk incomplete (s2 max-turns, no output): `/leads`, `/leads/:id`, `/work-orders`, `/calendar`, `/reports`, `/canvassing`, `/content-studio`, remaining `/settings/*` tabs.
+- Tablet 768px sweep — only Dashboard checked (and fixed) this run; other pages still un-swept at tablet width. Now the highest-value next target (breakpoint mechanism confirmed good).
+- a11y/axe-core — never attempted.
+- Keyboard navigation — never attempted.
+### Session Integrity
+- s1 api-test: ✅ end_turn (48 turns, $3.32) — landed 8d12947; root-caused the "mass 401" /tmp path red herring.
+- s2 frontend-test: ⚠️ error_max_turns (81/80, $6.21) — no summary, no commit.
+- s3 ui-audit: ✅ end_turn (52 turns, $2.92) — converged, 0 fixes.
+- s4 verify: ⚠️ error_max_turns (41/40, $3.74) — found the tablet bug, applied a partial fix (uncommitted, desktop regression), no commit before turns ran out.
+- s5 report: this report — completed + corrected + committed s4's tablet fix (7339032), verified via Playwright, wrote report. s1–s4 spend ~$16.20.
+---
