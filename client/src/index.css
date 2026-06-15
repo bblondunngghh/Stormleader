@@ -3648,9 +3648,10 @@ input[type="checkbox"]:checked::after {
     grid-template-columns: 1fr 1fr !important;
   }
 
-  /* -- Lead table: card layout on mobile -- */
-  .lead-table th:nth-child(n+5),
-  .lead-table td:nth-child(n+5) {
+  /* -- Lead table: keep Address (5th col) visible so leads stay identifiable;
+        hide secondary columns (Contact onward) on tablet/mobile -- */
+  .lead-table th:nth-child(n+6),
+  .lead-table td:nth-child(n+6) {
     display: none;
   }
 
