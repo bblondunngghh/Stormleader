@@ -2450,3 +2450,38 @@ Branch: `feat/financing` · Pre-run checkpoint: `c8afcb4` (`overnight-checkpoint
 - s4 verify: ⚠️ error_max_turns (41/40, $3.74) — found the tablet bug, applied a partial fix (uncommitted, desktop regression), no commit before turns ran out.
 - s5 report: this report — completed + corrected + committed s4's tablet fix (7339032), verified via Playwright, wrote report. s1–s4 spend ~$16.20.
 ---
+
+## QA Run: 2026-06-15 (Run 47)
+### Test Results
+- Pages tested: 8 frontend pages exercised at runtime (Dashboard, Leads, Materials, Invoices, Settings, Tasks, Estimates list + builder); Leads & Materials checked at 1280 / 768 / 375px
+- API endpoints tested: 272 routes inventoried across 38 route files; ~1,180 probe requests (standing probe suite: 63 GET sweep + negative-case gaps + edge/type-fuzz/patch-delete + happy-path writes + tenant-isolation)
+- Bugs found: 2
+- Bugs fixed: 2
+- UI inconsistencies found: 0
+- UI inconsistencies fixed: 0
+### Fixes Made
+- **`55d5df6` fix(ui): keep Address column visible on lead table at <=768px** — at the ≤768px breakpoint the rule `nth-child(n+5)` hid the Address column, leaving only checkbox/Stage/Priority/Score (a strip of indistinguishable badges; Address is the lead's primary identifier since contact is often blank). Changed to `nth-child(n+6)` so Address (5th col) stays visible. Verified by s4 via Playwright: cols 1–5 incl. Address visible, 6+ hidden, page overflow 0, table fits 712px; degrades cleanly at 375px.
+- **`db43990` fix(ui): make Materials category tab row horizontally scrollable at narrow widths** — at ≤768px the category filter row (All…Delivery) overflowed its `overflow:hidden` `.glass` container, clipping categories past ~Ventilation with no way to reach them. Added `overflowX:auto` + `.no-scrollbar` to the row. Verified by s4: scrollWidth 1673 > client 712, scrolls to reveal Delivery, search pinned right, desktop unchanged, page overflow 0.
+### UI Consistency Fixes
+- None. s3 UI audit completed all 7 axes (icons / buttons / headers / sidebar / forms / spacing / modals), code-level grep + runtime walk — converged, 0 inconsistencies, 0 changes. Icon set 100% hero-outline (38 imports), 0 native select/date in src, modal & slide-over families consistent, topbar 56px on every page.
+### Backend
+- s1 re-ran the full standing probe suite (~1,180 requests across all 38 route files): 0 unintentional 5xx, 0 broken endpoints, 0 fixes — **7th consecutive converged backend run (Runs 41–47).** Tenant isolation solid; only intentional non-200s are skip-trace 503 (no TRACERFY_API_KEY) and auth 429 (rate limiter). Backend is CONVERGED — stop re-testing it.
+### Known Issues Remaining
+- **#6 Heavy-work guards** on `/drift/correct-all`, `/properties/trigger-import`, `/crm/leads/score-all` — no rate-limit/concurrency guard; needs staging, not prod Neon. Untouched.
+- **#9 `DELETE /api/crm/tasks/:id`** handler missing — missing feature, charter forbids adding endpoints.
+- **(cosmetic)** `/alerts` has 2 raw `<input type="text">` without `.form-input` glass styling.
+- **(cosmetic)** `/reports` and `/settings` `.glass` cards use 16px radius vs. app-standard 20px.
+- **(cosmetic)** Reports chart label overlap at ~930px viewport.
+- **(observation)** `POST /api/crm/financing/public/:token/apply` validates planId before token (400 field hint to unauthenticated callers); never 5xx.
+- **(observation)** `POST /api/payments/webhook` echoes Stripe SDK sig-failure string on empty payload; still 400, not 500.
+### Coverage Gaps (carried to next run)
+- Tablet-768px sweep — done & clean: Dashboard (`7339032`), Leads (`55d5df6`), Materials (`db43990`). Still un-swept at 768px: Invoices, Tasks, Calendar, Reports, Estimates list+builder, Pipeline, LeadDetail, Subcontractors, Expenses, Work Orders, Contracts, Settings tabs. Highest-value next target.
+- a11y/axe-core — never attempted.
+- Keyboard navigation — never attempted.
+### Session Integrity
+- s1 api-test: ✅ end_turn (17 turns, $1.09) — backend re-verified converged, 0 fixes.
+- s2 frontend-test: ⚠️ error_max_turns (81/80, $5.45) — no end summary, but landed both responsive fixes (55d5df6, db43990) before turns ran out.
+- s3 ui-audit: ⚠️ error_max_turns (61/60, $3.73) — audit written to C:\tmp\ui-audit-results.txt; converged, 0 changes.
+- s4 verify: ✅ end_turn (30 turns, $1.64) — both fixes verified @768px & @375px, empty state + bottom tab bar confirmed, vite build clean.
+- s5 report: this report. Total s1–s4 spend ~$11.91. 2/4 working stages exited cleanly; both max-turns stages still produced their deliverables.
+---
