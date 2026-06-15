@@ -266,9 +266,10 @@ function CatalogTab({ products, loading, search, setSearch, category, setCategor
       display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0,
     }}>
       {/* Category tabs + search on same line */}
-      <div style={{
+      <div className="no-scrollbar" style={{
         display: 'flex', alignItems: 'center', borderBottom: '1px solid var(--glass-border)',
         flexShrink: 0, position: 'relative', padding: '0 var(--space-md) 0 0',
+        overflowX: 'auto',
       }}>
         {CATEGORIES.map(cat => (
           <button
