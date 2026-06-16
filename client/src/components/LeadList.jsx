@@ -574,7 +574,7 @@ export default function LeadList() {
             <thead>
               <tr>
                 <th style={{ width: 36 }}>
-                  <input type="checkbox" checked={allOnPageSelected} onChange={toggleAll}
+                  <input type="checkbox" aria-label="Select all leads on this page" checked={allOnPageSelected} onChange={toggleAll}
                     style={{ cursor: 'pointer', accentColor: 'var(--accent-blue)' }} />
                 </th>
                 <th onClick={() => handleSort('stage')} style={{ cursor: 'pointer' }}>Stage{sortArrow('stage')}</th>
@@ -620,7 +620,7 @@ export default function LeadList() {
                     onClick={() => setSelectedLead(lead)}
                   >
                     <td onClick={e => e.stopPropagation()}>
-                      <input type="checkbox" checked={isSelected} onChange={() => toggleOne(lead.id)}
+                      <input type="checkbox" aria-label={`Select lead ${cleanAddr(lead.address) || lead.id}`} checked={isSelected} onChange={() => toggleOne(lead.id)}
                         style={{ cursor: 'pointer', accentColor: 'var(--accent-blue)' }} />
                     </td>
                     <td>

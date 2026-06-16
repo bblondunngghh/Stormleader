@@ -1437,7 +1437,7 @@ export default function Dashboard() {
                   const isOverdue = task.due_date && new Date(task.due_date) < new Date();
                   return (
                     <div key={task.id} className="flex items-center gap-2.5 py-2 px-1 text-xs border-b border-[oklch(0.22_0.015_265/0.15)] rounded-md hover:bg-[oklch(1_0_0/0.03)] transition-colors" style={{ cursor: task.lead_id ? 'pointer' : undefined }} onClick={() => task.lead_id && navigate(`/leads/${task.lead_id}`)}>
-                      <button className="w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0" onClick={(e) => { e.stopPropagation(); handleToggleTask(task); }}
+                      <button type="button" aria-label={`Mark task "${task.title}" complete`} title="Mark complete" className="w-4 h-4 rounded-[5px] border-[1.5px] border-[oklch(0.40_0.02_265/0.35)] bg-[oklch(0.12_0.01_265/0.3)] cursor-pointer shrink-0" onClick={(e) => { e.stopPropagation(); handleToggleTask(task); }}
                         style={{ borderColor: isOverdue ? 'var(--accent-red)' : undefined }} />
                       <div className="flex-1 min-w-0 flex flex-col">
                         <span className={`text-[var(--text-secondary)] font-medium truncate${isOverdue ? ' text-[var(--accent-red)] font-[620]' : ''}`}>{task.title}</span>
@@ -1477,7 +1477,7 @@ export default function Dashboard() {
         </Panel>
 
         <Panel title="Activity Feed">
-          <div className="flex flex-col gap-px max-h-[320px] overflow-y-auto">
+          <div tabIndex={0} role="region" aria-label="Activity feed" className="flex flex-col gap-px max-h-[320px] overflow-y-auto">
             {activity.length === 0 ? (
               <div className="text-xs text-[var(--text-muted)] py-5 text-center">No recent activity</div>
             ) : activity.map(item => {
