@@ -3,8 +3,8 @@
     "label": "AUTH:register-empty",
     "method": "POST",
     "path": "/api/auth/register",
-    "status": 429,
-    "body": "{\"error\":\"Too many registration attempts. Please try again later.\"}"
+    "status": 400,
+    "body": "{\"error\":\"Validation failed\",\"details\":{\"email\":[\"Required\"],\"password\":[\"Required\"],\"firstName\":[\"Required\"],\"lastName\":[\"Required\"],\"tenantSlug\":[\"Required\"]}}"
   },
   {
     "label": "AUTH:register-bad-json",
@@ -17,8 +17,8 @@
     "label": "AUTH:register-partial",
     "method": "POST",
     "path": "/api/auth/register",
-    "status": 429,
-    "body": "{\"error\":\"Too many registration attempts. Please try again later.\"}"
+    "status": 400,
+    "body": "{\"error\":\"Validation failed\",\"details\":{\"email\":[\"Invalid email\"],\"password\":[\"Required\"],\"firstName\":[\"Required\"],\"lastName\":[\"Required\"],\"tenantSlug\":[\"Required\"]}}"
   },
   {
     "label": "AUTH:refresh-empty",
