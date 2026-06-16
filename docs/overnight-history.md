@@ -2485,3 +2485,36 @@ Branch: `feat/financing` · Pre-run checkpoint: `c8afcb4` (`overnight-checkpoint
 - s4 verify: ✅ end_turn (30 turns, $1.64) — both fixes verified @768px & @375px, empty state + bottom tab bar confirmed, vite build clean.
 - s5 report: this report. Total s1–s4 spend ~$11.91. 2/4 working stages exited cleanly; both max-turns stages still produced their deliverables.
 ---
+
+## QA Run: 2026-06-16 (Run 48)
+### Test Results
+- Pages tested: 8 frontend surfaces (Dashboard, Leads, Import-leads modal exercised at runtime; Calendar, Canvassing, Invoices, Pipeline, Settings·Reviews captured at 768px but not yet analyzed)
+- API endpoints tested: 272 routes inventoried across 38 route files; ~1,180 probe requests (standing probe suite: 63-route GET sweep + gaps/edge/typefuzz-2 + type-fuzz 1026 payloads + patch-delete + tenant-isolation 22/22 + happy-path writes)
+- Bugs found: 2
+- Bugs fixed: 2
+- UI inconsistencies found: 1
+- UI inconsistencies fixed: 1
+### Fixes Made
+- **`c9a6954` fix(ui): ImportLeadsModal use canonical modal animation** — the Import-from-CSV modal hardcoded inline `animation:'modal-scale-in 0.25s ease-out'` on its `.modal-backdrop > .glass` child, diverging from canonical on three axes (250ms vs 200ms, ease-out vs `--ease-apple`, missing `both`). Removed the inline override so it inherits the canonical rule. Runtime re-verify: `modal-scale-in 0.2s cubic-bezier(0.16,1,0.3,1) both`, 0 inline override. Build clean.
+- **`3d234ff` fix(a11y): add accessible names to unlabeled interactive controls** — lead-table select-all + per-row select checkboxes had no accessible name (screen readers announced bare "checkbox"); added aria-labels ("Select all leads on this page" / "Select lead <address>"). Dashboard task-complete button had no name/type → added aria-label/title + `type="button"`. Dashboard activity feed made keyboard-focusable (`role="region"` + `tabindex=0` + aria-label). No visual change. Verified at runtime.
+### UI Consistency Fixes
+- `c9a6954` (modal animation drift on the new ImportLeadsModal file) — see above. All other 6 audit axes (icons / buttons / headers / sidebar / forms / spacing) converged (5th consecutive UI-consistency convergence): icons 100% hero-outline (38 imports + Icons.jsx wrapper, 0 foreign/inline); 0 native select/date in src; buttons/sidebar/topbar uniform within semantic groups.
+### Backend
+- s1 re-ran the full standing probe suite: 0 unintentional 5xx, 0 broken endpoints, 0 fixes — **8th consecutive converged backend run (Runs 41–48).** Tenant isolation 22/22; only intentional non-200s are skip-trace 503 (no TRACERFY_API_KEY) and auth 429 (rate limiter). `PATCH lead {priority:"high"}` → 400 is correct enum validation, not a bug. Backend CONVERGED — stop re-testing it.
+### Known Issues Remaining
+- **#6 Heavy-work guards** on `/drift/correct-all`, `/properties/trigger-import`, `/crm/leads/score-all` — no rate-limit/concurrency guard; needs staging, not prod Neon. Untouched.
+- **#9 `DELETE /api/crm/tasks/:id`** handler missing — adding endpoints forbidden by charter.
+- **Esc-to-close** absent on modals app-wide — pre-existing pattern; part of the untouched keyboard-nav gap.
+- **`TopBar` ImportProgress poller** logs a graceful 401 on `/api/properties/import-progress` when JWT expired — touches FEMA import, DO NOT TOUCH.
+- **(cosmetic, carried)** `/alerts` 2 raw `<input type="text">` without `.form-input`; `/reports` & `/settings` `.glass` cards 16px radius vs app-standard 20px; Reports chart label overlap at ~930px.
+### Coverage Gaps (carried to next run)
+- **Tablet-768px: 5 pages captured but NOT analyzed** — `qa-768-{calendar,canvassing,invoices,pipeline,settings-reviews}.jpeg` from s2 (which ran out of turns). Reviewing these is the highest-value next-run task. Still un-swept beyond those: Tasks, Reports, Estimates list+builder, LeadDetail, Subcontractors, Expenses, Work Orders, Contracts, remaining Settings tabs. Done & clean: Dashboard, Leads, Materials.
+- **a11y / axe-core** — never run a full sweep; only spot fixes (`3d234ff`).
+- **Keyboard nav** — Tab order, focus rings, Enter-submit, Esc-to-close all untested app-wide.
+### Session Integrity
+- s1 api-test: ✅ end_turn (23 turns, $1.52) — backend re-verified converged, 0 fixes.
+- s2 frontend-test: ⚠️ error_max_turns (81/80, $4.90) — no summary, no commit, no `/tmp/frontend-test-results.txt`; captured 5 tablet-768px screenshots only.
+- s3 ui-audit: ✅ end_turn (28 turns, $1.85) — 1 fix (`c9a6954`), all other axes converged.
+- s4 verify: ✅ end_turn (41 turns, $2.77) — verified all fixes via Playwright; committed the s3-staged a11y edits (`3d234ff`); build clean 7.55s.
+- s5 report: this report. 2 commits stand for this run. s1–s4 spend ~$11.04. 3/4 working stages exited cleanly; s2 (max-turns) left only screenshots.
+---
