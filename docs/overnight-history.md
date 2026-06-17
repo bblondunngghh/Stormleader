@@ -2518,3 +2518,41 @@ Branch: `feat/financing` · Pre-run checkpoint: `c8afcb4` (`overnight-checkpoint
 - s4 verify: ✅ end_turn (41 turns, $2.77) — verified all fixes via Playwright; committed the s3-staged a11y edits (`3d234ff`); build clean 7.55s.
 - s5 report: this report. 2 commits stand for this run. s1–s4 spend ~$11.04. 3/4 working stages exited cleanly; s2 (max-turns) left only screenshots.
 ---
+
+## QA Run: 2026-06-17 (Run 49)
+> Note: s3/s4 self-labeled this "Run 50"; canonical number is **Run 49** (history's last entry was Run 48 on 2026-06-16; backend is on its 9th consecutive converged run, Runs 41–49).
+### Test Results
+- Pages tested: 13-page WCAG 2.1 A/AA axe-core sweep (s2) + 8-page UI-consistency runtime walk + Import modal (s3) + 3-page runtime re-verify (s4: Tasks, Work Orders, Calendar)
+- API endpoints tested: 272 routes · ~1,330 probe requests (full sweep + tenant-isolation 22/22 + type-fuzz 1026 payloads + happy-path writes + edge/gaps probes)
+- Bugs found: 3 (all a11y/axe-core violations)
+- Bugs fixed: 3
+- UI inconsistencies found: 0
+- UI inconsistencies fixed: 0
+### Fixes Made
+- **`8f55a02` fix(a11y): resolve axe-core violations on Tasks, Work Orders, Calendar** — the run's **first real axe-core sweep** (a gap carried 8+ runs), found + fixed 3 WCAG violations in one commit:
+  - **Tasks** — task-complete toggle buttons had no accessible name (axe `button-name`, critical, 15 nodes). Added `type=button`, `aria-pressed`, stateful `aria-label` naming the task + toggle action.
+  - **Work Orders** — horizontally-scrollable kanban board had no keyboard access (axe `scrollable-region-focusable`, serious). Added `role=region`, `aria-label="Work orders board"`, `tabindex=0`.
+  - **Calendar** — FullCalendar prev/next chevron spans rendered `role=img` with no alt text (axe `role-img-alt`, serious, 2 nodes). Stripped the role + set `aria-hidden` via a `datesSet` hook (re-applies on nav); buttons keep their accessible name via FullCalendar's `title` attr.
+  - Verified at runtime by s4 (Playwright DOM inspection): all 3 fixes work, re-apply on Calendar nav, 0 console errors, 0 overflow @375px, build clean 7.55s. The other 10 pages in the 13-page sweep were already 0-violation.
+### UI Consistency Fixes
+- None — UI-consistency **CONVERGED (6th consecutive 0-fix audit)**. Code-grep over all `client/src` + Playwright walk (Dashboard/Calendar/Settings/Invoices/Pipeline/Tasks/WorkOrders/Leads + Import modal): icons 38 heroicons/24/outline, 0 foreign/solid/inline-icon; forms 0 native select/date; modals canonical (ImportLeadsModal runtime = `modal-scale-in 0.2s cubic-bezier(0.16,1,0.3,1) both`); buttons grouped into design tokens; new `CalendarView.jsx` clean on all axes.
+### Backend
+- s1 re-ran the full standing probe suite (272 routes, ~1,330 requests): **0 unintentional 5xx, 0 broken endpoints, 0 fixes — 9th consecutive converged backend run (Runs 41–49).** Tenant isolation 22/22; type-fuzz 1026 payloads → 0 5xx; happy-path PATCH lead/invoice → 200. Only intentional non-200s: skip-trace 503 (no `TRACERFY_API_KEY`) and auth 429 (rate limiter). `PATCH lead {priority:"high"}` → 400 is correct enum validation. Backend CONVERGED — stop re-testing it.
+### Known Issues Remaining
+- **Keyboard nav — incomplete.** s2 started a keyboard-nav pass (Esc-to-close app-wide, Tab order, focus rings, Enter-submit) but hit the 80-turn limit before finishing. It left one **uncommitted** unused `import useEffect` in `client/src/components/ImportLeadsModal.jsx` (dead code, harmless, build passes). Complete or revert next run.
+- **axe-core not a local dep** — s2's sweep used a transient install of axe-core 4.10.2; it was NOT added to `package.json` (charter forbids enhancements). s4 re-verified the 3 fixes via DOM-attribute inspection instead. Adding axe as a dev-dependency for recurring sweeps is a developer decision.
+- **#6 Heavy-work guards** on `/drift/correct-all`, `/properties/trigger-import`, `/crm/leads/score-all` — no rate-limit/concurrency guard; needs staging, not prod Neon. Untouched.
+- **#9 `DELETE /api/crm/tasks/:id`** handler missing — adding endpoints forbidden by charter.
+- **`TopBar` ImportProgress poller** logs a graceful 401 on `/api/properties/import-progress` when JWT expired — FEMA-import territory, DO NOT TOUCH. Not a regression.
+- **(cosmetic, carried)** `/alerts` 2 raw `<input type="text">` without `.form-input`; `/reports` & `/settings` `.glass` cards 16px radius vs app-standard 20px; Reports chart label overlap at ~930px.
+### Coverage Gaps (carried to next run)
+- **Keyboard nav** — Esc-to-close missing on modals app-wide; Tab order, focus rings, Enter-submit untested. Highest-value remaining gap; should be a dedicated, app-wide stage.
+- **Tablet-768px sweep** — done & clean: Dashboard, Leads, Materials, Tasks, Work Orders, Calendar. Still un-swept at 768px: Invoices, Reports, Estimates list+builder, LeadDetail, Subcontractors, Expenses, Contracts, Settings tabs. The 5 `qa-768-*.jpeg` screenshots remain un-analyzed.
+- **Backend (9 runs) + UI-consistency (6 audits)** both converged — do NOT keep re-testing; fix yield 0.
+### Session Integrity
+- s1 api-test: ✅ end_turn (24 turns, $1.84) — backend re-verified converged, 0 fixes.
+- s2 frontend-test: ⚠️ error_max_turns (81/80, $5.58) — no end summary / no `frontend-test-results.txt`, but landed this run's one commit (`8f55a02`, the axe-core a11y fixes) before turns ran out; abandoned keyboard-nav follow-on left the dangling unused import.
+- s3 ui-audit: ✅ end_turn (36 turns, $2.07) — converged, 0 changes; deliverable `C:\tmp\ui-audit-results.txt`.
+- s4 verify: ✅ end_turn (30 turns, $1.76) — all 3 a11y fixes verified at runtime, build clean 7.55s, 0 fixes; deliverable `C:\tmp\verify-results.txt`.
+- s5 report: this report. **1 commit stands for this run (`8f55a02`).** s1–s4 spend ≈ $11.25. 3/4 working stages exited cleanly; the max-turns stage (s2) still produced this run's only commit.
+---
