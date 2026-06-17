@@ -73,6 +73,22 @@ export default function CalendarView() {
     }
   }, []);
 
+  // FullCalendar's prev/next buttons carry their own aria-labels, but the inner
+  // icon spans render with role="img" and no alt text (axe: role-img-alt).
+  // They're purely decorative, so strip the role and hide them after each render.
+  const handleDatesSet = useCallback((info) => {
+    // Defer to the next frame so the header toolbar is in the DOM, then strip
+    // the decorative icons' role so they no longer need alt text.
+    requestAnimationFrame(() => {
+      const root = calendarRef.current?.getApi()?.el || document;
+      root.querySelectorAll('.fc-icon[role="img"]').forEach((el) => {
+        el.setAttribute('aria-hidden', 'true');
+        el.removeAttribute('role');
+      });
+    });
+    return fetchEvents(info);
+  }, [fetchEvents]);
+
   const handleEventClick = useCallback(
     (info) => {
       const { leadId } = info.event.extendedProps;
@@ -166,7 +182,7 @@ export default function CalendarView() {
           meridiem: 'short',
         }}
         events={events}
-        datesSet={fetchEvents}
+        datesSet={handleDatesSet}
         eventClick={handleEventClick}
         eventDrop={handleEventDrop}
         dateClick={handleDateClick}

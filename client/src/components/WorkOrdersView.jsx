@@ -987,7 +987,7 @@ export default function WorkOrdersView() {
       </div>
 
       {/* Kanban Board */}
-      <div style={{ overflow: 'auto', padding: '16px 28px 16px' }}>
+      <div role="region" aria-label="Work orders board" tabIndex={0} style={{ overflow: 'auto', padding: '16px 28px 16px' }}>
         {workOrders.length === 0 ? (
           <div style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',

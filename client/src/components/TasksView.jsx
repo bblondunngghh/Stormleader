@@ -404,7 +404,13 @@ function TaskRow({ task, onToggle, onEdit, isOverdue, isDueToday }) {
 
   return (
     <div className={`task-row ${done ? 'task-row--done' : ''} ${isOverdue ? 'task-row--overdue' : ''}`}>
-      <button className={`task-check ${done ? 'task-check--done' : ''}`} onClick={onToggle}>
+      <button
+        type="button"
+        className={`task-check ${done ? 'task-check--done' : ''}`}
+        onClick={onToggle}
+        aria-pressed={done}
+        aria-label={done ? `Mark task "${task.title}" as not done` : `Mark task "${task.title}" as done`}
+      >
         {done && <IconCheckSquare style={{ width: 14, height: 14 }} />}
       </button>
 
