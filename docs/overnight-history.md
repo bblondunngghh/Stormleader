@@ -2556,3 +2556,38 @@ Branch: `feat/financing` · Pre-run checkpoint: `c8afcb4` (`overnight-checkpoint
 - s4 verify: ✅ end_turn (30 turns, $1.76) — all 3 a11y fixes verified at runtime, build clean 7.55s, 0 fixes; deliverable `C:\tmp\verify-results.txt`.
 - s5 report: this report. **1 commit stands for this run (`8f55a02`).** s1–s4 spend ≈ $11.25. 3/4 working stages exited cleanly; the max-turns stage (s2) still produced this run's only commit.
 ---
+
+---
+## QA Run: 2026-06-18 (Run 50)
+> Note: s3/s4 artifacts self-labeled this "Run 50/51"; canonical number is **Run 50** (history's last entry was Run 49 on 2026-06-17; backend is on its 10th consecutive converged run, Runs 41–50).
+### Test Results
+- Pages tested: Estimates (list + builder) deep responsive sweep @768/@375/@1280 (s2) + Dashboard/Estimates UI-consistency runtime spot-check (s3) + EstimateBuilder toolbar runtime re-verify @768/@1280 (s4)
+- API endpoints tested: 245 routes · ~1,300+ probe requests (full sweep + tenant-isolation 22/22 + type-fuzz 1026 payloads + happy-path writes + gaps/uncovered/pagination probes)
+- Bugs found: 1 (estimate-builder "Roof Components" toolbar overflow @768px) + 1 new edge-case finding (EstimateBuilder sidebar clipping @375px, deferred)
+- Bugs fixed: 1
+- UI inconsistencies found: 0
+- UI inconsistencies fixed: 0
+### Fixes Made
+- **`aab6753` fix(ui): wrap estimate builder line-items toolbar at tablet width** — at ≤768px the "Roof Components" toolbar (From preset / Add All / Blank Row / Add from SRS Catalog) was a `nowrap` flex row wider than its ~392px column, so "Add from SRS Catalog" overflowed to x=851 and was clipped/unreachable (body couldn't scroll to it). Added `flex-wrap:wrap` + `gap` to the header row and button group so buttons flow onto a second line on narrow viewports. Desktop unchanged (single line), 0 body overflow. Verified at runtime by s4 @768px (Add-from-SRS-Catalog wraps to line 2, x=329/right=501, fully in viewport) and @1280px (all 4 buttons single line), 0 console errors, build clean 7.62s.
+### UI Consistency Fixes
+- None — UI-consistency **CONVERGED (7th consecutive 0-fix audit)**. Code-grep over all `client/src` + Playwright spot-check (Dashboard 70/70 heroicons, Estimates 38/38): icons 100% `@heroicons/react/24/outline` (0 solid/lucide/react-icons/fa/material); forms 0 native select/date/time; modals canonical (`.modal-backdrop>.glass` = modal-scale-in 200ms ease-apple; LeadDetail:1806/1933 inline == canonical; slide-over 250ms intentional); button radii "14/12px"&"10/8px" = CSS clamp artifacts not bugs. The 3 components changed since last audit (EstimatesView `aab6753`, ImportLeadsModal, Calendar/Tasks/WorkOrders `8f55a02`) introduced no drift.
+### Backend
+- s1 re-ran the full standing probe suite (245 routes, ~1,300+ requests): **0 unintentional 5xx, 0 broken endpoints, 0 fixes — 10th consecutive converged backend run (Runs 41–50).** Tenant isolation 22/22 (query/body/X-Tenant-Id injection ignored, foreign ids→404, non-platform-admin→403); type-fuzz 1026 payloads → 0 5xx; happy-path PATCH lead {priority:warm}→200, PATCH invoice {status:sent}→200. Only intentional non-200s: skip-trace 503 (no `TRACERFY_API_KEY`), Stripe webhook 400 (no signature header), 6×403 admin-only, auth 429 (rate limiter). Backend CONVERGED — stop re-testing it.
+### Known Issues Remaining
+- **EstimateBuilder does not collapse at phone width (375px)** *(new finding, pre-existing, not from `aab6753`)*. Body is a flex-row with a fixed 280px sidebar (`flexShrink:0`, holds section enable/disable toggles — functional, not just nav) + `flex:1` editor inside an `overflow:hidden` container (`EstimatesView.jsx:1838`). At 375px the sidebar eats 280px → form content clipped/unreachable (overflow reads 0 because clipped, not scrollable). Screenshot `qa-375-estimate-builder.jpeg`. Works fine at 768px+. Proper fix = responsive sidebar collapse/stack = design-sized + risky, **deferred** to a dedicated next-run stage.
+- **Keyboard nav — Esc-to-close absent on most modals app-wide.** Of 17 modal/overlay components only a few handle Escape; most close via X/backdrop only. An in-progress **uncommitted** Esc handler in `LeadDetail.jsx` (working tree) belongs to this stage — left untouched (committing one component alone would increase inconsistency; fix must be a shared app-wide hook).
+- **#6 Heavy-work guards** on `/drift/correct-all`, `/properties/trigger-import`, `/crm/leads/score-all` — no rate-limit/concurrency guard; needs staging, not prod Neon. Untouched.
+- **#9 `DELETE /api/crm/tasks/:id`** handler missing — adding endpoints forbidden by charter.
+- **`TopBar` ImportProgress poller** logs a graceful 401 on `/api/properties/import-progress` when JWT expired — FEMA-import territory, DO NOT TOUCH. Not a regression.
+### Coverage Gaps (carried to next run)
+- **Keyboard nav** — Esc-to-close app-wide (shared hook), Tab order, focus rings, Enter-submit. Highest-value remaining gap; dedicated app-wide stage.
+- **EstimateBuilder 375px sidebar collapse** — the new finding above; dedicated responsive stage.
+- **Tablet-768px sweep** — done & clean: Dashboard, Leads, Materials, Tasks, Work Orders, Calendar, Estimates (list + builder verified this run). Still un-swept: Invoices, Reports, LeadDetail, Subcontractors, Expenses, Contracts, Settings tabs.
+- **Backend (10 runs) + UI-consistency (7 audits)** both converged — do NOT keep re-testing; fix yield 0.
+### Session Integrity
+- s1 api-test: ✅ success (19 turns, $1.73) — backend re-verified converged, 0 fixes.
+- s2 frontend-test: ⚠️ error_max_turns (81/80, $7.10) — no end summary, but landed this run's only commit (`aab6753`) before turns ran out; captured 4 estimate-builder screenshots.
+- s3 ui-audit: ✅ success (23 turns, $1.87) — converged (7th 0-fix audit), 0 changes; deliverable `C:\tmp\ui-audit-results.txt`.
+- s4 verify: ✅ success (35 turns, $2.54) — verified `aab6753` at runtime, build clean 7.62s, surfaced the 375px edge-case, 0 fixes; deliverable `C:\tmp\verify-results.txt`.
+- s5 report: this report. **1 commit stands for this run (`aab6753`).** s1–s4 spend ≈ $12.24. 3/4 working stages exited cleanly; the max-turns stage (s2) still produced this run's only commit.
+---
