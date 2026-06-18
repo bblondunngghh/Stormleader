@@ -186,7 +186,7 @@
     "path": "/",
     "full": "/api/crm/canvass-pins/",
     "status": 200,
-    "body": "[{\"id\":\"0511bf3a-f329-4927-b669-bdc23aa7e83c\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"user_id\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"lead_id\":null,\"location\":\"0101000020E61000000000000000A056C00000000000404440\",\"address\":null,\"outcome\":"
+    "body": "[{\"id\":\"08cb116d-f200-413f-b3aa-8022a67da198\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"user_id\":\"45cc729d-cc5b-44b5-93ca-7c01b427fc26\",\"lead_id\":null,\"location\":\"0101000020E6100000000000008087C3C0000000008087C340\",\"address\":null,\"outcome\":"
   },
   {
     "file": "canvassing.js",
@@ -195,7 +195,7 @@
     "path": "/stats",
     "full": "/api/crm/canvass-pins/stats",
     "status": 200,
-    "body": "{\"date\":\"2026-06-06\",\"total\":0,\"outcomes\":[]}"
+    "body": "{\"date\":\"2026-06-17\",\"total\":0,\"outcomes\":[]}"
   },
   {
     "file": "canvassing.js",
@@ -474,7 +474,7 @@
     "path": "/leads/score-all",
     "full": "/api/crm/leads/score-all",
     "status": 200,
-    "body": "{\"scored\":23,\"results\":[{\"id\":\"dc8135aa-b210-4f33-bbe1-ad8f0997d3dd\",\"score\":10},{\"id\":\"16486c58-5539-4572-94bd-7a9fef62f00b\",\"score\":7},{\"id\":\"3fa29df8-589c-44a6-ac4d-88cb78243cbe\",\"score\":3},{\"id\":\"e25ad9f6-f3dc-4ca7-a5da-63b6c3ee6d14\",\"score\":0},{"
+    "body": "{\"scored\":23,\"results\":[{\"id\":\"dc8135aa-b210-4f33-bbe1-ad8f0997d3dd\",\"score\":10},{\"id\":\"16486c58-5539-4572-94bd-7a9fef62f00b\",\"score\":7},{\"id\":\"3fa29df8-589c-44a6-ac4d-88cb78243cbe\",\"score\":7},{\"id\":\"e25ad9f6-f3dc-4ca7-a5da-63b6c3ee6d14\",\"score\":0},{"
   },
   {
     "file": "crm.js",
@@ -573,7 +573,7 @@
     "path": "/dashboard/activity",
     "full": "/api/crm/dashboard/activity",
     "status": 200,
-    "body": "{\"activity\":[{\"id\":\"4524f052-ddf7-41f0-ae23-744a181ee79c\",\"lead_id\":\"dc8135aa-b210-4f33-bbe1-ad8f0997d3dd\",\"type\":\"call\",\"text\":\"10706 LOCH NESS CV AUSTIN 78750 — note logged\",\"time\":\"5/26/2026\"},{\"id\":\"6c4ee7bc-3dfb-45f7-8e6f-5aea8f7bdcd1\",\"lead_id\""
+    "body": "{\"activity\":[{\"id\":\"735e511e-d3d8-48fc-8bb1-b854a91aa77f\",\"lead_id\":\"3fa29df8-589c-44a6-ac4d-88cb78243cbe\",\"type\":\"call\",\"text\":\"Unknown — note logged\",\"time\":\"6/7/2026\"},{\"id\":\"a67f1d64-0176-4133-b57d-d67831017e88\",\"lead_id\":\"3fa29df8-589c-44a6-ac4d"
   },
   {
     "file": "crm.js",
@@ -636,7 +636,7 @@
     "path": "/dashboard/properties-affected",
     "full": "/api/crm/dashboard/properties-affected",
     "status": 200,
-    "body": "{\"uncontacted\":2496,\"contacted\":0,\"total\":2496}"
+    "body": "{\"uncontacted\":1244,\"contacted\":0,\"total\":1244}"
   },
   {
     "file": "crm.js",
@@ -645,7 +645,7 @@
     "path": "/dashboard/properties-affected/list",
     "full": "/api/crm/dashboard/properties-affected/list",
     "status": 200,
-    "body": "{\"properties\":[{\"id\":\"137dfff7-6410-4e01-b144-c71f807a9556\",\"address_line1\":\", Archer County, TX\",\"city\":\" \",\"state\":\"TX\",\"zip\":\" \",\"owner_first_name\":null,\"owner_last_name\":\"BEASLEY CODY\",\"owner_phone\":null,\"owner_email\":null,\"assessed_value\":\"48750"
+    "body": "{\"properties\":[{\"id\":\"027fed88-9b8f-42b7-aac9-6a3536119a99\",\"address_line1\":\", ,\",\"city\":\" \",\"state\":\"TX\",\"zip\":\" \",\"owner_first_name\":null,\"owner_last_name\":\"RILEY, CLEVE & HOLLEY L\",\"owner_phone\":null,\"owner_email\":null,\"assessed_value\":\"291518.00\""
   },
   {
     "file": "crm.js",
@@ -672,7 +672,7 @@
     "path": "/dashboard/estimate-summary",
     "full": "/api/crm/dashboard/estimate-summary",
     "status": 200,
-    "body": "{\"draft\":20,\"sent\":5,\"viewed\":0,\"accepted\":0,\"declined\":0,\"expired\":0,\"accepted_value\":0,\"pending_value\":191985.1}"
+    "body": "{\"draft\":3,\"sent\":0,\"viewed\":0,\"accepted\":0,\"declined\":0,\"expired\":0,\"accepted_value\":0,\"pending_value\":0}"
   },
   {
     "file": "crm.js",
@@ -717,7 +717,7 @@
     "path": "/dashboard/days-in-stage",
     "full": "/api/crm/dashboard/days-in-stage",
     "status": 200,
-    "body": "{\"stages\":[{\"stage\":\"contacted\",\"label\":\"Contacted\",\"avg_days\":0,\"lead_count\":4,\"stuck_leads\":0},{\"stage\":\"estimate_sent\",\"label\":\"Estimate Sent\",\"avg_days\":0,\"lead_count\":1,\"stuck_leads\":0},{\"stage\":\"new\",\"label\":\"New\",\"avg_days\":0,\"lead_count\":16,\""
+    "body": "{\"stages\":[{\"stage\":\"contacted\",\"label\":\"Contacted\",\"avg_days\":0,\"lead_count\":4,\"stuck_leads\":0},{\"stage\":\"estimate_sent\",\"label\":\"Estimate Sent\",\"avg_days\":0,\"lead_count\":1,\"stuck_leads\":0},{\"stage\":\"appt_set\",\"label\":\"Appt Set\",\"avg_days\":0,\"lead_c"
   },
   {
     "file": "crm.js",
@@ -744,7 +744,7 @@
     "path": "/dashboard/lead-source-revenue",
     "full": "/api/crm/dashboard/lead-source-revenue",
     "status": 200,
-    "body": "{\"sources\":[{\"source\":\"canvassing\",\"lead_count\":3,\"sold_count\":0,\"revenue\":0,\"close_rate\":0},{\"source\":\"storm_map\",\"lead_count\":5,\"sold_count\":0,\"revenue\":0,\"close_rate\":0},{\"source\":\"fema_nsi\",\"lead_count\":6,\"sold_count\":0,\"revenue\":0,\"close_rate\":0"
+    "body": "{\"sources\":[{\"source\":\"canvassing\",\"lead_count\":3,\"sold_count\":0,\"revenue\":0,\"close_rate\":0},{\"source\":\"fema_nsi\",\"lead_count\":6,\"sold_count\":0,\"revenue\":0,\"close_rate\":0},{\"source\":\"storm_map\",\"lead_count\":5,\"sold_count\":0,\"revenue\":0,\"close_rate\":0"
   },
   {
     "file": "crm.js",
@@ -861,7 +861,7 @@
     "path": "/activity",
     "full": "/api/dashboard/activity",
     "status": 200,
-    "body": "[{\"id\":\"4524f052-ddf7-41f0-ae23-744a181ee79c\",\"type\":\"note\",\"direction\":null,\"outcome\":null,\"notes\":\"qa-roundtrip 1779790065544\",\"createdAt\":\"2026-05-26T10:07:45.548Z\",\"leadId\":\"dc8135aa-b210-4f33-bbe1-ad8f0997d3dd\",\"contactName\":null,\"address\":\"1070"
+    "body": "[{\"id\":\"735e511e-d3d8-48fc-8bb1-b854a91aa77f\",\"type\":\"note\",\"direction\":null,\"outcome\":null,\"notes\":\"qa-resume-test-undef\",\"createdAt\":\"2026-06-07T10:25:10.048Z\",\"leadId\":\"3fa29df8-589c-44a6-ac4d-88cb78243cbe\",\"contactName\":null,\"address\":null},{\"id\""
   },
   {
     "file": "dataApis.js",
@@ -951,7 +951,7 @@
     "path": "/correct-all",
     "full": "/api/drift/correct-all",
     "status": 200,
-    "body": "{\"corrected\":20}"
+    "body": "{\"corrected\":28}"
   },
   {
     "file": "drift.js",
@@ -1077,7 +1077,7 @@
     "path": "/",
     "full": "/api/estimates/",
     "status": 200,
-    "body": "{\"estimates\":[{\"id\":\"b4603e30-2bf0-4239-b214-f5c0c6d310b7\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"dc8135aa-b210-4f33-bbe1-ad8f0997d3dd\",\"created_by\":\"93fb33ea-e7d8-461f-87e4-bba4e55acc9e\",\"estimate_number\":\"EST-082\",\"status\":\"d"
+    "body": "{\"estimates\":[{\"id\":\"1252940b-b691-4182-8d4f-680ac71a0711\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"lead_id\":\"3fa29df8-589c-44a6-ac4d-88cb78243cbe\",\"created_by\":\"45cc729d-cc5b-44b5-93ca-7c01b427fc26\",\"estimate_number\":\"EST-083\",\"status\":\"d"
   },
   {
     "file": "estimates.js",
@@ -1977,7 +1977,7 @@
     "path": "/rep-performance",
     "full": "/api/crm/reports/rep-performance",
     "status": 200,
-    "body": "[{\"id\":\"45cc729d-cc5b-44b5-93ca-7c01b427fc26\",\"name\":\"Miles Martin\",\"leads_assigned\":\"0\",\"leads_sold\":\"0\",\"sold_value\":null,\"activity_count\":\"0\"},{\"id\":\"780e0023-c634-40b6-bc1d-67b4c1f0c2bd\",\"name\":\"Brandon Admin\",\"leads_assigned\":\"0\",\"leads_sold\":\"0"
+    "body": "[{\"id\":\"45cc729d-cc5b-44b5-93ca-7c01b427fc26\",\"name\":\"Miles Martin\",\"leads_assigned\":\"0\",\"leads_sold\":\"0\",\"sold_value\":null,\"activity_count\":\"2\"},{\"id\":\"780e0023-c634-40b6-bc1d-67b4c1f0c2bd\",\"name\":\"Brandon Admin\",\"leads_assigned\":\"0\",\"leads_sold\":\"0"
   },
   {
     "file": "reports.js",
@@ -1986,7 +1986,7 @@
     "path": "/stage-duration",
     "full": "/api/crm/reports/stage-duration",
     "status": 200,
-    "body": "[{\"stage\":\"contacted\",\"avg_days\":\"0.0\"},{\"stage\":\"estimate_sent\",\"avg_days\":\"0.0\"},{\"stage\":\"new\",\"avg_days\":\"0.0\"},{\"stage\":\"appt_set\",\"avg_days\":\"0.0\"},{\"stage\":\"inspected\",\"avg_days\":\"0.0\"}]"
+    "body": "[{\"stage\":\"contacted\",\"avg_days\":\"0.0\"},{\"stage\":\"estimate_sent\",\"avg_days\":\"0.0\"},{\"stage\":\"appt_set\",\"avg_days\":\"0.0\"},{\"stage\":\"new\",\"avg_days\":\"0.0\"},{\"stage\":\"inspected\",\"avg_days\":\"0.0\"}]"
   },
   {
     "file": "reports.js",
@@ -1995,7 +1995,7 @@
     "path": "/lead-sources",
     "full": "/api/crm/reports/lead-sources",
     "status": 200,
-    "body": "[{\"source\":\"manual\",\"count\":\"9\",\"total_value\":\"45575.00\"},{\"source\":\"fema_nsi\",\"count\":\"6\",\"total_value\":\"9400.00\"},{\"source\":\"storm_map\",\"count\":\"5\",\"total_value\":\"5100.00\"},{\"source\":\"canvassing\",\"count\":\"3\",\"total_value\":\"0\"}]"
+    "body": "[{\"source\":\"manual\",\"count\":\"9\",\"total_value\":\"45575.00\"},{\"source\":\"fema_nsi\",\"count\":\"6\",\"total_value\":\"9400.00\"},{\"source\":\"storm_map\",\"count\":\"5\",\"total_value\":\"5100.00\"},{\"source\":\"canvassing\",\"count\":\"3\",\"total_value\":\"0.00\"}]"
   },
   {
     "file": "roofMeasurement.js",
@@ -2085,7 +2085,7 @@
     "path": "/config",
     "full": "/api/skip-trace/config",
     "status": 200,
-    "body": "{\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"enabled\":true,\"stripe_payment_method_id\":null,\"card_last_four\":null,\"card_brand\":null,\"markup_cents\":20,\"created_at\":\"2026-03-22T18:18:39.075Z\",\"updated_at\":\"2026-06-06T10:02:39.203Z\",\"roof_measure"
+    "body": "{\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"enabled\":true,\"stripe_payment_method_id\":null,\"card_last_four\":null,\"card_brand\":null,\"markup_cents\":20,\"created_at\":\"2026-03-22T18:18:39.075Z\",\"updated_at\":\"2026-06-17T10:01:56.691Z\",\"roof_measure"
   },
   {
     "file": "skipTrace.js",
@@ -2193,7 +2193,7 @@
     "path": "/",
     "full": "/api/storms/",
     "status": 200,
-    "body": "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"id\":\"fa8487cc-d2ea-42dd-b142-0f40728166b2\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-99.364606795,34.359631316],[-99.364619378,34.359521317],[-99.364635166,34.359411837],[-99.364654157,3"
+    "body": "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"id\":\"f38dc0d4-d014-4c44-aa4b-afa5e847d7f9\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-99.964421005,36.829050248],[-99.964454845,36.828742217],[-99.964497947,36.82843559],[-99.964550311,36"
   },
   {
     "file": "storms.js",
@@ -2211,7 +2211,7 @@
     "path": "/",
     "full": "/api/crm/subcontractors/",
     "status": 200,
-    "body": "{\"subcontractors\":[{\"id\":\"339cd4b4-a4cc-4133-8ec9-675073022a4c\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"QA Roofing\",\"company\":null,\"phone\":\"555-1234\",\"email\":null,\"specialty\":\"general\",\"hourly_rate\":null,\"notes\":null,\"status\":\"acti"
+    "body": "{\"subcontractors\":[{\"id\":\"780d808d-b2a4-48e8-a1b0-56a86b6b7fbf\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"{\\\"$eq\\\":1}\",\"company\":null,\"phone\":null,\"email\":\"{\\\"foo\\\":\\\"bar\\\"}\",\"specialty\":\"general\",\"hourly_rate\":null,\"notes\":null,\"sta"
   },
   {
     "file": "subcontractors.js",
