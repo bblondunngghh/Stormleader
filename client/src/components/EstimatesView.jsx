@@ -2005,9 +2005,9 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
           {/* ROOF COMPONENTS / LINE ITEMS SECTION */}
           {enabledSections.some(s => s.id === 'line_items') && (
             <div ref={el => sectionRefs.current.line_items = el} className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)', position: 'relative' }} onClick={() => setActiveSection('line_items')}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-md)', flexWrap: 'wrap', gap: 'var(--space-sm)' }}>
                 <div style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Roof Components</div>
-                <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+                <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
                   <CustomSelect
                     value=""
                     onChange={(v) => {
