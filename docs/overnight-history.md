@@ -2591,3 +2591,37 @@ Branch: `feat/financing` · Pre-run checkpoint: `c8afcb4` (`overnight-checkpoint
 - s4 verify: ✅ success (35 turns, $2.54) — verified `aab6753` at runtime, build clean 7.62s, surfaced the 375px edge-case, 0 fixes; deliverable `C:\tmp\verify-results.txt`.
 - s5 report: this report. **1 commit stands for this run (`aab6753`).** s1–s4 spend ≈ $12.24. 3/4 working stages exited cleanly; the max-turns stage (s2) still produced this run's only commit.
 ---
+
+## QA Run: 2026-06-19 (Run 51)
+> Note: s3/s4 artifacts self-labeled this "Run 52"; canonical number is **Run 51** (history's last entry was Run 50 on 2026-06-18; backend is on its 11th consecutive converged run, Runs 41–51).
+### Test Results
+- Pages tested: tablet-768px sweep of the **final un-swept pages** — Invoices, Reports, Subcontractors, Expenses, Contracts, all 15 Settings tabs, LeadDetail slide-over, Leads list, Storm Archive, Dashboard (s2); + Dashboard/Estimates/Settings UI-consistency runtime spot-check (s3); + `aab6753` estimate-builder toolbar runtime re-verify @768/@1280 (s4). **Tablet-768px sweep now 100% complete across the whole app.**
+- API endpoints tested: 245 routes · ~1,300+ probe requests (full sweep + tenant-isolation 22/22 + type-fuzz 1026 payloads + happy-path writes + gaps/edge probes)
+- Bugs found: 0
+- Bugs fixed: 0
+- UI inconsistencies found: 0
+- UI inconsistencies fixed: 0
+### Fixes Made
+- None. A full-convergence run — 0 findings on every axis, so 0 code changed (`git log b689994..HEAD` empty). The most recent standing fix `aab6753` (Run 50) was re-verified working @768/@1280.
+### UI Consistency Fixes
+- None — UI-consistency **CONVERGED (8th consecutive 0-fix audit)**. Code-grep over all `client/src` + Playwright spot-check (Dashboard 70/70 heroicons, Estimates 38/38, Settings 31): icons 100% `@heroicons/react/24/outline` (0 solid/lucide/react-icons/fa/material); forms 0 native select/date/time; modals canonical (only LeadDetail:1806/1933 inline, byte-equal to `.modal-backdrop>.glass` = modal-scale-in 200ms ease-apple); button radii "14/12px"&"10/8px" = CSS clamp artifacts not bugs. Only 3 client files changed since last audit (LeadDetail.jsx Esc handler `b689994`, EstimatesView `aab6753`, ImportLeadsModal `e3b548b`) — all prior-audited, 0 new drift.
+### Backend
+- s1 re-ran the full standing probe suite (245 routes, ~1,300+ requests), results **identical to the Run 50 baseline**: **0 unintentional 5xx, 0 broken endpoints, 0 fixes — 11th consecutive converged backend run (Runs 41–51).** Tenant isolation 22/22 (query/body/X-Tenant-Id injection ignored, foreign ids→404, non-platform-admin→403); type-fuzz 1026 payloads → 0 5xx; happy-path PATCH lead {priority:warm}→200, PATCH invoice {status:sent}→200. Only intentional non-200s: skip-trace 503 (no `TRACERFY_API_KEY`), 6×403 admin-only, validation 400s, missing-id 404s. Backend CONVERGED — stop re-testing it.
+- **Tooling finding (NOT a server bug):** the DB-direct mint `.qa-mint-token.mjs` produced tokens the running server rejected with 401 (phantom mass-401). Ruled out expiry (exp>now; ISO display skewed by mocked sandbox date) and secret-parse (`.env` byte-identical to mint parse; `server/.env` absent → server reads repo-root `.env`). Root cause = running server process holds a different in-memory `JWT_SECRET` than the current `.env` (booted with older secret, or `.env` edited post-boot) — operational/env state, left untouched per charter. **Workaround:** mint via HTTP login (server's own secret), write token to both `/tmp/qa-token.txt` + `.qa-token.txt`; 15-min lifetime, run probes back-to-back.
+### Known Issues Remaining
+- **EstimateBuilder does not collapse at phone width (375px)** *(pre-existing, out of scope this run)*. Body is a flex-row with a fixed 280px sidebar (`flexShrink:0`, holds section enable/disable toggles — functional, not just nav) + `flex:1` editor inside `overflow:hidden` (`EstimatesView.jsx:1838`). At 375px the sidebar eats 280px → form content clipped/unreachable. Screenshot `qa-375-estimate-builder.jpeg`. Works fine 768px+; mobile is paused (web-app-only focus). Proper fix = responsive sidebar collapse/stack = design-sized. Deferred.
+- **Keyboard nav — Esc-to-close absent on most modals app-wide.** Of 17 modal/overlay components only a few handle Escape; most close via X/backdrop only. Adding it where it never existed is a **new feature** (charter forbids enhancements) → tracked as a developer feature decision, not a QA bug. If pursued, must be a shared app-wide hook.
+- **Heavy-work guards** on `/drift/correct-all`, `/properties/trigger-import`, `/crm/leads/score-all` — no rate-limit/concurrency guard; needs staging, not prod Neon. Untouched.
+- **`DELETE /api/crm/tasks/:id`** handler missing — adding endpoints forbidden by charter.
+- **`TopBar` ImportProgress poller** logs a graceful 401 on `/api/properties/import-progress` when JWT expired — FEMA-import territory, DO NOT TOUCH. Not a regression.
+### Coverage Gaps (carried to next run)
+- **Keyboard nav** — Esc-to-close app-wide, Tab order, focus rings, Enter-submit untested. Highest-value remaining area but it is an **enhancement** outside the QA charter (developer feature decision, not a bug).
+- **Phone-375px sweep** — EstimateBuilder sidebar collapse is the one identified 375px finding; rest of phone-width sweep untouched. Mobile paused → low priority.
+- **Converged axes — do NOT re-test:** backend (11 runs), UI-consistency (8 audits), and **tablet-768px sweep (now 100% complete)**. Fix yield 0 on all three. Within the charter the app is converged on every axis; only re-test if the developer adds NEW pages/component files.
+### Session Integrity
+- s1 api-test: ✅ success (24 turns, $2.32) — backend re-verified converged (11th run), 0 fixes; surfaced the token-mint tooling finding.
+- s2 frontend-test: ✅ success (56 turns, $4.62) — completed the tablet-768px sweep to 100%, 0 bugs, 0 fixes.
+- s3 ui-audit: ✅ success (22 turns, $1.76) — converged (8th 0-fix audit), 0 changes; deliverable `C:\tmp\ui-audit-results.txt`.
+- s4 verify: ✅ success (31 turns, $3.60) — re-verified `aab6753` @768/@1280, build clean 8.68s, edge cases pass, 0 fixes; deliverable `C:\tmp\verify-results.txt`.
+- s5 report: this report. **0 commits stand for this run** — every axis converged with 0 findings. s1–s4 spend ≈ $12.30. All 4 working stages exited cleanly (no max-turns stage this run).
+---
