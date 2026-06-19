@@ -10,7 +10,7 @@
 ✓	200	POST	/api/alerts/test	{"message":"Test alerts sent","results":[]}
 ⚠️	400	POST	/api/auth/register	{"error":"Validation failed","details":{"email":["Required"],"password":["Required"],"firstName":["Required"],"lastName":["Required"],"tenantSlug":["Required"]}}
 ⚠️	400	POST	/api/auth/login	{"error":"Validation failed","details":{"email":["Required"],"password":["Required"],"tenantSlug":["Required"]}}
-✓	200	GET	/api/auth/me	{"user":{"id":"45cc729d-cc5b-44b5-93ca-7c01b427fc26","email":"waterlooconstruction1@gmail.com","firstName":"Miles","lastName":"Martin","role":"admin","tenantId":"791bb51d-3293-4839-92e9-bd4d4f873af2"}
+✓	200	GET	/api/auth/me	{"user":{"id":"780e0023-c634-40b6-bc1d-67b4c1f0c2bd","email":"brandon","firstName":"Brandon","lastName":"Admin","role":"admin","tenantId":"791bb51d-3293-4839-92e9-bd4d4f873af2"},"tenant":{"tenantName"
 ⚠️	400	PATCH	/api/auth/me	{"error":"No fields to update"}
 ⚠️	400	POST	/api/auth/refresh	{"error":"Validation failed","details":{"refreshToken":["Required"]}}
 ✓	200	GET	/api/crm/automations/	[]
@@ -18,8 +18,8 @@
 ⚠️	400	PATCH	/api/crm/automations/00000000-0000-0000-0000-000000000001	{"error":"No fields to update"}
 ⚠️	404	DELETE	/api/crm/automations/00000000-0000-0000-0000-000000000001	{"error":"Automation not found"}
 ⚠️	404	PATCH	/api/crm/automations/00000000-0000-0000-0000-000000000001/toggle	{"error":"Automation not found"}
-✓	200	GET	/api/crm/canvass-pins/	[{"id":"0511bf3a-f329-4927-b669-bdc23aa7e83c","tenant_id":"791bb51d-3293-4839-92e9-bd4d4f873af2","user_id":"93fb33ea-e7d8-461f-87e4-bba4e55acc9e","lead_id":null,"location":"0101000020E6100000000000000
-✓	200	GET	/api/crm/canvass-pins/stats	{"date":"2026-05-28","total":0,"outcomes":[]}
+✓	200	GET	/api/crm/canvass-pins/	[{"id":"c3071890-e276-411c-8a56-9989170e4a09","tenant_id":"791bb51d-3293-4839-92e9-bd4d4f873af2","user_id":"45cc729d-cc5b-44b5-93ca-7c01b427fc26","lead_id":null,"location":"0101000020E6100000000000008
+✓	200	GET	/api/crm/canvass-pins/stats	{"date":"2026-06-18","total":0,"outcomes":[]}
 ⚠️	400	POST	/api/crm/canvass-pins/	{"error":"lat and lng are required"}
 ⚠️	400	PATCH	/api/crm/canvass-pins/00000000-0000-0000-0000-000000000001	{"error":"No fields to update"}
 ⚠️	404	POST	/api/crm/canvass-pins/00000000-0000-0000-0000-000000000001/convert	{"error":"Pin not found"}
@@ -61,25 +61,25 @@
 ✓	200	GET	/api/crm/pipeline/stages	{"stages":[{"key":"new","label":"New","color":"oklch(0.72 0.19 250)","position":0},{"key":"contacted","label":"Contacted","color":"oklch(0.75 0.15 200)","position":1},{"key":"appt_set","label":"Appt S
 ✓	200	GET	/api/crm/pipeline/metrics	{"funnel":[{"stage":"New","key":"new","count":16,"value":7600,"color":"oklch(0.72 0.19 250)"},{"stage":"Contacted","key":"contacted","count":4,"value":32225,"color":"oklch(0.75 0.15 200)"},{"stage":"A
 ✓	200	GET	/api/crm/dashboard/stats	{"stats":[{"label":"Pipeline Value","value":"$60K","change":"+0%","icon":"dollar","color":"oklch(0.75 0.18 155)"},{"label":"New Leads (7d)","value":"0","change":"—","icon":"leads","color":"oklch(0.72 
-✓	200	GET	/api/crm/dashboard/activity	{"activity":[{"id":"4524f052-ddf7-41f0-ae23-744a181ee79c","lead_id":"dc8135aa-b210-4f33-bbe1-ad8f0997d3dd","type":"call","text":"10706 LOCH NESS CV AUSTIN 78750 — note logged","time":"1d ago"},{"id":"
+✓	200	GET	/api/crm/dashboard/activity	{"activity":[{"id":"735e511e-d3d8-48fc-8bb1-b854a91aa77f","lead_id":"3fa29df8-589c-44a6-ac4d-88cb78243cbe","type":"call","text":"Unknown — note logged","time":"6/7/2026"},{"id":"a67f1d64-0176-4133-b57
 ✓	200	GET	/api/crm/team	{"members":[{"id":"93fb33ea-e7d8-461f-87e4-bba4e55acc9e","first_name":"Brandon","last_name":"Admin","email":"brandon@accessvaletparking.com","role":"super_admin","created_at":"2026-03-21T22:04:42.132Z
 ⚠️	400	PATCH	/api/crm/team/00000000-0000-0000-0000-000000000001/role	{"error":"Invalid role"}
 ⚠️	400	POST	/api/crm/team/invite	{"error":"Email, first name, last name, and password are required"}
 ✓	200	GET	/api/crm/tenant-settings	{"name":"Waterloo Roofing","slug":"waterloo","companyPhone":null,"companyWebsite":null,"companyAddress":null,"senderEmail":null,"subscriptionTier":"enterprise","subscriptionStatus":"active","onboardin
 ✓	200	PUT	/api/crm/tenant-settings	{"name":"Waterloo Roofing","slug":"waterloo","senderEmail":null,"companyPhone":null,"companyWebsite":null,"companyAddress":null,"googlePlaceId":"","reviewMessageTemplate":"","smtpHost":"","smtpPort":5
-✓	200	GET	/api/crm/dashboard/properties-affected	{"uncontacted":35731,"contacted":2,"total":35733}
-✓	200	GET	/api/crm/dashboard/properties-affected/list	{"properties":[{"id":"09b4d240-a6c7-4922-b982-caccbda3d28e","address_line1":"0 , , TX","city":" ","state":"TX","zip":" ","owner_first_name":null,"owner_last_name":"LAMBETH FARMS, LLC","owner_phone":nu
+✓	200	GET	/api/crm/dashboard/properties-affected	{"uncontacted":1244,"contacted":0,"total":1244}
+✓	200	GET	/api/crm/dashboard/properties-affected/list	{"properties":[{"id":"027fed88-9b8f-42b7-aac9-6a3536119a99","address_line1":", ,","city":" ","state":"TX","zip":" ","owner_first_name":null,"owner_last_name":"RILEY, CLEVE & HOLLEY L","owner_phone":nu
 ✓	200	GET	/api/crm/dashboard/followups	{"followups":[]}
 ✓	200	GET	/api/crm/dashboard/conversion-by-storm	{"storms":[]}
-✓	200	GET	/api/crm/dashboard/estimate-summary	{"draft":49,"sent":12,"viewed":0,"accepted":0,"declined":0,"expired":0,"accepted_value":0,"pending_value":284979.6}
-✓	200	GET	/api/crm/dashboard/ar-summary	{"outstanding_count":5,"outstanding_total":"3400.00","overdue_count":1,"overdue_total":"-1000.00","due_30":"0","due_60":"0","due_90_plus":"0"}
+✓	200	GET	/api/crm/dashboard/estimate-summary	{"draft":3,"sent":0,"viewed":0,"accepted":0,"declined":0,"expired":0,"accepted_value":0,"pending_value":0}
+✓	200	GET	/api/crm/dashboard/ar-summary	{"outstanding_count":5,"outstanding_total":"4400.00","overdue_count":1,"overdue_total":"0","due_30":"0","due_60":"0","due_90_plus":"0"}
 ✓	200	GET	/api/crm/dashboard/estimating-conversion	{"total_sent":17,"accepted":1,"declined":1,"conversion_rate":"5.9"}
 ✓	200	GET	/api/crm/dashboard/leaderboard	{"leaderboard":[{"id":"93fb33ea-e7d8-461f-87e4-bba4e55acc9e","first_name":"Brandon","last_name":"Admin","leads_assigned":"4","contacted":"1","appointments":"1","inspections":"1","estimates_sent":"1","
 ✓	200	GET	/api/crm/dashboard/tasks-today	{"tasks":[{"id":"1ea88a7e-d501-4d6f-8425-59a8ab00874b","tenant_id":"791bb51d-3293-4839-92e9-bd4d4f873af2","lead_id":null,"assigned_to":null,"title":"Updated test task","description":null,"due_date":"2
-✓	200	GET	/api/crm/dashboard/days-in-stage	{"stages":[{"stage":"estimate_sent","label":"Estimate Sent","avg_days":4,"lead_count":1,"stuck_leads":0},{"stage":"appt_set","label":"Appt Set","avg_days":4,"lead_count":1,"stuck_leads":0},{"stage":"n
-✓	200	GET	/api/crm/dashboard/stale-leads	{"stale_leads":[{"id":"7a410718-0405-4740-addb-7cb2b0023d58","contact_name":null,"stage":"new","assigned_to":" ","days_stale":3,"last_activity":"2026-05-24T10:08:27.602Z"},{"id":"36145762-a0e9-4215-ac
+✓	200	GET	/api/crm/dashboard/days-in-stage	{"stages":[{"stage":"contacted","label":"Contacted","avg_days":1,"lead_count":4,"stuck_leads":0},{"stage":"estimate_sent","label":"Estimate Sent","avg_days":1,"lead_count":1,"stuck_leads":0},{"stage":
+✓	200	GET	/api/crm/dashboard/stale-leads	{"stale_leads":[]}
 ✓	200	GET	/api/crm/dashboard/customer-storm-alerts	{"alerts":[{"lead_id":"16486c58-5539-4572-94bd-7a9fef62f00b","contact_name":null,"address":"9903 WINDING OAK CIR AUSTIN 78750","stage":"new","estimated_value":null,"storm_type":"nws_alert","storm_date
-✓	200	GET	/api/crm/dashboard/lead-source-revenue	{"sources":[{"source":"canvassing","lead_count":3,"sold_count":0,"revenue":0,"close_rate":0},{"source":"storm_map","lead_count":5,"sold_count":0,"revenue":0,"close_rate":0},{"source":"fema_nsi","lead_
+✓	200	GET	/api/crm/dashboard/lead-source-revenue	{"sources":[{"source":"canvassing","lead_count":3,"sold_count":0,"revenue":0,"close_rate":0},{"source":"fema_nsi","lead_count":6,"sold_count":0,"revenue":0,"close_rate":0},{"source":"storm_map","lead_
 ⚠️	400	POST	/api/crm/prospect-lists	{"error":"stormEventId is required"}
 ✓	200	GET	/api/crm/prospect-lists	{"lists":[{"id":"66a88836-aef0-4a24-9a55-87ff44e69c3c","tenant_id":"791bb51d-3293-4839-92e9-bd4d4f873af2","name":"Test Prospect List","storm_event_id":"8d2a94b1-c60f-4b55-85aa-6a16a358e5a3","property_
 ⚠️	404	GET	/api/crm/prospect-lists/00000000-0000-0000-0000-000000000001/items	{"error":"List not found"}
@@ -92,7 +92,7 @@
 ⚠️	404	DELETE	/api/crm/custom-fields/00000000-0000-0000-0000-000000000001	{"error":"Field definition not found"}
 ✓	200	GET	/api/dashboard/stats	{"pipelineValue":1314892.39,"leadCount":32,"closeRate":0,"avgDaysToClose":0}
 ✓	200	GET	/api/dashboard/funnel	[{"stage":"new","count":22,"value":20100},{"stage":"contacted","count":7,"value":1274542.39},{"stage":"appt_set","count":1,"value":0},{"stage":"inspected","count":1,"value":0},{"stage":"estimate_sent"
-✓	200	GET	/api/dashboard/activity	[{"id":"4524f052-ddf7-41f0-ae23-744a181ee79c","type":"note","direction":null,"outcome":null,"notes":"qa-roundtrip 1779790065544","createdAt":"2026-05-26T10:07:45.548Z","leadId":"dc8135aa-b210-4f33-bbe
+✓	200	GET	/api/dashboard/activity	[{"id":"735e511e-d3d8-48fc-8bb1-b854a91aa77f","type":"note","direction":null,"outcome":null,"notes":"qa-resume-test-undef","createdAt":"2026-06-07T10:25:10.048Z","leadId":"3fa29df8-589c-44a6-ac4d-88cb
 ⚠️	400	GET	/api/data/fema-housing	{"error":"zip query parameter required"}
 ⚠️	400	POST	/api/data/optimize-route	{"error":"stops array with at least 2 items required"}
 ⚠️	400	GET	/api/data/directions	{"error":"fromLat, fromLng, toLat, toLng required"}
@@ -114,7 +114,7 @@
 ⚠️	404	GET	/api/estimates/public/invalid-token-test	{"error":"Estimate not found"}
 ⚠️	400	POST	/api/estimates/public/invalid-token-test/accept	{"error":"signer_name required"}
 ⚠️	404	POST	/api/estimates/public/invalid-token-test/decline	{"error":"Estimate not found or already resolved"}
-✓	200	GET	/api/estimates/	{"estimates":[{"id":"b4603e30-2bf0-4239-b214-f5c0c6d310b7","tenant_id":"791bb51d-3293-4839-92e9-bd4d4f873af2","lead_id":"dc8135aa-b210-4f33-bbe1-ad8f0997d3dd","created_by":"93fb33ea-e7d8-461f-87e4-bba
+✓	200	GET	/api/estimates/	{"estimates":[{"id":"1252940b-b691-4182-8d4f-680ac71a0711","tenant_id":"791bb51d-3293-4839-92e9-bd4d4f873af2","lead_id":"3fa29df8-589c-44a6-ac4d-88cb78243cbe","created_by":"45cc729d-cc5b-44b5-93ca-7c0
 ✓	200	GET	/api/estimates/templates	{"templates":[{"id":"276bb802-bde8-48f9-92be-0b328f8d9eac","tenant_id":"791bb51d-3293-4839-92e9-bd4d4f873af2","name":"Tear Off & Replace","description":"Remove existing shingles and install new","unit
 ⚠️	400	POST	/api/estimates/templates	{"error":"Name is required"}
 ⚠️	400	PATCH	/api/estimates/templates/00000000-0000-0000-0000-000000000001	{"error":"No fields to update"}
@@ -136,11 +136,11 @@
 ⚠️	404	GET	/api/crm/financing/public/invalid-token-test/plans	{"error":"Estimate not found"}
 ⚠️	404	GET	/api/crm/financing/public/invalid-token-test/applications	{"error":"Estimate not found"}
 ⚠️	400	POST	/api/crm/financing/public/invalid-token-test/apply	{"error":"planId is required"}
-✓	200	GET	/api/crm/financing/lenders	[]
+✓	200	GET	/api/crm/financing/lenders	[{"id":"c95698b8-eb31-4884-b4d1-115c22ca76d2","provider":"mock","merchant_id":"test-merchant-456","is_active":true,"config":{},"created_at":"2026-06-05T10:10:06.693Z","updated_at":"2026-06-05T10:10:06
 ⚠️	400	POST	/api/crm/financing/lenders	{"error":"provider, apiKey, and merchantId are required"}
 ⚠️	404	PATCH	/api/crm/financing/lenders/00000000-0000-0000-0000-000000000001	{"error":"Lender not found"}
 ⚠️	404	DELETE	/api/crm/financing/lenders/00000000-0000-0000-0000-000000000001	{"error":"Lender not found"}
-✓	200	GET	/api/crm/financing/plans	[]
+✓	200	GET	/api/crm/financing/plans	[{"id":"39f9d453-73b1-49fb-ab58-835517cb2dde","tenant_id":"791bb51d-3293-4839-92e9-bd4d4f873af2","lender_id":"c95698b8-eb31-4884-b4d1-115c22ca76d2","external_plan_id":"plan_12mo_0apr","name":"12 Month
 ⚠️	400	POST	/api/crm/financing/plans/sync	{"error":"lenderId is required"}
 ⚠️	404	PATCH	/api/crm/financing/plans/00000000-0000-0000-0000-000000000001	{"error":"Plan not found"}
 ✓	200	GET	/api/crm/financing/applications	[]
@@ -175,7 +175,7 @@
 ✓	200	GET	/api/notifications/unread-count	{"count":0}
 ⚠️	404	PATCH	/api/notifications/00000000-0000-0000-0000-000000000001/read	{"error":"Notification not found"}
 ✓	200	POST	/api/notifications/mark-all-read	{"updated":0}
-✓	200	GET	/api/notifications/preferences	{"preferences":[{"id":"bcfd44fd-b0b0-4c1a-9363-98925e13a837","user_id":"45cc729d-cc5b-44b5-93ca-7c01b427fc26","notification_type":"lead_assigned","in_app":true,"email":true,"push":false,"email_digest"
+✓	200	GET	/api/notifications/preferences	{"preferences":[{"id":"edc15930-bc39-446d-b5cb-220c4c457714","user_id":"780e0023-c634-40b6-bc1d-67b4c1f0c2bd","notification_type":"lead_assigned","in_app":true,"email":true,"push":false,"email_digest"
 ⚠️	400	PATCH	/api/notifications/preferences	{"error":"notification_type required"}
 ✓	200	PUT	/api/onboarding/org	{"tenant":{"id":"791bb51d-3293-4839-92e9-bd4d4f873af2","name":"Waterloo Roofing","slug":"waterloo","subscription_tier":"enterprise","subscription_status":"active","onboarding_completed":true,"trial_en
 ✓	200	GET	/api/onboarding/plans	{"plans":[{"id":"88201876-24d7-4c70-898e-ccb6b8ca6551","key":"starter","name":"Starter","price_cents":2000,"features":["Storm map","Lead management","Basic pipeline"],"max_users":3,"max_leads":1000},{
@@ -193,8 +193,8 @@
 ✓	200	GET	/api/crm/reports/revenue	[{"month":"2026-03-01T06:00:00.000Z","estimated":"14400.00","actual":"0","lead_count":"9"},{"month":"2026-04-01T05:00:00.000Z","estimated":"45575.00","actual":"0","lead_count":"11"},{"month":"2026-05-
 ✓	200	GET	/api/crm/reports/pipeline	[{"stage":"new","count":"16","total_value":"7600.00"},{"stage":"contacted","count":"4","total_value":"32225.00"},{"stage":"appt_set","count":"1","total_value":"0"},{"stage":"inspected","count":"1","to
 ✓	200	GET	/api/crm/reports/conversion	[{"source":"manual","total":"9","sold":"0","sold_value":null},{"source":"fema_nsi","total":"6","sold":"0","sold_value":null},{"source":"storm_map","total":"5","sold":"0","sold_value":null},{"source":"
-✓	200	GET	/api/crm/reports/rep-performance	[{"id":"45cc729d-cc5b-44b5-93ca-7c01b427fc26","name":"Miles Martin","leads_assigned":"0","leads_sold":"0","sold_value":null,"activity_count":"0"},{"id":"780e0023-c634-40b6-bc1d-67b4c1f0c2bd","name":"B
-✓	200	GET	/api/crm/reports/stage-duration	[{"stage":"contacted","avg_days":"3.5"},{"stage":"estimate_sent","avg_days":"4.0"},{"stage":"appt_set","avg_days":"4.0"},{"stage":"new","avg_days":"4.0"},{"stage":"inspected","avg_days":"4.0"}]
+✓	200	GET	/api/crm/reports/rep-performance	[{"id":"45cc729d-cc5b-44b5-93ca-7c01b427fc26","name":"Miles Martin","leads_assigned":"0","leads_sold":"0","sold_value":null,"activity_count":"2"},{"id":"780e0023-c634-40b6-bc1d-67b4c1f0c2bd","name":"B
+✓	200	GET	/api/crm/reports/stage-duration	[{"stage":"contacted","avg_days":"1.0"},{"stage":"estimate_sent","avg_days":"1.0"},{"stage":"appt_set","avg_days":"1.0"},{"stage":"new","avg_days":"1.0"},{"stage":"inspected","avg_days":"1.0"}]
 ✓	200	GET	/api/crm/reports/lead-sources	[{"source":"manual","count":"9","total_value":"45575.00"},{"source":"fema_nsi","count":"6","total_value":"9400.00"},{"source":"storm_map","count":"5","total_value":"5100.00"},{"source":"canvassing","c
 ✓	200	GET	/api/roof-measurement/config	{"roof_measurement_enabled":false}
 ✓	200	PUT	/api/roof-measurement/config	{"roof_measurement_enabled":null}
@@ -215,9 +215,9 @@
 ✓	200	GET	/api/skip-trace/jobs	[]
 ⚠️	400	GET	/api/storm-history/	{"error":"Valid lat and lng query parameters are required"}
 ⚠️	400	GET	/api/storm-history/heatmap	{"error":"bbox parameter required: west,south,east,north"}
-✓	200	GET	/api/storms/	{"type":"FeatureCollection","features":[{"type":"Feature","id":"ef36f133-e483-4611-be4f-df0a21060f43","geometry":{"type":"MultiPolygon","coordinates":[[[[-99.663125,33.62875],[-99.646875,33.63125],[-9
+✓	200	GET	/api/storms/	{"type":"FeatureCollection","features":[{"type":"Feature","id":"29fe9a85-9581-4ead-a66d-89bf8fed0ed8","geometry":{"type":"Polygon","coordinates":[[[-106.374755313,31.849671826],[-106.374766372,31.8495
 ⚠️	404	GET	/api/storms/00000000-0000-0000-0000-000000000001	{"error":"Storm event not found"}
-✓	200	GET	/api/crm/subcontractors/	{"subcontractors":[{"id":"339cd4b4-a4cc-4133-8ec9-675073022a4c","tenant_id":"791bb51d-3293-4839-92e9-bd4d4f873af2","name":"QA Roofing","company":null,"phone":"555-1234","email":null,"specialty":"gener
+✓	200	GET	/api/crm/subcontractors/	{"subcontractors":[{"id":"64a593b7-220f-46e9-9c1c-a60c9e429c52","tenant_id":"791bb51d-3293-4839-92e9-bd4d4f873af2","name":"{\"$eq\":1}","company":null,"phone":null,"email":"{\"foo\":\"bar\"}","special
 ⚠️	404	GET	/api/crm/subcontractors/00000000-0000-0000-0000-000000000001	{"error":"Subcontractor not found"}
 ⚠️	400	POST	/api/crm/subcontractors/	{"error":"name is required"}
 ⚠️	400	PATCH	/api/crm/subcontractors/00000000-0000-0000-0000-000000000001	{"error":"No fields to update"}

@@ -218,6 +218,20 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
       .catch(() => {});
   }, []);
 
+  // Close slide-over on Escape — but only when no nested overlay is open
+  // (nested modals like RoofDrawingTool/PhotoAnnotator manage their own Esc).
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key !== 'Escape') return;
+      if (activeModal || showEstimateInfo || billingModal || showManualRoof ||
+          showRoofDrawing || showStreetView || showWeatherHistory || annotatingDoc) return;
+      onClose();
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose, activeModal, showEstimateInfo, billingModal, showManualRoof,
+      showRoofDrawing, showStreetView, showWeatherHistory, annotatingDoc]);
+
   // Fetch solar segments when drawing tool opens
   useEffect(() => {
     if (!showRoofDrawing || !lead?.property_id || !lead?.roof_sqft) return;

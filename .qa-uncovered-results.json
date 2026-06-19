@@ -11,7 +11,7 @@
     "method": "GET",
     "path": "/api/crm/canvass-pins",
     "status": 200,
-    "body": "[{\"id\":\"29a71c28-d89f-411c-aa74-c00bd775fba6\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"user_id\":\"45cc729d-cc5b-44b5-93ca-7c01b427fc26\",\"lead_id\":null,\"location\":\"0101000020E6100000000000008087C3C0000000008087C340\",\"address\":null,\"outcome\":null,\"notes\":null,\"created_at\":\"2026-06-06T10:09:3"
+    "body": "[{\"id\":\"c3071890-e276-411c-8a56-9989170e4a09\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"user_id\":\"45cc729d-cc5b-44b5-93ca-7c01b427fc26\",\"lead_id\":null,\"location\":\"0101000020E6100000000000008087C3C0000000008087C340\",\"address\":null,\"outcome\":null,\"notes\":null,\"created_at\":\"2026-06-17T10:02:3"
   },
   {
     "label": "LIST:contracts",
@@ -46,7 +46,7 @@
     "method": "GET",
     "path": "/api/crm/subcontractors",
     "status": 200,
-    "body": "{\"subcontractors\":[{\"id\":\"780d808d-b2a4-48e8-a1b0-56a86b6b7fbf\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"{\\\"$eq\\\":1}\",\"company\":null,\"phone\":null,\"email\":\"{\\\"foo\\\":\\\"bar\\\"}\",\"specialty\":\"general\",\"hourly_rate\":null,\"notes\":null,\"status\":\"active\",\"created_at\":\"2026-06-06T10:09:35.83"
+    "body": "{\"subcontractors\":[{\"id\":\"64a593b7-220f-46e9-9c1c-a60c9e429c52\",\"tenant_id\":\"791bb51d-3293-4839-92e9-bd4d4f873af2\",\"name\":\"{\\\"$eq\\\":1}\",\"company\":null,\"phone\":null,\"email\":\"{\\\"foo\\\":\\\"bar\\\"}\",\"specialty\":\"general\",\"hourly_rate\":null,\"notes\":null,\"status\":\"active\",\"created_at\":\"2026-06-15T10:01:16.18"
   },
   {
     "label": "LIST:territories",
@@ -116,7 +116,7 @@
     "method": "GET",
     "path": "/api/storms",
     "status": 200,
-    "body": "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"id\":\"910abad1-b892-4719-96a2-063399984380\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-97.611115594,36.849281028],[-97.611140321,36.849105464],[-97.611170316,36.848930807],[-97.611205579,36.848757056],[-97.611246109,36.848584211],[-97.611"
+    "body": "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"id\":\"29fe9a85-9581-4ead-a66d-89bf8fed0ed8\",\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-106.374755313,31.849671826],[-106.374766372,31.849561714],[-106.374780549,31.849452096],[-106.374797846,31.849342973],[-106.374818262,31.849234345],[-1"
   },
   {
     "label": "POST:automations-empty",
@@ -242,7 +242,7 @@
     "method": "POST",
     "path": "/api/payments/connect/onboard",
     "status": 400,
-    "body": "{\"error\":\"You can only create new accounts if you've signed up for Connect, which you can do at https://dashboard.stripe.com/connect.\"}"
+    "body": "{\"error\":\"Invalid email address: brandon\"}"
   },
   {
     "label": "PATCH:custom-fields-bad-uuid",
