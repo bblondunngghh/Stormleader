@@ -10,7 +10,7 @@
 ✓	200	POST	/api/alerts/test	{"message":"Test alerts sent","results":[]}
 ⚠️	400	POST	/api/auth/register	{"error":"Validation failed","details":{"email":["Required"],"password":["Required"],"firstName":["Required"],"lastName":["Required"],"tenantSlug":["Required"]}}
 ⚠️	400	POST	/api/auth/login	{"error":"Validation failed","details":{"email":["Required"],"password":["Required"],"tenantSlug":["Required"]}}
-✓	200	GET	/api/auth/me	{"user":{"id":"780e0023-c634-40b6-bc1d-67b4c1f0c2bd","email":"brandon","firstName":"Brandon","lastName":"Admin","role":"admin","tenantId":"791bb51d-3293-4839-92e9-bd4d4f873af2"},"tenant":{"tenantName"
+✓	200	GET	/api/auth/me	{"user":{"id":"45cc729d-cc5b-44b5-93ca-7c01b427fc26","email":"waterlooconstruction1@gmail.com","firstName":"Miles","lastName":"Martin","role":"admin","tenantId":"791bb51d-3293-4839-92e9-bd4d4f873af2"}
 ⚠️	400	PATCH	/api/auth/me	{"error":"No fields to update"}
 ⚠️	400	POST	/api/auth/refresh	{"error":"Validation failed","details":{"refreshToken":["Required"]}}
 ✓	200	GET	/api/crm/automations/	[]
@@ -18,8 +18,8 @@
 ⚠️	400	PATCH	/api/crm/automations/00000000-0000-0000-0000-000000000001	{"error":"No fields to update"}
 ⚠️	404	DELETE	/api/crm/automations/00000000-0000-0000-0000-000000000001	{"error":"Automation not found"}
 ⚠️	404	PATCH	/api/crm/automations/00000000-0000-0000-0000-000000000001/toggle	{"error":"Automation not found"}
-✓	200	GET	/api/crm/canvass-pins/	[{"id":"c3071890-e276-411c-8a56-9989170e4a09","tenant_id":"791bb51d-3293-4839-92e9-bd4d4f873af2","user_id":"45cc729d-cc5b-44b5-93ca-7c01b427fc26","lead_id":null,"location":"0101000020E6100000000000008
-✓	200	GET	/api/crm/canvass-pins/stats	{"date":"2026-06-18","total":0,"outcomes":[]}
+✓	200	GET	/api/crm/canvass-pins/	[{"id":"a16e4aa9-4f84-4ad7-9171-f7f97c635bc1","tenant_id":"791bb51d-3293-4839-92e9-bd4d4f873af2","user_id":"45cc729d-cc5b-44b5-93ca-7c01b427fc26","lead_id":null,"location":"0101000020E6100000000000008
+✓	200	GET	/api/crm/canvass-pins/stats	{"date":"2026-06-19","total":0,"outcomes":[]}
 ⚠️	400	POST	/api/crm/canvass-pins/	{"error":"lat and lng are required"}
 ⚠️	400	PATCH	/api/crm/canvass-pins/00000000-0000-0000-0000-000000000001	{"error":"No fields to update"}
 ⚠️	404	POST	/api/crm/canvass-pins/00000000-0000-0000-0000-000000000001/convert	{"error":"Pin not found"}
@@ -67,8 +67,8 @@
 ⚠️	400	POST	/api/crm/team/invite	{"error":"Email, first name, last name, and password are required"}
 ✓	200	GET	/api/crm/tenant-settings	{"name":"Waterloo Roofing","slug":"waterloo","companyPhone":null,"companyWebsite":null,"companyAddress":null,"senderEmail":null,"subscriptionTier":"enterprise","subscriptionStatus":"active","onboardin
 ✓	200	PUT	/api/crm/tenant-settings	{"name":"Waterloo Roofing","slug":"waterloo","senderEmail":null,"companyPhone":null,"companyWebsite":null,"companyAddress":null,"googlePlaceId":"","reviewMessageTemplate":"","smtpHost":"","smtpPort":5
-✓	200	GET	/api/crm/dashboard/properties-affected	{"uncontacted":1244,"contacted":0,"total":1244}
-✓	200	GET	/api/crm/dashboard/properties-affected/list	{"properties":[{"id":"027fed88-9b8f-42b7-aac9-6a3536119a99","address_line1":", ,","city":" ","state":"TX","zip":" ","owner_first_name":null,"owner_last_name":"RILEY, CLEVE & HOLLEY L","owner_phone":nu
+✓	200	GET	/api/crm/dashboard/properties-affected	{"uncontacted":3323,"contacted":0,"total":3323}
+✓	200	GET	/api/crm/dashboard/properties-affected/list	{"properties":[{"id":"001ffc7e-6fcc-49de-b1ef-56fbfed0cea4","address_line1":"3671 BACON SWITCH RD, ,","city":" ","state":"TX","zip":" ","owner_first_name":null,"owner_last_name":"LABRIE MIKE & JANICE 
 ✓	200	GET	/api/crm/dashboard/followups	{"followups":[]}
 ✓	200	GET	/api/crm/dashboard/conversion-by-storm	{"storms":[]}
 ✓	200	GET	/api/crm/dashboard/estimate-summary	{"draft":3,"sent":0,"viewed":0,"accepted":0,"declined":0,"expired":0,"accepted_value":0,"pending_value":0}
@@ -78,8 +78,8 @@
 ✓	200	GET	/api/crm/dashboard/tasks-today	{"tasks":[{"id":"1ea88a7e-d501-4d6f-8425-59a8ab00874b","tenant_id":"791bb51d-3293-4839-92e9-bd4d4f873af2","lead_id":null,"assigned_to":null,"title":"Updated test task","description":null,"due_date":"2
 ✓	200	GET	/api/crm/dashboard/days-in-stage	{"stages":[{"stage":"contacted","label":"Contacted","avg_days":1,"lead_count":4,"stuck_leads":0},{"stage":"estimate_sent","label":"Estimate Sent","avg_days":1,"lead_count":1,"stuck_leads":0},{"stage":
 ✓	200	GET	/api/crm/dashboard/stale-leads	{"stale_leads":[]}
-✓	200	GET	/api/crm/dashboard/customer-storm-alerts	{"alerts":[{"lead_id":"16486c58-5539-4572-94bd-7a9fef62f00b","contact_name":null,"address":"9903 WINDING OAK CIR AUSTIN 78750","stage":"new","estimated_value":null,"storm_type":"nws_alert","storm_date
-✓	200	GET	/api/crm/dashboard/lead-source-revenue	{"sources":[{"source":"canvassing","lead_count":3,"sold_count":0,"revenue":0,"close_rate":0},{"source":"fema_nsi","lead_count":6,"sold_count":0,"revenue":0,"close_rate":0},{"source":"storm_map","lead_
+✓	200	GET	/api/crm/dashboard/customer-storm-alerts	{"alerts":[{"lead_id":"7d2ca8f5-bd06-4381-8260-45b05fd66862","contact_name":"LAWRENCE CHRISTOPHER & AMBER","address":"165 HILDA , LUMBERTON, TX 77657","stage":"new","estimated_value":"3600.00","storm_
+✓	200	GET	/api/crm/dashboard/lead-source-revenue	{"sources":[{"source":"canvassing","lead_count":3,"sold_count":0,"revenue":0,"close_rate":0},{"source":"storm_map","lead_count":5,"sold_count":0,"revenue":0,"close_rate":0},{"source":"fema_nsi","lead_
 ⚠️	400	POST	/api/crm/prospect-lists	{"error":"stormEventId is required"}
 ✓	200	GET	/api/crm/prospect-lists	{"lists":[{"id":"66a88836-aef0-4a24-9a55-87ff44e69c3c","tenant_id":"791bb51d-3293-4839-92e9-bd4d4f873af2","name":"Test Prospect List","storm_event_id":"8d2a94b1-c60f-4b55-85aa-6a16a358e5a3","property_
 ⚠️	404	GET	/api/crm/prospect-lists/00000000-0000-0000-0000-000000000001/items	{"error":"List not found"}
@@ -175,13 +175,13 @@
 ✓	200	GET	/api/notifications/unread-count	{"count":0}
 ⚠️	404	PATCH	/api/notifications/00000000-0000-0000-0000-000000000001/read	{"error":"Notification not found"}
 ✓	200	POST	/api/notifications/mark-all-read	{"updated":0}
-✓	200	GET	/api/notifications/preferences	{"preferences":[{"id":"edc15930-bc39-446d-b5cb-220c4c457714","user_id":"780e0023-c634-40b6-bc1d-67b4c1f0c2bd","notification_type":"lead_assigned","in_app":true,"email":true,"push":false,"email_digest"
+✓	200	GET	/api/notifications/preferences	{"preferences":[{"id":"bcfd44fd-b0b0-4c1a-9363-98925e13a837","user_id":"45cc729d-cc5b-44b5-93ca-7c01b427fc26","notification_type":"lead_assigned","in_app":true,"email":true,"push":false,"email_digest"
 ⚠️	400	PATCH	/api/notifications/preferences	{"error":"notification_type required"}
 ✓	200	PUT	/api/onboarding/org	{"tenant":{"id":"791bb51d-3293-4839-92e9-bd4d4f873af2","name":"Waterloo Roofing","slug":"waterloo","subscription_tier":"enterprise","subscription_status":"active","onboarding_completed":true,"trial_en
 ✓	200	GET	/api/onboarding/plans	{"plans":[{"id":"88201876-24d7-4c70-898e-ccb6b8ca6551","key":"starter","name":"Starter","price_cents":2000,"features":["Storm map","Lead management","Basic pipeline"],"max_users":3,"max_leads":1000},{
 ✓	200	GET	/api/payments/connect/status	{"connected":false,"onboardingComplete":false,"accountId":null}
 ✓	200	GET	/api/payments/history	{"payments":[],"total":0}
-✓	200	GET	/api/properties/import-progress	{"active":false,"clusters":{"total":0,"completed":0},"current":null,"propertiesImported":0,"propertiesTotal":0,"startedAt":null}
+✓	200	GET	/api/properties/import-progress	{"active":false,"clusters":{"total":178,"completed":89},"current":null,"propertiesImported":0,"propertiesTotal":0,"startedAt":"2026-06-19T03:00:01.005Z"}
 ⚠️	400	GET	/api/properties/	{"error":"bbox query parameter is required (west,south,east,north)"}
 ✓	200	GET	/api/properties/in-swath/00000000-0000-0000-0000-000000000001/count	{"count":0}
 ✓	200	GET	/api/properties/in-swath/00000000-0000-0000-0000-000000000001	{"type":"FeatureCollection","features":[]}
@@ -215,9 +215,9 @@
 ✓	200	GET	/api/skip-trace/jobs	[]
 ⚠️	400	GET	/api/storm-history/	{"error":"Valid lat and lng query parameters are required"}
 ⚠️	400	GET	/api/storm-history/heatmap	{"error":"bbox parameter required: west,south,east,north"}
-✓	200	GET	/api/storms/	{"type":"FeatureCollection","features":[{"type":"Feature","id":"29fe9a85-9581-4ead-a66d-89bf8fed0ed8","geometry":{"type":"Polygon","coordinates":[[[-106.374755313,31.849671826],[-106.374766372,31.8495
+✓	200	GET	/api/storms/	{"type":"FeatureCollection","features":[{"type":"Feature","id":"5fe459df-06ad-44a3-8e6d-fde2c69af06a","geometry":{"type":"Polygon","coordinates":[[[-94.364535756,35.389677084],[-94.364547124,35.389567
 ⚠️	404	GET	/api/storms/00000000-0000-0000-0000-000000000001	{"error":"Storm event not found"}
-✓	200	GET	/api/crm/subcontractors/	{"subcontractors":[{"id":"64a593b7-220f-46e9-9c1c-a60c9e429c52","tenant_id":"791bb51d-3293-4839-92e9-bd4d4f873af2","name":"{\"$eq\":1}","company":null,"phone":null,"email":"{\"foo\":\"bar\"}","special
+✓	200	GET	/api/crm/subcontractors/	{"subcontractors":[{"id":"d8760c08-3498-4ee3-8b70-6c8f4e558057","tenant_id":"791bb51d-3293-4839-92e9-bd4d4f873af2","name":"{\"$eq\":1}","company":null,"phone":null,"email":"{\"foo\":\"bar\"}","special
 ⚠️	404	GET	/api/crm/subcontractors/00000000-0000-0000-0000-000000000001	{"error":"Subcontractor not found"}
 ⚠️	400	POST	/api/crm/subcontractors/	{"error":"name is required"}
 ⚠️	400	PATCH	/api/crm/subcontractors/00000000-0000-0000-0000-000000000001	{"error":"No fields to update"}
