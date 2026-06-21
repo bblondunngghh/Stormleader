@@ -1,0 +1,99 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - img "StormPipe" [ref=e6] [cursor=pointer]
+    - navigation [ref=e7]:
+      - button "Dashboard" [ref=e8] [cursor=pointer]:
+        - img [ref=e9]
+        - text: Dashboard
+      - button "Storm Map" [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+        - text: Storm Map
+      - button "Storm Archive" [ref=e14] [cursor=pointer]:
+        - img [ref=e15]
+        - text: Storm Archive
+      - button "Pipeline" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - text: Pipeline
+      - button "Leads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+        - text: Leads
+      - generic [ref=e23]:
+        - button "Jobs" [ref=e24] [cursor=pointer]:
+          - text: Jobs
+          - img [ref=e25]
+        - generic [ref=e27]:
+          - button "Estimates" [ref=e28] [cursor=pointer]:
+            - img [ref=e29]
+            - text: Estimates
+          - button "Contracts" [ref=e31] [cursor=pointer]:
+            - img [ref=e32]
+            - text: Contracts
+          - button "Work Orders" [ref=e34] [cursor=pointer]:
+            - img [ref=e35]
+            - text: Work Orders
+          - button "Materials" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - text: Materials
+      - generic [ref=e41]:
+        - button "Finance" [ref=e42] [cursor=pointer]:
+          - text: Finance
+          - img [ref=e43]
+        - generic [ref=e45]:
+          - button "Invoices" [ref=e46] [cursor=pointer]:
+            - img [ref=e47]
+            - text: Invoices
+          - button "Expenses" [ref=e49] [cursor=pointer]:
+            - img [ref=e50]
+            - text: Expenses
+      - generic [ref=e52]:
+        - button "Operations" [ref=e53] [cursor=pointer]:
+          - text: Operations
+          - img [ref=e54]
+        - generic [ref=e56]:
+          - button "Tasks" [ref=e57] [cursor=pointer]:
+            - img [ref=e58]
+            - text: Tasks
+          - button "Calendar" [ref=e60] [cursor=pointer]:
+            - img [ref=e61]
+            - text: Calendar
+          - button "Canvassing" [ref=e63] [cursor=pointer]:
+            - img [ref=e64]
+            - text: Canvassing
+          - button "Subcontractors" [ref=e67] [cursor=pointer]:
+            - img [ref=e68]
+            - text: Subcontractors
+          - button "Reports" [ref=e70] [cursor=pointer]:
+            - img [ref=e71]
+            - text: Reports
+    - button "Settings" [ref=e73] [cursor=pointer]:
+      - img [ref=e74]
+      - text: Settings
+    - button "Admin" [ref=e76] [cursor=pointer]:
+      - img [ref=e77]
+      - text: Admin
+    - generic [ref=e79]:
+      - generic [ref=e80]: BA
+      - generic [ref=e81]:
+        - generic [ref=e82]: Brandon A.
+        - generic [ref=e83]: super_admin
+      - button "Sign out" [ref=e84] [cursor=pointer]:
+        - img [ref=e85]
+  - generic [ref=e87]:
+    - banner [ref=e88]:
+      - heading "Invoices" [level=1] [ref=e89]
+      - generic [ref=e90]:
+        - img
+        - textbox "Search leads, contacts... (Ctrl+K)" [ref=e91]
+      - generic [ref=e92]:
+        - button "Help" [ref=e94] [cursor=pointer]:
+          - img [ref=e95]
+        - button "Notifications" [ref=e98] [cursor=pointer]:
+          - img [ref=e99]
+        - button "enterprise" [ref=e101] [cursor=pointer]:
+          - img [ref=e102]
+          - generic [ref=e104]: enterprise
+    - generic [ref=e105]: Loading…
+```
