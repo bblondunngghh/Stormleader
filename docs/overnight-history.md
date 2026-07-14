@@ -2625,3 +2625,36 @@ Branch: `feat/financing` · Pre-run checkpoint: `c8afcb4` (`overnight-checkpoint
 - s4 verify: ✅ success (31 turns, $3.60) — re-verified `aab6753` @768/@1280, build clean 8.68s, edge cases pass, 0 fixes; deliverable `C:\tmp\verify-results.txt`.
 - s5 report: this report. **0 commits stand for this run** — every axis converged with 0 findings. s1–s4 spend ≈ $12.30. All 4 working stages exited cleanly (no max-turns stage this run).
 ---
+
+## QA Run: 2026-07-14 (Run 52)
+> Note: the s4 artifact self-labeled this "Run 53" (off-by-one); canonical number is **Run 52** (history's last entry was Run 51 on 2026-06-19; backend is on its 12th consecutive converged run, Runs 41–52).
+### Test Results
+- Pages tested: Dashboard boot + EstimateBuilder toolbar @768px + `/leads` empty-state edge (s4 runtime spot-check; frontend code byte-identical to the prior 100%-complete tablet-768px sweep)
+- API endpoints tested: 245 routes · ~1,300+ probe requests (full sweep + tenant-isolation 22/22 + type-fuzz 1026 payloads + happy-path writes + gaps/edge probes)
+- Bugs found: 0
+- Bugs fixed: 0
+- UI inconsistencies found: 0
+- UI inconsistencies fixed: 0
+### Fixes Made
+- None. A full-convergence run — 0 findings on every axis, so 0 code changed. Hard precondition proven by all stages: `git diff --stat 2d7fb57..HEAD -- client/src server/src` is EMPTY (every commit since the last converged audit on 2026-06-19 is an automated `checkpoint: pre-overnight-run` touching no source), so the code is byte-identical to prior converged runs — no drift possible. The most recent standing fix `aab6753` (Run 50) was re-verified working @768px for the 4th consecutive run.
+### UI Consistency Fixes
+- None — UI-consistency **CONVERGED (9th consecutive 0-fix audit)**. Code-grep over all `client/src` + Playwright runtime spot-check: icons 0 non-Heroicon (Dashboard 70/70, Settings 31/31 `viewBox 0 0 24 24`, 0 solid/lucide/react-icons/fa/mui/material; inline `<svg>` only CanvassingMode+StormMap decorative FEMA maps + unimported Icons.jsx.backup); forms 0 native select/date/time (CustomSelect+DatePicker enforced); modals canonical (only LeadDetail:1806/1933 inline, byte-equal to `modal-scale-in 200ms ease-apple`); button radii "14/12px"&"10/8px" = CSS clamp artifacts not bugs. Build clean 7.94s.
+### Backend
+- s1 re-ran the full standing probe suite (245 routes, ~1,300+ requests), results **byte-identical to the Run 51 baseline**: **0 unintentional 5xx, 0 broken endpoints, 0 fixes — 12th consecutive converged backend run (Runs 41–52).** sweep-all 200×91/400×72/403×6/404×75/503×1; type-fuzz 1026→0 5xx; tenant isolation 22/22 (query/body/X-Tenant-Id injection ignored, foreign ids→404, non-platform-admin→403); happy-path PATCH lead {priority:warm}→200, PATCH invoice {status:sent}→200. Only intentional non-200s: skip-trace 503 (no `TRACERFY_API_KEY`), 6×403 admin-only, validation 400s, missing-id 404s. Backend CONVERGED — stop re-testing it.
+### Known Issues Remaining
+- **Keyboard nav — Esc-to-close absent on most modals app-wide.** Of ~17 modal/overlay components only a few handle Escape. Adding it is a **new feature** (charter forbids enhancements) → developer feature decision, not a QA bug. If pursued, must be a shared app-wide hook.
+- **EstimateBuilder does not collapse at phone width (375px)** *(pre-existing, out of scope)*. Fixed 280px sidebar (`flexShrink:0`, holds section toggles) + `flex:1` editor in `overflow:hidden` (`EstimatesView.jsx:1838`); at 375px the sidebar eats 280px → form content clipped. Works fine 768px+; mobile is paused. Proper fix = responsive sidebar collapse/stack, deferred.
+- **Heavy-work guards** on `/drift/correct-all`, `/properties/trigger-import`, `/crm/leads/score-all` — no rate-limit/concurrency guard; needs staging, not prod Neon. Untouched.
+- **`DELETE /api/crm/tasks/:id`** handler missing — adding endpoints forbidden by charter.
+- **`TopBar` ImportProgress poller** logs a graceful 401 on `/api/properties/import-progress` when JWT expired — FEMA-import territory, DO NOT TOUCH. Not a regression.
+### Coverage Gaps (carried to next run)
+- **Keyboard nav** — Esc-to-close app-wide, Tab order, focus rings, Enter-submit untested. Highest-value remaining area but an **enhancement outside the QA charter** (developer feature decision, not a bug).
+- **Phone-375px sweep** — EstimateBuilder sidebar collapse is the one identified 375px finding; rest untouched. Mobile paused → low priority.
+- **Converged axes — do NOT re-test:** backend (12 runs), UI-consistency (9 audits), tablet-768px sweep (100% complete). Fix yield 0 on all three. Only re-test if the developer adds NEW pages/component files.
+### Session Integrity
+- s1 api-test: ✅ success (13 turns, $1.13) — backend re-verified converged (12th run), 0 fixes.
+- s2 frontend-test: ⚠️ error_max_turns (81/80, $6.11) — no end summary; exercised a byte-identical frontend, produced no bug and no commit.
+- s3 ui-audit: ✅ success (13 turns, $1.26) — converged (9th 0-fix audit), 0 changes; build clean 7.94s.
+- s4 verify: ✅ success (28 turns, $2.23) — Dashboard boots clean, `aab6753` re-verified @768px (4th consecutive), edge cases pass, build clean 7.65s, 0 fixes.
+- s5 report: this report. **0 commits stand for this run** — every axis converged with 0 findings. s1–s4 spend ≈ $10.73. 3/4 working stages exited cleanly; the max-turns stage (s2) produced no commit (byte-identical frontend, nothing to fix).
+---
