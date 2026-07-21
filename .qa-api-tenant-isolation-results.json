@@ -58,8 +58,8 @@
     "status": 200,
     "ok": true,
     "body": {
-      "baselineCount": 22,
-      "injectedCount": 22
+      "baselineCount": 23,
+      "injectedCount": 23
     }
   },
   {
@@ -157,8 +157,8 @@
     "status": 200,
     "ok": true,
     "body": {
-      "baselineCount": 37,
-      "injectedCount": 37
+      "baselineCount": 41,
+      "injectedCount": 41
     }
   },
   {
@@ -201,8 +201,8 @@
     "status": 200,
     "ok": true,
     "body": {
-      "baselineCount": 23,
-      "injectedCount": 23
+      "baselineCount": 24,
+      "injectedCount": 24
     }
   },
   {
@@ -245,13 +245,13 @@
           "notes": "qa test noop",
           "lost_reason": null,
           "created_at": "2026-05-11T18:48:08.652Z",
-          "updated_at": "2026-06-19T10:02:57.766Z",
+          "updated_at": "2026-07-14T10:01:01.838Z",
           "deleted_at": null,
           "property_id": "cc1dcdc6-0def-4425-9a7c-9fa1e0b4d4a5",
           "storm_event_id": null,
           "assigned_rep_id": null,
           "custom_fields": {},
-          "lead_score": 10,
+          "lead_score": 9,
           "lead_score_factors": {
             "homeAge": null,
             "hasEmail": false,
@@ -272,7 +272,7 @@
             "hailRiskLevel": "low",
             "hailRiskScore": 2,
             "daysSinceStorm": null,
-            "engagementScore": 1,
+            "engagementScore": 0,
             "dataQualityScore": 7,
             "hailHistoryCount": 0,
             "stormDamageScore": 0,
@@ -280,10 +280,10 @@
             "ownerOccupiedRate": null,
             "hasUpcomingFollowUp": null,
             "maxHistoricalHailIn": 0,
-            "recentActivityCount": 1,
+            "recentActivityCount": 0,
             "propertyProfileScore": 0
           },
-          "lead_score_updated_at": "2026-06-19T10:02:57.766Z",
+          "lead_score_updated_at": "2026-07-14T10:01:01.838Z",
           "contact_first_name": null,
           "contact_last_name": null,
           "primary_phone": null,
