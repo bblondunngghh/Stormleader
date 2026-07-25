@@ -58,8 +58,8 @@
     "status": 200,
     "ok": true,
     "body": {
-      "baselineCount": 26,
-      "injectedCount": 26
+      "baselineCount": 27,
+      "injectedCount": 27
     }
   },
   {
@@ -157,8 +157,8 @@
     "status": 200,
     "ok": true,
     "body": {
-      "baselineCount": 53,
-      "injectedCount": 53
+      "baselineCount": 57,
+      "injectedCount": 57
     }
   },
   {
@@ -201,8 +201,8 @@
     "status": 200,
     "ok": true,
     "body": {
-      "baselineCount": 27,
-      "injectedCount": 27
+      "baselineCount": 28,
+      "injectedCount": 28
     }
   },
   {
@@ -245,7 +245,7 @@
           "notes": "qa test noop",
           "lost_reason": null,
           "created_at": "2026-05-11T18:48:08.652Z",
-          "updated_at": "2026-07-23T10:01:18.055Z",
+          "updated_at": "2026-07-23T10:01:27.172Z",
           "deleted_at": null,
           "property_id": "cc1dcdc6-0def-4425-9a7c-9fa1e0b4d4a5",
           "storm_event_id": null,
