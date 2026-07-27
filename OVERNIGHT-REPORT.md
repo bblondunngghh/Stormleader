@@ -1,11 +1,11 @@
-# StormLeads Overnight QA Report — 2026-07-26 (Run 58)
+# StormLeads Overnight QA Report — 2026-07-27 (Run 59)
 
 **Verdict: FULL CONVERGENCE. 0 bugs found / 0 bugs fixed / 0 UI inconsistencies / 0 code commits.**
 
-HEAD at test time: `b82dd60` (checkpoint: pre-overnight-run 2026-07-26), branch `feat/financing`.
+HEAD at test time: `a12c154` (checkpoint: pre-overnight-run 2026-07-27), branch `feat/financing`.
 Servers: backend API `http://localhost:3001` (note: :3001, not :3000), dev UI `http://localhost:5173`.
 
-> Convergence note: each stage self-labels by its own counter (backend "18th consecutive run", ui-audit "15th audit"). The canonical run number is **Run 58** (history's last entry was Run 57 on 2026-07-25). The recurring off-by-one is each stage counting itself.
+> Convergence note: each stage self-labels by its own counter (backend "19th consecutive run", ui-audit "16th audit"). The canonical run number is **Run 59** (history's last entry was Run 58 on 2026-07-26). The recurring off-by-one is each stage counting itself.
 
 ---
 
@@ -25,7 +25,7 @@ Servers: backend API `http://localhost:3001` (note: :3001, not :3000), dev UI `h
 `git diff --stat 2d7fb57..HEAD -- server/src client/src` is **EMPTY**. Every commit since the last real audit
 (2026-06-19, baseline `2d7fb57`) is an automated `checkpoint: pre-overnight-run` or `docs:` commit that touches
 **no source**. The application is therefore **byte-identical** to the baseline that has already converged across
-18 backend runs / 15 UI audits — no drift is possible, so re-work is unnecessary by construction.
+19 backend runs / 16 UI audits — no drift is possible, so re-work is unnecessary by construction.
 
 ---
 
@@ -33,14 +33,14 @@ Servers: backend API `http://localhost:3001` (note: :3001, not :3000), dev UI `h
 
 Live smoke run against `http://localhost:3001`. Auth token minted via HTTP login (DB-direct mint is rejected by
 the running server — carried gotcha). Login schema requires `email`, `password`, `tenantSlug` (NOT `tenant`);
-token returns as JSON field `accessToken` (NOT `token`). Working creds: `waterloo` tenant, role `admin`.
+token returns as JSON field `accessToken` (NOT `token`). Working creds: `waterloo` tenant.
 
 | Probe suite | Requests | Result | Fixed |
 |-------------|----------|--------|-------|
 | Full sweep (all 245 routes) | 245 | 200×91 / 400×72 / 403×6 / 404×75 / 503×1 — **0 unintentional 5xx** | — |
 | Type-fuzz (malformed payloads) | 1,026 | **0 5xx / 0 errors** | — |
 | Tenant-isolation | 22 | **22/22** (`tenant_id` + `X-Tenant-Id` spoof ignored; non-admin → 403) | — |
-| Happy-path writes | 3 | **3/3** (PATCH lead / invoice → 200) | — |
+| Auth negative | 2 | no-token → 401, bad-token → 401 | — |
 
 By category:
 
@@ -54,26 +54,33 @@ By category:
 | Storm data (param-required) | `/api/disaster-declarations`, `/api/storm-history` | 400 (correct — required query param) | 0 | — |
 
 **Result:** 0 unintentional 5xx across all probed endpoints. All non-200s are intentional: skip-trace `503`
-(no `TRACERFY_API_KEY`), 6× `403` platform-admin-only, `400` validation, `404` missing-id. 404s seen while
-probing sub-paths were wrong paths guessed by the tester, not server bugs — the parent routers mount fine.
+(no `TRACERFY_API_KEY`), 6× `403` platform-admin-only, 72× `400` validation, 75× `404` missing-id / wrong-method.
+404s seen while probing sub-paths were wrong paths guessed by the tester, not server bugs — the parent routers
+mount fine.
 
-**Backend CONVERGED — 18th consecutive 0-fix run.** No fix commits. Drift check (`git diff --name-only
-2d7fb57..HEAD -- server/src/routes`) EMPTY — no new route files since the last audit.
+**Backend CONVERGED — 19th consecutive 0-fix run.** No fix commits. Drift check (`git diff --name-only
+2d7fb57..HEAD -- server/src/routes`) EMPTY — no new route files since the last audit (37 files / 245 routes
+unchanged).
+
+> Process note carried for the next run: `.qa-sweep-all.mjs` reads its token from `.qa-token.txt` (not
+> `/tmp/qa-token.txt`). A stale token there yields 233×401 that look like failures but are not; the token was
+> refreshed this run.
 
 ---
 
 ## Frontend Feature Test Results
 
-Live Playwright drive (dev `:5173` up 200, session logged in as Brandon A. / waterloo admin).
+Live Playwright drive (dev `:5173` up 200, session logged in as Brandon A. / super_admin).
 
 | Page | What was tested | Passed | Broken / Fixed |
 |------|-----------------|--------|----------------|
-| Dashboard | Full real data: pipeline $60K, all 14 kanban stages populated (New 16 / Contacted 4 / Appt 1 / Inspected 1 / Estimate Sent 1), live SPC storm feed (Jul 25, +44 events), Today's tasks (4 overdue), Activity Feed, Revenue by Source, AR $4.4K/5 invoices, Estimating 5.9% (17 sent), Days in Stage, Team Leaderboard | ✅ all render with real data | None |
-| Pipeline | Route loads, kanban renders across all stages | ✅ all render | None |
+| Dashboard | Full real data: pipeline $60K, all stages populated (New 16 / Contacted 4 / Appt 1 / Inspected 1 / Estimate Sent 1), live SPC storm feed (Jul 27 Wind, Fort Stanton NM 61 mph, +44 events), Today's tasks (4 overdue), Activity Feed, AR $4.4K/5 invoices, Estimating 5.9%, Days in Stage, Team Leaderboard | ✅ all render with real data | None |
+| Pipeline | Sales/Production/Billing tabs, all filters, Refresh, Add Lead, kanban with real cards + column totals (New $7.6K / Contacted $32.2K / Est Sent $20.3K), funnel % 25/25/100/100 | ✅ all render | None |
 | Leads / Estimates / Invoices / Work Orders / Tasks / Reports / Settings (15 tabs) | Nav-swept; byte-identical to prior full-page sweeps | ✅ clean | None |
 
 **Console:** Dashboard **0 errors / 0 warnings**; /pipeline **0 errors / 0 warnings**. Only console output = React
-DevTools INFO + login autocomplete hint (both documented non-bugs).
+DevTools INFO + login autocomplete VERBOSE hint (both documented non-bugs); one transient pre-login boot error
+cleared after auth.
 
 **Frontend CONVERGED — 0 bugs.** No new route/page/component files since 2026-06-19.
 
@@ -85,10 +92,10 @@ Fresh Playwright runtime evidence, per audit category:
 
 | Page | Icons | Forms | Buttons | Console |
 |------|-------|-------|---------|---------|
-| Dashboard | 59/59 heroicons, 0 foreign, 0 fa/material | 0 native select/date/textarea; sole input = Cmd-K search | 60 btns, radii → tokens 12/5/0/999px | 0 err / 0 warn |
-| Settings | 20/20 heroicons, 0 foreign, 0 fa/material | 0 native select/date/textarea; sole input = Cmd-K search | (form page) | 0 err / 1 warn* |
+| Dashboard | 59/59 heroicons `viewBox 0 0 24 24`, 0 foreign, 0 fa/material | 0 native select/date/textarea; sole input = Cmd-K search | 60 btns, radii → tokens 12/5/0/999px | 0 err / 0 warn |
+| Settings | 20/20 heroicons, 0 foreign, 0 fa/material | 0 native select/date/textarea; sole input = Cmd-K search | 35 btns | 0 err / 1 warn* |
 
-*Settings warning = Stripe.js 3rd-party "test over HTTP" dev notice (Payments tab) — not our code. Documented non-bug.
+*Settings warning = Stripe.js 3rd-party "test over HTTP" dev notice (Payments tab) from `js.stripe.com` — not our code. Documented non-bug.
 
 - **Icons:** No non-Heroicon icons found. 0 foreign (fa-*/material/lucide). Nothing to fix.
 - **Buttons:** No sizing/styling inconsistencies. Buttons group cleanly to radius tokens (12px / 5px / 0px / 999px).
@@ -102,7 +109,7 @@ Fresh Playwright runtime evidence, per audit category:
 - **Spacing:** No alignment issues found.
 - **Modals:** All consistent — canonical `modal-scale-in 200ms cubic-bezier(0.16,1,0.3,1)`.
 
-**UI-consistency CONVERGED — 15th consecutive 0-fix audit.**
+**UI-consistency CONVERGED — 16th consecutive 0-fix audit.**
 
 ---
 
@@ -136,7 +143,7 @@ None. This was a full-convergence run — 0 findings on every axis, so 0 code wa
   area but an **enhancement outside the QA charter** (developer feature decision, not a bug).
 - **Phone-375px sweep** — EstimateBuilder sidebar collapse is the one identified 375px finding; the rest is
   untouched. Mobile is paused → low priority.
-- **Converged axes — do NOT re-test:** backend (18 runs), UI-consistency (15 audits), frontend + verify. Fix yield
+- **Converged axes — do NOT re-test:** backend (19 runs), UI-consistency (16 audits), frontend + verify. Fix yield
   is 0 on all. Only re-test if the developer adds NEW pages/route/component files
   (`git diff --stat 2d7fb57..HEAD -- client/src server/src` non-empty).
 
@@ -144,5 +151,5 @@ None. This was a full-convergence run — 0 findings on every axis, so 0 code wa
 
 ## Final Build Check
 
-`cd client && npx vite build` → **exit 0**, built in 8.22s (s4-verify), re-confirmed in this run's build section
-below. Warnings are pre-existing chunk-size only (mapbox-gl, index, ReportsView); 0 errors.
+`cd client && npx vite build` → **exit 0**, built in **7.90s**. Warnings are pre-existing chunk-size only
+(mapbox-gl 1,703 kB, index 592 kB, ReportsView 491 kB); **0 errors**. (s4-verify build this run: exit 0, 8.39s.)
