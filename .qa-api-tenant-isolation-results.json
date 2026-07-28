@@ -58,8 +58,8 @@
     "status": 200,
     "ok": true,
     "body": {
-      "baselineCount": 28,
-      "injectedCount": 28
+      "baselineCount": 29,
+      "injectedCount": 29
     }
   },
   {
@@ -157,8 +157,8 @@
     "status": 200,
     "ok": true,
     "body": {
-      "baselineCount": 61,
-      "injectedCount": 61
+      "baselineCount": 65,
+      "injectedCount": 65
     }
   },
   {
@@ -201,8 +201,8 @@
     "status": 200,
     "ok": true,
     "body": {
-      "baselineCount": 29,
-      "injectedCount": 29
+      "baselineCount": 30,
+      "injectedCount": 30
     }
   },
   {
@@ -245,7 +245,7 @@
           "notes": "qa test noop",
           "lost_reason": null,
           "created_at": "2026-05-11T18:48:08.652Z",
-          "updated_at": "2026-07-26T10:00:59.032Z",
+          "updated_at": "2026-07-27T10:02:00.342Z",
           "deleted_at": null,
           "property_id": "cc1dcdc6-0def-4425-9a7c-9fa1e0b4d4a5",
           "storm_event_id": null,
@@ -283,7 +283,7 @@
             "recentActivityCount": 0,
             "propertyProfileScore": 0
           },
-          "lead_score_updated_at": "2026-07-26T10:00:59.032Z",
+          "lead_score_updated_at": "2026-07-27T10:02:00.342Z",
           "contact_first_name": null,
           "contact_last_name": null,
           "primary_phone": null,
