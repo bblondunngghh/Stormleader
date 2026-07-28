@@ -2889,3 +2889,37 @@ Branch: `feat/financing` · Pre-run checkpoint: `c8afcb4` (`overnight-checkpoint
 - s4 verify: ✅ success (10 turns, $0.94) — source drift EMPTY, `npx vite build` exit 0 8.39s, Leads empty-state PASS, 0 fixes.
 - s5 report: this report. Final build re-run recorded in the report (exit 0, 7.90s). **0 code commits stand for this run** — every axis converged with 0 findings; only the `docs: QA report 2026-07-27 (Run 59)` commit is made. s1–s4 spend ≈ $5.62. All 4 working stages exited cleanly (no max-turns stage this run).
 ---
+
+## QA Run: 2026-07-28 (Run 60)
+> Note: stage artifacts self-label by their own counters (s1 "Run 60", s3 ui-audit "Run 62", s4 verify "Run 63"); recurring off-by-N where each stage counts itself. Canonical number is **Run 60** (history's last entry was Run 59 on 2026-07-27). Server `:3001`, dev UI `:5173`. HEAD `3f2f9ec`, branch `feat/financing`. Source byte-identical to converged baseline `2d7fb57` (2026-06-19).
+### Test Results
+- Pages tested: Dashboard, Settings, Pipeline, Leads (empty-state) driven live via Playwright; frontend byte-identical to prior full-page sweeps
+- API endpoints tested: 23 representative live-smoke endpoints across 8 categories (full 245-route sweep already converged on baseline; not re-swept per charter)
+- Bugs found: 0
+- Bugs fixed: 0
+- UI inconsistencies found: 0
+- UI inconsistencies fixed: 0
+### Fixes Made
+- None. A full-convergence run — 0 findings on every axis, so 0 code changed. Hard precondition proven independently by all 4 working stages: `git diff --stat 2d7fb57..HEAD -- client/src server/src` is EMPTY (every commit since the last converged audit on 2026-06-19 is an automated `checkpoint:`/`docs:` commit touching no source), so the code is byte-identical to prior converged runs — no drift possible. `git log --oneline 2d7fb57..HEAD | grep -i fix` EMPTY (0 fix commits to verify).
+### UI Consistency Fixes
+- None — UI-consistency **CONVERGED (17th consecutive 0-fix audit)**. Fresh Playwright runtime evidence: icons 0 non-Heroicon (Dashboard 59/59, Settings 20/20 `viewBox 0 0 24 24`, 0 fa/material/lucide); forms 0 native select/date/textarea (CustomSelect+DatePicker enforced; sole runtime input = global TopBar Cmd-K search); buttons radii → tokens 12/5/0/999px ("10px/8px" & "3.35544e+07px" = CSS clamp artifacts not bugs); modals canonical `modal-scale-in 200ms cubic-bezier(0.16,1,0.3,1)`. Console: Dashboard 0/0, Settings 0 err/1 warn (Stripe.js 3rd-party HTTP notice, not our code). Drift vectors all clean.
+### Backend
+- s1 re-ran the live smoke suite against `:3001`: **0 unintentional 5xx, 0 broken endpoints, 0 fixes — 20th consecutive converged backend run.** 23 representative endpoints across auth/CRM/estimates/dashboard/notifications/financing/materials/reports all 200; error handling correct (empty login→400, no-auth→401, bad id `/api/leads/notanumber`→400 not 500). Only non-200s were 3× 404 from wrong-path probe guesses (financing/materials/reports have no bare `GET /`; corrected sub-paths all 200). Financing-branch routes (`/api/crm/financing/plans`, `/lenders`) live and 200. Token minted via HTTP login (`tenantSlug` not `tenant`; `accessToken` not `token`).
+### Known Issues Remaining
+- **Keyboard nav — Esc-to-close absent on most modals app-wide.** Adding it is a **new feature** (charter forbids enhancements) → developer feature decision, not a QA bug. If pursued, must be a shared app-wide hook.
+- **EstimateBuilder does not collapse at phone width (375px)** *(pre-existing, out of scope)*. Fixed 280px sidebar (`flexShrink:0`) + `flex:1` editor in `overflow:hidden` (`EstimatesView.jsx:1838`); at 375px the sidebar eats 280px → content clipped. Works fine 768px+; mobile is paused. Proper fix = responsive sidebar collapse/stack, deferred.
+- **Heavy-work guards** on `/drift/correct-all`, `/properties/trigger-import`, `/crm/leads/score-all` — no rate-limit/concurrency guard; needs staging, not prod Neon. Untouched.
+- **`DELETE /api/crm/tasks/:id`** handler missing — adding endpoints forbidden by charter.
+- **`TopBar` ImportProgress poller** logs a graceful 401 on `/api/properties/import-progress` when JWT expired — FEMA-import territory, DO NOT TOUCH. Not a regression.
+- **skip-trace 503** — intentional, no `TRACERFY_API_KEY` configured (env state, not a bug).
+### Coverage Gaps (carried to next run)
+- **Keyboard nav** — Esc-to-close app-wide, Tab order, focus rings, Enter-submit untested. Highest-value remaining area but an **enhancement outside the QA charter** (developer feature decision, not a bug).
+- **Phone-375px sweep** — EstimateBuilder sidebar collapse is the one identified 375px finding; rest untouched. Mobile paused → low priority.
+- **Converged axes — do NOT re-test:** backend (20 runs), UI-consistency (17 audits), frontend + verify. Fix yield 0 on all. Only re-test if the developer adds NEW pages/route/component files.
+### Session Integrity
+- s1 api-test: ✅ success (19 turns, $1.48) — backend re-verified converged (20th run), 0 fixes.
+- s2 frontend-test: ✅ success (15 turns, $1.06) — login→Dashboard full real data, console 0 err/0 warn, 0 fixes.
+- s3 ui-audit: ✅ success (17 turns, $1.34) — converged (17th 0-fix audit), 0 changes.
+- s4 verify: ✅ success (14 turns, $1.01) — source drift EMPTY, `npx vite build` exit 0 7.76s, Leads empty-state PASS, 0 fixes.
+- s5 report: this report. Final build re-run at report time: exit 0, built 7.97s, 0 errors (chunk-size advisories only: mapbox-gl 1703kB / index 592kB / ReportsView 491kB). **0 code commits stand for this run** — every axis converged with 0 findings; only the `docs: QA report 2026-07-28 (Run 60)` commit is made. s1–s4 spend ≈ $4.89. All 4 working stages exited cleanly (no max-turns stage this run).
+---
