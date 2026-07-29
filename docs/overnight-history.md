@@ -2923,3 +2923,48 @@ Branch: `feat/financing` · Pre-run checkpoint: `c8afcb4` (`overnight-checkpoint
 - s4 verify: ✅ success (14 turns, $1.01) — source drift EMPTY, `npx vite build` exit 0 7.76s, Leads empty-state PASS, 0 fixes.
 - s5 report: this report. Final build re-run at report time: exit 0, built 7.97s, 0 errors (chunk-size advisories only: mapbox-gl 1703kB / index 592kB / ReportsView 491kB). **0 code commits stand for this run** — every axis converged with 0 findings; only the `docs: QA report 2026-07-28 (Run 60)` commit is made. s1–s4 spend ≈ $4.89. All 4 working stages exited cleanly (no max-turns stage this run).
 ---
+
+## QA Run: 2026-07-29 (Run 61)
+> **First non-zero UI audit in 18 runs.** Stage artifacts self-label by their own counters (recurring off-by-N); canonical number is **Run 61** (history's last entry was Run 60 on 2026-07-28). Server `:3001`, dev UI `:5173`. HEAD `ebb1aa1` → `e5c4c89`, branch `feat/financing`. Drift gate EMPTY on all 4 vectors vs converged baseline `2d7fb57` (2026-06-19) at run start — s3 audited anyway and found a real deviation the prior 17 sampled audits had missed.
+### Test Results
+- Pages tested: **18 routes** swept at code level (s3) · **13 walked end-to-end live** (s2: Dashboard, Pipeline, lead-preview slide-over, LeadDetail, Leads, Storm Map, Estimates, Estimate Builder, Invoices, Work Orders, Tasks, Calendar, Reports, Canvassing) · Materials re-verified live (s4) · Settings started but incomplete
+- API endpoints tested: **60 endpoint rows** (59 × 200, 1 × intentional 403) within **83 HTTP requests**, plus 10 negative-path checks and 5 required-param validations
+- Bugs found: **0**
+- Bugs fixed: **0**
+- UI inconsistencies found: **1**
+- UI inconsistencies fixed: **1**
+### Fixes Made
+- No functional bugs existed to fix. Backend **CONVERGED — 21st consecutive 0-fix run**: 83 requests, 0 5xx, 0 unintentional non-200; 10/10 error paths correct (empty login → 400 w/ zod details, bad creds → 401, no-auth → 401, `/leads/notanumber` → 400 "Invalid id format" not 500, unknown route → 404 JSON not HTML); 5/5 required-param 400s each → 200 once supplied. All 11 initial 404s were the tester's own wrong-path guesses, each traced to a real path returning 200. Only intentional non-200: 1× 403 `/admin/tenants` (platform-admin only). Inventory: 37 route modules, 280 `router.<method>()` decls, 36 mount prefixes.
+- Frontend: 13 pages walked end-to-end, all passing. Two initial "possible bug" readings were tester error, not defects — the Pipeline card click *does* open a preview (it uses `.slide-over`, not a modal, so the first selector missed it), and "Open Full Detail" *does* render LeadDetail in-place as a 480px slide-over (`onOpenFull` sets `selectedLeadId` rather than changing route; the first assertion was mistimed).
+### UI Consistency Fixes
+- **`MaterialsView.jsx:587` — CartSidebar backdrop `oklch(0 0 0 / 0.5)` → `oklch(0 0 0 / 0.6)`.** Commit `e5c4c89`, one line. The drawer backdrop dimmed the page less than every other modal in the app, including its own two file-siblings (`ProductModal` L462, `SRSCatalogModal` L893). Purely visual; position/width/animation untouched. Build exit 0 (8.57s). Verified live twice — by s3 post-change, and independently by s4 (backdrop 0.6; zIndex 1000, fixed, flex-end, 420px, `modal-scale-in` all intact; sibling modals re-opened clean; backdrop-click-to-close works; at 375px `maxWidth:90vw` → 338px, no overflow).
+- All 7 audit categories otherwise **PASS**: icons 38/38 sites `@heroicons/react/24/outline`, 0 foreign libs, only 2 inline JSX SVGs (both map-related, charter-permitted); buttons byte-identical on 5 pages (`.auth-btn`, `oklch(0.72 0.19 250)`, 36px); headers 18/18 `topbar glass` **exactly 56px** + correct `h1`; sidebar 240px, 22/22 items have Heroicons, 18 rows uniform 42px/12px, exactly one `.active`; forms **0 native `<select>`, 0 native date/time** in JSX app-wide, labels uniform 12px/600; spacing `.glass` radius uniform 6 of 7 pages (fractional values = documented `clamp()` artifacts); modals 22/22 use `.modal-backdrop` → all inherit backdrop-in 150ms + scale-in 200ms. Console: **0 application errors across all 18 routes**.
+- **New gotchas recorded:** `/reports`' 9 non-Heroicon SVGs are all `class="recharts-surface"` chart plot areas + legend swatches — data-viz, not icons, do not flag. `.slide-over` is a **second legitimate overlay pattern** (5 components, 55 usages, own CSS incl. a responsive breakpoint) — Tasks/Invoices/Contracts/Subcontractors "New X" open slide-overs, so a missing `.modal-backdrop` there is **correct**. Driving the SPA via `history.pushState`+`PopStateEvent` sweeps routes fast but eventually wedges the app → bounced to `/login`.
+### Known Issues Remaining
+- **NEW — Estimate Builder currency formatting inconsistent (cosmetic).** `EstimatesView.jsx:2118` renders Subtotal via `toLocaleString` → `$2,500.00`; `EstimatesView.jsx:2258` renders the **same `subtotal`** via `toFixed(2)` → `$2500.00`. Both visible at once. Values correct; only the thousands separator differs. `toFixed(2)` dominates the file (18 uses vs 7). Not fixed — picking one is a formatting-convention refactor the charter forbids. Recommend standardizing on `toLocaleString` for user-facing money. **Developer decision.**
+- **Panel radius convention split** — literal `20px / 18px` (56 JSX uses) vs `var(--radius-xl)` flat 20px (12 uses), ~2px delta. Fixing means redefining the token app-wide = design-system change, out of charter.
+- **Backdrop blur/dim sub-groups** — `blur(8px)+0.6` dominant (×10); `blur(4px)+0.5` trio; LeadDetail `0.75`/`0.70` immersive viewers; PhotoAnnotator tinted `0.85`. Coherent per-context treatments; re-tuning is an enhancement.
+- **Keyboard nav — Esc-to-close absent on most modals app-wide.** New feature (must be a shared hook if pursued), not a QA bug.
+- **EstimateBuilder does not collapse at 375px** *(pre-existing)* — fixed 280px sidebar in `overflow:hidden` (`EstimatesView.jsx:1838`) clips content. Fine at 768px+; mobile paused.
+- **`/content-studio` not implemented** — no such route; catch-all redirects to `/` gracefully. Planned future feature; building it is out of charter.
+- **Heavy-work guards** on `/drift/correct-all`, `/properties/trigger-import`, `/crm/leads/score-all` — no rate-limit/concurrency guard; needs staging, not prod Neon.
+- **`DELETE /api/crm/tasks/:id` handler missing** — adding endpoints forbidden by charter.
+- **`TopBar` ImportProgress poller** logs a graceful 401 on `/api/properties/import-progress` when JWT expired — FEMA-import territory, do not touch.
+- **skip-trace 503** — intentional, no `TRACERFY_API_KEY` (env state, not a bug).
+- **Deliberately NOT changed:** modal z-index spread (200/300/400/1000/9999/99998) is **functional stacking order** for nested overlays — normalizing it risks real layering regressions. Unused Streamline SVGs under `assets/icons*` are imported nowhere and never render; deleting them is cleanup, out of charter.
+- **Commit-message nit (no code impact):** `e5c4c89`'s body calls the L893 component `OrderDetailModal`; it is actually `SRSCatalogModal` (consumed by `EstimatesView.jsx:2704`). Line number and change are correct.
+### Coverage Gaps (carried to next run)
+- **Settings tabs — INCOMPLETE, lead with this next run.** s2 enumerated 15 tabs (3 more than the charter lists) and hit its 80-turn cap before walking them. No findings recorded before it stopped.
+- **Browser back/forward after the fix untested** — s4 hit its 40-turn cap during navigation testing. The fix itself is fully verified.
+- **s2 and s4 wrote no results file this run.** `C:\tmp\frontend-test-results.txt` (Jul 25) and `C:\tmp\verify-results.txt` (Jul 26) are **stale** and do not describe this run; their sections in the report were reconstructed from session transcripts. Fresh files exist only for s1 and s3.
+- **Keyboard nav** — Esc-to-close, Tab order, focus rings, Enter-submit still untested app-wide. Enhancement, outside charter.
+- **Phone-375px sweep** — only Materials cart drawer (pass) and the known EstimateBuilder finding checked. Mobile paused → low priority.
+- **Google-geocoding paths permanently excluded** — storm-map address search and any bulk geocode, per the standing cost rule.
+- **Converged axes — do NOT re-sweep** unless drift is non-empty: backend (21 runs). **UI consistency is no longer in this category** — this run proved a deep all-routes/all-modals sweep still yields findings where a Dashboard+Settings sample does not.
+### Session Integrity
+- s1 api-test: SUCCESS (21 turns, $1.97) — backend converged 21st 0-fix run; 83 requests, 0 unintentional non-200, 0 fixes.
+- s2 frontend-test: **MAX_TURNS (80)** (81 turns, $6.06) — 13 pages walked end-to-end and passing; stopped mid-Settings; 0 fixes; 1 cosmetic finding logged.
+- s3 ui-audit: SUCCESS (68 turns, $5.87) — 18 routes + 22 modal sites swept; **1 inconsistency found and FIXED**; commit `e5c4c89`.
+- s4 verify: **MAX_TURNS (40)** (41 turns, $2.65) — fix verified live + both sibling modals + 375px responsive; stopped during back/forward testing; 0 fixes.
+- s5 report: this report. Final build re-run at report time: **exit 0, built 7.99s, 0 errors** (chunk advisories only: mapbox-gl 1703.49kB / index 592.75kB / ReportsView 490.59kB). **1 code commit stands for this run** (`e5c4c89`), plus the `docs: QA report 2026-07-29 (Run 61)` commit. s1–s4 spend ≈ $16.55. Two of four working stages exited on their turn cap, both after completing substantive work and neither leaving a broken state.
+---
