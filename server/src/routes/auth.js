@@ -144,6 +144,9 @@ router.patch('/me', authenticate, async (req, res, next) => {
     const u = rows[0];
     res.json({ user: { id: u.id, firstName: u.first_name, lastName: u.last_name, email: u.email, role: u.role } });
   } catch (err) {
+    if (err.code === '23505') {
+      return res.status(409).json({ error: 'A user with this email already exists on your team' });
+    }
     next(err);
   }
 });
