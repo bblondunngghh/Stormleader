@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import * as subApi from '../api/subcontractors';
 import { showToast } from './Toast';
 import CustomSelect from './CustomSelect';
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const SPECIALTIES = ['general', 'roofing', 'siding', 'gutters', 'painting', 'drywall', 'electrical', 'plumbing', 'hvac', 'landscaping', 'demolition', 'other'];
 const SPECIALTY_OPTIONS = [{ value: '', label: 'All' }, ...SPECIALTIES.map(s => ({ value: s, label: s.charAt(0).toUpperCase() + s.slice(1) }))];
