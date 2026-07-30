@@ -2102,10 +2102,8 @@ function CustomFieldsTab() {
         <div style={{ fontSize: 15, fontWeight: 700 }}>Custom Fields</div>
         {!showForm && (
           <button onClick={() => { resetForm(); setShowForm(true); }}
-            style={{
-              padding: '6px 16px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer',
-              background: 'var(--accent-blue)', color: 'oklch(1 0 0)', fontSize: 13, fontWeight: 600,
-            }}>
+            className="auth-btn"
+            style={{ flexShrink: 0 }}>
             + Add Field
           </button>
         )}
@@ -2726,7 +2724,7 @@ function PricingTab() {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: 'var(--space-xl)', display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)' }}>
-      <div className="glass" style={{ borderRadius: '20px / 18px', padding: 'var(--space-xl)' }}>
+      <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-lg)' }}>
           <div>
             <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Pricing / Line Items</h2>

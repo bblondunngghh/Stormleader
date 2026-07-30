@@ -150,10 +150,8 @@ export default function AutomationSettings() {
         </div>
         <button
           onClick={() => { setShowForm(true); setEditId(null); setForm(getEmptyForm()); }}
-          style={{
-            padding: '8px 18px', borderRadius: 'var(--radius-sm)', fontSize: 13, fontWeight: 600,
-            border: 'none', cursor: 'pointer', background: 'var(--accent-blue)', color: 'oklch(1 0 0)',
-          }}
+          className="auth-btn"
+          style={{ flexShrink: 0 }}
         >
           + New Automation
         </button>
