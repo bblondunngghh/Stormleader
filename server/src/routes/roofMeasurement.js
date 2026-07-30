@@ -24,6 +24,9 @@ router.get('/config', async (req, res, next) => {
 router.put('/config', async (req, res, next) => {
   try {
     const { roof_measurement_enabled } = req.body;
+    if (roof_measurement_enabled === undefined) {
+      return res.status(400).json({ error: 'roof_measurement_enabled (boolean) is required' });
+    }
     const { rows } = await pool.query(
       `INSERT INTO tenant_skip_trace_config (tenant_id, roof_measurement_enabled)
        VALUES ($1, $2)
