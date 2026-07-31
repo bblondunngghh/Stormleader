@@ -70,7 +70,7 @@ export default function SubcontractorsView() {
   const showEnd = Math.min((page + 1) * pageSize, total);
 
   return (
-    <div className="main-content">
+    <div className="main-content" style={{ gap: 'var(--space-lg)' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
