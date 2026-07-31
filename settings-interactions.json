@@ -1,0 +1,104 @@
+{
+  "out": [
+    {
+      "tab": "Profile",
+      "label": "Edit Profile",
+      "FOUND": true,
+      "clickedText": "Edit Profile",
+      "before": {
+        "modal": false,
+        "slideOver": false,
+        "text": ""
+      },
+      "after": {
+        "modal": false,
+        "slideOver": false,
+        "text": ""
+      },
+      "opened": false,
+      "closedOK": true
+    },
+    {
+      "tab": "Team",
+      "label": "Add Member",
+      "FOUND": true,
+      "clickedText": "Add Member",
+      "before": {
+        "modal": false,
+        "slideOver": false,
+        "text": ""
+      },
+      "after": {
+        "modal": false,
+        "slideOver": false,
+        "text": ""
+      },
+      "opened": false,
+      "closedOK": true
+    },
+    {
+      "tab": "Custom Fields",
+      "label": "+ Add Field",
+      "FOUND": true,
+      "clickedText": "+ Add Field",
+      "before": {
+        "modal": false,
+        "slideOver": false,
+        "text": ""
+      },
+      "after": {
+        "modal": false,
+        "slideOver": false,
+        "text": ""
+      },
+      "opened": false,
+      "closedOK": true
+    },
+    {
+      "tab": "Contracts",
+      "label": "+ Create Template",
+      "FOUND": true,
+      "clickedText": "Cancel",
+      "before": {
+        "modal": false,
+        "slideOver": false,
+        "text": ""
+      },
+      "after": {
+        "modal": false,
+        "slideOver": false,
+        "text": ""
+      },
+      "opened": false,
+      "closedOK": true
+    },
+    {
+      "tab": "Automations",
+      "label": "Create Automation",
+      "FOUND": false,
+      "availableButtons": [
+        "+ New Automation"
+      ]
+    },
+    {
+      "tab": "Drip Sequences",
+      "label": "New Sequence",
+      "FOUND": true,
+      "clickedText": "+ New Sequence",
+      "before": {
+        "modal": false,
+        "slideOver": false,
+        "text": ""
+      },
+      "after": {
+        "modal": false,
+        "slideOver": false,
+        "text": ""
+      },
+      "opened": false,
+      "closedOK": true
+    }
+  ],
+  "net": [],
+  "err": []
+}

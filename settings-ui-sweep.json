@@ -1,0 +1,3562 @@
+{
+  "tabsFound": [
+    "Profile",
+    "Company",
+    "Billing",
+    "Payments",
+    "Team",
+    "Storm Alerts",
+    "Notifications",
+    "Email / SMTP",
+    "Financing",
+    "Automations",
+    "Drip Sequences",
+    "Custom Fields",
+    "Pricing / Line Items",
+    "Contracts",
+    "Reviews"
+  ],
+  "res": [
+    {
+      "tab": "Profile",
+      "inputs": [],
+      "labels": 0,
+      "labelVariants": [],
+      "btnCount": 1,
+      "btns": [
+        {
+          "txt": "Edit Profile",
+          "h": "29.0",
+          "pad": "6px 14px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "12px",
+          "fw": "600",
+          "iconOnly": false
+        }
+      ],
+      "glass": [
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        }
+      ],
+      "svgTotal": 0,
+      "heroicon": 0,
+      "nonHero": [],
+      "heads": []
+    },
+    {
+      "tab": "Company",
+      "inputs": [
+        {
+          "el": "input",
+          "type": "email",
+          "cls": "form-input",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "border": "1px solid oklch(0.5 0.02 260 / 0.15)",
+          "fs": "13px"
+        },
+        {
+          "el": "input",
+          "type": "text",
+          "cls": "form-input",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "border": "1px solid oklch(0.5 0.02 260 / 0.15)",
+          "fs": "13px"
+        },
+        {
+          "el": "input",
+          "type": "tel",
+          "cls": "form-input",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "border": "1px solid oklch(0.5 0.02 260 / 0.15)",
+          "fs": "13px"
+        },
+        {
+          "el": "input",
+          "type": "url",
+          "cls": "form-input",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "border": "1px solid oklch(0.5 0.02 260 / 0.15)",
+          "fs": "13px"
+        },
+        {
+          "el": "input",
+          "type": "text",
+          "cls": "form-input",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "border": "1px solid oklch(0.5 0.02 260 / 0.15)",
+          "fs": "13px"
+        }
+      ],
+      "labels": 5,
+      "labelVariants": [
+        "12px/600/uppercase"
+      ],
+      "btnCount": 1,
+      "btns": [
+        {
+          "txt": "Save Changes",
+          "h": "36.0",
+          "pad": "12px 32px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.72 0.19 250)",
+          "fs": "14px",
+          "fw": "700",
+          "iconOnly": false
+        }
+      ],
+      "glass": [
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        },
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        }
+      ],
+      "svgTotal": 0,
+      "heroicon": 0,
+      "nonHero": [],
+      "heads": []
+    },
+    {
+      "tab": "Billing",
+      "inputs": [
+        {
+          "el": "input",
+          "type": "text",
+          "cls": "__PrivateStripeElement-input",
+          "h": "1.0",
+          "pad": "0px",
+          "radius": "0px",
+          "bg": "rgba(0, 0, 0, 0)",
+          "border": "0px none rgb(0, 0, 0)",
+          "fs": "16px"
+        }
+      ],
+      "labels": 0,
+      "labelVariants": [],
+      "btnCount": 6,
+      "btns": [
+        {
+          "txt": "Switch to Starter",
+          "h": "34.0",
+          "pad": "0px",
+          "radius": "12px",
+          "bg": "oklch(0.72 0.19 250)",
+          "fs": "12px",
+          "fw": "700",
+          "iconOnly": false
+        },
+        {
+          "txt": "Switch to Pro",
+          "h": "34.0",
+          "pad": "0px",
+          "radius": "12px",
+          "bg": "oklch(0.72 0.19 250)",
+          "fs": "12px",
+          "fw": "700",
+          "iconOnly": false
+        },
+        {
+          "txt": "Current",
+          "h": "34.0",
+          "pad": "0px",
+          "radius": "12px",
+          "bg": "oklch(0.25 0.02 260 / 0.5)",
+          "fs": "12px",
+          "fw": "700",
+          "iconOnly": false
+        },
+        {
+          "txt": "",
+          "h": "24.0",
+          "pad": "2px",
+          "radius": "12px",
+          "bg": "oklch(0.75 0.18 155)",
+          "fs": "13.3333px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "",
+          "h": "24.0",
+          "pad": "2px",
+          "radius": "12px",
+          "bg": "oklch(0.3 0.02 260 / 0.6)",
+          "fs": "13.3333px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Add Payment Method",
+          "h": "36.0",
+          "pad": "10px 24px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.72 0.19 250)",
+          "fs": "13px",
+          "fw": "700",
+          "iconOnly": false
+        }
+      ],
+      "glass": [
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        },
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        },
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        },
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.72 0.19 250)"
+        },
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        },
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        },
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        },
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        }
+      ],
+      "svgTotal": 13,
+      "heroicon": 13,
+      "nonHero": [],
+      "heads": []
+    },
+    {
+      "tab": "Payments",
+      "inputs": [],
+      "labels": 0,
+      "labelVariants": [],
+      "btnCount": 1,
+      "btns": [
+        {
+          "txt": "Connect with Stripe",
+          "h": "36.0",
+          "pad": "12px 28px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.55 0.15 270)",
+          "fs": "14px",
+          "fw": "700",
+          "iconOnly": false
+        }
+      ],
+      "glass": [
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        },
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        },
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        }
+      ],
+      "svgTotal": 3,
+      "heroicon": 3,
+      "nonHero": [],
+      "heads": []
+    },
+    {
+      "tab": "Team",
+      "inputs": [],
+      "labels": 0,
+      "labelVariants": [],
+      "btnCount": 4,
+      "btns": [
+        {
+          "txt": "Add Member",
+          "h": "34.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.72 0.19 250)",
+          "fs": "12px",
+          "fw": "700",
+          "iconOnly": false
+        },
+        {
+          "txt": "Admin",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "fs": "13px",
+          "fw": "500",
+          "iconOnly": false
+        },
+        {
+          "txt": "Admin",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "fs": "13px",
+          "fw": "500",
+          "iconOnly": false
+        },
+        {
+          "txt": "Sales Rep",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "fs": "13px",
+          "fw": "500",
+          "iconOnly": false
+        }
+      ],
+      "glass": [
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.72 0.19 250 / 0.3)"
+        },
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        },
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        },
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        }
+      ],
+      "svgTotal": 4,
+      "heroicon": 4,
+      "nonHero": [],
+      "heads": []
+    },
+    {
+      "tab": "Storm Alerts",
+      "inputs": [
+        {
+          "el": "input",
+          "type": "number",
+          "cls": "form-input",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "border": "1px solid oklch(0.5 0.02 260 / 0.15)",
+          "fs": "13px"
+        },
+        {
+          "el": "input",
+          "type": "number",
+          "cls": "form-input",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "border": "1px solid oklch(0.5 0.02 260 / 0.15)",
+          "fs": "13px"
+        }
+      ],
+      "labels": 3,
+      "labelVariants": [
+        "12px/600/uppercase"
+      ],
+      "btnCount": 3,
+      "btns": [
+        {
+          "txt": "",
+          "h": "24.0",
+          "pad": "2px",
+          "radius": "12px",
+          "bg": "oklch(0.75 0.18 155)",
+          "fs": "13.3333px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "",
+          "h": "24.0",
+          "pad": "2px",
+          "radius": "12px",
+          "bg": "oklch(0.75 0.18 155)",
+          "fs": "13.3333px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Immediate — alert on eve",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "fs": "13px",
+          "fw": "500",
+          "iconOnly": false
+        }
+      ],
+      "glass": [
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        }
+      ],
+      "svgTotal": 1,
+      "heroicon": 1,
+      "nonHero": [],
+      "heads": []
+    },
+    {
+      "tab": "Notifications",
+      "inputs": [],
+      "labels": 0,
+      "labelVariants": [],
+      "btnCount": 0,
+      "btns": [],
+      "glass": [
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        }
+      ],
+      "svgTotal": 0,
+      "heroicon": 0,
+      "nonHero": [],
+      "heads": []
+    },
+    {
+      "tab": "Email / SMTP",
+      "inputs": [
+        {
+          "el": "input",
+          "type": "text",
+          "cls": "form-input",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "border": "1px solid oklch(0.5 0.02 260 / 0.15)",
+          "fs": "13px"
+        },
+        {
+          "el": "input",
+          "type": "number",
+          "cls": "form-input",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "border": "1px solid oklch(0.5 0.02 260 / 0.15)",
+          "fs": "13px"
+        },
+        {
+          "el": "input",
+          "type": "text",
+          "cls": "form-input",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "border": "1px solid oklch(0.5 0.02 260 / 0.15)",
+          "fs": "13px"
+        },
+        {
+          "el": "input",
+          "type": "password",
+          "cls": "form-input",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "border": "1px solid oklch(0.5 0.02 260 / 0.15)",
+          "fs": "13px"
+        },
+        {
+          "el": "input",
+          "type": "text",
+          "cls": "form-input",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "border": "1px solid oklch(0.5 0.02 260 / 0.15)",
+          "fs": "13px"
+        },
+        {
+          "el": "input",
+          "type": "email",
+          "cls": "form-input",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "border": "1px solid oklch(0.5 0.02 260 / 0.15)",
+          "fs": "13px"
+        }
+      ],
+      "labels": 6,
+      "labelVariants": [
+        "12px/600/uppercase"
+      ],
+      "btnCount": 3,
+      "btns": [
+        {
+          "txt": "Show",
+          "h": "13.0",
+          "pad": "0px",
+          "radius": "0px",
+          "bg": "rgba(0, 0, 0, 0)",
+          "fs": "11px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Save SMTP Settings",
+          "h": "36.0",
+          "pad": "0px 24px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.72 0.19 250)",
+          "fs": "13px",
+          "fw": "700",
+          "iconOnly": false
+        },
+        {
+          "txt": "Send Test",
+          "h": "38.0",
+          "pad": "0px 24px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.72 0.19 250)",
+          "fs": "13px",
+          "fw": "700",
+          "iconOnly": false
+        }
+      ],
+      "glass": [
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        },
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        },
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        }
+      ],
+      "svgTotal": 0,
+      "heroicon": 0,
+      "nonHero": [],
+      "heads": []
+    },
+    {
+      "tab": "Financing",
+      "inputs": [],
+      "labels": 0,
+      "labelVariants": [],
+      "btnCount": 12,
+      "btns": [
+        {
+          "txt": "Sync Plans",
+          "h": "29.0",
+          "pad": "6px 14px",
+          "radius": "8px",
+          "bg": "rgba(0, 0, 0, 0)",
+          "fs": "12px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Disconnect",
+          "h": "29.0",
+          "pad": "6px 14px",
+          "radius": "8px",
+          "bg": "rgba(0, 0, 0, 0)",
+          "fs": "12px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "",
+          "h": "20.0",
+          "pad": "0px",
+          "radius": "10px",
+          "bg": "oklch(0.55 0.18 145)",
+          "fs": "13.3333px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "",
+          "h": "20.0",
+          "pad": "0px",
+          "radius": "10px",
+          "bg": "oklch(0.3 0.02 260)",
+          "fs": "13.3333px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "",
+          "h": "20.0",
+          "pad": "0px",
+          "radius": "10px",
+          "bg": "oklch(0.55 0.18 145)",
+          "fs": "13.3333px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "",
+          "h": "20.0",
+          "pad": "0px",
+          "radius": "10px",
+          "bg": "oklch(0.3 0.02 260)",
+          "fs": "13.3333px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "",
+          "h": "20.0",
+          "pad": "0px",
+          "radius": "10px",
+          "bg": "oklch(0.55 0.18 145)",
+          "fs": "13.3333px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "",
+          "h": "20.0",
+          "pad": "0px",
+          "radius": "10px",
+          "bg": "oklch(0.3 0.02 260)",
+          "fs": "13.3333px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "",
+          "h": "20.0",
+          "pad": "0px",
+          "radius": "10px",
+          "bg": "oklch(0.55 0.18 145)",
+          "fs": "13.3333px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "",
+          "h": "20.0",
+          "pad": "0px",
+          "radius": "10px",
+          "bg": "oklch(0.3 0.02 260)",
+          "fs": "13.3333px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "",
+          "h": "20.0",
+          "pad": "0px",
+          "radius": "10px",
+          "bg": "oklch(0.55 0.18 145)",
+          "fs": "13.3333px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "",
+          "h": "20.0",
+          "pad": "0px",
+          "radius": "10px",
+          "bg": "oklch(0.3 0.02 260)",
+          "fs": "13.3333px",
+          "fw": "400",
+          "iconOnly": false
+        }
+      ],
+      "glass": [
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        }
+      ],
+      "svgTotal": 0,
+      "heroicon": 0,
+      "nonHero": [],
+      "heads": []
+    },
+    {
+      "tab": "Automations",
+      "inputs": [],
+      "labels": 0,
+      "labelVariants": [],
+      "btnCount": 1,
+      "btns": [
+        {
+          "txt": "+ New Automation",
+          "h": "48.0",
+          "pad": "8px 18px",
+          "radius": "8px",
+          "bg": "oklch(0.72 0.19 250)",
+          "fs": "13px",
+          "fw": "600",
+          "iconOnly": false
+        }
+      ],
+      "glass": [
+        {
+          "radius": "16px",
+          "pad": "32px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        }
+      ],
+      "svgTotal": 0,
+      "heroicon": 0,
+      "nonHero": [],
+      "heads": []
+    },
+    {
+      "tab": "Drip Sequences",
+      "inputs": [],
+      "labels": 0,
+      "labelVariants": [],
+      "btnCount": 1,
+      "btns": [
+        {
+          "txt": "+ New Sequence",
+          "h": "36.0",
+          "pad": "0px 24px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.72 0.19 250)",
+          "fs": "13px",
+          "fw": "700",
+          "iconOnly": false
+        }
+      ],
+      "glass": [
+        {
+          "radius": "16px",
+          "pad": "32px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        }
+      ],
+      "svgTotal": 0,
+      "heroicon": 0,
+      "nonHero": [],
+      "heads": []
+    },
+    {
+      "tab": "Custom Fields",
+      "inputs": [],
+      "labels": 0,
+      "labelVariants": [],
+      "btnCount": 1,
+      "btns": [
+        {
+          "txt": "+ Add Field",
+          "h": "28.0",
+          "pad": "6px 16px",
+          "radius": "8px",
+          "bg": "oklch(0.72 0.19 250)",
+          "fs": "13px",
+          "fw": "600",
+          "iconOnly": false
+        }
+      ],
+      "glass": [
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        }
+      ],
+      "svgTotal": 0,
+      "heroicon": 0,
+      "nonHero": [],
+      "heads": []
+    },
+    {
+      "tab": "Pricing / Line Items",
+      "inputs": [],
+      "labels": 0,
+      "labelVariants": [],
+      "btnCount": 155,
+      "btns": [
+        {
+          "txt": "+ Add Item",
+          "h": "36.0",
+          "pad": "8px 16px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.72 0.19 250)",
+          "fs": "12px",
+          "fw": "700",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "27.0",
+          "pad": "6px 10px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.18 0.03 265 / 0.5)",
+          "fs": "11px",
+          "fw": "600",
+          "iconOnly": false
+        }
+      ],
+      "glass": [
+        {
+          "radius": "20px / 18px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        }
+      ],
+      "svgTotal": 0,
+      "heroicon": 0,
+      "nonHero": [],
+      "heads": [
+        {
+          "tag": "H2",
+          "txt": "Pricing / Line Items",
+          "fs": "18px",
+          "fw": "700",
+          "mb": "0px"
+        }
+      ]
+    },
+    {
+      "tab": "Contracts",
+      "inputs": [],
+      "labels": 0,
+      "labelVariants": [],
+      "btnCount": 104,
+      "btns": [
+        {
+          "txt": "+ Create Template",
+          "h": "36.0",
+          "pad": "6px 14px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.72 0.19 250)",
+          "fs": "12px",
+          "fw": "700",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Clone",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Edit",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.05 250 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        },
+        {
+          "txt": "Delete",
+          "h": "23.0",
+          "pad": "4px 12px",
+          "radius": "8px",
+          "bg": "oklch(0.25 0.08 25 / 0.4)",
+          "fs": "12px",
+          "fw": "400",
+          "iconOnly": false
+        }
+      ],
+      "glass": [
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        }
+      ],
+      "svgTotal": 0,
+      "heroicon": 0,
+      "nonHero": [],
+      "heads": []
+    },
+    {
+      "tab": "Reviews",
+      "inputs": [
+        {
+          "el": "input",
+          "type": "text",
+          "cls": "form-input",
+          "h": "36.0",
+          "pad": "0px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "border": "1px solid oklch(0.5 0.02 260 / 0.15)",
+          "fs": "13px"
+        },
+        {
+          "el": "textarea",
+          "type": "textarea",
+          "cls": "form-input",
+          "h": "90.0",
+          "pad": "12px 16px",
+          "radius": "12px",
+          "bg": "oklch(0.22 0.02 260 / 0.45)",
+          "border": "1px solid oklch(0.5 0.02 260 / 0.15)",
+          "fs": "13px"
+        }
+      ],
+      "labels": 2,
+      "labelVariants": [
+        "12px/600/uppercase"
+      ],
+      "btnCount": 1,
+      "btns": [
+        {
+          "txt": "Save Review Settings",
+          "h": "36.0",
+          "pad": "0px 24px",
+          "radius": "14px / 12px",
+          "bg": "oklch(0.72 0.19 250)",
+          "fs": "13px",
+          "fw": "700",
+          "iconOnly": false
+        }
+      ],
+      "glass": [
+        {
+          "radius": "16px",
+          "pad": "24px",
+          "bdf": "blur(16px) saturate(1.3)",
+          "border": "oklch(0.5 0.02 260 / 0.15)"
+        }
+      ],
+      "svgTotal": 0,
+      "heroicon": 0,
+      "nonHero": [],
+      "heads": []
+    }
+  ]
+}

@@ -1,0 +1,188 @@
+{
+  "out": [
+    {
+      "tab": "Profile",
+      "active": "|padding: 8px 12px; border-radius: var(--radius-sm); font-siz",
+      "headings": [],
+      "inputs": 0,
+      "nativeSelect": 0,
+      "nativeDate": 0,
+      "buttons": 16,
+      "textLen": 466,
+      "textHead": "Profile Company Billing Payments Team Storm Alerts Notifications Email / SMTP Financing Automations Drip Sequences Custom Fields Pricing / Line Items Contracts Reviews Profile Edit Profile Name Brandon Admin Email brando",
+      "empty": false
+    },
+    {
+      "tab": "Company",
+      "active": "|padding: 8px 12px; border-radius: var(--radius-sm); font-siz",
+      "headings": [],
+      "inputs": 5,
+      "nativeSelect": 0,
+      "nativeDate": 0,
+      "buttons": 16,
+      "textLen": 408,
+      "textHead": "Profile Company Billing Payments Team Storm Alerts Notifications Email / SMTP Financing Automations Drip Sequences Custom Fields Pricing / Line Items Contracts Reviews Sender Email This email address will be used as the ",
+      "empty": false
+    },
+    {
+      "tab": "Billing",
+      "active": "|padding: 8px 12px; border-radius: var(--radius-sm); font-siz",
+      "headings": [],
+      "inputs": 1,
+      "nativeSelect": 0,
+      "nativeDate": 0,
+      "buttons": 21,
+      "textLen": 1071,
+      "textHead": "Profile Company Billing Payments Team Storm Alerts Notifications Email / SMTP Financing Automations Drip Sequences Custom Fields Pricing / Line Items Contracts Reviews Current Plan Enterprise $99/mo · 999 users · 999,999",
+      "empty": false
+    },
+    {
+      "tab": "Payments",
+      "active": "|padding: 8px 12px; border-radius: var(--radius-sm); font-siz",
+      "headings": [],
+      "inputs": 0,
+      "nativeSelect": 0,
+      "nativeDate": 0,
+      "buttons": 16,
+      "textLen": 717,
+      "textHead": "Profile Company Billing Payments Team Storm Alerts Notifications Email / SMTP Financing Automations Drip Sequences Custom Fields Pricing / Line Items Contracts Reviews Stripe Connect NOT CONNECTED Connect your Stripe acc",
+      "empty": false
+    },
+    {
+      "tab": "Team",
+      "active": "|padding: 8px 12px; border-radius: var(--radius-sm); font-siz",
+      "headings": [],
+      "inputs": 0,
+      "nativeSelect": 0,
+      "nativeDate": 0,
+      "buttons": 19,
+      "textLen": 440,
+      "textHead": "Profile Company Billing Payments Team Storm Alerts Notifications Email / SMTP Financing Automations Drip Sequences Custom Fields Pricing / Line Items Contracts Reviews 4 team members Add Member BA Brandon AdminYOU brando",
+      "empty": false
+    },
+    {
+      "tab": "Storm Alerts",
+      "active": "|padding: 8px 12px; border-radius: var(--radius-sm); font-siz",
+      "headings": [],
+      "inputs": 2,
+      "nativeSelect": 0,
+      "nativeDate": 0,
+      "buttons": 18,
+      "textLen": 408,
+      "textHead": "Profile Company Billing Payments Team Storm Alerts Notifications Email / SMTP Financing Automations Drip Sequences Custom Fields Pricing / Line Items Contracts Reviews Storm Alerts Email Alerts Send email notifications w",
+      "empty": false
+    },
+    {
+      "tab": "Notifications",
+      "active": "|padding: 8px 12px; border-radius: var(--radius-sm); font-siz",
+      "headings": [],
+      "inputs": 20,
+      "nativeSelect": 0,
+      "nativeDate": 0,
+      "buttons": 15,
+      "textLen": 369,
+      "textHead": "Profile Company Billing Payments Team Storm Alerts Notifications Email / SMTP Financing Automations Drip Sequences Custom Fields Pricing / Line Items Contracts Reviews Notification Preferences TYPE IN-APP EMAIL Lead Assi",
+      "empty": false
+    },
+    {
+      "tab": "Email / SMTP",
+      "active": "|padding: 8px 12px; border-radius: var(--radius-sm); font-siz",
+      "headings": [],
+      "inputs": 6,
+      "nativeSelect": 0,
+      "nativeDate": 0,
+      "buttons": 18,
+      "textLen": 541,
+      "textHead": "Profile Company Billing Payments Team Storm Alerts Notifications Email / SMTP Financing Automations Drip Sequences Custom Fields Pricing / Line Items Contracts Reviews SMTP Not Configured Configure your SMTP server to se",
+      "empty": false
+    },
+    {
+      "tab": "Financing",
+      "active": "|padding: 8px 12px; border-radius: var(--radius-sm); font-siz",
+      "headings": [],
+      "inputs": 0,
+      "nativeSelect": 0,
+      "nativeDate": 0,
+      "buttons": 27,
+      "textLen": 451,
+      "textHead": "Profile Company Billing Payments Team Storm Alerts Notifications Email / SMTP Financing Automations Drip Sequences Custom Fields Pricing / Line Items Contracts Reviews Financing Connected Financing Plans (5) Sync Plans D",
+      "empty": false
+    },
+    {
+      "tab": "Automations",
+      "active": "|padding: 8px 12px; border-radius: var(--radius-sm); font-siz",
+      "headings": [],
+      "inputs": 0,
+      "nativeSelect": 0,
+      "nativeDate": 0,
+      "buttons": 16,
+      "textLen": 308,
+      "textHead": "Profile Company Billing Payments Team Storm Alerts Notifications Email / SMTP Financing Automations Drip Sequences Custom Fields Pricing / Line Items Contracts Reviews Workflow Automations Set up rules to automate action",
+      "empty": false
+    },
+    {
+      "tab": "Drip Sequences",
+      "active": "|padding: 8px 12px; border-radius: var(--radius-sm); font-siz",
+      "headings": [],
+      "inputs": 0,
+      "nativeSelect": 0,
+      "nativeDate": 0,
+      "buttons": 16,
+      "textLen": 306,
+      "textHead": "Profile Company Billing Payments Team Storm Alerts Notifications Email / SMTP Financing Automations Drip Sequences Custom Fields Pricing / Line Items Contracts Reviews Drip Sequences Automated multi-step follow-up sequen",
+      "empty": false
+    },
+    {
+      "tab": "Custom Fields",
+      "active": "|padding: 8px 12px; border-radius: var(--radius-sm); font-siz",
+      "headings": [],
+      "inputs": 0,
+      "nativeSelect": 0,
+      "nativeDate": 0,
+      "buttons": 16,
+      "textLen": 256,
+      "textHead": "Profile Company Billing Payments Team Storm Alerts Notifications Email / SMTP Financing Automations Drip Sequences Custom Fields Pricing / Line Items Contracts Reviews Custom Fields + Add Field No custom fields defined y",
+      "empty": false
+    },
+    {
+      "tab": "Pricing / Line Items",
+      "active": "|padding: 8px 12px; border-radius: var(--radius-sm); font-siz",
+      "headings": [
+        "Pricing / Line Items"
+      ],
+      "inputs": 0,
+      "nativeSelect": 0,
+      "nativeDate": 0,
+      "buttons": 170,
+      "textLen": 3275,
+      "textHead": "Profile Company Billing Payments Team Storm Alerts Notifications Email / SMTP Financing Automations Drip Sequences Custom Fields Pricing / Line Items Contracts Reviews Pricing / Line Items Manage your preset line items a",
+      "empty": false
+    },
+    {
+      "tab": "Contracts",
+      "active": "|padding: 8px 12px; border-radius: var(--radius-sm); font-siz",
+      "headings": [],
+      "inputs": 0,
+      "nativeSelect": 0,
+      "nativeDate": 0,
+      "buttons": 119,
+      "textLen": 1566,
+      "textHead": "Profile Company Billing Payments Team Storm Alerts Notifications Email / SMTP Financing Automations Drip Sequences Custom Fields Pricing / Line Items Contracts Reviews Contract Templates + Create Template Financing Contr",
+      "empty": false
+    },
+    {
+      "tab": "Reviews",
+      "active": "|padding: 8px 12px; border-radius: var(--radius-sm); font-siz",
+      "headings": [],
+      "inputs": 2,
+      "nativeSelect": 0,
+      "nativeDate": 0,
+      "buttons": 16,
+      "textLen": 579,
+      "textHead": "Profile Company Billing Payments Team Storm Alerts Notifications Email / SMTP Financing Automations Drip Sequences Custom Fields Pricing / Line Items Contracts Reviews Google Review Requests When a job is marked as \"Comp",
+      "empty": false
+    }
+  ],
+  "net": [],
+  "err": []
+}

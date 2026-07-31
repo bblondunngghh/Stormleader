@@ -1,0 +1,163 @@
+{
+  "out": [
+    {
+      "tab": "Profile",
+      "label": "Edit Profile",
+      "before": {
+        "inputs": 0,
+        "buttons": 16,
+        "modal": false,
+        "slide": false,
+        "len": 466
+      },
+      "after": {
+        "inputs": 3,
+        "buttons": 17,
+        "modal": false,
+        "slide": false,
+        "len": 372
+      },
+      "revealedInputs": 3,
+      "grewText": -94,
+      "opensSomething": true,
+      "fields": [
+        "text",
+        "text",
+        "email"
+      ]
+    },
+    {
+      "tab": "Team",
+      "label": "Add Member",
+      "before": {
+        "inputs": 0,
+        "buttons": 19,
+        "modal": false,
+        "slide": false,
+        "len": 440
+      },
+      "after": {
+        "inputs": 4,
+        "buttons": 22,
+        "modal": false,
+        "slide": false,
+        "len": 535
+      },
+      "revealedInputs": 4,
+      "grewText": 95,
+      "opensSomething": true,
+      "fields": [
+        "text",
+        "text",
+        "email",
+        "Min 8 characters"
+      ]
+    },
+    {
+      "tab": "Custom Fields",
+      "label": "+ Add Field",
+      "before": {
+        "inputs": 0,
+        "buttons": 16,
+        "modal": false,
+        "slide": false,
+        "len": 256
+      },
+      "after": {
+        "inputs": 2,
+        "buttons": 19,
+        "modal": false,
+        "slide": false,
+        "len": 234
+      },
+      "revealedInputs": 2,
+      "grewText": -22,
+      "opensSomething": true,
+      "fields": [
+        "e.g. Deductible Amount",
+        "auto-generated"
+      ]
+    },
+    {
+      "tab": "Contracts",
+      "label": "+ Create Template",
+      "before": {
+        "inputs": 0,
+        "buttons": 119,
+        "modal": false,
+        "slide": false,
+        "len": 1566
+      },
+      "after": {
+        "inputs": 3,
+        "buttons": 19,
+        "modal": false,
+        "slide": false,
+        "len": 266
+      },
+      "revealedInputs": 3,
+      "grewText": -1300,
+      "opensSomething": true,
+      "fields": [
+        "e.g. Standard Roofing Contract",
+        "Section title",
+        "Section content... Use {{customer_name}}, {{date}}, etc."
+      ]
+    },
+    {
+      "tab": "Automations",
+      "label": "+ New Automation",
+      "before": {
+        "inputs": 0,
+        "buttons": 16,
+        "modal": false,
+        "slide": false,
+        "len": 308
+      },
+      "after": {
+        "inputs": 3,
+        "buttons": 23,
+        "modal": false,
+        "slide": false,
+        "len": 415
+      },
+      "revealedInputs": 3,
+      "grewText": 107,
+      "opensSomething": true,
+      "fields": [
+        "e.g. Create follow-up task when sold",
+        "Task title",
+        "Days"
+      ]
+    },
+    {
+      "tab": "Drip Sequences",
+      "label": "+ New Sequence",
+      "before": {
+        "inputs": 0,
+        "buttons": 16,
+        "modal": false,
+        "slide": false,
+        "len": 306
+      },
+      "after": {
+        "inputs": 4,
+        "buttons": 43,
+        "modal": false,
+        "slide": false,
+        "len": 746
+      },
+      "revealedInputs": 4,
+      "grewText": 440,
+      "opensSomething": true,
+      "fields": [
+        "e.g. Estimate Follow-up Series",
+        "number",
+        "Email subject — e.g. Hi {{first_name}}, following up on your roof",
+        "Email body — use merge fields like {{first_name}} to personalize"
+      ]
+    }
+  ],
+  "net": [],
+  "err": []
+}
