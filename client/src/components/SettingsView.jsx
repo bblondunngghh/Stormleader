@@ -2436,7 +2436,7 @@ function ContractTemplatesTab() {
     <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-lg)' }}>
         <div style={{ fontSize: 15, fontWeight: 700 }}>Contract Templates</div>
-        <button onClick={openNewForm} className="auth-btn" style={{ fontSize: 12, padding: '6px 14px' }}>
+        <button onClick={openNewForm} className="auth-btn" style={{ flexShrink: 0 }}>
           + Create Template
         </button>
       </div>
@@ -2735,7 +2735,7 @@ function PricingTab() {
           <button
             onClick={() => setShowAdd(!showAdd)}
             className="auth-btn"
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', fontSize: 12, flexShrink: 0 }}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}
           >
             + Add Item
           </button>
