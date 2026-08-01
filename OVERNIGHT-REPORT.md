@@ -1,9 +1,8 @@
 # StormLeads — Overnight QA Report
 
-**Date:** 2026-07-30 (Run 62)
-**Branch:** `feat/financing` · **HEAD at start:** `2f7f014` → **HEAD now:** `27af095`
-**Code baseline:** `e5c4c89` (2026-07-29) — the converged reference the drift gate measures against
-**Stages run:** s1 api-test · s2 frontend-test · s3 ui-audit · s4 verify · s5 report (this document)
+**Run 65 · 2026-08-01 · branch `feat/financing`**
+Baseline: `d31a3db` (Run 64 HEAD) · Checkpoint: `7177fdd` · Final HEAD: `7783290`
+Stages: s1 api-test · s2 frontend-test · s3 ui-audit · s4 verify · s5 report (this document)
 
 ---
 
@@ -11,219 +10,278 @@
 
 | Metric | Count |
 |---|---|
-| App routes swept live | **12** (`route-sweep.json`) |
-| Settings tabs walked | **15 of 15** — the #1 carried gap, now **CLOSED** |
-| Settings inline forms opened and field-inspected | **6** |
-| API endpoints inventoried | **272** across 36 route modules / 36 mount prefixes |
-| Functional bugs found | **3** |
-| Functional bugs fixed | **3** |
-| UI inconsistencies found | **3 sites** |
-| UI inconsistencies fixed | **3 sites** |
-| Code commits (fixes) | **4** — `9cc9562`, `8278871`, `966cd81`, `27af095` |
-| Final build | **exit 0**, 8.14s, 0 errors |
+| Pages / routes tested at interaction depth | 7 |
+| API endpoints inventoried | 272 (36 route modules) |
+| API endpoints exercised this run | 263 unauthenticated · 109 `:id` scope-swept · 92 GET fuzzed |
+| Total API requests issued | ~2,210 |
+| Bugs found | **8** |
+| Bugs fixed | **6** |
+| Bugs found but NOT fixed | **2 classes** (10 reproducible endpoint+param combinations) |
+| UI inconsistencies found | 2 |
+| UI inconsistencies fixed | 2 |
+| Code commits | 5 |
+| Final build | **exit 0, 7.97s, 0 errors** |
 
-**Verdict: the streak is broken. After 21 consecutive 0-fix backend runs and 18 near-silent UI audits, this run found and fixed 3 real functional bugs — including a hard crash — plus 3 UI deviations.**
-
-The headline is **`27af095`: the Subcontractors add/edit slide-over threw a `ReferenceError` and crashed on open.** `XMarkIcon` was rendered at `SubcontractorsView.jsx:263` but never imported. Verified against the pre-fix blob — the usage existed with no matching import, so every open of that panel took down the view. This is the most severe defect found in the last several runs, and it sat in a code path no prior audit had opened.
-
-> **Lesson to carry forward, confirming last run's:** convergence counters measure *where we have looked*, not *where the bugs are*. Leading with the carried gap — Settings, then the views reachable from it — is what surfaced all four fixes.
-
-### Read this before trusting any artifact
-
-**All four working stages (s1–s4) died on `max_turns`, and none wrote a results file.**
-
-| Path | Date | Status |
-|---|---|---|
-| `C:\tmp\api-test-results.txt` | Jul 29 | **STALE** — describes Run 61, not this run |
-| `C:\tmp\frontend-test-results.txt` | Jul 25 | **STALE** |
-| `C:\tmp\ui-audit-results.txt` | Jul 29 | **STALE** |
-| `C:\tmp\verify-results.txt` | Jul 26 | **STALE** |
-
-This report is reconstructed from artifacts the stages *did* leave on disk, all timestamped Jul 30:
-`C:\tmp\route-inventory.txt` (272 endpoints), `route-sweep.json`, `settings-tabs-sweep.json`,
-`settings-ui-sweep.json`, `settings-interactions.json`, `settings-inline-forms.json`,
-six `server/.qa-*.mjs` harnesses, three verification screenshots, and the four commit diffs.
-
-**Drift gate vs baseline `e5c4c89` — non-empty by exactly this run's 5 files, all `M` (modified), 0 new:**
-```
-client/src/components/AutomationSettings.jsx | 6 ++----
-client/src/components/SettingsView.jsx       | 8 +++-----
-client/src/components/SubcontractorsView.jsx | 2 +-
-server/src/routes/auth.js                    | 3 +++
-server/src/routes/roofMeasurement.js         | 3 +++
-5 files changed, 12 insertions(+), 10 deletions(-)
-```
-No new route, page, or component files; no dependency or build-config change. **Next run's baseline is `27af095`.**
+This run broke the pattern of prior "converged" runs by testing **four axes the backend had never been swept on** — auth enforcement, tenant isolation, query-param fuzzing, and type confusion — rather than re-running the existing 272-route harnesses, which had not drifted. Three of the four axes completed; the fourth was lost to a turn cap. The two highest-severity findings of the run, a cross-tenant PII leak and two hard 500s, came directly from the new axes.
 
 ---
 
 ## Backend API Test Results
 
-**Inventory (fresh this run, `C:\tmp\route-inventory.txt`):** 272 endpoints across 36 route modules and 36 mount prefixes — 132 GET · 88 POST · 26 PATCH · 18 DELETE · 8 PUT.
+The five `.qa-*.mjs` harnesses from Run 63 (272 routes, 429 checks) were **deliberately not re-run**: the drift gate against `d31a3db` showed **zero changes under `server/src/routes`**, so repeating them would have been pure repetition. Coverage was spent on untested axes instead.
 
-Largest surfaces: `/api/properties` (18), `/api/estimates` (17), `/api/crm/dashboard` (15), `/api/crm/leads` (14), `/api/crm/financing` (13), `/api/crm/contracts` (13), `/api/crm/work-orders` (12), `/api/skip-trace` (10).
+### Axis A — Auth enforcement (new axis) — PASS
 
-s1 built a four-part harness rather than a flat GET sweep, deliberately targeting the **write paths** that 21 prior GET-heavy runs had left thin:
+263 non-public routes hit with **no** `Authorization` header.
 
-| Harness | Scope |
+| Result | Count |
 |---|---|
-| `.qa-inventory.mjs` | Static extraction of all 272 routes → `route-inventory.json` |
-| `.qa-write-validation.mjs` | Empty-body + bad-id probe of **every** write route; asserts 4xx, never 5xx |
-| `.qa-crud-lifecycle.mjs` | create → read back → update → delete → verify-gone, with a cleanup stack |
-| `.qa-crud-part2.mjs` | Re-run of 3 cases that first failed on **tester-supplied** bad enums, not defects |
-| `.qa-subactions.mjs` | Sub-actions: create-from / convert / enroll / assign / toggle / token |
+| Correct 401 / 403 | 254 |
+| Unauthenticated 2xx (leak) | **0** |
+| 5xx crashes | **0** |
+| Intentionally public (skipped) | 9 |
 
-The validation harness explicitly **skips and lists** 13 classes of side-effecting route rather than silently capping — real email sends, Stripe money movement, paid Tracerfy skip-trace, bulk Neon writes, geocoding, storm ingestion, and admin cross-tenant mutation. No silent truncation.
+All 9 non-401 responses are deliberately public surfaces, and each **validated input rather than leaking data**: contract public view/sign, financing public plans/applications/apply, public lead status, tenant onboarding, Stripe intent creation, and the Stripe webhook. No route is missing `authenticate`. **0 bugs.**
 
-### Bugs found and fixed
+### Axis B — Tenant isolation (new axis) — 1 BUG FOUND + FIXED
 
-| Endpoint | Category | Symptom | Fix |
-|---|---|---|---|
-| `PUT /api/roof-measurement/config` | Validation | A missing `roof_measurement_enabled` flag was accepted and written as `NULL` instead of rejected | `9cc9562` |
-| `PATCH /api/auth/me` | Error handling | A duplicate email raised unhandled PG `23505` → **500** | `8278871` |
+Runtime cross-tenant probes with a valid tenant-A token (5 tenants in DB): estimate `GET`, estimate `/pdf`, and user `GET` all correctly returned 404; the platform-admin route correctly returned 403.
 
-**`9cc9562`** — the sibling route `PUT /api/skip-trace/config` writes the `enabled` column of the *same* table via the *same* upsert idiom and already guarded with a 400. The fix applies that exact guard, so the two routes now behave identically.
+Static exhaustive sweep of **all 109 `:id` routes**:
 
-**`8278871`** — three lines mapping PG unique-violation `23505` to a **409** with a usable message, instead of letting it fall through to the generic 500 handler.
+| Scoping | Count |
+|---|---|
+| Scoped by `req.tenantId` | 82 |
+| Scoped by `req.user.id` (from JWT) | 1 — notifications `PATCH /:id/read`, verified correct |
+| Public / global by design | 24 — NOAA, FEMA, census, platform-admin |
+| **Unscoped** | 2 — one benign, one real bug |
 
-### Re-verification at report time
+- `GET /api/materials/products/:id` — unscoped, but serves a **static in-memory `MOCK_PRODUCTS` catalog**, global by design. Not a bug.
+- `GET /api/skip-trace/job/:jobId` — **real cross-tenant PII leak.** Fixed, `df5d1ce`.
 
-The s4 verify stage died before it could confirm these. I re-ran `server/.qa-s4-verify-api.mjs` against the live server (`:3001`) while writing this report:
+### Axis C — Query-param fuzzing (new axis) — 10 HARD 500s FOUND, **NOT FIXED**
 
-```
-14/14 passed, 0 failed
-```
+92 GET routes × 21 hostile values = **1,932 requests**.
 
-Covering: `{}` / no-body / `{bogus:1}` → 400; explicit `null` → 200 (correctly distinguished from `undefined`); `true` and `false` → 200 and both read back correctly; no-auth → 401; **skip-trace sibling guard still intact at 400**; duplicate email → **409 not 500**; email unchanged after the failed PATCH; own current email → 200 (**no false 409 on self**); no-auth → 401. Original config value captured and restored.
+| Result | Count |
+|---|---|
+| 5xx / connection error | **10** |
+| SQL-injection payloads that reached the DB | **0** |
 
-**Not recoverable:** the full per-endpoint pass/fail totals from the s1 harness runs. The harnesses print results to stdout and s1 was killed by the turn cap before persisting them. The harnesses are committed to disk and re-runnable.
+Positive result worth recording: `sort=id;DROP TABLE leads--` and `status=' OR 1=1--` both return **200 with correct data** — parameterized queries hold everywhere. Non-numeric pagination (`limit=abc`) correctly returns 400 on `/api/leads`. Oversized and zero values (`limit=99999999999`, `limit=0`) return 200.
+
+The 10 failures are **unvalidated negative pagination and a null byte reaching PostgreSQL**. They were found by s1 minutes before it hit its turn cap; the raw JSON was written but the finding was never triaged or fixed. **Re-verified live at report time against `:3001` — all 10 reproduce identically (1,932 requests, 10 5xx, matching s1's isolated run exactly).** See *Known Issues*.
+
+### Axis D — Type confusion in write bodies — **NOT RUN**
+
+Planned but never executed; s1 exhausted its turn cap after Axis C. See *Test Coverage Gaps*.
+
+### Bonus finds — 2 HARD 500s FOUND + FIXED
+
+Not from a planned axis. `UPDATE ... ORDER BY ... LIMIT` is **MySQL syntax**; PostgreSQL rejects it with SQLSTATE `42601`. Verified live, not assumed. A codebase-wide multiline scan found exactly these two instances and no others. Fixed, `9c6eb2f`.
+
+### Endpoint category summary
+
+| Category | Endpoints touched | Passed | Failed | Fixed |
+|---|---|---|---|---|
+| Auth / onboarding | 263 (no-token sweep) | 263 | 0 | — |
+| Skip-trace | 5 | 2 | 3 | `df5d1ce`, `9c6eb2f` |
+| CRM (leads, dashboard, subcontractors) | 92 GET fuzzed | 89 | 3 | **none — open** |
+| Leads (public API) | fuzzed | — | 3 | **none — open** |
+| Materials | fuzzed | — | 2 | **none — open** |
+| Contracts / financing / payments (public) | 9 | 9 | 0 | — |
+| Tenant-scoped `:id` routes | 109 | 108 | 1 | `df5d1ce` |
 
 ---
 
 ## Frontend Feature Test Results
 
-### Route sweep — 12 routes, all rendering
+### Settings → Contracts — 1 BUG FOUND + FIXED
 
-From `route-sweep.json`. Every route returned `blank: false`, `errorish: false`.
+The drift gate flagged `SettingsView.jsx` as the one changed client file (checkpoint `7177fdd` renamed `template_type` → `type`), making this tab a priority target.
 
-| Route | Evidence of real render |
-|---|---|
-| `/storm-catalog` | 200 storms found, 14 buttons, filter + sort controls |
-| `/estimates` | 83 estimates, 50 rows, 156 buttons, stat cards |
-| `/contracts` | 6 contracts, 6 rows, 24 buttons |
-| `/work-orders` | 17 work orders, 3 buttons, from-estimate action |
-| `/materials` | SRS catalog, 153 buttons, category nav |
-| `/invoices` | $44.8k invoiced / $30.3k collected, 17 rows, AR aging |
-| `/expenses` | $920 total, 4 rows, category + date filters |
-| `/tasks` | 24 pending / 6 completed, 27 buttons |
-| `/calendar` | July 2026 grid, Month/Week/Day/List views |
-| `/canvassing` | Google map, pin stats, Drop Pin |
-| `/subcontractors` | 65 total, 25 rows, 56 buttons |
-| `/reports` | 9 chart surfaces, 4 rows, date range + CSV |
+- **Tested:** clone a built-in template, edit the copy, change Type, save, verify in list, delete.
+- **Broken:** the Type dropdown rendered `—` for every real template. `typeOptions` declared six values (`roofing_agreement`, `subcontractor`, `work_authorization`, `insurance_aob`, `warranty`, `custom`) with **zero overlap** with the actual `contract_templates.type` domain (`standard`, `insurance`, `financing`, `supplement`, per migration 037). `CustomSelect.jsx:10` falls back to `'-'` when no option matches its bound value, so the select could not display its own value. The six unused values appear nowhere else in the repo.
+- **Impact:** every clone of a built-in — the primary creation path — opened Edit with a blank Type.
+- **Fixed:** `5195d84` — added the four real domain values first, kept the existing six so no capability is removed.
+- **Verified live:** Type renders "Supplement"; all 10 options render in the portal; changed to Standard → saved → list shows `standard`. Full clone/edit/save/delete round trip passes. QA clone row deleted, no DB residue.
+- **Note:** this confirms the developer's `template_type` → `type` rename is coherent with the backend. `contracts.template_type` is a *different* column — do not conflate. Built-ins correctly expose Clone only (no Edit/Delete), matching the `is_default = FALSE` service guard.
 
-### Settings — 15 of 15 tabs (the carried #1 gap, now closed)
+### Storm Archive — 1 UI BUG FOUND + FIXED
 
-Last run enumerated the tabs and hit its cap before walking them. This run walked all 15: Profile, Company, Billing, Payments, Team, Storm Alerts, Notifications, Email / SMTP, Financing, Automations, Drip Sequences, Custom Fields, Pricing / Line Items, Contracts, Reviews.
+- **Tested:** time-range filter pills at interaction depth (first walk of this route beyond render).
+- **Broken:** the active pill measured 36px while the five inactive pills measured 29px, and the bulge **moved as you clicked** — the row visibly reflowed on every filter change.
+- **Fixed:** `5b52fb7`. Root cause under *UI Consistency Audit*.
+- **Verified:** 6/6 pills at 36px, uniform across clicks.
 
-Every tab rendered non-empty. **0 native `<select>` and 0 native `<input type="date">` across all 15** — `CustomSelect` and `DatePicker` conventions hold.
+### Calendar — 1 UI BUG FOUND + FIXED
 
-Six inline forms were opened and their fields inspected (`settings-inline-forms.json`) — all revealed the expected inputs:
+- **Tested:** toolbar rendering at computed-style depth.
+- **Broken:** all 7 `.fc-toolbar` buttons rendered in FullCalendar's raw defaults (14px / 400 / 5.6px 9.1px / no capitalize) instead of the design-system values the stylesheet already declared.
+- **Fixed:** `7783290`. Root cause under *UI Consistency Audit*.
+- **Verified:** 7/7 at 13px / 600 / capitalize; labels 8px 16px; arrows 8px 10px; height spread narrowed 1.7px → 0.7px.
 
-| Tab | Trigger | Fields revealed |
-|---|---|---|
-| Profile | Edit Profile | text, text, email |
-| Team | Add Member | text, text, email, password (min 8) |
-| Custom Fields | + Add Field | label, auto-generated key |
-| Contracts | + Create Template | name, section title, section content (merge fields) |
-| Automations | + New Automation | rule name, task title, days |
-| Drip Sequences | + New Sequence | name, number, email subject, email body |
+### Materials + cart — PASS
 
-**Tester error, not a defect:** the first probe (`settings-interactions.json`) reported `opened: false` for all six, because it only looked for `.modal` / `.slide-over`. These are **inline forms** rendered in place — the corrected probe confirmed all six open properly. Likewise `Create Automation` was logged `FOUND: false` when the button is labelled `+ New Automation`. Both were label/selector mismatches in the harness.
+Header 56px "topbar glass", correct `h1`, 16px main gap, 0 native select/date. Cart drawer opened at interaction depth: backdrop `oklch(0 0 0 / 0.6)` (Run 61's fix still holding), `position: fixed`, `z-index: 1000`, `justify: flex-end`, `modal-backdrop-in` animation; panel `.glass` 420px, `modal-scale-in`, radius `20px 0 0 20px` (drawer → left corners only, correct). One close button.
 
-### Bug found and fixed
+### Canvassing — PASS
 
-**`27af095` — Subcontractors add/edit slide-over crashed on open.**
-`XMarkIcon` was rendered at `SubcontractorsView.jsx:263` but omitted from the `@heroicons/react/24/outline` import at line 5. Confirmed against the pre-fix blob: the JSX usage existed with no import, so opening "+ Add Subcontractor" or any row's edit action threw a `ReferenceError` and took down the view. One-word import fix; verified live (`subcontractor-slideover-fixed.png`, `s4-verify-subcontractor-add.png`).
+Header 56px, correct `h1`, `main-content` padding 0 + radius 20px/18px (intentional full-bleed map, `CanvassingMode.jsx:258`), 0 native select/date, 0 non-Heroicon SVGs. Only `gm-control-active` present — Google Maps chrome, developer-owned.
+
+### Storm Map — PASS
+
+Header 56px, correct `h1`, 0 native select/date, 0 console errors. `map-controls__dropdown-trigger` 38px, `map-legend__info-btn` 18px, `gm-control-active` 40px — each class internally consistent. Confirmed the Storm Archive pill defect is **not** replicated here (0 toggle pills on this route). FEMA/map logic untouched per charter.
+
+### Admin — GATED, known non-bug
+
+Header 56px, correct `h1`, 0 native select/date. Body reads "Failed to load overview data." with 2 console errors — this is the **documented platform-admin-only 403 gate** on `/api/admin/overview`, not a defect. Content cannot be audited from a tenant account. Four tab buttons render classless at 32px; not filed, since the page is gated and Run 64 already ruled `AdminDashboard`'s bare `main-content` default out of scope.
 
 ### Still needs attention
 
-Browser back/forward behaviour remains untested — carried for the third consecutive run.
+Browser back/forward navigation remains untested — **five consecutive runs**. Storm Map, Canvassing and Admin were walked at render + computed-style depth this run, but their *workflows* (drawing a roof, dropping and editing a canvass pin, running a storm search end to end) have still never been exercised.
 
 ---
 
 ## UI Consistency Audit Results
 
-Scope this run was Settings' 15 tabs at element level (`settings-ui-sweep.json`) plus the 12 swept routes.
+Both finds share a theme worth carrying forward: **a styling rule that silently does not apply.** Neither is visible by reading the JSX — both required measuring computed style on a live page. A grep-level audit would have passed both.
 
-| Category | Result |
-|---|---|
-| **Icons** | **PASS.** `nonHero: 0` on all 15 Settings tabs. 21 Heroicons rendered across Billing (13), Team (4), Payments (3), Storm Alerts (1); no solid variants, no foreign libraries, no inline SVGs used as icons. |
-| **Buttons** | **3 deviations found, all fixed** (`966cd81`). Two one-off inline-styled buttons bypassed the standard class. |
-| **Toolbars / Headers** | **PASS.** All 15 tabs render the same 15-item tab strip with identical active-tab styling (`padding: 8px 12px; border-radius: var(--radius-sm)`). |
-| **Sidebar / Nav** | **PASS.** No deviation observed across the 12 swept routes. |
-| **Forms** | **PASS.** 0 native `<select>`, 0 native date inputs across all 15 tabs. Label variants consistent (1 variant per tab that has labels). |
-| **Spacing** | **1 deviation found and fixed** — a hardcoded panel radius. |
-| **Modals** | **PASS** within scope. Settings uses inline forms rather than modals; no `.modal-backdrop` is expected or required there. |
+### Icons — PASS
+37 outline import sites, 0 non-outline variants, 0 foreign icon libraries, 2 permitted map SVGs (Google Maps chrome). No changes.
 
-### UI fixes — `966cd81`
+### Buttons — 2 FOUND, 2 FIXED
 
-1. **`AutomationSettings.jsx:150`** — "+ New Automation" carried an 8-property inline style block (`padding: 8px 18px`, own radius, own background, own font weight) instead of the shared `.auth-btn` class. Replaced with `className="auth-btn"` + `flexShrink: 0`.
-2. **`SettingsView.jsx:2102`** — "+ Add Field" in `CustomFieldsTab` had the same problem with *different* padding (`6px 16px`), so the two buttons did not even match each other. Replaced with `className="auth-btn"`.
-3. **`SettingsView.jsx:2726`** — `PricingTab`'s glass panel used a literal `borderRadius: '20px / 18px'` instead of the design token. Replaced with `var(--radius-lg)`.
+**1. Storm Archive filter pills changed height on click** — `StormCatalog.jsx:204` + `:216`, fixed `5b52fb7`.
 
-All three are the same underlying problem: element-level styling that drifted from the design system because it was written inline instead of using the shared class or token.
+Root cause: the className swaps `auth-btn` (active) ↔ `quick-action-btn` (inactive). `.auth-btn` (`index.css:2373`) fixes `height: 36px` with no border; `.quick-action-btn` (`index.css:1797`) has **no height** and sizes from padding + 1px borders. Both pills carry the same inline `{fontSize: 12, padding: '6px 14px'}` — but on `.auth-btn` the 6px vertical padding is **inert**, which is itself the proof of drift, yielding 36px, while `quick-action-btn` computes 6+6+15+2 = 29px.
+
+Measured live: 24 Hours / 3 Days / 7 Days / 14 Days / Custom = 29px @ top 180.5; 30 Days (active) = 36px @ top 177. Clicking "7 Days" moved the 36px bulge to it and dropped 30 Days to 29px.
+
+36px is the correct target, not 29px: in the same flex row, both DatePicker wrappers and the `.form-input` measure 36px, and 36px is the app-wide standard control height (`.auth-btn`, `.form-input`, DatePicker), re-verified by Run 64. In-repo precedent for the fix exists at 4 sites (`LeadList.jsx:416`, `:420`, `TasksView.jsx:531`, `:622`). Two lines, no restructuring; horizontal padding and font size retained for deliberate pill compactness.
+
+*Deliberately untouched:* `quick-action-btn` carries per-context inline padding at ~100 sites app-wide (3 heights across 139 instances on Materials alone). That is the accepted norm for this utility class and normalizing it is a refactor. This find is different **in kind** — one control changing its own size on click, not padding varying between contexts.
+
+**2. Calendar toolbar rendered in FullCalendar's default typography** — `index.css:3741` + `:3811`, fixed `7783290`.
+
+Root cause — **CSS cascade layers, a new class of bug for this audit.** `index.css:1` declares `@layer theme, base, utilities;` and line 6 wraps the entire app stylesheet in `@layer base`. FullCalendar v6 **self-injects its stylesheet unlayered**, and unlayered normal declarations beat *every* layered declaration regardless of specificity — so FC's `.fc .fc-button` (specificity 0,2,0) silently beat the app's `.calendar-view .fc .fc-button` (0,3,0). Confirmed by enumerating `document.styleSheets`: the app rule matched but lost.
+
+Proof the author had already hit this: in the same rule block, `border-radius`, `box-shadow` and `outline` are marked `!important` and those three **did** apply — because for `!important` the layer order reverses. Only the non-important properties died. This is dead CSS, not a design question; the intent was already written in the file.
+
+The `!important` on the prev/next block is **required**, not incidental: without it the arrows' intentionally tighter `8px 10px` would be clobbered by the general rule's now-`!important` 16px.
+
+*Deliberately not touched:* background / border-color on these buttons (Today renders transparent vs the declared glass fill). Same layer cause, but changing fills interacts with hover/active/group rules that already work, and is a colour-treatment call — the developer's, per Run 61/64 precedent.
+
+**Vendor-CSS generalization sweep** (root cause pushed app-wide): only two vendor CSS sources exist — FullCalendar (self-injected, fixed) and `mapbox-gl.css` (imported in `Dashboard.jsx:5`, `RoofDrawingTool.jsx:4`). The Mapbox overrides at `index.css:1190-1200` **already** use `!important` on every competing property, so the author had solved it there. FullCalendar was the genuine outlier. **No further vendor-CSS defects.**
+
+### Toolbars / Headers — PASS
+56px "topbar glass" with correct `h1` on all 6 gap routes.
+
+### Sidebar / Nav — PASS
+12 nav-links + 3 group headers, uniform 42px rows, exactly 1 `is-active`.
+
+### Forms — PASS
+0 native `<select>` and 0 native date inputs app-wide, confirmed in code **and** live on all 6 routes. `CustomSelect` / `DatePicker` conventions hold.
+
+### Spacing — PASS
+List views at 16px; map/catalog views on documented defaults.
+
+### Modals — PASS
+Materials cart drawer verified at interaction depth (see Frontend section). No new modal deviations.
 
 ---
 
 ## Bugs Fixed
 
-1. **`PUT /api/roof-measurement/config`** — a missing `roof_measurement_enabled` flag was accepted and persisted as `NULL` rather than rejected — added the same `=== undefined` → 400 guard the sibling `PUT /api/skip-trace/config` already used, so the two routes writing the same column now behave identically. `9cc9562`
-2. **`PATCH /api/auth/me`** — submitting an email already used by a teammate raised an unhandled PostgreSQL `23505` unique violation and returned **500** — mapped `err.code === '23505'` to **409** with an actionable message. `8278871`
-3. **Subcontractors — add/edit slide-over** — rendered `XMarkIcon` at line 263 without importing it, throwing a `ReferenceError` that crashed the view every time the panel opened — added `XMarkIcon` to the existing Heroicons import. `27af095`
-4. **Settings — Automations / Custom Fields / Pricing** *(UI consistency)* — two action buttons used mismatched one-off inline styles instead of `.auth-btn`, and one glass panel hardcoded `20px / 18px` instead of `var(--radius-lg)` — replaced all three with the shared class and token. `966cd81`
+1. **`GET /api/skip-trace/job/:jobId` — cross-tenant PII leak (SECURITY, highest severity this run).** The route passed `req.params.jobId` straight to Tracerfy using a single **shared** `TRACERFY_API_KEY`, so all tenants' jobs live in one upstream account and any authenticated user of any tenant could read another tenant's skip-trace results — owner name, phone numbers, email — by supplying a job id. Masked in this environment because `TRACERFY_API_KEY` is unset, so a 503 fired before the proxy; **with a key configured in production it would have served the other tenant's data.** — **Fixed `df5d1ce`:** ownership gate matching the codebase's own idiom (`workOrders.js` verifies the parent work order before touching milestones) — check `job_id` + `tenant_id` against `skip_trace_usage` (the table `POST /api/skip-trace` already writes `job_id` into), 404 if not owned.
+
+2. **`POST /api/skip-trace` (`routes/skipTrace.js:120`) — hard 500.** `UPDATE ... ORDER BY ... LIMIT` is MySQL syntax; PostgreSQL rejects it with SQLSTATE `42601`. The throw happens **after** the batch is submitted upstream, so `job_id` is never recorded and the run becomes unbillable and untrackable. — **Fixed `9c6eb2f`:** rewritten as `WHERE id = (SELECT id ... ORDER BY created_at DESC LIMIT 1)` — standard Postgres, identical "newest matching row only" semantics.
+
+3. **`processSkipTraceResults()` (`services/skipTraceService.js:182`) — hard 500 on the Tracerfy webhook.** Same MySQL-only syntax. The throw happens **after** leads are already updated, so `records_returned` is never written and the webhook 500s. — **Fixed `9c6eb2f`:** same rewrite.
+
+4. **Settings → Contracts → Edit Template — Type dropdown could not display any real template type.** `typeOptions` had zero overlap with the actual `contract_templates.type` domain, so `CustomSelect` fell back to `—` for every template. — **Fixed `5195d84`:** added the four real domain values, kept the existing six.
+
+5. **Storm Archive filter pills — control changed its own size on click** (36px active vs 29px inactive; the bulge moved and the row reflowed on every filter click). — **Fixed `5b52fb7`:** added `height: 36` to both pill inline styles, matching the app-wide 36px control height and the 4-site in-repo precedent.
+
+6. **Calendar toolbar buttons — rendered in FullCalendar's default typography** because the app's rule sits in `@layer base` while FullCalendar self-injects unlayered CSS that outranks it. — **Fixed `7783290`:** `!important` on `font-size`, `font-weight`, `padding`, `text-transform` in the `:3741` block and on `padding` in the `:3811` prev/next block.
 
 ---
 
 ## Known Issues (Not Fixed)
 
-- **Estimate Builder currency formatting inconsistent** *(carried, developer decision)* — `EstimatesView.jsx:2118` renders Subtotal via `toLocaleString` → `$2,500.00`; `EstimatesView.jsx:2258` renders **the same `subtotal`** via `toFixed(2)` → `$2500.00`, both visible at once. Values are correct; only the thousands separator differs. `toFixed(2)` dominates the file (18 uses vs 7). Standardizing is a formatting-convention refactor the charter forbids. **Recommend `toLocaleString` for user-facing money.**
-- **Panel radius convention split** *(carried)* — literal `20px / 18px` vs `var(--radius-xl)`, ~2px delta. This run fixed the one instance inside its audit scope (`966cd81`); the broader split remains a design-system change, out of charter.
-- **Esc-to-close absent on most modals** *(carried)* — needs a shared hook; an enhancement, not a QA bug.
-- **EstimateBuilder does not collapse at 375px** *(carried, pre-existing)* — fixed 280px sidebar in `overflow:hidden` at `EstimatesView.jsx:1838`. Fine at 768px+; mobile paused.
-- **`DELETE /api/crm/tasks/:id` handler missing** — adding endpoints is forbidden by charter.
-- **Heavy-work guards** on `/drift/correct-all`, `/properties/trigger-import`, `/crm/leads/score-all` — no rate-limit or concurrency guard; needs staging, not production Neon.
-- **skip-trace 503** — intentional, no `TRACERFY_API_KEY` set. Env state, not a bug.
-- **`/content-studio` not implemented** — no such route; the catch-all redirects to `/` gracefully. Planned future feature.
-- **Deliberately NOT changed:** the modal z-index spread (200/300/400/1000/9999/99998) is **functional stacking order** for nested overlays — normalizing it risks real layering regressions.
+### NEW — open defect, found this run
+
+**Negative pagination and null bytes reach PostgreSQL unvalidated → 10 hard 500s across 5 route files.** Found by Axis C fuzzing; s1 hit its turn cap immediately after writing the raw JSON, so the finding was never triaged or fixed. **Re-verified live at report time — all 10 reproduce.**
+
+| Endpoint | Param | Route file |
+|---|---|---|
+| `GET /api/leads` | `limit=-1`, `offset=-5`, `stage=\0null` | `leads.js` |
+| `GET /api/crm/leads` | `stage=\0null` | `crm.js` |
+| `GET /api/crm/dashboard/properties-affected/list` | `limit=-1`, `offset=-5` | `crm.js` |
+| `GET /api/crm/subcontractors` | `limit=-1`, `offset=-5` | `subcontractors.js` |
+| `GET /api/materials/orders` | `limit=-1`, `offset=-5` | `materials.js` |
+
+Root cause confirmed from the server log: PostgreSQL raises `OFFSET must not be negative` / `LIMIT must not be negative` (SQLSTATE `2201X`, `nodeLimit.c` / `recompute_limits`). Negative values parse as valid integers, so the existing non-numeric guard — which correctly 400s `limit=abc` on `/api/leads` — lets them through to the DB. Validation coverage is also **inconsistent across files**: `/api/materials/orders?offset=abc` raises `invalid input syntax for type bigint: "NaN"` where `/api/leads?offset=abc` correctly returns 400.
+
+**Severity: low-to-moderate.** No client code sends negative pagination, so this is not reachable through the UI; it is unvalidated-input hardening on a public-facing API, and it produces genuine unhandled 500s with DB errors in the logs. **Not fixed because the s5 charter is reporting only.** The fix is small and mechanical — clamp `limit`/`offset` to non-negative integers and strip null bytes — but it touches 5 route files and should be done as its own change with its own verification. The harness (`server/.qa-r65-fuzz.mjs`) is read-only and re-runnable against any base URL via `QA_BASE`.
+
+### Environment finding — action required from the developer
+
+**The API server on `:3001` is serving pre-fix code.** It runs as `node server/src/index.js` with **no watcher**; process start times are 7/30 05:47 and 7/31 04:00, both of which predate today's API fixes (`9c6eb2f` / `df5d1ce`, committed 05:08). Proof: against `:3001` an unowned job id returned 503 — i.e. it *reached* the Tracerfy proxy, the leak path — while a fresh instance returns 404. **Any stage that "verified an API fix" against `:3001` today verified the old build**, which is why verification was run against an isolated `:3099` instance instead. The developer must restart `:3001` to pick up today's two API fixes. The running server was not killed; `:3099` was started and stopped by the verify stage.
+
+### Carried from previous runs
+
+- **Estimate Builder currency formatting inconsistent** *(developer decision)* — `EstimatesView.jsx:2118` uses `toLocaleString` → `$2,500.00` while `:2258` uses `toFixed(2)` → `$2500.00` for the **same** `subtotal`, both visible at once. Values are correct; only the thousands separator differs. `toFixed(2)` dominates the file 18 vs 7. Recommend standardizing on `toLocaleString` for user-facing money.
+- **Calendar toolbar background / border-color** — Today renders transparent vs the declared glass fill. Same cascade-layer cause as the fix above, but changing fills interacts with working hover/active/group rules; a colour-treatment call for the developer.
+- **Close-button placement has two patterns** — dominant flex-header row vs absolute corner X (`top:12/right:12`) in exactly 3 files (`ExpensesView`, `CanvassingMode`, `ReportsView`). Converting either way restructures a working modal = refactor, out of charter.
+- **`validateId('jobId')` requires a UUID** but `skip_trace_usage.job_id` is TEXT and the id originates from Tracerfy's `queue_id`. If Tracerfy ever issues a non-UUID id, the route 400s before the ownership gate. Pre-existing, predates today's commits, unverifiable without `TRACERFY_API_KEY`.
+- **`.lg-mini-map` (`index.css:1190-1200`) matches no JSX** — dead CSS for a removed component. Harmless, not filed as a UI bug.
+- **Esc-to-close absent on most modals** — needs a shared hook; enhancement, not a QA bug.
+- **`DELETE /api/crm/tasks|work-orders|canvass-pins/:id` handlers missing** — the client never calls them; adding endpoints is forbidden by charter.
+- **EstimateBuilder does not collapse at 375px** — fixed 280px sidebar in `overflow:hidden`. Fine at 768px+; mobile paused.
+- **skip-trace 503** — intentional, no `TRACERFY_API_KEY`. Env state, not a bug.
+- **Modal z-index spread (200/300/400/1000/9999/99998) deliberately NOT normalized** — it is functional stacking order for nested overlays; normalizing risks real layering regressions.
 
 ---
 
 ## Test Coverage Gaps
 
-- **Per-endpoint API pass/fail totals were not persisted.** s1 built and ran five harnesses covering all 272 routes but was killed by its 50-turn cap before writing `api-test-results.txt`. The harnesses survive on disk and are re-runnable — **re-run them first next session**; that is the cheapest large coverage win available.
-- **Browser back/forward** — untested for the third consecutive run. s4 died before reaching it.
-- **The 12-route sweep is a render check, not a walkthrough.** It confirms each route mounts with real data and no error state; it does not exercise per-page workflows. Only Settings was walked at interaction depth this run.
-- **Keyboard navigation** — Esc, Tab order, focus rings, Enter-submit still untested app-wide.
-- **Phone-375px sweep** — not revisited this run. Mobile paused, low priority.
-- **Google-geocoding paths permanently excluded** — storm-map address search and any bulk geocode, per the standing cost rule.
-- **Side-effecting routes intentionally excluded** — real email, Stripe, paid Tracerfy, bulk Neon writes, storm ingestion, admin cross-tenant mutation. Listed explicitly by the validation harness rather than silently skipped.
+1. **Axis D (type confusion in write bodies) was never run.** Planned as one of this run's four new axes — wrong JSON types in write bodies must 400, never 500. s1 exhausted its 50-turn cap after Axis C. Given that Axis C found 10 real 500s on its first execution, **this is the highest-value untested axis available** and should lead the next run.
+
+2. **The 10 open fuzz 500s need fixing and re-verification.** Second priority; the harness already exists and is read-only.
+
+3. **Independent re-verification covered only 2 of 5 fixes.** s4 formally verified `9c6eb2f` — with negative controls proving the probe was not vacuously passing — and `df5d1ce` (8/8 runtime checks against an isolated instance, probe rows inserted and deleted, `skip_trace_usage` back to 0 rows) before hitting its 40-turn cap. The three UI fixes were verified live by their authoring stages with computed-style measurement, but **were not independently re-verified**.
+
+4. **Browser back/forward — untested for the fifth consecutive run.** Every stage that queued it died before reaching it.
+
+5. **Route walks remain partial.** Storm Map, Canvassing and Admin were checked at render + computed-style depth, not workflow depth — roof drawing, canvass pin edit, and end-to-end storm search have never been exercised. Admin cannot be audited at all from a tenant account behind its 403 gate.
+
+6. **Keyboard navigation** — Esc, Tab order, focus rings, Enter-submit still untested app-wide.
+
+7. **Phone 375px sweep** not revisited. Mobile paused, low priority.
+
+8. **Google-geocoding paths permanently excluded** per the standing cost rule; side-effecting routes (real email, Stripe, paid Tracerfy, bulk Neon writes, storm ingestion, admin cross-tenant mutation) intentionally excluded and enumerated rather than silently capped.
 
 ---
 
 ## Session Integrity
 
-**All four working stages exited on `max_turns`.** Each completed substantive work and committed it before stopping; none left a broken state.
+All four working stages hit their turn cap — the fifth consecutive run in which caps, not scope, are the binding constraint. **However, Run 62's recurring infrastructure failure is now fixed: 4 of 4 stages wrote their results files incrementally and 4 of 4 survived.** Every finding in this report is backed by a file on disk; in Run 62 all four were lost.
 
 | Stage | Outcome | Turns | Cost | Result |
 |---|---|---|---|---|
-| s1 api-test | **MAX_TURNS (50)** | 51 | $6.45 | 272-route inventory; 5 harnesses built; **2 API bugs fixed** (`9cc9562`, `8278871`) |
-| s2 frontend-test | **MAX_TURNS (80)** | 81 | $7.31 | 12 routes swept; **Settings' 15 tabs walked — carried gap closed**; 6 inline forms verified |
-| s3 ui-audit | **MAX_TURNS (60)** | 61 | $5.99 | Settings element-level audit; **3 UI deviations fixed** (`966cd81`) |
-| s4 verify | **MAX_TURNS (40)** | 41 | $3.21 | **Subcontractors crash found and fixed** (`27af095`); screenshot-verified |
-| s5 report | this document | — | — | Re-verified both API fixes live (**14/14**); final build **exit 0, 8.14s** |
+| s1 api-test | MAX_TURNS (50) | 51 | $4.73 | Axes A/B/C run; **2 bugs fixed** (`df5d1ce`, `9c6eb2f`); Axis C's 10 finds written to JSON but never triaged |
+| s2 frontend-test | MAX_TURNS (80) | 81 | $6.37 | Settings → Contracts walked; **1 bug fixed** (`5195d84`) |
+| s3 ui-audit | MAX_TURNS (60) | 61 | $5.92 | 6 carried-gap routes walked at interaction depth; **2 bugs fixed** (`5b52fb7`, `7783290`) |
+| s4 verify | MAX_TURNS (40) | 41 | $3.60 | Fixes 1–2 of 5 formally verified; found the stale-`:3001` environment issue |
+| s5 report | this report | — | — | Re-verified Axis C live (1,932 requests, 10 5xx, identical); final build **exit 0, 7.97s** |
 
-Stage spend s1–s4 ≈ **$22.97**.
+s1–s4 spend ≈ **$20.62**.
 
-**Recurring infrastructure problem:** four of four stages hit their turn cap, and four of four failed to persist a results file — the same failure mode as Run 61, where two of four did. The caps are the binding constraint on this pipeline, and results files are being written last, so they are the first thing lost. **Recommendation: have each stage write its results file incrementally as it goes, not as a final step.** That single change would have preserved tonight's full API pass/fail matrix.
+**Lesson carried forward.** Run 62 established that convergence counters measure where we have looked, not where the bugs are. This run is the strongest evidence yet: the drift gate under `server/src/routes` was **empty**, the existing 272-route harnesses had all passed in Run 63, and the backend had been "converged" for 22 runs — and pointing coverage at four never-tested axes still produced a **cross-tenant PII leak**, two hard 500s, and ten more. Separately, both UI finds were rules that *silently did not apply* — inert inline padding, and an entire rule block outranked by unlayered vendor CSS. **Grep-level audits would have passed both; only measuring computed style on a live page caught them.**
 
-Final build re-run at report time: **exit 0, built in 8.14s, 0 errors.** Chunk-size advisories only (mapbox-gl 1703.49 kB, index 592.75 kB, ReportsView 490.59 kB) — unchanged from prior runs.
+**New gotcha for future runs:** any third-party CSS imported via JS is unlayered and will silently beat app CSS wrapped in `@layer base`. Both vendor sources in this repo have now been checked.
+
+---
+
+*Final build: `npx vite build` → exit 0, built in 7.97s, 0 errors. Chunk-size advisories only (mapbox-gl 1,703.49 kB · index 592.75 kB · ReportsView 490.59 kB), unchanged from prior runs.*
