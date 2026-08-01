@@ -201,7 +201,7 @@ export default function StormCatalog() {
           <button key={tr.id}
             className={timeRange === tr.id && !isCustomRange ? 'auth-btn' : 'quick-action-btn'}
             onClick={() => handlePillClick(tr.id)}
-            style={{ fontSize: 12, padding: '6px 14px' }}
+            style={{ fontSize: 12, padding: '6px 14px', height: 36 }}
           >
             {tr.label}
           </button>
@@ -213,7 +213,7 @@ export default function StormCatalog() {
         {/* Custom pill - active when date range is set */}
         <button
           className={isCustomRange ? 'auth-btn' : 'quick-action-btn'}
-          style={{ fontSize: 12, padding: '6px 14px' }}
+          style={{ fontSize: 12, padding: '6px 14px', height: 36 }}
           onClick={() => {
             if (!isCustomRange) {
               // Pre-fill with a reasonable default: last 30 days
