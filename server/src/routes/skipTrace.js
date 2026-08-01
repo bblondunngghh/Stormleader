@@ -143,6 +143,15 @@ router.post('/submit', async (req, res, next) => {
  */
 router.get('/job/:jobId', validateId('jobId'), async (req, res, next) => {
   try {
+    // Verify this job belongs to the caller's tenant before proxying to Tracerfy.
+    // All tenants share one Tracerfy API key, so without this check any tenant
+    // could read another tenant's skip trace results (contact PII) by job id.
+    const { rows } = await pool.query(
+      'SELECT 1 FROM skip_trace_usage WHERE job_id = $1 AND tenant_id = $2 LIMIT 1',
+      [req.params.jobId, req.tenantId]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Job not found' });
+
     const status = await skipTraceService.getJobStatus(req.params.jobId);
     res.json(status);
   } catch (err) {
