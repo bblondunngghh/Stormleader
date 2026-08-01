@@ -3745,12 +3745,18 @@ input[type="checkbox"]:checked::after {
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid oklch(0.45 0.03 260 / 0.35);
   color: oklch(0.85 0 0);
-  font-size: 13px;
-  font-weight: 600;
-  padding: 8px 16px;
+  /* !important required: index.css is wrapped in @layer base (line 6), while
+     FullCalendar v6 self-injects its stylesheet UNLAYERED. Unlayered normal
+     declarations beat every layered one regardless of specificity, so FC's
+     `.fc .fc-button { padding: .4em .65em; font-size: 1em; font-weight: 400 }`
+     silently won over this rule and the toolbar rendered in FC's default
+     typography instead of the design system's. */
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  padding: 8px 16px !important;
   border-radius: var(--radius-md) !important;
   transition: all 0.15s var(--ease-out);
-  text-transform: capitalize;
+  text-transform: capitalize !important;
   box-shadow: none !important;
   outline: none !important;
   position: relative;
@@ -3810,7 +3816,10 @@ input[type="checkbox"]:checked::after {
 /* Prev/next arrow buttons — replace FC icon font with heroicon SVGs */
 .calendar-view .fc .fc-prev-button,
 .calendar-view .fc .fc-next-button {
-  padding: 8px 10px;
+  /* !important for the same layered-vs-unlayered reason as .fc-button above,
+     and so the arrows keep their tighter horizontal padding rather than
+     inheriting that rule's now-!important 16px. */
+  padding: 8px 10px !important;
   line-height: 1;
 }
 
