@@ -2288,6 +2288,10 @@ function ContractTemplatesTab() {
   useEffect(() => { fetchTemplates(); }, []);
 
   const typeOptions = [
+    { value: 'standard', label: 'Standard' },
+    { value: 'insurance', label: 'Insurance Restoration' },
+    { value: 'financing', label: 'Financing' },
+    { value: 'supplement', label: 'Supplement' },
     { value: 'roofing_agreement', label: 'Roofing Agreement' },
     { value: 'subcontractor', label: 'Subcontractor Agreement' },
     { value: 'work_authorization', label: 'Work Authorization' },
