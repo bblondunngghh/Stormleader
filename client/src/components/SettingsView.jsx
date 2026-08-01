@@ -2307,7 +2307,7 @@ function ContractTemplatesTab() {
   const openEditForm = (tpl) => {
     setEditingTemplate(tpl);
     setFormName(tpl.name || '');
-    setFormType(tpl.template_type || 'custom');
+    setFormType(tpl.type || 'custom');
     const parsed = tpl.content
       ? (Array.isArray(tpl.content) ? tpl.content : (tpl.content.sections || [{ title: 'Agreement', body: '' }]))
       : [{ title: 'Agreement', body: '' }];
@@ -2322,7 +2322,7 @@ function ContractTemplatesTab() {
         : [];
       await contractsApi.createContractTemplate({
         name: `${tpl.name || 'Template'} (Copy)`,
-        template_type: tpl.template_type || 'custom',
+        type: tpl.type || 'custom',
         content: { sections: parsed },
       });
       showToast('Template cloned', 'success');
@@ -2348,7 +2348,7 @@ function ContractTemplatesTab() {
     try {
       const payload = {
         name: formName.trim(),
-        template_type: formType,
+        type: formType,
         content: { sections: formSections },
       };
       if (editingTemplate) {
@@ -2461,7 +2461,7 @@ function ContractTemplatesTab() {
                 <div>
                   <div style={{ fontWeight: 700, fontSize: 13 }}>{tpl.name || 'Untitled'}</div>
                   <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2, textTransform: 'capitalize' }}>
-                    {(tpl.template_type || 'custom').replace(/_/g, ' ')}
+                    {(tpl.type || 'custom').replace(/_/g, ' ')}
                     {isBuiltin && <span style={{ marginLeft: 8, padding: '1px 6px', borderRadius: 4, background: 'oklch(0.25 0.05 250 / 0.5)', color: 'var(--accent-blue)', fontSize: 10 }}>Built-in</span>}
                   </div>
                 </div>
