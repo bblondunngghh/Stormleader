@@ -182,9 +182,12 @@ export async function processSkipTraceResults(tenantId, results) {
   await pool.query(
     `UPDATE skip_trace_usage
      SET records_returned = $1
-     WHERE tenant_id = $2 AND provider = 'tracerfy'
-     ORDER BY created_at DESC
-     LIMIT 1`,
+     WHERE id = (
+       SELECT id FROM skip_trace_usage
+       WHERE tenant_id = $2 AND provider = 'tracerfy'
+       ORDER BY created_at DESC
+       LIMIT 1
+     )`,
     [results.length, tenantId]
   );
 

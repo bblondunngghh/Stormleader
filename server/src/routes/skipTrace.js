@@ -119,8 +119,12 @@ router.post('/submit', async (req, res, next) => {
     // Update usage record with job_id (billing happens in monthly batch)
     await pool.query(
       `UPDATE skip_trace_usage SET job_id = $1
-       WHERE tenant_id = $2 AND job_id IS NULL
-       ORDER BY created_at DESC LIMIT 1`,
+       WHERE id = (
+         SELECT id FROM skip_trace_usage
+         WHERE tenant_id = $2 AND job_id IS NULL
+         ORDER BY created_at DESC
+         LIMIT 1
+       )`,
       [result.jobId, req.tenantId]
     );
 
