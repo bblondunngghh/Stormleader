@@ -31,6 +31,7 @@ const statusColors = {
 export default function EstimatesView() {
   const [estimates, setEstimates] = useState([]);
   const [total, setTotal] = useState(0);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [editingEstimate, setEditingEstimate] = useState(null);
@@ -45,6 +46,7 @@ export default function EstimatesView() {
       const res = await estimatesApi.getEstimates(params);
       setEstimates(res.data.estimates || []);
       setTotal(res.data.total || 0);
+      setStats(res.data.stats || null);
     } catch {
       // keep existing
     } finally {
@@ -57,12 +59,15 @@ export default function EstimatesView() {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
 
   const totalValue = estimates.reduce((s, e) => s + Number(e.total || 0), 0);
-  const draftCount = estimates.filter(e => e.status === 'draft').length;
-  const draftValue = estimates.filter(e => e.status === 'draft').reduce((s, e) => s + Number(e.total || 0), 0);
-  const sentCount = estimates.filter(e => e.status === 'sent' || e.status === 'viewed').length;
-  const sentValue = estimates.filter(e => e.status === 'sent' || e.status === 'viewed').reduce((s, e) => s + Number(e.total || 0), 0);
-  const acceptedCount = estimates.filter(e => e.status === 'accepted').length;
-  const acceptedValue = estimates.filter(e => e.status === 'accepted').reduce((s, e) => s + Number(e.total || 0), 0);
+  // Roll-ups come from the server so they cover the whole filtered set, not just the
+  // page of 50 fetched above; the page-local reduce stays as the fallback for the
+  // first paint and for any response that predates the stats field.
+  const draftCount = stats ? stats.draft_count : estimates.filter(e => e.status === 'draft').length;
+  const draftValue = stats ? stats.draft_value : estimates.filter(e => e.status === 'draft').reduce((s, e) => s + Number(e.total || 0), 0);
+  const sentCount = stats ? stats.sent_count : estimates.filter(e => e.status === 'sent' || e.status === 'viewed').length;
+  const sentValue = stats ? stats.sent_value : estimates.filter(e => e.status === 'sent' || e.status === 'viewed').reduce((s, e) => s + Number(e.total || 0), 0);
+  const acceptedCount = stats ? stats.accepted_count : estimates.filter(e => e.status === 'accepted').length;
+  const acceptedValue = stats ? stats.accepted_value : estimates.filter(e => e.status === 'accepted').reduce((s, e) => s + Number(e.total || 0), 0);
 
   const handleNew = () => {
     setEditingEstimate(null);

@@ -111,12 +111,33 @@ export async function getEstimates(tenantId, filters = {}) {
     params
   );
 
+  // Status roll-ups ride along on the count query the list already runs, so they
+  // cover the whole filtered set rather than the single page returned above.
   const { rows: countRows } = await pool.query(
-    `SELECT COUNT(*) AS total FROM estimates e WHERE ${conditions.join(' AND ')}`,
+    `SELECT COUNT(*) AS total,
+            COUNT(*) FILTER (WHERE e.status = 'draft') AS draft_count,
+            COALESCE(SUM(e.total) FILTER (WHERE e.status = 'draft'), 0) AS draft_value,
+            COUNT(*) FILTER (WHERE e.status IN ('sent', 'viewed')) AS sent_count,
+            COALESCE(SUM(e.total) FILTER (WHERE e.status IN ('sent', 'viewed')), 0) AS sent_value,
+            COUNT(*) FILTER (WHERE e.status = 'accepted') AS accepted_count,
+            COALESCE(SUM(e.total) FILTER (WHERE e.status = 'accepted'), 0) AS accepted_value
+     FROM estimates e WHERE ${conditions.join(' AND ')}`,
     params.slice(0, params.length - 2)
   );
 
-  return { estimates: rows, total: parseInt(countRows[0].total, 10) };
+  const c = countRows[0];
+  return {
+    estimates: rows,
+    total: parseInt(c.total, 10),
+    stats: {
+      draft_count: parseInt(c.draft_count, 10),
+      draft_value: Number(c.draft_value),
+      sent_count: parseInt(c.sent_count, 10),
+      sent_value: Number(c.sent_value),
+      accepted_count: parseInt(c.accepted_count, 10),
+      accepted_value: Number(c.accepted_value),
+    },
+  };
 }
 
 export async function getEstimateDetail(tenantId, estimateId) {
