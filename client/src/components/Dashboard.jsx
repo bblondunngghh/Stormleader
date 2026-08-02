@@ -204,7 +204,7 @@ function PipelineBars({ funnel, onStageClick }) {
       {funnel.map((row, i) => {
         const pct = (row.count / maxCount) * 100;
         return (
-          <div key={row.stage} onClick={() => onStageClick(row.stage)} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} className="rounded-md hover:bg-[oklch(1_0_0/0.03)] transition-colors px-1 -mx-1">
+          <div key={row.stage} onClick={() => onStageClick(row.key)} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }} className="rounded-md hover:bg-[oklch(1_0_0/0.03)] transition-colors px-1 -mx-1">
             <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-secondary)', width: 90, flexShrink: 0 }}>{row.stage}</span>
             <div style={{
               flex: 1, height: 18, borderRadius: 6, overflow: 'hidden',
