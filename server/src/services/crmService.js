@@ -16,8 +16,15 @@ export async function getLeads(tenantId, filters = {}) {
   const conditions = ['tenant_id = $1', 'deleted_at IS NULL'];
 
   if (stage) {
+    // Compared as text on purpose. DEFAULT_PIPELINE_STAGES advertises 14 stage
+    // keys but the lead_stage enum holds 10, so filtering by one of the 6 the
+    // enum lacks (material_ordered, scheduled, completed, invoiced, paid,
+    // collections) made Postgres raise 22P02 -> a hard 400 on a link the
+    // Dashboard funnel itself renders. As text an unknown stage simply matches
+    // nothing, which is the honest answer. The write paths still validate
+    // against validStages (routes/crm.js), so this loosens no mutation.
     params.push(stage);
-    conditions.push(`stage = $${params.length}`);
+    conditions.push(`stage::text = $${params.length}`);
   }
   if (priority) {
     params.push(priority);

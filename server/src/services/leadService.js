@@ -169,8 +169,10 @@ export async function getLeads(tenantId, filters = {}) {
   const conditions = ['l.tenant_id = $1'];
 
   if (stage) {
+    // Text comparison, same reason as crmService.getLeads: a stage key the
+    // lead_stage enum does not contain must match nothing, not raise 22P02.
     params.push(stage);
-    conditions.push(`l.stage = $${params.length}`);
+    conditions.push(`l.stage::text = $${params.length}`);
   }
   if (priority) {
     params.push(priority);
