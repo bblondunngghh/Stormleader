@@ -13,6 +13,7 @@ const PG_BAD_INPUT_CODES = new Set([
   '2201W', // invalid_row_count_in_limit_clause (e.g. ?limit=-1)
   '2201X', // invalid_row_count_in_result_offset_clause (e.g. ?offset=-5)
   '22021', // character_not_in_repertoire (e.g. a NUL byte in a query-string filter)
+  '22001', // string_data_right_truncation (input longer than the column allows)
 ]);
 
 export default function errorHandler(err, req, res, _next) {
@@ -29,6 +30,9 @@ export default function errorHandler(err, req, res, _next) {
       // Examples we don't want to leak: "invalid input value for enum storm_source: ..."
       //                                "invalid input syntax for type uuid: ..."
       message = 'Invalid value provided for one or more fields';
+    } else if (err.code === '22001') {
+      // 22001 surfaces the column's declared width ("character varying(20)").
+      message = 'One or more values exceed the maximum allowed length';
     } else {
       message = err.message || 'Invalid input';
     }
