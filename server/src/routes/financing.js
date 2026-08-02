@@ -62,6 +62,12 @@ router.post('/lenders', async (req, res, next) => {
 
 router.patch('/lenders/:id', validateId(), async (req, res, next) => {
   try {
+    // updateLender hands apiKey straight to encrypt(), whose cipher.update()
+    // throws a TypeError on anything that is not a string. The sibling POST is
+    // shielded by its credential check; this route had no guard at all.
+    if (req.body.apiKey !== undefined && typeof req.body.apiKey !== 'string') {
+      return res.status(400).json({ error: 'apiKey must be a string' });
+    }
     const lender = await svc.updateLender(req.tenantId, req.params.id, req.body);
     if (!lender) return res.status(404).json({ error: 'Lender not found' });
     res.json(lender);
