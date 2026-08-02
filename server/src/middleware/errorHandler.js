@@ -10,6 +10,9 @@ const PG_BAD_INPUT_CODES = new Set([
   '22003', // numeric_value_out_of_range
   '22007', // invalid_datetime_format
   '23503', // foreign_key_violation
+  '2201W', // invalid_row_count_in_limit_clause (e.g. ?limit=-1)
+  '2201X', // invalid_row_count_in_result_offset_clause (e.g. ?offset=-5)
+  '22021', // character_not_in_repertoire (e.g. a NUL byte in a query-string filter)
 ]);
 
 export default function errorHandler(err, req, res, _next) {
