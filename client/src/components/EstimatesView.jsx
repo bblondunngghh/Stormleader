@@ -1824,10 +1824,10 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
             disabled={saving || sending}
             style={{
               padding: '6px 18px', fontSize: 12, background: 'var(--accent-blue)', color: 'oklch(1 0 0)',
-              border: 'none', borderRadius: '14px / 12px', opacity: !form.customer_email ? 0.5 : 1,
+              border: 'none', borderRadius: '14px / 12px',
               display: 'flex', alignItems: 'center', gap: 5,
             }}
-            title={!form.customer_email ? 'Enter customer email first' : 'Save and send estimate to customer'}
+            title={!form.customer_email ? 'Add a customer email or a signer in the Authorization section' : 'Save and send estimate to customer'}
           >
             <IconSend style={{ width: 12, height: 12 }} /> {sending ? 'Sending...' : 'Send for Signing'}
           </button>
