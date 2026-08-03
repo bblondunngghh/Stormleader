@@ -9,6 +9,7 @@ import {
   CloudIcon,
   ClipboardDocumentCheckIcon,
   DocumentTextIcon,
+  DocumentCheckIcon,
   BanknotesIcon,
   AdjustmentsHorizontalIcon,
   ChartBarIcon,
@@ -37,7 +38,7 @@ const groups = [
     label: 'Jobs',
     items: [
       { id: 'estimates', label: 'Estimates', Icon: DocumentTextIcon },
-      { id: 'contracts', label: 'Contracts', Icon: DocumentTextIcon },
+      { id: 'contracts', label: 'Contracts', Icon: DocumentCheckIcon },
       { id: 'work-orders', label: 'Work Orders', Icon: WrenchScrewdriverIcon },
       { id: 'materials', label: 'Materials', Icon: WrenchIcon },
     ],
