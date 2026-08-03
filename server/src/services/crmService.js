@@ -940,8 +940,7 @@ export async function getEstimateSummary(tenantId) {
        COALESCE(SUM(CASE WHEN status = 'accepted' THEN total ELSE 0 END), 0) as accepted_value,
        COALESCE(SUM(CASE WHEN status IN ('sent','viewed') THEN total ELSE 0 END), 0) as pending_value
      FROM estimates
-     WHERE tenant_id = $1
-       AND created_at >= now() - interval '30 days'`,
+     WHERE tenant_id = $1`,
     [tenantId]
   );
 
