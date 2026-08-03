@@ -224,7 +224,11 @@ router.get('/:id/pdf', validateId(), async (req, res, next) => {
     const printer = new PdfPrinter(fonts);
 
     const companyName = estimate.company_name || 'StormLeads';
-    const lineItems = Array.isArray(estimate.line_items) ? estimate.line_items : [];
+    // line_items is JSONB and can hold non-object entries (null, "", 1). calculateTotals
+    // already scores those as 0 via item?.quantity, so dropping them here keeps the PDF
+    // consistent with the stored subtotal instead of throwing on item.section.
+    const lineItems = (Array.isArray(estimate.line_items) ? estimate.line_items : [])
+      .filter((item) => item && typeof item === 'object');
     const fmtCurrency = (v) => `$${Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
 
