@@ -1102,6 +1102,10 @@ router.post('/custom-fields', async (req, res, next) => {
   try {
     let { field_key, field_label, field_type, options, is_required, sort_order } = req.body;
     if (!field_label) return res.status(400).json({ error: 'field_label is required' });
+    if (typeof field_label !== 'string') return res.status(400).json({ error: 'field_label must be a string' });
+    if (field_key !== undefined && field_key !== null && typeof field_key !== 'string') {
+      return res.status(400).json({ error: 'field_key must be a string' });
+    }
 
     // Auto-generate field_key from field_label if not provided
     if (!field_key) {
