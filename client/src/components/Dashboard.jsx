@@ -63,8 +63,8 @@ const priorityColors = {
 const emptyStats = [
   { label: 'Pipeline Value', value: '$0', change: '—', icon: 'dollar', color: 'oklch(0.75 0.18 155)', tint: '155', link: '/pipeline' },
   { label: 'New Leads', value: '0', change: '—', icon: 'leads', color: 'oklch(0.72 0.19 250)', tint: '250', link: '/leads' },
-  { label: 'Close Rate', value: '0%', change: '—', icon: 'target', color: 'oklch(0.78 0.17 85)', tint: '85', link: '/leads?stage=closed_won' },
-  { label: 'Avg Days to Close', value: '0', change: '—', icon: 'clock', color: 'oklch(0.70 0.18 330)', tint: '330', link: '/leads?stage=closed_won' },
+  { label: 'Close Rate', value: '0%', change: '—', icon: 'target', color: 'oklch(0.78 0.17 85)', tint: '85', link: '/leads?stage=sold' },
+  { label: 'Avg Days to Close', value: '0', change: '—', icon: 'clock', color: 'oklch(0.70 0.18 330)', tint: '330', link: '/leads?stage=sold' },
   { label: 'Speed to Lead', value: '—', change: '—', icon: 'speed', color: 'oklch(0.72 0.20 180)', tint: '180', link: '/leads' },
 ];
 
