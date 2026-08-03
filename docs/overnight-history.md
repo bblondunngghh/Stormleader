@@ -3069,3 +3069,63 @@ Branch `feat/financing` · baseline `d31a3db` · checkpoint `7177fdd` · final H
 - **LESSON.** The strongest evidence yet for Run 62's rule that convergence counters measure WHERE WE HAVE LOOKED, not where the bugs are: the `server/src/routes` drift gate was **EMPTY**, the 272-route harnesses had all passed in Run 63, and the backend had been "converged" for **22 runs** — and pointing coverage at four never-tested axes still produced a **cross-tenant PII leak**, two hard 500s, and ten more. Both UI finds share a second theme: **a styling rule that silently does not apply** (inert inline padding; an entire rule block outranked by unlayered vendor CSS). **Grep-level audits would have passed both — only measuring computed style on a live page caught them.**
 - **NEW GOTCHA:** any third-party CSS imported via JS is **unlayered** and will silently beat app CSS wrapped in `@layer base`. Both vendor sources in this repo have now been checked.
 ---
+
+---
+
+## QA Run: 2026-08-02 (Run 66)
+
+**Branch** `feat/financing` · **Baseline** `7783290` · **Checkpoint** `e5082d9` · **Final HEAD** `626c7cd`
+**Final client build:** exit 0, 7.95s, 0 errors
+
+### Test Results
+- Pages tested: **17 of 17 routes** rendered and swept; **7 at interaction depth**
+- API endpoints tested: **272 inventoried**; 84 write routes type-fuzzed (38 excluded for safety); **~7,000 requests**
+- Bugs found: **8**
+- Bugs fixed: **7**
+- UI inconsistencies found: **1**
+- UI inconsistencies fixed: **1**
+- Code commits: **7**
+
+### Fixes Made
+- **`a2edcdb`** — negative pagination and NUL bytes returned 500 instead of 400. Ten endpoints across five route files hard-500'd on `?limit=-1`, `?offset=-5`, and NUL bytes in `stage`. Negative values parse as valid integers, so the existing NaN guard (which already 400s `?limit=abc`) let them through to the driver; Postgres raised `2201W`/`2201X`/`22021`. Added all three to the existing `PG_BAD_INPUT_CODES` set in `errorHandler.js` — one change fixing five route files instead of five divergent per-file clamps. **Closes the defect carried open from Run 65.**
+- **`e9c5024`** — `PATCH /api/crm/financing/lenders/:id` crashed on a non-string `apiKey`. The value went straight into `cipher.update(plaintext,'utf8')`, which throws `ERR_INVALID_ARG_TYPE` for any array/object/number/boolean; the route validated nothing. `apiKey` was the only crashing field.
+- **`6127783`** — over-long field values returned 500 instead of 400, **and this one is reachable from the UI**: a 26-character phone in Add Contact hits `contacts.phone varchar(20)` and hard-500s. Mapped Postgres `22001` into `PG_BAD_INPUT_CODES`, fixing every varchar column app-wide, with the message sanitized so it does not leak the declared column width.
+- **`04ccf30`** — Dashboard funnel stage click sent the display label, not the stage key. Every one of the 14 rows landed on `/leads?stage=Contacted` → HTTP 400 → "0 leads" + a chip reading literally `Stage: undefined` + 2 console errors, even though the row showed a non-zero count. `getPipelineMetrics` already returns both `stage` (display) and `key` (filter); `PipelineBars` used `row.stage` for both.
+- **`e1a7657`** — estimate "Send for Signing" looked disabled while fully clickable. `disabled={saving||sending}` and `opacity: !form.customer_email ? .5 : 1` are unrelated predicates, so the button was wrong in **both** directions: dimmed to the app's exact disabled opacity while `pointer-events:auto` (clicking it opened the Send modal), and rendered at full opacity while genuinely disabled. Deleted the inline opacity so the app-wide `button:disabled` rule governs.
+- **`77ae9a2`** — 6 of the 14 dashboard funnel stages still landed on a 400 after `04ccf30`. `crmService.DEFAULT_PIPELINE_STAGES` advertises 14 keys and renders all 14 as clickable, but the `lead_stage` enum holds 10; `material_ordered`/`scheduled`/`completed`/`invoiced`/`paid`/`collections` raised 22P02 on the enum cast. Filter on `stage::text` so an unknown key matches nothing instead of throwing. Write paths untouched.
+- **`626c7cd`** — estimate KPI cards counted only the first page of 50 while the "Total Estimates" card beside them used the server count, so the row mixed two scopes. With 83 estimates the page reported **0 Accepted / $0.0K** against a real accepted **$4,500** estimate sorting outside the newest 50. Roll-ups now ride along on the COUNT query the list already runs.
+
+### UI Consistency Fixes
+- **`e1a7657`** (also listed above) — the run's only UI-audit finding. Found by a **new axis: stateful styling**. 34 button sites carry both a `disabled` predicate and an inline opacity predicate; all 34 were parsed and compared, yielding 8 raw mismatches → 2 parenthesisation false positives → 4 dismissed (state communicated through another visual channel) → **1 real defect**.
+- Charter axes re-confirmed by measurement, all PASS: icons (no non-Heroicons), buttons (Run 64–65 sizing fixes holding), headers, sidebar (3 collapsible groups, 17 nav-links), forms (0 native `<select>`, 0 native date inputs), spacing, modals.
+- **New axis, 0 defects: Tailwind-vs-app-CSS cascade collisions.** 238 elements carry a utility class and 106 mix an app class with a Tailwind utility, but no collision is harmful — `.glass` declares only background / backdrop-filter / border / position, none of which the paired utilities contest. The one real override (`Pipeline.jsx:1190 sticky`) is intended.
+- **Run 65's `5b52fb7` re-verified intact** — all 6 Storm Archive date-range pills measure exactly 36px; active and inactive are byte-identical; the row no longer reflows on click.
+
+### Known Issues Remaining
+- **NEW, OPEN — `POST /api/crm/custom-fields` hard-500s on a non-string `field_label`** (array / number / boolean / object). `crm.js:1104` guards only for falsy, so any truthy non-string passes, and `crm.js:1108` then calls `field_label.toLowerCase()` → `TypeError`. Found by Axis D pass 2 and **re-verified live against current HEAD at report time**. Fix is a one-line type guard, but it was found after the verification stage closed, so it gets its own change and its own verification. Not UI-reachable; no rows written (the throw precedes the INSERT).
+- **DEVELOPER DECISION — six pipeline stages are not in the `lead_stage` enum.** `77ae9a2` stopped the 400s, but whether `material_ordered`/`scheduled`/`completed`/`invoiced`/`paid`/`collections` belong in the pipeline is a product call. `authService.DEFAULT_PIPELINE_STAGES` (the seeded list) has the same gap on `completed`. Expanding the enum is the product fix, but `ALTER TYPE … ADD VALUE` **cannot be rolled back in Postgres**, so an irreversible schema change is not QA's call.
+- **DEVELOPER ACTION — `:3001` is three days stale.** Still PID **33112**, started 7/30 05:47, `node server/src/index.js` with no watcher, and `client/vite.config.js` proxies to it — so **every live UI check this run ran against a July-30 API**. Proven by the same request on two ports: `?limit=-1` → 500 on `:3001`, 400 on a fresh instance. A `node --watch` server (PID 18928) exists but cannot bind the port. **Kill PID 33112.** QA did not kill it. (s4 flipped the vite proxy to a temp port and did not restore it; **s5 restored it to `:3001`.**)
+- Carried unchanged: EstimatesView currency formatting (`toLocaleString` vs `toFixed(2)` for the same subtotal); Materials cart badge counts units while the footer counts lines; ~5 status-pill treatments app-wide; `borderRadius:'999px'` vs `--radius-pill` token drift (6 sites) and rem-vs-px font sizes (10 sites); LeadList pagination disabled opacity 0.4 vs the app-wide 0.5; Esc-to-close keyboard nav; EstimateBuilder at 375px.
+- **Recurring — QA rows visible in the live app. Cleaned this run: 11 stale rows** (4 subcontractors + 4 estimate_templates named `12345`/`true`/`{"x","y"}`, 2 `QA Territory` rows visible in the live Territories panel, 1 control contact). Net DB writes by the verification stage: **0**.
+
+### Coverage Gaps (carried to next run)
+- **#1 — fix and verify `POST /api/crm/custom-fields`.** Confirmed live, one-line fix, needs its own verification.
+- **#2 — triage Axis D pass 2's 255 ACCEPTED shapes.** 4,448 requests ran and the 4 hard failures were captured, but s1 hit its cap before asking whether the *accepted* wrong-type values are sane — e.g. `POST /api/crm/automations` returns 201 for an object, a number and a boolean as a name. Not crashes, but nobody has looked at what got stored. **Largest untriaged evidence set in the pipeline.**
+- **Storm Map, Admin, roof drawing** — still render-depth only; no end-to-end workflow ever exercised.
+- **Keyboard nav** — Esc, Tab order, focus rings, Enter-submit — still untested app-wide.
+- **Axes A and B not re-run** (auth enforcement, tenant isolation). They passed in Run 65 and routes have not drifted, but Run 65's tenant-isolation sweep was **static**; a live cross-tenant IDOR probe has never run.
+- **Do NOT re-run the five Run-63 `.qa-*.mjs` harnesses unless `server/src/routes` drifts** — the gate was empty again this run. Drift baseline for next run: **`626c7cd`**.
+- Phone-375px sweep not revisited (mobile paused). Google-geocoding and side-effecting routes permanently excluded per the standing cost rule — enumerated, not silently capped.
+
+### Session Integrity
+- s1 api-test: **MAX_TURNS (50)** (51 turns, $4.44) — ran Axis D, the #1 carried gap, for the first time in the pipeline's history; 3 API bugs fixed (`a2edcdb`, `e9c5024`, `6127783`).
+- s2 frontend-test: **MAX_TURNS (80)** (81 turns, $7.63) — 17/17 render sweep + 4 carried-gap pages closed at interaction depth (Calendar, Canvassing, Materials cart, Storm Archive); 1 bug fixed (`04ccf30`).
+- s3 ui-audit: **MAX_TURNS (60)** (61 turns, $7.06) — 2 brand-new axes swept; 1 bug fixed (`e1a7657`).
+- s4 verify: **MAX_TURNS (40)** (41 turns, $4.10) — all 5 prior fixes independently re-verified (34 checks, 32 pass / 2 tester-error false positives / 0 real failures); found and fixed a 6th bug (`77ae9a2`) and completed a 7th (`626c7cd`); cleaned 11 stale QA rows.
+- s5 report: this entry. Re-verified the open `custom-fields` defect live against current HEAD, restored the vite proxy s4 left flipped, final build **exit 0, 7.95s**. **7 code commits stand for this run**, plus the docs commit. s1–s4 spend ≈ $23.24.
+- **INFRA — one regression against Run 65.** s2/s3/s4 wrote incrementally and survived their caps. **s1 did not write `C:\tmp\api-test-results.txt` at all** — it is still Run 65's file, dated Aug 1. s1's evidence survived only because its harnesses dumped JSON (`qa-r66-axisD.json`, `qa-r66-axisD-pass2.json`, `write-validation-raw.json`), which s5 reconstructed the backend section from. **s1 must write its .txt incrementally like the other three stages.**
+- **s4 left an unfinished fix in the working tree** when its first session hit the cap — the server half of the estimates KPI change written, the client half not, leaving `stats` set into state and never read. A continuation session completed, verified and committed it. An unfinished fix in the tree is more dangerous than no fix.
+- **LESSON.** Run 62's rule held for the fifth run running: **convergence counters measure where we have looked, not where the bugs are.** Drift gate empty, 272-route harnesses all green in Run 63, backend "converged" for 23 runs — and the first execution of a never-run axis produced 6 hard 500s immediately, with 4 more behind them. The sharper theme this run: **two of the seven fixes were bugs that only appear when you click.** The Dashboard renders perfectly and its funnel counts are correct; only clicking a row exposed the label/key drift, and only clicking *all fourteen* rows exposed the enum gap underneath it. Render-depth sweeps pass both. The estimates KPI bug is the same shape in data — internally consistent, plausible, and wrong; visible only against the database.
+- **NEW GOTCHAS.** (1) **Never assert an animatable computed property in the same tick as a state change** — `transition: opacity .1s` makes `getComputedStyle` return the pre-transition value; this nearly caused a false finding in s3 and a false negative in s4, both reading `opacity: 1` on a genuinely disabled button. `cursor`/`pointer-events` are not animatable and flip immediately, which is what exposed it. (2) **FullCalendar's `dateClick` does not fire on a synthetic `element.click()`** — it needs a real pointer event; a synthetic click looks exactly like a dead UI. (3) **Each fresh server instance has its own in-memory JWT secret** — mint a token per port. (4) Canvassing's `main.innerText` matches `/error/` only from Google's own "Report a map error" link.
+
+---
