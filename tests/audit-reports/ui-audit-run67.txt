@@ -1,0 +1,184 @@
+================================================================
+UI CONSISTENCY AUDIT — Run 67, stage s3 — 2026-08-03
+Baseline: 0692fc2 | Server :3001 PID 9252 (started 8/3 05:16 = FRESH)
+vite.config.js CLEAN (not modified) | 19 authed routes swept
+================================================================
+
+| Page | Issue Type | Element | Expected | Actual | Fixed? |
+|------|-----------|---------|----------|--------|--------|
+
+--- PASS 1: 19-route computed-style sweep (all routes loaded, 0 errors) ---
+
+AUDIT 1 ICONS ............ PASS
+  All 19 routes: every <svg> viewBox == "0 0 24 24" EXCEPT /reports,
+  where the 4 outliers are ALL class="recharts-surface" (data-viz, not
+  icons — memory says do not flag). 0 foreign icon libraries.
+  Icon computed sizes cluster: 14/16/18/20px (+10/11/12/13/15/22/24/28/36/40
+  for avatars, badges, empty-state art).
+
+AUDIT 3 HEADERS .......... PASS (19/19 identical)
+  topbar class="topbar glass", height 56px, padding 0px 32px,
+  h1 18px / weight 700 on every single route. Byte-identical.
+
+AUDIT 4 SIDEBAR .......... 1 ANOMALY (see below)
+  width 240px, nav row height 42px, EVERY nav item has an icon
+  (withIcon == navCount on 19/19), is-active count == 1 on 18/19.
+  >> /alerts reports activeCount = 0 <<  INVESTIGATING
+
+AUDIT 5 FORMS ............ PASS at render depth
+  0 native <select>, 0 native <input type=date|time|datetime-local>
+  across all 19 routes. (Modal/slide-over forms not yet opened.)
+
+AUDIT 6 SPACING .......... ANOMALY: .main-content computed padding is
+  0px on 16 routes but 24px on /storm-catalog, /alerts, /reports.
+  INVESTIGATING whether content left edge actually differs.
+
+AUDIT 2 BUTTONS .......... pass 2 in progress
+AUDIT 7 MODALS ........... pass 3 pending
+
+--- PASS 2: button signature aggregation (all 19 routes, grouped by class) ---
+
+AUDIT 2 BUTTONS .......... PASS at desktop widths
+  .auth-btn (primary CTA): 9 instances / 9 routes. 8 byte-identical
+    (36px | 0 24px | 13px | 14px/12px | 700 | oklch(0.72 0.19 250)).
+    1 deliberate override: StormCatalog "30 Days" active pill, sized to
+    match its inactive quick-action-btn siblings (36px | 6px 14px | 12px)
+    => Run 65's 5b52fb7 fix VERIFIED INTACT, pills no longer reflow.
+  .quick-action-btn: 349 instances / 8 routes. Variants are per-context
+    and internally consistent (estimates row actions 31px, materials Add
+    27px, leads toolbar 36px, pagination 25px).
+
+  >> FALSE POSITIVE AVOIDED — Dashboard "Full Map" <<
+  First measured at 26px tall (2 lines) vs 13px for the 9 sibling Panel
+  action links => looked like a wrap defect in the shared Panel component.
+  Re-measured at 5 desktop widths BEFORE filing:
+     1920 -> 13px   1600 -> 13px   1440 -> 13px
+     1280 -> 13px   1024 -> 13px
+  The wrap only occurs at the ~929px browser window the sweep happened to
+  start in. Below the 1024px desktop floor; mobile is paused. NOT A DEFECT.
+
+  Documented, NOT fixed (deliberate 2-state styling, normalizing = refactor):
+  LeadList page-size pills 25/50/100 use inline font-weight 700 (active) vs
+  400 (inactive) while .quick-action-btn's base is 600; Prev/Next are 600.
+
+AUDIT 6 SPACING .......... PASS (content alignment identical on 19/19)
+  .main-content computed padding is 24px on /storm-catalog /alerts /reports
+  and 0px on the other 16 (those pages pad their own inner wrapper).
+  Run 64 already examined this and ruled the non-list views deliberate.
+  Panel border-radius 20px/18px uniform on 19/19; panel gaps 16px dominant.
+
+AUDIT 4 SIDEBAR .......... 1 REAL INCONSISTENCY (see below)
+  240px wide, 42px rows, every nav item has a Heroicon (withIcon==navCount
+  on 19/19), exactly one .is-active on 18/19 routes.
+  >> /alerts: ZERO nav items active, and NO sidebar entry for Alerts exists.
+     Page renders a correct h1 "Alerts". Confirmed twice, both sessions.
+
+--- PASS 3: forms + modals (the real gap) ---
+NOTE: the 19-route sweep found fieldN == 1 on 15 of 19 routes. That single
+field is the global TopBar Cmd-K search. => EVERY REAL FORM IN THIS APP
+LIVES INSIDE A MODAL OR SLIDE-OVER, so prior runs' "forms PASS" was
+measured almost entirely on pages with one input. Opening them now.
+
+AUDIT 5 FORMS (modals opened — 9 create-forms reached) ...... 1 REAL FINDING
+
+  INPUTS: PASS. Dominant signature is the .form-input contract exactly as
+  index.css:2247 declares it — 36px tall, padding 0 16px, radius 12px,
+  bg oklch(0.22 0.02 260/0.45), border 1px solid var(--glass-border), 13px.
+  31 inputs across 7 routes match it byte-for-byte. Textarea/number/email/
+  tel variants differ only in height/padding as the CSS intends.
+  0 native <select>, 0 native <input type=date> anywhere. DatePicker and
+  CustomSelect are used throughout. The /tasks "focused" outlier is just
+  .form-input:focus (index.css:2279) captured on an autofocused field.
+  The 2 unstyled /alerts inputs are the centre cell of a composite -/+
+  numeric stepper (AlertSettings.jsx:310) whose borders live on the
+  wrapper — deliberate segmented control, NOT a .form-input violation.
+
+  >> LABELS: SEVEN different treatments for the same element. <<
+  index.css:2239 defines the canonical one:
+      .form-group label { 12px / 600 / uppercase / 0.08em / --text-secondary }
+  22 labels match it exactly. 31 do not:
+     10px 700 uppercase 0.6px  muted  x11  Pipeline.jsx:267      (Add Lead)
+     12px 600 sentence  normal muted  x5   InvoicesView:876+, WorkOrdersView
+     11px 400 sentence  normal muted  x5   ContractsView:502+
+     12px 400 sentence  normal muted  x5   ExpensesView:112+
+     11px 600 uppercase 0.88px         x3   EstimatesView
+     12px 600 sentence  normal         x2   EstimatesView
+  Root cause is structural, not cosmetic: EstimatesView, TasksView,
+  SubcontractorsView, SettingsView and CalendarView wrap fields in
+  .form-group and let the stylesheet style the label; ContractsView,
+  ExpensesView, InvoicesView, WorkOrdersView and Pipeline hand-roll an
+  inline style object per file instead. InvoicesView does BOTH.
+  => Documented. NOT fixed this run: converting 31 label sites in 5 files
+  onto .form-group restructures working form markup = refactor, the same
+  ruling this pipeline already made for status pills and currency format.
+  RAISE WITH DEVELOPER — this one has a defined canonical target, so it is
+  a better refactor candidate than the other two.
+
+AUDIT 7 MODALS ........... interaction depth
+  All 5 overlays reached CLOSE CORRECTLY via their X / Cancel control
+  (verified open -> closed, field count returns to baseline):
+     /tasks slide-over 420w  /subcontractors slide-over 480w
+     /expenses modal  /work-orders modal  /pipeline modal
+  Overlay chrome matches what Run 61/64 already ruled per-context:
+     slide-over glass  z101  modal-scale-in .25s  radius 20px/18px  pad 32
+     modal-backdrop    z 300 / 1000 / 9999, backdrop 0.5+blur4 /
+                       0.6+blur8 / 0.6+none
+  z-index spread and backdrop variance NOT re-filed (functional stacking
+  order; Run 61 ruling stands; memory says do not normalize).
+  /invoices /contracts /estimates /materials /alerts open INLINE forms,
+  not overlays — by design (memory: Estimates "New Estimate" = inline
+  builder). Not a missing-modal defect.
+
+  >> ESC-TO-CLOSE IS INCONSISTENT: 1 of 5 overlays supports it. <<
+     /subcontractors slide-over  -> Esc CLOSES it
+     /tasks slide-over           -> Esc does nothing  (same CSS class!)
+     /expenses, /work-orders, /pipeline modals -> Esc does nothing
+  Prior runs logged "Esc-to-close" as a blanket missing enhancement. That
+  is not accurate: the app already implements it in one place, so the
+  other four are drift from an established in-repo pattern, not an absent
+  feature. Still an added key handler in 4 files => documented, not fixed.
+
+--- NEW AXIS THIS RUN: LAYOUT SHIFT ON HOVER ---
+Motivated by Run 65's 5b52fb7 (a control that changed size when its state
+changed, reflowing the row). That was the ACTIVE state; :hover had never
+been swept. Method: for each distinct control class, measure the rect,
+issue a REAL pointer hover, wait 320ms (past every transition), re-measure,
+and ignore transform-only changes since those do not reflow siblings.
+RESULT: 106 controls across 14 routes -> 0 layout shifts. PASS.
+(3 raw hits were the sidebar auto-scrolling the hover target into view —
+identical w/h/padding/font-weight before and after — tester artifact.)
+
+================================================================
+FIX APPLIED AND COMMITTED
+================================================================
+| Page | Issue Type | Element | Expected | Actual | Fixed? |
+| Sidebar (all routes) | Icon consistency | Contracts nav item | a unique Heroicon outline per nav entry | shared DocumentTextIcon with Estimates; pixel-identical adjacent rows when the sidebar is collapsed to 68px with no text labels | YES 79c8945 |
+
+  Detection method worth reusing: do not just COUNT icons, COMPARE them.
+  Hash every nav icon's svg path `d` and look for collisions. 18 items ->
+  17 unique paths -> exactly 1 colliding pair. Then check whether the
+  collision is user-visible: it is, because collapsing the sidebar
+  (240px -> 68px, verified labelsVisible 0) removes the text that was
+  disambiguating them.
+  Fix: Contracts -> DocumentCheckIcon (available in the pinned
+  @heroicons/react 2.2.0). Re-verified live: 18/18 unique in BOTH states,
+  all svgs still viewBox="0 0 24 24" fill="none", collapse still works
+  (240 -> 68 -> 240). Build exit 0, 8.07s.
+
+================================================================
+CARRIED / OUT OF CHARTER — raise with the developer
+================================================================
+1. FORM LABELS: 7 treatments, 31 of 53 labels off-standard. The canonical
+   rule already exists (index.css:2239 .form-group label). Best refactor
+   candidate found this run because the target is already defined.
+2. /alerts IS AN ORPHAN ROUTE. Confirmed: zero navigate('/alerts'), zero
+   links, no sidebar entry; only App.jsx's viewRoutes map mentions it, and
+   nothing sets that view. Its functionality is duplicated in Settings ->
+   Storm Alerts. Reachable only by typing the URL, where the sidebar shows
+   NOTHING selected (the only route of 19 with 0 .is-active). Fixing it
+   means either adding a nav entry (IA change) or deleting a route
+   (destructive) — both are the developer's call, not QA's.
+3. Esc-to-close implemented in 1 of 5 overlays (see AUDIT 7 above).
+4. LeadList page-size pills use inline font-weight 700/400 against
+   .quick-action-btn's 600 base. Deliberate 2-state styling.
+================================================================
