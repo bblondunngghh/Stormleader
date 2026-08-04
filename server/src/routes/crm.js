@@ -114,6 +114,12 @@ router.post('/leads/quick', async (req, res, next) => {
   try {
     const { contact_name, contact_phone, contact_email, address, city, state, zip, stage, priority, source, estimated_value } = req.body;
     if (!contact_name && !address) return res.status(400).json({ error: 'contact_name or address is required' });
+    if (contact_name !== undefined && contact_name !== null && typeof contact_name !== 'string') {
+      return res.status(400).json({ error: 'contact_name must be a string' });
+    }
+    if (address !== undefined && address !== null && typeof address !== 'string') {
+      return res.status(400).json({ error: 'address must be a string' });
+    }
 
     const validPriorities = ['hot', 'warm', 'cold'];
     if (priority && !validPriorities.includes(priority)) {
@@ -389,6 +395,7 @@ router.post('/tasks', async (req, res, next) => {
   try {
     const { title } = req.body;
     if (!title) return res.status(400).json({ error: 'title required' });
+    if (typeof title !== 'string') return res.status(400).json({ error: 'title must be a string' });
     const validPriorities = ['hot', 'warm', 'cold'];
     if (req.body.priority && !validPriorities.includes(req.body.priority)) {
       return res.status(400).json({ error: `priority must be one of: ${validPriorities.join(', ')}` });
@@ -585,6 +592,16 @@ router.put('/tenant-settings', async (req, res, next) => {
     }
     const { senderEmail, companyPhone, companyWebsite, companyAddress, googlePlaceId, reviewMessageTemplate,
             smtpHost, smtpPort, smtpUser, smtpPass, smtpFrom } = req.body;
+
+    // These are all free-text settings. A non-string here is stored verbatim in the branding
+    // JSONB and later crashes any consumer that calls a string method on it.
+    const textSettings = { senderEmail, companyPhone, companyWebsite, companyAddress, googlePlaceId,
+                           reviewMessageTemplate, smtpHost, smtpUser, smtpPass, smtpFrom };
+    for (const [field, value] of Object.entries(textSettings)) {
+      if (value !== undefined && value !== null && typeof value !== 'string') {
+        return res.status(400).json({ error: `${field} must be a string` });
+      }
+    }
 
     // Update branding JSONB for settings stored as JSON
     let brandingUpdate = '';

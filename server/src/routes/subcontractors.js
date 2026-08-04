@@ -41,6 +41,7 @@ router.post('/', async (req, res, next) => {
   try {
     const { name, company, phone, email, specialty, hourly_rate, notes } = req.body;
     if (!name) return res.status(400).json({ error: 'name is required' });
+    if (typeof name !== 'string') return res.status(400).json({ error: 'name must be a string' });
     const sub = await subcontractorService.createSubcontractor(req.tenantId, {
       name, company, phone, email, specialty, hourly_rate, notes,
     });

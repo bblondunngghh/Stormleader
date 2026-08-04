@@ -56,6 +56,9 @@ router.post('/', async (req, res, next) => {
     if (!req.body.title) {
       return res.status(400).json({ error: 'title is required' });
     }
+    if (typeof req.body.title !== 'string') {
+      return res.status(400).json({ error: 'title must be a string' });
+    }
     const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const { lead_id, estimate_id, status } = req.body;
     if (lead_id && !UUID_RE.test(lead_id)) return res.status(400).json({ error: 'Invalid lead_id format' });

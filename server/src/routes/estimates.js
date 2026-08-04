@@ -83,6 +83,7 @@ router.post('/templates', async (req, res, next) => {
   try {
     const { name, description, unit, default_unit_price, section } = req.body;
     if (!name) return res.status(400).json({ error: 'Name is required' });
+    if (typeof name !== 'string') return res.status(400).json({ error: 'Name must be a string' });
     const { rows } = await pool.query(
       `INSERT INTO estimate_templates (tenant_id, name, description, unit, default_unit_price, section, position)
        VALUES ($1, $2, $3, $4, $5, $6, (SELECT COALESCE(MAX(position), -1) + 1 FROM estimate_templates WHERE tenant_id = $1))
