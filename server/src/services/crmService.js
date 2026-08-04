@@ -379,7 +379,7 @@ export async function getTasks(tenantId, filters = {}) {
      FROM tasks t
      LEFT JOIN users u ON u.id = t.assigned_to
      WHERE ${conditions.join(' AND ')}
-     ORDER BY t.completed_at NULLS FIRST, t.due_date ASC NULLS LAST
+     ORDER BY t.completed_at NULLS FIRST, t.due_date ASC NULLS LAST, t.id ASC
      LIMIT $${params.length - 1} OFFSET $${params.length}`,
     params
   );

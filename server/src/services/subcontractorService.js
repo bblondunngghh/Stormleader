@@ -23,7 +23,7 @@ export async function listSubcontractors(tenantId, { specialty, status, search, 
   const { rows } = await pool.query(
     `SELECT * FROM subcontractors
      WHERE ${where}
-     ORDER BY name ASC
+     ORDER BY name ASC, id ASC
      LIMIT $${params.length - 1} OFFSET $${params.length}`,
     params
   );
