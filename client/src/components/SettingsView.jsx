@@ -2505,8 +2505,8 @@ function ReviewSettingsTab() {
   useEffect(() => {
     client.get('/crm/tenant-settings')
       .then(res => {
-        setGooglePlaceId(res.data.googlePlaceId || '');
-        setReviewMessageTemplate(res.data.reviewMessageTemplate || '');
+        setGooglePlaceId(typeof res.data.googlePlaceId === 'string' ? res.data.googlePlaceId : '');
+        setReviewMessageTemplate(typeof res.data.reviewMessageTemplate === 'string' ? res.data.reviewMessageTemplate : '');
       })
       .catch(() => {})
       .finally(() => setLoading(false));

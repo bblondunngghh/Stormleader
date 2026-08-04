@@ -2809,7 +2809,11 @@ function ReviewRequestSection({ lead }) {
 
   useEffect(() => {
     client.get('/crm/tenant-settings')
-      .then(res => setSettings(res.data))
+      .then(res => setSettings({
+        ...res.data,
+        googlePlaceId: typeof res.data.googlePlaceId === 'string' ? res.data.googlePlaceId : '',
+        reviewMessageTemplate: typeof res.data.reviewMessageTemplate === 'string' ? res.data.reviewMessageTemplate : '',
+      }))
       .catch(() => {});
   }, []);
 
