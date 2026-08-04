@@ -302,6 +302,16 @@ ul, ol { list-style: none; }
   background: none;
 }
 
+/* Keep the mouse-click focus look suppressed above, but restore the app-standard
+   keyboard ring — matches button:focus-visible so nav items are consistent with
+   .nav-group__header and every other button in the app.
+   !important is required to beat the `outline: none !important` button-chrome
+   reset on .nav-link itself; this rule is more specific, so the ring wins. */
+.nav-link:focus-visible {
+  outline: 1px solid oklch(0.55 0.12 250 / 0.3) !important;
+  outline-offset: 2px;
+}
+
 .nav-link.is-active {
   color: var(--text-primary);
   background: none;
@@ -3811,6 +3821,15 @@ input[type="checkbox"]:checked::after {
 .calendar-view .fc .fc-button-primary:focus {
   box-shadow: none !important;
   outline: none !important;
+}
+
+/* FullCalendar's own focus shadow stays suppressed above; restore the
+   app-standard keyboard ring so the toolbar matches every other button. */
+.calendar-view .fc .fc-button:focus-visible,
+.calendar-view .fc .fc-button-primary:focus-visible,
+.calendar-view .fc .fc-button-primary:not(:disabled).fc-button-active:focus-visible {
+  outline: 1px solid oklch(0.55 0.12 250 / 0.3) !important;
+  outline-offset: 2px !important;
 }
 
 /* Prev/next arrow buttons — replace FC icon font with heroicon SVGs */
