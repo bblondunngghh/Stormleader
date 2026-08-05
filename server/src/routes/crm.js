@@ -1133,6 +1133,9 @@ router.post('/custom-fields', async (req, res, next) => {
     if (field_type && !validTypes.includes(field_type)) {
       return res.status(400).json({ error: `field_type must be one of: ${validTypes.join(', ')}` });
     }
+    if (options !== undefined && options !== null && !Array.isArray(options)) {
+      return res.status(400).json({ error: 'options must be an array' });
+    }
 
     const { rows } = await pool.query(
       `INSERT INTO custom_field_definitions (tenant_id, entity_type, field_key, field_label, field_type, options, is_required, sort_order)
@@ -1153,6 +1156,20 @@ router.post('/custom-fields', async (req, res, next) => {
 router.patch('/custom-fields/:id', validateId(), async (req, res, next) => {
   try {
     const { field_label, field_type, options, is_required, sort_order } = req.body;
+
+    // Same guards the POST route applies — a stored non-array `options` or an
+    // out-of-enum `field_type` crashes the Custom Fields panel on render.
+    if (field_label !== undefined && typeof field_label !== 'string') {
+      return res.status(400).json({ error: 'field_label must be a string' });
+    }
+    const validTypes = ['text', 'number', 'date', 'select', 'boolean'];
+    if (field_type !== undefined && !validTypes.includes(field_type)) {
+      return res.status(400).json({ error: `field_type must be one of: ${validTypes.join(', ')}` });
+    }
+    if (options !== undefined && options !== null && !Array.isArray(options)) {
+      return res.status(400).json({ error: 'options must be an array' });
+    }
+
     const setClauses = [];
     const params = [req.tenantId, req.params.id];
 

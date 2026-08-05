@@ -2222,7 +2222,7 @@ function CustomFieldsTab() {
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2, fontFamily: 'monospace' }}>
                   {field.field_key}
-                  {field.field_type === 'select' && field.options?.length > 0 && (
+                  {field.field_type === 'select' && Array.isArray(field.options) && field.options.length > 0 && (
                     <span> ({field.options.join(', ')})</span>
                   )}
                 </div>
