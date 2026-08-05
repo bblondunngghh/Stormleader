@@ -652,7 +652,7 @@ export default function EstimatesView() {
                       })()}
                     </div>
                   </td>
-                  <td style={{ fontWeight: 700, color: 'var(--accent-green)' }}>${Number(est.total).toLocaleString()}</td>
+                  <td style={{ fontWeight: 700, color: 'var(--accent-green)' }}>{formatCurrency(est.total)}</td>
                   <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                     {new Date(est.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </td>
@@ -767,7 +767,7 @@ export default function EstimatesView() {
                         {tier} Tier
                       </div>
                       <div style={{ fontSize: 32, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 4 }}>
-                        ${Number(est.total || 0).toLocaleString()}
+                        {formatCurrency(est.total)}
                       </div>
                       <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                         {items.length} line item{items.length !== 1 ? 's' : ''}
@@ -821,7 +821,7 @@ export default function EstimatesView() {
                                 color: match ? 'var(--text-primary)' : 'oklch(0.35 0 0)',
                                 fontWeight: match ? 600 : 400,
                               }}>
-                                {match ? `$${lineTotal.toLocaleString()}` : '—'}
+                                {match ? formatCurrency(lineTotal) : '—'}
                               </td>
                             );
                           })}
@@ -841,7 +841,7 @@ export default function EstimatesView() {
                               fontWeight: 800, fontSize: 15, color: tc.color,
                               borderTop: '2px solid oklch(1 0 0 / 0.1)',
                             }}>
-                              ${Number(est.total || 0).toLocaleString()}
+                              {formatCurrency(est.total)}
                             </td>
                           );
                         })}
@@ -2093,7 +2093,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                         <input className="form-input" type="number" min="0" step="1" value={item.quantity} onChange={e => updateLineItem(idx, 'quantity', e.target.value)} style={{ fontSize: 12, padding: '8px 6px', minWidth: 0, boxSizing: 'border-box', textAlign: 'center' }} />
                         <input className="form-input" type="number" min="0" step="0.01" value={item.unit_price} onChange={e => updateLineItem(idx, 'unit_price', e.target.value)} style={{ fontSize: 12, padding: '8px 6px', minWidth: 0, boxSizing: 'border-box', textAlign: 'center' }} />
                         <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--accent-green)', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          ${((Number(item.quantity) || 0) * (Number(item.unit_price) || 0)).toLocaleString()}
+                          {formatCurrency((Number(item.quantity) || 0) * (Number(item.unit_price) || 0))}
                         </span>
                         <button onClick={() => removeLineItem(idx)} style={{ color: 'var(--accent-red)', lineHeight: 1, padding: 0, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           <IconTrash style={{ width: 14, height: 14 }} />
