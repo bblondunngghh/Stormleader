@@ -482,8 +482,13 @@ function DescriptionCombobox({ value, onChange, onSelectPreset, presets }) {
 function InvoiceBuilder({ invoice, onSave, onCancel }) {
   const isEdit = !!invoice;
 
+  // Drop null/non-object entries: the line_items JSONB array can contain them,
+  // and every consumer below reads item.quantity directly.
+  const storedLineItems = Array.isArray(invoice?.line_items)
+    ? invoice.line_items.filter(i => i && typeof i === 'object')
+    : [];
   const [lineItems, setLineItems] = useState(
-    invoice?.line_items?.length ? invoice.line_items : [{ description: '', quantity: 1, unit_price: 0 }]
+    storedLineItems.length ? storedLineItems : [{ description: '', quantity: 1, unit_price: 0 }]
   );
   const [taxRate, setTaxRate] = useState(invoice ? parseFloat(invoice.tax_rate) || 0 : 0);
   const [dueDate, setDueDate] = useState(invoice?.due_date ? invoice.due_date.slice(0, 10) : '');
