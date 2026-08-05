@@ -2068,7 +2068,7 @@ function CustomFieldsTab() {
       field_label: field.field_label,
       field_key: field.field_key,
       field_type: field.field_type,
-      options: field.options || [],
+      options: Array.isArray(field.options) ? field.options : [],
       is_required: field.is_required,
       sort_order: field.sort_order || 0,
     });

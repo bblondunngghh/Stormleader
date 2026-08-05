@@ -1306,7 +1306,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                         onChange={v => handleChange(v)}
                         options={[
                           { value: '', label: '-- Select --' },
-                          ...(def.options || []).map(opt => ({ value: String(opt), label: String(opt) }))
+                          ...(Array.isArray(def.options) ? def.options : []).map(opt => ({ value: String(opt), label: String(opt) }))
                         ]}
                       />
                     ) : def.field_type === 'date' ? (
