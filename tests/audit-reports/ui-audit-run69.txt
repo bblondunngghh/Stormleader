@@ -1,0 +1,279 @@
+================================================================================
+STORMLEADS UI CONSISTENCY AUDIT — Run 69, stage s3-ui-audit — 2026-08-05
+Baseline at start: 17fa0dc   Viewport: 1440x900   Routes swept: 19
+================================================================================
+
+ENVIRONMENT VERIFIED FIRST (standing hazard)
+  ::1:5173      PID 10884  = StormLeads  <- http://localhost:5173  CORRECT
+  0.0.0.0:5173  PID 10588  = C:\Projects\AVApp (Access Valet Parking) WRONG APP
+  :3001         PID 22796  = API
+  Page title asserted "StormPipe — Roofing CRM" before trusting any result.
+  client/vite.config.js CLEAN (proxy -> http://localhost:3001).
+
+--------------------------------------------------------------------------------
+| Page | Issue Type | Element | Expected | Actual | Fixed? |
+--------------------------------------------------------------------------------
+| /leads, /storm-map | a11y / focus consistency | input[type=checkbox], [type=range] | app-standard :focus-visible ring, as on every button | outline:none + box-shadow:none — pixel-identical to unfocused | YES 11cbe8d |
+--------------------------------------------------------------------------------
+
+================================================================================
+AUDIT 1 — ICON CONSISTENCY .......................................... PASS
+================================================================================
+CODE SWEEP (client/src, all .jsx/.js)
+  - imports from '@heroicons/react' NOT 24/outline ............ 0
+  - lucide-react / react-icons / @mui/icons / fontawesome ..... 0
+  - fa-* classes, material-icons ............................... 0
+  - inline <svg> in components ................................. 2, both legitimate:
+      StormMap.jsx:1764   star rating inside a Google InfoWindow HTML string
+                          (React components cannot render into an InfoWindow)
+      CanvassingMode.jsx:336  teardrop map-pin swatch in the outcome legend
+    Both are map glyphs (charter permits decorative map SVGs) and both already
+    use oklch fills.
+
+BROWSER SWEEP (19 routes, 2,219 SVG elements)
+  2,210 / 2,219 carry the exact Heroicons-24-outline signature:
+      viewBox="0 0 24 24" | fill=none | stroke-width=1.5
+  9 outliers — ALL class="recharts-surface" on /reports (data-viz, not icons;
+  already a documented non-bug). viewBox 0 0 32 32 (legend swatches) and
+  0 0 503 300 (chart canvases).
+
+  => Zero foreign icons app-wide. Confirms Runs 65-68.
+  NOTE: components/Icons.jsx remains a thin alias layer over 24/outline — not a
+  foreign library. Do not re-file.
+
+================================================================================
+AUDIT 3 — TOOLBAR & HEADER BAR CONSISTENCY .......................... PASS
+================================================================================
+BYTE-IDENTICAL ON 19 / 19 ROUTES:
+    class      "topbar glass"
+    height     56px
+    padding    0px 32px
+    background oklch(0.16 0.015 260 / 0.35)
+    h1         18px / weight 700
+No page is missing a header. No variance of any kind.
+
+================================================================================
+AUDIT 5 — FORM ELEMENT CONSISTENCY ........................ PASS (rules hold)
+================================================================================
+STANDING USER RULES — both fully respected across all 19 routes:
+    native <select> ............... 0   (CustomSelect.jsx used everywhere)
+    input[type="date"] ............ 0   (DatePicker.jsx used everywhere)
+
+Input treatments, all deliberate and internally consistent:
+    h=42 pad 12/16/12/42 br 14px/12px  x19  global TopBar Cmd-K search (1/route)
+    h=36 pad 0 16          br 12px     .form-input  /storm-catalog,/subcontractors,/alerts
+    h=36 pad 0 16 0 34     br 12px     .form-input  /leads (leading icon)
+    h=32 pad 0 16 0 34     br 12px     .form-input  /materials (compact rail)
+    h=15/14 br 50%                     circular checkboxes (appearance:none)
+
+  Verified non-bugs (previously documented, re-confirmed):
+    /alerts h=24 transparent inputs = centre cell of the composite -/+ stepper,
+      borders live on the wrapper (AlertSettings.jsx:310). Deliberate.
+    /storm-map .address-search__input br=0 transparent = inside a composite
+      search widget whose chrome is on the wrapper.
+
+================================================================================
+AUDIT: OKLCH-ONLY COLOUR RULE (new axis this run) ................... PASS
+================================================================================
+Project rule is "oklch everywhere". Counted in .jsx inline styles:
+    oklch(  1,661      hex  152      rgb/rgba  24      hsl  0
+All 176 non-oklch usages sit in a legitimately separate design context:
+
+  MAP COMPONENTS (charter: DO NOT TOUCH) — 64 hex + 17 rgba
+    StormMap 29+8, SwathPopup 14+4, RoofDrawingTool 8+4, MapControls 6,
+    CanvassingMode 7+1. Google Maps / Mapbox polygon+marker APIs take hex
+    strings and do not accept oklch, so these are required, not drift.
+
+  PRINT / PDF TEMPLATES — LeadDetail 16+2
+    All inside the white-paper inspection report (#f0f0f0 section bands,
+    #333 signature rules, #666 caption text) plus one mapboxgl.Marker colour.
+    A print document on white stock, not the app's dark glass theme.
+
+  PUBLIC CUSTOMER-FACING PAGES — PublicEstimate 27, PublicContract 3
+    Rendered for homeowners outside the app shell; light theme by design.
+
+  DATA-VIZ SERIES — ReportsView 4 (#3b82f6, #22c55e recharts series colours)
+
+  => No oklch violations inside the app's own dark glass surfaces.
+     No change made (charter rule 7: do not refactor working features).
+
+================================================================================
+AUDIT: KEYBOARD FOCUS RINGS (new axis this run) .......... 1 DEFECT — FIXED
+================================================================================
+Motivation: 58c061f (previous stage) fixed .nav-link and the calendar toolbar
+by beating an `outline: none !important` chrome reset — the classic shape of a
+partial fix that leaves siblings broken. So every focusable control type was
+walked with REAL keyboard Tab (programmatic .focus() does not match
+:focus-visible and would have produced a false pass).
+
+Result — every control gets 1px solid oklch(0.55 0.12 250 / 0.3) EXCEPT:
+
+  input[type=checkbox]  outline NONE + box-shadow NONE  <- DEFECT, FIXED
+  input[type=range]     outline NONE + box-shadow NONE  <- DEFECT, FIXED
+  .address-search__input (StormMap) outline NONE + no glow <- map code, documented only
+
+ROOT CAUSE  index.css:4392
+    .form-input:focus-visible, input:focus-visible,
+    textarea:focus-visible, select:focus-visible { outline: none; }
+  Correct for text entry, which substitutes a border + glow
+  (.form-input:focus at :2289, .topbar__search input:focus at :491).
+  Checkbox/radio/range are appearance:none custom chrome (index.css:3419) with
+  NO substitute, so the blanket rule left them with zero focus indication.
+
+PROOF (real Tab, /leads "Select all leads on this page", 23 hops)
+                    before fix              after fix
+    outline         none                    1px solid oklch(0.55 0.12 250/0.3)
+    outline-offset  -                       2px
+    box-shadow      none                    none
+    border          2px --glass-border      2px --glass-border  (unchanged)
+    vs unfocused    IDENTICAL               unfocused still NONE
+    border-radius   50%                     50%  (circle preserved)
+  Screenshots: C:/tmp/r69-checkbox-focused.png (before)
+               C:/tmp/r69-checkbox-focused-AFTER.png (after)
+
+REACH  26 checkboxes in the /leads tab order (select-all + 25 rows) and the
+       storm-map layer toggles.
+
+FIX  11cbe8d — additive rule, [type] attribute raises specificity above
+     `input:focus-visible` so text inputs are untouched and order is irrelevant.
+     Build exit 0 (8.03s).
+
+================================================================================
+AUDIT 2 — BUTTON CONSISTENCY .............................. PASS (in-group)
+================================================================================
+Every button on all 19 routes was grouped by computed signature
+(height | padding | font-size | border-radius | font-weight | background).
+Shared classes are byte-identical everywhere they appear:
+
+  .nav-link            42px | 12px 16px | 13.5px | br 12px | fw 500   x126
+  .nav-link.is-active  same box, fw 600                                 x7
+  .nav-link--child     42px | 12px 16px 12px 28px | 13px | br 12px    x198
+  .nav-group__header   22px | 4px 16px | 11px | fw 700                 x57
+  .topbar__btn         38px | br 12px                                  x38
+  .auth-btn (PRIMARY)  36px | 0px 24px | 13px | br 14px/12px | fw 700 |
+                       bg oklch(0.72 0.19 250)                          x9
+                       -> identical on /pipeline /alerts /tasks /estimates
+                          /invoices /work-orders /contracts /expenses
+                          /subcontractors. Run 65's 5b52fb7 still intact.
+  .quick-action-btn    31px | 8px 14px | 11px | br 14px/12px | fw 600 x193
+
+  Primary background is a single value app-wide: oklch(0.72 0.19 250).
+  Icon-only buttons: 0 unnamed (aria-label on .topbar__btn, title= on
+  .row-actions 28x28 Edit/Delete, which use var(--radius-sm)).
+
+  Known CSS clamp() artifacts, NOT defects (documented): br "10px/8px",
+  "14px/12px" squircles and "3.35544e+07px".
+
+  DOCUMENTED, NOT FIXED — filter/tab ACTIVE-state has ~8 treatments:
+    /storm-catalog period  .auth-btn solid blue      br 14px/12px
+    /reports preset        oklch(0.35 0.12 250/0.5)  br 8px
+    /tasks filter tab      oklch(0.28 0.04 260/0.6)  br 8px
+    /settings + /admin tab oklch(0.30 0.05 250/0.6)  br 8px
+    /invoices + /storm-catalog pills oklch(0.7 0.15 220/0.12) br 999px
+    /dashboard period pill oklch(0.72 0.15 250/0.12) br 999px  (hue 250 vs 220)
+    /materials category    br 0px underline rail
+    /pipeline board tabs   oklch(0.78 0.12 200) solid teal br 8px
+  Each is internally consistent within its own row, so nothing looks broken
+  on screen. This is the same shape as the documented form-label drift: a
+  per-file convention, where partial normalisation is worse than documenting.
+  Deliberately NOT changed (charter rule 7).
+
+================================================================================
+AUDIT 4 — SIDEBAR & NAVIGATION CONSISTENCY .......................... PASS
+================================================================================
+  collapse / expand      240px -> 68px -> 240px, restores exactly
+  labels                 11 -> 0 -> 11
+  icon sizes             18x18, uniform, every nav item has an icon
+  DUPLICATE ICON PATHS   0 in BOTH states (18/18 unique when collapsed)
+                         -> Run 67's 79c8945 (Contracts -> DocumentCheckIcon)
+                            still holds. This is the state that made the
+                            original bug visible, so it is the one that matters.
+  active item            exactly 1 per route; oklch(0.95 0.005 260) / fw 600
+                         (class is .is-active, NOT .active)
+  spacing                uniform; only group separators differ (8/30/149px)
+
+================================================================================
+AUDIT 6 — SPACING & ALIGNMENT ....................................... PASS
+================================================================================
+  Card gap between top-level .glass panels ....... 16px, consistent
+  Panel border-width ............................. 1px everywhere
+  Radius forms a deliberate hierarchy, not drift:
+      20px / 18px  top-level page panels (squircle)
+      20px         modal panels
+      16px         nested cards / list rows  (x208)
+      12px         compact chips and inline controls
+      999px        pills
+  NEW AXIS — silent text truncation: 0 findings across /, /leads, /estimates,
+  /invoices, /work-orders, /subcontractors, /contracts. No element is clipped
+  with overflow:hidden and no ellipsis, so no data is hidden without a cue.
+
+================================================================================
+AUDIT 7 — MODAL CONSISTENCY ......................... PASS on all charter items
+================================================================================
+4 modals opened and measured (Add Lead, Add Expense, New Work Order, Import):
+
+  .modal-backdrop present ......... 4/4    (+ .slide-over-backdrop on /tasks,
+                                     the documented legitimate 2nd pattern)
+  .glass panel .................... 4/4
+  modal-scale-in animation ........ 4/4 at 0.2s   <- charter requirement, PASS
+  centred (align/justify center) .. 4/4
+  panel radius 20px ............... 4/4
+  title font-weight 700 ........... 4/4
+
+  route         width  padding  title        close offset (R/T)
+  /pipeline      440    24px    H2 16px      25/28
+  /expenses      480    24px    H3 16px      13/13
+  /work-orders   520    24px    H2 18px      25/27
+  /leads         720    32px    H2 20px      33/44
+  Widths scale with content (a CSV import wizard is legitimately wider than an
+  Add Lead form), which is what "consistent for similar types" asks for.
+
+  DOCUMENTED, NOT FIXED — modal title treatment drift:
+    ExpensesView.jsx:105 uses <h3> 16px; WorkOrdersView.jsx:245/645/780 use
+    <h2> 18px; ImportLeadsModal.jsx:178 uses <h2> 20px; Pipeline.jsx:668 <h2>.
+    So one modal skips a heading level (h1 topbar -> h3) and there are three
+    title sizes. Root cause is structural and identical to the form-label
+    finding: every file hand-rolls an inline style object instead of sharing a
+    class. Not half-converted here for the same reason prior runs declined.
+
+  RE-CONFIRMED as per-context, do NOT normalise (standing ruling):
+    z-index 300 / 1000 / 9999 — functional stacking for nested overlays
+    backdrop 0.5+blur4 / 0.6+blur8 / 0.6+none
+    close-button placement has 2 patterns (flex header row vs absolute corner)
+  Esc-to-close: still inconsistent (0/4 modals + /tasks slide-over closed on
+  Esc this run; /subcontractors slide-over did in Run 67). Known + deferred.
+
+================================================================================
+SUMMARY
+================================================================================
+  Charter audits run ....... 7 / 7      Extra axes ....... 3
+  Defects found ............ 1          Defects fixed .... 1  (11cbe8d)
+  False positives avoided .. 3          Build ............ exit 0, 8.03s
+  Tracked tree ............. CLEAN      Net DB writes .... 0
+
+  FIXED
+    11cbe8d  checkbox / radio / range had no keyboard focus indicator
+
+  FALSE POSITIVES CORRECTLY DISMISSED THIS RUN — do not re-file
+    1. FullCalendar toolbar buttons compute border-radius:0 on Month/Week/Day/
+       List and prev/next while "Today" is 12px. NOT a defect — the wrapping
+       .fc-button-group carries border-radius: var(--radius-md) plus
+       overflow:hidden (index.css:3785), so the GROUP supplies the rounded
+       outer edge and square inner buttons are the intended segmented control.
+    2. 152 hex + 24 rgba colours in .jsx look like oklch-rule violations. All
+       are in map components (Google/Mapbox APIs require hex), the white-paper
+       print report, public customer pages, or recharts series. See above.
+    3. 50 textless buttons on /subcontractors look like unlabelled icon
+       buttons. All carry title="Edit"/"Delete"; unnamed count is 0.
+
+  NEXT-RUN CANDIDATES (developer decisions, not QA's call)
+    - The form-label refactor (31 of 53 off-standard) remains the single best
+      refactor candidate; index.css:2239 already defines the target. The modal
+      title drift and the filter-tab active-state drift share its exact root
+      cause (per-file inline style objects), so one convention decision would
+      close all three.
+    - /alerts is still an orphan route.
+    - StormMap .address-search__input has no focus indicator; left alone
+      because it is map component code (charter: do not touch).
+
+</content>
