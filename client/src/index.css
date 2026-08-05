@@ -4396,6 +4396,20 @@ select:focus-visible {
   outline: none;
 }
 
+/* Text-entry controls drop the ring above because .form-input:focus and
+   .topbar__search input:focus already substitute a border + glow. Checkbox,
+   radio and range are appearance:none custom chrome with no such substitute,
+   so the blanket rule left them with NO focus indicator at all — keyboard
+   focus on the /leads row checkboxes was indistinguishable from unfocused.
+   Restores the same ring button:focus-visible uses. The [type] attribute
+   raises specificity above `input:focus-visible`, so order does not matter. */
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible,
+input[type="range"]:focus-visible {
+  outline: 1px solid oklch(0.55 0.12 250 / 0.3);
+  outline-offset: 2px;
+}
+
 button:focus-visible {
   outline: 1px solid oklch(0.55 0.12 250 / 0.3);
   outline-offset: 2px;
