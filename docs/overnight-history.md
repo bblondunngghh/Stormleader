@@ -3192,3 +3192,160 @@ Branch `feat/financing` · baseline `d31a3db` · checkpoint `7177fdd` · final H
 - **NEW GOTCHAS.** (1) **The SPA logs you out after roughly 20-30 `page.goto` navigations in one session** — re-login inline (email / password / tenant slug `waterloo`, then Sign In) rather than burning a turn. (2) **`browser_run_code_unsafe` takes an ARROW FUNCTION EXPRESSION** `async (page) => {...}`, not a bare statement block (a bare block throws `SyntaxError: Unexpected token 'const'`); it sweeps all 19 routes in ONE tool call instead of 38, which is why s3 finished every audit inside its cap. `require` is NOT available inside it — return JSON and write files from Bash. (3) **Always re-measure a layout finding at several widths before filing it** — the "Full Map" false positive existed only at the browser's ~929px default window. (4) Stage s4 wrote its artifacts under an **`r68-` prefix** (`qa-r68-verify.json`, `.qa-r68-*.mjs`, `r68-admin.png`) although this is Run 67 — the contents are Run 67's; do not be misled next run.
 
 ---
+
+## QA Run: 2026-08-04 (Run 68) — RECONSTRUCTED STUB
+
+> **Note:** Run 68's s5-report stage never ran. It committed no report and appended no
+> history entry, and `OVERNIGHT-REPORT.md` still held Run 67 when Run 69 started. The
+> entry below was reconstructed by Run 69 from `git log` and the resume file so the
+> history is not silently discontinuous. **It is not a first-hand stage report** — the
+> counts below are what the commits prove, not a full accounting of what was tested.
+
+### Test Results (from commit evidence only)
+- Pages tested: not recorded
+- API endpoints tested: not recorded
+- Bugs found: 4 (per commits)
+- Bugs fixed: 4
+- UI inconsistencies found: not separately recorded
+- UI inconsistencies fixed: 1 (`58c061f`)
+
+### Fixes Made
+- `ea65b82` fix(api): paginated task and subcontractor lists made rows unreachable
+- `03cc9fb` fix(ui): Settings -> Reviews white-screened the entire app
+- `691f501` fix(api): write routes stored non-string values that later crashed the UI
+- `58c061f` fix(ui): sidebar nav and calendar toolbar had no keyboard focus ring
+
+### Known Issues Remaining
+- Not recorded — no report stage ran. See Run 69's entry for the carried backlog.
+
+---
+
+## QA Run: 2026-08-05 (Run 69)
+
+### Test Results
+- Pages tested: **19 swept** at render/computed-style depth; **4 at interaction depth**
+- API endpoints tested: **272 inventoried**, **132 GET exercised live**, 3 write routes fuzzed
+- Bugs found: **5**
+- Bugs fixed: **5**
+- UI inconsistencies found: **1**
+- UI inconsistencies fixed: **1**
+- Server 5xx across the GET sweep: **0**
+- False positives correctly dismissed: **3**
+- Findings reported, not fixed (out of charter): **11**
+
+### Fixes Made
+- `447aabd` fix(api): custom-field writes stored non-array options that crashed the panel.
+  `POST /crm/custom-fields` validated `field_type` but never `options`; `PATCH /crm/custom-fields/:id`
+  validated nothing at all. Non-array `options` stored verbatim as a JSONB string, then
+  `SettingsView` called `field.options.join()` on it during render. Type guards added to both
+  routes plus an `Array.isArray` guard in the client. 12/12 malformed shapes now rejected 400.
+- `b7775a8` fix(ui): estimate totals dropped cents, showing $53,496.6 for $53,496.60.
+  Five money sites in `EstimatesView` used bare `.toLocaleString()` (no minimum fraction digits)
+  while the same `est.total` rendered with 2dp at `:411` — one page disagreeing with itself.
+  Routed through the `formatCurrency` helper the file already imports. DB ground truth: 38 of 83
+  estimates carry fractional cents, 16 end in a trailing zero cent (`EST-079` = 53496.60).
+- `d575bf7` fix(ui): clicking any lead white-screened the app on a non-array options.
+  `LeadDetail.jsx:1309` used `(def.options || []).map(...)` — the `|| []` fallback only covers a
+  FALSY value, so a truthy non-array reached `.map()` during render and unmounted the whole SPA
+  (body innerText 0 chars). `SettingsView.jsx:2071` had the identical falsy-only guard. Both now
+  use `Array.isArray`. Verified with the malformed row still in the DB.
+- `17fa0dc` fix(ui): editing an invoice white-screened the app on a null line item.
+  `invoice?.line_items?.length` passes for `[null]` (length 1), so the null element reached all
+  three consumers (`:506` reduce, `:667` preview, `:825` rows) and `item.quantity` threw.
+  Filtered at the state boundary — one change covers all three. `INV-0019` is the newest invoice,
+  so it was the first "Edit" button on `/invoices`.
+- `11cbe8d` fix(ui): checkboxes and range sliders had no keyboard focus indicator.
+
+### UI Consistency Fixes
+- `11cbe8d` — `index.css:4392` stripped the outline from every `input`/`textarea`/`select` on
+  `:focus-visible`. Correct for text entry (`.form-input:focus` substitutes a border + glow), but
+  checkbox/radio/range are `appearance:none` custom chrome with NO substitute, so the blanket rule
+  left them with **zero** focus indication — a focused checkbox was pixel-identical to an unfocused
+  one, across **26 checkboxes in the `/leads` tab order** including "Select all leads on this page".
+  Fixed additively: the `[type]` attribute raises specificity above `input:focus-visible`, so text
+  inputs are untouched and source order is irrelevant; `border-radius:50%` preserved.
+  Verified by REAL keyboard `Tab` — programmatic `.focus()` does not match `:focus-visible`.
+  **Axis chosen by asking what else `58c061f`'s reset had silenced — a partial fix names its own
+  next bug.**
+
+### Audit Results (stage s3 — the only stage to finish inside its cap)
+- 7/7 charter audits PASS + 3 new axes. Icons **2,210/2,219** exact Heroicon 24/outline signature
+  (9 outliers all `recharts-surface`); headers **byte-identical 19/19**; **0 native `<select>`,
+  0 `input[type=date]`**; sidebar **0 duplicate icon paths in both states** (Run 67's `79c8945`
+  holds); modals **4/4** `.modal-backdrop` + `.glass` + `modal-scale-in` 0.2s.
+- New axes: **oklch-only rule PASS** (all 176 non-oklch usages are map APIs / print templates /
+  public pages / recharts series — none inside the app's dark glass surfaces); **focus rings**
+  (the find); **silent text truncation** PASS, 0 findings.
+- 3 false positives dismissed: FullCalendar group radii (the `.fc-button-group` supplies the outer
+  radius via `overflow:hidden`), hex-in-map/print/recharts, `/subcontractors` titled icon buttons.
+
+### Known Issues Remaining
+- **2 invoices still hold `[null]` line items** (`INV-0019`, `INV-0017`, both draft). `17fa0dc`
+  guards the render path; the rows were not cleaned — data migration is a developer decision.
+- **1 custom-field row still holds `options: "abcde"`** — deliberately retained so the `d575bf7`
+  guard stays exercised. `server/.qa-r69-inject.mjs cleanup` removes it; never run (s4 capped).
+- **Run 66's 255 ACCEPTED wrong-type write shapes remain untriaged** — third consecutive run in
+  which that backlog produced a real crash. A 2xx is not evidence the stored data is usable.
+- `/dashboard` period filter bar still inert (3 unimplemented filter dimensions); two dashboard
+  stats endpoints still disagree; `/alerts` still an orphan route; 6 pipeline stages still absent
+  from the `lead_stage` enum.
+- **Form-label drift (31 of 53), modal-title drift and filter-tab active-state drift (~8
+  treatments) share ONE root cause** — per-file inline style objects instead of a shared class.
+  One convention decision closes all three; `index.css:2239` already defines the label target.
+- Esc-to-close still inconsistent (0/4 modals + `/tasks` slide-over this run; `/subcontractors`
+  did close in Run 67 — drift, not a missing feature).
+- `StormMap .address-search__input` has no focus indicator — same class as `11cbe8d`, left alone
+  because map component code is charter-excluded.
+- `GET /api/properties/fema-live` 500 — **external**: `nsi.sec.usace.army.mil:443` connect timeout
+  after 10s. Not app code; worth a graceful-degradation ticket.
+- **DB hygiene: 7 probe rows created tonight remain** — 5 leads at "1 QA Probe Way" (4 with null
+  `contact_name`) + 2 custom-field definitions. Older probe leads from Runs 13/18/34 also remain.
+  `447aabd`'s "net DB writes 0" was true of the 12-shape custom-field probe only.
+
+### Coverage Gaps (carried to next run)
+- **#1 — Interaction testing covered 4 of 19 routes.** s2 capped at 80 turns after `/estimates`,
+  `/leads`, `/invoices` and Settings → Custom Fields. The other 15 were render-swept only. The hit
+  rate on the pages that WERE clicked (3 bugs / 4 pages) argues the remaining 15 are not clean.
+  Still an improvement — Runs 67 and 68 each reached only one page.
+- **#2 — Write-path testing covered 3 of 140 write routes.** Thinnest area of the pipeline.
+- **#3 — s4-verify persisted NO evidence file.** Capped at 40 turns, left
+  `server/.qa-r70-dbstate.mjs` behind with no output. **Infra regression against Run 67's
+  incremental-write rule.** s5 re-ran the script (read-only) to recover ground truth — that is the
+  source of the invoice/custom-field/estimate figures in this entry.
+- **#4 — 10 of 26 tenant-scoped routes still un-IDOR-probable** (no tenant has rows). No isolation
+  probe ran this run; Run 67's 16-route probe found 0 leaks.
+- Storm Map, Admin, roof drawing still render-depth only. Tab ORDER and Enter-submit still
+  untested (focus rings now covered). Google geocoding and side-effecting routes permanently
+  excluded per the standing cost rule. Mobile/375px paused per web-only focus.
+
+### Session Integrity
+- s1 api-test: **MAX_TURNS (50)** (51 turns, $4.19) — 272 routes catalogued (132 GET / 88 POST /
+  26 PATCH / 8 PUT / 18 DELETE, 140 writes, 36 files, 109 needing a real id); 132 GET routes swept
+  live → 98×200, 23×400, 6×404, 5×403, **0 5xx**. The 403s are `/api/admin/*` correctly refusing a
+  non-admin token. 1 bug fixed (`447aabd`).
+- s2 frontend-test: **MAX_TURNS (80)** (81 turns, $10.09) — 3 bugs fixed, 2 of them white-screens.
+- s3 ui-audit: **COMPLETED** (55 turns, $5.40) — the only stage to finish inside its cap.
+- s4 verify: **MAX_TURNS (40)** (41 turns, $2.74) — no evidence persisted; see gap #3.
+- s5 report: this entry. Recovered s4's ground truth by re-running its read-only DB script.
+  s1–s4 spend ≈ **$22.42**. **5 code commits stand for this run**, plus the s3 audit-report commit.
+- **ENVIRONMENT re-verified:** `::1:5173` PID 10884 = StormLeads; `0.0.0.0:5173` PID 10588 =
+  `C:\Projects\AVApp` (**WRONG APP**); `:3001` PID 22796 = API. `localhost:5173` is correct,
+  **`127.0.0.1:5173` is not.** Page title asserted before trusting any measurement.
+  `client/vite.config.js` clean.
+- **LESSON — the stored-junk class produced 3 of 5 bugs, and all three are the same shape: a
+  truthiness or length check standing in for a type check.** `x || []` does not guard a truthy
+  non-array; `x?.length` does not guard `[null]`. **Grep for that shape next run.**
+- **LESSON — a write-path guard and a render-path guard are two different fixes.** `447aabd` stops
+  new junk but cannot clean stored rows, which is exactly why `d575bf7` and `17fa0dc` were still
+  needed — and why each had to be proven *with the malformed row still in the database*.
+- **INFRA — s1, s2 and s4 all failed to write their charter `.txt` result files this run.**
+  `C:\tmp\api-test-results.txt` and `frontend-test-results.txt` still carry Run 68 and Run 67
+  dates. Only s3 wrote `ui-audit-results.txt` (and archived it to
+  `tests/audit-reports/ui-audit-run69.txt`). Run 67 had declared the incremental-write rule fixed
+  across all stages; **it has regressed to 1 of 4.** s1's JSON evidence (`qa-r69-getsweep.json`,
+  `qa-r69-stored.json`, `route-inventory.json`) did survive, which is the only reason this report
+  has API numbers.
+- **INFRA — Run 68 produced no report and no history entry at all.** Backfilled above as a clearly
+  labelled reconstructed stub. Drift baseline for next run: **`11cbe8d`**.
+
+---
