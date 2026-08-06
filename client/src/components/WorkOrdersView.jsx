@@ -5,7 +5,7 @@ import { getEstimates } from '../api/estimates';
 import { uploadDocument } from '../api/documents';
 import { showToast } from './Toast';
 import { IconPlusCircle, IconX, IconRefresh } from './Icons';
-import { CheckCircleIcon, CameraIcon, CheckIcon, DocumentArrowDownIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, CameraIcon, CheckIcon, DocumentArrowDownIcon, WrenchScrewdriverIcon } from '@heroicons/react/24/outline';
 import CustomSelect from './CustomSelect';
 import DatePicker from './DatePicker';
 import TimePicker from './TimePicker';
@@ -993,7 +993,7 @@ export default function WorkOrdersView() {
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
             padding: '80px 24px', textAlign: 'center', color: 'var(--text-muted)',
           }}>
-            <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>🔧</div>
+            <WrenchScrewdriverIcon style={{ width: 48, height: 48, marginBottom: 16, opacity: 0.3 }} />
             <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 8px' }}>
               No work orders yet
             </h2>

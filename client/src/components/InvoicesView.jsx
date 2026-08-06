@@ -7,7 +7,7 @@ import { IconX, IconFileText, IconDollar, IconSend, IconPlusCircle, IconArrowLef
 import CustomSelect from './CustomSelect';
 import DatePicker from './DatePicker';
 import { showToast } from './Toast';
-import { BanknotesIcon, DocumentCheckIcon, ClockIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { BanknotesIcon, DocumentCheckIcon, ClockIcon, CheckCircleIcon, ClipboardDocumentIcon, CreditCardIcon, BuildingLibraryIcon, ShieldCheckIcon, ChartBarIcon, EllipsisHorizontalCircleIcon } from '@heroicons/react/24/outline';
 import { formatCurrency } from '../utils/currency';
 
 const statusColors = {
@@ -1041,13 +1041,13 @@ function PaymentModal({ invoice, onClose, onRecorded }) {
   };
 
   const methodOptions = [
-    { value: 'check', label: 'Check', icon: '📋' },
-    { value: 'cash', label: 'Cash', icon: '💵' },
-    { value: 'card', label: 'Credit Card', icon: '💳' },
-    { value: 'ach', label: 'ACH / Bank Transfer', icon: '🏦' },
-    { value: 'insurance', label: 'Insurance Proceeds', icon: '🛡️' },
-    { value: 'financing', label: 'Financing', icon: '📊' },
-    { value: 'other', label: 'Other', icon: '📝' },
+    { value: 'check', label: 'Check', Icon: ClipboardDocumentIcon },
+    { value: 'cash', label: 'Cash', Icon: BanknotesIcon },
+    { value: 'card', label: 'Credit Card', Icon: CreditCardIcon },
+    { value: 'ach', label: 'ACH / Bank Transfer', Icon: BuildingLibraryIcon },
+    { value: 'insurance', label: 'Insurance Proceeds', Icon: ShieldCheckIcon },
+    { value: 'financing', label: 'Financing', Icon: ChartBarIcon },
+    { value: 'other', label: 'Other', Icon: EllipsisHorizontalCircleIcon },
   ];
 
   return (
@@ -1129,7 +1129,7 @@ function PaymentModal({ invoice, onClose, onRecorded }) {
                 background: paymentMethod === m.value ? 'oklch(0.35 0.12 145 / 0.3)' : undefined,
                 border: paymentMethod === m.value ? '1px solid oklch(0.55 0.18 145)' : undefined,
               }}>
-                <div style={{ fontSize: 16, marginBottom: 2 }}>{m.icon}</div>
+                <div style={{ marginBottom: 2, display: 'flex', justifyContent: 'center' }}><m.Icon style={{ width: 16, height: 16 }} /></div>
                 {m.label}
               </button>
             ))}
@@ -1141,7 +1141,7 @@ function PaymentModal({ invoice, onClose, onRecorded }) {
                 background: paymentMethod === m.value ? 'oklch(0.35 0.12 145 / 0.3)' : undefined,
                 border: paymentMethod === m.value ? '1px solid oklch(0.55 0.18 145)' : undefined,
               }}>
-                <div style={{ fontSize: 16, marginBottom: 2 }}>{m.icon}</div>
+                <div style={{ marginBottom: 2, display: 'flex', justifyContent: 'center' }}><m.Icon style={{ width: 16, height: 16 }} /></div>
                 {m.label}
               </button>
             ))}
