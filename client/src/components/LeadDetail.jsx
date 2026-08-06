@@ -29,6 +29,7 @@ import {
   ExclamationTriangleIcon,
   PaperAirplaneIcon,
   BanknotesIcon,
+  ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 import PhotoAnnotator from './PhotoAnnotator';
 import DatePicker from './DatePicker';
@@ -490,9 +491,11 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                   border: `1px solid ${priority === 'hot' ? 'oklch(0.68 0.22 25 / 0.3)' : priority === 'warm' ? 'oklch(0.78 0.17 85 / 0.3)' : 'oklch(0.72 0.19 250 / 0.3)'}`,
                   borderRadius: 'var(--radius-pill)', padding: '4px 12px',
                   fontSize: 11, fontWeight: 700, textTransform: 'uppercase', cursor: 'pointer',
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
                 }}
               >
-                {priority} ▾
+                {priority}
+                <ChevronDownIcon style={{ width: 10, height: 10, flexShrink: 0, opacity: 0.5, strokeWidth: 2.5 }} />
               </button>
               {openDropdown === 'priority' && (
                 <div style={{
@@ -530,9 +533,11 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                   border: '1px solid oklch(0.35 0.02 260)',
                   borderRadius: 'var(--radius-pill)', padding: '4px 12px',
                   fontSize: 11, fontWeight: 600, cursor: 'pointer',
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
                 }}
               >
-                {stageLabels[stage] || stage} ▾
+                {stageLabels[stage] || stage}
+                <ChevronDownIcon style={{ width: 10, height: 10, flexShrink: 0, opacity: 0.5, strokeWidth: 2.5 }} />
               </button>
               {openDropdown === 'stage' && (
                 <div style={{
@@ -1068,7 +1073,8 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                       display: 'flex', alignItems: 'center', gap: 4,
                     }}
                   >
-                    {roofType === '—' ? 'Select type ▾' : <>{roofType} <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>▾</span></>}
+                    {roofType === '—' ? 'Select type' : roofType}
+                    <ChevronDownIcon style={{ width: 10, height: 10, flexShrink: 0, opacity: 0.5, strokeWidth: 2.5 }} />
                   </button>
                   {openRoofType && (
                     <>

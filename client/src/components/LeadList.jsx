@@ -3,6 +3,7 @@ import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
 import { getLeads, bulkAssign, bulkStatus, getTeamMembers } from '../api/crm';
 const LeadDetail = lazy(() => import('./LeadDetail'));
 import { IconSearch, IconDownload, IconFilter, IconX, IconUpload, IconBookmark } from './Icons';
+import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import CustomSelect from './CustomSelect';
 import ImportLeadsModal from './ImportLeadsModal';
 
@@ -236,7 +237,12 @@ export default function LeadList() {
   };
 
   const totalPages = Math.ceil(total / pageSize);
-  const sortArrow = (col) => sortBy === col ? (sortDir === 'ASC' ? ' \u25B2' : ' \u25BC') : '';
+  const sortArrowStyle = { width: 10, height: 10, marginLeft: 4, display: 'inline-block', verticalAlign: 'middle', strokeWidth: 2.5, opacity: 0.5 };
+  const sortArrow = (col) => {
+    if (sortBy !== col) return null;
+    const Arrow = sortDir === 'ASC' ? ChevronUpIcon : ChevronDownIcon;
+    return <Arrow style={sortArrowStyle} />;
+  };
 
   // Selection helpers
   const allOnPageSelected = leads.length > 0 && leads.every(l => selected.has(l.id));
