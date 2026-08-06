@@ -2252,7 +2252,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                   </div>
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 'var(--space-xs)' }}>
-                  Estimated cost: ${estimatedCost.toFixed(2)} | Estimated profit: ${(total - estimatedCost).toFixed(2)}
+                  Estimated cost: {formatCurrency(estimatedCost)} | Estimated profit: {formatCurrency(total - estimatedCost)}
                 </div>
               </div>
 
@@ -2267,26 +2267,26 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-xs)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
                     <span style={{ color: 'var(--text-secondary)' }}>Subtotal</span>
-                    <span style={{ fontWeight: 600 }}>${subtotal.toFixed(2)}</span>
+                    <span style={{ fontWeight: 600 }}>{formatCurrency(subtotal)}</span>
                   </div>
                   {discounts.map((d, i) => {
                     const amt = d.type === 'percent' ? subtotal * (Number(d.value) || 0) / 100 : Number(d.value) || 0;
                     return (
                       <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
                         <span style={{ color: 'var(--text-secondary)' }}>{d.name || `Discount ${i + 1}`}</span>
-                        <span style={{ color: 'var(--accent-red)' }}>-${amt.toFixed(2)}{d.type === 'percent' ? ` (${d.value}%)` : ''}</span>
+                        <span style={{ color: 'var(--accent-red)' }}>-{formatCurrency(amt)}{d.type === 'percent' ? ` (${d.value}%)` : ''}</span>
                       </div>
                     );
                   })}
                   {Number(form.tax_rate) > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
                       <span style={{ color: 'var(--text-secondary)' }}>Tax ({(Number(form.tax_rate) * 100).toFixed(2)}%)</span>
-                      <span>${taxAmount.toFixed(2)}</span>
+                      <span>{formatCurrency(taxAmount)}</span>
                     </div>
                   )}
                   <div style={{ borderTop: '1px solid var(--glass-border)', marginTop: 'var(--space-xs)', paddingTop: 'var(--space-sm)', display: 'flex', justifyContent: 'space-between', fontSize: 16 }}>
                     <span style={{ fontWeight: 800 }}>Total</span>
-                    <span style={{ fontWeight: 800, color: 'var(--accent-green)' }}>${total.toFixed(2)}</span>
+                    <span style={{ fontWeight: 800, color: 'var(--accent-green)' }}>{formatCurrency(total)}</span>
                   </div>
                 </div>
               </div>
