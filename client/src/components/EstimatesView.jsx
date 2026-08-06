@@ -1297,6 +1297,11 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   const [imageUploadTarget, setImageUploadTarget] = useState(null); // section id
   const editorRef = useRef(null);
   const sectionRefs = useRef({});
+  // Holds the exact form object produced by hydration below, so the autosave effect can
+  // tell "the estimate just loaded" apart from "the user edited something". Identity is
+  // the signal: every user mutation goes through setForm(f => ({ ...f })) and therefore
+  // produces a different object.
+  const hydratedFormRef = useRef(null);
 
   useEffect(() => {
     estimatesApi.getTemplates()
@@ -1306,7 +1311,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
 
   useEffect(() => {
     if (estimate) {
-      setForm({
+      const hydrated = {
         customer_name: estimate.customer_name || '',
         customer_address: estimate.customer_address || '',
         customer_phone: estimate.customer_phone || '',
@@ -1329,7 +1334,9 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
         notes: estimate.notes || '',
         valid_until: estimate.valid_until ? estimate.valid_until.split('T')[0] : '',
         inspection_notes: estimate.inspection_notes || '',
-      });
+      };
+      hydratedFormRef.current = hydrated;
+      setForm(hydrated);
       if (estimate.discounts && Array.isArray(estimate.discounts)) {
         setDiscounts(estimate.discounts);
       }
@@ -1356,6 +1363,13 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   // Auto-save (debounced, only for existing estimates)
   useEffect(() => {
     if (!estimate?.id) return;
+    // Merely OPENING an estimate must not write to the database. Hydration replaces `form`
+    // with a fresh object, which is indistinguishable from an edit to this effect's deps —
+    // so it autosaved every estimate the moment it was opened, rewriting rows the user
+    // never touched (NULL -> '' on eight text columns, a bumped updated_at, and a rewritten
+    // line_items array). Harmless while ea15a50's `valid_until: ''` bug made every one of
+    // those PATCHes 400; a real write as soon as that was fixed.
+    if (form === hydratedFormRef.current) return;
     setAutoSaveStatus('');
     const timer = setTimeout(async () => {
       setAutoSaveStatus('saving');
