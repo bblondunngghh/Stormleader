@@ -3,6 +3,7 @@
 **Run 69 · 2026-08-05 · branch `feat/financing`**
 Baseline: `15c4552` (checkpoint: pre-overnight-run 2026-08-05) · Final HEAD: `5dc9743`
 Stages: s1 api-test · s2 frontend-test · s3 ui-audit · s4 verify · s5 report (this document)
+Final client build: **exit 0, 7.78s, 0 errors**
 
 ---
 
@@ -21,6 +22,7 @@ Stages: s1 api-test · s2 frontend-test · s3 ui-audit · s4 verify · s5 report
 | UI inconsistencies fixed | **1** |
 | Findings reported, not fixed (out of charter) | 11 |
 | False positives correctly dismissed | 3 |
+| Final client build | **exit 0**, 7.78s |
 
 Five bugs found, five fixed. **Three were app-killing white-screens** — clicking any lead, editing the newest invoice, and the Custom Fields settings tab. Three of the five share a single root shape: *a truthiness or length check standing in for a type check.*
 
