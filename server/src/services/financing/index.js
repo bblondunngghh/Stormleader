@@ -356,7 +356,11 @@ export async function createPublicApplication(estimateToken, planId) {
     estimateId: estimate.id,
     leadId: estimate.lead_id,
     planId,
-    amount: estimate.total,
+    // financing_applications.amount is an INTEGER of cents (so are the plans'
+    // min_amount/max_amount, and hearth.js sends amount/100). estimates.total is
+    // numeric DOLLARS ("15000.00"), which Postgres rejects for an integer column.
+    // Same conversion the customer page already does at PublicEstimate.jsx:307.
+    amount: estimate.total == null ? null : Math.round(Number(estimate.total) * 100),
     customerName: estimate.customer_name,
     customerEmail: estimate.customer_email,
     callbackUrl,
