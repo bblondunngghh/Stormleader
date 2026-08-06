@@ -1314,7 +1314,14 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
         estimate_name: estimate.estimate_name || '',
         estimate_date: estimate.estimate_date ? estimate.estimate_date.split('T')[0] : new Date().toISOString().split('T')[0],
         introduction: estimate.introduction || 'Thank you for choosing us for your roofing needs. We have conducted a thorough inspection of your property and prepared the following estimate for the recommended repairs.',
-        line_items: estimate.line_items || [],
+        // `|| []` guards a missing array but NOT a null/non-object ELEMENT inside it,
+        // and every consumer below does a bare property read (`item.srs_product_id` at
+        // :1491 runs in the render body, so a null element unmounts the whole SPA).
+        // Sanitize once here at the state boundary — same fix shape as the invoice
+        // line_items guard, and the same Array.isArray convention used at :1326/:1329.
+        line_items: Array.isArray(estimate.line_items)
+          ? estimate.line_items.filter(i => i && typeof i === 'object')
+          : [],
         tax_rate: Number(estimate.tax_rate) || 0,
         scope_of_work: estimate.scope_of_work || '',
         terms: estimate.terms || '',
