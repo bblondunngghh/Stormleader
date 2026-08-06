@@ -168,10 +168,18 @@ export async function updateEstimate(tenantId, estimateId, updates) {
   const setClauses = [];
   const params = [tenantId, estimateId];
 
+  const jsonFields = ['line_items', 'financing_plan_ids', 'insurance_details', 'upgrades'];
+  // Nullable date columns. The builder holds '' for "no date" and autosaves the whole
+  // form, but Postgres rejects '' for a date column ("invalid input syntax for type
+  // date"), which 400s the PATCH. createEstimate already coerces this at :72
+  // (`valid_until || null`) — update was the odd one out.
+  const dateFields = ['valid_until'];
+
   for (const field of allowedFields) {
     if (updates[field] !== undefined) {
-      const jsonFields = ['line_items', 'financing_plan_ids', 'insurance_details', 'upgrades'];
-      const val = jsonFields.includes(field) ? JSON.stringify(updates[field]) : updates[field];
+      let val = updates[field];
+      if (jsonFields.includes(field)) val = JSON.stringify(val);
+      else if (dateFields.includes(field) && val === '') val = null;
       params.push(val);
       setClauses.push(`${field} = $${params.length}`);
     }
