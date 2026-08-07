@@ -1282,7 +1282,12 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   const [showSendModal, setShowSendModal] = useState(false);
   const [showSignModal, setShowSignModal] = useState(false);
   const [financingEnabled, setFinancingEnabled] = useState(estimate?.financing_enabled || false);
-  const [selectedPlanIds, setSelectedPlanIds] = useState(estimate?.financing_plan_ids || []);
+  // `|| []` only covers a FALSY value; financing_plan_ids is unvalidated JSONB, so a
+  // truthy non-array (object/number) survives it and then throws at the
+  // `selectedPlanIds.includes(plan.id)` read in the financing panel's render body.
+  const [selectedPlanIds, setSelectedPlanIds] = useState(
+    Array.isArray(estimate?.financing_plan_ids) ? estimate.financing_plan_ids : []
+  );
   const [availablePlans, setAvailablePlans] = useState([]);
   const [hasLender, setHasLender] = useState(false);
   const [insuranceDetails, setInsuranceDetails] = useState({
@@ -1350,8 +1355,13 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
         setInsuranceDetails(prev => ({ ...prev, ...estimate.insurance_details }));
         setInsuranceEnabled(true);
       }
-      if (estimate.upgrades && Array.isArray(estimate.upgrades) && estimate.upgrades.length > 0) {
-        setUpgrades(estimate.upgrades);
+      // Array.isArray guards the CONTAINER, not the ELEMENTS. `upgrades` is an
+      // unvalidated JSONB column, and the row renderer at :2467 does a bare
+      // `upg.selected` read in the render body, so one null element unmounts the
+      // whole SPA. Same fix shape as the line_items guard above.
+      if (Array.isArray(estimate.upgrades)) {
+        const clean = estimate.upgrades.filter(u => u && typeof u === 'object');
+        if (clean.length > 0) setUpgrades(clean);
       }
       if (estimate.deposit && estimate.deposit.amount) {
         setDeposit(prev => ({ ...prev, ...estimate.deposit }));
