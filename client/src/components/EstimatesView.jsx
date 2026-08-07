@@ -10,7 +10,7 @@ import DatePicker from './DatePicker';
 import { showToast } from './Toast';
 import { SRSCatalogModal } from './MaterialsView';
 import * as materialsApi from '../api/materials';
-import { CloudIcon, ClockIcon, CheckCircleIcon, BanknotesIcon, ClipboardDocumentListIcon, ShieldCheckIcon, Squares2X2Icon, ListBulletIcon, NumberedListIcon, LinkIcon, PrinterIcon, DocumentArrowDownIcon, PhotoIcon, QuestionMarkCircleIcon, PlusCircleIcon, PencilSquareIcon, TrashIcon, EyeIcon, EnvelopeIcon, DocumentDuplicateIcon, ArrowUpCircleIcon } from '@heroicons/react/24/outline';
+import { CloudIcon, ClockIcon, CheckCircleIcon, BanknotesIcon, ClipboardDocumentListIcon, ShieldCheckIcon, Squares2X2Icon, ListBulletIcon, NumberedListIcon, LinkIcon, PrinterIcon, DocumentArrowDownIcon, PhotoIcon, QuestionMarkCircleIcon, PlusCircleIcon, PencilSquareIcon, TrashIcon, EyeIcon, EnvelopeIcon, DocumentDuplicateIcon, ArrowUpCircleIcon, Bars3Icon } from '@heroicons/react/24/outline';
 
 function formatPhone(value) {
   const digits = value.replace(/\D/g, '').slice(0, 10);
@@ -1901,8 +1901,8 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             >
               {/* Drag handle */}
-              <span style={{ cursor: 'grab', fontSize: 14, color: 'var(--text-muted)', lineHeight: 1, userSelect: 'none', flexShrink: 0 }}>
-                &#x2807;
+              <span style={{ cursor: 'grab', color: 'var(--text-muted)', lineHeight: 1, userSelect: 'none', flexShrink: 0, display: 'inline-flex' }} title="Drag to reorder">
+                <Bars3Icon style={{ width: 14, height: 14, strokeWidth: 2 }} />
               </span>
               {/* Name */}
               <span style={{ flex: 1, fontSize: 12, fontWeight: activeSection === sec.id ? 600 : 400, color: activeSection === sec.id ? 'var(--accent-blue)' : 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -2109,7 +2109,9 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                     >
                       {/* Top row: drag + name + qty + price + total + delete */}
                       <div style={{ display: 'grid', gridTemplateColumns: '20px 1fr 70px 100px 80px 24px', gap: 'var(--space-sm)', alignItems: 'center' }}>
-                        <span style={{ cursor: 'grab', fontSize: 14, color: 'var(--text-muted)', lineHeight: 1, userSelect: 'none', textAlign: 'center' }}>&#x2807;</span>
+                        <span style={{ cursor: 'grab', color: 'var(--text-muted)', lineHeight: 1, userSelect: 'none', display: 'inline-flex', justifyContent: 'center' }} title="Drag to reorder">
+                          <Bars3Icon style={{ width: 14, height: 14, strokeWidth: 2 }} />
+                        </span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
                           {item.srs_product_id && (
                             <span title={`Linked: ${item.srs_sku || item.srs_product_id}`} style={{

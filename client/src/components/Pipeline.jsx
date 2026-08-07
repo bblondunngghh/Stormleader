@@ -3,6 +3,7 @@ import { getLeads, getLeadDetail, getPipelineStages, updateLead, getTeamMembers 
 import { getActivities } from '../api/crm';
 import { showToast } from './Toast';
 import { IconRefresh, IconPlusCircle, IconPhone, IconCalendar, IconFilter, IconX, IconChevronDown, IconEyeOff, IconEye, IconMail } from './Icons';
+import { CheckIcon } from '@heroicons/react/24/outline';
 import CustomSelect from './CustomSelect';
 import { UserCircleIcon, FireIcon, SunIcon, CloudIcon, ArrowsPointingOutIcon, CurrencyDollarIcon, WrenchScrewdriverIcon, BanknotesIcon, ArrowLeftIcon, ClockIcon, PaperClipIcon, PlusIcon } from '@heroicons/react/24/outline';
 const LeadDetail = lazy(() => import('./LeadDetail'));
@@ -838,8 +839,9 @@ export default function Pipeline() {
                     <span style={{
                       fontSize: 10, fontWeight: 700, flexShrink: 0,
                       color: lead.task_done === lead.task_total ? 'oklch(0.75 0.18 155)' : 'oklch(0.65 0.12 250)',
+                      display: 'inline-flex', alignItems: 'center', gap: 1,
                     }}>
-                      ✓{lead.task_done}/{lead.task_total}
+                      <CheckIcon style={{ width: 10, height: 10, strokeWidth: 3, flexShrink: 0 }} />{lead.task_done}/{lead.task_total}
                     </span>
                   )}
                   {/* Days badge */}
@@ -1275,7 +1277,7 @@ export default function Pipeline() {
                                   }}
                                   title={`${lead.task_done}/${lead.task_total} tasks completed`}
                                 >
-                                  ✓ {lead.task_done}/{lead.task_total}
+                                  <CheckIcon style={{ width: 10, height: 10, strokeWidth: 3, flexShrink: 0 }} />{lead.task_done}/{lead.task_total}
                                 </span>
                               )}
                             </div>

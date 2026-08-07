@@ -30,6 +30,8 @@ import {
   PaperAirplaneIcon,
   BanknotesIcon,
   ChevronDownIcon,
+  ArrowPathIcon,
+  ArrowTopRightOnSquareIcon,
 } from '@heroicons/react/24/outline';
 import PhotoAnnotator from './PhotoAnnotator';
 import DatePicker from './DatePicker';
@@ -651,7 +653,9 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                             const resp = await client.post(`/crm/leads/${leadId}/score`);
                             setLead(prev => ({ ...prev, lead_score: resp.data.score, lead_score_factors: resp.data.factors }));
                           } catch {}
-                        }} style={{ background: 'none', border: 'none', color: 'oklch(0.70 0.15 230)', fontSize: 10, cursor: 'pointer', fontWeight: 600 }}>↻ Refresh</button>
+                        }} style={{ background: 'none', border: 'none', color: 'oklch(0.70 0.15 230)', fontSize: 10, cursor: 'pointer', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                          <ArrowPathIcon style={{ width: 11, height: 11, strokeWidth: 2.5 }} />Refresh
+                        </button>
                       </div>
                       {factorList.map(({ label, score: s, max }) => (
                         <div key={label} style={{ marginBottom: 6 }}>
@@ -2696,8 +2700,10 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                     setShowStreetView(false); setMapMode('street');
                   }} style={{
                     background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)',
-                    fontSize: 18, lineHeight: 1, padding: '0 4px',
-                  }}>✕</button>
+                    lineHeight: 1, padding: '0 4px', display: 'inline-flex', alignItems: 'center',
+                  }} title="Close map">
+                    <IconX width={16} height={16} />
+                  </button>
                 </div>
               </div>
               {mapMode === 'street' ? (
@@ -2746,8 +2752,9 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
               }}>
                 <div />
                 <a href={mapsLink} target="_blank" rel="noopener noreferrer"
-                  style={{ fontSize: 11, color: 'var(--accent-blue)', textDecoration: 'none' }}>
-                  Open in Google Maps ↗
+                  style={{ fontSize: 11, color: 'var(--accent-blue)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                  Open in Google Maps
+                  <ArrowTopRightOnSquareIcon style={{ width: 11, height: 11, strokeWidth: 2 }} />
                 </a>
               </div>
             </div>
