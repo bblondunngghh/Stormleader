@@ -467,14 +467,44 @@ export async function getPipelineStages(tenantId) {
 // PIPELINE METRICS
 // ============================================================
 
-export async function getPipelineMetrics(tenantId) {
+// Dashboard filter bar (period / rep / source). The client has always sent
+// rep, source and date_from to /crm/dashboard/stats, /crm/pipeline/metrics and
+// /crm/dashboard/activity; those routes dropped req.query, so the whole bar was
+// inert. Mirrors buildLeadFilters() in dashboardService.js so the two dashboard
+// routers agree on what a filter means.
+function buildLeadFilterClause(filters = {}, { alias = '', startIndex = 1 } = {}) {
+  const col = alias ? `${alias}.` : '';
+  const conditions = [];
+  const params = [];
+  const next = () => `$${startIndex + params.length - 1}`;
+  if (filters.rep) {
+    params.push(filters.rep);
+    conditions.push(`${col}assigned_rep_id = ${next()}`);
+  }
+  if (filters.source) {
+    params.push(filters.source);
+    conditions.push(`${col}source = ${next()}`);
+  }
+  if (filters.dateFrom) {
+    params.push(filters.dateFrom);
+    conditions.push(`${col}created_at >= ${next()}::timestamptz`);
+  }
+  if (filters.dateTo) {
+    params.push(`${filters.dateTo}T23:59:59Z`);
+    conditions.push(`${col}created_at <= ${next()}::timestamptz`);
+  }
+  return { clause: conditions.length ? ` AND ${conditions.join(' AND ')}` : '', params };
+}
+
+export async function getPipelineMetrics(tenantId, filters = {}) {
+  const f = buildLeadFilterClause(filters, { alias: 'l', startIndex: 2 });
   const { rows } = await pool.query(
     `SELECT
        l.stage,
        COUNT(*) AS count,
        COALESCE(SUM(l.estimated_value), 0) AS value
      FROM leads l
-     WHERE l.tenant_id = $1 AND l.deleted_at IS NULL AND l.stage != 'lost'
+     WHERE l.tenant_id = $1 AND l.deleted_at IS NULL AND l.stage != 'lost'${f.clause}
      GROUP BY l.stage
      ORDER BY
        CASE l.stage
@@ -487,7 +517,7 @@ export async function getPipelineMetrics(tenantId) {
          WHEN 'sold' THEN 6
          WHEN 'in_production' THEN 7
        END`,
-    [tenantId]
+    [tenantId, ...f.params]
   );
 
   // Merge with pipeline stages for color/label (getPipelineStages returns
@@ -514,7 +544,15 @@ export async function getPipelineMetrics(tenantId) {
 // DASHBOARD STATS
 // ============================================================
 
-export async function getDashboardStats(tenantId) {
+export async function getDashboardStats(tenantId, filters = {}) {
+  const f = buildLeadFilterClause(filters, { startIndex: 2 });
+  // The comparison and Speed-to-Lead queries below declare their OWN windows
+  // (prev 7-14d, speed 30d) and the cards are labelled with them, so the period
+  // filter must not narrow those — but rep/source still have to apply.
+  const scopeOnly = { rep: filters.rep, source: filters.source };
+  const fPrev = buildLeadFilterClause(scopeOnly, { startIndex: 2 });
+  const fSpeed = buildLeadFilterClause(scopeOnly, { alias: 'l', startIndex: 2 });
+
   // Current period stats
   const { rows } = await pool.query(
     `SELECT
@@ -526,8 +564,8 @@ export async function getDashboardStats(tenantId) {
        COALESCE(SUM(CASE WHEN stage = 'sold' THEN COALESCE(actual_value, estimated_value) ELSE 0 END), 0) AS sold_value,
        COALESCE(AVG(CASE WHEN stage = 'sold' THEN EXTRACT(DAY FROM updated_at - created_at) END), 0) AS avg_days_to_close
      FROM leads
-     WHERE tenant_id = $1 AND deleted_at IS NULL`,
-    [tenantId]
+     WHERE tenant_id = $1 AND deleted_at IS NULL${f.clause}`,
+    [tenantId, ...f.params]
   );
 
   // Previous week stats for comparison
@@ -538,8 +576,8 @@ export async function getDashboardStats(tenantId) {
        COUNT(CASE WHEN created_at >= now() - interval '14 days'
          AND created_at < now() - interval '7 days' THEN 1 END) AS prev_new_leads
      FROM leads
-     WHERE tenant_id = $1 AND deleted_at IS NULL`,
-    [tenantId]
+     WHERE tenant_id = $1 AND deleted_at IS NULL${fPrev.clause}`,
+    [tenantId, ...fPrev.params]
   );
 
   // Speed to Lead: avg minutes from lead creation to first activity (vs RoofLink/Roofr)
@@ -551,8 +589,8 @@ export async function getDashboardStats(tenantId) {
        FROM activities a WHERE a.lead_id = l.id
      ) first_touch ON first_touch.first_at IS NOT NULL
      WHERE l.tenant_id = $1 AND l.deleted_at IS NULL
-       AND l.created_at >= now() - interval '30 days'`,
-    [tenantId]
+       AND l.created_at >= now() - interval '30 days'${fSpeed.clause}`,
+    [tenantId, ...fSpeed.params]
   );
   const avgSpeedMinutes = Math.round(parseFloat(speedRows[0]?.avg_minutes) || 0);
 
@@ -630,17 +668,28 @@ export async function getDashboardStats(tenantId) {
   };
 }
 
-export async function getRecentActivity(tenantId, limit = 15) {
+export async function getRecentActivity(tenantId, limit = 15, filters = {}) {
+  // rep/source describe the LEAD; the period describes the ACTIVITY, so the two
+  // halves bind to different aliases.
+  const fLead = buildLeadFilterClause(
+    { rep: filters.rep, source: filters.source },
+    { alias: 'l', startIndex: 2 }
+  );
+  const fDate = buildLeadFilterClause(
+    { dateFrom: filters.dateFrom, dateTo: filters.dateTo },
+    { alias: 'a', startIndex: 2 + fLead.params.length }
+  );
+  const limitIndex = 2 + fLead.params.length + fDate.params.length;
   const { rows } = await pool.query(
     `SELECT a.*, l.address, l.contact_name, l.stage,
             u.first_name AS user_first_name, u.last_name AS user_last_name
      FROM activities a
      JOIN leads l ON l.id = a.lead_id
      LEFT JOIN users u ON u.id = a.user_id
-     WHERE a.tenant_id = $1
+     WHERE a.tenant_id = $1${fLead.clause}${fDate.clause}
      ORDER BY a.created_at DESC
-     LIMIT $2`,
-    [tenantId, limit]
+     LIMIT $${limitIndex}`,
+    [tenantId, ...fLead.params, ...fDate.params, limit]
   );
 
   return rows.map(r => {

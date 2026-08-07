@@ -439,10 +439,21 @@ router.get('/pipeline/stages', async (req, res, next) => {
   }
 });
 
+// Dashboard filter bar params (period/rep/source). Same shape as
+// extractFilters() in routes/dashboard.js.
+function extractDashFilters(query) {
+  const f = {};
+  if (query.rep) f.rep = query.rep;
+  if (query.source) f.source = query.source;
+  if (query.date_from) f.dateFrom = query.date_from;
+  if (query.date_to) f.dateTo = query.date_to;
+  return f;
+}
+
 // GET /api/crm/pipeline/metrics
 router.get('/pipeline/metrics', async (req, res, next) => {
   try {
-    const funnel = await crmService.getPipelineMetrics(req.tenantId);
+    const funnel = await crmService.getPipelineMetrics(req.tenantId, extractDashFilters(req.query));
     res.json({ funnel });
   } catch (err) {
     next(err);
@@ -456,7 +467,7 @@ router.get('/pipeline/metrics', async (req, res, next) => {
 // GET /api/crm/dashboard/stats
 router.get('/dashboard/stats', async (req, res, next) => {
   try {
-    const result = await crmService.getDashboardStats(req.tenantId);
+    const result = await crmService.getDashboardStats(req.tenantId, extractDashFilters(req.query));
     res.json(result);
   } catch (err) {
     next(err);
@@ -466,7 +477,7 @@ router.get('/dashboard/stats', async (req, res, next) => {
 // GET /api/crm/dashboard/activity
 router.get('/dashboard/activity', async (req, res, next) => {
   try {
-    const activity = await crmService.getRecentActivity(req.tenantId);
+    const activity = await crmService.getRecentActivity(req.tenantId, 15, extractDashFilters(req.query));
     res.json({ activity });
   } catch (err) {
     next(err);
