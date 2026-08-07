@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
 import {
   getDripSequences,
   getDripSequence,
@@ -314,9 +315,11 @@ export default function DripSequences() {
                         padding: '2px 8px', borderRadius: 'var(--radius-sm)', fontSize: 14,
                         border: '1px solid var(--glass-border)', cursor: idx === 0 ? 'default' : 'pointer',
                         background: 'transparent', color: 'var(--text-muted)', opacity: idx === 0 ? 0.3 : 1,
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                       }}
+                      title="Move step up"
                     >
-                      ↑
+                      <ArrowUpIcon style={{ width: 14, height: 14, strokeWidth: 2 }} />
                     </button>
                     <button
                       onClick={() => moveStep(idx, 1)}
@@ -325,9 +328,11 @@ export default function DripSequences() {
                         padding: '2px 8px', borderRadius: 'var(--radius-sm)', fontSize: 14,
                         border: '1px solid var(--glass-border)', cursor: idx === form.steps.length - 1 ? 'default' : 'pointer',
                         background: 'transparent', color: 'var(--text-muted)', opacity: idx === form.steps.length - 1 ? 0.3 : 1,
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                       }}
+                      title="Move step down"
                     >
-                      ↓
+                      <ArrowDownIcon style={{ width: 14, height: 14, strokeWidth: 2 }} />
                     </button>
 
                     {form.steps.length > 1 && (

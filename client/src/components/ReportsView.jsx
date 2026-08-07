@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowDownTrayIcon, ArrowTrendingUpIcon } from '@heroicons/react/24/outline';
+import {
+  ArrowDownTrayIcon, ArrowTrendingUpIcon,
+  ChevronUpIcon, ChevronDownIcon,
+  ArrowUpIcon, ArrowDownIcon, ArrowRightIcon,
+} from '@heroicons/react/24/outline';
 import DatePicker from './DatePicker';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
@@ -357,7 +361,14 @@ function RepLeaderboard({ start, end, compare }) {
     else { setSortKey(key); setSortDir('desc'); }
   };
 
-  const arrow = (key) => sortKey === key ? (sortDir === 'asc' ? ' \u25B2' : ' \u25BC') : '';
+  // Matches LeadList's sort indicator exactly (e29e005) \u2014 which in turn matches
+  // CustomSelect's chevron. 10x10, opacity 0.5, strokeWidth 2.5.
+  const sortArrowStyle = { width: 10, height: 10, marginLeft: 4, display: 'inline-block', verticalAlign: 'middle', strokeWidth: 2.5, opacity: 0.5 };
+  const arrow = (key) => {
+    if (sortKey !== key) return null;
+    const Arrow = sortDir === 'asc' ? ChevronUpIcon : ChevronDownIcon;
+    return <Arrow style={sortArrowStyle} />;
+  };
 
   if (loading) return <div className="report-card__loader">Loading...</div>;
   if (!data.length) return <div className="report-card__empty">No rep data for this period</div>;
@@ -525,13 +536,14 @@ function DeltaBadge({ current, previous, format = 'number', suffix = '' }) {
   const isNeutral = Math.abs(delta) < 0.5;
   const color = isNeutral ? 'oklch(0.55 0.02 260)' : isUp ? 'oklch(0.75 0.18 155)' : 'oklch(0.68 0.22 25)';
   const bg = isNeutral ? 'oklch(0.55 0.02 260 / 0.1)' : isUp ? 'oklch(0.75 0.18 155 / 0.12)' : 'oklch(0.68 0.22 25 / 0.12)';
-  const arrow = isNeutral ? '→' : isUp ? '↑' : '↓';
+  const Arrow = isNeutral ? ArrowRightIcon : isUp ? ArrowUpIcon : ArrowDownIcon;
   return (
     <span style={{
       fontSize: 11, fontWeight: 700, padding: '2px 6px', borderRadius: 999,
       color, background: bg, display: 'inline-flex', alignItems: 'center', gap: 3,
     }}>
-      {arrow} {Math.abs(delta).toFixed(0)}%{suffix}
+      <Arrow style={{ width: 11, height: 11, strokeWidth: 2.5, flexShrink: 0 }} />
+      {Math.abs(delta).toFixed(0)}%{suffix}
     </span>
   );
 }

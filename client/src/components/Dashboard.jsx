@@ -18,6 +18,9 @@ import {
   SignalIcon,
   HomeIcon,
   ExclamationTriangleIcon,
+  ArrowUpIcon,
+  ArrowDownIcon,
+  CheckIcon,
   StarIcon,
   WalletIcon,
   ArrowsRightLeftIcon,
@@ -528,13 +531,16 @@ function RevenueGoalBar({ stats }) {
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider">{monthName} Revenue Goal</span>
           <span
-            className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+            className="text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1"
             style={{
               color: isOnTrack ? 'oklch(0.75 0.18 155)' : 'oklch(0.68 0.22 25)',
               background: isOnTrack ? 'oklch(0.75 0.18 155 / 0.12)' : 'oklch(0.68 0.22 25 / 0.12)',
             }}
           >
-            {isOnTrack ? '✓ On Track' : '⚠ Behind'}
+            {isOnTrack
+              ? <CheckIcon style={{ width: 11, height: 11, strokeWidth: 2.5, flexShrink: 0 }} />
+              : <ExclamationTriangleIcon style={{ width: 11, height: 11, strokeWidth: 2.5, flexShrink: 0 }} />}
+            {isOnTrack ? 'On Track' : 'Behind'}
           </span>
         </div>
         <div className="flex items-center gap-3">
@@ -1322,14 +1328,18 @@ export default function Dashboard() {
         {stats.map((stat) => (
           <GlassCard key={stat.label} onClick={() => navigate(stat.link)} className="group cursor-pointer p-5 flex flex-col gap-2 items-center text-center relative">
             <span
-              className="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full"
+              className="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-0.5"
               style={{
                 color: stat.change === 'Excellent' ? 'oklch(0.75 0.18 155)' : stat.change === 'Slow' ? 'oklch(0.68 0.22 25)' : stat.change === 'Good' ? 'oklch(0.78 0.17 85)' : stat.change?.startsWith?.('+') ? 'oklch(0.75 0.18 155)' : stat.change?.startsWith?.('-') ? 'oklch(0.68 0.22 25)' : 'var(--text-muted)',
                 background: stat.change === 'Excellent' ? 'oklch(0.75 0.18 155 / 0.12)' : stat.change === 'Slow' ? 'oklch(0.68 0.22 25 / 0.12)' : stat.change === 'Good' ? 'oklch(0.78 0.17 85 / 0.12)' : stat.change?.startsWith?.('+') ? 'oklch(0.75 0.18 155 / 0.12)' : stat.change?.startsWith?.('-') ? 'oklch(0.68 0.22 25 / 0.12)' : 'oklch(0.55 0.02 260 / 0.1)',
               }}
               title={stat.icon === 'speed' ? 'Avg response time (30d)' : 'vs previous week'}
             >
-              {stat.change?.startsWith?.('+') ? '↑ ' : stat.change?.startsWith?.('-') ? '↓ ' : ''}{stat.change}
+              {stat.change?.startsWith?.('+')
+                ? <ArrowUpIcon style={{ width: 10, height: 10, strokeWidth: 3, flexShrink: 0 }} />
+                : stat.change?.startsWith?.('-')
+                  ? <ArrowDownIcon style={{ width: 10, height: 10, strokeWidth: 3, flexShrink: 0 }} />
+                  : null}{stat.change}
             </span>
             {(() => { const StatIcon = statIconMap[stat.icon]; return StatIcon ? <StatIcon width={28} height={28} className="opacity-85 transition-transform duration-300 ease-out group-hover:rotate-12" style={{ filter: `drop-shadow(0 0 6px oklch(0.50 0.10 ${stat.tint} / 0.3))` }} /> : null; })()}
             <div className="text-[28px] font-[820] tracking-[-0.04em] leading-none text-[var(--text-primary)]">

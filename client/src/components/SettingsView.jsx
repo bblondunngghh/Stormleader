@@ -13,7 +13,7 @@ import client from '../api/client';
 import * as onboardingApi from '../api/onboarding';
 import * as paymentsApi from '../api/payments';
 import { showToast } from './Toast';
-import { CheckIcon, ArrowRightIcon, CreditCardIcon, WalletIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, ArrowRightIcon, CreditCardIcon, WalletIcon, PlusIcon, ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
 import AutomationSettings from './AutomationSettings';
 import DripSequences from './DripSequences';
 import CustomSelect from './CustomSelect';
@@ -763,8 +763,10 @@ function BillingTab() {
                   </div>
                   {changes.map((c, i) => (
                     <div key={i} style={{ fontSize: 13, color: 'var(--text-secondary)', display: 'flex', alignItems: 'flex-start', gap: 'var(--space-sm)' }}>
-                      <span style={{ color: c.better ? 'var(--accent-green)' : 'oklch(0.72 0.18 50)', flexShrink: 0, marginTop: 1 }}>
-                        {c.better ? '▲' : '▼'}
+                      <span style={{ color: c.better ? 'var(--accent-green)' : 'oklch(0.72 0.18 50)', flexShrink: 0, marginTop: 1, display: 'inline-flex' }}>
+                        {c.better
+                          ? <ArrowUpIcon style={{ width: 13, height: 13, strokeWidth: 2.5 }} />
+                          : <ArrowDownIcon style={{ width: 13, height: 13, strokeWidth: 2.5 }} />}
                       </span>
                       {c.list ? (
                         <span><strong>{c.label}:</strong> {c.list.join(', ')}</span>
