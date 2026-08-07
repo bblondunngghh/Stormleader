@@ -575,6 +575,12 @@ router.post('/orders', async (req, res, next) => {
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ error: 'items array is required' });
     }
+    // Array.isArray checks the container; the reduce below dereferences each
+    // ELEMENT, so a null entry threw and surfaced as a 500. `items` lands in a
+    // JSONB column, which stores any shape verbatim — reject here instead.
+    if (items.some((item) => !item || typeof item !== 'object' || Array.isArray(item))) {
+      return res.status(400).json({ error: 'each item must be an object' });
+    }
 
     const total_cost = items.reduce((sum, item) => {
       return sum + (Number(item.quantity) || 0) * (Number(item.unit_price) || 0);
@@ -664,7 +670,12 @@ router.post('/estimate/:estimateId/auto-order', validateId('estimateId'), async 
     if (estRows.length === 0) return res.status(404).json({ error: 'Estimate not found' });
 
     const estimate = estRows[0];
-    const lineItems = estimate.line_items || [];
+    // line_items is JSONB read straight back from the row, so it can be a
+    // non-array (not iterable -> throw) or hold null/non-object elements, and
+    // `li.description` below dereferences each one. Real rows already carry this
+    // junk (EST-082/EST-083 = [null]), so this is live data, not just fuzzing.
+    const lineItems = (Array.isArray(estimate.line_items) ? estimate.line_items : [])
+      .filter((li) => li && typeof li === 'object');
 
     // Match line items to products via keyword matching
     const orderItems = [];
