@@ -3349,3 +3349,145 @@ Branch `feat/financing` · baseline `d31a3db` · checkpoint `7177fdd` · final H
   labelled reconstructed stub. Drift baseline for next run: **`11cbe8d`**.
 
 ---
+
+## QA Run: 2026-08-06 (Run 70)
+
+### Test Results
+- Pages tested: **5 at interaction depth** (`/estimates`, `/invoices`, `/work-orders`, `/leads`,
+  `/leads/:id`). **No full 19-route render sweep is claimed** — s3 capped before writing results.
+- API endpoints tested: **272 inventoried** (re-counted independently at s5, reconciles exactly),
+  **252 exercised live (92.6%)** — 132 GET + **120 write routes**
+- Bugs found: **7**
+- Bugs fixed: **7**
+- UI inconsistencies found: **3** (across 6 component sites)
+- UI inconsistencies fixed: **3**
+- Server 5xx across every API phase (GET, write, type-confusion, auth): **0**
+- False positives correctly dismissed: **3**
+- Findings reported, not fixed: **6**
+- Final client build: **exit 0, 8.26s**
+
+### Fixes Made
+- `482d4bc` fix(ui): editing the two newest estimates white-screened the app.
+  `EstimatesView.jsx:1317` used `estimate.line_items || []` — guards a MISSING array but not a
+  NULL ELEMENT inside one, and `item.srs_product_id` at `:1491` runs in the render body, so the
+  throw unmounted the whole SPA. Ground truth over 84 estimates: `EST-083` = `[null]` (newest, so
+  the FIRST Edit button on the page), `EST-082` = `[null,"",1]` — **the same two rows behind the
+  PDF 500 fixed in `a023c66`**; the junk was never cleaned. Sanitized once at the state boundary,
+  covering all five consumers. Verified with the malformed rows still in the DB (innerText 0 to 1578).
+- `ea15a50` fix: estimate builder autosave failed silently for every estimate.
+  `updateEstimate` passed `valid_until: ''` into a Postgres `date` column, so every autosave PATCH
+  400'd; `createEstimate:72` had always coerced it (`valid_until || null`), update was the odd one
+  out. **Blast radius total, not an edge case: all 84 estimates have `valid_until IS NULL`**, so the
+  builder holds `''` for every one and NO edit in the builder was reaching the database. Invisible
+  because `EstimatesView.jsx:1366` swallows the rejection in a bare `catch`. Verified 400 to 200.
+- `e569bde` fix: financing application from a public estimate stored dollars in a cents column.
+  `createPublicApplication` passed `estimates.total` (`numeric`, dollars) into
+  `financing_applications.amount` (`integer`, cents). Units verified against the schema AND the
+  adapter contract in both directions (`hearth.js:38` x100 on the way in, `hearth.js:48`
+  `amount / 100` on the way out), not assumed. Left uncommitted by s1 at its cap; s2 verified and
+  committed it rather than leaving a partial fix on disk.
+- `4177dd5` fix(ui): estimate builder showed the same subtotal two different ways at once.
+  Line-items panel (`:2130`) used thousands separators while the Summary panel beside it hand-rolled
+  `toFixed(2)` — `$13,134.00` and `$13134.00` on screen simultaneously, the latter also being the
+  Total, the most prominent number on the page. Standardized on `formatCurrency` (already imported
+  at `:6`, already used at `:2103`/`:2419`/`:2483`) — same helper and same fix shape as `b7775a8`.
+  Also fixes negative rendering (`-$1,234.56`, not `$-1,234.56`) which the discount row relies on.
+- `8e022bd` fix(ui): invoices + work-orders used emoji as icons instead of Heroicons.
+  All 7 payment-method buttons in the Record Payment modal, plus the work-orders empty state.
+  **Why five prior icon audits missed it: every one swept `querySelectorAll('svg')`, and an emoji is
+  a TEXT NODE — those audits were structurally incapable of finding this class.** Verified live:
+  all 7 now match the app-wide `viewBox="0 0 24 24"` / `stroke-width=1.5` signature (2,209 SVGs).
+- `e29e005` fix(ui): leads + lead detail used text glyphs as dropdown/sort icons.
+  U+25BE on 3 `LeadDetail` dropdown triggers — so the page showed TWO different chevrons at once,
+  since every `CustomSelect` on the same view uses `ChevronDownIcon` (`CustomSelect.jsx:86`) — and
+  U+25B2 / U+25BC on all 7 `LeadList` sortable columns. **The `LeadList` one was missed by a source
+  grep because the source writes the glyphs ESCAPED; it was caught only by reading the rendered
+  DOM.** Verified: `chevronOffset 0` on all three triggers, ASC/DESC path still flips on re-click.
+- `8adf59e` fix: opening an estimate in the builder wrote to the database on its own.
+  Clicking Edit fired the debounced autosave with no user edit anywhere in the flow — one PATCH 200
+  ~2s after mount, rewriting `line_items` `[null]` to `[]`, `customer_name`/`notes` NULL to `''`, and
+  `updated_at` (so "last modified" no longer meant it). Root cause is the effect's DEPENDENCY, not
+  the debounce: hydration at `:1309` replaces `form` with a fresh object and `[form, estimate?.id]`
+  cannot tell that apart from a keystroke. **Fixed by identity, not by a timer** — `hydratedFormRef`
+  holds the hydrated object and the effect returns early when `form` IS it; all eight edit sites are
+  spread-copies, so every real mutation yields a different object. Verified with malformed `EST-082`
+  still present: open gives **0 PATCH (was 1)**, edit gives PATCH 200. Also removes a standing Neon
+  free-tier cost: browsing estimates was writing a row per open.
+
+### UI Consistency Fixes
+- `8e022bd`, `e29e005`, `4177dd5` — see above. 3 defects across 6 component sites: 8 emoji icon
+  slots, 10 text-glyph icon slots, and 5 money-format sites in the estimate Summary panel.
+- **Deliberately not changed:** Pipeline's inline storm-data glyphs and the lead-score bolt.
+  Heroicons has no hail or wind icon, and `CloudIcon` is already bound to `'cold'` priority at
+  `Pipeline.jsx:107` — substituting there would recreate the duplicate-icon defect `79c8945` fixed.
+- **METHOD RULE ESTABLISHED — sweep the SVGs, grep the source, AND read the rendered DOM.**
+  Each of the three missed a real defect this run that another caught. No one of them is sufficient.
+
+### Known Issues Remaining
+- **Autosave errors are still swallowed.** `EstimatesView.jsx:1366` `catch { setAutoSaveStatus('') }`
+  — moved off the error path by `ea15a50` but not removed. This bare catch is exactly why the
+  autosave bug survived 69 runs. Needs a design decision on error surfacing; out of charter.
+- **Run 66 type-confusion residue still in the live DB** — `PUT /api/materials/credentials` echoes
+  `preferred_branch_id:"true"` / `preferred_branch_name:"true"`. Not created by this run's probes.
+  A write guard cannot clean stored rows; needs a data migration.
+- **`EST-083` `[null]` and `EST-082` `[null,"",1]` deliberately left in place** so the new render
+  guards stay exercised against real junk. Both `482d4bc` and `8adf59e` were proven WITH them present.
+- **`GET /api/properties/fema-live` 500 — external** (`nsi.sec.usace.army.mil:443` connect timeout).
+  Carried from Run 69. Worth a graceful-degradation ticket.
+- **20 write routes permanently excluded** — geocode(1), import(3), send/test-email(5), payments(6),
+  skip-trace(4), plans/sync(1). Real money, real customer email, or bulk writes.
+- **JSONB columns unswept** — Phase 3 proved the `d575bf7` shape does NOT generalise to strongly-typed
+  columns and IS dangerous on JSONB. **Highest-value target for Run 71.**
+
+### Coverage Gaps (carried to next run)
+- **#1 — ALL FOUR upstream stages hit their turn caps** (s1 51/50, s2 81/80, s3 61/60, s4 41/40).
+  Every other gap is downstream of this. s1-s4 cost approx **$25.05**, ~58 min wall-clock.
+- **#2 — Interaction testing reached 5 of 19 routes** (up from 4). 7 bugs across those 5 pages, so
+  the other 14 are not "probably fine". No durable record exists for `/`, `/pipeline`, `/storm-map`,
+  `/storm-catalog`, `/alerts`, `/tasks`, `/calendar`, `/canvassing`, `/reports`, `/materials`,
+  `/contracts`, `/expenses`, `/subcontractors`, `/settings`, `/admin`.
+- **#3 — Write-path coverage is VALIDATION-depth, not PAYLOAD-depth.** 120 of 140 routes probed, but
+  with an empty body + nonexistent uuid. That proves nothing crashes on bad input — real and
+  valuable — but exercises ZERO successful-write logic. Realistic-payload writes remain ~3 routes.
+- **#4 — No tenant-isolation / IDOR probe ran.** 10 of 26 tenant-scoped routes still un-probable
+  (no second tenant has rows). Run 67's 16-route probe (0 leaks) remains the latest evidence.
+- **#5 — UI audit categories other than icons are UNEVIDENCED, not clean.** Buttons, toolbars/headers,
+  sidebar/nav and spacing produced no recorded findings, but s3 capped before writing results.
+  Esc-to-close (0/4 modals in Run 69) was not re-tested.
+- Storm Map, Admin, roof drawing still render-depth only (map code charter-excluded). Tab ORDER and
+  Enter-submit still untested. Google geocoding and side-effecting routes permanently excluded per
+  the standing cost rule. Mobile/375px paused per web-only focus.
+
+### Session Integrity
+- s1 api-test: **MAX_TURNS (50)** (51 turns, $5.20, 11.4 min) — 272 routes catalogued; **132 GET
+  gives 0 5xx**; **120 write routes give 0 5xx** (the pipeline's biggest historical gap, closed from
+  3); 13 type-confusion shapes give 0 5xx; 12 list endpoints checked for pagination correctness; 251
+  routes auth-swept with no credentials giving **236 protected, 14 public by design, 1 unexpected
+  (signup, PASS)**. Found the financing units bug but capped before committing it.
+- s2 frontend-test: **MAX_TURNS (80)** (81 turns, $8.05, 22.1 min) — 4 commits (1 white-screen,
+  1 total-blast-radius silent failure, 1 units bug inherited from s1, 1 money format).
+- s3 ui-audit: **MAX_TURNS (60)** (61 turns, $7.79, 16.4 min) — 2 icon-class commits, 6 sites.
+- s4 verify: **MAX_TURNS (40)** (41 turns, $4.00, 8.3 min) — found and fixed the write-on-open bug,
+  the run's subtlest finding, and re-proved `482d4bc` against real junk data.
+- s5 report: this entry. **7 code commits stand for this run.** Final build exit 0 (8.26s).
+- **LESSON — fixing one bug can ACTIVATE another, and this run caught it in the same night.**
+  While `ea15a50`'s 400 existed, the write-on-open PATCH silently failed too. Fixing the autosave is
+  what turned a latent bug into a real database write. **After any fix that makes a broken path
+  succeed, re-test what that path now does.**
+- **LESSON — this run's headline bugs produced NO error signal.** Four of seven were silent data
+  integrity defects, not crashes. Prior runs were dominated by white-screens that announce
+  themselves. A page that renders is not a page that works.
+- **LESSON — commit time is not edit time.** s1 nearly filed a stale-server bug: PID 22796 started
+  05:07:58 and `447aabd` was committed 05:10:29, but `crm.js` mtime was 05:07:33 — edited 25s BEFORE
+  boot, committed 2.5 min after. **Compare file mtime to process start time, never the commit date.**
+- **INFRA — 3 of 4 stages again failed to write their charter `.txt` file; the rule is 1-of-4 for the
+  SECOND consecutive run.** Only s1 wrote (05:08). `frontend-test-results.txt` still carries **Run
+  67** (2026-08-03) and `ui-audit-results.txt` still carries **Run 69** (2026-08-05) — a reader
+  trusting mtimes would report stale data as current. s3 also skipped its `tests/audit-reports/`
+  archive, which it produced in Runs 67 and 69. **What saved this report: all seven commit messages
+  carry a full live-verification block. Commit messages are now the pipeline's most reliable evidence
+  channel; the `.txt` rule is not.** Suggested fix: write the results file FIRST, append per finding.
+- Run 69's history entry was present and complete — no backfill needed this run (contrast Run 68).
+- Drift baseline for next run: **`8adf59e`**.
+
+---
