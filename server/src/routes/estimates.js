@@ -8,6 +8,30 @@ import { parsePagination } from '../utils/pagination.js';
 
 const router = Router();
 
+// estimateService writes these four columns with a bare JSON.stringify, and JSONB
+// stores whatever shape it is handed. Unlike a text[]/numeric column, there is no
+// cast to fail, so nothing rejects the write — the junk surfaces later as a render
+// crash in the builder (see f608588). Validate the container type on the way in;
+// element sanitizing stays on the client, which must stay defensive anyway because
+// a write guard cannot clean rows that are already stored.
+const JSON_ARRAY_FIELDS = ['line_items', 'financing_plan_ids', 'upgrades'];
+const JSON_OBJECT_FIELDS = ['insurance_details'];
+
+function validateJsonShapes(body) {
+  for (const f of JSON_ARRAY_FIELDS) {
+    if (body[f] !== undefined && body[f] !== null && !Array.isArray(body[f])) {
+      return `${f} must be an array`;
+    }
+  }
+  for (const f of JSON_OBJECT_FIELDS) {
+    const v = body[f];
+    if (v !== undefined && v !== null && (typeof v !== 'object' || Array.isArray(v))) {
+      return `${f} must be an object`;
+    }
+  }
+  return null;
+}
+
 // ============================================================
 // PUBLIC routes (no auth — customer-facing)
 // ============================================================
@@ -154,6 +178,8 @@ router.post('/', async (req, res, next) => {
     }
     const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!UUID_RE.test(req.body.lead_id)) return res.status(400).json({ error: 'Invalid lead_id format' });
+    const shapeErr = validateJsonShapes(req.body);
+    if (shapeErr) return res.status(400).json({ error: shapeErr });
     const estimate = await estimateService.createEstimate(req.tenantId, req.user.id, req.body);
     res.status(201).json(estimate);
   } catch (err) {
@@ -164,6 +190,8 @@ router.post('/', async (req, res, next) => {
 // Update estimate
 router.patch('/:id', validateId(), async (req, res, next) => {
   try {
+    const shapeErr = validateJsonShapes(req.body);
+    if (shapeErr) return res.status(400).json({ error: shapeErr });
     const estimate = await estimateService.updateEstimate(req.tenantId, req.params.id, req.body);
     if (!estimate) return res.status(404).json({ error: 'Estimate not found' });
     res.json(estimate);
