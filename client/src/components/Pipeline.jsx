@@ -116,6 +116,13 @@ const priorityOptions = [
 
 const sourceOptions = [
   { value: '', label: 'All Sources' },
+  // The four values below are the ones live code actually writes:
+  // storm_map + fema_nsi (StormMap.jsx:1826), canvassing (routes/canvassing.js:186),
+  // manual (CreateLeadModal.jsx:40). They were missing here, so 14 of 31 leads
+  // could not be filtered to at all. storm_auto/door_knock come from seed.js.
+  { value: 'storm_map', label: 'Storm Map' },
+  { value: 'fema_nsi', label: 'FEMA NSI' },
+  { value: 'canvassing', label: 'Canvassing' },
   { value: 'storm_auto', label: 'Storm' },
   { value: 'manual', label: 'Manual' },
   { value: 'referral', label: 'Referral' },

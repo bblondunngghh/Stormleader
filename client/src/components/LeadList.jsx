@@ -40,12 +40,19 @@ const stageKeys = Object.keys(stageLabels);
 
 const priorityLabels = { hot: 'Hot', warm: 'Warm', cold: 'Cold' };
 
+// storm_map/fema_nsi/canvassing are what live code actually writes to
+// leads.source (StormMap.jsx:1826, routes/canvassing.js:186); they were absent
+// here, so those rows fell through to the raw key and had no filter option.
+// storm_auto/door_knock are seed.js values and are kept for seeded databases.
 const sourceLabels = {
+  storm_map: 'Storm Map', fema_nsi: 'FEMA NSI', canvassing: 'Canvassing',
   storm_auto: 'Storm', manual: 'Manual', referral: 'Referral',
   website: 'Website', door_knock: 'Door Knock', phone: 'Phone', other: 'Other',
 };
 
 const sourceColors = {
+  storm_map: 'oklch(0.72 0.18 250)', fema_nsi: 'oklch(0.68 0.14 200)',
+  canvassing: 'oklch(0.72 0.15 80)',
   storm_auto: 'oklch(0.72 0.18 250)', manual: 'oklch(0.65 0.12 160)',
   referral: 'oklch(0.70 0.16 310)', website: 'oklch(0.68 0.14 200)',
   door_knock: 'oklch(0.72 0.15 80)', phone: 'oklch(0.65 0.13 145)',
