@@ -830,11 +830,15 @@ router.get('/dashboard/tasks-today', async (req, res, next) => {
 // GET /api/crm/dashboard/days-in-stage
 router.get('/dashboard/days-in-stage', async (req, res, next) => {
   try {
+    // Wording must match the client's stage labels (LeadList.jsx:32, LeadDetail.jsx:104,
+    // ReportsView.jsx:25, Pipeline.jsx's columns, Dashboard.jsx:60). This panel renders
+    // beside the Pipeline panel on the dashboard, so a divergence here showed the same
+    // lead stage under two different names on one screen.
     const stageLabels = {
       new: 'New', new_lead: 'New', contacted: 'Contacted', appt_set: 'Appt Set',
-      inspection: 'Inspection', inspected: 'Inspection', estimate_sent: 'Estimate Sent',
-      negotiation: 'Negotiation', negotiating: 'Negotiation', sold: 'Sold',
-      in_production: 'Production', material_ordered: 'Material Ordered',
+      inspection: 'Inspected', inspected: 'Inspected', estimate_sent: 'Estimate Sent',
+      negotiation: 'Negotiating', negotiating: 'Negotiating', sold: 'Sold',
+      in_production: 'In Production', material_ordered: 'Material Ordered',
       work_scheduled: 'Scheduled', work_in_progress: 'In Progress',
       work_complete: 'Complete', invoiced: 'Invoiced', paid: 'Paid',
     };

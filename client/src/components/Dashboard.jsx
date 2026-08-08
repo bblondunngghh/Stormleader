@@ -57,13 +57,15 @@ function timeUntil(dateStr) {
 // the enum and never matched; the enum values they were meant to cover
 // (new, inspected, negotiating, sold, lost, on_hold) were missing, so those
 // stages fell through to the raw value — 'on_hold' rendered as "ON_HOLD".
+// The wording is the app-wide one — identical to LeadList.jsx:32,
+// LeadDetail.jsx:104, ReportsView.jsx:25 and Pipeline.jsx's column labels.
 const stageLabels = {
   new: 'New', contacted: 'Contacted', appt_set: 'Appt Set',
-  inspected: 'Inspection', estimate_sent: 'Estimate', negotiating: 'Negotiation',
-  sold: 'Won', lost: 'Lost', in_production: 'Production', on_hold: 'On Hold',
+  inspected: 'Inspected', estimate_sent: 'Estimate Sent', negotiating: 'Negotiating',
+  sold: 'Sold', lost: 'Lost', in_production: 'In Production', on_hold: 'On Hold',
   // legacy aliases, kept so any non-enum stage string still renders a label
-  new_lead: 'New', inspection: 'Inspection', negotiation: 'Negotiation',
-  closed_won: 'Won', closed_lost: 'Lost',
+  new_lead: 'New', inspection: 'Inspected', negotiation: 'Negotiating',
+  closed_won: 'Sold', closed_lost: 'Lost',
 };
 
 // tasks.priority is the lead_priority enum: hot | warm | cold. Keying this map on

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getAutomations, createAutomation, updateAutomation, deleteAutomation, toggleAutomation, getTeamMembers } from '../api/crm';
 import { showToast } from './Toast';
 import CustomSelect from './CustomSelect';
+import { PlusIcon } from '@heroicons/react/24/outline';
 
 const STAGES = [
   { value: 'new', label: 'New' },
@@ -151,9 +152,9 @@ export default function AutomationSettings() {
         <button
           onClick={() => { setShowForm(true); setEditId(null); setForm(getEmptyForm()); }}
           className="auth-btn"
-          style={{ flexShrink: 0 }}
+          style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6 }}
         >
-          + New Automation
+          <PlusIcon style={{ width: 14, height: 14 }} /> New Automation
         </button>
       </div>
 

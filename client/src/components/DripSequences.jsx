@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
+import { ArrowUpIcon, ArrowDownIcon, PlusIcon } from '@heroicons/react/24/outline';
 import {
   getDripSequences,
   getDripSequence,
@@ -219,8 +219,9 @@ export default function DripSequences() {
         <button
           className="auth-btn"
           onClick={() => { setShowForm(true); setEditId(null); setForm(getEmptyForm()); }}
+          style={{ display: 'flex', alignItems: 'center', gap: 6 }}
         >
-          + New Sequence
+          <PlusIcon style={{ width: 14, height: 14 }} /> New Sequence
         </button>
       </div>
 
@@ -398,9 +399,10 @@ export default function DripSequences() {
                 marginTop: 'var(--space-sm)', padding: '8px 16px', borderRadius: 'var(--radius-sm)',
                 fontSize: 13, fontWeight: 600, border: '1px dashed var(--glass-border)', cursor: 'pointer',
                 background: 'transparent', color: 'var(--text-muted)', width: '100%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               }}
             >
-              + Add Step
+              <PlusIcon style={{ width: 14, height: 14 }} /> Add Step
             </button>
           </div>
 

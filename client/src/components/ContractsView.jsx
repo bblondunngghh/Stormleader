@@ -4,7 +4,7 @@ import * as contractsApi from '../api/contracts';
 import { getLeads } from '../api/crm';
 import client from '../api/client';
 import { IconPlusCircle, IconArrowLeft, IconSend, IconEye, IconX, IconTrash } from './Icons';
-import { DocumentTextIcon, PencilSquareIcon, ClockIcon, CheckBadgeIcon } from '@heroicons/react/24/outline';
+import { DocumentTextIcon, PencilSquareIcon, ClockIcon, CheckBadgeIcon, PlusIcon } from '@heroicons/react/24/outline';
 import CustomSelect from './CustomSelect';
 import { showToast } from './Toast';
 
@@ -553,7 +553,7 @@ function ContractBuilder({ contract, fromEstimateId, leadId: initialLeadId, onSa
           <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-md)' }}>
               <div style={{ fontSize: 14, fontWeight: 700 }}>Contract Sections</div>
-              <button onClick={addSection} className="quick-action-btn" style={{ fontSize: 11, padding: '4px 10px' }}>+ Add Section</button>
+              <button onClick={addSection} className="quick-action-btn" style={{ fontSize: 11, padding: '4px 10px' }}><PlusIcon /> Add Section</button>
             </div>
             {sections.map((section, idx) => (
               <div key={idx} style={{
