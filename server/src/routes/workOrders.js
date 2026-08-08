@@ -217,7 +217,12 @@ router.get('/:id/pdf', validateId(), async (req, res, next) => {
     };
     const fmtCurrency = (v) => `$${Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const statusLabel = { pending: 'Pending', scheduled: 'Scheduled', in_progress: 'In Progress', completed: 'Completed' };
-    const lineItems = Array.isArray(wo.line_items) ? wo.line_items : [];
+    // line_items is JSONB and can hold non-object entries (null, "", 1). Array.isArray
+    // guards the CONTAINER, not the ELEMENTS — [null] has length 1, so it passes the
+    // length check below and then throws on item.description. Same defect and same fix
+    // as the estimate PDF (estimates.js:259).
+    const lineItems = (Array.isArray(wo.line_items) ? wo.line_items : [])
+      .filter((item) => item && typeof item === 'object');
 
     // Build milestone checklist
     const milestoneRows = milestones.map(m => ([
