@@ -10,6 +10,18 @@ const router = Router();
 router.use(authenticate);
 router.use(tenantScope);
 
+// workOrderService writes line_items with a bare JSON.stringify, and JSONB stores
+// whatever shape it is handed. Unlike a text[]/numeric column there is no cast to
+// fail, so nothing rejects the write — a string or a number silently REPLACES the
+// work order's line items and the PDF then renders none. Same guard as
+// estimates.js:20, which already rejected these shapes; work orders did not.
+function validateJsonShapes(body) {
+  if (body.line_items !== undefined && body.line_items !== null && !Array.isArray(body.line_items)) {
+    return 'line_items must be an array';
+  }
+  return null;
+}
+
 // List available milestone templates
 router.get('/milestone-templates', (req, res) => {
   const templates = Object.entries(workOrderService.MILESTONE_TEMPLATES).map(([key, val]) => ({
@@ -69,6 +81,8 @@ router.post('/', async (req, res, next) => {
         return res.status(400).json({ error: `status must be one of: ${validStatuses.join(', ')}` });
       }
     }
+    const shapeErr = validateJsonShapes(req.body);
+    if (shapeErr) return res.status(400).json({ error: shapeErr });
     const wo = await workOrderService.createWorkOrder(req.tenantId, req.body);
     res.status(201).json(wo);
   } catch (err) {
@@ -96,6 +110,8 @@ router.patch('/:id', validateId(), async (req, res, next) => {
         return res.status(400).json({ error: `status must be one of: ${validStatuses.join(', ')}` });
       }
     }
+    const shapeErr = validateJsonShapes(req.body);
+    if (shapeErr) return res.status(400).json({ error: shapeErr });
     const wo = await workOrderService.updateWorkOrder(req.tenantId, req.params.id, req.body);
     if (!wo) return res.status(404).json({ error: 'Work order not found' });
     res.json(wo);

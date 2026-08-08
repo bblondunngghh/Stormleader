@@ -10,6 +10,18 @@ const router = Router();
 router.use(authenticate);
 router.use(tenantScope);
 
+// invoiceService writes line_items with a bare JSON.stringify, and JSONB stores
+// whatever shape it is handed. Unlike a text[]/numeric column there is no cast to
+// fail, so nothing rejects the write — a string or a number silently REPLACES the
+// invoice's line items while total/subtotal keep their old values. Same guard as
+// estimates.js:20, which already rejected these shapes; invoices did not.
+function validateJsonShapes(body) {
+  if (body.line_items !== undefined && body.line_items !== null && !Array.isArray(body.line_items)) {
+    return 'line_items must be an array';
+  }
+  return null;
+}
+
 // List invoices
 router.get('/', async (req, res, next) => {
   try {
@@ -47,6 +59,8 @@ router.post('/', async (req, res, next) => {
     const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!UUID_RE.test(lead_id)) return res.status(400).json({ error: 'Invalid lead_id format' });
     if (estimate_id && !UUID_RE.test(estimate_id)) return res.status(400).json({ error: 'Invalid estimate_id format' });
+    const shapeErr = validateJsonShapes(req.body);
+    if (shapeErr) return res.status(400).json({ error: shapeErr });
     const invoice = await invoiceService.createInvoice(req.tenantId, req.body);
     res.status(201).json(invoice);
   } catch (err) {
@@ -74,6 +88,8 @@ router.patch('/:id', validateId(), async (req, res, next) => {
         return res.status(400).json({ error: `status must be one of: ${validStatuses.join(', ')}` });
       }
     }
+    const shapeErr = validateJsonShapes(req.body);
+    if (shapeErr) return res.status(400).json({ error: shapeErr });
     const invoice = await invoiceService.updateInvoice(req.tenantId, req.params.id, req.body);
     if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
     res.json(invoice);
