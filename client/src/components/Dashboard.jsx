@@ -52,10 +52,18 @@ function timeUntil(dateStr) {
   return `${diffMins}m`;
 }
 
+// Keys must be lead_stage enum values — that is what leads.stage holds. The
+// new_lead/inspection/negotiation/closed_won/closed_lost keys below are not in
+// the enum and never matched; the enum values they were meant to cover
+// (new, inspected, negotiating, sold, lost, on_hold) were missing, so those
+// stages fell through to the raw value — 'on_hold' rendered as "ON_HOLD".
 const stageLabels = {
-  new_lead: 'New', contacted: 'Contacted', appt_set: 'Appt Set',
-  inspection: 'Inspection', estimate_sent: 'Estimate', negotiation: 'Negotiation',
-  closed_won: 'Won', closed_lost: 'Lost', in_production: 'Production',
+  new: 'New', contacted: 'Contacted', appt_set: 'Appt Set',
+  inspected: 'Inspection', estimate_sent: 'Estimate', negotiating: 'Negotiation',
+  sold: 'Won', lost: 'Lost', in_production: 'Production', on_hold: 'On Hold',
+  // legacy aliases, kept so any non-enum stage string still renders a label
+  new_lead: 'New', inspection: 'Inspection', negotiation: 'Negotiation',
+  closed_won: 'Won', closed_lost: 'Lost',
 };
 
 // tasks.priority is the lead_priority enum: hot | warm | cold. Keying this map on
