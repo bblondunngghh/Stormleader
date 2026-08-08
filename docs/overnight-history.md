@@ -3491,3 +3491,108 @@ Branch `feat/financing` · baseline `d31a3db` · checkpoint `7177fdd` · final H
 - Drift baseline for next run: **`8adf59e`**.
 
 ---
+
+---
+
+## QA Run: 2026-08-07 (Run 71)
+
+Baseline `3f730af` (`pre-overnight-20260807`) → HEAD `e205240`. 05:00–05:41 CDT.
+
+### Test Results
+- Pages tested: **16 render-swept, 5 interaction-tested** (of 19 routes)
+- API endpoints tested: **11 exercised live** (of 272 catalogued) — depth-first on JSONB, **no breadth sweep this run**
+- Bugs found: **9**
+- Bugs fixed: **7**
+- UI inconsistencies found: **14** glyph-in-icon-slot sites
+- UI inconsistencies fixed: **13** (1 category of 5 sites deferred — needs a design decision)
+- JSONB columns mapped: **29**; given write guards this run: **5** (6 of 29 cumulative)
+- Net DB rows written: **0**. Final build: exit 0, 8.08s.
+
+### Fixes Made
+- `f608588` — `/estimates` Edit white-screened the SPA. `Array.isArray(estimate.upgrades)` guards the
+  container, not the elements, and `upg.selected` is read in the render body, so one null element took
+  down the whole app. Sibling defect on the same effect: `financing_plan_ids || []` lets a truthy
+  non-array through to `.includes()`. Sanitized at the state boundary.
+- `ae946ab` — `POST`/`PATCH /api/estimates` validated `lead_id` and nothing else; `estimateService:176`
+  bare-`JSON.stringify`s four JSONB columns. `{"upgrades":"notanarray"}`, `{"financing_plan_ids":5}`,
+  `{"insurance_details":"abc"}` all returned **200 and stored verbatim**. 12/13 hostile shapes now 400;
+  7/7 valid payloads still 200.
+- `b65e8af` — `POST /api/materials/orders` 500'd on `items:[null]` (container guarded, elements not);
+  `/materials/estimate/:id/auto-order` 500'd because `line_items || []` only covers falsy. Live data,
+  not just fuzzing — `EST-082`/`EST-083` hold these shapes. 7/7 malformed shapes now 400.
+- `3e23c9a` — **the entire `/dashboard` filter bar was silently ignored.** Client was always correct;
+  `/crm/dashboard/stats`, `/crm/pipeline/metrics` and `/crm/dashboard/activity` called their services
+  with `req.tenantId` only and never read `req.query`. The filtering machinery existed — in the *other*
+  dashboard router, which the UI does not call. Proof: `date_from=2030-01-01` (a future date, must match
+  zero rows) returned the complete unfiltered dataset. After: funnel 31 → 3 / 17 / 0 by source, 31 → 0 at
+  2030; activity 14 → 5 (90d) → 0 (30d). Reconciled against three independent endpoints.
+- `d37dedd` — 16 of 31 leads had a `source` no filter could select. Live code writes `storm_map`,
+  `fema_nsi`, `canvassing`; none were in the `/leads` label map or `/pipeline` filter options, while the
+  two options that *were* listed (`storm_auto`, `door_knock`) matched zero rows. Kept the seed values.
+- `208e298` — 7 glyph-in-icon-slot sites: `ReportsView` sort `<th>` + DeltaBadge, `Dashboard` revenue-goal
+  and stat-change pills, `SettingsView` plan comparison, `DripSequences` reorder buttons.
+- `e205240` — 6 more sites, **stranded uncommitted by s4's turn cap** and adopted here: `EstimatesView`
+  drag handles (`&#x2807;` — U+2807 Braille, written as an HTML entity), `LeadDetail` Refresh/close/
+  external-link, `Pipeline` task badges.
+
+### UI Consistency Fixes
+- 13 of 14 glyph-in-icon-slot sites replaced with `@heroicons/react/24/outline` equivalents.
+- **5 buttons gained an accessible name** — the two drag handles, the two `DripSequences` reorder buttons
+  and the street-view close button were bordered `<button>`s whose only content was a text glyph.
+- Final state: `svgBad = 0` across all 16 routes (2,024 SVGs; every non-recharts SVG is
+  `viewBox="0 0 24 24" fill="none"`).
+- Triaged as NOT defects: `CanvassingMode`'s emoji are dead data (`emoji` key never read);
+  `StormProperties.jsx` is an orphan with zero importers; `LeadDetail`'s `×` are multiplication signs;
+  `Pipeline`'s hail/wind glyphs remain the documented deliberate exception.
+
+### Known Issues Remaining
+- **`⚡` (U+26A1) in 5 icon slots** — `LeadDetail.jsx:613`, `LeadList.jsx:420-423`. Found by s5's
+  verification sweep *after s3 and s4 both declared the icon audit clean*. Deferred as one unit: the
+  four `LeadList` entries are `CustomSelect` option-label strings, so icons there need a component
+  change, not a swap.
+- **Duplicate `estimate_number` within one tenant** — `EST-021`, `EST-022`, `EST-082` each exist twice
+  under tenant `791bb51d`; no unique constraint on `(tenant_id, estimate_number)`. **Pre-existing**
+  (rows created 2026-05-26 / 2026-06-07), not caused by QA. Needs a renumbering decision before the
+  constraint can be added.
+- `GET /api/properties/fema-live` 500 — external (NSI connect timeout), carried from Run 70.
+- **24 of 29 JSONB columns still unguarded.** Highest value: `invoices.line_items` (18 rows) and
+  `work_orders.line_items` (21 rows) — structurally identical to `estimates.line_items`, which has now
+  produced three separate white-screens across Runs 69–71.
+- Buttons, toolbars/headers, sidebar/nav, forms, spacing, modals: **never audited** — s3 capped inside
+  category 1 of 7. Esc-to-close untested for a third run.
+
+### Session Integrity
+- s1 api-test: **MAX_TURNS (50)** — 51 turns, $4.12, 7.7 min. Mapped all 29 JSONB columns, fixed the
+  estimates guard, left the materials guards uncommitted at the cap.
+- s2 frontend-test: **MAX_TURNS (80)** — 81 turns, $7.33, 10.4 min. Adopted s1's materials work, then
+  found the dashboard filter bug (the run's highest-severity finding).
+- s3 ui-audit: **MAX_TURNS (60)** — 61 turns, $5.23, 7.7 min. Capped inside audit category 1 of 7.
+- s4 verify: **MAX_TURNS (40)** — 41 turns, $3.27, 5.6 min. Made 6 icon fixes, capped before committing.
+- s5 report: this entry. **7 code commits stand for this run.** Final build exit 0 (8.08s).
+- s1–s4 spend **$19.95**, 31.3 min API time. **All four capped — 4-of-4 for the third consecutive run.**
+- **LESSON — the carry-forward system works; Run 70's JSONB direction produced 3 of 4 API bugs.**
+  Pointing a run at a named risk surface beat breadth: 11 routes exercised yielded 4 API defects, where
+  Run 70's 252-route sweep yielded 0 5xx. **Depth on a known-bad column type > breadth on everything.**
+- **LESSON — an icon audit is not one sweep, it is three, and each has a blind spot the others cover.**
+  Third consecutive run this has paid out, and it surfaced a third distinct glyph class. The first source
+  grep reused Run 70's *emoji* ranges and so could not see U+2191/U+25BC — the DOM sweep caught those.
+  Re-grepping with arrow/geometric/technical ranges **and the `\uXXXX` / `&#xXXXX;` escape forms** then
+  found three sites the DOM sweep could not reach (behind a Settings tab and a data-dependent state).
+  U+2807 written as `&#x2807;` was invisible to all three prior methods.
+- **LESSON — "the audit is clean" needs a defined sweep, or it means nothing.** s3 and s4 both declared
+  icons clean; s5's sweep found `⚡` in 5 slots within minutes. A clean result is only as broad as the
+  character ranges it searched.
+- **INFRA — no stage wrote its results `.txt`. Third consecutive failure, and worse than Runs 69–70,
+  where 1 of 4 wrote.** The only file in temp is `stage-3-ui-audit.txt`, which is stage 3's **prompt**,
+  not its output — a reader trusting filenames would report a prompt as a result. All nine findings here
+  were reconstructed from commit messages, probe scripts and live re-verification. **Suggested fix: write
+  the results file FIRST and append per finding** — composing it at the end puts it exactly where the cap
+  always lands.
+- **INFRA — work is being stranded at the cap boundary.** Two stages ended with verified-but-uncommitted
+  fixes (s1 → adopted by s2 as `b65e8af`; s4 → adopted by s5 as `e205240`). Nothing was lost, but only
+  because each downstream stage re-verified and adopted it. This is now a recurring pattern, not an
+  incident.
+- Run 70's history entry was present and complete — no backfill needed.
+- Drift baseline for next run: **`e205240`**.
+
+---
