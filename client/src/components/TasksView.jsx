@@ -12,6 +12,13 @@ const priorityColors = {
   cold: 'var(--accent-blue)',
 };
 
+// Must stay in sync with the CustomSelect options in the create/edit task modals.
+const priorityLabels = {
+  hot: 'High',
+  warm: 'Medium',
+  cold: 'Low',
+};
+
 export default function TasksView() {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
   const [loading, setLoading] = useState(true);
@@ -422,7 +429,7 @@ function TaskRow({ task, onToggle, onEdit, isOverdue, isDueToday }) {
         <div className="task-row__meta">
           {task.priority && (
             <span className="task-row__priority" style={{ color: priorityColors[task.priority] }}>
-              {task.priority}
+              {priorityLabels[task.priority] || task.priority}
             </span>
           )}
           {task.assignee_first_name && (

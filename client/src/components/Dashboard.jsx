@@ -58,10 +58,13 @@ const stageLabels = {
   closed_won: 'Won', closed_lost: 'Lost', in_production: 'Production',
 };
 
+// tasks.priority is the lead_priority enum: hot | warm | cold. Keying this map on
+// urgent/high/medium/low meant every lookup missed and every priority rendered uncoloured.
 const priorityColors = {
-  urgent: 'var(--accent-red)', high: 'var(--accent-amber)',
-  medium: 'var(--accent-blue)', low: 'var(--text-muted)',
+  hot: 'var(--accent-red)', warm: 'var(--accent-amber)', cold: 'var(--accent-blue)',
 };
+
+const priorityLabels = { hot: 'High', warm: 'Medium', cold: 'Low' };
 
 const emptyStats = [
   { label: 'Pipeline Value', value: '$0', change: '—', icon: 'dollar', color: 'oklch(0.75 0.18 155)', tint: '155', link: '/pipeline' },
@@ -1201,9 +1204,9 @@ export default function Dashboard() {
                             fontFamily: 'inherit',
                             fontSize: 9,
                             fontWeight: 700,
-                            color: task.priority === 'urgent' ? 'var(--accent-red)' : 'var(--text-muted)',
+                            color: priorityColors[task.priority] || 'var(--text-muted)',
                             textTransform: 'uppercase',
-                          }}>{task.priority}</span>
+                          }}>{priorityLabels[task.priority] || task.priority}</span>
                         </div>
                       )}
                     </div>
@@ -1453,7 +1456,7 @@ export default function Dashboard() {
                         <span className={`text-[var(--text-secondary)] font-medium truncate${isOverdue ? ' text-[var(--accent-red)] font-[620]' : ''}`}>{task.title}</span>
                         {task.lead_name && <span className="text-[10px] text-[var(--text-muted)]">{task.lead_name}</span>}
                       </div>
-                      <span className="text-[9px] font-bold uppercase shrink-0" style={{ color: priorityColors[task.priority] }}>{task.priority}</span>
+                      <span className="text-[9px] font-bold uppercase shrink-0" style={{ color: priorityColors[task.priority] }}>{priorityLabels[task.priority] || task.priority}</span>
                       {task.due_date && (
                         <span className="text-[10px] shrink-0 font-medium text-[var(--text-muted)]" style={{ color: isOverdue ? 'var(--accent-red)' : undefined }}>
                           {new Date(task.due_date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
