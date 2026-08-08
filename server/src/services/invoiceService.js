@@ -126,16 +126,20 @@ export async function updateInvoice(tenantId, id, data) {
   return rows[0] || null;
 }
 
-export async function recordPayment(tenantId, id, amount) {
+export const PAYMENT_METHODS = ['check', 'cash', 'card', 'ach', 'insurance', 'financing', 'other'];
+
+export async function recordPayment(tenantId, id, amount, paymentMethod = null, reference = null) {
   const { rows } = await pool.query(
     `UPDATE invoices
      SET amount_paid = COALESCE(amount_paid, 0) + $3,
          status = CASE WHEN COALESCE(amount_paid, 0) + $3 >= total THEN 'paid' ELSE status END,
          paid_at = CASE WHEN COALESCE(amount_paid, 0) + $3 >= total THEN now() ELSE paid_at END,
+         payment_method = COALESCE($4, payment_method),
+         payment_reference = COALESCE($5, payment_reference),
          updated_at = now()
      WHERE id = $1 AND tenant_id = $2
      RETURNING *`,
-    [id, tenantId, amount]
+    [id, tenantId, amount, paymentMethod, reference]
   );
 
   return rows[0] || null;

@@ -101,9 +101,13 @@ router.patch('/:id', validateId(), async (req, res, next) => {
 // Record payment
 router.post('/:id/payment', validateId(), async (req, res, next) => {
   try {
-    const { amount } = req.body;
+    const { amount, payment_method: paymentMethod, reference } = req.body;
     if (!amount || amount <= 0) return res.status(400).json({ error: 'Valid amount required' });
-    const invoice = await invoiceService.recordPayment(req.tenantId, req.params.id, amount);
+    if (paymentMethod != null && !invoiceService.PAYMENT_METHODS.includes(paymentMethod)) {
+      return res.status(400).json({ error: 'Invalid payment method' });
+    }
+    const ref = typeof reference === 'string' && reference.trim() ? reference.trim().slice(0, 200) : null;
+    const invoice = await invoiceService.recordPayment(req.tenantId, req.params.id, amount, paymentMethod ?? null, ref);
     if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
     res.json(invoice);
   } catch (err) {

@@ -1030,7 +1030,7 @@ function PaymentModal({ invoice, onClose, onRecorded }) {
     }
     setSaving(true);
     try {
-      await invoicesApi.recordPayment(invoice.id, val);
+      await invoicesApi.recordPayment(invoice.id, val, paymentMethod, referenceNote);
       showToast(`Payment of ${formatCurrency(val)} recorded via ${paymentMethod}`, 'success');
       onRecorded();
     } catch {
