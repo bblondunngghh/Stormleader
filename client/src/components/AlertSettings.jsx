@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Switch from 'react-switch';
 import { getAlertConfig, updateAlertConfig, getAlertHistory, sendTestAlert } from '../api/alerts';
-import { PaperAirplaneIcon, BellAlertIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+import { PaperAirplaneIcon, BellAlertIcon, EnvelopeIcon, MinusIcon, PlusIcon } from '@heroicons/react/24/outline';
 
 export default function AlertSettings() {
   const [config, setConfig] = useState(null);
@@ -306,7 +306,9 @@ function StepperInput({ value, step, min, max, onChange }) {
       display: 'flex', alignItems: 'center', borderRadius: '14px / 12px', overflow: 'hidden',
       border: '1px solid var(--border-subtle)',
     }}>
-      <button type="button" onClick={decrement} style={{ ...btnBase, borderRight: 'none', borderRadius: '8px 0 0 8px', color: 'oklch(0.65 0.20 25)' }}>−</button>
+      <button type="button" onClick={decrement} aria-label="Decrease" style={{ ...btnBase, borderRight: 'none', borderRadius: '8px 0 0 8px', color: 'oklch(0.65 0.20 25)' }}>
+        <MinusIcon width={14} height={14} />
+      </button>
       <input
         type="text"
         value={value}
@@ -318,7 +320,9 @@ function StepperInput({ value, step, min, max, onChange }) {
           color: 'var(--text-primary)', outline: 'none',
         }}
       />
-      <button type="button" onClick={increment} style={{ ...btnBase, borderLeft: 'none', borderRadius: '0 8px 8px 0', color: 'oklch(0.65 0.20 155)' }}>+</button>
+      <button type="button" onClick={increment} aria-label="Increase" style={{ ...btnBase, borderLeft: 'none', borderRadius: '0 8px 8px 0', color: 'oklch(0.65 0.20 155)' }}>
+        <PlusIcon width={14} height={14} />
+      </button>
     </div>
   );
 }

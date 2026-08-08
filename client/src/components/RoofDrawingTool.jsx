@@ -8,6 +8,7 @@ import {
   classifyEdges, snapToVertex, isNearFirstVertex, polygonCentroid,
 } from '../utils/roofPolygonUtils';
 import { showToast } from './Toast';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 if (!mapboxgl.accessToken) {
   mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN || '';
@@ -631,8 +632,8 @@ export default function RoofDrawingTool({ propertyId, lat, lng, address, roofPit
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--accent-green)' }}>{trueArea} sqft</span>
                           <button onClick={(e) => { e.stopPropagation(); setFacets(prev => prev.filter(x => x.id !== f.id)); if (isSelected) setSelectedFacetId(null); }}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: 'var(--text-muted)', fontSize: 10 }} title="Remove facet">
-                            ✕
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: 'var(--text-muted)', fontSize: 10, display: 'flex', alignItems: 'center' }} title="Remove facet">
+                            <XMarkIcon width={12} height={12} />
                           </button>
                         </div>
                       </div>
@@ -774,8 +775,8 @@ export default function RoofDrawingTool({ propertyId, lat, lng, address, roofPit
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{l.lengthFt} ft</span>
                       <button onClick={() => setLines(prev => prev.filter(x => x.id !== l.id))}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: 'var(--text-muted)', fontSize: 10, lineHeight: 1 }} title="Remove line">
-                        ✕
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: 'var(--text-muted)', fontSize: 10, lineHeight: 1, display: 'flex', alignItems: 'center' }} title="Remove line">
+                        <XMarkIcon width={12} height={12} />
                       </button>
                     </div>
                   </div>

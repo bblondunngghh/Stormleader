@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getTerritories, createTerritory, updateTerritory, deleteTerritory, getTeamMembers } from '../api/crm';
-import { MapPinIcon, TrashIcon, PencilSquareIcon, PlusIcon, XMarkIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, TrashIcon, PencilSquareIcon, PlusIcon, XMarkIcon, UserCircleIcon, CheckIcon } from '@heroicons/react/24/outline';
 import CustomSelect from './CustomSelect';
 
 const TERRITORY_COLORS = [
@@ -258,8 +258,13 @@ export default function TerritoryManager({ mapRef, mapsApi, onTerritoryPolygonsC
             {!editingId && (
               <div style={{ marginBottom: 8 }}>
                 {!drawingMode ? (
-                  <button onClick={startDrawing} className="quick-action-btn" style={{ fontSize: 12, width: '100%', padding: '6px 0' }}>
-                    {drawnCoords.length > 0 ? `✓ ${drawnCoords.length} points drawn — Redraw?` : 'Draw Territory on Map'}
+                  <button onClick={startDrawing} className="quick-action-btn" style={{ fontSize: 12, width: '100%', padding: '6px 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                    {drawnCoords.length > 0 ? (
+                      <>
+                        <CheckIcon width={14} height={14} />
+                        {`${drawnCoords.length} points drawn — Redraw?`}
+                      </>
+                    ) : 'Draw Territory on Map'}
                   </button>
                 ) : (
                   <div style={{ display: 'flex', gap: 6 }}>
