@@ -441,7 +441,7 @@ function ProductCard({ product, onClick, onAddToCart }) {
           style={{
             padding: '6px 14px', fontSize: 11, display: 'flex', alignItems: 'center', gap: 4,
             background: 'oklch(0.55 0.18 250 / 0.15)', color: 'var(--accent-blue)',
-            border: '1px solid oklch(0.55 0.18 250 / 0.3)', borderRadius: '12px',
+            border: '1px solid oklch(0.55 0.18 250 / 0.3)',
           }}
         >
           <IconPlus style={{ width: 12, height: 12 }} /> Add
