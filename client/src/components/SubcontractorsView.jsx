@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import * as subApi from '../api/subcontractors';
 import { showToast } from './Toast';
 import CustomSelect from './CustomSelect';
-import { PencilSquareIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, TrashIcon, XMarkIcon, PlusIcon } from '@heroicons/react/24/outline';
 
 const SPECIALTIES = ['general', 'roofing', 'siding', 'gutters', 'painting', 'drywall', 'electrical', 'plumbing', 'hvac', 'landscaping', 'demolition', 'other'];
 const SPECIALTY_OPTIONS = [{ value: '', label: 'All' }, ...SPECIALTIES.map(s => ({ value: s, label: s.charAt(0).toUpperCase() + s.slice(1) }))];
@@ -77,9 +77,9 @@ export default function SubcontractorsView() {
           <h2 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Subcontractors</h2>
           <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 'var(--space-xs)' }}>{total} total</div>
         </div>
-        <button className="auth-btn" style={{ fontSize: 13, fontWeight: 700 }}
+        <button className="auth-btn" style={{ fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}
           onClick={() => setSlideOver('add')}>
-          + Add Subcontractor
+          <PlusIcon style={{ width: 14, height: 14 }} /> Add Subcontractor
         </button>
       </div>
 

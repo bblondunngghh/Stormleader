@@ -32,6 +32,7 @@ import {
   ChevronDownIcon,
   ArrowPathIcon,
   ArrowTopRightOnSquareIcon,
+  PlusIcon,
 } from '@heroicons/react/24/outline';
 import PhotoAnnotator from './PhotoAnnotator';
 import DatePicker from './DatePicker';
@@ -1407,7 +1408,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 <div className="detail-section__title" style={{ margin: 0 }}>Documents ({documents.length})</div>
                 <button className="quick-action-btn" onClick={() => fileInputRef.current?.click()}
                   disabled={uploading} style={{ fontSize: 11, padding: '4px 10px' }}>
-                  {uploading ? 'Uploading...' : '+ Upload'}
+                  {uploading ? 'Uploading...' : <><PlusIcon /> Upload</>}
                 </button>
                 <input ref={fileInputRef} type="file" hidden onChange={handleFileUpload}
                   accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.csv,.txt" />
@@ -1498,7 +1499,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 <div className="detail-section__title" style={{ margin: 0 }}>Contracts ({leadContracts.length})</div>
                 <button className="quick-action-btn" onClick={() => { window.location.href = `/contracts?leadId=${leadId}`; }}
                   style={{ fontSize: 11, padding: '4px 10px' }}>
-                  + Generate Contract
+                  <PlusIcon /> Generate Contract
                 </button>
               </div>
               {leadContracts.length > 0 && (
@@ -1536,7 +1537,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                 <div className="detail-section__title" style={{ margin: 0 }}>Expenses ({leadExpenses.length})</div>
                 <button className="quick-action-btn" onClick={() => { window.location.href = `/expenses?leadId=${leadId}`; }}
                   style={{ fontSize: 11, padding: '4px 10px' }}>
-                  + Add Expense
+                  <PlusIcon /> Add Expense
                 </button>
               </div>
               {/* Profit Summary Card */}

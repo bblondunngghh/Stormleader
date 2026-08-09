@@ -334,8 +334,9 @@ export default function TasksView() {
         <button
           className="auth-btn"
           onClick={() => setShowCreate(true)}
+          style={{ display: 'flex', alignItems: 'center', gap: 6 }}
         >
-          + New Task
+          <PlusIcon style={{ width: 14, height: 14 }} /> New Task
         </button>
       </div>
 

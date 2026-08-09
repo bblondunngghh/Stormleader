@@ -5,7 +5,7 @@ import { getEstimates } from '../api/estimates';
 import { uploadDocument } from '../api/documents';
 import { showToast } from './Toast';
 import { IconPlusCircle, IconX, IconRefresh } from './Icons';
-import { CheckCircleIcon, CameraIcon, CheckIcon, DocumentArrowDownIcon, WrenchScrewdriverIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, CameraIcon, CheckIcon, DocumentArrowDownIcon, WrenchScrewdriverIcon, PlusIcon } from '@heroicons/react/24/outline';
 import CustomSelect from './CustomSelect';
 import DatePicker from './DatePicker';
 import TimePicker from './TimePicker';
@@ -333,16 +333,17 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
                     padding: '3px 10px', borderRadius: 6, border: '1px solid oklch(0.72 0.19 250 / 0.3)',
                     background: 'oklch(0.72 0.19 250 / 0.12)', color: 'oklch(0.72 0.19 250)',
                     fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                    display: 'inline-flex', alignItems: 'center', gap: 4,
                   }}
                 >
-                  + Add
+                  <PlusIcon style={{ width: 12, height: 12 }} /> Add
                 </button>
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {editLineItems.length === 0 && (
                 <div style={{ padding: '12px 10px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>
-                  No line items — click "+ Add" to create one
+                  No line items — click "Add" to create one
                 </div>
               )}
               {editLineItems.map((item, i) => (

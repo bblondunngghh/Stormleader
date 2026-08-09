@@ -2106,8 +2106,8 @@ function CustomFieldsTab() {
         {!showForm && (
           <button onClick={() => { resetForm(); setShowForm(true); }}
             className="auth-btn"
-            style={{ flexShrink: 0 }}>
-            + Add Field
+            style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <PlusIcon style={{ width: 14, height: 14 }} /> Add Field
           </button>
         )}
       </div>
@@ -2404,8 +2404,8 @@ function ContractTemplatesTab() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-sm)' }}>
             <span style={{ fontSize: 13, fontWeight: 600 }}>Sections</span>
             <button onClick={() => setFormSections(prev => [...prev, { title: 'New Section', body: '' }])}
-              style={{ padding: '4px 10px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'oklch(0.25 0.05 250 / 0.5)', color: 'var(--accent-blue)', fontSize: 11 }}>
-              + Add Section
+              style={{ padding: '4px 10px', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'oklch(0.25 0.05 250 / 0.5)', color: 'var(--accent-blue)', fontSize: 11, display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+              <PlusIcon style={{ width: 12, height: 12 }} /> Add Section
             </button>
           </div>
           {formSections.map((section, idx) => (
@@ -2443,8 +2443,8 @@ function ContractTemplatesTab() {
     <div className="glass" style={{ borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-lg)' }}>
         <div style={{ fontSize: 15, fontWeight: 700 }}>Contract Templates</div>
-        <button onClick={openNewForm} className="auth-btn" style={{ flexShrink: 0 }}>
-          + Create Template
+        <button onClick={openNewForm} className="auth-btn" style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <PlusIcon style={{ width: 14, height: 14 }} /> Create Template
         </button>
       </div>
 
@@ -2744,7 +2744,7 @@ function PricingTab() {
             className="auth-btn"
             style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}
           >
-            + Add Item
+            <PlusIcon style={{ width: 14, height: 14 }} /> Add Item
           </button>
         </div>
 
