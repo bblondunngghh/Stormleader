@@ -406,6 +406,16 @@ export async function updateTask(tenantId, taskId, updates) {
     updates.completed_at = updates.completed ? new Date().toISOString() : null;
   }
 
+  // A task's doneness is stored TWICE — completed_at and status — and every caller
+  // (Dashboard.jsx:691, TasksView.jsx:53) writes only completed_at, so status stayed
+  // 'pending' forever. getTasks() reads completed_at while getTasksDueToday() reads
+  // status, so a completed task left the /tasks list but never left the dashboard's
+  // Today panel. Keep the two in sync here, at the single write boundary, rather than
+  // in each caller. An explicit status in the payload still wins.
+  if (updates.completed_at !== undefined && updates.status === undefined) {
+    updates.status = updates.completed_at ? 'completed' : 'pending';
+  }
+
   const allowedFields = ['title', 'description', 'due_date', 'assigned_to', 'priority', 'completed_at', 'status'];
   const setClauses = [];
   const params = [tenantId, taskId];
@@ -1017,6 +1027,7 @@ export async function getTasksDueToday(tenantId) {
      LEFT JOIN leads l ON l.id = t.lead_id
      WHERE t.tenant_id = $1
        AND t.status NOT IN ('completed', 'cancelled')
+       AND t.completed_at IS NULL
        AND (t.due_date IS NULL OR t.due_date <= (CURRENT_DATE + interval '1 day'))
      ORDER BY
        CASE WHEN t.due_date < CURRENT_DATE THEN 0 ELSE 1 END,
