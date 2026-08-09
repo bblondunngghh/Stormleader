@@ -1,7 +1,7 @@
 # StormLeads — Overnight QA Report
 
-**Run 71 · 2026-08-07 · 05:00–05:41 CDT**
-Baseline `3f730af` (`pre-overnight-20260807`) → HEAD `e205240`
+**Run 72 · 2026-08-08 · 05:00–06:00 CDT**
+Baseline `0cf5a7b` (`checkpoint: pre-overnight-run 2026-08-08`) → HEAD `aca103e`
 
 ---
 
@@ -9,32 +9,32 @@ Baseline `3f730af` (`pre-overnight-20260807`) → HEAD `e205240`
 
 | Metric | Count |
 |---|---|
-| Bugs found | 9 |
-| Bugs fixed | 7 |
+| Bugs found | 12 |
+| Bugs fixed | 10 |
 | Bugs found but not fixed | 2 |
-| Commits | 7 (all `fix:`) |
-| Pages render-swept | 16 routes (2,024 SVGs) |
+| Commits | 8 (all `fix:`) |
+| Pages render-swept | 19 of 19 routes |
 | Pages interaction-tested | 5 of 19 |
 | API routes in catalogue | 272 |
-| API routes exercised this run | 11 (depth-first, not a breadth sweep) |
-| JSONB columns mapped | 29 |
-| JSONB columns given write guards | 5 this run (6 of 29 cumulative) |
-| UI inconsistencies found | 14 glyph-in-icon-slot sites |
-| UI inconsistencies fixed | 13 (1 category deferred, 5 sites) |
-| Net DB rows written | 0 |
-| Final build | exit 0, 8.08s |
+| API routes exercised this run | 10 (depth-first, not a breadth sweep) |
+| JSONB columns given write guards | 2 this run (8 of 27 cumulative) |
+| UI inconsistencies found | 15 (9 glyph sites, 136 buttons, 2 wording splits) |
+| UI inconsistencies fixed | 14 (1 deferred, in a do-not-touch component) |
+| DB migrations added | 1 (`049_invoice_payment_method.sql`) |
+| Final build | exit 0, 8.01s |
 
-**Headline:** the highest-severity finding was not a crash. `/dashboard` shipped a
-three-control filter bar — period, rep, source — that was wired correctly on the client and
-discarded entirely by the server. Clicking a filter highlighted the button, refetched, and
-re-rendered byte-identical numbers, with no error and no console message. It had been
-inert for as long as the filter bar has existed.
+**Headline:** the most serious finding is again a silent write failure, not a crash. The
+Record Payment modal collects a payment method and a check/claim number, shows a green toast
+naming the method back to the user — and `recordPayment(id, amount)` posted only the amount.
+No column existed to store either value. A contractor typing a check number was told it was
+recorded; it was gone. 200 OK, no console message, no error signal anywhere. This is the
+third consecutive run in which the highest-severity defect produced **no error signal at
+all** (Run 70: estimate autosave; Run 71: dashboard filter bar; Run 72: this).
 
-**Coverage caveat, stated up front:** all four upstream stages hit their turn caps again
-(4-for-4, third consecutive run). Coverage is depth-first on JSONB by design; this run did
-**not** repeat Run 70's 252-route breadth sweep. Sections below distinguish *tested and
-passing* from *not tested* — those are not the same claim, and most of this app is the
-second.
+**Coverage caveat, stated up front:** all four upstream stages hit their turn caps again —
+**4 of 4 for the fourth consecutive run**. Coverage is depth-first by design and most of this
+application was not exercised. The sections below distinguish *tested and passing* from *not
+tested*; those are not the same claim, and most of this app remains the second.
 
 ---
 
@@ -43,94 +43,118 @@ second.
 Route catalogue: **272** across 37 route files (`crm.js` 51, `properties.js` 18,
 `estimates.js` 17, `financing.js` 13, `contracts.js` 13, `workOrders.js` 12, …).
 
-Run 70's carry-forward directed this run at **JSONB columns** as the highest-value target,
-on the finding that strongly-typed Postgres columns absorb bad shapes (cast failure → clean
-400) while JSONB stores anything verbatim. That direction paid out: 3 of 4 API bugs this run
-were JSONB shape defects.
+Run 71's carry-forward named **JSONB columns** the highest-value target, and specifically
+called out `invoices.line_items` and `work_orders.line_items` as "structurally identical to
+`estimates.line_items`, which produced three separate white-screens across Runs 69–71". That
+prediction was correct: both columns were unguarded, and one of them was already serving 500s.
 
 | Category | Routes probed | Result | Fixed in |
 |---|---|---|---|
-| Estimates (JSONB write validation) | 2 (`POST /api/estimates`, `PATCH /api/estimates/:id`) | 12 of 13 hostile shapes now 400; 7 of 7 valid payloads still 200 | `ae946ab` |
-| Materials (JSONB element deref) | 2 (`POST /api/materials/orders`, `POST /api/materials/estimate/:id/auto-order`) | 7 of 7 malformed shapes now 400, was 500 | `b65e8af` |
-| CRM dashboard (filter plumbing) | 3 (`/crm/dashboard/stats`, `/crm/pipeline/metrics`, `/crm/dashboard/activity`) | filters now applied; 3 independent cross-checks reconcile | `3e23c9a` |
-| Dashboard (control group) | 3 (`/api/dashboard/*`) | already correct — used as the reference implementation | — |
+| Work orders (JSONB element deref) | 1 (`GET /api/crm/work-orders/:id/pdf`) | 2 of 21 PDFs were 500 → all 21 now 200 | `86eb187` |
+| Work orders (JSONB write validation) | 2 (`POST`, `PATCH /api/crm/work-orders/:id`) | 4 of 4 hostile shapes now 400, was 200-and-stored | `81d0cab` |
+| Invoices (JSONB write validation) | 2 (`POST`, `PATCH /api/crm/invoices/:id`) | 4 of 4 hostile shapes now 400, was 200-and-stored | `81d0cab` |
+| Invoices (payment recording) | 1 (`POST /api/crm/invoices/:id/payment`) | method + reference now persist; were discarded | `629e073` |
+| Estimates (control group) | 2 (`POST`, `PATCH /api/estimates`) | already 400s all 4 shapes — used as the reference | — |
+| CRM dashboard (label check) | 1 (`GET /api/crm/dashboard/days-in-stage`) | wording aligned to app-wide vocabulary | `aca103e` |
 | Auth | 1 (`POST /api/auth/login`) | token mint OK | — |
-| **Total exercised live** | **11** | **0 5xx after fixes** | |
+| **Total exercised live** | **10** | **0 5xx after fixes** | |
 
 ### What was fixed
 
-**`ae946ab` — estimates accepted any JSONB shape and stored it verbatim.**
-`POST /api/estimates` and `PATCH /api/estimates/:id` validated `lead_id` and nothing else.
-`estimateService:176` writes `line_items`, `financing_plan_ids`, `upgrades` and
-`insurance_details` through a bare `JSON.stringify`. Verified: `{"upgrades":"notanarray"}`,
-`{"financing_plan_ids":5}`, `{"insurance_details":"abc"}` all returned **200 and stored
-unchanged** before the fix. Guards container type only; element sanitizing stays on the
-client, which must remain defensive because a write guard cannot clean rows already stored.
+**`86eb187` — work-order PDF 500'd on a null element inside `line_items`.**
+`workOrders.js:220` does `Array.isArray(wo.line_items) ? wo.line_items : []`, which guards the
+**container** and not the **elements**. `[null]` has length 1, so it passes the `length > 0`
+check at `:231` and then dereferences null at `:239` (`item.description`) and `:246`
+(`it.quantity`) → TypeError → 500. This is the *same defect and the same fix* as the estimate
+PDF (`a023c66`, Run 67); the work-order PDF was simply never checked for it. Verified: two
+known-bad IDs went 500 → 200 with a valid `%PDF` header, the control row was unchanged, and a
+regression sweep of **all 21 work-order PDFs returned 21×200, 0×5xx**.
 
-**`b65e8af` — malformed JSONB items 500'd the materials order routes.**
-Two deref sites guarding the *container* but not the *elements* — `Array.isArray(items)`
-passes for `[null]`, then `items.reduce(... item.quantity ...)` throws. The auto-order route
-used `estimate.line_items || []`, and `||` only covers falsy, so a truthy non-array reached a
-`for..of`. Not fuzzing-only: `EST-082`/`EST-083` hold this shape in the live database.
+**`81d0cab` — work-order and invoice `line_items` accepted ANY shape into JSONB.**
+`POST`/`PATCH` on both routes stored a string, an object, a number or a boolean into the
+`line_items` JSONB column and returned 200. `estimates.js:20` already carried exactly this
+guard; the two sibling routes never got it. Confirmed by direct probe against the estimate
+route as a control: estimate → 400 on all four bad shapes, work order → 200 **and stored** on
+all four, invoice likewise.
 
-**`3e23c9a` — the entire dashboard filter bar was silently ignored.**
-The client was always correct; the three receiving routes called their services with
-`req.tenantId` only and never read `req.query`. The filtering machinery already existed in
-`routes/dashboard.js` (`extractFilters`) — but that is the *other* dashboard router, which
-the UI does not call. The control that proved it: `date_from=2030-01-01` is a future date and
-must match zero rows; before the fix it returned the complete unfiltered dataset.
+The impact is silent data loss rather than a crash: `line_items: "a string"` *replaces* the
+row's line items, and because every consumer guards the container
+(`Array.isArray(...) ? ... : []`), the UI and the PDF then render **zero** line items while
+subtotal, tax and total keep their previous values. Nothing throws and nothing warns — the
+document just quietly loses its contents.
 
-Measured before → after (funnel total): no filter 31 → 31 (no regression),
-`source=canvassing` 31 → 3, `source=manual` 31 → 17, `source=nonexistent` 31 → 0,
-`date_from=2030` 31 → 0. Activity rows: 14 → 14 unfiltered, → 5 at 90d, → 0 at 30d.
+Verified both halves: 8 of 8 malformed payloads rejected with
+`400 {"error":"line_items must be an array"}` and the stored value left unchanged, **and** a
+valid array still writes and round-trips out of Postgres intact on both routes. The second
+half matters as much as the first — a guard that also blocks the happy path is a worse bug
+than the one it fixes.
 
-Three independent cross-checks confirm the new numbers are *right*, not merely *different*:
-source counts reconcile exactly with the dashboard's own "Revenue by Lead Source" panel
-(a different endpoint) at 3 + 6 + 5 + 17 = 31; the 7d funnel (6 + 2 = 8) equals the
-independently computed "New Leads (7d)" KPI; and 14 → 5 → 0 matches the real feed dates
-(newest activity 6/7/2026, 61 days back — inside 90d, outside 30d).
+**`629e073` — recording an invoice payment silently discarded the method and check number.**
+The modal collects 7 payment methods and a reference/check/claim number; the success toast
+says "Payment of $X recorded via insurance". `recordPayment(id, amount)` posted only
+`{ amount }`, the route destructured only `amount`, and the service UPDATE touched only
+`amount_paid`/`status`/`paid_at`. There was no column for either value.
 
-Deliberately *not* date-filtered: the previous-period comparison (7–14d) and Speed to Lead
-(30d) declare their own windows and their cards are labelled with them. Rep and source still
-apply to both.
+Migration `049` adds two nullable TEXT columns. The method is whitelisted server-side against
+`PAYMENT_METHODS` and the reference is trimmed and capped at 200 chars — so unlike the JSONB
+columns in `81d0cab`, these two cannot take junk. `COALESCE` preserves the last recorded
+method when a later partial payment omits one. Verified end-to-end: the round-trip now reads
+back `INV-0007 | 603.00 | insurance | CLAIM-QA72-XYZ` from Postgres.
+
+### Why JSONB keeps producing these — confirmed, not assumed
+
+Run 70 concluded that strongly-typed Postgres columns absorb bad shapes (the cast fails and
+the global error handler maps it to a clean 400), so **the type system performs the validation
+the JS layer omitted**. JSONB has no cast to fail: it stores whatever it is handed, verbatim.
+That is why these two routes leaked while strongly-typed columns elsewhere did not, and it is
+why element sanitizing deliberately stays on the consumer side as well — **a write guard
+cannot clean rows that are already stored.** The `86eb187` 500 was caused by exactly such a
+pre-existing row, written long before any guard existed.
 
 ---
 
 ## Frontend Feature Test Results
 
-Sixteen routes were render-swept. **Five were interaction-tested.** Both numbers matter — the
-five that were driven produced six of the run's nine findings, so the other fourteen routes
-are *unexercised*, not clean.
+All 19 routes were render-swept. **Five were interaction-tested.** Both numbers matter — the
+five that were driven produced most of the run's findings, so the other fourteen are
+*unexercised*, not clean.
 
-### `/estimates` — interaction-tested
-- **Tested:** list render, Edit → builder hydration against deliberately malformed rows, drag-handle rendering, write-on-open regression check.
-- **Broken → fixed:** clicking Edit unmounted the entire SPA — `TypeError: Cannot read properties of null (reading 'selected')`. Two sibling defects on the same hydration effect: `Array.isArray(estimate.upgrades)` guards the container but not the elements, and the row renderer does a bare `upg.selected` read *in the render body*, so one null element takes down the whole app rather than one panel. Second defect: `estimate?.financing_plan_ids || []` lets a truthy non-array through to `selectedPlanIds.includes(...)`. Fixed at the state boundary so every consumer is covered by one change (`f608588`).
-- **Verified:** with the malformed row still in the database (`EST-083` = `upgrades [null]`, `financing_plan_ids {"a":1}`), `root.innerText` 0 → 1722, 0 page errors, Upgrades panel present.
-- **Regression check:** confirmed the now-succeeding open does **not** write back — `updated_at` unchanged. Run 70's `8adf59e` write-on-open guard still holds. This check exists because of Run 70's lesson that fixing one bug can activate a latent one.
+### `/invoices` — interaction-tested
+- **Tested:** Record Payment modal — method dropdown (7 options), reference field, submit, toast, DB round-trip.
+- **Broken → fixed:** method and reference silently discarded (`629e073`, above).
+- **Verified:** before — request body was `{"amount":1}` while the toast claimed "recorded via insurance". After — the body carries `payment_method` and `reference`, and both are present in Postgres.
+- **Also fixed here:** `line_items` JSONB write guard (`81d0cab`).
+
+### `/work-orders` — interaction-tested (API depth)
+- **Tested:** PDF generation across the full set of 21 work orders; POST/PATCH shape validation.
+- **Broken → fixed:** 2 of 21 PDFs returned 500 (`86eb187`); both write routes accepted any JSONB shape (`81d0cab`).
+- **Verified:** 21 of 21 PDFs now 200.
+
+### `/tasks` — interaction-tested
+- **Tested:** task rows, priority rendering, both task modals.
+- **Broken → fixed:** every list rendered `{task.priority}` raw, so a user who picked "Medium" in the modal saw **"WARM"** in the row (`8745ec5`). `tasks.priority` is the `lead_priority` enum — `hot|warm|cold` — verified against the live DB, while the modals offer High/Medium/Low.
+- **Verified by computed style, not source:** `.task-row__priority` → "MEDIUM", `oklch(0.78 0.17 85)` (`--accent-amber`).
 
 ### `/dashboard` — interaction-tested
-- **Tested:** filter bar (period / rep / source), Clear Filters, KPI cards, activity feed.
-- **Broken → fixed:** every control inert (`3e23c9a`, above).
-- **Verified in browser:** clicking "7 Days" moved the funnel New 22 → 6, Contacted 6 → 2, Appt Set 1 → 0, Inspected 1 → 0, Estimate Sent 1 → 0; activity 14 rows → 0; Pipeline Value $60K → $0. Screenshot `r71-dashboard-filter-7d-AFTER.png`. Console errors 0.
-- **Correctly unchanged:** "New Leads (7d)" stays 8 — those 8 recent leads genuinely carry no `estimated_value`, which is why the filtered pipeline value is $0.
+- **Tested:** task priority chips, stage labels on follow-ups and lead rows, days-in-stage panel.
+- **Broken → fixed (three defects):**
+  1. `priorityColors` (`Dashboard.jsx:61`) was keyed `urgent/high/medium/low`. **None of those four keys can ever occur**, so the lookup at its only call site was always `undefined` and every dashboard priority rendered with no colour. `Dashboard.jsx:1204`'s `task.priority === 'urgent'` was dead for the same reason — a high-priority task never got the red treatment it was written to get (`8745ec5`).
+  2. `stageLabels` (`Dashboard.jsx:55`) was keyed `new_lead / inspection / negotiation / closed_won / closed_lost` — five keys that can never occur — while six real enum values had no entry at all. Both call sites fall back to the raw value, so nothing crashed; the stages just rendered as database keys, and `on_hold` rendered as **"ON_HOLD"**, underscore and all (`1f1e68b`).
+  3. Stage wording then diverged from the rest of the app — see below (`aca103e`).
+- **Verified:** priority chip → "MEDIUM" at `oklch(0.78 0.17 85)`; a span sweep for raw enum leakage (`/^[a-z]+_[a-z_]+$/`) returns nothing from the stage badges.
 
-### `/leads` — interaction-tested
-- **Tested:** list render, source pills, source filter dropdown.
-- **Broken → fixed:** 16 of 31 leads had a `source` value that no filter could select (`d37dedd`). Live code writes `storm_map` and `fema_nsi` (`StormMap.jsx:1826`) and `canvassing` (`routes/canvassing.js:186`), none of which appeared in the `/leads` label map or the `/pipeline` filter options. DB ground truth: manual 27, fema_nsi 6, storm_map 5, canvassing 5 — while the two options that *were* listed (`storm_auto`, `door_knock`) matched **zero rows**. On `/leads` those 16 rows rendered a raw unstyled enum key; on `/pipeline` they were unreachable by filtering entirely.
-- **Kept deliberately:** `storm_auto` / `door_knock` are `seed.js` values and matter for freshly seeded databases.
+### `/alerts` — interaction-tested
+- **Tested:** alert-threshold steppers, full-page icon sweep.
+- **Broken → fixed:** `StepperInput` rendered its increment/decrement controls as two 28×28 icon buttons whose entire content was the text characters `U+2212` and `+`. Both thresholds render one stepper each, so **four such buttons were live on the page at load** — and they had **no accessible name at all** (`31fbc07`).
+- **Verified:** symbol-glyph text nodes in clickables 4 → 0; total SVG count 34 → 38 (exactly +4); all four new icons `viewBox="0 0 24 24" fill="none" stroke-width="1.5"`; button box preserved at 28×28 and colours preserved.
 
-### `/reports` — interaction-tested
-- **Tested:** sortable column headers, DeltaBadge trend indicators.
-- **Broken → fixed:** four sortable `<th>` used text `▲`/`▼`; DeltaBadge used `→ ↑ ↓` (`208e298`). Now reuses `LeadList`'s exact post-`e29e005` style object (10×10, opacity 0.5, strokeWidth 2.5), matching `CustomSelect`'s chevron.
-- **Verified:** glyph text nodes 1 → 0; clicking the "Activities" header renders exactly 1 chevron SVG in that `th` with no triangle text, so ASC/DESC still indicates.
-
-### `/pipeline` — interaction-tested
-- **Tested:** board render, task-count badges, source filter.
-- **Broken → fixed:** task-count badges used `✓` as a text prefix in two places (`e205240`). Verified live: 0 glyph text nodes, 78 SVGs, 0 non-conforming.
+### `/materials` — interaction-tested
+- **Tested:** catalogue grid, Add-to-cart button geometry across all rendered products.
+- **Broken → fixed:** see Buttons audit below (`9502b9c`).
 
 ### Render-depth only — not interaction-tested
-`/`, `/calendar`, `/invoices`, `/work-orders`, `/materials`, `/contracts`, `/documents`,
-`/territories`, `/subcontractors`, `/expenses`, `/drip`, `/settings`, `/admin`, `/map`.
+`/pipeline`, `/leads`, `/storm-map`, `/storm-catalog`, `/calendar`, `/canvassing`,
+`/estimates`, `/reports`, `/contracts`, `/expenses`, `/subcontractors`, `/settings`, `/admin`.
 These rendered without error and passed the SVG sweep. **No workflow on any of them was
 driven.** Do not read this as passing.
 
@@ -138,170 +162,226 @@ driven.** Do not read this as passing.
 
 ## UI Consistency Audit Results
 
-### Icons — 14 sites found, 13 fixed, 1 category deferred
+This is the first run in which a **second** audit category produced a finding. Categories 3–7
+still never ran.
 
-This is Run 70's carry-forward #4 (*"sweep the SVGs, grep the source, AND read the rendered
-DOM"*) paying out for the **third** consecutive run, and it surfaced a third distinct glyph
-class. Each of the three methods missed something the others caught:
+### Icons — 9 code sites found (11 rendered controls), 8 fixed, 1 deferred
 
 | Site | Glyph | Fixed as | Commit |
 |---|---|---|---|
-| `ReportsView.jsx:360` (4 `<th>`) | `▲` `▼` | ChevronUp/DownIcon | `208e298` |
-| `ReportsView.jsx:528` DeltaBadge | `→ ↑ ↓` | Arrow Heroicons | `208e298` |
-| `Dashboard.jsx:537` revenue-goal pill | `✓` `⚠` | Check/ExclamationIcon | `208e298` |
-| `Dashboard.jsx:1332` stat-change pill | `↑` `↓` | Arrow Heroicons | `208e298` |
-| `SettingsView.jsx:767` plan comparison | `▲` `▼` | Chevron Heroicons | `208e298` |
-| `DripSequences.jsx:319/330` reorder | literal `↑` `↓` | Arrow Heroicons + `title` | `208e298` |
-| `EstimatesView.jsx:1904/2112` drag handles | `&#x2807;` | `Bars3Icon` + `title` | `e205240` |
-| `LeadDetail.jsx:656` score Refresh | `↻` | `ArrowPathIcon` | `e205240` |
-| `LeadDetail.jsx:2703` street-view close | `✕` | `IconX` + `title` | `e205240` |
-| `LeadDetail.jsx:2755` Google Maps link | `↗` | `ArrowTopRightOnSquareIcon` | `e205240` |
-| `Pipeline.jsx:842/1280` task badges | `✓` | `CheckIcon` | `e205240` |
+| `AlertSettings.jsx:309,321` StepperInput (4 live on `/alerts`) | `U+2212`, `+` | Minus/PlusIcon + aria-labels | `31fbc07` |
+| `RoofDrawingTool.jsx:635,778` remove facet / line | `U+2715` | Heroicons (file imported none) | `31fbc07` |
+| `TerritoryManager.jsx:262` draw territory | `U+2713` | Heroicon | `31fbc07` |
+| `AutomationSettings.jsx:156` New Automation | `+` | `PlusIcon` | `aca103e` |
+| `ContractsView.jsx:556` Add Section | `+` | `PlusIcon` | `aca103e` |
+| `DripSequences.jsx:223,404` New Sequence / Add Step | `+` | `PlusIcon` | `aca103e` |
+| `StormProperties.jsx:347` dropdown chevron | `U+25BE` | **NOT FIXED** — do-not-touch component | — |
 
-**Why three runs of icon audits kept missing these.** Run 70 established that an emoji is a
-*text node*, invisible to `querySelectorAll('svg')`. This run found the rule generalises
-further: the first source grep reused Run 70's **emoji** ranges and therefore could not see
-U+2191 or U+25BC; the rendered-DOM sweep caught those. Re-grepping with arrow, geometric and
-technical ranges — *and* the `\uXXXX` and `&#xXXXX;` escape forms — then found three sites the
-DOM sweep could not reach, because they sit behind a Settings tab and a comparison state that
-needs data to render. The two drag handles were U+2807 BRAILLE PATTERN DOTS-123 written as an
-HTML entity: invisible to a literal-glyph grep, to the emoji ranges, and to the arrow ranges
-alike.
+**Why five prior icon audits missed the steppers — and the method fix.** Run 70 established
+that an emoji is a *text node* and therefore invisible to a `querySelectorAll('svg')` sweep.
+That lesson was applied, but the detector written from it enumerated Unicode **blocks**
+(arrows `2190-21FF`, misc-technical `2300-23FF`, geometric `25A0-25FF`, dingbats `2600-27BF`,
+emoji). `U+2212 MINUS SIGN` lives in Mathematical Operators (`2200-22FF`) and `+` is plain
+ASCII — so a block-enumerating detector is **structurally incapable** of finding a +/− stepper,
+no matter how many blocks are added. It was replaced with a block-independent rule: any text
+node of ≤3 characters containing no letter and no digit (`\p{L}`/`\p{N}`), sitting inside a
+clickable, excluding ordinary punctuation. That rule found the steppers immediately, and then
+found the four `+` label prefixes.
 
-**Accessibility side-effect:** four of these sites — the two drag handles, the two
-`DripSequences` reorder buttons, and the street-view close button — were bordered `<button>`
-elements whose only content was a text glyph. They had **no accessible name at all**. All now
-carry `title`.
+The `RoofDrawingTool` and `TerritoryManager` sites are invisible to **any** render-depth sweep
+— both components mount only behind an interaction — and were caught by the source grep
+instead. Neither lens alone was sufficient; this is Run 70's three-lens rule holding for the
+fourth consecutive run.
 
-**Triaged as NOT defects** (verified, deliberately left alone): `CanvassingMode`'s 6 emoji are
-dead data — the `emoji` key is never read, only `label` and `color`; `StormProperties.jsx` is
-an orphan component with zero importers; `LeadDetail`'s `×` are multiplication signs in the
-roof-cost formula; `Pipeline`'s hail/wind glyphs remain the documented deliberate exception.
+**Accessibility side-effect:** the four `/alerts` stepper buttons had no accessible name at
+all. All now carry `aria-label`.
 
-**Final state:** `svgBad = 0` across all 16 routes — 2,024 SVGs, every non-recharts SVG
-`viewBox="0 0 24 24" fill="none"`.
+**Final state:** a 19-route re-sweep reports **0 non-conforming SVGs and 0 clickable symbol
+glyphs** remaining.
 
-### Buttons, Toolbars/Headers, Sidebar/Nav, Forms, Spacing, Modals — NOT AUDITED
+### Buttons — 1 outlier found (136 rendered buttons), fixed
 
-Stage 3 was chartered with seven audit categories and hit its 60-turn cap inside the first
-one. **Categories 2–7 produced no findings because they were never run**, not because they
-passed. This is the second consecutive run in which the icon audit consumed the entire UI
-stage. Esc-to-close (0 of 4 modals in Run 69) remains unretested for a third run.
+`MaterialsView.jsx:444` inline-overrode `borderRadius: '12px'` on a button that already
+carries `.quick-action-btn`, whose class rule (`index.css:1809`) is the app's signature
+elliptical "squircle" `border-radius: 14px / 12px`. This is the single most-repeated button on
+the page — it renders once per product — so **136 buttons on `/materials` had a plain-circular
+radius** while every other quick-action button in the app had the elliptical one.
+
+Established as an outlier rather than a deliberate small-size variant before touching it:
+the same small variant (`font-size: 11px`) elsewhere keeps 14px / 12px on `/estimates` ×153,
+`/contracts` ×21 and `/invoices` ×18 (192 buttons); `MaterialsView`'s own other radii use the
+elliptical form; and the other three quick-action buttons on `/materials` itself already
+computed 14px / 12px. The override contradicted its class, the rest of the app, and its own
+file. The fix is a **deletion** — no new value introduced.
+
+Verified live: before `{"12px": 136, "14px / 12px": 3}` → after `{"14px / 12px": 139}`, a
+single value across all 139 buttons.
+
+### Labels / vocabulary — 2 splits found, both fixed
+
+The app has one stage vocabulary, used identically by `LeadList.jsx:32`, `LeadDetail.jsx:104`,
+`ReportsView.jsx:25` and Pipeline's columns: **Inspected | Estimate Sent | Negotiating | Sold
+| In Production**. Two places disagreed, and **one of them was introduced by this run's own
+`1f1e68b`**, which correctly added the missing enum keys but spelled them *Inspection /
+Negotiation / Won / Production*. For a window during this run, `/leads` said "Inspected" while
+`/dashboard` said "Inspection" for the same lead. The second split was server-side
+(`crm.js:833`, days-in-stage), and that panel renders *beside* the Pipeline panel — so one
+screen showed one lead stage under two different names. Both aligned in `aca103e`; legacy
+non-enum keys kept as aliases so no stage loses its label.
+
+This is Run 70's carry-forward #2 in a new form: **a fix can introduce a defect as well as
+activate one.** It was caught only because a later stage re-read the change.
+
+### Toolbars/Headers, Sidebar/Nav, Forms, Spacing, Modals — NOT AUDITED
+
+Stage 3 was chartered with seven audit categories and hit its 60-turn cap after the first two.
+**Categories 3–7 produced no findings because they were never run**, not because they passed.
+This is the third consecutive run in which the icon audit consumed most of the UI stage.
+Esc-to-close (0 of 4 modals in Run 69) remains unretested for a fourth run.
 
 ---
 
 ## Bugs Fixed
 
-1. **`/estimates` (UI)** — A null element inside an estimate's `upgrades` white-screened the entire SPA on Edit — `Array.isArray` guards the container, not the elements, and the read happens in the render body. *Fixed:* sanitize at the state boundary; also hardened `financing_plan_ids || []` against truthy non-arrays. — `f608588`
-2. **`POST`/`PATCH /api/estimates` (API)** — Accepted any JSONB shape for `line_items`, `upgrades`, `financing_plan_ids`, `insurance_details` and stored it verbatim with a 200. *Fixed:* container-type guards returning specific 400s; 12 of 13 hostile shapes rejected, 7 of 7 valid payloads unaffected. — `ae946ab`
-3. **`POST /api/materials/orders` (API)** — `items: [null]` passed `Array.isArray` then threw in `.reduce` → 500. *Fixed:* per-element type check → 400. — `b65e8af`
-4. **`POST /api/materials/estimate/:id/auto-order` (API)** — `line_items || []` let a truthy non-array reach `for..of` → 500 on real rows `EST-082`/`EST-083`. *Fixed:* array + element guard → 400. — `b65e8af`
-5. **`/dashboard` (API)** — The entire filter bar (period, rep, source) was discarded server-side; three routes ignored `req.query` completely. *Fixed:* wired `extractFilters`-style handling into the three `/api/crm/*` routes the UI actually calls. — `3e23c9a`
-6. **`/leads` + `/pipeline` (UI)** — 16 of 31 leads carried a source (`storm_map`, `fema_nsi`, `canvassing`) absent from both the label map and the filter options, while two listed options matched zero rows. *Fixed:* added the three real values, kept the two seed values. — `d37dedd`
-7. **7 pages (UI)** — 13 glyph-in-icon-slot sites across `ReportsView`, `Dashboard`, `SettingsView`, `DripSequences`, `EstimatesView`, `LeadDetail`, `Pipeline`. *Fixed:* replaced with `@heroicons/react/24/outline` equivalents; added accessible names to 5 previously unnamed buttons. — `208e298`, `e205240`
+1. **`GET /api/crm/work-orders/:id/pdf` (API)** — `[null]` inside `line_items` passed the `Array.isArray` container check and was then dereferenced → 500 on 2 of 21 work orders. *Fixed:* per-element filter, matching the estimate-PDF fix from Run 67. All 21 PDFs now 200. — `86eb187`
+2. **`POST`/`PATCH /api/crm/work-orders/:id` (API)** — Accepted a string, object, number or boolean into the `line_items` JSONB column and returned 200. *Fixed:* container-type guard matching the `estimates.js` precedent; 4 of 4 hostile shapes → 400, valid arrays still write. — `81d0cab`
+3. **`POST`/`PATCH /api/crm/invoices/:id` (API)** — Same defect on the sibling route; malformed input silently *replaced* the invoice's line items while totals kept their old values. *Fixed:* same guard. — `81d0cab`
+4. **`POST /api/crm/invoices/:id/payment` (full-stack)** — Payment method and check/claim number were collected by the modal, named back to the user in the success toast, and discarded entirely; no column existed. *Fixed:* migration `049` adds two nullable TEXT columns; method whitelisted server-side, reference trimmed and capped at 200 chars. — `629e073`
+5. **`/tasks` + `/dashboard` (UI)** — Task priority rendered the raw enum, so choosing "Medium" displayed **"WARM"**. *Fixed:* label map over the real `hot|warm|cold` enum. — `8745ec5`
+6. **`/dashboard` (UI)** — `priorityColors` was keyed on four values that can never occur, so every dashboard priority rendered with no colour and the `'urgent'` branch was dead code. *Fixed:* re-keyed to the real enum. — `8745ec5`
+7. **`/dashboard` (UI)** — `stageLabels` was keyed on five non-existent stages while six real ones had no entry; `on_hold` rendered as "ON_HOLD". *Fixed:* real enum keys added, legacy keys kept as aliases. — `1f1e68b`
+8. **`/alerts`, `RoofDrawingTool`, `TerritoryManager` (UI)** — 5 glyph-in-icon-slot sites, including 4 buttons live on `/alerts` at page load with no accessible name. *Fixed:* Heroicons + `aria-label`; detector rewritten to be block-independent. — `31fbc07`
+9. **`/materials` (UI)** — 136 Add-to-cart buttons inline-overrode the app's squircle radius. *Fixed:* deleted the redundant inline style and let the class supply it. — `9502b9c`
+10. **4 components + `crm.js` (UI)** — 4 more `+` glyphs in icon slots, and the stage vocabulary split two ways (one split introduced earlier the same night by `1f1e68b`). *Fixed:* Heroicons; both label maps aligned to the app-wide wording. — `aca103e`
 
 ---
 
 ## Known Issues (Not Fixed)
 
-1. **`⚡` (U+26A1) survives in 5 icon slots — needs a design decision.**
-   `LeadDetail.jsx:613` (lead-score button, `⚡ ${score}` / `⚡ Score`) and
-   `LeadList.jsx:420-423` (four `CustomSelect` option labels — `⚡ 80+ Excellent` etc.).
-   Found by this stage's verification sweep *after both s3 and s4 had declared the icon audit
-   clean*. Left as one unit deliberately: the `LeadDetail` one is a mechanical swap, but the
-   four `LeadList` entries are option-label **strings**, and giving them icons requires
-   `CustomSelect` to render nodes in options — a component change, not a swap. Fixing half the
-   category would leave the audit in a worse-documented state than leaving it whole.
+1. **`U+25BE` used as a dropdown chevron — `StormProperties.jsx:347`.** Not fixed
+   deliberately: this is inside the FEMA storm-properties panel that the charter marks
+   **do-not-touch** (developer-owned; changes there get reverted). Documented for the developer
+   rather than changed.
 
-2. **Duplicate `estimate_number` within a single tenant — needs a DB migration.**
-   `EST-021`, `EST-022` and `EST-082` each exist twice under tenant `791bb51d`. There is no
-   unique constraint on `(tenant_id, estimate_number)`. **Pre-existing, not caused by this
-   run** — the duplicate `EST-082` rows were created 2026-05-26 and 2026-06-07. (`EST-001`
-   appearing twice is legitimate: two different tenants.) A fix needs a renumbering decision
-   for the existing collisions before the constraint can be added.
+2. **`CanvassingMode`'s `OUTCOME_OPTIONS` carries a dead `emoji` field (6 emoji).** Grepped
+   app-wide and never consumed — only `label` and `color` are read. Left alone per the
+   no-refactor rule, but flagged: it is a loaded gun. Rendering `opt.emoji` would put 6 emoji
+   into icon slots in a single line of code.
 
-3. **`GET /api/properties/fema-live` 500 — external, not actionable.** NSI connect timeout.
-   Carried from Run 70; unchanged.
+3. **`⚡` (U+26A1) still in 5 icon slots — carried from Run 71, needs a design decision.**
+   `LeadDetail.jsx:613` and `LeadList.jsx:420-423`. Re-confirmed present this run. The
+   `LeadDetail` one is a mechanical swap, but the four `LeadList` entries are `CustomSelect`
+   option-label **strings**; giving them icons requires `CustomSelect` to render nodes in
+   options — a component change, not a swap.
 
-4. **24 of 29 JSONB columns still have no write guard.** See gaps below.
+4. **Duplicate `estimate_number` within a single tenant — needs a DB migration.** `EST-021`,
+   `EST-022` and `EST-082` each exist twice under tenant `791bb51d`; no unique constraint on
+   `(tenant_id, estimate_number)`. Pre-existing. Carried from Run 71, unchanged.
 
-5. **Chunk-size build warning** — `mapbox-gl` 1.70 MB, `index` 594 kB. Pre-existing and
-   cosmetic; no action taken (would be an enhancement, outside the QA charter).
+5. **`GET /api/properties/fema-live` 500 — external, not actionable.** NSI connect timeout.
+   Carried from Runs 70–71, unchanged.
+
+6. **19 of 27 JSONB columns still have no write guard.** See gaps below.
+
+7. **Chunk-size build warning** — `mapbox-gl` 1.70 MB, `index` 594 kB. Pre-existing and
+   cosmetic; outside the QA charter.
 
 ---
 
 ## Test Coverage Gaps
 
-**1. JSONB write guards — 24 of 29 columns unguarded.** This run mapped all 29 and guarded 5
-(`estimates` ×4, `material_orders.items`); `custom_field_definitions.options` was guarded in
-Run 69. The highest-value remainder is **`invoices.line_items` (18 rows) and
-`work_orders.line_items` (21 rows)** — structurally identical to `estimates.line_items`, which
-produced three separate white-screens across Runs 69–71. Also unguarded and populated:
-`contracts.content`, `contract_templates.content`, `leads.custom_fields`,
-`leads.lead_score_factors`, `activities.metadata`, `tenants.branding`,
-`financing_lenders.config`, `subscription_plans.features`. **This is the single
-highest-value target for Run 72.**
+**1. JSONB write guards — 19 of 27 base-table columns still unguarded.** This run guarded
+`work_orders.line_items` and `invoices.line_items`, bringing the cumulative total to **8 of
+27** (`custom_field_definitions.options` from Run 69; `estimates` ×4 and `material_orders.items`
+from Run 71). *Number reconciliation:* Run 71 reported "29 JSONB columns" and this run's
+commit messages say 27 — both are right. The database has **29** JSON/JSONB columns, of which
+**2 belong to `lead_summary_view`**, a view rather than a base table; 27 are writable base-table
+columns. Still unguarded and populated: `contracts.content`, `contract_templates.content`,
+`leads.custom_fields`, `leads.lead_score_factors`, `activities.metadata`, `tenants.branding`,
+`financing_lenders.config`, `subscription_plans.features`, `automations.trigger_config` /
+`action_config`, `drip_sequences.trigger_config`, `drip_sequence_steps.action_config`,
+`documents.tags`, `content_library.content`. **`contracts.content` is the highest-value
+remainder for Run 73** — it is the largest untested JSONB surface and drives a
+customer-facing rendered document, the same shape that produced this run's PDF 500.
 
 **2. No breadth sweep this run.** Run 70 exercised 252 of 272 routes (92.6%). This run went
-depth-first on JSONB per that run's carry-forward and exercised **11**. The 252-route result
-is *not* re-verified against tonight's 4 server-side changes; `crm.js`, `estimates.js` and
-`materials.js` all changed after it was measured.
+depth-first per Run 71's carry-forward and exercised **10**. The 252-route result is now two
+runs stale and is **not** re-verified against tonight's server-side changes to `workOrders.js`,
+`invoices.js`, `invoiceService.js` and `crm.js`.
 
-**3. Interaction testing reached 5 of 19 routes.** Those 5 yielded 6 findings. The 14
-render-only routes are unexercised, not clean.
+**3. Interaction testing reached 5 of 19 routes.** Those 5 produced nearly every finding, which
+is itself the evidence that the other 14 are unexercised rather than clean.
 
-**4. Six of seven UI audit categories never ran** (buttons, toolbars/headers, sidebar/nav,
-forms, spacing, modals) — s3 capped inside category 1.
+**4. Five of seven UI audit categories never ran** (toolbars/headers, sidebar/nav, forms,
+spacing, modals). Buttons was entered for the first time and immediately produced a
+136-instance finding on the first page examined — which is a reason to expect the five
+unexamined categories to hold findings too, not a reason to assume they are clean.
 
-**5. Turn caps are the binding constraint — 4 of 4 stages capped, third consecutive run.**
+**5. Turn caps are the binding constraint — 4 of 4 stages capped, fourth consecutive run.**
 
 | Stage | Outcome | Turns | Cost | API time |
 |---|---|---|---|---|
-| s1 api-test | MAX_TURNS | 51 / 50 | $4.12 | 7.7 min |
-| s2 frontend-test | MAX_TURNS | 81 / 80 | $7.33 | 10.4 min |
-| s3 ui-audit | MAX_TURNS | 61 / 60 | $5.23 | 7.7 min |
-| s4 verify | MAX_TURNS | 41 / 40 | $3.27 | 5.6 min |
-| **s1–s4** | **4 of 4 capped** | | **$19.95** | **31.3 min** |
+| s1 api-test | MAX_TURNS | 51 / 50 | $4.87 | 9.9 min |
+| s2 frontend-test | MAX_TURNS | 81 / 80 | $8.82 | 15.1 min |
+| s3 ui-audit | MAX_TURNS | 61 / 60 | $6.59 | 10.9 min |
+| s4 verify | MAX_TURNS | 41 / 40 | $3.56 | 5.8 min |
+| **s1–s4** | **4 of 4 capped** | | **$23.83** | **41.7 min** |
 
-Two stages ended with **verified fixes sitting uncommitted** in the working tree — s1's
-materials guards (committed by s2 as `b65e8af`) and s4's six icon fixes (committed by this
-stage as `e205240`). Work is being stranded at the cap boundary, not lost, but only because
-each downstream stage has re-verified and adopted it.
+Spend is up 19% on Run 71 ($19.95) for a comparable finding count.
 
-**6. Results files were not written — for the third consecutive run.** None of
-`/tmp/api-test-results.txt`, `/tmp/frontend-test-results.txt`, `/tmp/ui-audit-results.txt`
-exists. The only file in temp is `stage-3-ui-audit.txt`, which is stage 3's **prompt**, not its
-output. A reader trusting filenames or mtimes would report a prompt as a result. **All nine
-findings in this report were reconstructed from commit messages, probe scripts, and live
-re-verification.** Commit messages remain the pipeline's only reliable evidence channel.
-*Suggested fix: have each stage write its results file first and append per finding, rather
-than composing it at the end where the cap always lands.*
+**6. Work stranded at the cap boundary — third consecutive run.** s4 ended with five files of
+verified-but-uncommitted fixes in the working tree. In Runs 70 and 71 a downstream stage
+adopted the stranded work; this run it reached the **final** stage, so this report's stage
+adopted it as `aca103e` after independently re-verifying it (live API check plus a build). Had
+the pipeline ended one stage earlier, that work would have been lost. This is now a structural
+property of the pipeline, not an incident.
 
-**7. Permanently excluded** (by standing project rules, not gaps): Google geocoding and all
-bulk geocoding; bulk DB writes; FEMA map property loading, filtering, IndexedDB caching and
-storm-swath intersection (developer-owned, changes get reverted); mobile/375px (web-only
-focus).
+**7. Results files were not written — fourth consecutive run, and the most misleading yet.**
+None of `/tmp/api-test-results.txt`, `/tmp/frontend-test-results.txt` or
+`/tmp/ui-audit-results.txt` exists; a filesystem-wide search for any results file written
+today returned nothing. What *is* in `/tmp` is **five files named `stage-1-api-test.txt`
+through `stage-5-report.txt`** — every one of which is a stage's **prompt**, not its output.
+Run 71 warned that one such file was there; this run has a full set, so a reader trusting
+filenames would report five prompts as five results and conclude the run documented itself
+perfectly. **Every finding in this report was reconstructed from commit messages, probe
+scripts, and live re-verification.** Commit messages remain the pipeline's only reliable
+evidence channel. *Suggested fix, unchanged from Run 71: have each stage write its results
+file first and append per finding, rather than composing it at the end where the cap always
+lands.*
+
+**8. Permanently excluded** (standing project rules, not gaps): Google geocoding and all bulk
+geocoding; bulk DB writes; FEMA map property loading, filtering, IndexedDB caching and
+storm-swath intersection (developer-owned); mobile/375px (web-only focus).
 
 ---
 
 ## Database Hygiene
 
-- **Net rows written this run: 0.** All API probes used rejection paths (every malformed
-  payload 400s, so no row is created) or GETs.
-- s4's badge probe tasks were deleted by its own cleanup script — `qa2026%` tasks remaining: **0**.
-- `estimates` 84, `leads` 47, `material_orders` 3 — unchanged from Run 70.
-- `EST-082` / `EST-083` malformed JSONB left in place **deliberately**, as in Run 70, so the
-  client-side element guards stay exercised against real data rather than only fuzzing.
-  `EST-083` was restored to its pre-probe state after the `ae946ab` guard testing.
+- **New rows written: 0.** Every JSONB probe used a rejection path (400s create nothing) or a GET.
+- **One row was mutated and left in place — needs a cleanup decision.** `INV-0007` currently
+  reads `amount_paid 603.00` (of `total 5000.00`), `payment_method 'insurance'`,
+  `payment_reference 'CLAIM-QA72-XYZ'`, `status 'sent'`. The reference string and **$3.00 of the
+  amount paid** are QA probe artifacts from verifying `629e073`, not real payments. This is
+  deliberate and disclosed rather than silently reverted, because the values are the live proof
+  that the fix works — but it is test data in a real invoice and should be cleared before the
+  tenant's books are trusted.
+- **`work_orders`: 2 rows still hold `[null]` in `line_items`, left in the DB deliberately**, so
+  the new `86eb187` guard stays exercised against real data rather than only against fuzzing.
+  Matches the `EST-082`/`EST-083` precedent from Runs 70–71, which remain in place.
+- Migration `049_invoice_payment_method.sql` is additive and nullable (two TEXT columns) —
+  applied and verified by round-trip.
 
 ---
 
 ## Verification
 
-- Final build: `npx vite build` → **exit 0, 8.08s**.
-- Live re-verification this stage (localhost:5173, title asserted "StormPipe — Roofing CRM"):
-  `/pipeline` 0 glyph text nodes / 78 SVGs / 0 non-conforming; `/estimates` builder 0 glyph
-  text nodes / 82 SVGs / 10 drag handles rendering as Heroicons; **0 console errors**.
-- Server freshness confirmed by mtime-vs-boot, not commit time (Run 70's lesson):
-  `crm.js` 05:16:10 < API PID 10992 boot 05:16:20.
-- Drift baseline for Run 72: **`e205240`**.
+- Final build: `npx vite build` → **exit 0, 8.01s**.
+- Live re-verification this stage: `GET /api/crm/dashboard/days-in-stage` → 200 with
+  `{"stage":"inspected","label":"Inspected"}` (was "Inspection"), and Estimate Sent / Appt Set /
+  New / Contacted all matching the app-wide vocabulary.
+- Server freshness confirmed by mtime-vs-boot, not commit time (Run 70's lesson): API PID 27968
+  booted 05:52:16, `crm.js` mtime 05:51:43 — so the running process includes the adopted change.
+- `⚡` re-confirmed present in 5 slots (carried, not silently dropped from the ledger).
+- JSONB column count re-counted directly against `information_schema` to reconcile the 27-vs-29
+  discrepancy between this run's and Run 71's reports.
+- Drift baseline for Run 73: **`aca103e`**.
