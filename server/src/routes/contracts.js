@@ -181,9 +181,25 @@ router.get('/:id/pdf', validateId(), async (req, res, next) => {
     const companyName = contract.company_name || 'StormLeads';
     const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
 
-    // Parse contract sections
-    const rawContent = typeof contract.content === 'string' ? JSON.parse(contract.content) : (contract.content || {});
-    const sections = rawContent.sections || [{ title: 'Agreement', body: typeof rawContent === 'string' ? rawContent : '' }];
+    // Parse contract sections. content is JSONB, so it stores whatever shape was written
+    // and node-postgres hands back the parsed value (object, array, string or number).
+    // A bare JSON.parse threw on a stored string that is not itself JSON.
+    let rawContent = contract.content;
+    if (typeof rawContent === 'string') {
+      try { rawContent = JSON.parse(rawContent); } catch { /* plain text, not JSON */ }
+    }
+    const bodyFromPlainText = typeof rawContent === 'string' ? rawContent : '';
+    if (!rawContent || typeof rawContent !== 'object') rawContent = {};
+
+    // Array.isArray guards the CONTAINER, the filter guards the ELEMENTS. A truthy
+    // non-array (42, {...}) is not iterable, and [null] has length 1 so it survived the
+    // old `|| []` and then threw on section.title. Same defect and same fix as the
+    // estimate PDF (estimates.js) and the work-order PDF (workOrders.js).
+    const parsedSections = (Array.isArray(rawContent.sections) ? rawContent.sections : [])
+      .filter((s) => s && typeof s === 'object');
+    const sections = parsedSections.length
+      ? parsedSections
+      : [{ title: 'Agreement', body: bodyFromPlainText }];
 
     // Build document content
     const content = [
@@ -219,11 +235,13 @@ router.get('/:id/pdf', validateId(), async (req, res, next) => {
     // Render each contract section
     for (const section of sections) {
       if (section.title) {
-        content.push({ text: section.title, style: 'sectionHeader' });
+        content.push({ text: String(section.title), style: 'sectionHeader' });
       }
       if (section.body) {
-        // Strip HTML tags for plain text PDF (basic conversion)
-        const plainText = section.body
+        // Strip HTML tags for plain text PDF (basic conversion).
+        // String() because body is JSONB-sourced and may be a number/object/array,
+        // on which .replace is not a function.
+        const plainText = String(section.body)
           .replace(/<br\s*\/?>/gi, '\n')
           .replace(/<\/p>/gi, '\n')
           .replace(/<[^>]+>/g, '')
