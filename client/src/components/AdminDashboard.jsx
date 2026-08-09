@@ -59,6 +59,8 @@ const TIER_STYLES = {
   enterprise:   { color: 'oklch(0.80 0.15 85)',  bg: 'oklch(0.80 0.15 85 / 0.10)'  },
 };
 
+const ROLE_LABELS = { admin: 'Admin', manager: 'Manager', sales_rep: 'Sales Rep', super_admin: 'Super Admin' };
+
 function TierBadge({ tier }) {
   const style = TIER_STYLES[tier] || TIER_STYLES.starter;
   return (
@@ -461,9 +463,9 @@ function TenantDetail({ tenantId, onClose }) {
                     </div>
                     <span style={{
                       fontSize: 10, fontWeight: 700, textTransform: 'uppercase',
-                      color: u.role === 'admin' ? 'oklch(0.65 0.20 25)' : u.role === 'manager' ? 'oklch(0.80 0.15 85)' : 'var(--accent-blue)',
+                      color: u.role === 'admin' || u.role === 'super_admin' ? 'oklch(0.65 0.20 25)' : u.role === 'manager' ? 'oklch(0.80 0.15 85)' : 'var(--accent-blue)',
                     }}>
-                      {u.role}
+                      {ROLE_LABELS[u.role] || u.role}
                     </span>
                     <span style={{ color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
                       {formatDate(u.created_at || u.createdAt)}

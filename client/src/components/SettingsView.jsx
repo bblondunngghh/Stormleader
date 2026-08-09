@@ -165,7 +165,7 @@ function ProfileTab({ user }) {
           </div>
           <div className="detail-item">
             <span className="detail-item__label">Role</span>
-            <span className="detail-item__value" style={{ textTransform: 'capitalize' }}>{user?.role || '—'}</span>
+            <span className="detail-item__value">{roleLabels[user?.role] || '—'}</span>
           </div>
           <div className="detail-item">
             <span className="detail-item__label">Tenant ID</span>
@@ -1085,11 +1085,12 @@ function PaymentsTab() {
 
 const roleColors = {
   admin: 'var(--accent-red)',
+  super_admin: 'var(--accent-red)',
   manager: 'var(--accent-amber)',
   sales_rep: 'var(--accent-blue)',
 };
 
-const roleLabels = { admin: 'Admin', manager: 'Manager', sales_rep: 'Sales Rep' };
+const roleLabels = { admin: 'Admin', manager: 'Manager', sales_rep: 'Sales Rep', super_admin: 'Super Admin' };
 
 function TeamTab({ currentUserId }) {
   const { user } = useAuth();
@@ -1270,7 +1271,7 @@ function TeamTab({ currentUserId }) {
 
               {isCurrentUser ? (
                 <div className="form-input" style={{ display: 'flex', alignItems: 'center', opacity: 0.6, fontSize: 12 }}>
-                  {member.role === 'admin' ? 'Admin' : member.role === 'manager' ? 'Manager' : 'Sales Rep'}
+                  {roleLabels[member.role] || 'Sales Rep'}
                 </div>
               ) : (
                 <CustomSelect value={member.role} onChange={v => handleRoleChange(member.id, v)}

@@ -66,6 +66,8 @@ const groups = [
 
 const settingsItem = { id: 'settings', label: 'Settings', Icon: AdjustmentsHorizontalIcon };
 
+const roleLabels = { admin: 'Admin', manager: 'Manager', sales_rep: 'Sales Rep', super_admin: 'Super Admin' };
+
 function loadExpandedGroups() {
   try {
     const stored = localStorage.getItem('sidebar-groups');
@@ -198,7 +200,7 @@ export default function Sidebar({ activeView, onNavigate }) {
         {!collapsed && (
           <div className="sidebar__user-info">
             <span className="sidebar__user-name">{displayName}</span>
-            <span className="sidebar__user-role">{user?.role || 'Admin'}</span>
+            <span className="sidebar__user-role">{roleLabels[user?.role] || 'Admin'}</span>
           </div>
         )}
         <button
