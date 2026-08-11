@@ -3596,3 +3596,176 @@ Baseline `3f730af` (`pre-overnight-20260807`) → HEAD `e205240`. 05:00–05:41 
 - Drift baseline for next run: **`e205240`**.
 
 ---
+## QA Run: 2026-08-08 (Run 72) — BACKFILLED BY RUN 73
+
+*This entry was reconstructed by s5 of Run 73 on 2026-08-09. Run 72's own s5 committed
+`OVERNIGHT-REPORT.md` but never appended to this file — the gap was found while writing
+Run 73's entry. Source: Run 72's report as committed at `3a2a51e:OVERNIGHT-REPORT.md`,
+plus the 8 commit messages. Counts are that report's; not independently re-verified.*
+
+### Test Results
+- Pages tested: 19 render-swept, 5 of 19 interaction-tested
+- API endpoints tested: 10 (depth-first, not a breadth sweep) of 272 catalogued
+- Bugs found: 12
+- Bugs fixed: 10
+- UI inconsistencies found: 15 (9 glyph sites, 136 buttons, 2 wording splits)
+- UI inconsistencies fixed: 14
+
+### Fixes Made
+- `86eb187` — work-order PDF 500'd on a `[null]` element inside `line_items` (2 of 21 orders);
+  per-element filter, matching the Run 67 estimate-PDF fix. All 21 PDFs → 200.
+- `81d0cab` — work-order AND invoice `line_items` accepted any shape (string/object/number/
+  boolean) into JSONB and returned 200. On invoices, malformed input silently *replaced* the
+  line items while totals kept their old values. Container-type guard on both; 4 of 4 hostile
+  shapes → 400.
+- `629e073` — recording an invoice payment silently discarded the method and check/claim
+  number. The modal collected both and named the method back in the success toast; no column
+  existed to store either. Migration `049` adds two nullable TEXT columns; method whitelisted
+  server-side, reference trimmed and capped at 200 chars.
+
+### UI Consistency Fixes
+- `8745ec5` — task priority rendered the raw enum, so choosing "Medium" displayed "WARM"; and
+  `priorityColors` was keyed on four values that can never occur, so every dashboard priority
+  rendered colourless and the `'urgent'` branch was dead code.
+- `1f1e68b` — dashboard `stageLabels` keyed on five non-existent stages while six real ones had
+  no entry; `on_hold` rendered as "ON_HOLD".
+- `31fbc07` — 5 glyph-in-icon-slot sites across `/alerts`, `RoofDrawingTool`, `TerritoryManager`,
+  including 4 buttons live on `/alerts` at load with no accessible name. Heroicons + `aria-label`.
+  Detector rewritten to be BLOCK-INDEPENDENT.
+- `9502b9c` — 136 materials Add-to-cart buttons inline-overrode the app's squircle radius.
+- `aca103e` — 4 more `+` glyphs in icon slots, and the stage vocabulary split two ways (one
+  split introduced earlier the same night by `1f1e68b`).
+
+### Known Issues Remaining
+- `U+25BE` as a dropdown chevron in `StormProperties.jsx:347` — not fixed.
+- `CanvassingMode`'s `OUTCOME_OPTIONS` carries a dead `emoji` field (6 emoji), never read.
+- `⚡` (U+26A1) in 5 icon slots — carried from Run 71, needs a design decision.
+- Duplicate `estimate_number` within one tenant (`EST-021`, `EST-022`, `EST-082`) — needs a
+  renumbering decision before a unique constraint can be added.
+- `GET /api/properties/fema-live` 500 — external (NSI connect timeout).
+- 19 of 27 JSONB columns still had no write guard.
+- Chunk-size build warning (`mapbox-gl` 1.70 MB, `index` 594 kB) — pre-existing.
+
+---
+
+## QA Run: 2026-08-09 (Run 73)
+
+Baseline `3a2a51e` → HEAD `e3ab83f`. 4 commits, all `fix:`.
+
+### Test Results
+- Pages tested: 19 render-swept, 10 of 19 interaction-tested
+- API endpoints tested: 132 of 272 (full GET breadth sweep) + 2 contract routes at payload
+  depth — **0 5xx** (99 × 200, 33 × non-2xx, every non-2xx verified correct)
+- Bugs found: 4
+- Bugs fixed: 4
+- UI inconsistencies found: 14 (10 glyph sites, 4 role-label sites)
+- UI inconsistencies fixed: 14
+
+### Fixes Made
+- `b8a76c3` — `GET /api/crm/contracts/:id/pdf` 500'd on 8 of 13 JSONB `content` shapes.
+  Three unenforced assumptions about a JSONB column: `JSON.parse` on a value JSONB returns as
+  a plain string; `rawContent.sections || []` guarding only the CONTAINER against falsy, so a
+  truthy non-array reached `for...of`; and nothing guarding the ELEMENTS, so `[null]` survived
+  every truthiness check and threw on `section.title`. Plus `.replace()` on a non-string
+  `body`. Post-fix 13 of 13 → 200, all 6 real contracts still render, well-formed content
+  preserved byte-identical. Net DB writes 0. Found by s1 at its cap, verified and committed by s2.
+- `8e67255` — completing a task never cleared it from the dashboard Today panel. **The run's
+  most serious finding, and it produced no error signal.** Doneness is stored in TWO columns:
+  `updateTask` sets `completed_at` only, `getTasks` reads `completed_at`, `getTasksDueToday`
+  reads `status` — a plain varchar defaulting to `'pending'` with no enum and no check
+  constraint that **nothing ever wrote to**. `Dashboard.jsx:692` optimistically drops the row
+  after the PATCH, so the click looked like it worked and the task returned on reload. All 3
+  tenant tasks were already in this state. Fixed at BOTH the write boundary (sync `status`
+  when `completed_at` is written) and the read boundary, cleaning the existing bad rows.
+  Full A–I round trip verified including the un-complete direction. Net DB writes 0.
+
+### UI Consistency Fixes
+- `8e5762e` — the same `user.role` value rendered four different ways, two of them wrong, and
+  two visible ON THE SAME SCREEN: the sidebar showed the raw enum `super_admin` on all 19
+  routes while the Settings Team card for the same person read **"Sales Rep"**. The ternary at
+  `SettingsView.jsx:1273` had no `super_admin` branch, so the highest-privilege role fell
+  through to the final `else` and displayed as the lowest. `SettingsView.jsx:1092` already
+  defined a `roleLabels` map that NOTHING referenced — the ternary 180 lines below was an
+  incomplete hand-rolled duplicate. Extended that map and used it; `roleColors` also lacked
+  `super_admin`, so the avatar colour agreed with the wrong label. Found by a NEW detector:
+  rendered text matching `^[a-z]+(_[a-z]+)+$`, generalising Run 72's `8745ec5` app-wide.
+- `e3ab83f` — 10 more `'+'` glyphs in icon slots (`/tasks`, `/subcontractors`, `/settings` ×4,
+  lead detail ×3, `/work-orders`). **All three render lenses reported icons clean first** —
+  Run 72's block-independent rule requires a text node with no letters and no numbers, and
+  these are `"+ New Task"`, where the glyph shares its text node with the label. Found by
+  source grep `(^|>)\s*[+x✕✓−–↑↓▾▸]\s+[A-Za-z]`. 8 of 10 mount only behind a tab or row click
+  and are unreachable by any render sweep. `TasksView.jsx` already imported `PlusIcon` and
+  rendered it at :161 — one file, both spellings, so this is drift not house style.
+
+### UI Audit Coverage
+- **Icons — PASS on 19/19 by all 3 lenses** (3rd consecutive run), then 10 violations found by
+  a 4th, source-grep lens. Lens B measured 2,200+ SVGs, 0 non-conforming.
+- **Forms (native-control rule) — PASS on 19/19**, 6th consecutive run: 0 native `<select>`,
+  0 `input[type=date|datetime-local|time|month]`.
+- **Modals — MEASURED FOR THE FIRST TIME.** 20 of 22 `.modal-backdrop` sites have a direct
+  `.glass` child and get the scale-in; the 2 that don't are deliberate. 5 modals opened and
+  measured live. Confirms the known-and-deferred drift with numbers: 5 title treatments across
+  3 tag types, 4 close-button sizes in 2 placement patterns.
+- **Toolbars/headers — not re-run. Spacing/alignment — never measured, deferred by a turn cap
+  for the 3rd consecutive run. Form-element STYLING beyond the native-control rule — still
+  unmeasured. Esc-to-close — untested for a 4th run.**
+
+### Known Issues Remaining
+- **4 of 5 modal close buttons have no accessible name** — no text, no `aria-label`, no
+  `title`. Only SubcontractorsView's has one. Same gap Run 72 fixed on the `/alerts` steppers,
+  one level up. Needs a decision on applying that treatment app-wide.
+- `/tasks` Pending tab empty state reads "No tasks yet / Create your first task" when 3 tasks
+  exist — wrong copy for an empty FILTER. Cosmetic.
+- Modal title/close-button drift — now measured, still on the do-not-half-convert list.
+  Needs a design decision, not a QA edit.
+- `className="modal-scale-in"` at `CalendarView:256`, `DripSequences:580`, `EstimatesView:2868`,
+  `InvoicesView:1055` matches NO CSS rule — a no-op dead class; those modals animate by another
+  path. Left per the no-refactor rule.
+- **External:** `feature.tnris.org` unresolvable (`getaddrinfo ENOTFOUND`) — the auto-import
+  scheduler logged it **61 times in ~5 minutes** for `_TX_STATEWIDE` with no visible backoff.
+  DNS failure is external; the retry volume is worth a look.
+- **External:** SPC archive 404s for same-day `260809_rpts_*.csv` (not yet published); HRRR
+  unavailable ×25, falling back to the climatological wind profile as designed.
+- `GET /api/properties/fema-live` — Run 70's 500 **did not reproduce**; NSI fetched fine during
+  the window (866 structures at 06:01). Looks transient/external. Watch-only.
+- Carried, not re-verified: duplicate `estimate_number` (`EST-021`/`EST-022`/`EST-082`);
+  `EST-082`/`EST-083` malformed rows kept deliberately to exercise the guards;
+  `INV-0008`/`INV-0013` `total=0.00` with `amount_paid>0` (re-surfaced by the dual-column
+  sweep and correctly NOT re-filed); **~23 of 29 JSONB columns still unguarded** (9 of 29
+  now guarded cumulatively across Runs 71–73).
+
+### Session Integrity
+- s1 api-test: **MAX_TURNS (50)** — 51 turns, $4.78, 8.0 min. Catalogued 272 routes, swept all
+  132 GETs (0 5xx), found the contract JSONB bug, capped before committing it.
+- s2 frontend-test: **MAX_TURNS (80)** — 81 turns, $9.38, 14.4 min. Re-verified and committed
+  s1's orphan, then found the task/dashboard bug. 10 routes to interaction depth.
+- s3 ui-audit: **MAX_TURNS (60)** — 61 turns, $6.81, 12.8 min. 2 commits, 14 UI fixes; first
+  stage ever to measure the modal category.
+- s4 verify: **MAX_TURNS (40)** — 41 turns, $3.63, 7.8 min. **NO COMMITS AND NO RESULTS FILE —
+  its output is entirely unrecorded.** The single biggest waste in this run.
+- s5 report: this entry. **4 code commits stand for this run.** Final build exit 0 (8.15s).
+- s1–s4 spend **$24.60**, 43.0 min API time. **All four capped — 4-of-4 for the FIFTH
+  consecutive run.** The turn cap, not test design, is the binding constraint on coverage.
+- **INFRA WIN — 3 of 4 stages wrote their results `.txt`**, against 1-of-4, 1-of-4 and 0-of-4
+  in Runs 70–72. **The fix Run 71 proposed is the one that worked: write the header FIRST and
+  append per finding**, instead of composing the file in a final turn the cap always eats.
+  All three files carry a Run 73 header and were verified BY HEADER LINE, not by mtime.
+- **INFRA — s1's file is incomplete even so.** `api-test-results.txt` stops after Phase 1 at
+  05:04; the contract JSONB work that became `b8a76c3` was never appended, because s1 was
+  capped mid-investigation. The commit message is again the only full record.
+- **INFRA — work is still stranded at the cap boundary for the 3rd consecutive run** (s1 →
+  adopted by s2). Nothing lost, but only because the downstream stage re-verified and adopted it.
+- **LESSON — a glyph does not have to be ALONE in its text node.** Run 72's block-independent
+  rule was right but incomplete; every `"+ Label"` button escapes it. The source-grep lens has
+  now earned its keep three runs running, each time surfacing a distinct glyph class.
+- **LESSON — sweep for raw enums leaking into the UI, app-wide, every run.** One cheap
+  detector (`^[a-z]+(_[a-z]+)+$`) found a wrong-role display on every route in the app.
+- **LESSON — dual-state columns are a bug family, not an incident.** Any table storing state
+  twice (a `status` column plus an event timestamp) with nothing tying them is a candidate.
+  Generalising the `/tasks` bug into a 6-table sweep the same night is what proved it was
+  isolated rather than systemic.
+- **Run 72's history entry was MISSING and has been backfilled above** — check for this at the
+  start of every s5, not just at the end.
+- Drift baseline for next run: **`e3ab83f`**.
+
+---

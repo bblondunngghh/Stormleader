@@ -1,0 +1,25 @@
+import {login,mk} from './.qa-r71s4-lib.mjs';
+const {api} = mk(await login());
+const today = new Date('2026-08-09').toISOString().slice(0,10);
+const show = async (tag) => {
+  const r = await api('/api/crm/dashboard/tasks-today');
+  console.log(`  ${tag}: today panel -> ${r.s} n=${(r.d?.tasks||[]).length} ${JSON.stringify((r.d?.tasks||[]).map(t=>t.title))}`);
+};
+console.log('--- round trip: create -> appears -> complete -> gone + status synced -> uncomplete -> back');
+await show('A baseline');
+const c = await api('/api/crm/tasks',{method:'POST',body:JSON.stringify({title:'R71S4 roundtrip probe',due_date:today,priority:'hot'})});
+console.log('B create ->', c.s, JSON.stringify(c.d).slice(0,160));
+const id = c.d?.task?.id || c.d?.id;
+await show('C after create');
+const p1 = await api(`/api/crm/tasks/${id}`,{method:'PATCH',body:JSON.stringify({completed_at:new Date('2026-08-09T12:00:00Z').toISOString()})});
+console.log('D complete ->', p1.s, 'status now =', p1.d?.task?.status ?? p1.d?.status);
+await show('E after complete');
+const g = await api(`/api/crm/tasks/${id}`);
+console.log('F re-read row: status=', g.d?.task?.status ?? g.d?.status, 'completed_at=', (g.d?.task?.completed_at ?? g.d?.completed_at) ? 'SET':'null');
+const p2 = await api(`/api/crm/tasks/${id}`,{method:'PATCH',body:JSON.stringify({completed_at:null})});
+console.log('G uncomplete ->', p2.s, 'status now =', p2.d?.task?.status ?? p2.d?.status);
+await show('H after uncomplete');
+const del = await api(`/api/crm/tasks/${id}`,{method:'DELETE'});
+console.log('I cleanup delete ->', del.s);
+const fin = await api('/api/crm/tasks?limit=200');
+console.log('J tenant task count back to', (fin.d?.tasks||fin.d?.data||[]).length);
