@@ -222,7 +222,7 @@ function PlanBadge({ onNavigate }) {
     <button
       title={`Current plan: ${tier}`}
       onClick={() => onNavigate('settings', 'tab=billing')}
-      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: '10px / 8px', background: `color-mix(in oklch, ${color} 12%, transparent)`, border: `1px solid color-mix(in oklch, ${color} 25%, transparent)`, cursor: 'pointer' }}
+      style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: '10px / 8px', background: `color-mix(in oklch, ${color} 12%, transparent)`, border: `1px solid color-mix(in oklch, ${color} 25%, transparent)`, color, cursor: 'pointer' }}
     >
       <CheckBadgeIcon width={16} height={16} />
       <span style={{ fontSize: 11, fontWeight: 700, color, textTransform: 'capitalize', letterSpacing: '0.03em' }}>{tier}</span>
