@@ -1,0 +1,123 @@
+=== STORMLEADS UI CONSISTENCY AUDIT — Run 75 (s3 ui-audit) — 2026-08-11 ===
+Baseline commit: 8a45209 (pre-stage). Stage: s3-ui-audit.
+Priority this run: SPACING & ALIGNMENT (deferred 3 runs running) FRONT-LOADED,
+then MODALS (Run 73 measured drift: 5 title treatments, 4 close sizes, 4/5 close
+buttons with no accessible name), then icons/buttons/headers/sidebar/forms.
+
+| Page | Issue Type | Element | Expected | Actual | Fixed? |
+|------|-----------|---------|----------|--------|--------|
+| /, /work-orders, /materials, /storm-catalog | a11y / heading semantics | in-body page title <h1> | exactly one <h1> per page | TWO <h1> — topbar chrome title + in-body title | YES (this run) |
+|   -> detail: topbar__page-title is a persistent <h1> on all 17 routes; 4 views added a second one. |||||
+|   -> /subcontractors + /alerts already used <h2> for the same slot = existing house convention. |||||
+|   -> fix: h1->h2 in Dashboard:1247, WorkOrdersView:958, MaterialsView:131, StormCatalog:197. |||||
+|   -> ZERO visual change: global `* { margin:0 }` reset (index.css:13) + inline fontSize/fontWeight. |||||
+|   -> verified 17/17 routes h1count==1, all sizes byte-identical (28/820, 20/800, 22/800, 22/700). |||||
+| LeadDetail.jsx:2379 | (non-fix) | <h1> in print report | n/a | inside a print-window document template — correct as document title | NO - correct |
+| StormProperties.jsx:297 | (non-fix) | <h1>Prospect Lists | n/a | component is UNREFERENCED dead code (0 usages app-wide) | NO - dead code |
+| 13 files / 18 sites | a11y | modal + slide-over close button | accessible name (aria-label="Close") | NO name at all — icon-only <button> with a bare <IconX/> | YES (this run) |
+|   -> measured app-wide: 46 close buttons total; 18 unnamed, 22 have text, 5 aria-label, 1 title. |||||
+|   -> convention ALREADY existed (aria-label="Close" x4) — applied to 6 of 24 icon-only sites. |||||
+|   -> all 18 verified `onClick={onClose}` before labelling (an X can also mean "remove item"). |||||
+|   -> after: 46 total, 0 unnamed (23 aria-label / 22 text / 1 title). |||||
+|   -> live: 4 modals opened, each exactly 1 role=button name="Close", 0 unnamed icon-only buttons. |||||
+| ALL 17 routes (topbar) | colour consistency | PlanBadge CheckBadgeIcon | plan-tier colour, like the chip's other 3 channels | near-white oklch(0.95 0.005 260) — icon never tinted | YES (this run) |
+|   -> chip tints background(12%) + border(25%) + label with planColors[tier]; icon sat OUTSIDE the styled span. |||||
+|   -> 4 tiers affected (starter/pro/business/enterprise) — icon stayed white for every one. |||||
+
+=== PER-AUDIT VERDICTS (Run 75) ===
+
+AUDIT 1 ICONS — PASS (3 lenses, per the standing 3-lens rule)
+  source imports : 0 from 24/solid, 0 from lucide/react-icons/fontawesome
+  rendered SVG   : 2,160 SVGs over 17 routes; 0 non-conforming
+                   (all viewBox="0 0 24 24" fill="none" stroke-width="1.5";
+                    recharts/mapbox/gm- excluded as data-viz/map, per standing note)
+  foreign classes: 0 (fa-*, material-icons, glyphicon, i.icon)
+  glyph-in-text-node detector (Run 73's rule): 1 hit, StormMap.jsx:1900 "↑ Type the
+    house #" — inside a Google InfoWindow HTML string, map code, charter-excluded,
+    and prose not an icon slot. NOT a defect.
+  emoji sweep: 13 hits, all previously adjudicated —
+    CanvassingMode.jsx:8-13 define `emoji:` on DISPOSITIONS but the field is NEVER
+      READ anywhere in the file. Dead data, renders nothing. Not an icon slot.
+    Pipeline.jsx:347-349 (hail/date/wind) + lead-score bolt = the documented
+      deliberate non-Heroicon glyphs. Not re-filed.
+
+AUDIT 2 BUTTONS — 1 DEFECT FOUND + FIXED; rest explained
+  35 computed style variants app-wide. Investigated the two largest look-alikes:
+    .nav-link 13.5px vs .nav-link--child 13px -> NOT drift. index.css:388 sets
+    font-size:13px in the SAME rule as the child indent. Deliberate hierarchy.
+  FIXED: PlanBadge icon not tinted with the plan colour (see row above) — found
+    because it was the only variant computing the UA-default font (13.3333px/400).
+  Remaining spread is the standing "per-file inline style object" drift
+  (quick-action-btn with inline fontSize 11/12/13px). Documented, not converted.
+
+AUDIT 3 TOOLBARS / HEADERS — PASS, byte-identical on 17/17
+  every route: 56px height | padding 0px 32px | radius 20px / 18px | h1 18px/700
+  single bucket, no outliers. (Re-confirms Run 69; not measured since.)
+
+AUDIT 4 SIDEBAR / NAV — PASS
+  18 nav links on 17/17 routes, 18/18 carry a Heroicon, gaps identical [0,8,30],
+  exactly 1 .is-active per route — except /alerts (active=0), the KNOWN orphan
+  route with no sidebar entry. Not a new finding.
+
+AUDIT 5 FORMS — PASS on the hard project rules
+  0 native <select> and 0 <input type="date"> across 17 routes (CustomSelect /
+  DatePicker rules fully respected — re-confirms the standing note).
+  6 input variants; the 17-route one is the global TopBar Cmd-K search, the
+  26-instance one is /leads row checkboxes. .form-input at 36px (4 routes) and
+  32px (1). Page-level form coverage is inherently thin — most forms live in
+  modals; see coverage gap below.
+
+AUDIT 6 SPACING & ALIGNMENT — MEASURED FOR THE FIRST TIME (deferred Runs 72/73/74)
+  card-container gaps  : 6 values. 16px is the .main-content page stack on 9
+                         routes; 12px (--space-md) on 7; 8px stat-card rows on 5.
+  .glass padding       : 17 values / 4 radius values.
+  page wrapper padding : 7 values.
+  ROOT CAUSE of the fractional values (17.5 / 10.5 / 8.75 / 7px): TWO SPACING
+  SYSTEMS COEXIST. Dashboard and Pipeline use Tailwind rem utilities (p-4, p-5,
+  gap-2, gap-3) which resolve against a 14px root -> 17.5px, 10.5px, 8.75px, 7px;
+  every other page uses px CSS vars (--space-md=12px, 16px, 24px). Same family as
+  the standing "rem-vs-px font sizes at 10 sites" note, now shown for SPACING too.
+  NOT converted: it spans 2 large views and is a refactor, which the charter
+  forbids. Documented with numbers so the call can be made deliberately.
+
+AUDIT 7 MODALS — 1 DEFECT FOUND + FIXED; drift re-confirmed with numbers
+  4 modals opened live and measured (/tasks slide-over, /work-orders, /expenses,
+  /materials cart):
+    .glass panel        4/4 PASS
+    modal-scale-in      4/4 PASS (0.25s slide-over, 0.2s the three modals)
+    title treatment     NONE / H2 18px/700 / H3 16px/700 / H3 16px/800  <- 3 treatments
+                        + the slide-over has NO heading element at all
+                        (div.slide-over__name), uniform within that pattern
+    close button size   32x32 / 20x23 / 18x21 / 26x29                   <- 4 sizes
+    close inset (r,t)   25,25 / 25,27 / 13,13 / 24,17                   <- 4 positions
+    width               420 / 520 / 480 / 420
+    backdrop            0.35+blur16 / 0.6+none / 0.6+blur8 / 0.6+none
+                        (per-context by design — standing note says DO NOT normalize)
+  FIXED: 18 close buttons had no accessible name (see row above).
+  ESC-TO-CLOSE: 0 of 4 close on Escape (/tasks, /work-orders, /expenses,
+    /materials). Untested for 4 runs; now measured. Matches the standing note that
+    /subcontractors DOES close on Esc -> genuine inconsistency, but implementing it
+    across ~22 overlays is a behaviour change, not a consistency fix. NOT done.
+  role="dialog" / aria-modal: 0 files app-wide. UNIFORMLY absent, therefore
+    consistent; adding it is a feature. NOT done, recommended.
+
+=== SUMMARY ===
+3 defects found, 3 fixed, 3 commits, build exit 0 after each.
+  26f73ef  4 pages rendered two <h1> (topbar chrome + in-body duplicate)
+  6a0a29f  18 modal/slide-over close buttons had no accessible name
+  69755dd  PlanBadge icon ignored the tier colour on all 17 routes
+All 7 charter audits executed. Audits 1/3/4/5 PASS. Audit 6 measured for the
+first time in four runs. Audits 2 and 7 each yielded a real defect.
+
+=== RECOMMENDED, NOT DONE (behaviour/refactor — out of charter) ===
+1. Esc-to-close on the ~22 overlays (only /subcontractors has it today).
+2. role="dialog" + aria-modal + labelled heading on overlays.
+3. The two-spacing-system split (Tailwind rem on Dashboard/Pipeline vs px vars
+   elsewhere) — one convention decision, same root cause as the standing
+   form-label / modal-title / filter-tab drift.
+
+=== COVERAGE GAPS THIS STAGE ===
+- Form elements measured at PAGE level only; most forms live inside modals that
+  were not opened. 4 modals opened of ~22 backdrop sites.
+- /storm-map and /canvassing excluded from sweeps (map code, charter-excluded).
+- Settings' 15 tabs not individually swept this run.
