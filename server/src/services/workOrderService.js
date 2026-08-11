@@ -341,12 +341,25 @@ export async function updateWorkOrder(tenantId, id, data) {
     'line_items', 'notes',
   ];
 
+  // Nullable non-text columns. WorkOrderDetail seeds its form with '' for every
+  // unset optional field (WorkOrdersView.jsx:59-63) and PATCHes the whole form,
+  // so an unassigned or unscheduled work order sends '' here. Postgres rejects
+  // '' for uuid/date/time columns (22P02), which errorHandler.js:32 maps to a
+  // 400 — so "Save Changes" failed on almost every work order. createWorkOrder
+  // already coerces these at :303-306 (`x || null`); update was the odd one out.
+  // Same shape as the estimate autosave bug (estimateService.js:176).
+  const emptyToNull = [
+    'lead_id', 'assigned_to', 'scheduled_date',
+    'scheduled_time_start', 'scheduled_time_end',
+  ];
+
   const setClauses = ['updated_at = now()'];
   const params = [tenantId, id];
 
   for (const field of allowedFields) {
     if (data[field] !== undefined) {
-      const val = field === 'line_items' ? JSON.stringify(data[field]) : data[field];
+      let val = field === 'line_items' ? JSON.stringify(data[field]) : data[field];
+      if (emptyToNull.includes(field) && val === '') val = null;
       params.push(val);
       setClauses.push(`${field} = $${params.length}`);
     }
