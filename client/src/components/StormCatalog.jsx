@@ -194,7 +194,7 @@ export default function StormCatalog() {
 
   return (
     <div className="main-content" style={{ padding: 'var(--space-xl)' }}>
-      <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 'var(--space-lg)' }}>Storm Archive</h1>
+      <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 'var(--space-lg)' }}>Storm Archive</h2>
 
       <div style={{ display: 'flex', gap: 'var(--space-sm)', marginBottom: 'var(--space-sm)', flexWrap: 'wrap', alignItems: 'center' }}>
         {TIME_RANGES.map(tr => (

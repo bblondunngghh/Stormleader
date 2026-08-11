@@ -1244,9 +1244,9 @@ export default function Dashboard() {
       {/* ── Header — Desktop ── */}
       <header className="flex items-end justify-between gap-6 flex-wrap py-1">
         <div>
-          <h1 className="text-[28px] font-[820] tracking-[-0.035em] leading-tight text-[var(--text-primary)]">
+          <h2 className="text-[28px] font-[820] tracking-[-0.035em] leading-tight text-[var(--text-primary)]">
             {getGreeting()}{user?.firstName ? `, ${user.firstName}` : ''}
-          </h1>
+          </h2>
           <p className="text-[13px] text-[var(--text-muted)] mt-1 font-[450]">{todayStr}</p>
         </div>
         <div className="flex gap-3">

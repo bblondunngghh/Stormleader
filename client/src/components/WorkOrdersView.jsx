@@ -955,7 +955,7 @@ export default function WorkOrdersView() {
         borderRadius: '20px / 18px',
         boxShadow: '0 8px 32px oklch(0 0 0 / 0.25), inset 0 1px 0 oklch(1 0 0 / 0.05)',
       }}>
-        <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Work Orders</h1>
+        <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Work Orders</h2>
         <span style={{
           fontSize: 12, fontWeight: 700, padding: '2px 10px', borderRadius: 'var(--radius-pill)',
           color: 'var(--text-muted)', background: 'oklch(1 0 0 / 0.06)',

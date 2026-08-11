@@ -128,10 +128,10 @@ export default function MaterialsView() {
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
             <IconPackage style={{ width: 24, height: 24, color: 'var(--accent-blue)' }} />
             SRS Materials
-          </h1>
+          </h2>
           <p style={{ fontSize: 13, color: 'var(--text-muted)', margin: '4px 0 0' }}>Browse and order roofing materials from SRS Distribution</p>
         </div>
         <button
