@@ -324,8 +324,14 @@ export async function generateTiers(tenantId, userId, estimateId) {
   ];
 
   const results = [];
+  // line_items is JSONB: it can hold non-object entries (null, "", 1) or a non-array
+  // value entirely. `|| []` only guards a falsy value, so a stored [null] reached
+  // item.unit_price and threw. Same guard the PDF path uses (routes/estimates.js).
+  const safeLineItems = (Array.isArray(original.line_items) ? original.line_items : [])
+    .filter((item) => item && typeof item === 'object');
+
   for (const tier of tiers) {
-    const adjustedItems = (original.line_items || []).map(item => ({
+    const adjustedItems = safeLineItems.map(item => ({
       ...item,
       unit_price: Math.round((parseFloat(item.unit_price) || 0) * tier.factor * 100) / 100,
     }));
