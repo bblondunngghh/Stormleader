@@ -28,6 +28,14 @@ const STAGE_LABELS = {
   sold: 'Sold', in_production: 'In Production', on_hold: 'On Hold', lost: 'Lost',
 };
 
+// Same keys LeadList.jsx:47 and Pipeline.jsx:125 label. Without this the raw
+// enum reached the user: the source charts rendered "fema_nsi"/"storm_map".
+const SOURCE_LABELS = {
+  storm_map: 'Storm Map', fema_nsi: 'FEMA NSI', canvassing: 'Canvassing',
+  storm_auto: 'Storm', manual: 'Manual', referral: 'Referral',
+  website: 'Website', door_knock: 'Door Knock', phone: 'Phone', other: 'Other',
+};
+
 const STAGE_COLORS = {
   new: '#3b82f6', contacted: '#06b6d4', appt_set: '#8b5cf6',
   inspected: '#f59e0b', estimate_sent: '#f97316', negotiating: '#ec4899',
@@ -310,7 +318,7 @@ function ConversionChart({ start, end, compare }) {
     <ResponsiveContainer width="100%" height={300}>
       <RadarChart cx="50%" cy="50%" outerRadius="70%" data={data}>
         <PolarGrid stroke="oklch(0.3 0 0)" />
-        <PolarAngleAxis dataKey="source" tick={{ fill: 'oklch(0.7 0 0)', fontSize: 11 }} />
+        <PolarAngleAxis dataKey="source" tickFormatter={(v) => SOURCE_LABELS[v] || v} tick={{ fill: 'oklch(0.7 0 0)', fontSize: 11 }} />
         <PolarRadiusAxis tick={{ fill: 'oklch(0.5 0 0)', fontSize: 10 }} />
         <Tooltip
           contentStyle={tooltipStyle}
@@ -444,7 +452,7 @@ function LeadSourcesPie({ start, end, compare, onDrillDown }) {
           cy="50%"
           outerRadius={100}
           innerRadius={50}
-          label={({ source, percent }) => `${source} ${(percent * 100).toFixed(0)}%`}
+          label={({ source, percent }) => `${SOURCE_LABELS[source] || source} ${(percent * 100).toFixed(0)}%`}
           labelLine={{ stroke: 'oklch(0.5 0 0)' }}
           onClick={handleSliceClick}
           style={{ cursor: 'pointer' }}

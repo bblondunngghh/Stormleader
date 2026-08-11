@@ -76,6 +76,15 @@ const priorityColors = {
 
 const priorityLabels = { hot: 'High', warm: 'Medium', cold: 'Low' };
 
+// Same keys LeadList.jsx:47 and Pipeline.jsx:125 label. The de-underscore +
+// CSS `capitalize` fallback rendered "Fema Nsi" for the value shown as
+// "FEMA NSI" everywhere else in the app.
+const sourceLabels = {
+  storm_map: 'Storm Map', fema_nsi: 'FEMA NSI', canvassing: 'Canvassing',
+  storm_auto: 'Storm', manual: 'Manual', referral: 'Referral',
+  website: 'Website', door_knock: 'Door Knock', phone: 'Phone', other: 'Other',
+};
+
 const emptyStats = [
   { label: 'Pipeline Value', value: '$0', change: '—', icon: 'dollar', color: 'oklch(0.75 0.18 155)', tint: '155', link: '/pipeline' },
   { label: 'New Leads', value: '0', change: '—', icon: 'leads', color: 'oklch(0.72 0.19 250)', tint: '250', link: '/leads' },
@@ -1617,7 +1626,7 @@ export default function Dashboard() {
                     <div className="flex items-center justify-between mb-1.5">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <span className="w-[8px] h-[8px] rounded-full shrink-0" style={{ background: color, boxShadow: `0 0 6px ${color}` }} />
-                        <span className="text-xs font-[620] text-[var(--text-primary)] truncate capitalize">{(src.source || 'unknown').replace(/_/g, ' ')}</span>
+                        <span className="text-xs font-[620] text-[var(--text-primary)] truncate capitalize">{sourceLabels[src.source] || (src.source || 'unknown').replace(/_/g, ' ')}</span>
                       </div>
                       <span className="text-xs font-[750] text-[oklch(0.75_0.18_155)] shrink-0 ml-2">{formatCurrency(src.revenue)}</span>
                     </div>
