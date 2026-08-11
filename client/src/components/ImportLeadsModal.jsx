@@ -180,7 +180,7 @@ export default function ImportLeadsModal({ onClose, onImported }) {
               Upload a CSV file to bulk-import leads with free geocoding
             </p>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 4 }}>
+          <button aria-label="Close" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 4 }}>
             <IconX width={20} height={20} />
           </button>
         </div>

@@ -1064,7 +1064,7 @@ function PaymentModal({ invoice, onClose, onRecorded }) {
             <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Record Payment</h3>
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{invoice.invoice_number || 'Invoice'}</div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+          <button aria-label="Close" onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
             <IconX style={{ width: 18, height: 18 }} />
           </button>
         </div>

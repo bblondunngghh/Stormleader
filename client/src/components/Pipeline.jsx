@@ -204,7 +204,7 @@ function SidebarPreview({ leadId, allColumns, onClose, onOpenFull, onStageChange
     <>
       <div className="slide-over-backdrop" onClick={onClose} />
       <div ref={panelRef} className="slide-over glass">
-        <button className="slide-over__close" onClick={onClose}>
+        <button aria-label="Close" className="slide-over__close" onClick={onClose}>
           <IconX />
         </button>
 

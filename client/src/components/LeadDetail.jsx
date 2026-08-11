@@ -476,7 +476,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
     <>
       <div className="slide-over-backdrop" onClick={onClose} />
       <div className="slide-over glass">
-        <button className="slide-over__close" onClick={onClose}>
+        <button aria-label="Close" className="slide-over__close" onClick={onClose}>
           <IconX />
         </button>
 

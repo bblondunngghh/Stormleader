@@ -271,7 +271,7 @@ export default function PhotoAnnotator({ imageUrl, onSave, onClose }) {
           <button onClick={handleSave} className="auth-btn" style={{ fontSize: 12, padding: '6px 20px', height: 32 }}>
             Save Annotated Photo
           </button>
-          <button onClick={onClose}
+          <button aria-label="Close" onClick={onClose}
             style={{ width: 32, height: 32, borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: 'none', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <XMarkIcon width={18} height={18} />
           </button>

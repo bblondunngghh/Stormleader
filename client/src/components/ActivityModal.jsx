@@ -66,7 +66,7 @@ export default function ActivityModal({ leadId, onSave, onClose }) {
     <>
       <div className="slide-over-backdrop" onClick={onClose} style={{ zIndex: 200 }} />
       <div className="slide-over glass" style={{ width: 440, zIndex: 201 }}>
-        <button className="slide-over__close" onClick={onClose}><IconX /></button>
+        <button aria-label="Close" className="slide-over__close" onClick={onClose}><IconX /></button>
 
         <div className="slide-over__header" style={{ paddingRight: 40 }}>
           <div className="slide-over__name">Log Activity</div>

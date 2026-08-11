@@ -484,7 +484,7 @@ function CreateTaskModal({ onSave, onClose }) {
     <>
       <div className="slide-over-backdrop" onClick={onClose} />
       <div className="slide-over glass" style={{ width: 420 }}>
-        <button className="slide-over__close" onClick={onClose}><IconX /></button>
+        <button aria-label="Close" className="slide-over__close" onClick={onClose}><IconX /></button>
 
         <div className="slide-over__header" style={{ paddingRight: 40 }}>
           <div className="slide-over__name">New Task</div>
@@ -575,7 +575,7 @@ function EditTaskModal({ task, onSave, onClose }) {
     <>
       <div className="slide-over-backdrop" onClick={onClose} />
       <div className="slide-over glass" style={{ width: 420 }}>
-        <button className="slide-over__close" onClick={onClose}><IconX /></button>
+        <button aria-label="Close" className="slide-over__close" onClick={onClose}><IconX /></button>
 
         <div className="slide-over__header" style={{ paddingRight: 40 }}>
           <div className="slide-over__name">Edit Task</div>

@@ -97,7 +97,7 @@ function ExpenseModal({ expense, onSave, onClose }) {
         width: '100%', maxWidth: 480, borderRadius: 'var(--radius-xl)',
         padding: 'var(--space-xl)', position: 'relative',
       }}>
-        <button onClick={onClose} style={{
+        <button aria-label="Close" onClick={onClose} style={{
           position: 'absolute', top: 12, right: 12, background: 'none', border: 'none',
           color: 'var(--text-muted)', cursor: 'pointer',
         }}><IconX /></button>

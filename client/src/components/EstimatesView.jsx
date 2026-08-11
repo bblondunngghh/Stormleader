@@ -2874,7 +2874,7 @@ function InPersonSignModal({ estimateId, customerName, onClose, onSigned }) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-lg)' }}>
           <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Sign Estimate In Person</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+          <button aria-label="Close" onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
             <IconX style={{ width: 18, height: 18 }} />
           </button>
         </div>

@@ -478,7 +478,7 @@ function ProductDetailModal({ product, onClose, onAddToCart }) {
             </div>
             <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>{product.name}</h2>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4 }}>
+          <button aria-label="Close" onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4 }}>
             <IconX />
           </button>
         </div>
@@ -604,7 +604,7 @@ function CartSidebar({ cart, cartTotal, branches, selectedBranch, setSelectedBra
             <IconShoppingCart style={{ width: 18, height: 18, color: 'var(--accent-blue)' }} />
             Order Cart
           </h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4 }}>
+          <button aria-label="Close" onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4 }}>
             <IconX />
           </button>
         </div>
@@ -907,7 +907,7 @@ export function SRSCatalogModal({ onClose, onSelect }) {
             <IconPackage style={{ width: 18, height: 18, color: 'var(--accent-blue)' }} />
             SRS Product Catalog
           </h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4 }}>
+          <button aria-label="Close" onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4 }}>
             <IconX />
           </button>
         </div>
