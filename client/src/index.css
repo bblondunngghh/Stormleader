@@ -4473,6 +4473,16 @@ textarea:disabled {
   animation: modal-scale-in 200ms var(--ease-apple) both;
 }
 
+/* Opt-in class for modal panels that are NOT a direct .glass child of
+   .modal-backdrop (e.g. the sibling-backdrop pattern, where the backdrop is a
+   self-closing sibling rather than a wrapping parent). Without this, those
+   panels are the only overlays in the app that appear with no entrance
+   animation. Referenced by className in CalendarView, DripSequences,
+   EstimatesView, InvoicesView and LeadDetail. */
+.modal-scale-in {
+  animation: modal-scale-in 200ms var(--ease-apple) both;
+}
+
 /* Generic modal overlay pattern — target elements with inline position:fixed + high z-index
    that contain a .glass panel. The backdrop class handles the named case;
    this selector covers inline-styled overlays too. */
