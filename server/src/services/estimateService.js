@@ -38,12 +38,17 @@ export function replaceTokens(text, estimate) {
 // ============================================================
 
 export async function createEstimate(tenantId, userId, data) {
-  // Generate next estimate number for tenant
-  const { rows: countRows } = await pool.query(
-    `SELECT COUNT(*) AS cnt FROM estimates WHERE tenant_id = $1`,
+  // Generate next estimate number for tenant.
+  // Derive from the highest number already issued, NOT from COUNT(*): deleting any
+  // earlier estimate makes COUNT(*)+1 land on a number that is already in use, and
+  // nothing in the schema rejects the collision (no unique index on estimate_number).
+  // The live tenant already carries three such collisions — EST-021, EST-022, EST-082.
+  const { rows: seqRows } = await pool.query(
+    `SELECT COALESCE(MAX(substring(estimate_number from '[0-9]+$')::int), 0) AS max_seq
+     FROM estimates WHERE tenant_id = $1`,
     [tenantId]
   );
-  const num = parseInt(countRows[0].cnt, 10) + 1;
+  const num = parseInt(seqRows[0].max_seq, 10) + 1;
   const estimate_number = `EST-${String(num).padStart(3, '0')}`;
   const public_token = crypto.randomBytes(32).toString('hex');
 

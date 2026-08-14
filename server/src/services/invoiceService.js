@@ -46,11 +46,17 @@ export async function getInvoice(tenantId, id) {
 }
 
 export async function createInvoice(tenantId, data) {
-  const { rows: countRows } = await pool.query(
-    `SELECT COUNT(*) AS cnt FROM invoices WHERE tenant_id = $1`,
+  // Derive the next invoice number from the highest already issued, NOT from COUNT(*).
+  // COUNT(*)+1 repeats a number as soon as any earlier invoice is deleted, and there is
+  // no unique index on invoice_number to catch it. The live tenant holds 18 invoices but
+  // has already issued INV-0019, so the next COUNT(*)-derived number was a guaranteed
+  // duplicate. Same defect as createEstimate (estimateService.js:40).
+  const { rows: seqRows } = await pool.query(
+    `SELECT COALESCE(MAX(substring(invoice_number from '[0-9]+$')::int), 0) AS max_seq
+     FROM invoices WHERE tenant_id = $1`,
     [tenantId]
   );
-  const num = parseInt(countRows[0].cnt, 10) + 1;
+  const num = parseInt(seqRows[0].max_seq, 10) + 1;
   const invoice_number = `INV-${String(num).padStart(4, '0')}`;
 
   const {
