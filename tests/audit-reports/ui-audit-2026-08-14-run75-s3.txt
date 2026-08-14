@@ -1,0 +1,281 @@
+================================================================================
+UI CONSISTENCY AUDIT — StormLeads / StormPipe
+Run 75, stage s3-ui-audit   |   2026-08-14
+Baseline commit: e44cdd8    |   Commit produced: f788c22
+Scope: 18 sidebar routes + modal layer. Viewport 1280x869, dark mode.
+================================================================================
+
+HEADLINE
+--------
+1 defect found and fixed. The app is in genuinely good shape on icons, buttons,
+sidebar and form components — those audits came back clean against real
+measurement, not assumption. The one real defect was invisible to every
+rendering check: a CSS class referenced by 4 components that does not exist.
+
+*** THE LESSON FOR THE NEXT STAGE ***
+A class that is declared but undefined renders IDENTICALLY to one that works,
+as long as something else happens to supply the same styling. `modal-scale-in`
+animated correctly in all 4 components, so every screenshot, every computed-
+style sweep and every visual diff would have passed it. It was only findable by
+diffing the set of classNames USED in JSX against the set of selectors DEFINED
+in CSS. That diff is a one-command check and it should be standing:
+  grep -o 'className="[^"]*"' -r src/ | extract tokens | comm -23 with CSS selectors
+This is the same shape as Run 75-s2's winning check (grep enum consumers, diff
+against files defining a label map, the odd one out is the bug). Both find bugs
+by comparing two sets that SHOULD be equal, rather than by looking at output.
+
+================================================================================
+FINDINGS TABLE
+================================================================================
+| Page/Area   | Issue Type      | Element              | Expected              | Actual                | Fixed? |
+|-------------|-----------------|----------------------|-----------------------|-----------------------|--------|
+| Global CSS  | Undefined class | .modal-scale-in      | class defined in CSS  | only a @keyframes name| YES    |
+|             |                 | (4 components)       | animation applies     | animation-name: none  | f788c22|
+| PhotoAnnot. | Missing anim.    | sibling-backdrop div  | scale-in on open      | no entrance animation | NO (1) |
+| LeadDetail  | Missing anim.    | inspection report     | scale-in on open      | no entrance animation | NO (2) |
+| Global      | Spacing systems | .glass padding        | one spacing system    | 5 paddings, 2 systems | NO (3) |
+| Global      | Class drift     | .quick-action-btn     | consistent height     | 8 heights (21-38px)   | NO (3) |
+
+(1) DELIBERATE SKIP — see "Deliberate skips" below. Fixing it risks a working feature.
+(2) DELIBERATE SKIP — the shared keyframe would clobber its centering transform.
+(3) Known, already-documented developer decision. Re-confirmed present, not re-filed.
+
+================================================================================
+AUDIT 1 — ICON CONSISTENCY : CLEAN
+================================================================================
+CODE: 43 icon import sites across client/src. ALL 43 resolve to
+'@heroicons/react/24/outline'. Zero solid variants. Zero lucide/react-icons/
+fontawesome/material/tabler/feather imports (explicit grep, no matches).
+
+BROWSER: every <svg> inside .main-content on all 18 routes was bucketed by
+viewBox + fill + stroke-width. Every single one is the Heroicons outline
+signature: viewBox="0 0 24 24" fill="none" stroke-width="1.5".
+Foreign-icon selector ([class*="fa-"], .material-icons, [class*="glyphicon"])
+returned 0 on all 18 routes.
+Only non-Heroicon SVGs found: /reports recharts-surface (viewBox 0 0 32 32,
+0 0 132 300, 0 0 363 300) = data-viz, the already-documented non-bug.
+
+Two inline <svg> exist in components; BOTH are legitimate, neither is a UI icon:
+  - CanvassingMode.jsx:336 — teardrop swatch in the map pin legend, drawn from
+    the same TEARDROP_PATH as the actual map markers. A map legend glyph.
+  - StormMap.jsx:1764 — star-rating glyphs inside a Google Maps InfoWindow
+    HTML string. React components cannot be used in that context. ALSO off
+    limits under the FEMA/map rule — not touched.
+
+DEAD ASSETS (documented, NOT a defect, NOT removed):
+  client/src/assets/icons/          18 Streamline Ultimate .svg files
+  client/src/assets/icons-backup/   18 more
+  client/src/components/Icons.jsx.backup   35 hand-rolled inline <svg>
+  Zero references from any .jsx/.js/.css — verified by grep for 'assets/icons',
+  'Icons.jsx.backup' and 'Streamline'. Vite only bundles imported assets, so
+  none of this ships. They are a trap for a future reader (a Streamline icon
+  set sitting next to a Heroicons-only rule), not a rendering problem.
+  Removal is a developer call, not QA's.
+
+Icons.jsx is confirmed again as a thin alias layer over 24/outline, not a
+foreign library.
+
+================================================================================
+AUDIT 2 — BUTTON CONSISTENCY : CLEAN on primaries, known drift elsewhere
+================================================================================
+Every visible <button> in .main-content on all 18 routes was grouped by
+(class, height, padding, radius, font-size, font-weight, background).
+
+PRIMARY ACTION BUTTONS ARE EXEMPLARY. `.auth-btn` renders IDENTICALLY on 8
+pages — 36px | padding 0 24px | radius 14px/12px | 13px | 700 |
+oklch(0.72 0.19 250):
+  Add Lead (/pipeline), New Estimate, New Contract, New Work Order,
+  New Invoice, Add Expense, New Task, Add Subcontractor.
+Zero deviation across all 8. Same background, same radius, same padding.
+
+ONE PRIMARY-CLASS OUTLIER: /storm-catalog uses `.auth-btn` for the ACTIVE
+time-range filter chip (36px, padding 6px 14px, 12px) while its inactive
+siblings use `.quick-action-btn`. It is the primary-CTA class doing
+active-filter duty. This is a member of the already-documented
+"filter/tab active-state has ~8 treatments" family — logged, not re-filed.
+
+SECONDARY BUTTON DRIFT (known, re-confirmed): `.quick-action-btn` computes to
+8 distinct heights app-wide — 21, 25, 27, 29, 31, 32, 36, 38px — every one
+caused by a per-site inline padding override, never by the class itself.
+Same structural root cause as the documented form-label drift (per-file inline
+style objects). Row-action buttons ARE internally consistent where it matters:
+/estimates (156 btns), /contracts (19), /invoices (21) all agree at exactly
+31px | 8px 14px | 11px.
+
+Radius: `14px / 12px` (an elliptical radius) is the dominant button shape and
+is used consistently. The "3.35544e+07px" values on /dashboard are the known
+CSS clamp() artifact, not a defect.
+
+================================================================================
+AUDIT 3 — TOOLBAR / HEADER CONSISTENCY : NO SHARED HEADER COMPONENT
+================================================================================
+17 of 18 routes have NO .page-header / <header> / .view-header element.
+There is no shared page-header component or class in the app; each view builds
+its own top row inline. Consequences measured:
+
+  - Page heading sizes: 28px/820 (Dashboard), 24.5px/700 (Calendar),
+    22px/700 (Storm Archive), 22px/800 (Materials, Subcontractors),
+    20px/800 (Work Orders) = 5 treatments.
+  - THERE IS NO <h1> ANYWHERE IN THE APP. Every page's top heading is an <h2>,
+    and /reports has no page-level heading at all — its first heading is an
+    <h3> chart title ("Revenue") 247px down the page.
+  - .main-content padding is 0px on 16 routes and 24px on 2 (/storm-catalog,
+    /reports), so each view owns its own outer padding.
+
+This is a structural/architectural gap, not a rendering bug — every page looks
+deliberate on its own. Introducing a shared PageHeader component would be a
+refactor across 18 views, which is explicitly outside this charter. Recorded
+as a developer ticket. The missing <h1> is the part with real accessibility
+weight and is the cheapest to fix later.
+
+================================================================================
+AUDIT 4 — SIDEBAR & NAVIGATION : CLEAN
+================================================================================
+All 18 nav items measured:
+  - Icons:      18/18 present, ALL viewBox "0 0 24 24" Heroicons, ALL 18px. 0 missing.
+  - Height:     42px on all 18. Single value.
+  - Radius:     12px on all 18. Single value.
+  - Font weight:500 inactive / 600 active. Consistent.
+  - Active:     exactly 1 `.is-active` on every route tested.
+  - Padding:    parents 12px 16px, children 12px 16px 12px 28px (deliberate indent).
+  - Font size:  parents 13.5px, children 13px (deliberate hierarchy).
+  - Sidebar width 240px.
+Spacing between items is uniform within each group; the larger gaps are the
+JOBS / FINANCE / OPERATIONS section labels.
+NOTE: `.nav-link` elements are <button>, not <a> — they carry no href, so
+middle-click / open-in-new-tab does not work. They are CONSISTENT with each
+other, so this is not an inconsistency; noting it as a UX observation only.
+Reminder for future stages: the active class is `is-active`, not `active`.
+
+================================================================================
+AUDIT 5 — FORM ELEMENT CONSISTENCY : CLEAN
+================================================================================
+Across all 18 routes: ZERO native <select>. ZERO native <input type=date>,
+type=datetime-local or type=time. The CustomSelect and DatePicker rules are
+fully respected — this now holds for a third consecutive run.
+
+Canonical rule is index.css:2257 `.form-input` = 36px / padding 0 16px /
+radius 12px / 13px. Measured instances match it on /storm-catalog, /leads,
+/subcontractors.
+
+Exactly TWO `.form-input` height overrides exist in the entire codebase
+(exhaustive grep, not a sample):
+  - Dashboard.jsx:528   height 32, fontSize 13 — compact inline "Monthly Goal"
+    editor sharing a GlassCard row with two 11px buttons. Contextually correct.
+  - MaterialsView.jsx:309 height 32, fontSize 12 — search input embedded in the
+    41px-tall category tab bar. Contextually correct.
+  Both are deliberate compact-context fits, NOT drift. Investigated and cleared.
+  (MaterialsView.jsx:923 has a second "Search products..." input at the default
+  36px, but it lives in a separate modal component — a different context, so the
+  two sizes never appear together. Not a defect.)
+
+VERIFIED NON-BUG — .address-search__input computes border-radius 0px and
+border:none. This is correct by design: the wrapper .address-search__input-wrap
+(index.css:2949) carries the radius, the glass border and overflow:hidden.
+Identical pattern to the documented FullCalendar .fc-button-group non-bug.
+Do not file this.
+
+================================================================================
+AUDIT 6 — SPACING & ALIGNMENT : known two-system issue CONFIRMED STILL PRESENT
+================================================================================
+Root font-size is 14px, and Tailwind rem utilities resolve against it, so any
+rem-based spacing lands on fractional pixels. Measured .glass content padding:
+  /dashboard  17.5px, 8.75px 21px, 10.5px 17.5px   <- rem on a 14px root
+  /pipeline   14px, 10.5px 14px, 8.75px 14px       <- rem on a 14px root
+  /estimates  24px, 16px 24px                      <- px vars
+  /invoices   24px, 16px 24px, 12px 24px           <- px vars
+  /expenses   24px, 16px 24px                      <- px vars
+  /reports    20px                                 <- px vars
+  /leads      12px 24px                            <- px vars
+Five distinct .glass paddings from two coexisting spacing systems. This is
+exactly the root cause Run 74 identified and it is unchanged. Every fractional
+pixel in the app traces back to it. Unifying it means converting Dashboard and
+Pipeline off Tailwind rem spacing — a large refactor, outside this charter.
+Grid gaps are otherwise consistent: 12px on every stats-grid and dashboard
+grid; /reports' reports-grid uses 20px to match its own 20px card padding.
+
+================================================================================
+AUDIT 7 — MODAL CONSISTENCY : 1 DEFECT FOUND AND FIXED
+================================================================================
+22 `.modal-backdrop` usages inventoried across 15 components; the direct child
+of each was resolved statically and the pattern verified in-browser.
+
+19 of 22 wrap their panel: .modal-backdrop > .glass — these get
+`modal-backdrop-in` on the backdrop and `modal-scale-in` on the panel from
+index.css:4467-4474. Confirmed live on the Add Expense modal: backdrop
+animation modal-backdrop-in, panel animation modal-scale-in, horizontally
+centered, on-screen, radius 20px, exactly 1 close button.
+
+*** THE DEFECT (FIXED, f788c22) ***
+Four components render their panel as className="glass modal-scale-in":
+  CalendarView.jsx:260, DripSequences.jsx:585,
+  EstimatesView.jsx:2872, InvoicesView.jsx:1059
+`.modal-scale-in` WAS NEVER DEFINED AS A CSS SELECTOR. Grepping index.css for
+`.modal-scale-in` returns nothing; `modal-scale-in` existed ONLY as a
+@keyframes name (index.css:4282) and inside three `animation:` shorthands.
+The class computed to animation-name: none.
+
+Those four modals still animated — but only by accident, because each also
+matches the SEPARATE `.modal-backdrop > .glass` rule. The declared contract was
+silently unenforced. Any of them restructured to the sibling-backdrop pattern
+(already used by PhotoAnnotator and LeadDetail) would have silently lost its
+animation with no visible cause and nothing to grep for.
+
+FIX: defined `.modal-scale-in` with the identical 200ms var(--ease-apple) both
+timing the .glass rule already applied, so all four existing usages are
+behaviourally unchanged.
+VERIFIED: `.modal-scale-in` now computes animation-name modal-scale-in / 0.2s /
+both (previously `none`). `.modal-backdrop` -> modal-backdrop-in and
+`.modal-backdrop > .glass` -> modal-scale-in both still resolve unchanged, so
+no regression to the 19 working modals. Add Expense modal re-opened and
+re-measured after the change: still centered, on-screen, both animations firing.
+vite build passes.
+
+--- Deliberate skips (fix attempted or considered, then rejected on evidence) ---
+TWO modal surfaces use a SIBLING-backdrop pattern — a self-closing
+<div className="modal-backdrop" /> followed by a sibling panel — which
+structurally cannot match `.modal-backdrop > .glass`. They are the only two
+overlays in the app that open with NO entrance animation:
+
+  1. LeadDetail.jsx:2474 (Weather Damage Verification Report).
+     I APPLIED the new class here, then REVERTED it. The panel is centered with
+     transform: translate(-50%, -50%), and the modal-scale-in keyframe ends at
+     `transform: none` — which would have CLOBBERED the centering and thrown the
+     modal off-centre. Reverting was correct. Animating this panel requires
+     changing how it is centred first, which is a refactor, not a QA fix.
+     >>> Do not naively apply modal-scale-in to a transform-positioned element. <<<
+
+  2. PhotoAnnotator.jsx:208. Safe on positioning (inset-based, no existing
+     transform) and safe on caching (getPos reads
+     canvasRef.getBoundingClientRect() live per pointer event at :87, nothing is
+     cached at mount). BUT getPos does NOT normalise by canvas.width/rect.width
+     — it only subtracts the rect origin — so a 200ms scale animation would
+     create a brief window where drawing coordinates are skewed. That is a new
+     failure mode introduced into a working feature for a cosmetic gain.
+     Left alone per the charter.
+
+Both are recorded as developer tickets. Neither is a regression; both predate
+this run.
+
+--- Modal properties re-confirmed as intentional, do NOT normalise ---
+  - z-index spread (200/300/400/1000/9999/99998) is functional stacking order
+    for nested overlays.
+  - Backdrop variance (0.5+blur4 / 0.6+blur8 / 0.6+none / 0.75+blur4) is
+    per-context.
+  - .slide-over is a second legitimate overlay pattern; a missing
+    .modal-backdrop there is correct.
+  - Modal title sizes (3 variants) + the ExpensesView.jsx:105 <h3> heading-level
+    skip re-confirmed present. Known, deliberately not half-converted.
+  - Esc-to-close remains inconsistent (1 of 5). Unchanged, still deferred.
+
+================================================================================
+NET DATABASE WRITES BY THIS STAGE: ZERO
+================================================================================
+This audit was read-only. The single modal opened (Add Expense) was closed
+without submitting. 0 rows created, 0 updated, 0 deleted.
+
+Files changed: client/src/index.css (+10 lines) only.
+LeadDetail.jsx was modified and fully reverted; `git diff` confirms it clean.
+(lead-detail.png was already modified in the working tree before this stage
+started — not touched by this audit.)
+================================================================================
