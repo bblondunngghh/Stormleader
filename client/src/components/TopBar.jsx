@@ -6,6 +6,16 @@ import * as searchApi from '../api/search';
 import client from '../api/client';
 
 
+const stageLabels = {
+  new: 'New', contacted: 'Contacted', appt_set: 'Appt Set',
+  inspected: 'Inspected', estimate_sent: 'Estimate Sent',
+  negotiating: 'Negotiating', sold: 'Sold',
+  in_production: 'In Production', on_hold: 'On Hold', lost: 'Lost',
+};
+
+// Title-cases a raw DB enum (e.g. 'partially_paid' -> 'Partially Paid')
+const titleCase = (v) => (v ? String(v).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : '');
+
 const viewTitles = {
   dashboard: 'Dashboard',
   pipeline: 'Pipeline',
@@ -143,16 +153,19 @@ function GlobalSearch({ onNavigate }) {
               {results.leads?.length > 0 && (
                 <SearchGroup title="Leads" items={results.leads.map(l => ({
                   id: l.id,
-                  primary: l.contact_name || l.address,
-                  secondary: `${l.address}${l.city ? `, ${l.city}` : ''} — ${l.stage}`,
+                  primary: l.contact_name || l.address || 'Unnamed lead',
+                  secondary: [
+                    [l.address, l.city].filter(Boolean).join(', '),
+                    stageLabels[l.stage] || titleCase(l.stage),
+                  ].filter(Boolean).join(' — '),
                   value: l.estimated_value ? `$${Number(l.estimated_value).toLocaleString()}` : null,
                 }))} onSelect={() => { setOpen(false); setQuery(''); }} />
               )}
               {results.contacts?.length > 0 && (
                 <SearchGroup title="Contacts" items={results.contacts.map(c => ({
                   id: c.id,
-                  primary: `${c.first_name} ${c.last_name}`,
-                  secondary: `${c.role}${c.lead_address ? ` — ${c.lead_address}` : ''}`,
+                  primary: [c.first_name, c.last_name].filter(Boolean).join(' ') || 'Unnamed contact',
+                  secondary: [titleCase(c.role), c.lead_address].filter(Boolean).join(' — '),
                   value: c.phone || c.email,
                 }))} onSelect={() => { setOpen(false); setQuery(''); }} />
               )}
@@ -160,7 +173,7 @@ function GlobalSearch({ onNavigate }) {
                 <SearchGroup title="Estimates" items={results.estimates.map(e => ({
                   id: e.id,
                   primary: `${e.estimate_number} — ${e.customer_name || 'Unnamed'}`,
-                  secondary: e.status,
+                  secondary: titleCase(e.status),
                   value: `$${Number(e.total).toLocaleString()}`,
                 }))} onSelect={() => { setOpen(false); setQuery(''); }} />
               )}
