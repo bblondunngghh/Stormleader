@@ -1,0 +1,192 @@
+FRONTEND TEST — Run 75 — 2026-08-14 (s2 frontend-test)
+Baseline: 7c373fc (s1 api-test's commit). Ended: 1847292.
+Tool: Playwright MCP. App asserted as StormPipe — Roofing CRM (title check) before any test.
+
+=====================================================================
+RESULT: 1 bug found, 1 fixed, 1 commit. Zero console errors and zero
+failed network requests across all 19 routes and every overlay opened.
+=====================================================================
+
+WHAT THIS SWEEP IS STRUCTURALLY UNABLE TO FIND (per Run 74's standing rule)
+- It cannot find defects behind data shapes not present in this tenant.
+  Every finding below came from data that HAPPENS to exist (a null address,
+  a lead in estimate_sent). A tenant with fully-populated rows would have
+  shown a clean global search.
+- It cannot find server-side logic errors: it only sees rendered text plus
+  HTTP status. A 200 that stored the wrong value looks identical to success.
+- It measured overlays only where an opener button exists in .main-content;
+  overlays reached by other paths (row menus, keyboard) were not enumerated.
+
+---------------------------------------------------------------------
+BUG FOUND AND FIXED — commit 1847292
+---------------------------------------------------------------------
+fix(ui): global search dropdown showed literal "null" and raw enum stages
+File: client/src/components/TopBar.jsx:147,155,163
+
+The Ctrl+K search dropdown built its result lines by interpolating raw DB
+columns into template strings. Confirmed rendered output BEFORE the fix:
+    "null — new"                (lead with no address)
+    "null — estimate_sent"      (Test QALead)
+    "4410 Thomas Court, Beaumont — appt_set"
+    "Test null" / "null null"   (contacts with a null name part)
+    "homeowner" / "draft"       (raw role and status)
+
+Two distinct defects in the same expressions:
+ 1. LITERAL "null" — `${l.address}` / `${c.first_name} ${c.last_name}`
+    render the string "null" when the column is null.
+ 2. RAW ENUM IN UI — FOURTH appearance of this family. Every other surface
+    (LeadList:32, LeadDetail:105, Dashboard:62, ReportsView:25,
+    ClientStatusPage:6) maps stages through a stageLabels dictionary.
+    TopBar was the ONLY consumer interpolating lead.stage directly.
+
+Fix: joins now drop falsy parts (.filter(Boolean).join()), stages resolve
+through the same stageLabels map, titleCase() fallback for role/status.
+Verified after fix: "Appt Set", "Estimate Sent", "Homeowner", "Draft";
+zero literal "null" and zero raw enums across leads, contacts, estimates.
+Build: npx vite build PASSED.
+
+---------------------------------------------------------------------
+COVERAGE — the three gaps Run 74 named are now CLOSED
+---------------------------------------------------------------------
+1. /leads/:id (never opened in all of Run 74) — CLOSED.
+   Deep-link to /leads/<uuid> resolves and opens the slide-over (route
+   exists at App.jsx:96 -> LeadList; LeadList.jsx:104-114 consumes the
+   param). Row click opens the same panel WITHOUT changing the URL — by
+   design, not a defect. Score breakdown popup verified CORRECT:
+   0+2+0+0+0+0+2 = 4, matching the badge "Score: 4/100".
+   Activity modal renders full form, no native <select>, no raw enums.
+   NOTE: the popup's click-outside layer (z-9998, transparent, fixed
+   inset-0) intercepts a second click on the trigger. That is the
+   standard close-on-outside-click pattern, NOT a bug — but it makes
+   Playwright report "<div></div> intercepts pointer events". Do not
+   file it. ALSO: Escape closes the WHOLE slide-over, so any test that
+   presses Escape between interactions invalidates every later step.
+
+2. Settings' 15 tabs never individually swept — CLOSED. All 15 render
+   distinct, correct content with zero errors:
+   Profile, Company, Billing, Payments, Team, Storm Alerts,
+   Notifications, Email / SMTP, Financing, Automations, Drip Sequences,
+   Custom Fields, Pricing / Line Items, Contracts, Reviews.
+   (Charter names 12; there are 15. Billing, Payments, Automations and
+   Pricing / Line Items are the extras.)
+
+3. Only 5 of ~22 overlay sites opened — PARTLY CLOSED. 8 overlays opened
+   and text-scanned: New Work Order, New Task, Add Expense, Add
+   Subcontractor, Add Lead, Work Order Detail, Record Payment, Log
+   Activity. ALL CLEAN: 0 literal null, 0 undefined, 0 NaN,
+   0 [object Object], 0 raw enums, 0 native <select>, 0 native date input.
+
+---------------------------------------------------------------------
+FEATURES VERIFIED WORKING (do not re-test blind next run)
+---------------------------------------------------------------------
+ROUTES  19/19 render, 0 console errors, 0 failed requests:
+  /dashboard /storm-map /pipeline /leads /estimates /invoices
+  /work-orders /tasks /calendar /reports /canvassing /settings
+  /materials /subcontractors /expenses /alerts /storm-catalog
+  (/contacts and /content-studio fall through to Dashboard — neither
+  route exists; /content-studio is a known unbuilt charter entry.)
+
+DASHBOARD  All widgets populate. All 4 clickable stat cards navigate:
+  Storm Map->/storm-map, View Leads->/leads, PIPELINE VALUE->/pipeline,
+  NEW LEADS (7D)->/leads. Funnel, storm activity, tasks, activity feed OK.
+
+LEADS  Sort by SCORE/CREATED/VALUE works (URL gains sort_by=...).
+  Pagination Next 26–32 of 32, per-page 25/50/100 all correct.
+  All 4 filter CustomSelects open with correct options; Stage=Contacted
+  -> 6 rows, all Contacted, URL ?stage=contacted.
+  CSV export downloads stormpipe-export-2026-08-14.csv.
+  *** TRAP: there are TWO search inputs. TopBar "Search leads, contacts...
+  (Ctrl+K)" and the page-level "Search leads...". A selector of
+  input[placeholder*="Search"] .first() grabs the TOPBAR one and the page
+  looks like it ignores search. Page search: "Hartsmith" -> 1 of 1. ***
+  Global search needs >=2 chars (by design). Enter does not navigate to a
+  result — click the result instead. Minor UX, not filed.
+
+PIPELINE  Native HTML5 drag-and-drop WORKS in both directions. Dragged
+  14910 Hartsmith Dr. new->contacted (New column 23->22, persisted to DB)
+  then contacted->new (back to 23). Playwright mouse.down/move/up drives
+  it fine; no need to synthesize DragEvents.
+
+ESTIMATES  Builder renders in-place (NOT a modal — "New Estimate" swaps
+  the view, which is why an overlay scan reports nothing). Blank Row ->
+  qty 3 x $250 = $750 subtotal AND total. Profit margin math correct:
+  30% -> cost $525 / profit $225; 40% -> cost $450 / profit $300.
+
+INVOICES  Builder renders in-place. Record Payment is CORRECTLY absent on
+  DRAFT invoices and present on SENT ones — test with a Sent invoice or
+  it looks like a missing feature. Modal shows Invoice Total / Already
+  Paid / Balance Due + 7 payment methods, all title-cased. A 0 amount is
+  rejected client-side (InvoicesView.jsx:1023) with no network write.
+
+WORK ORDERS  20 orders, kanban, detail with milestones (0/7 + PHOTO REQ
+  badges), line items, Export PDF. REGRESSION CHECK of 8a45209: no-op
+  "Save Changes" on 5 different work orders -> 5/5 with ZERO 4xx/5xx.
+  The modal stays open after save (by design).
+
+TASKS  Toggle-complete round-trip verified against the DB:
+  uncheck -> completed_at null + status 'pending';
+  recheck  -> completed_at set + status 'completed'.
+  *** The dual-state bug is FIXED at crmService.js:409-417, which syncs
+  status whenever completed_at is written, and the comment there names
+  this exact defect. The 3 rows still holding status='pending' WITH a
+  completed_at are STALE PRE-FIX DATA, not a live bug. Do not re-file. ***
+  Toggle is a <button class="task-check"> with an aria-label, NOT an
+  <input type=checkbox> — a checkbox selector finds 0 and looks broken.
+
+REPORTS  All 5 date presets, 9 recharts surfaces, Compare toggle, and CSV
+  export (revenue_report_2026-08-14.csv) all work. "This Week" renders an
+  empty state with 0 charts because that week has no data — correct.
+
+CALENDAR  Month / Week / Day / List / Today all switch and the toolbar
+  title updates correctly. 0 events (tenant has none).
+
+STORM MAP  Map renders. All 6 app layer toggles (Hail Reports, Wind
+  Reports, Tornadoes, Thunderstorms, Properties, Honey Holes) toggle with
+  ZERO console errors and ZERO failed requests — confirming the standing
+  note that only clicks on Google's OWN controls produce those errors.
+  FEMA properties NOT touched, per charter.
+
+CANVASSING  Map renders, stats bar, Drop Pin present.
+
+---------------------------------------------------------------------
+NOT TESTED / UNRESOLVED
+---------------------------------------------------------------------
+- LeadDetail Roof Type CustomSelect: could not reliably enumerate the
+  portal menu items with my selector (the panel itself matches a naive
+  "position:fixed && z>=100" filter, and a stale open backdrop from a
+  timed-out attempt intercepts the next click). This is a TESTER
+  limitation — NOT evidence of a defect. The same CustomSelect pattern
+  opened correctly 4/4 times on /leads filters. Retry next run by
+  anchoring on option text, and always reload the page first.
+- lead.year_built is DISPLAY-ONLY (LeadDetail.jsx:1179, a plain span).
+  "Edit a field and save" on the detail panel applies to the dropdowns
+  and custom fields, not the property spans. Not a bug.
+- Canvassing pin dropping not exercised (writes rows).
+- Esc-to-close measured again: 1 of 5 (/subcontractors only). Work Order,
+  Task, Expense and Add Lead modals do NOT close on Escape. Matches the
+  known-and-deferred note; unchanged.
+
+---------------------------------------------------------------------
+DATA HYGIENE — user-visible QA residue STILL PRESENT (for s4)
+---------------------------------------------------------------------
+32 leads, of which many are visible fuzz residue in the UI (both the
+table AND the pipeline kanban):
+  address "true", "12345", {"nested":{"deep":1}}, {"x","y"}
+  contact  "True", "12345", {"Nested":{"Deep":1}}, {"X","Y"}
+plus "QA Probe Run 10 ...", "Probe Empty-Priority", "Run 13 Probe Qa".
+Also: task "QA72 verify task write" carries priority 'warm' — a LEAD
+priority on a TASK (task priorities are low/medium/high). The UI guards
+it (TasksView.jsx:433 falls back to the raw value), so it renders "WARM".
+Bad data written by a past run, not an app defect.
+NOT cleaned by this stage — deleting rows is outside a frontend-test
+charter. Recommend s4 run the standing scoped cleanup.
+
+---------------------------------------------------------------------
+DB WRITES BY THIS STAGE — net zero
+---------------------------------------------------------------------
+- 1 lead stage new->contacted->new (dragged back; final state == initial)
+- 1 task uncompleted->recompleted (final state == initial; side effect:
+  its completed_at moved from 2026-08-05 to today and its stale
+  status='pending' was repaired to 'completed')
+- 5 no-op work order saves (no field changed)
+- 0 rows created, 0 rows deleted.
