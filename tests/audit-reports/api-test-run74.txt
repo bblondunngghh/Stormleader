@@ -1,0 +1,130 @@
+================================================================================
+API TEST RESULTS — Run 74 — stage s1-api-test — 2026-08-11
+================================================================================
+Charter: systematically test every backend API endpoint; fix what is broken.
+Baseline commit at stage start: 3dd2e0f
+Carry-forward priorities from Run 73:
+  1. WRITE-PATH breadth — Run 73 swept GET only (132 of 272 routes, 48.5%).
+     Run 70's 140-route write sweep + 251-route auth sweep were NOT repeated.
+  2. JSONB columns — ~23 of 29 still unguarded. Produced API bugs in 3 runs running.
+  3. Real-payload writes (Run 70 sweep was validation-depth: empty body only).
+
+STATUS: IN PROGRESS — findings appended below as they are confirmed.
+================================================================================
+
+--------------------------------------------------------------------------------
+PHASE 1-3 COMPLETE — MASTER SWEEP (harness: server/.qa-r74-sweep.mjs)
+--------------------------------------------------------------------------------
+BREADTH: 244 of 272 routes exercised (89.7%) — vs Run 73's 132 (48.5%). 28 excluded
+(real money / outward effect / bulk cost): payments 6, skip-trace 9, send-email 5,
+geocode 2, import 3, plans/sync 1, counties import 1, webhook 1.
+
+| Phase | Routes | Result |
+|-------|--------|--------|
+| GET sweep       | 122 | 76x2xx, 11x400, 5x403, 30x404 — **0 5xx** |
+| WRITE sweep     | 122 | 12x2xx, 110x4xx — **0 5xx** (empty body + dead uuid) |
+| AUTH sweep      | 244 | 242x4xx, 2x2xx — no unintended public route |
+
+VERDICT: zero 5xx across the entire exercised surface. No route crashes.
+
+AUTH: the only 2 unauthenticated 200s are POST /api/webhooks/hearth and
+POST /api/webhooks/tracerfy. Both are PUBLIC BY DESIGN (external callers) and both
+no-op without a valid signature. hearthWebhook.js guards a non-Buffer body -> 400;
+financing/index.js:226 parses BEFORE verifying only to find the per-tenant secret,
+then verifies via adapter.parseWebhook() BEFORE any UPDATE. The tradeoff is
+documented in-source at :231-235. NOT A BUG — do not re-file.
+
+TESTER TRAP FOUND (cost real turns; add to standing gotchas):
+POST /api/properties/trigger-import is NOT matched by an exclusion regex of /\/import/
+— the path is "trigger-import" (hyphen, not slash). It returned {"status":"started"}
+and began a REAL background bulk import (70 storm clusters). Verified harmless this
+run: properties = 94,680 rows, newest created_at 2026-07-31, **0 rows written in the
+last 30 minutes** — the counties were already imported so it found nothing new. It
+also self-caps at MAX_TOTAL_PROPERTIES=100000 (countyService.js:114).
+NOTE: 94,680 / 100,000 — the import cap is 95% consumed. Not a bug; worth a ticket.
+
+--------------------------------------------------------------------------------
+PHASE 4-5 — REAL-ID SWEEP (harness: server/.qa-r74-realids.mjs)  [READ-ONLY]
+--------------------------------------------------------------------------------
+WHY THIS PHASE EXISTS: the dead-uuid sweep 404s BEFORE handler logic runs, so it is
+structurally incapable of finding stored-shape crashes. 31 of 39 param GET routes
+returned 404 in Phase 1 for exactly that reason. This is the run's method lesson.
+
+| Phase | Requests | Result |
+|-------|----------|--------|
+| 4: one REAL id per param GET route | 24 | 23x200, 1x404 — **0 5xx** |
+| 5: EVERY row of 6 JSONB entities via detail+PDF | 288 | **0 5xx** |
+
+Phase 5 detail (exhaustive, not sampled):
+  estimates       83 rows x {detail, pdf}  = 166 reqs, 0 5xx
+  invoices        18 rows x {detail}       =  18 reqs, 0 5xx
+  contracts        6 rows x {detail, pdf}  =  12 reqs, 0 5xx   (b8a76c3 holds)
+  work_orders     21 rows x {detail, pdf}  =  42 reqs, 0 5xx
+  material_orders  3 rows x {detail}       =   3 reqs, 0 5xx
+  leads           47 rows x {detail}       =  47 reqs, 0 5xx
+4 routes SKIPPED — no rows exist: drip-sequences/:id, financing/applications/:id,
+territories/:id, territories/:id/pins. ("territories" table does not exist at all.)
+
+--------------------------------------------------------------------------------
+*** BUG FOUND + FIXED: 46d8480 — POST /api/estimates/:id/generate-tiers 500 ***
+--------------------------------------------------------------------------------
+| Endpoint | Method | Status | Result | Issue |
+| /api/estimates/:id/generate-tiers | POST | 500 -> 201 | FIXED 46d8480 | null element |
+
+estimateService.js:330  (original.line_items || []).map(item => ({ ...item,
+    unit_price: Math.round((parseFloat(item.unit_price) || 0) * tier.factor*100)/100 }))
+  TypeError: Cannot read properties of null (reading 'unit_price')
+
+`|| []` guards a FALSY value only — not a truthy non-array, and not a null ELEMENT.
+`{...null}` is legal and yields {}, so the spread survives; `item.unit_price` throws.
+Same shape as d575bf7 / 482d4bc; same two rows as the a023c66 PDF 500.
+Fix reuses the guard the estimate PDF already uses (routes/estimates.js:258):
+Array.isArray() for the container + .filter(item && typeof item==='object') for elements.
+
+VERIFIED: EST-083 [null] 500->201, EST-082 [null,"",1] 500->201, CONTROL EST-081
+(good data) 3 tiers with its line item PRESERVED. Build exit 0 (14.55s).
+DB: generate-tiers writes 3 estimates/call; all 9 verification rows deleted. NET 0.
+
+GENERALISED (Run 73 lesson — turn a bug into a sweep): the 3 sibling routes that
+also consume estimate.line_items were probed with BOTH malformed rows:
+  POST /api/estimates/:id/duplicate                 201, 201
+  POST /api/crm/invoices/from-estimate/:id          201, 201
+  POST /api/crm/work-orders/from-estimate/:id       201, 201
+All pass line_items through WITHOUT element access, so they propagate the bad shape
+but never throw. **The bug was ISOLATED to generate-tiers, not systemic.** 6 rows
+created by this probe were deleted; NET 0.
+
+--------------------------------------------------------------------------------
+PHASE 6 — PUBLIC TOKEN ROUTES (unauthenticated, harness .qa-r74-public.mjs)
+--------------------------------------------------------------------------------
+84 estimate public_tokens          -> 0 5xx
+ 2 contract tokens                 -> 200, 200
+ 9 client_status_tokens            -> 9x200
+financing public plans/applications-> 200 (empty arrays)
+FORGED/HOSTILE tokens, all clean 404 with no leak, no 5xx:
+  dead-uuid | "abc" | "../../etc/passwd" | "' OR 1=1 --" | "null" | "%00" | 500 chars
+No SQL injection, no path traversal, no stack leak on the public surface.
+
+--------------------------------------------------------------------------------
+PHASE 7 — JSONB WRITE-GUARD COVERAGE (harness .qa-r74-jsonb2.mjs)
+--------------------------------------------------------------------------------
+Closes the 3-run-old "~23 of 29 JSONB columns unguarded" carry-forward WITH NUMBERS.
+Method: create a THROWAWAY row, PATCH 7 hostile shapes, read back what was STORED,
+then hit the READER (PDF). Real rows never touched. All 6 probe rows deleted, NET 0.
+
+| Column | rejects | accepts | reader on junk |
+|--------|---------|---------|----------------|
+| estimates.line_items        | string,number,bool,object | [null],[1,"",null],nested | PDF 200 |
+| estimates.upgrades          | string,number,bool,object | [null],[1,"",null],nested | PDF 200 |
+| estimates.financing_plan_ids| string,number,bool,object | [null],[1,"",null],nested | PDF 200 |
+| estimates.insurance_details | string,number,bool,ARRAYS | {a:1} (object col — correct) | PDF 200 |
+| invoices.line_items         | string,number,bool,object | [null],[1,"",null],nested | n/a     |
+| work_orders.line_items      | string,number,bool,object | [null],[1,"",null],nested | PDF 200 |
+
+FINDING: the pattern is uniform and deliberate — every JSONB write route guards the
+CONTAINER type and tolerates ELEMENTS; every READER now survives the junk. That is a
+coherent guard-at-read architecture, NOT a bug. This is a LATENT surface (any new
+reader that does element access without a filter reintroduces the 500 class — which
+is exactly how generate-tiers broke), not a defect to fix under the no-refactor rule.
+
+STATUS: STAGE COMPLETE. 1 bug found, 1 fixed, 1 commit (46d8480).

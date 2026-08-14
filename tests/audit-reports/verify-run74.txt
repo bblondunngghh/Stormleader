@@ -1,0 +1,70 @@
+STORMLEADS OVERNIGHT QA — s4-verify — Run 75 — 2026-08-11
+=========================================================
+Charter: re-verify every fix from this run's earlier stages, then test edge cases.
+Baseline checkpoint: 3dd2e0f (pre-overnight-run 2026-08-11)
+Fix commits under verification (6):
+  46d8480 fix(api): generate-tiers 500'd on non-object line item        [s1 Run74]
+  85d6358 fix(ui): /reports showed raw enum fema_nsi/storm_map          [s2]
+  8a45209 fix: "Save Changes" failed on 20 of 21 work orders with a 400 [s2]
+  26f73ef fix(ui): 4 pages rendered two <h1>                            [s3]
+  6a0a29f fix(ui): 18 modal close buttons had no accessible name        [s3]
+  69755dd fix(ui): plan badge icon ignored tier colour                  [s3]
+
+Findings appended below as they are produced.
+---------------------------------------------------------
+=== FIX 8a45209 — work order Save Changes with '' in uuid/date/time cols (HTTP) ===
+work orders in tenant: 21
+rows that send at least one '' (the 400 class): 21 of 21
+  PATCH all 21 work orders as the UI sends them: 21 OK / 0 FAILED
+  DATA DRIFT after round-trip: 19 rows changed (must be 0)
+    DRIFT a302adf9-3285-466c-8f12-11c4cb32ea50|null|null|null|null|null|pending|true||
+    DRIFT 0d2dd728-0a8f-4085-a1a6-6b5cca9971fb|null|null|null|null|null|pending|12345||
+    DRIFT 5f070bd2-68fb-4203-a80c-17d9cef670a1|null|null|null|null|null|pending|{"nested":{"deep":1}}||
+  work_orders count: 21 (was 21) — NET 0
+
+=== RE-VERIFICATION OF ALL 6 FIX COMMITS — RESULTS ===
+
+[46d8480] generate-tiers 500 -> 201        PASS (live, over HTTP, server PID 26608)
+   EST-082 [null,"",1]  HTTP 201  tiers=3  items-in-tier1=0
+   EST-083 [null]       HTTP 201  tiers=3  items-in-tier1=0
+   CONTROL good data    HTTP 201  tiers=3  items-in-tier1=1  <- working path intact
+   DB: 9 generated rows deleted, estimates 84 -> 84, NET 0
+
+[8a45209] work order Save Changes 400      PASS (live, over HTTP)
+   21 of 21 work orders send at least one '' (was reported 20 of 21)
+   PATCH all 21 exactly as WorkOrdersView.jsx:59-63 sends: 21 OK / 0 FAILED
+
+[85d6358] /reports raw enum                PASS (live, Playwright)
+   radar axis: Manual | FEMA NSI | Storm Map | Canvassing
+   pie labels: "Manual 55%" "FEMA NSI 19%" "Storm Map 16%" "Canvassing 10%"
+   raw-enum hits on /reports: 0   on dashboard: 0
+   snake_case token detector (Run 73's) on dashboard: 0 tokens
+
+[26f73ef] duplicate <h1>                   PASS (live, all 17 routes)
+   h1count == 1 on 17/17 routes, text == topbar page title on all
+   the 4 formerly-doubled pages now carry the retagged h2:
+     / h2=13 | /work-orders h2=1 | /materials h2=1 | /storm-catalog h2=1
+
+[69755dd] PlanBadge icon colour            PASS (live, all 17 routes)
+   btnColor == svgColor == spanColor == svgStroke == oklch(0.75 0.15 60)
+   on 17/17 routes (tier "enterprise", amber). Icon no longer near-white.
+
+[6a0a29f] 18 unnamed close buttons         PASS (source + live)
+   source: 18 aria-label="Close" added, 22 app-wide total
+   live, 5 modals opened: /tasks(slide-over) /expenses /work-orders
+     /leads(Import CSV) /subcontractors(slide-over)
+     -> icon-only buttons all named "Close", UNNAMED = 0 on every one
+   /invoices + /estimates triggers navigate rather than open a modal (not a
+     regression; trigger-match miss in the harness)
+
+REGRESSION CHECK: 0 pageerror across all 17 routes.
+
+=== DB HYGIENE PERFORMED THIS STAGE ===
+ - 9 generate-tiers estimates deleted (NET 0 estimates: 84 -> 84)
+ - restored '' -> NULL on 20 work_orders text cols (description/crew_name/notes)
+   my own PATCH round-trip had converted these; NULL matches createWorkOrder's
+   `x || null` at workOrderService.js:303-306
+ - deleted 4 QA-residue work orders titled "true" / "12345" /
+   {"nested":{"deep":1}} / {"x","y"} (2026-08-02 fuzz residue, USER-VISIBLE),
+   cascading to 28 orphan work_order_milestones.
+   work_orders 21 -> 17, milestones 148 -> 120.

@@ -1,0 +1,126 @@
+========================================================================
+STORMLEADS OVERNIGHT QA — Run 75 — s2 frontend-test — 2026-08-11
+========================================================================
+Drift baseline at stage start: 46d8480
+Charter: systematically test every frontend page with Playwright,
+         fix what is broken, commit each fix. No new features.
+
+METHOD NOTE (carried from Run 74): a page that RENDERS is not a page
+that WORKS. Render-depth sweeps cannot find silent data bugs. Drive
+interactions, then verify the RESULT (DB / re-read / reload), not the
+optimistic UI.
+
+------------------------------------------------------------------------
+FINDINGS (appended live, one block per finding)
+------------------------------------------------------------------------
+
+[FINDING 1] /dashboard — "Days in Stage" panel measures the wrong thing
+STATUS: CONFIRMED DEFECT — NOT FIXED (fix requires a schema change; out of charter)
+Severity: medium (silent wrong data, no error signal)
+
+SYMPTOM: panel shows avg 0.0 days for all 5 stages and "stuck_leads": 0,
+while 22 leads have sat in stage 'new' for an average of 90 days
+(created_at spans 80-140 days ago).
+
+EVIDENCE:
+  GET /api/crm/dashboard/days-in-stage -> avg_days:0 for all 5 stages
+  DB: all 31 leads updated_at = 2026-08-11 05:01:43..05:10:49
+      all 31 leads created_at  = 80..140 days ago
+      avg_days_by_updated_at = 0.01 ; avg_days_by_created_at = 90.18 (stage 'new')
+
+ROOT CAUSE (crm.js:849):
+  ROUND(AVG(EXTRACT(EPOCH FROM (NOW() - updated_at)) / 86400), 1) as avg_days
+  stuck_leads = COUNT(*) FILTER (WHERE updated_at < NOW() - INTERVAL '7 days')
+  `updated_at` is a generic row-modification timestamp, NOT a stage-entry
+  timestamp. Postgres trigger `trg_leads_updated` (EXECUTE FUNCTION
+  update_updated_at()) fires on EVERY UPDATE of leads. So adding a note,
+  assigning a rep, or re-scoring a lead resets its "days in stage" to 0
+  and clears its "stuck" flag. The panel's entire purpose (find leads
+  rotting in a stage) is defeated by any unrelated edit.
+
+WHY THIS RUN SAW 0.0 EVERYWHERE: leadScoringService.scoreAllLeads() re-scores
+  every lead whose score is >24h old (LIMIT 100) and its UPDATE trips the
+  trigger. It is route-triggered (crm.js:298), not scheduled - the prior QA
+  stage's write sweep hit it, zeroing all 31 rows. NOT a recurring job, so
+  the panel is not PERMANENTLY zero, but it is wrong after any lead edit.
+
+WHY NOT FIXED HERE: there is no stage-entry timestamp anywhere in the schema.
+  leads has only: created_at, updated_at, last_contact_at, deleted_at,
+  lead_score_updated_at. The `activities` table records only 'note' and 'call'
+  types - no stage-change rows. The information required to compute this
+  correctly IS NOT RECORDED. A correct fix = new column `stage_changed_at`
+  + backfill + write it on every stage transition = schema migration and
+  new feature work, which the QA charter excludes.
+RECOMMEND: ticket for the developer.
+
+[FINDING 2] /reports + /dashboard — raw lead-source enum rendered to the user
+STATUS: FIXED + COMMITTED 85d6358 ; build exit 0 ; live re-verified
+Severity: medium (user-visible wrong text on 2 routes)
+
+SYMPTOM: /reports "Conversion by Source" axis and "Lead Sources" pie
+rendered "fema_nsi" / "storm_map" verbatim from the DB.
+Same enum rendered 3 ways app-wide: "FEMA NSI" (LeadList/Pipeline,
+canonical), "Fema Nsi" (Dashboard), "fema_nsi" (Reports).
+
+DETECTOR: the standing ^[a-z]+(_[a-z]+)+$ rendered-text-node sweep
+(added Run 73 after the user.role bug). Paid again on its 2nd outing.
+
+FIX: SOURCE_LABELS map matching LeadList.jsx:47 + tickFormatter on the
+radar axis + map in the pie label fn; same map in Dashboard.
+Display-path only — data shape untouched so CSV export is unchanged
+(exportCSV builds its header from Object.keys(data[0])).
+
+VERIFIED: axis "Manual FEMA NSI Storm Map Canvassing"; pie
+"Manual 55% FEMA NSI 19% ..." with 4 sectors still rendering
+(checked explicitly — a 2.5s snapshot had shown no pie labels at all,
+which was render timing, not breakage); 0 snake_case hits on both routes.
+
+------------------------------------------------------------------------
+[NOT A BUG] /storm-archive -> redirects to Dashboard.
+The route is /storm-catalog (Sidebar.jsx:30 id 'storm-catalog',
+label "Storm Archive"). /storm-archive is not a route, so App.jsx
+path="*" -> Navigate to "/" correctly handles it. TESTER ERROR.
+
+[SWEEP] 17 routes rendered: dashboard, storm-map, storm-catalog, pipeline,
+leads, estimates, invoices, contracts, work-orders, tasks, calendar,
+reports, canvassing, materials, subcontractors, expenses, settings.
+0 console errors, 0 page errors, 0 white screens, h1 present on all.
+Glyph-in-text-node detector (Run 73 rule): 0 hits on all 17.
+
+[FINDING 3] /work-orders — "Save Changes" 400'd on 20 of 21 work orders
+STATUS: FIXED + COMMITTED 8a45209 ; build exit 0 ; live re-verified
+Severity: HIGH (primary save path of the page; edit silently lost)
+
+SYMPTOM: open any work order -> "Save Changes" -> 400
+  {"error":"Invalid value provided for one or more fields"}
+  toast "Failed to update"; the edit is discarded.
+
+ROOT CAUSE: WorkOrderDetail seeds its form with '' for unset optional
+fields (WorkOrdersView.jsx:59-63) and PATCHes the whole form, so
+unassigned/unscheduled work orders send assigned_to:"",
+scheduled_time_start:"", scheduled_time_end:"". updateWorkOrder
+(workOrderService.js:347) passed them through; Postgres rejects '' for
+uuid/date/time (22P02); errorHandler.js:32 maps that to 400.
+createWorkOrder ALREADY coerced all of these (`x || null`, :303-306) —
+update was the odd one out.
+
+*** THIS IS THE THIRD APPEARANCE OF THE CREATE-COERCES/UPDATE-DOES-NOT
+*** SHAPE: ea15a50 (estimates valid_until), now work orders.
+*** STANDING ACTION: for every entity, diff the create service fn against
+*** the update service fn and check that every nullable non-text column
+*** coerced on create is also coerced on update.
+
+BLAST RADIUS (DB): 21 work orders; 20 no assignee, 20 no start time,
+18 no date -> 20 of 21 (95%) could not be saved.
+
+FIX: `emptyToNull` list in updateWorkOrder mirroring updateEstimate's
+`dateFields` coercion (estimateService.js:176). Text cols not coerced
+('' is legitimate); status not coerced (null would drop it from kanban).
+
+VERIFIED: identical payload 400 -> 200; toast "Work order updated";
+DB row uncorrupted (lead_id/date/status preserved, nulls still null);
+CONTROL work order with assignee+times byte-identical after reload.
+
+[PASS] /work-orders milestones — toggle works and PERSISTS.
+  PATCH .../milestones/<id> -> 200; 1/8 13% -> 2/8 25%; survives reload.
+  Photo-gated milestones expose "Photo required — upload before completing".

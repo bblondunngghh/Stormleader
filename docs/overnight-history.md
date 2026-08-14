@@ -3015,6 +3015,43 @@ Branch: `feat/financing` · Pre-run checkpoint: `c8afcb4` (`overnight-checkpoint
 ---
 
 ---
+## QA Run: 2026-07-31 (Runs 63–64) — RECONSTRUCTED STUB, BACKFILLED BY RUN 74
+
+**This entry was missing entirely.** Reconstructed on 2026-08-11 from git evidence only —
+the stage results files and session JSONs for that night are gone, so counts below are what
+the commit record proves and nothing more. Run 62 (2026-07-30) and Run 65 (2026-08-01) both
+have full entries; the two run numbers between them mapped to this date and were never written up.
+
+Checkpoint `52a7bca` (`checkpoint: pre-overnight-run 2026-07-31`) → `d31a3db`.
+Next run's checkpoint `7177fdd` confirms the boundary.
+
+### Test Results
+- Bugs found: unknown (not recorded)
+- Bugs fixed: **2 committed**, both UI consistency
+- API endpoints tested: unknown. Run 65's entry states the 272-route harnesses "had all
+  passed in Run 63", so a full-inventory sweep did run that night.
+- Pages tested: unknown
+
+### Fixes Made
+- (none — no `fix:` commit touched server code this night)
+
+### UI Consistency Fixes
+- `94593e7` — settings panel-header CTAs did not match the `.auth-btn` standard.
+- `d31a3db` — subcontractors card spacing did not match every other list view.
+
+### Known Issues Remaining
+- Not recorded. Run 65's entry references this night's work twice — "Run 64 re-verified the
+  app-wide standard control height" and, in Run 66, "Run 64–65 sizing fixes holding" — so the
+  button-sizing axis was the night's focus and its results were carried forward by later runs
+  even though the entry itself was never written.
+
+> **Process note.** This is the third missing or partial history entry found by a later run
+> (Run 68 stub, Run 72 backfilled by Run 73, Runs 63–64 backfilled here). The gap check
+> belongs at the **start** of s5, before the report is written.
+
+---
+
+---
 ## QA Run: 2026-08-01 (Run 65)
 Branch `feat/financing` · baseline `d31a3db` · checkpoint `7177fdd` · final HEAD `7783290`
 ### Test Results
@@ -3767,5 +3804,211 @@ Baseline `3a2a51e` → HEAD `e3ab83f`. 4 commits, all `fix:`.
 - **Run 72's history entry was MISSING and has been backfilled above** — check for this at the
   start of every s5, not just at the end.
 - Drift baseline for next run: **`e3ab83f`**.
+
+---
+
+---
+## QA Run: 2026-08-11 (Run 74)
+
+Branch `feat/financing` · baseline `3dd2e0f` (`checkpoint: pre-overnight-run 2026-08-11`) →
+HEAD `f5f593a`. 7 commits: 6 × `fix:`, 1 × `docs:`.
+
+> **Run-number note.** No run occurred on 2026-08-10, so this is Run 74. s1 self-labelled
+> Run 74; s2, s3 and s4 each self-labelled **Run 75**, and the archived audit file is
+> committed as `tests/audit-reports/ui-audit-run75.txt`. Same self-labelling off-by-N as
+> Run 60. Artifacts named "Run 75" belong to this entry.
+
+### Test Results
+- Pages tested: **17 of 20 in-app routes render-swept, 8 interaction-driven**
+- API endpoints tested: **244 of 272 (89.7%)** — up from 132 (48.5%) last run. ~950 requests
+  across 7 phases. **1 5xx found** (`generate-tiers`); every sweep phase otherwise 0 5xx.
+- Bugs found: **7**
+- Bugs fixed: **6**
+- UI inconsistencies found: **4 classes across 26 code sites**
+- UI inconsistencies fixed: **4 classes across 26 code sites**
+- Net DB row writes from testing: **0**
+
+### Fixes Made
+- `46d8480` — **`POST /api/estimates/:id/generate-tiers` 500'd on every estimate holding a
+  non-object line item.** `estimateService.js:330` ran `(original.line_items || []).map(item
+  => ({...item, unit_price: ...}))`. `|| []` guards a *falsy container* only — not a truthy
+  non-array, and not a `null` **element**. `{...null}` is legal and yields `{}`, so the spread
+  survives and `item.unit_price` throws. Third appearance of this exact shape (`d575bf7`,
+  `482d4bc`). Fixed by reusing the guard the estimate PDF route already uses
+  (`routes/estimates.js:258`): `Array.isArray()` on the container + `.filter(item && typeof
+  item === 'object')` on the elements. **Generalised rather than assumed isolated** — the 3
+  sibling routes that also consume `estimate.line_items` (`/duplicate`,
+  `/crm/invoices/from-estimate/:id`, `/crm/work-orders/from-estimate/:id`) were probed with
+  both malformed rows and returned 201/201 each; they pass the array through without element
+  access, so they propagate the bad shape but never throw. **The bug was isolated, not
+  systemic.** Net DB writes 0 (9 generated + 6 probe rows deleted).
+- `8a45209` — **"Save Changes" failed on 20 of 21 work orders with a 400, and the edit was
+  discarded.** `WorkOrderDetail` seeds unset optional fields with `''`
+  (`WorkOrdersView.jsx:59-63`) and PATCHes the whole form, so unassigned or unscheduled work
+  orders sent `assigned_to:""`, `scheduled_time_start:""`, `scheduled_time_end:""`.
+  `updateWorkOrder` (`workOrderService.js:347`) passed them through; Postgres rejects `''` for
+  uuid/date/time (22P02) and `errorHandler.js:32` maps that to 400. **`createWorkOrder`
+  already coerced every one of them at `:303-306` — update was the odd one out.** Fixed with
+  an `emptyToNull` list mirroring `updateEstimate`'s `dateFields` coercion. Text columns not
+  coerced (`''` is legitimate); `status` not coerced (null would drop the row out of the
+  kanban). s4 re-measured the blast radius as **21 of 21**, not the 20 of 21 in the commit
+  message.
+
+### UI Consistency Fixes
+- `85d6358` — **`/reports` and `/dashboard` rendered the raw lead-source enum** `fema_nsi` /
+  `storm_map` verbatim on the Conversion-by-Source radar axis and the Lead Sources pie. The
+  same enum was rendered **three ways app-wide**: "FEMA NSI" (LeadList/Pipeline, canonical),
+  "Fema Nsi" (Dashboard), "fema_nsi" (Reports). `ReportsView` already had a `STAGE_LABELS` map
+  and used it for stages but had no source equivalent. Fixed display-only with a
+  `SOURCE_LABELS` map + `tickFormatter`, following the file's own local-label-map convention;
+  data shape untouched so CSV export is unchanged. **Found by the standing
+  `^[a-z]+(_[a-z]+)+$` rendered-text detector on its second outing — it has now paid twice.**
+- `26f73ef` — **4 pages rendered two `<h1>` elements.** The topbar renders
+  `h1.topbar__page-title` as persistent chrome on all 17 routes; `Dashboard:1247`,
+  `WorkOrdersView:958`, `MaterialsView:131` and `StormCatalog:197` each added a second, and on
+  `/work-orders` and `/storm-catalog` it was **the same string twice**. Fixed `h1` → `h2`,
+  which `SubcontractorsView:77` and `AlertSettings:93` already did — the convention existed
+  and was followed by 2 of 6. Retagged rather than deleted because 2 of the 4 titles anchor a
+  count badge or a subtitle+icon in a flex row. **Zero visual change**, guaranteed by
+  `* { margin: 0 }` (`index.css:13`) plus inline fontSize/fontWeight, and verified by
+  measurement (28/820, 20/800, 22/800, 22/700 byte-identical).
+- `6a0a29f` — **18 modal and slide-over close buttons had no accessible name.** Measured
+  app-wide, not sampled: of 46 buttons containing an X icon, 18 had no name / 22 text / 5
+  `aria-label` / 1 `title`; after, **0 unnamed**. Drift, not a missing convention —
+  `aria-label="Close"` already existed at 4 sites and had been applied to 6 of 24 icon-only
+  sites. Run 73 saw this on 4 of 5 sampled modals; the full set is 18 across 13 files.
+  **Tester discipline that mattered: every one of the 18 was verified to be
+  `onClick={onClose}` before labelling** — an X glyph equally means "remove this row", and
+  mislabelling one of those "Close" is worse than leaving it unnamed.
+- `69755dd` — **PlanBadge icon ignored the tier colour on all 17 routes.** The chip tints
+  background (12%), border (25%) and label with `planColors[tier]`, but the `CheckBadgeIcon`
+  sat **outside** the `<span>` carrying `color` and fell through to near-white
+  `oklch(0.95 0.005 260)` against an amber chip — for all 4 tiers. Fixed by adding `color` to
+  the button's style object.
+
+### UI Audit Coverage
+- **All 7 charter audits executed** across 17 routes. Icons **PASS** (3 lenses: 0 solid
+  imports, 2,160 rendered SVGs with 0 non-conforming, 0 foreign classes). Headers **PASS
+  byte-identical 17/17** (56px | 0px 32px | 20/18px | h1 18px/700). Sidebar **PASS** (18 links,
+  18 icons, gaps [0,8,30], 1 active — `/alerts` 0 = known orphan). Forms **PASS** on the hard
+  rules (0 native `<select>`, 0 `input[type=date]`), 7th consecutive run. Buttons and Modals
+  each yielded a real defect.
+- **AUDIT 6 SPACING MEASURED FOR THE FIRST TIME**, after being deferred in Runs 72, 73 **and**
+  74. Front-loading it was the right call and it produced the run's most useful structural
+  finding: **two spacing systems coexist.** Every fractional pixel in the app (17.5 / 10.5 /
+  8.75 / 7px) is Tailwind rem utilities (`p-4`, `p-5`, `gap-2`, `gap-3`) resolving against a
+  **14px root**, used by Dashboard and Pipeline; every other page uses px CSS vars
+  (`--space-md` = 12px, 16px, 24px). Measured spread: 6 card-gap values, 17 `.glass` padding
+  values over 4 radii, 7 page-wrapper padding values. **This explains values prior runs logged
+  as inexplicable** and generalises the standing "rem-vs-px font sizes at 10 sites" note to
+  spacing. Not converted — 2 large views, a refactor, charter-forbidden.
+- **ESC-TO-CLOSE MEASURED after 4 runs deferred** — **0 of 4** modals close on Escape
+  (`/tasks`, `/work-orders`, `/expenses`, `/materials`), confirming that only
+  `/subcontractors` does. Not fixed: a behaviour change across ~22 overlays.
+  `role="dialog"` / `aria-modal`: **0 files app-wide** — uniformly absent, therefore
+  consistent, therefore adding it is a feature and correctly out of charter.
+- Modal drift re-confirmed with numbers on 4 live modals: 3 title treatments (H2 18/700, H3
+  16/700, H3 16/800) **plus a slide-over with no heading element at all**; 4 close sizes
+  (32×32 / 20×23 / 18×21 / 26×29); 4 close insets; widths 420/520/480/420. Backdrop variance
+  is per-context by design — standing note says do not normalise.
+- **Non-bugs closed this run:** `.nav-link` 13.5px vs `.nav-link--child` 13px is deliberate
+  (`index.css:388` sets the font-size in the same rule as the child indent, not drift);
+  `CanvassingMode.jsx:8-13` define an `emoji:` field on `DISPOSITIONS` that is **never read**
+  (dead data, renders nothing); `StormMap.jsx:1900`'s "↑" is prose inside a Google InfoWindow
+  HTML string.
+
+### Known Issues Remaining
+- **`/dashboard` "Days in Stage" measures the wrong thing — confirmed defect, NOT FIXED,
+  needs a schema migration.** Shows avg 0.0 days for all 5 stages and 0 stuck leads while 22
+  leads have sat in stage `new` for an average of 90 days. `crm.js:849` averages **`updated_at`**,
+  a generic row-modification timestamp maintained by the `trg_leads_updated` trigger that fires
+  on *every* UPDATE of `leads` — so adding a note, assigning a rep or re-scoring a lead resets
+  "days in stage" to 0 and clears the stuck flag. The panel's entire purpose is defeated by any
+  unrelated edit. **The information required to compute this correctly is not recorded
+  anywhere:** `leads` has only `created_at`, `updated_at`, `last_contact_at`, `deleted_at`,
+  `lead_score_updated_at`, and `activities` records only `note` and `call` rows, no stage
+  changes. Correct fix = new `stage_changed_at` column + backfill + write on every transition.
+  **Developer ticket recommended.** (Why it read 0.0 everywhere this particular run:
+  `leadScoringService.scoreAllLeads()` re-scores any lead whose score is >24h old and its
+  UPDATE trips the trigger; it is route-triggered at `crm.js:298`, and the prior QA stage's
+  write sweep hit it, zeroing all 31 rows.)
+- **Property import cap is 95% consumed** — `properties` holds 94,680 rows against
+  `MAX_TOTAL_PROPERTIES = 100000` (`countyService.js:114`). Not a bug; ticket-worthy before it
+  silently stops importing.
+- **Escape closes 1 of ~22 overlays**; `role="dialog"`/`aria-modal` absent app-wide; the
+  two-spacing-system split; modal title/close-button drift; `quick-action-btn` per-file inline
+  paddings. All measured, all deliberately out of charter — each needs a design decision.
+- **External, re-confirmed with fresh numbers:** `feature.tnris.org` unresolvable
+  (`getaddrinfo ENOTFOUND`) and the auto-import scheduler retried it **58 times in ~90 seconds**
+  for `_TX_STATEWIDE` at 06:00 with no visible backoff (Run 73 measured 61 in ~5 min). The DNS
+  failure is external; the retry volume is not.
+- **External:** SPC archive 404s for same-day `260811_rpts_*.csv` — not yet published, expected.
+- Carried, not re-verified: duplicate `estimate_number` (`EST-021`/`EST-022`/`EST-082`);
+  `INV-0008`/`INV-0013` `total=0.00` with `amount_paid>0`; `modal-scale-in` dead class at 4
+  sites; `/tasks` Pending-tab empty-state copy. `EST-082`/`EST-083` malformed rows **kept
+  deliberately** — they are the fixtures that caught `46d8480`.
+- **CLOSED: "~23 of 29 JSONB columns unguarded" is NOT a bug.** Tested rather than assumed —
+  create a throwaway row, PATCH 7 hostile shapes, read back what was **stored**, then hit the
+  reader. All 6 high-traffic columns reject string/number/bool/object containers, tolerate junk
+  elements, and every reader returns 200 on the junk. That is a deliberate, uniform
+  guard-at-read architecture. **Residual risk stated precisely: a new reader doing element
+  access without a filter reintroduces the 500 class** — which is exactly how `generate-tiers`
+  broke. All 6 probe rows deleted, net 0.
+
+### Session Integrity
+- s1 api-test: **MAX_TURNS (50)** — 51 turns, $5.42, 13.7 min. 1 commit, results file written.
+- s2 frontend-test: **MAX_TURNS (80)** — 81 turns, $9.15, 19.6 min. 2 commits, file written.
+- s3 ui-audit: **MAX_TURNS (60)** — 61 turns, $6.67, 16.4 min. 4 commits, file written.
+- s4 verify: **MAX_TURNS (40)** — 41 turns, $4.14, 11.2 min. **0 commits**, but file written.
+- s5 report: this entry. **6 code commits stand for this run.** s1–s4 spend **$25.39**,
+  61.0 min API time. **All four capped — 4-of-4 for the SIXTH consecutive run.**
+- **INFRA WIN — 4 of 4 stages wrote their results file, for the first time ever** (3-of-4 last
+  run; 1/1/0-of-4 in Runs 70–72). **s4 went from writing nothing at all to a complete 71-line
+  file** — it was the single biggest waste in Run 73. The fix is unchanged and now proven twice:
+  **write the header FIRST and append per finding.** All four verified BY HEADER LINE, not mtime.
+- **INFRA — two stages claimed "STAGE COMPLETE, uncapped" while the harness recorded
+  `error_max_turns`.** s1 and s3 both wrote a complete file *and then* hit the cap; the
+  self-assessment written into `overnight_resume.md` is contradicted by the session JSON.
+  **Trust the session JSON, not the stage's own claim.**
+- **s4 committed nothing but was not wasted** — it independently re-verified all 6 fix commits
+  (all PASS, 0 pageerror across 17 routes) and re-measured `8a45209`'s blast radius more
+  accurately than the stage that made the fix.
+- **DB hygiene.** Net **0** rows written by testing. Separately, s4 made two deliberate
+  cleanups: restored `'' → NULL` on 20 work-order text columns its own PATCH round-trip had
+  converted, and deleted **4 user-visible QA-residue work orders** titled `true`, `12345`,
+  `{"nested":{"deep":1}}`, `{"x","y"}` (2026-08-02 fuzz residue), cascading to 28 orphan
+  milestones. `work_orders` 21 → 17, `work_order_milestones` 148 → 120.
+- **NEW TESTER TRAPS.** `POST /api/auth/login` is **rate-limited** — ~10 attempts triggers a
+  15-minute lockout, so a harness must never re-mint on a counter. `POST
+  /api/properties/trigger-import` is **not** matched by a `/\/import/` exclusion (the path is
+  `trigger-import`, hyphen not slash); it returned `{"status":"started"}` and began a real
+  background bulk import of 70 storm clusters. Harmless this time (0 property rows written in
+  the next 30 min), but a live cost risk.
+- **CHARTER ERRORS TO CORRECT.** The API listens on **port 3001**; the s1 prompt says 3000, and
+  its login credentials differ from the ones the harness used. The s2 prompt requires testing
+  **`/content-studio`, which does not exist in `App.jsx`** — silently unsatisfiable.
+- **LESSON — an empty-body/dead-uuid sweep proves nothing crashes on validation, not that the
+  handler works.** Runs 70 and 73 probed write routes with a valid-but-nonexistent uuid, which
+  404s *before* handler logic, so they were structurally incapable of finding stored-shape
+  crashes — 31 of 39 param GET routes 404'd for exactly that reason. Adding a **real-ID pass**
+  found a hard 500 on the first try. **Every sweep must state what it is structurally unable
+  to find.**
+- **LESSON — group every element by computed style, then investigate the UA-default bucket.**
+  Two of s3's three defects came from measuring a property nobody had thought to group by,
+  not from hunting a known shape. `PlanBadge` surfaced because it was the only button of 35
+  style variants whose own font computed to the UA default (13.3333px/400) — **that signal was
+  not the bug**; the real defect (an untinted icon) was two steps past it. "Unstyled" is a
+  smell, not the finding.
+- **LESSON — a blanket a11y label fix is a correctness change, not a cosmetic one.** Confirm
+  the handler, not the glyph.
+- **LESSON — "create coerces, update does not" is a bug family, third appearance**
+  (`ea15a50` estimates, now work orders). **Standing action: for every entity, diff the create
+  service fn against the update service fn and check that every nullable non-text column
+  coerced on create is also coerced on update.**
+- **`docs/overnight-history.md` had a gap at 2026-07-31 (Runs 63–64 missing entirely) —
+  backfilled above as a reconstructed stub.** Third missing/partial entry found by a later run
+  (Run 68 stub, Run 72 backfilled by Run 73, Runs 63–64 now). **Check for gaps at the START of
+  every s5.**
+- Drift baseline for next run: **`f5f593a`**.
 
 ---
