@@ -3,7 +3,7 @@ import logger from '../utils/logger.js';
 
 /**
  * Check if any existing leads' properties fall within a storm event's geometry.
- * If so, create storm_alert notifications for all active users in the affected tenants.
+ * If so, create storm_alert notifications for all users in the affected tenants.
  *
  * @param {string} stormEventId - UUID of the storm_events row
  * @returns {number} count of impacted leads
@@ -28,7 +28,8 @@ export async function checkImpactedAssets(stormEventId) {
     return 0;
   }
 
-  // Create notifications for each impacted lead, notifying ALL active users in the tenant
+  // Create notifications for each impacted lead, notifying ALL users in the tenant
+  // (users has no is_active column — same fan-out as notificationService.js:35)
   for (const row of impacted) {
     const address = row.address || row.address_line1 || 'Unknown address';
     const date = row.event_start
@@ -50,8 +51,7 @@ export async function checkImpactedAssets(stormEventId) {
               $2,
               'lead', $3
        FROM users u
-       WHERE u.tenant_id = $1
-         AND u.is_active = true`,
+       WHERE u.tenant_id = $1`,
       [row.tenant_id, body, row.lead_id]
     );
   }
