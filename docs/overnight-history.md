@@ -4012,3 +4012,125 @@ HEAD `f5f593a`. 7 commits: 6 × `fix:`, 1 × `docs:`.
 - Drift baseline for next run: **`f5f593a`**.
 
 ---
+
+---
+
+## QA Run: 2026-08-14 (Run 75)
+
+Baseline `76fe7d3` (tag `pre-overnight-20260814`) → head `c1dc23c`. Branch `feat/financing`.
+Full report: `OVERNIGHT-REPORT.md`. Artifacts: `C:/tmp/api-test-results.txt`,
+`tests/audit-reports/frontend-test-2026-08-14-run75.txt`,
+`tests/audit-reports/ui-audit-2026-08-14-run75-s3.txt`, `C:/tmp/ui-audit-results.txt`.
+
+**No history gap to backfill** — Run 74 (2026-08-11) is the previous entry and no run
+occurred on 08-12 or 08-13 (no checkpoint commits on those dates).
+
+### Test Results
+- Pages tested: **18 sidebar routes** (19 URLs incl. 2 fall-throughs) + **15 of 15 Settings
+  tabs** + 8 modal overlays. Zero console errors, zero failed requests on every route.
+- API endpoints tested: **261 of 272 (96.0%)** — the highest recorded, up from 244/272
+  (89.7%) in Run 74. 11 skipped, all charter-prohibited (paid keys, bulk geocode/import,
+  outbound email). 536 requests in saved artifacts plus the P1 and action passes.
+- Bugs found: **5**
+- Bugs fixed: **3**
+- UI inconsistencies found: **1** new (plus 4 known items re-confirmed, 1 new dev ticket)
+- UI inconsistencies fixed: **1**
+- 5xx observed: 2 — 1 real defect (unfixed), 1 transient upstream (cleared)
+- Final `vite build`: **PASS** (exit 0, 8.06s)
+
+### Fixes Made
+- **`7c373fc`** `fix(api)` — invoice and estimate document numbers derived from `COUNT(*)+1`
+  collide with live numbers after any delete. `EST-021/022/082` already existed twice and
+  invoices held 18 rows having already issued `INV-0019`, so the next create was a guaranteed
+  duplicate. Both services switched to `MAX(numeric suffix)+1`. Verified end-to-end, and
+  independently re-verified by s4 (`INV-0023` = MAX+1; buggy logic would have given
+  `INV-0022`, a live number).
+- **`1847292`** `fix(ui)` — TopBar global search (Ctrl+K) interpolated raw DB columns,
+  rendering literal `"null"` and raw enums (`estimate_sent`, `homeowner`, `draft`).
+  **Fourth appearance of the raw-enum-in-UI family**; TopBar was the only consumer of
+  `lead.stage` without a `stageLabels` map while 5 other files define one.
+- **`e44cdd8`** `docs(qa)` — archived s2 frontend test results.
+- **`c1dc23c`** `docs(qa)` — archived s3 UI audit results.
+
+### UI Consistency Fixes
+- **`f788c22`** — `.modal-scale-in` was referenced as a className in 4 components
+  (`CalendarView:260`, `DripSequences:585`, `EstimatesView:2872`, `InvoicesView:1059`) but
+  **never defined as a CSS selector**; it existed only as a `@keyframes` name and computed to
+  `animation-name: none`. Defined it with the same 200ms `var(--ease-apple)` timing the
+  `.glass` rule already supplied.
+- Audits **1/2/4/5 came back genuinely CLEAN under real measurement**: 43/43 heroicons-outline
+  imports and every SVG on 18 routes carrying the outline signature; `.auth-btn` identical on
+  8 pages; sidebar uniform (42px / 12px radius / 18px icons / exactly 1 `.is-active`); **zero
+  native `<select>` and zero native date inputs — third consecutive run**.
+
+### Known Issues Remaining
+- **THE RUN DID NOT ACHIEVE NET-ZERO DB WRITES** — first time in several runs. s1 and s4 both
+  hit turn caps mid-cleanup. Verified live: estimates 83→**95** (+12), invoices 18→**21** (+3),
+  work_orders 17→**20** (+3), material_orders 3→**6** (+3), live leads 32→**24** (−8 soft-
+  deleted). Plus work order `89a5ed32` wrongly `completed` with all 7 milestones false, and
+  subcontractor `1acc6d59`'s name overwritten to `{"deep":[1,null]}` (original unrecoverable).
+  Audited clean: `alert_configs` untouched; `tenants` row intact apart from `updated_at`.
+  **Remediation is written and ready: `cd server && node .qa-run75-s4-cleanup.mjs`.**
+- **s4's `DRY=1` run was not dry.** The script derived its dry-run `SELECT COUNT(*)` from the
+  real `UPDATE` by regex; the rewrite silently failed on `SET deleted_at = NOW()`, so the live
+  `UPDATE` executed and soft-deleted 8 leads before crashing on `rows[0].c`. Script since
+  rewritten to pass an explicit `countSql` per mutation.
+- **`PATCH /api/crm/subcontractors/:id` 500s on `{"name": null}`** — `subcontractors.name` is
+  `NOT NULL` and `updateSubcontractor` only tests `!== undefined`, so an explicit null reaches
+  Postgres as an unhandled not-null violation. Should be a 400. In-charter, cheap, unfixed.
+- **`MobileTaskSection` ignores the `icon`/`iconColor` props all 3 call sites pass**,
+  hardcoding `ClipboardDocumentListIcon`. Gated at ≤768px; mobile is paused → dev ticket.
+- Pre-existing duplicates `EST-021/022/082` remain, and concurrent creates can still race —
+  needs a unique index + backfill migration.
+- `/dashboard` Days-in-Stage still averages `updated_at` — the data needed is not recorded;
+  needs a `stage_changed_at` column + backfill. Carried from Run 74.
+- Deferred by design: no `<h1>` anywhere and no shared page-header (17 of 18 routes); two
+  coexisting spacing systems; `.quick-action-btn` at 8 heights; Esc-to-close on 1 of 5 modals;
+  2 modals with no entrance animation.
+
+### Stage Discipline
+- **s3 completed cleanly (`end_turn`) — the first stage in seven runs not to hit its cap.**
+  s1 (51/50, across **two** sessions), s2 (81/80) and s4 (41/40) all hit `error_max_turns`.
+- **s4 committed nothing and left three of six planned tasks unstarted.** It re-verified only
+  `7c373fc`; **`1847292` and `f788c22` were never independently re-verified in a browser**,
+  and the entire edge-case pass (empty states, validation, back/forward, 375px) never ran.
+- s4's value was elsewhere: it caught that s1's "counts unchanged at 18/83" claim had gone
+  stale, and found the `MobileTaskSection` prop bug.
+
+### Lessons
+- **LESSON — a declared-but-undefined CSS class renders IDENTICALLY to a working one** when
+  something else happens to supply the same styling. Screenshots, visual diffs and computed-
+  style sweeps all pass it. **Second run running that the bug was found by a set-difference
+  over source** (classNames used in JSX vs. selectors defined in CSS) rather than by
+  inspecting output. Prefer set-difference checks. Run 75-s2's win had the same shape: grep
+  the consumers of an enum column, diff against the files defining a label map.
+- **LESSON — never derive a dry-run query from a mutation by string transformation.** Pass an
+  explicit count query alongside every mutation. A failed rewrite does not fall back to safe;
+  it executes the mutation.
+- **LESSON — a stage's cleanup claim expires the moment that stage does more work.** s1's
+  "counts unchanged" was true when written and false 17 minutes later. **Re-query the DB at
+  report time; never carry a mid-stage count forward.**
+- **TRAP — never apply a transform-based animation class to a transform-positioned element.**
+  s3 applied `modal-scale-in` to `LeadDetail.jsx:2474` and had to revert: the panel is
+  centered with `translate(-50%,-50%)` and the keyframe ends at `transform: none`.
+- **TRAP — `/leads` has TWO search inputs.** A `.first()` selector grabs the TopBar one and
+  the page looks like it ignores search. Also: Escape closes the entire lead slide-over;
+  New Estimate/New Invoice are in-place view swaps, not modals; Record Payment is correctly
+  absent on DRAFT invoices; the task toggle is `button.task-check`, not a checkbox; there is
+  no `<main>` element — use `.main-content`.
+- **CORRECTED — the `warm` priority on task "QA72 verify task write" is NOT residue.**
+  `tasks.priority` is typed as the `lead_priority` enum and `TasksView.jsx:16-20` maps
+  `hot/warm/cold` → `High/Medium/Low`. It renders "Medium". s2 called it "a LEAD priority on a
+  TASK" rendering as "WARM" — both halves wrong. Do not re-file.
+- **CORRECTED — `canvass_territories` does exist.** The standing gotcha is stale.
+- **CLOSED — bug family #1 ("create coerces, update does not").** All 22 remaining cases
+  degrade to a graceful 400, never a 5xx, and every client form already coerces before
+  sending. **CLOSED — family #2 (`(x||[]).map` element access)**: all JSONB read paths audited
+  and guarded. Do not re-file either.
+- Verified non-bugs added: `updatePlan`'s camelCase destructuring is correct (the client sends
+  camelCase, and it is the only such service); `.address-search__input`'s 0 radius is correct
+  (the wrapper carries it — **when an inner control has 0 radius, check the wrapper first**);
+  the `fema-lookup` 500 was a transient upstream NSI failure, reproduced 3× as 200.
+- Drift baseline for next run: **`c1dc23c`**.
+
+---
