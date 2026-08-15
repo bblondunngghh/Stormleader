@@ -322,7 +322,7 @@ export default function ImportLeadsModal({ onClose, onImported }) {
         {/* Step: Importing */}
         {step === 'importing' || importing ? (
           <div style={{ textAlign: 'center', padding: 'var(--space-3xl)' }}>
-            <div className="skeleton-shimmer" style={{ width: 48, height: 48, borderRadius: '50%', margin: '0 auto var(--space-lg)' }} />
+            <div className="skeleton" style={{ width: 48, height: 48, borderRadius: '50%', margin: '0 auto var(--space-lg)' }} />
             <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>
               Importing leads...
             </div>
