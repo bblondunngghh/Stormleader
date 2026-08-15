@@ -584,7 +584,7 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
     if (!sendEmail) return;
     setSending(true);
     try {
-      await client.post(`/invoices/${invoice.id}/send-email`, { to: sendEmail });
+      await client.post(`/crm/invoices/${invoice.id}/send-email`, { to: sendEmail });
       showToast(`Invoice sent to ${sendEmail}`, 'success');
       setShowSendModal(false);
       onSave();
