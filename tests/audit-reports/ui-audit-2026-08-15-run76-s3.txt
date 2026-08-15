@@ -1,0 +1,236 @@
+================================================================================
+UI CONSISTENCY AUDIT — Run 76, stage s3-ui-audit — 2026-08-15
+Baseline: 05aa857 (s2's last commit).  Commits this stage: 383ba4f, 5ae8bfb
+Routes swept: 17 authenticated routes + 5 modals/slide-overs
+DB writes by this stage: ZERO (read-only audit; every modal closed via Escape,
+nothing submitted, no import ever started)
+================================================================================
+
+HEADLINE
+--------
+3 defects found, 3 fixed. ALL THREE were found by SET-DIFFERENCE OVER CODE
+(names DECLARED vs names DEFINED) — not by looking at rendered output. This is
+the third consecutive run where that technique produced the run's findings.
+
+The new wrinkle this run: the set difference was run over CSS CUSTOM PROPERTIES
+and @KEYFRAMES, not just class names. Extending the same check to a new kind of
+name found a defect that six prior UI audits walked straight past.
+
+================================================================================
+| Page      | Issue Type        | Element              | Expected            | Actual                | Fixed?  |
+|-----------|-------------------|----------------------|---------------------|-----------------------|---------|
+| /alerts   | undefined CSS var | NumberStepper x2     | glass border + bg   | border:0px none, bg   | YES     |
+|           |                   | (Min Hail/Min Wind)  | matching .form-input| transparent — no      | 383ba4f |
+|           |                   |                      |                     | chrome at all         |         |
+| /alerts   | undefined CSS var | Send Test Alert btn  | 1px glass border    | border: 0px none      | YES     |
+| /alerts   | undefined CSS var | email + history rows | elevated background | transparent           | YES     |
+| /leads    | undefined class   | Import modal spinner | shimmering skeleton | invisible 48x48 blank | YES     |
+|           |                   | (ImportLeadsModal    |                     | (bg-image:none,       | 5ae8bfb |
+|           |                   |  :325)               |                     | animation-name:none)  |         |
+| ALL       | foreign icon lib  | index.html:19        | Heroicons only      | Material Symbols      | YES     |
+|           |                   | <link> font          |                     | Outlined font loaded  | 5ae8bfb |
+================================================================================
+
+DEFECT 1 — TWO CSS VARIABLES THAT DO NOT EXIST  (fix 383ba4f)
+--------------------------------------------------------------------------------
+client/src/components/AlertSettings.jsx referenced:
+    var(--border-subtle)   x4
+    var(--bg-elevated)     x4
+Neither is defined anywhere in the repository. :root defines --glass-border and
+--glass-bg; these two names were invented at the call site. Repo-wide grep after
+the fix: 0 remaining references.
+
+WHY IT MATTERS — the failure mode is worse than "wrong colour":
+An unresolvable var() makes the WHOLE declaration invalid at computed-value
+time. Because the code wrote the BORDER SHORTHAND:
+
+    border: '1px solid var(--border-subtle)'
+
+...all three longhands reset to their initial values, so border-style became
+`none` and border-width became 0. The control lost its border ENTIRELY rather
+than merely mis-colouring it. Measured on /alerts before the fix:
+
+    stepper container  border: 0px none oklch(0.95 0.005 260)   bg: rgba(0,0,0,0)
+    decrease button    border: 0px none oklch(0.65 0.2 25)      bg: rgba(0,0,0,0)
+    stepper input      border: 0px none oklch(0.95 0.005 260)   bg: rgba(0,0,0,0)
+    Send Test Alert    border: 0px none oklch(0.95 0.005 260)
+    REFERENCE .glass   border: 1px solid oklch(0.5 0.02 260/0.15)
+
+Visually (screenshot .playwright-mcp/r76s3-alerts-before.png): the "Min Hail
+Size (inches)" and "Min Wind Speed (mph)" steppers rendered as bare text with
+two loose - / + glyphs floating beside a number. No box, no field, no affordance
+that they were editable — sitting directly below an "Add email address"
+.form-input showing full glass chrome, in the same panel.
+
+FIX: repointed all 8 references at tokens that exist —
+  --border-subtle  ->  var(--glass-border)
+  --bg-elevated    ->  var(--glass-bg)            (email + alert-history rows)
+  --bg-elevated    ->  oklch(0.22 0.02 260 / 0.45) for the stepper itself,
+                       which is .form-input's own background, because the
+                       stepper is a FORM CONTROL and shares a panel with one.
+Verified after (r76s3-alerts-after.png): stepper border+background now
+byte-identical to .form-input, Send Test Alert byte-identical to .glass.
+No border doubling despite container+children both carrying borders.
+
+DEFECT 2 — A CLASS NAME THAT MATCHES NOTHING  (fix 5ae8bfb)
+--------------------------------------------------------------------------------
+ImportLeadsModal.jsx:325 renders the "Importing leads..." loading indicator as
+    <div className="skeleton-shimmer" style={{width:48,height:48,...}} />
+There is no .skeleton-shimmer selector. The app's shimmer class is `.skeleton`
+(index.css:4309). "skeleton-shimmer" exists ONLY as a @keyframes name inside
+Dashboard.jsx's inline <style> — and that block is not even mounted here,
+because the modal is opened from LeadList, not Dashboard.
+
+Proven in the live document WITHOUT triggering a real import (which would have
+written rows and geocoded): injected both classes and read computed style.
+    .skeleton-shimmer -> background-image: none        animation-name: none
+    .skeleton         -> linear-gradient(90deg,...)    animation-name: shimmer 1.5s
+So the user saw a 48px empty gap where a spinner should be, for the whole
+duration of a CSV import. Changed to `.skeleton`.
+
+DEFECT 3 — AN UNUSED FOREIGN ICON FONT  (fix 5ae8bfb)
+--------------------------------------------------------------------------------
+index.html loaded, on every single page view:
+    fonts.googleapis.com/css2?family=Material+Symbols+Outlined:...
+Evidence it was pure dead weight:
+  - zero references to "material-symbols" in any .jsx/.js/.css
+  - zero elements on any route resolve to that font-family (measured)
+  - zero elements carry fa-*/material-*/mdi/bi-/glyphicon classes (measured)
+A render-blocking request for an icon library the project's rules forbid.
+Removed. Plus Jakarta Sans / Space Grotesk untouched and still loading.
+
+================================================================================
+AUDITS THAT CAME BACK CLEAN — MEASURED, NOT ASSUMED
+================================================================================
+
+AUDIT 1 — ICONS: CLEAN
+  * 43/43 icon import sites are '@heroicons/react/24/outline'. Zero solid
+    variants, zero lucide / react-icons / fontawesome / material / tabler.
+    (The 3 "non-outline" hits from the grep were false positives: paths
+    containing the substring "material" -> ./MaterialsView, ../api/materials.)
+  * On all 17 routes, every <svg> inside .main-content carries the Heroicons
+    signature viewBox="0 0 24 24" + fill="none" + stroke-width="1.5".
+    Counts matched exactly (e.g. /storm-catalog 1000/1000, /materials 411/411,
+    /subcontractors 54/54, /pipeline 46/46, / 41/41).
+  * Sole exception /reports: 19 svg, 10 Heroicons, 9 class="recharts-surface"
+    — the documented data-viz non-bug.
+  * Zero foreign icon classes rendered anywhere.
+
+AUDIT 2 — BUTTONS: CLEAN against the established pattern
+  * .auth-btn (primary CTA) is IDENTICAL on all 8 routes that use it as a CTA:
+        36px | 0px 24px | 13px | 14px/12px | 700 | oklch(0.72 0.19 250)
+    (/pipeline /alerts /tasks /estimates /invoices /work-orders /contracts
+     /expenses /subcontractors)
+  * /storm-catalog's .auth-btn measures 36 | 6px 14px | 12px — this is the
+    DOCUMENTED reuse of the primary-CTA class for an ACTIVE FILTER CHIP
+    ("30 Days"), a member of the known ~8 active-state treatments. Not re-filed.
+  * Row-action .quick-action-btn agrees at 31px across /estimates (156),
+    /contracts (18), /invoices (22).
+  * Re-confirmed known: .quick-action-btn spans 8 heights app-wide
+    (21/25/27/29/31/32/36/38), every one from a per-site inline padding
+    override. Documented backlog item, not re-filed.
+
+AUDIT 3 — TOOLBAR / HEADER: header height CLEAN
+  * The top bar measures EXACTLY 56px on all 17 routes. No variance.
+  * Re-confirmed known: there is still no <h1> anywhere in the app, and page
+    headings remain inconsistent where they exist at all — 28px (/), 24.5px
+    (/calendar), 22px (/storm-catalog /materials /subcontractors), 20px
+    (/alerts /work-orders), and NO page heading on /pipeline /leads /tasks
+    /estimates /invoices /contracts /expenses /settings /admin. Existing
+    developer ticket, not re-filed.
+
+AUDIT 4 — SIDEBAR: CLEAN
+  * 18/18 nav items: 42px tall, 12px radius, 18px icons, all Heroicons-outline.
+  * Exactly 1 .is-active. Zero items missing an icon. Sidebar width 240px.
+  * Font sizes 13.5px (7 parents) / 13px (11 children) — deliberate hierarchy.
+
+AUDIT 5 — FORM ELEMENTS: CLEAN — FOURTH CONSECUTIVE RUN
+  * ZERO native <select> and ZERO native <input type=date|datetime-local|time>
+    on all 17 routes AND inside all 5 modals/slide-overs opened.
+    The DatePicker.jsx / CustomSelect.jsx rules are fully respected.
+  * .form-input is uniform where used: 36px | 0 16px | 12px radius |
+    oklch(0.22 0.02 260/0.45) | 1px oklch(0.5 0.02 260/0.15).
+    The one 32px instance (/materials) is the documented deliberate fit into
+    the 41px category tab bar.
+
+AUDIT 6 — SPACING: no new findings; root cause unchanged
+  * Root font-size is 14px on every route, so Tailwind rem utilities keep
+    landing on fractional pixels. .glass padding measures 17.5px and 8.75px 21px
+    (Dashboard), 14px and 10.5px 14px (Pipeline) vs clean 24px (Estimates,
+    Invoices, Contracts, Expenses, Settings), 20px (Reports), 16px
+    (Storm Catalog, Materials, Work Orders), 12px 24px (Leads).
+    TWO SPACING SYSTEMS STILL COEXIST. Documented, not re-filed.
+
+AUDIT 7 — MODALS: last run's fix is holding
+  * All 5 overlays opened (/tasks, /expenses, /work-orders, /leads,
+    /subcontractors) compute animation-name: modal-scale-in. The f788c22 fix
+    (which DEFINED the previously-undefined .modal-scale-in selector) is live
+    and every overlay animates in.
+  * Panel radius consistent: 20px (modals) / 20px 18px (slide-overs).
+  * Re-confirmed known, not re-filed: 3 modal title treatments with a
+    heading-level skip (ExpensesView h3@16 vs WorkOrders h2@18 vs
+    ImportLeads h2@20); backdrop variance (blur(8px)/z9999 vs none/z1000);
+    close-button placement in 2 patterns (absolute 32x32 in slide-overs vs
+    static ~20x23 in modal headers).
+
+BONUS SWEEP — ACCESSIBLE BUTTON NAMES: CLEAN
+  * s2 fixed ONE unnamed control this run (05aa857, work-order milestone
+    toggles), so this stage swept the whole app for siblings of that bug:
+    every visible <button> / [role=button] inside .main-content on all 17
+    routes, accepting text / aria-label / title / aria-labelledby / img[alt] /
+    .sr-only / <svg><title>.
+  * RESULT: 0 unnamed buttons on 0 routes. The family is closed.
+    (/subcontractors' ~50 textless row-action buttons all carry title=, as
+    previously documented.)
+
+================================================================================
+REUSABLE LESSON FOR THE NEXT STAGE
+================================================================================
+Run 75-s3 found its bug by diffing classNames USED in JSX against selectors
+DEFINED in CSS. This run got 3 more by asking the same question about THREE MORE
+KINDS OF NAME, all in one script:
+
+    var(--x) referenced        vs   --x: defined          -> 2 hits (DEFECT 1)
+    animation: <name> used     vs   @keyframes <name>     -> triaged, see below
+    className used in JSX      vs   .selector in CSS      -> 1 hit  (DEFECT 2)
+    icon import specifiers     vs   the allowed package   -> 0 real hits
+
+A name that is declared but never defined renders IDENTICALLY to a working one
+whenever something else supplies the styling — and renders as NOTHING when
+nothing does. Neither case produces an error, a warning, or a console message.
+Screenshots pass. Computed-style sweeps pass. Only the set difference finds it.
+
+*** AND THE MATCHING DISCIPLINE: EVERY CANDIDATE MUST BE MEASURED BEFORE FILING.
+The static script produced 3 undefined vars, 5 undefined keyframes and 9
+undefined classes = 17 candidates. Only 3 were real. The killers were:
+  - `animation: spin 0.6s` (index.css:3014, the AddressSearch spinner) has NO
+    @keyframes spin in index.css — but a runtime CSSOM dump shows `spin` IS
+    defined by third-party CSS. The spinner spins. NOT A BUG. A source-only
+    grep would have filed this.
+  - `page-fade-in` (.tab-content) and `--tc` (.lg-storm-row__badge) ARE
+    genuinely undefined — but both selectors have ZERO usages in any .jsx.
+    Dead CSS, nothing renders. Not user-visible, out of charter.
+  - `skeleton-shimmer`, `mobileEstPulse`, `mobilePulse` keyframes are defined
+    inside component-local <style> blocks, so a search of index.css alone
+    calls them undefined. Only mobileEstPulse/mobilePulse are co-located with
+    their user; skeleton-shimmer is NOT, which is exactly DEFECT 2.
+  - `group`, `-mx-1` are Tailwind; `o`, `activeIdx`, `timeRange` are template-
+    literal parse artifacts; `lead-list-toolbar`, `mini-storm-map`,
+    `public-estimate-company` are unstyled BEM/hook wrappers (benign).
+So: STATIC SET-DIFFERENCE TO GENERATE CANDIDATES, RUNTIME MEASUREMENT TO
+CONFIRM. Neither half alone is sound — the static half over-reports by ~5x,
+and the runtime half cannot see the defect at all.
+
+The harness is checked in at server/.qa-r76s3-setdiff.mjs and writes
+C:/tmp/r76s3-setdiff.json. Re-run it every UI audit; extend it with a new kind
+of NAME each run rather than re-inspecting the same rendered output.
+
+WHAT THIS SWEEP IS STRUCTURALLY UNABLE TO FIND
+  - Names built at runtime by string concatenation (`btn-${variant}`), which
+    neither half of the check can resolve.
+  - Anything on the 4 routes not swept: /storm-map and /canvassing (Google/
+    Mapbox, off-limits FEMA/map code), /leads/:id detail, and the 6 public
+    token routes (/estimate/:token etc, which need a live token).
+  - Styling that is wrong but VALID — every check here asks "does this name
+    resolve", never "is the resolved value the right one".
+================================================================================
