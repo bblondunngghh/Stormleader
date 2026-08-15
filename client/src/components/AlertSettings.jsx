@@ -110,7 +110,7 @@ export default function AlertSettings() {
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            border: '1px solid var(--border-subtle)',
+            border: '1px solid var(--glass-border)',
           }}
         >
           <PaperAirplaneIcon width={18} height={18} /> {testing ? 'Sending...' : 'Send Test Alert'}
@@ -163,7 +163,7 @@ export default function AlertSettings() {
               {(config?.email_recipients || []).map((email) => (
                 <div key={email} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '8px 12px', background: 'var(--bg-elevated)', borderRadius: '14px / 12px', fontSize: '13px'
+                  padding: '8px 12px', background: 'var(--glass-bg)', borderRadius: '14px / 12px', fontSize: '13px'
                 }}>
                   <span>{email}</span>
                   <button onClick={() => removeEmail(email)} style={{ color: 'var(--text-muted)', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
@@ -249,7 +249,7 @@ export default function AlertSettings() {
               {history.map((alert) => (
                 <div key={alert.id} style={{
                   padding: '10px 12px',
-                  background: 'var(--bg-elevated)',
+                  background: 'var(--glass-bg)',
                   borderRadius: '14px / 12px',
                   fontSize: '13px',
                   borderLeft: `3px solid ${alert.status === 'sent' ? 'oklch(0.75 0.18 155)' : 'oklch(0.65 0.20 25)'}`,
@@ -298,13 +298,13 @@ function StepperInput({ value, step, min, max, onChange }) {
   };
   const btnBase = {
     width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)',
+    background: 'oklch(0.22 0.02 260 / 0.45)', border: '1px solid var(--glass-border)',
     cursor: 'pointer', fontSize: '15px', fontWeight: 600, flexShrink: 0,
   };
   return (
     <div style={{
       display: 'flex', alignItems: 'center', borderRadius: '14px / 12px', overflow: 'hidden',
-      border: '1px solid var(--border-subtle)',
+      border: '1px solid var(--glass-border)',
     }}>
       <button type="button" onClick={decrement} aria-label="Decrease" style={{ ...btnBase, borderRight: 'none', borderRadius: '8px 0 0 8px', color: 'oklch(0.65 0.20 25)' }}>
         <MinusIcon width={14} height={14} />
@@ -315,8 +315,8 @@ function StepperInput({ value, step, min, max, onChange }) {
         onChange={(e) => onChange(e.target.value)}
         style={{
           width: '52px', padding: '4px 0', fontSize: '13px', fontWeight: 600,
-          textAlign: 'center', background: 'var(--bg-elevated)', border: 'none',
-          borderTop: '1px solid var(--border-subtle)', borderBottom: '1px solid var(--border-subtle)',
+          textAlign: 'center', background: 'oklch(0.22 0.02 260 / 0.45)', border: 'none',
+          borderTop: '1px solid var(--glass-border)', borderBottom: '1px solid var(--glass-border)',
           color: 'var(--text-primary)', outline: 'none',
         }}
       />
