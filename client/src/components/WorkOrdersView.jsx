@@ -442,6 +442,7 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
                   }}>
                     <button
                       onClick={() => toggleMilestone(m)}
+                      aria-label={m.completed ? `Mark ${m.name} incomplete` : `Mark ${m.name} complete`}
                       style={{
                         width: 20, height: 20, borderRadius: 6, border: 'none', cursor: 'pointer',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
