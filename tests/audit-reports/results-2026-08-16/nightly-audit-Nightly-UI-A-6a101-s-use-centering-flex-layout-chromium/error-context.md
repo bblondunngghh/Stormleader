@@ -1,0 +1,433 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - img "StormPipe" [ref=e6] [cursor=pointer]
+    - navigation [ref=e7]:
+      - button "Dashboard" [ref=e8] [cursor=pointer]:
+        - img [ref=e9]
+        - text: Dashboard
+      - button "Storm Map" [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+        - text: Storm Map
+      - button "Storm Archive" [ref=e14] [cursor=pointer]:
+        - img [ref=e15]
+        - text: Storm Archive
+      - button "Pipeline" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - text: Pipeline
+      - button "Leads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+        - text: Leads
+      - generic [ref=e23]:
+        - button "Jobs" [ref=e24] [cursor=pointer]:
+          - text: Jobs
+          - img [ref=e25]
+        - generic [ref=e27]:
+          - button "Estimates" [ref=e28] [cursor=pointer]:
+            - img [ref=e29]
+            - text: Estimates
+          - button "Contracts" [ref=e31] [cursor=pointer]:
+            - img [ref=e32]
+            - text: Contracts
+          - button "Work Orders" [ref=e34] [cursor=pointer]:
+            - img [ref=e35]
+            - text: Work Orders
+          - button "Materials" [ref=e37] [cursor=pointer]:
+            - img [ref=e38]
+            - text: Materials
+      - generic [ref=e41]:
+        - button "Finance" [ref=e42] [cursor=pointer]:
+          - text: Finance
+          - img [ref=e43]
+        - generic [ref=e45]:
+          - button "Invoices" [ref=e46] [cursor=pointer]:
+            - img [ref=e47]
+            - text: Invoices
+          - button "Expenses" [ref=e49] [cursor=pointer]:
+            - img [ref=e50]
+            - text: Expenses
+      - generic [ref=e52]:
+        - button "Operations" [ref=e53] [cursor=pointer]:
+          - text: Operations
+          - img [ref=e54]
+        - generic [ref=e56]:
+          - button "Tasks" [ref=e57] [cursor=pointer]:
+            - img [ref=e58]
+            - text: Tasks
+          - button "Calendar" [ref=e60] [cursor=pointer]:
+            - img [ref=e61]
+            - text: Calendar
+          - button "Canvassing" [ref=e63] [cursor=pointer]:
+            - img [ref=e64]
+            - text: Canvassing
+          - button "Subcontractors" [ref=e67] [cursor=pointer]:
+            - img [ref=e68]
+            - text: Subcontractors
+          - button "Reports" [ref=e70] [cursor=pointer]:
+            - img [ref=e71]
+            - text: Reports
+    - button "Settings" [ref=e73] [cursor=pointer]:
+      - img [ref=e74]
+      - text: Settings
+    - button "Admin" [ref=e76] [cursor=pointer]:
+      - img [ref=e77]
+      - text: Admin
+    - generic [ref=e79]:
+      - generic [ref=e80]: BA
+      - generic [ref=e81]:
+        - generic [ref=e82]: Brandon A.
+        - generic [ref=e83]: Super Admin
+      - button "Sign out" [ref=e84] [cursor=pointer]:
+        - img [ref=e85]
+  - generic [ref=e87]:
+    - banner [ref=e88]:
+      - heading "Invoices" [level=1] [ref=e89]
+      - generic [ref=e90]:
+        - img
+        - textbox "Search leads, contacts... (Ctrl+K)" [ref=e91]
+      - generic [ref=e92]:
+        - button "Help" [ref=e94] [cursor=pointer]:
+          - img [ref=e95]
+        - button "Notifications" [ref=e98] [cursor=pointer]:
+          - img [ref=e99]
+        - button "enterprise" [ref=e101] [cursor=pointer]:
+          - img [ref=e102]
+          - generic [ref=e104]: enterprise
+    - generic [ref=e105]:
+      - generic [ref=e106]:
+        - generic [ref=e107]:
+          - img [ref=e108]
+          - generic [ref=e110]: $63.7k
+          - generic [ref=e111]: Total Invoiced
+        - generic [ref=e112]:
+          - img [ref=e113]
+          - generic [ref=e115]: $30.3k
+          - generic [ref=e116]: Collected
+        - generic [ref=e117]:
+          - img [ref=e118]
+          - generic [ref=e120]: $3.3k
+          - generic [ref=e121]: Outstanding
+        - generic [ref=e122]:
+          - img [ref=e123]
+          - generic [ref=e125]: "1"
+          - generic [ref=e126]: Overdue
+      - generic [ref=e127]:
+        - generic [ref=e128]: Accounts Receivable Aging
+        - generic [ref=e129]:
+          - generic [ref=e130]:
+            - generic [ref=e131]: $4.4k
+            - generic [ref=e132]: Current
+          - generic [ref=e133]:
+            - generic [ref=e134]: $0
+            - generic [ref=e135]: 1-30 days
+          - generic [ref=e136]:
+            - generic [ref=e137]: $0
+            - generic [ref=e138]: 31-60 days
+          - generic [ref=e139]:
+            - generic [ref=e140]: $0
+            - generic [ref=e141]: 61-90 days
+          - generic [ref=e142]:
+            - generic [ref=e143]: $0
+            - generic [ref=e144]: 91+ days
+      - generic [ref=e145]:
+        - generic [ref=e146]:
+          - button "All" [ref=e147] [cursor=pointer]
+          - button "Draft" [ref=e148] [cursor=pointer]
+          - button "Sent" [ref=e149] [cursor=pointer]
+          - button "Paid" [ref=e150] [cursor=pointer]
+          - button "Overdue" [ref=e151] [cursor=pointer]
+        - generic [ref=e152]: 22 invoices
+        - button "From Estimate" [ref=e153] [cursor=pointer]:
+          - img [ref=e154]
+          - text: From Estimate
+        - button "New Invoice" [ref=e156] [cursor=pointer]:
+          - img [ref=e157]
+          - text: New Invoice
+      - table [ref=e161]:
+        - rowgroup [ref=e162]:
+          - 'row "Invoice # Contact Status Total Paid Balance Due Date Created Actions" [ref=e163]':
+            - 'columnheader "Invoice #" [ref=e164]'
+            - columnheader "Contact" [ref=e165]
+            - columnheader "Status" [ref=e166]
+            - columnheader "Total" [ref=e167]
+            - columnheader "Paid" [ref=e168]
+            - columnheader "Balance" [ref=e169]
+            - columnheader "Due Date" [ref=e170]
+            - columnheader "Created" [ref=e171]
+            - columnheader "Actions" [ref=e172]
+        - rowgroup [ref=e173]:
+          - row "INV-0023 — 123 Test St Draft $5,400.00 $0.00 $5,400.00 — Aug 15 Edit" [ref=e174] [cursor=pointer]:
+            - cell "INV-0023" [ref=e175]
+            - cell "— 123 Test St" [ref=e176]:
+              - generic [ref=e177]: —
+              - generic [ref=e178]: 123 Test St
+            - cell "Draft" [ref=e179]
+            - cell "$5,400.00" [ref=e180]
+            - cell "$0.00" [ref=e181]
+            - cell "$5,400.00" [ref=e182]
+            - cell "—" [ref=e183]
+            - cell "Aug 15" [ref=e184]
+            - cell "Edit" [ref=e185]:
+              - button "Edit" [ref=e187]
+          - row "INV-0022 — 123 Test St Draft $4,500.00 $0.00 $4,500.00 — Aug 14 Edit" [ref=e188] [cursor=pointer]:
+            - cell "INV-0022" [ref=e189]
+            - cell "— 123 Test St" [ref=e190]:
+              - generic [ref=e191]: —
+              - generic [ref=e192]: 123 Test St
+            - cell "Draft" [ref=e193]
+            - cell "$4,500.00" [ref=e194]
+            - cell "$0.00" [ref=e195]
+            - cell "$4,500.00" [ref=e196]
+            - cell "—" [ref=e197]
+            - cell "Aug 14" [ref=e198]
+            - cell "Edit" [ref=e199]:
+              - button "Edit" [ref=e201]
+          - row "INV-0021 — 123 Test St Draft $4,500.00 $0.00 $4,500.00 — Aug 14 Edit" [ref=e202] [cursor=pointer]:
+            - cell "INV-0021" [ref=e203]
+            - cell "— 123 Test St" [ref=e204]:
+              - generic [ref=e205]: —
+              - generic [ref=e206]: 123 Test St
+            - cell "Draft" [ref=e207]
+            - cell "$4,500.00" [ref=e208]
+            - cell "$0.00" [ref=e209]
+            - cell "$4,500.00" [ref=e210]
+            - cell "—" [ref=e211]
+            - cell "Aug 14" [ref=e212]
+            - cell "Edit" [ref=e213]:
+              - button "Edit" [ref=e215]
+          - row "INV-0020 — 123 Test St Draft $4,500.00 $0.00 $4,500.00 — Aug 14 Edit" [ref=e216] [cursor=pointer]:
+            - cell "INV-0020" [ref=e217]
+            - cell "— 123 Test St" [ref=e218]:
+              - generic [ref=e219]: —
+              - generic [ref=e220]: 123 Test St
+            - cell "Draft" [ref=e221]
+            - cell "$4,500.00" [ref=e222]
+            - cell "$0.00" [ref=e223]
+            - cell "$4,500.00" [ref=e224]
+            - cell "—" [ref=e225]
+            - cell "Aug 14" [ref=e226]
+            - cell "Edit" [ref=e227]:
+              - button "Edit" [ref=e229]
+          - row "INV-0019 — Draft $0.00 $0.00 $0.00 — Jul 31 Edit" [ref=e230] [cursor=pointer]:
+            - cell "INV-0019" [ref=e231]
+            - cell "—" [ref=e232]:
+              - generic [ref=e233]: —
+            - cell "Draft" [ref=e234]
+            - cell "$0.00" [ref=e235]
+            - cell "$0.00" [ref=e236]
+            - cell "$0.00" [ref=e237]
+            - cell "—" [ref=e238]
+            - cell "Jul 31" [ref=e239]
+            - cell "Edit" [ref=e240]:
+              - button "Edit" [ref=e242]
+          - row "INV-0017 — Draft $0.00 $0.00 $0.00 — Jul 30 Edit" [ref=e243] [cursor=pointer]:
+            - cell "INV-0017" [ref=e244]
+            - cell "—" [ref=e245]:
+              - generic [ref=e246]: —
+            - cell "Draft" [ref=e247]
+            - cell "$0.00" [ref=e248]
+            - cell "$0.00" [ref=e249]
+            - cell "$0.00" [ref=e250]
+            - cell "—" [ref=e251]
+            - cell "Jul 30" [ref=e252]
+            - cell "Edit" [ref=e253]:
+              - button "Edit" [ref=e255]
+          - row "INV-0016 QA Probe Run 10 1777197905 123 QA Street, Test City, TX 75001 Sent $0.00 $0.00 $0.00 — Apr 28 Edit" [ref=e256] [cursor=pointer]:
+            - cell "INV-0016" [ref=e257]
+            - cell "QA Probe Run 10 1777197905 123 QA Street, Test City, TX 75001" [ref=e258]:
+              - generic [ref=e259]: QA Probe Run 10 1777197905
+              - generic [ref=e260]: 123 QA Street, Test City, TX 75001
+            - cell "Sent" [ref=e261]
+            - cell "$0.00" [ref=e262]
+            - cell "$0.00" [ref=e263]
+            - cell "$0.00" [ref=e264]
+            - cell "—" [ref=e265]
+            - cell "Apr 28" [ref=e266]
+            - cell "Edit" [ref=e267]:
+              - button "Edit" [ref=e269]
+          - row "INV-0015 QA Probe Run 10 1777197944 123 QA Street, Test City, TX 75001 Draft $0.00 $0.00 $0.00 May 30 Apr 26 Edit" [ref=e270] [cursor=pointer]:
+            - cell "INV-0015" [ref=e271]
+            - cell "QA Probe Run 10 1777197944 123 QA Street, Test City, TX 75001" [ref=e272]:
+              - generic [ref=e273]: QA Probe Run 10 1777197944
+              - generic [ref=e274]: 123 QA Street, Test City, TX 75001
+            - cell "Draft" [ref=e275]
+            - cell "$0.00" [ref=e276]
+            - cell "$0.00" [ref=e277]
+            - cell "$0.00" [ref=e278]
+            - cell "May 30" [ref=e279]
+            - cell "Apr 26" [ref=e280]
+            - cell "Edit" [ref=e281]:
+              - button "Edit" [ref=e283]
+          - row "INV-0014 Test QALead Draft $5,000.00 $0.00 $5,000.00 — Apr 17 Edit" [ref=e284] [cursor=pointer]:
+            - cell "INV-0014" [ref=e285]
+            - cell "Test QALead" [ref=e286]:
+              - generic [ref=e287]: Test QALead
+            - cell "Draft" [ref=e288]
+            - cell "$5,000.00" [ref=e289]
+            - cell "$0.00" [ref=e290]
+            - cell "$5,000.00" [ref=e291]
+            - cell "—" [ref=e292]
+            - cell "Apr 17" [ref=e293]
+            - cell "Edit" [ref=e294]:
+              - button "Edit" [ref=e296]
+          - row "INV-0013 Test QALead SentOVERDUE $0.00 $1,000.00 -$1,000.00 May 1 Apr 17 Edit" [ref=e297] [cursor=pointer]:
+            - cell "INV-0013" [ref=e298]
+            - cell "Test QALead" [ref=e299]:
+              - generic [ref=e300]: Test QALead
+            - cell "SentOVERDUE" [ref=e301]
+            - cell "$0.00" [ref=e302]
+            - cell "$1,000.00" [ref=e303]
+            - cell "-$1,000.00" [ref=e304]
+            - cell "May 1" [ref=e305]
+            - cell "Apr 17" [ref=e306]
+            - cell "Edit" [ref=e307]:
+              - button "Edit" [ref=e309]
+          - row "INV-0012 — 123 Test St Draft $4,500.00 $0.00 $4,500.00 — Apr 16 Edit" [ref=e310] [cursor=pointer]:
+            - cell "INV-0012" [ref=e311]
+            - cell "— 123 Test St" [ref=e312]:
+              - generic [ref=e313]: —
+              - generic [ref=e314]: 123 Test St
+            - cell "Draft" [ref=e315]
+            - cell "$4,500.00" [ref=e316]
+            - cell "$0.00" [ref=e317]
+            - cell "$4,500.00" [ref=e318]
+            - cell "—" [ref=e319]
+            - cell "Apr 16" [ref=e320]
+            - cell "Edit" [ref=e321]:
+              - button "Edit" [ref=e323]
+          - row "INV-0011 — 123 Test St Sent $0.00 $0.00 $0.00 — Apr 16 Edit" [ref=e324] [cursor=pointer]:
+            - cell "INV-0011" [ref=e325]
+            - cell "— 123 Test St" [ref=e326]:
+              - generic [ref=e327]: —
+              - generic [ref=e328]: 123 Test St
+            - cell "Sent" [ref=e329]
+            - cell "$0.00" [ref=e330]
+            - cell "$0.00" [ref=e331]
+            - cell "$0.00" [ref=e332]
+            - cell "—" [ref=e333]
+            - cell "Apr 16" [ref=e334]
+            - cell "Edit" [ref=e335]:
+              - button "Edit" [ref=e337]
+          - row "INV-0010 — Draft $0.00 $0.00 $0.00 — Apr 11 Edit" [ref=e338] [cursor=pointer]:
+            - cell "INV-0010" [ref=e339]
+            - cell "—" [ref=e340]:
+              - generic [ref=e341]: —
+            - cell "Draft" [ref=e342]
+            - cell "$0.00" [ref=e343]
+            - cell "$0.00" [ref=e344]
+            - cell "$0.00" [ref=e345]
+            - cell "—" [ref=e346]
+            - cell "Apr 11" [ref=e347]
+            - cell "Edit" [ref=e348]:
+              - button "Edit" [ref=e350]
+          - row "INV-0009 — Draft $0.00 $0.00 $0.00 — Apr 10 Edit" [ref=e351] [cursor=pointer]:
+            - cell "INV-0009" [ref=e352]
+            - cell "—" [ref=e353]:
+              - generic [ref=e354]: —
+            - cell "Draft" [ref=e355]
+            - cell "$0.00" [ref=e356]
+            - cell "$0.00" [ref=e357]
+            - cell "$0.00" [ref=e358]
+            - cell "—" [ref=e359]
+            - cell "Apr 10" [ref=e360]
+            - cell "Edit" [ref=e361]:
+              - button "Edit" [ref=e363]
+          - row "INV-0008 — Sent $0.00 $100.00 -$100.00 — Apr 10 Edit" [ref=e364] [cursor=pointer]:
+            - cell "INV-0008" [ref=e365]
+            - cell "—" [ref=e366]:
+              - generic [ref=e367]: —
+            - cell "Sent" [ref=e368]
+            - cell "$0.00" [ref=e369]
+            - cell "$100.00" [ref=e370]
+            - cell "-$100.00" [ref=e371]
+            - cell "—" [ref=e372]
+            - cell "Apr 10" [ref=e373]
+            - cell "Edit" [ref=e374]:
+              - button "Edit" [ref=e376]
+          - row "INV-0007 — Sent $5,000.00 $603.00 $4,397.00 — Apr 9 Edit" [ref=e377] [cursor=pointer]:
+            - cell "INV-0007" [ref=e378]
+            - cell "—" [ref=e379]:
+              - generic [ref=e380]: —
+            - cell "Sent" [ref=e381]
+            - cell "$5,000.00" [ref=e382]
+            - cell "$603.00" [ref=e383]
+            - cell "$4,397.00" [ref=e384]
+            - cell "—" [ref=e385]
+            - cell "Apr 9" [ref=e386]
+            - cell "Edit" [ref=e387]:
+              - button "Edit" [ref=e389]
+          - row "INV-0006 — Sent $0.00 $0.00 $0.00 — Apr 9 Edit" [ref=e390] [cursor=pointer]:
+            - cell "INV-0006" [ref=e391]
+            - cell "—" [ref=e392]:
+              - generic [ref=e393]: —
+            - cell "Sent" [ref=e394]
+            - cell "$0.00" [ref=e395]
+            - cell "$0.00" [ref=e396]
+            - cell "$0.00" [ref=e397]
+            - cell "—" [ref=e398]
+            - cell "Apr 9" [ref=e399]
+            - cell "Edit" [ref=e400]:
+              - button "Edit" [ref=e402]
+          - row "INV-0005 — Draft $0.00 $0.00 $0.00 May 1 Apr 9 Edit" [ref=e403] [cursor=pointer]:
+            - cell "INV-0005" [ref=e404]
+            - cell "—" [ref=e405]:
+              - generic [ref=e406]: —
+            - cell "Draft" [ref=e407]
+            - cell "$0.00" [ref=e408]
+            - cell "$0.00" [ref=e409]
+            - cell "$0.00" [ref=e410]
+            - cell "May 1" [ref=e411]
+            - cell "Apr 9" [ref=e412]
+            - cell "Edit" [ref=e413]:
+              - button "Edit" [ref=e415]
+          - row "INV-0004 — Void $0.00 $0.00 $0.00 — Mar 26 Edit" [ref=e416] [cursor=pointer]:
+            - cell "INV-0004" [ref=e417]
+            - cell "—" [ref=e418]:
+              - generic [ref=e419]: —
+            - cell "Void" [ref=e420]
+            - cell "$0.00" [ref=e421]
+            - cell "$0.00" [ref=e422]
+            - cell "$0.00" [ref=e423]
+            - cell "—" [ref=e424]
+            - cell "Mar 26" [ref=e425]
+            - cell "Edit" [ref=e426]:
+              - button "Edit" [ref=e428]
+          - row "INV-0003 — Void $0.00 $0.00 $0.00 — Mar 24 Edit" [ref=e429] [cursor=pointer]:
+            - cell "INV-0003" [ref=e430]
+            - cell "—" [ref=e431]:
+              - generic [ref=e432]: —
+            - cell "Void" [ref=e433]
+            - cell "$0.00" [ref=e434]
+            - cell "$0.00" [ref=e435]
+            - cell "$0.00" [ref=e436]
+            - cell "—" [ref=e437]
+            - cell "Mar 24" [ref=e438]
+            - cell "Edit" [ref=e439]:
+              - button "Edit" [ref=e441]
+          - row "INV-0002 — Void $0.00 $0.00 $0.00 — Mar 24 Edit" [ref=e442] [cursor=pointer]:
+            - cell "INV-0002" [ref=e443]
+            - cell "—" [ref=e444]:
+              - generic [ref=e445]: —
+            - cell "Void" [ref=e446]
+            - cell "$0.00" [ref=e447]
+            - cell "$0.00" [ref=e448]
+            - cell "$0.00" [ref=e449]
+            - cell "—" [ref=e450]
+            - cell "Mar 24" [ref=e451]
+            - cell "Edit" [ref=e452]:
+              - button "Edit" [ref=e454]
+          - row "INV-0001 — Paid $30,310.00 $30,310.00 $0.00 Mar 24 Mar 24 Edit" [ref=e455] [cursor=pointer]:
+            - cell "INV-0001" [ref=e456]
+            - cell "—" [ref=e457]:
+              - generic [ref=e458]: —
+            - cell "Paid" [ref=e459]
+            - cell "$30,310.00" [ref=e460]
+            - cell "$30,310.00" [ref=e461]
+            - cell "$0.00" [ref=e462]
+            - cell "Mar 24" [ref=e463]
+            - cell "Mar 24" [ref=e464]
+            - cell "Edit" [ref=e465]:
+              - button "Edit" [ref=e467]
+```
