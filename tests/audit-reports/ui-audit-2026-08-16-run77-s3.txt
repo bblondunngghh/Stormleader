@@ -1,0 +1,233 @@
+================================================================================
+UI CONSISTENCY AUDIT — 2026-08-16  (Run 77, stage s3-ui-audit)
+Baseline: 4384bf8 (s2 fix commit)   Tree at start: clean apart from untracked QA files
+RESULT: 7 of 7 audits executed under real measurement. 0 NEW DEFECTS. 0 code commits.
+        8 candidates raised, 8 killed by verification (8x over-report — see DISCIPLINE).
+        NET ZERO DB WRITES (1 login + read-only GETs; no create/update/delete).
+================================================================================
+
+| Page              | Issue Type        | Element                     | Expected                  | Actual                    | Fixed? |
+|-------------------|-------------------|-----------------------------|---------------------------|---------------------------|--------|
+| ALL 19 routes     | Icon consistency  | every <svg>                 | heroicons 24/outline sig  | 0 non-conforming          | N/A ok |
+| ALL 19 routes     | Icon imports      | 43 import sites             | @heroicons/react/24/out   | 43/43 outline, 0 others   | N/A ok |
+| ALL 19 routes     | Form elements     | <select> / date inputs      | 0 native (CustomSelect)   | 0 native, 0 native date   | N/A ok |
+| ALL 19 routes     | Sidebar           | .nav-link x18               | uniform                   | 42px/12px/18px, 1 active  | N/A ok |
+| ALL 19 routes     | Header/title      | TopBar <h1>                 | correct per-route title   | 19/19 correct             | N/A ok |
+| 4 modals          | Modal consistency | panel + backdrop            | modal-scale-in, r20px     | 4/4 animate, 4/4 r20px    | N/A ok |
+| /storm-catalog    | Button outlier    | .auth-btn                   | 0/24px 13px (7 pages)     | 6/14px 12px — BY DESIGN   | No*    |
+| /alerts           | Form element      | stepper <input> 26px/r0     | .form-input 36px/r12      | segmented stepper — OK    | No*    |
+| /contract/:token  | Public page       | 3 tokens rendered           | renders, no errors        | 3/3 clean, 0 errors       | N/A ok |
+* = investigated and cleared as deliberate/correct; see NON-BUGS below.
+
+================================================================================
+AUDIT 1 — ICON CONSISTENCY .......... CLEAN (4th consecutive run)
+================================================================================
+Code side:  43 of 43 heroicons import sites are '@heroicons/react/24/outline'.
+            0 imports from 24/solid, lucide-react, react-icons, @fortawesome, @mui.
+Browser:    all 19 routes, every <svg> checked against the outline signature
+            (viewBox "0 0 24 24" + fill="none" + stroke-width 1.5), excluding
+            recharts/mapbox/google-maps subtrees.
+            svgBadCount = 0 on ALL 19 routes.  Foreign icon classes (fa-*,
+            material-icons) = 0 on ALL 19 routes.
+            SVG volume ranged 31 (/settings) to 1031 (/storm-catalog).
+Inline SVG: exactly 2, both previously documented non-bugs —
+            CanvassingMode.jsx:336 (map-pin legend swatch),
+            StormMap.jsx:1764 (star glyphs inside a Google InfoWindow HTML string).
+
+================================================================================
+AUDIT 2 — BUTTON CONSISTENCY ........ CLEAN / documented drift only
+================================================================================
+Every <button> on all 19 routes grouped by (height | padding | font-size |
+border-radius | font-weight), keyed by class signature.
+
+PRIMARY (.auth-btn): IDENTICAL 36px | 0px/24px | 13px | 14px | 700 on
+  /pipeline /alerts /tasks /work-orders /contracts /expenses /subcontractors.
+  Sole outlier /storm-catalog — investigated, NOT a defect (see NON-BUGS).
+NAV (.nav-link): 42px | 12px/16px | 13.5px | 12px on all 19 routes; the only
+  delta is font-weight 500 -> 600 for .is-active, which is the intended treatment.
+  .nav-link--child uniformly 42px | 12px/28px | 13px.
+TOOLBAR (.topbar__btn): 38px | 12px radius on all 19 routes.
+.quick-action-btn: still 8 distinct heights (21/25/27/29/31/32/36/38) — this is
+  the ALREADY-DOCUMENTED known issue, unchanged, per-page inline style objects.
+  Not re-filed; it is a developer refactor call, not a QA fix.
+
+================================================================================
+AUDIT 3 — TOOLBAR / HEADER BAR ...... CLEAN (improved since Run 75)
+================================================================================
+Global TopBar: height 56px, class "topbar glass" — IDENTICAL on all 19 routes.
+<h1> COUNT IS NOW 1 ON EVERY ROUTE. Run 75 filed a developer ticket saying
+  "there is no <h1> anywhere in the app" — that is now RESOLVED. The h1 is
+  TopBar.jsx:45, driven by viewTitles[activeView].
+VERIFIED THE TITLE MAP END-TO-END (this was the run's main bug hypothesis):
+  App.jsx:45-69 viewRoutes -> routeToView (derived), App.jsx:75-79 activeView,
+  TopBar.jsx:19-39 viewTitles.  All three key sets match exactly (19/19), and
+  h1 text was read at runtime on 8 routes: Dashboard, Pipeline, Leads,
+  Storm Archive, Work Orders, Admin, Settings, Alerts — ALL CORRECT.
+  The `|| 'Dashboard'` and `|| '/'` fallbacks are unreachable for real routes.
+Below the TopBar the per-page header treatment still varies (HEADER/DIV/H2/
+  stats-grid as first child). This is the documented "5 heading treatments /
+  no shared page-header component" item — unchanged, developer call.
+
+================================================================================
+AUDIT 4 — SIDEBAR & NAVIGATION ...... CLEAN
+================================================================================
+18 .nav-link on all 19 routes. heights [42], border-radius [12px], icon size
+[18], gap pattern [0,30,-244.5,8] — IDENTICAL on every route.
+Exactly 1 .is-active on 18 of 19 routes; /alerts has 0 — the documented orphan
+route (no sidebar entry, duplicated in Settings -> Storm Alerts). Not re-filed.
+SET DIFFERENCE — nav item ids vs viewRoutes keys: Sidebar.jsx (16 items +
+settings + admin) and BottomTabBar.jsx (5 tabs) — EVERY id resolves in
+viewRoutes. No nav item can silently fall through handleNavigate's `|| '/'`.
+
+================================================================================
+AUDIT 5 — FORM ELEMENT CONSISTENCY .. CLEAN (6th consecutive run)
+================================================================================
+ZERO native <select> and ZERO native <input type=date|datetime-local|time>
+on all 19 routes. CustomSelect / DatePicker rules fully respected.
+.form-input measures 36px | 12px radius | 13px on /leads /storm-catalog /alerts
+/subcontractors. The two known deliberate height overrides (Dashboard monthly-
+goal editor, MaterialsView 32px search-in-tab-bar) are unchanged.
+Label drift (12px/500/none on /storm-map vs canonical 12px/600/uppercase/0.96px
+on /subcontractors) is the documented "form labels have 7 treatments" item.
+
+================================================================================
+AUDIT 6 — SPACING & ALIGNMENT ....... unchanged, documented root cause
+================================================================================
+.glass padding by route: 16/16 on 6 routes, 24/24 on 4, 20/20 on /reports,
+17.5/17.5 on /, 14/14 on /pipeline.
+The fractional values (17.5 = 1.25rem, 10.5, 8.75) are the SAME two-spacing-
+systems root cause identified in Run 74 (Tailwind rem on a 14px root for
+Dashboard/Pipeline vs px vars elsewhere). Unchanged; not re-filed.
+document.scrollWidth == clientWidth on all 19 routes (no horizontal overflow).
+
+================================================================================
+AUDIT 7 — MODAL CONSISTENCY ......... CLEAN (Run 75 fix holding)
+================================================================================
+Opened 4 modals (input-pipeline health check passed first: hover count 7).
+  /tasks           slide-over-backdrop  blur(4px)  slide-over glass  420px
+  /expenses        modal-backdrop       blur(8px)  glass             480px
+  /work-orders     modal-backdrop       none       glass no-scrollbar 520px
+  /subcontractors  slide-over-backdrop  blur(4px)  slide-over glass  480px
+ALL 4 compute animation-name: modal-scale-in  -> RUN 75'S FIX IS HOLDING.
+ALL 4 border-radius 20px. Widths 420/480/480/520 are appropriate to content.
+Heading H3/16px (/expenses) vs H2/18px (/work-orders) = the documented heading-
+level skip. Backdrop blur variance = the documented per-context non-bug.
+/contracts "New Contract" is an in-place view swap, not a modal (same as the
+documented New Estimate / New Invoice behaviour).
+
+================================================================================
+NEW COVERAGE — PUBLIC CUSTOMER-FACING PAGES (never rendered in any prior run)
+================================================================================
+Rendered /contract/:token for all 3 contracts that have a share token.
+All 3 render cleanly: 0 page errors, 0 console errors, 0 failed requests,
+0 undefined/NaN/[object Object]/Invalid Date, white paper card (#fff), 0 native
+selects/date inputs. All 3 are status=void so they show the "This contract has
+been voided." stub — THE SIGNED/ACTIVE LAYOUT REMAINS UNTESTED (no non-void
+contract with a token exists). /estimate/:token could not be reached: the
+estimates list API returns no token-ish field.
+
+================================================================================
+*** DISCIPLINE — 8 candidates raised, 8 killed (8x over-report) ***
+================================================================================
+Every one of these would have been a bad bug report. What killed each:
+
+1. `@keyframes spin` MISSING for .address-search__spinner (index.css:3014).
+   Static scan said the only spin keyframes are `icon-spin`/`appleSpinStep`,
+   there is NO tailwind.config, and there are ZERO `animate-spin` usages.
+   KILLED BY A BEHAVIOURAL TEST: injected the element, read its computed
+   transform 250ms apart — it rotates (matrix changes, getAnimations() running).
+   `@keyframes spin` is supplied by TAILWIND'S THEME (tailwindcss/theme.css,
+   v4.2.2, imported via `@import "tailwindcss/theme" layer(theme)`).
+   Then verified it survives PRODUCTION: `npx vite build` -> the built CSS
+   contains `@keyframes spin`. Works in dev AND prod. See TICKET 2.
+2. `var(--tc)` undefined x4 in .lg-storm-row__badge, inside a BORDER SHORTHAND
+   — the exact Run 76 headline shape. KILLED: `.lg-storm-row*` has ZERO JSX
+   consumers. Dead CSS, zero user impact. See TICKET 1.
+3. `@keyframes page-fade-in` undefined for `.tab-content`. KILLED the same way:
+   `.tab-content` has ZERO JSX consumers.
+4. localStorage key written vs read mismatch in LeadDetail.jsx
+   (`billing_dismiss_${billingModal}` written :1977 vs `billing_dismiss_measure`
+   read :845 / `billing_dismiss_trace` read :907). KILLED: setBillingModal is
+   only ever called with 'measure' (:848) and 'trace' (:910), so the template
+   produces exactly the two literal keys that are read. Correct.
+5. .auth-btn outlier on /storm-catalog (6/14px 12px vs 0/24px 13px elsewhere).
+   KILLED: StormCatalog.jsx:202/215 — it is the ACTIVE PILL of a time-range
+   SEGMENTED CONTROL; active (.auth-btn) and inactive (.quick-action-btn) pills
+   share identical inline sizing. "Standardizing" it would make the active pill
+   wider than its neighbours and break the control. Same family as the
+   documented FullCalendar .fc-button-group non-bug.
+6. /alerts inputs at 26px height / 0px radius / no .form-input.
+   KILLED: AlertSettings.jsx:308-316 — middle segment of a numeric stepper
+   whose flanking buttons carry `borderRadius: '8px 0 0 8px'` + `borderRight:
+   none`. CHECK THE WRAPPER FIRST, again.
+7. `.public-estimate-company` used as a className but never defined as a
+   selector (while __name and __sub ARE defined). KILLED: it is a plain
+   grouping div inside `.public-estimate-header` (display:flex); its two
+   block-level children stack correctly with no rule needed.
+8. `mini-storm-map` (Dashboard.jsx:474) and `lead-list-toolbar`
+   (LeadList.jsx:373) used as classNames with no CSS rule. KILLED: both are
+   semantic markers on elements fully styled by co-classes (Tailwind / .glass)
+   plus inline styles. Measured correct (toolbar 110px, padding 12/24).
+
+================================================================================
+SET DIFFERENCES RUN THIS STAGE (harness: server/.qa-r77s3-uidiff.mjs)
+================================================================================
+Runs 74-77 each found their bug via a set difference over code rather than by
+inspecting output. This stage ran SEVEN, four of them NEW name kinds:
+  A. prop names PASSED in JSX      vs DESTRUCTURED by the component .... 0  NEW
+  B. label htmlFor=""              vs id="" in the same file ........... 0  NEW
+  C. localStorage keys WRITTEN     vs keys READ ........................ 3 -> 0 NEW
+  D. CustomEvent names DISPATCHED  vs names LISTENED for ............... 0  NEW
+  E. classNames used in JSX        vs CSS selectors defined ............ 17 -> 0 (regression, Run 75's bug class)
+  F. var(--x) used                 vs --x defined ...................... 5 -> 0 (regression, Run 76's bug class)
+  G. animation name referenced     vs @keyframes defined ............... 2 -> 0 (regression)
+ALL SEVEN CAME BACK CLEAN. Runs 75 and 76 both found real defects in E/F/G;
+those classes are now clean, and the four new kinds (A-D) found nothing.
+
+*** HARNESS FALSE-NEGATIVE FOUND AND WORTH KNOWING ***
+Kind G scanned only client/src/*.css for @keyframes and therefore reported
+`spin` as undefined when Tailwind's theme actually defines it. ANY set
+difference whose "defined" side reads only app source will over-report whenever
+a VENDOR stylesheet or a JS-injected <style> supplies the name. Enumerate
+document.styleSheets (recursing into @layer) or grep the BUILT bundle instead.
+
+================================================================================
+DEVELOPER TICKETS (not fixed — out of QA charter, "if it works leave it alone")
+================================================================================
+TICKET 1 — DEAD CSS THAT IS A LOADED GUN FOR THE NEXT READER.
+  `.lg-storm-row` + 7 children (index.css:1294-1354) and `.tab-content`
+  (index.css:4369) have ZERO consumers anywhere in the client. Harmless today,
+  BUT `.lg-storm-row__badge` references `var(--tc)`, which is defined NOWHERE —
+  so anyone who reuses that class gets the Run 76 failure for free: the
+  `border: 1px solid color-mix(in oklch, var(--tc) ...)` shorthand is invalid
+  at computed-value time and the border/background/box-shadow all vanish.
+  Recommend deleting both blocks. Deletion is a developer call, not QA's.
+TICKET 2 — .address-search__spinner DEPENDS ON A VENDOR KEYFRAME.
+  index.css:3014 animates `spin`, which app CSS never defines; it resolves only
+  because Tailwind's theme ships `@keyframes spin`. Verified working in dev and
+  in the production bundle today. It is nonetheless the app's ONLY animation
+  that does not own its keyframe (index.css defines 27 others, including
+  `icon-spin`). If the Tailwind theme import is ever narrowed, the spinner
+  silently freezes. Recommend adding a local `@keyframes spin` (4 lines).
+CARRIED FORWARD (unchanged, previously filed): /expenses?leadId= ignored;
+  /tasks "Pending 0" first-run empty state; /dashboard Days-in-Stage measures
+  updated_at; /alerts orphan route; .quick-action-btn 8 heights; form labels
+  7 treatments; two spacing systems; Esc-to-close inconsistent.
+
+================================================================================
+DATA HYGIENE — STILL NOT DONE, FIFTH STAGE RUNNING
+================================================================================
+The QA fuzz residue is still user-visible (~99 estimates, ~85 "123 Test St"
+drafts, QA-named tasks, a "QA Options Probe" custom field, leads carrying
+`true` / `12345`). s4 must run the standing scoped cleanup. NOT done here —
+this stage was read-only by charter.
+
+================================================================================
+DB WRITES BY THIS STAGE — NET ZERO
+================================================================================
+1 login (rate-limit budget: 1 of ~10) + read-only GETs (estimates, contracts) +
+navigation, style measurement, and 4 modal opens that were closed with Escape.
+No form was submitted. 0 rows created, 0 updated, 0 deleted.
+Build: `npx vite build` PASSES (run once, to test the Tailwind keyframe claim).
+No client source file was modified this stage.
+================================================================================
