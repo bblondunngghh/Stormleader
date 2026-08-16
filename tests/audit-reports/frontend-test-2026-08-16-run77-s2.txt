@@ -1,0 +1,88 @@
+STORMLEADS OVERNIGHT QA — 2026-08-16 s2-frontend-test (Run 77)
+Baseline: f63e32c   Fixes: 1 commit   Defects found: 2 (both fixed), 1 developer ticket
+
+== COVERAGE ==
+All 19 protected routes loaded: 0 page errors, 0 failed app requests,
+0 "undefined"/"NaN"/"[object Object]"/"Invalid Date" in rendered text.
+Only non-2xx: /admin -> 403 /api/admin/overview (documented platform-admin-only).
+All 15 Settings tabs clicked and measured: all switch, all render, 0 errors,
+ZERO native <select>, ZERO native date inputs (5th consecutive run).
+/leads: search (match + no-match empty state), 7 sortable columns verified against
+handleSort() call sites, pagination controls, filter pills, Clear All.
+/dashboard: all 5 date ranges issue correctly-dated API calls.
+Filter tabs swept on /invoices /estimates /contracts /expenses /tasks /work-orders.
+
+== DEFECT 1 (FIXED) — dashboard team leaderboard filtered nothing ==
+Dashboard.jsx:1836 navigates to `/leads?assigned_rep=${rep.id}`.
+LeadList.jsx:119-128 reads search|stage|priority|source|min_score|sort_by|sort_dir|
+page|limit from searchParams — it never read assigned_rep. Worse, the URL-sync
+effect (LeadList.jsx:190-201) rewrites the query string from its own state, so the
+param was STRIPPED FROM THE ADDRESS BAR immediately after arrival.
+Measured before: click a rep -> /leads, "Showing 1-24 of 24 leads" (unfiltered).
+The server has always supported this filter but under a DIFFERENT NAME:
+crm.js:23 destructures `assigned_rep_id`, not `assigned_rep`.
+Fix: LeadList reads `assigned_rep`, sends it as `assigned_rep_id`, preserves it in
+the URL, and surfaces it through the EXISTING filter-pill + Clear All pattern.
+Measured after: /leads?assigned_rep=45cc729d..., request carries
+assigned_rep_id=45cc729d..., "Showing 1-1 of 1 leads", rep column = "Miles M",
+pill reads "Rep: Miles Martin"; removing the pill restores 24 rows and a clean URL.
+
+== DEFECT 2 (FIXED) — calendar event click did not open the lead ==
+CalendarView.jsx:96 navigated to `/leads?leadId=${leadId}`. LeadList opens a lead
+from useParams (route `/leads/:id`), never from a `leadId` query param, so the click
+landed on the bare lead list. Changed to `/leads/${leadId}`.
+Verified `/leads/<real id>` opens the detail slide-over (8 .slide-over nodes).
+NOTE: could not be reproduced through the UI — the calendar currently has 0 events;
+confirmed statically at both ends plus a runtime check of the new target route.
+
+== DEVELOPER TICKET (NOT FIXED) — /expenses?leadId= is ignored ==
+LeadDetail.jsx:1538 "Add Expense" sets window.location.href = `/expenses?leadId=...`.
+ExpensesView.jsx has NO useSearchParams at all. Verified at runtime: navigating to
+/expenses?leadId=<uuid> opens no modal and filters nothing ("4 expenses" unchanged).
+The button still reaches the page, so it degrades rather than dies. A correct fix
+needs a `defaultLeadId` prop on ExpenseModal (passing a synthetic `expense` object
+would make it take the UPDATE branch at ExpensesView.jsx:78 with no id). Also note
+it uses window.location.href, forcing a full SPA reload.
+Contrast: ContractsView DOES read leadId/fromEstimate, StormMap DOES read stormId —
+so this is a single gap, not a family.
+
+== SET DIFFERENCES RUN THIS STAGE (two NEW kinds of name) ==
+1. server/.qa-r77s2-apidiff.mjs — API paths the client calls vs routes the server
+   defines: 272 server routes, 280 client calls, UNMATCHED = 0. Class is clean
+   (Run 76's f88895b was the last instance).
+2. server/.qa-r77s2-namediff.mjs — (A) navigate()/<Link to> targets vs <Route path>,
+   (B) query params sent vs req.query names read. (A) produced 2 template-literal
+   artifacts only. (B) produced 7 candidates, of which ONE was real (defect 1).
+   Killed by inspection: /crm/financing/applications?leadId is READ — but in the
+   service via `getApplications(tenantId, {estimateId, leadId, status})`, not via
+   `req.query.leadId`, so a routes-only grep over-reports it. leadId/stormId into
+   /contracts and /storm-map are honoured. 1 of 7 real — same ~5x over-report rate
+   as Run 76. STATIC TO GENERATE, RUNTIME TO CONFIRM.
+
+== NON-BUGS CONFIRMED ==
+- /leads non-sortable columns (Address, Phone, Email, Source, Storm, Rep, Follow-up,
+  Days) have no onClick by design — only 7 columns call handleSort.
+- "Clear All" appearing only with 2+ active filters is existing intended behaviour.
+- Dashboard PIPELINE VALUE $134K (All Time/YTD) vs $0 (7/30/90d) is consistent with
+  the data: every valued lead predates 2026-05-18.
+- /tasks "Pending 0" shows the first-run empty state ("Create your first task") even
+  though 4 completed tasks exist. Cosmetic copy issue on a filtered empty view.
+
+== TESTER-ERROR TRAP THAT COST ~8 TURNS (NEW, HIGH VALUE) ==
+Mid-session the Playwright input pipeline DIED SILENTLY. Symptoms that look exactly
+like a catastrophic app bug: every Settings tab "ignored" real clicks while
+element.click() worked; sidebar nav clicks did nothing; keyboard.press produced no
+keydown. Playwright reported the clicks as OK (no timeout) and elementFromPoint
+returned the correct button.
+THE TELL: page.mouse.move() over an element produced NO :hover match, and ZERO
+events reached a document-level CAPTURE listener. Synthesized input was not being
+delivered to the renderer at all.
+FIX: browser_close, then re-navigate — the session and login survive.
+=> RUN THIS HEALTH CHECK BEFORE TRUSTING ANY "the app ignored my click" RESULT:
+   mouse.move onto a known element, then assert document.querySelectorAll(':hover').length > 0.
+Without it this run would have filed "no button in the app responds to clicks".
+
+== DB WRITES: NET ZERO ==
+No create/update/delete submitted. Filters, sorts, tab switches and navigation only;
+no import ever started; the one write-shaped probe (/expenses?leadId=) used a
+zero-uuid and opened nothing.

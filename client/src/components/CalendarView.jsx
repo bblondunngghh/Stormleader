@@ -93,7 +93,7 @@ export default function CalendarView() {
     (info) => {
       const { leadId } = info.event.extendedProps;
       if (leadId) {
-        navigate(`/leads?leadId=${leadId}`);
+        navigate(`/leads/${leadId}`);
       }
     },
     [navigate]

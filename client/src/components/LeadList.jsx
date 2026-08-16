@@ -122,6 +122,7 @@ export default function LeadList() {
   const [priorityFilter, setPriorityFilter] = useState(searchParams.get('priority') || '');
   const [sourceFilter, setSourceFilter] = useState(searchParams.get('source') || '');
   const [scoreFilter, setScoreFilter] = useState(searchParams.get('min_score') || '');
+  const [repFilter, setRepFilter] = useState(searchParams.get('assigned_rep') || '');
   const [sortBy, setSortBy] = useState(searchParams.get('sort_by') || 'created_at');
   const [sortDir, setSortDir] = useState(searchParams.get('sort_dir') || 'DESC');
   const [page, setPage] = useState(Number(searchParams.get('page')) || 0);
@@ -193,12 +194,13 @@ export default function LeadList() {
     if (priorityFilter) p.priority = priorityFilter;
     if (sourceFilter) p.source = sourceFilter;
     if (scoreFilter) p.min_score = scoreFilter;
+    if (repFilter) p.assigned_rep = repFilter;
     if (sortBy !== 'created_at') p.sort_by = sortBy;
     if (sortDir !== 'DESC') p.sort_dir = sortDir;
     if (page > 0) p.page = String(page);
     if (pageSize !== 25) p.limit = String(pageSize);
     setSearchParams(p, { replace: true });
-  }, [search, stageFilter, priorityFilter, sourceFilter, scoreFilter, sortBy, sortDir, page, pageSize, setSearchParams]);
+  }, [search, stageFilter, priorityFilter, sourceFilter, scoreFilter, repFilter, sortBy, sortDir, page, pageSize, setSearchParams]);
 
   const fetchLeads = useCallback(async () => {
     setLoading(true);
@@ -214,6 +216,7 @@ export default function LeadList() {
       if (priorityFilter) params.priority = priorityFilter;
       if (sourceFilter) params.source = sourceFilter;
       if (scoreFilter) params.min_score = scoreFilter;
+      if (repFilter) params.assigned_rep_id = repFilter;
 
       const res = await getLeads(params);
       setLeads(res.data.leads || []);
@@ -223,7 +226,7 @@ export default function LeadList() {
     } finally {
       setLoading(false);
     }
-  }, [search, stageFilter, priorityFilter, sourceFilter, scoreFilter, sortBy, sortDir, page, pageSize]);
+  }, [search, stageFilter, priorityFilter, sourceFilter, scoreFilter, repFilter, sortBy, sortDir, page, pageSize]);
 
   useEffect(() => { fetchLeads(); }, [fetchLeads]);
 
@@ -355,6 +358,11 @@ export default function LeadList() {
   if (priorityFilter) activeFilters.push({ key: 'priority', label: `Priority: ${priorityLabels[priorityFilter] || priorityFilter}`, clear: () => setPriorityFilter('') });
   if (sourceFilter) activeFilters.push({ key: 'source', label: `Source: ${sourceLabels[sourceFilter] || sourceFilter}`, clear: () => setSourceFilter('') });
   if (scoreFilter) activeFilters.push({ key: 'score', label: `Score: ${scoreFilter}+`, clear: () => setScoreFilter('') });
+  if (repFilter) {
+    const repLead = leads.find(l => l.assigned_rep_id === repFilter);
+    const repName = repLead?.rep_first_name ? `${repLead.rep_first_name} ${repLead.rep_last_name || ''}`.trim() : 'Assigned rep';
+    activeFilters.push({ key: 'rep', label: `Rep: ${repName}`, clear: () => setRepFilter('') });
+  }
 
   const fromRow = total === 0 ? 0 : page * pageSize + 1;
   const toRow = Math.min((page + 1) * pageSize, total);
@@ -516,7 +524,7 @@ export default function LeadList() {
           </span>
         ))}
         {activeFilters.length > 1 && (
-          <button onClick={() => { setStageFilter(''); setPriorityFilter(''); setSourceFilter(''); setScoreFilter(''); setPage(0); }}
+          <button onClick={() => { setStageFilter(''); setPriorityFilter(''); setSourceFilter(''); setScoreFilter(''); setRepFilter(''); setPage(0); }}
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent-red)', fontSize: 11, fontWeight: 600 }}>
             Clear All
           </button>
