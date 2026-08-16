@@ -359,9 +359,17 @@ export default function LeadList() {
   if (sourceFilter) activeFilters.push({ key: 'source', label: `Source: ${sourceLabels[sourceFilter] || sourceFilter}`, clear: () => setSourceFilter('') });
   if (scoreFilter) activeFilters.push({ key: 'score', label: `Score: ${scoreFilter}+`, clear: () => setScoreFilter('') });
   if (repFilter) {
+    // Resolve from teamMembers first — deriving the name from the filtered rows
+    // fails for exactly the rep who has no leads, which is when the pill is the
+    // only thing on screen naming the filter.
+    const member = teamMembers.find(m => m.id === repFilter);
     const repLead = leads.find(l => l.assigned_rep_id === repFilter);
-    const repName = repLead?.rep_first_name ? `${repLead.rep_first_name} ${repLead.rep_last_name || ''}`.trim() : 'Assigned rep';
-    activeFilters.push({ key: 'rep', label: `Rep: ${repName}`, clear: () => setRepFilter('') });
+    const repName = member
+      ? `${member.first_name || ''} ${member.last_name || ''}`.trim()
+      : repLead?.rep_first_name
+        ? `${repLead.rep_first_name} ${repLead.rep_last_name || ''}`.trim()
+        : 'Assigned rep';
+    activeFilters.push({ key: 'rep', label: `Rep: ${repName || 'Assigned rep'}`, clear: () => setRepFilter('') });
   }
 
   const fromRow = total === 0 ? 0 : page * pageSize + 1;
