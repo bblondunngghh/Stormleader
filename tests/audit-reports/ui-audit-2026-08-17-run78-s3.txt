@@ -1,0 +1,191 @@
+================================================================================
+UI CONSISTENCY AUDIT — Run 78, stage s3 — 2026-08-17
+Baseline: 2975157   Fix commit: 6740bb9
+Scope: all 19 in-app routes, measured (not eyeballed) via Playwright
+================================================================================
+
+RESULT: 1 defect found, 1 fixed. 9 candidates raised, 8 killed by verification.
+        NET ZERO DB writes (one toggle round-trip, value restored).
+        Build passes. All 7 audits ran.
+
+--------------------------------------------------------------------------------
+FINDINGS TABLE
+--------------------------------------------------------------------------------
+| Page      | Issue Type      | Element                    | Expected                        | Actual                                  | Fixed? |
+|-----------|-----------------|----------------------------|---------------------------------|-----------------------------------------|--------|
+| /alerts   | Invisible ctrl  | ToggleSwitch (react-switch)| 44x24 track, colour = state     | track+handle background rgba(0,0,0,0)   | YES    |
+|           |                 | AlertSettings.jsx:330      | ON green / OFF dark             | ON and OFF indistinguishable            | 6740bb9|
+
+--------------------------------------------------------------------------------
+THE DEFECT — /alerts storm-alert toggles rendered with no colour at all
+--------------------------------------------------------------------------------
+AlertSettings.jsx drove its two toggles ("Alerts Enabled", "Email Recipients")
+through the third-party `react-switch` package, passing the app's oklch tokens:
+
+    onColor="oklch(0.55 0.19 250)"   offColor="oklch(0.22 0.03 260)"
+    onHandleColor="oklch(1 0 0)"     offHandleColor="oklch(1 0 0)"
+
+react-switch does NOT hand those strings to CSS — it parses them itself so it can
+interpolate the track colour during the flip animation. It cannot read oklch(), so
+it emitted the track and handle with NO background property whatsoever:
+
+    style="height:24px; width:44px; margin:0; position:relative;
+           border-radius:12px; cursor:pointer; transition: background 0.25s;"
+                                               ^^^ transitions a property never set
+
+Measured: .react-switch-bg and .react-switch-handle both computed
+backgroundColor = rgba(0, 0, 0, 0). Both toggles were completely invisible
+against the glass panel, and ON was indistinguishable from OFF — on the only
+screen that controls whether storm alerts are sent at all.
+
+Screenshot evidence: .playwright-mcp/r78s3-toggle-crop.png (before — label
+present, no control), r78s3-AFTER-on.png / r78s3-AFTER-off.png (after).
+
+FIX: replaced with the toggle markup the app already uses in
+SettingsView.jsx:1538 (Settings -> Storm Alerts — the duplicate of this very
+panel) and OnboardingPage.jsx:729. Same 44x24 / 12px radius / 18px knob
+geometry, --accent-green when on, role="switch" + aria-checked preserved from
+react-switch's behaviour, plus an aria-label (the visible label is a sibling
+element, so the control previously had no accessible name).
+
+Verified after fix: ON  = oklch(0.75 0.18 155), knob translateX(20px)
+                    OFF = oklch(0.3 0.02 260 / 0.6), knob translateX(0)
+                    aria-checked flips true/false; 0 react-switch nodes remain.
+The two duplicate storm-alert panels now render an identical control.
+Toggled off and back on — stored config unchanged.
+
+--------------------------------------------------------------------------------
+*** THE REUSABLE LESSON — WHICH THIRD-PARTY COMPONENTS BREAK ON oklch ***
+--------------------------------------------------------------------------------
+An oklch colour handed to a third-party component is only dangerous when that
+component PARSES the colour to compute with it (interpolate, lighten, blend).
+A component that passes the string through to CSS or an SVG attribute is fine —
+the browser parses oklch natively.
+
+  BREAKS   react-switch  — interpolates track colour across the flip animation
+  FINE     recharts      — stroke="oklch(...)" goes straight to an SVG attribute
+  FINE     Stripe Elements — style.base.color accepts oklch (mount-tested)
+  FINE     mapbox/Google  — already fed hex (documented)
+
+This distinction is the whole finding. I verified all three "FINE" cases rather
+than assuming, and all three would otherwise have been filed as bugs.
+
+--------------------------------------------------------------------------------
+AUDIT 1 — ICONS ......................................................... CLEAN
+--------------------------------------------------------------------------------
+0 non-conforming <svg> across all 19 routes (signature: viewBox="0 0 24 24",
+fill="none", stroke-width 1.5, stroke currentColor; recharts excluded as
+data-viz per the documented non-bug). 0 fa-*/material/lucide classes anywhere.
+5th consecutive clean run.
+
+--------------------------------------------------------------------------------
+AUDIT 2 — BUTTONS ................................. documented drift only
+--------------------------------------------------------------------------------
+29 button class groups measured on 19 routes (height/padding/font-size/radius/
+weight). Everything with >1 signature landed on an already-documented decision:
+  - .quick-action-btn at 11 signatures — the documented multi-height drift
+  - .auth-btn on /storm-catalog — documented segmented-control non-bug
+  - .nav-link--child weight 500 vs 600 — that is the ACTIVE state, correct
+  - the "(none)" class bucket (24 signatures) — the documented per-file
+    inline-style-object pattern (row actions, category tabs, settings tabs)
+No new outlier. .auth-btn identical (36px | 0/24px | 13px | 700) on 8 pages.
+
+--------------------------------------------------------------------------------
+AUDIT 3 — TOOLBAR / HEADER .............................................. CLEAN
+--------------------------------------------------------------------------------
+.topbar computes exactly 56px with class "topbar glass" on all 19 routes.
+Exactly one <h1> on every route (Run 75's "no h1 anywhere" ticket stays resolved).
+
+--------------------------------------------------------------------------------
+AUDIT 4 — SIDEBAR / NAVIGATION .......................................... CLEAN
+--------------------------------------------------------------------------------
+18 .nav-link on every route; heights [42], radius [12px], icon [18px], gap
+identical; 0 nav items missing an icon; exactly one .is-active everywhere except
+/alerts (the documented orphan route with no nav entry).
+
+--------------------------------------------------------------------------------
+AUDIT 5 — FORM ELEMENTS ................................................. CLEAN
+--------------------------------------------------------------------------------
+ZERO native <select>, ZERO native date/time inputs — 7th consecutive run.
+CustomSelect / DatePicker rules fully respected.
+Field drift all documented: .form-input 32px on /materials (deliberate, tab-bar
+search), 34px padding-left = leading search icon, /alerts 26px inputs = the
+documented numeric stepper.
+The 1px checkbox on /alerts was react-switch's hidden a11y input — it is gone
+with the fix.
+
+--------------------------------------------------------------------------------
+AUDIT 6 — SPACING & ALIGNMENT ..................... documented drift only
+--------------------------------------------------------------------------------
+Root font-size 14px on all 19 routes. .glass padding is dominated by 16px (363)
+/ 24px (16) / 14px (24) with the documented rem-on-14px-root fractional tail
+(8.75px, 10.5px, 17.5px). Radius: 20px/18px (248) and 16px (209) dominate.
+document.scrollWidth == clientWidth on all 19 routes — no overflow.
+
+--------------------------------------------------------------------------------
+AUDIT 7 — MODALS ................................... documented drift only
+--------------------------------------------------------------------------------
+4 overlays opened and measured:
+  /expenses        modal-backdrop  modal-scale-in 0.2s  r20  480px  pad24  blur8  z9999
+  /work-orders     modal-backdrop  modal-scale-in 0.2s  r20  520px  pad24  none   z1000
+  /tasks           slide-over      modal-scale-in 0.25s r20/18 420px pad32
+  /subcontractors  slide-over      modal-scale-in 0.25s r20/18 480px pad32
+ALL FOUR compute animation-name: modal-scale-in — Run 75's fix still holds
+(2nd consecutive confirmation).
+Variance found is all pre-documented: heading level/size (h3 16px on /expenses
+vs h2 18px elsewhere), close-button placement (absolute corner vs flex header
+row), backdrop blur per-context (do NOT normalize), and Esc-to-close working on
+1 of 4. /estimates and /invoices "New ..." are in-place view swaps, not modals —
+matches the documented trap.
+
+--------------------------------------------------------------------------------
+CANDIDATES RAISED AND KILLED (8 of 9) — and what killed each
+--------------------------------------------------------------------------------
+1. data-init queried but never set (LeadDetail.jsx:2527) — KILLED: set
+   imperatively via el.dataset.init = 'true' on the very next line. My set
+   difference only scanned JSX attributes and missed imperative dataset writes.
+2. 4 icon-only buttons with no accessible name — KILLED: all 4 have visible
+   text; my regex stripped {expr} so dynamic labels vanished. False positive.
+3. recharts stroke="oklch(...)" — KILLED: verified, resolves to a real colour;
+   0 unparseable SVG colours on /reports.
+4. StormMap _swathColor = 'oklch(...)' — KILLED: consumed only in an InfoWindow
+   HTML string inline style, which the browser parses. No oklch reaches mapbox.
+   (Map code read only — never edited, per charter.)
+5. Stripe CARD_ELEMENT_OPTIONS passes oklch — KILLED: mount-tested oklch vs hex
+   side by side against live Stripe.js; both mounted, no throw, no console
+   error, visually identical. Stripe accepts oklch.
+6. .toggle-knob / .toggle-track (index.css:4360-4364) — KILLED as a bug: ZERO
+   JSX consumers. Dead CSS, same family as the documented .lg-storm-row* block.
+7. .nav-link--child font-weight 500 vs 600 — KILLED: that is the active state.
+8. Modal heading/close/backdrop/Esc variance — KILLED: all four are already
+   documented developer decisions.
+9. FOUR ToggleSwitch implementations app-wide — PARTIALLY REAL. The invisible
+   one is fixed. The remaining size difference (EstimatesView.jsx:909 at
+   34x18/9/14 vs 44x24/12/18 elsewhere) is left alone: it sits in a dense
+   estimate-section list, the same contextual-sizing family as the documented
+   compact .form-input cases. Not filed.
+
+--------------------------------------------------------------------------------
+NEW SET-DIFFERENCE KINDS RUN (harness: server/.qa-r78s3-uisem.mjs, committed)
+--------------------------------------------------------------------------------
+  A. icon component rendered  vs  the action the control performs ...... 0  NEW
+     (title / aria-label / inner text / onClick handler name, 15 intent buckets)
+  B. data-* attributes SET in JSX  vs  data-* QUERIED (JS + CSS) ....... 1 -> 0  NEW
+  C. icon-only controls with NO accessible name ....................... 4 -> 0  NEW
+76 files scanned. All three came back clean after verification. The icon-vs-
+action kind (A) is a genuinely clean result and worth re-running cheaply.
+
+STILL UNTRIED for a future stage: SQL column names selected vs field names read
+in JSX; toast/notification message keys; server enum values vs client label maps
+for the newer tables.
+
+--------------------------------------------------------------------------------
+NOTES FOR THE NEXT STAGE
+--------------------------------------------------------------------------------
+- react-switch is now unimported. It remains in client/package.json as an unused
+  dependency — removing it is a developer call, not QA's.
+- /alerts is still the documented orphan route (no sidebar entry, 0 .is-active).
+  It now renders correctly, which makes retiring-vs-linking a real decision.
+- DB fuzz residue from s2 (99 estimates, ~85 "123 Test St" drafts) is STILL not
+  cleaned — this is the 6th stage carrying it. s4 must run the scoped cleanup.
+================================================================================
