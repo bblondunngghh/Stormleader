@@ -63,11 +63,20 @@ export async function getLeads(tenantId, filters = {}) {
     `SELECT lsv.*,
        fa.status AS financing_status,
        tc.task_total,
-       tc.task_done
+       tc.task_done,
+       se.storm_start
      FROM lead_summary_view lsv
      LEFT JOIN LATERAL (
        SELECT status FROM financing_applications WHERE lead_id = lsv.id ORDER BY created_at DESC LIMIT 1
      ) fa ON true
+     -- storm_start is read by the LeadList STORM column and the "Storm Date" CSV
+     -- column, but lead_summary_view carries only storm_event_id and never joins
+     -- storm_events, so both were permanently blank for storm-generated leads.
+     -- Kept as a single-column LATERAL on purpose: a plain "LEFT JOIN storm_events"
+     -- would make the unqualified "source" in the WHERE clause ambiguous.
+     LEFT JOIN LATERAL (
+       SELECT event_start AS storm_start FROM storm_events WHERE id = lsv.storm_event_id
+     ) se ON true
      LEFT JOIN LATERAL (
        SELECT COUNT(*)::int AS task_total,
               COUNT(*) FILTER (WHERE completed_at IS NOT NULL)::int AS task_done
