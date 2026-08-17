@@ -17,7 +17,7 @@ const router = Router();
 router.get('/fema-live', authenticate, async (req, res, next) => {
   try {
     const { bbox } = req.query;
-    if (!bbox) return res.status(400).json({ error: 'bbox required' });
+    if (typeof bbox !== 'string') return res.status(400).json({ error: 'bbox required' });
 
     const parts = bbox.split(',').map(Number);
     if (parts.length !== 4 || parts.some(n => isNaN(n))) {
@@ -169,7 +169,7 @@ router.get('/', async (req, res, next) => {
   try {
     const { bbox, limit = '500' } = req.query;
 
-    if (!bbox) {
+    if (typeof bbox !== 'string') {
       return res.status(400).json({ error: 'bbox query parameter is required (west,south,east,north)' });
     }
 
@@ -216,7 +216,7 @@ router.get('/in-swath/:stormEventId', validateId('stormEventId'), async (req, re
   try {
     const { limit = '500', offset = '0', bbox, light } = req.query;
     const opts = { limit: parseInt(limit, 10), offset: parseInt(offset, 10) };
-    if (bbox) {
+    if (typeof bbox === 'string') {
       const parts = bbox.split(',').map(Number);
       if (parts.length === 4 && parts.every(n => !isNaN(n))) {
         opts.bbox = parts; // [west, south, east, north]

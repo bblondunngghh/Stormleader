@@ -27,6 +27,9 @@ router.get('/', async (req, res, next) => {
     `;
 
     if (bbox) {
+      if (typeof bbox !== 'string') {
+        return res.status(400).json({ error: 'Invalid bbox format. Use w,s,e,n' });
+      }
       const [w, s, e, n] = bbox.split(',').map(Number);
       if ([w, s, e, n].some(isNaN)) {
         return res.status(400).json({ error: 'Invalid bbox format. Use w,s,e,n' });

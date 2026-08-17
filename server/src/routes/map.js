@@ -31,7 +31,7 @@ router.get('/properties', async (req, res, next) => {
   try {
     if (!(await checkPostGIS())) return res.json(emptyFC);
     const { bbox, improvedOnly } = req.query;
-    if (!bbox) return res.status(400).json({ error: 'bbox required' });
+    if (typeof bbox !== 'string') return res.status(400).json({ error: 'bbox required' });
     const bboxArr = bbox.split(',').map(Number);
     if (bboxArr.length !== 4 || bboxArr.some(isNaN)) return res.status(400).json({ error: 'Invalid bbox' });
     const viewportArea = Math.abs(bboxArr[2] - bboxArr[0]) * Math.abs(bboxArr[3] - bboxArr[1]);
@@ -52,7 +52,7 @@ router.get('/affected-properties', async (req, res, next) => {
   try {
     if (!(await checkPostGIS())) return res.json(emptyFC);
     const { bbox, timeRange, improvedOnly } = req.query;
-    if (!bbox) return res.status(400).json({ error: 'bbox required' });
+    if (typeof bbox !== 'string') return res.status(400).json({ error: 'bbox required' });
     const bboxArr = bbox.split(',').map(Number);
     if (bboxArr.length !== 4 || bboxArr.some(isNaN)) return res.status(400).json({ error: 'Invalid bbox' });
     // Scale limit by viewport size — small viewport = dense results, large = sparse
@@ -73,7 +73,7 @@ router.get('/swaths', async (req, res, next) => {
   try {
     if (!(await checkPostGIS())) return res.json(emptyFC);
     const { bbox, timeRange, startDate, endDate } = req.query;
-    if (!bbox) return res.status(400).json({ error: 'bbox required' });
+    if (typeof bbox !== 'string') return res.status(400).json({ error: 'bbox required' });
     const bboxArr = bbox.split(',').map(Number);
     if (bboxArr.length !== 4 || bboxArr.some(isNaN)) return res.status(400).json({ error: 'Invalid bbox' });
     const result = await stormService.getSwathsByViewport(bboxArr, timeRange || '7d', startDate, endDate);

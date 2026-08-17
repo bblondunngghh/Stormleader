@@ -1,7 +1,7 @@
 import pool from '../db/pool.js';
 
 export async function globalSearch(tenantId, query, limit = 20) {
-  if (!query || query.trim().length < 2) return { leads: [], contacts: [], estimates: [] };
+  if (typeof query !== 'string' || query.trim().length < 2) return { leads: [], contacts: [], estimates: [] };
 
   const q = `%${query.trim()}%`;
 

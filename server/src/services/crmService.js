@@ -55,7 +55,7 @@ export async function getLeads(tenantId, filters = {}) {
   const where = conditions.join(' AND ');
   const allowedSort = ['created_at', 'updated_at', 'estimated_value', 'contact_name', 'stage', 'priority', 'last_contact_at', 'next_follow_up', 'lead_score'];
   const orderCol = allowedSort.includes(sortBy) ? sortBy : 'created_at';
-  const orderDir = sortDir.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+  const orderDir = String(sortDir).toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
   params.push(limit, offset);
 

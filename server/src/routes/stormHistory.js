@@ -37,7 +37,7 @@ router.get('/', async (req, res, next) => {
  */
 router.get('/heatmap', async (req, res, next) => {
   try {
-    const bbox = (req.query.bbox || '').split(',').map(Number);
+    const bbox = (typeof req.query.bbox === 'string' ? req.query.bbox : '').split(',').map(Number);
     if (bbox.length !== 4 || bbox.some(isNaN)) {
       return res.status(400).json({ error: 'bbox parameter required: west,south,east,north' });
     }

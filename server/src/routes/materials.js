@@ -529,7 +529,7 @@ router.get('/products', async (req, res, next) => {
     if (category && category !== 'All') {
       results = results.filter(p => p.category === category);
     }
-    if (search) {
+    if (typeof search === 'string' && search) {
       const q = search.toLowerCase();
       results = results.filter(p =>
         p.name.toLowerCase().includes(q) ||
