@@ -339,31 +339,35 @@ function SidebarPreview({ leadId, allColumns, onClose, onOpenFull, onStageChange
               </div>
             )}
 
-            {/* Storm / hail info */}
-            {(lead.hail_size_in || lead.storm_date) && (
+            {/* Storm / hail info — getLeadDetail returns se.event_start AS storm_start
+                and se.wind_speed_max_mph AS storm_wind_max; there is no storm_date
+                or wind_speed_mph in the response. */}
+            {(lead.hail_size_in || lead.storm_start) && (
               <div className="glass" style={{ padding: '10px 14px', borderRadius: 12 }}>
                 <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: 6 }}>Storm Data</div>
                 <div style={{ display: 'flex', gap: 16, fontSize: 13 }}>
                   {lead.hail_size_in && <span style={{ color: 'var(--text-primary)' }}>🧊 {lead.hail_size_in}" hail</span>}
-                  {lead.storm_date && <span style={{ color: 'var(--text-secondary)' }}>📅 {new Date(lead.storm_date).toLocaleDateString()}</span>}
-                  {lead.wind_speed_mph && <span style={{ color: 'var(--text-secondary)' }}>💨 {lead.wind_speed_mph} mph</span>}
+                  {lead.storm_start && <span style={{ color: 'var(--text-secondary)' }}>📅 {new Date(lead.storm_start).toLocaleDateString()}</span>}
+                  {lead.storm_wind_max && <span style={{ color: 'var(--text-secondary)' }}>💨 {lead.storm_wind_max} mph</span>}
                 </div>
               </div>
             )}
 
-            {/* Assigned rep */}
-            {lead.assigned_rep_name && (
+            {/* Assigned rep — the response carries rep_first_name / rep_last_name
+                (same fields the cards use for the avatar initials), never a
+                pre-joined assigned_rep_name. */}
+            {lead.rep_first_name && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div style={{
                   width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   background: 'oklch(0.35 0.08 250 / 0.5)', border: '1px solid oklch(0.50 0.10 250 / 0.2)',
                   fontSize: 11, fontWeight: 700, color: 'oklch(0.72 0.19 250)',
                 }}>
-                  {(lead.assigned_rep_name || '')[0]?.toUpperCase() || '?'}
+                  {lead.rep_first_name[0].toUpperCase()}{lead.rep_last_name?.[0]?.toUpperCase() || ''}
                 </div>
                 <div>
                   <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)' }}>Assigned Rep</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{lead.assigned_rep_name}</div>
+                  <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{`${lead.rep_first_name} ${lead.rep_last_name || ''}`.trim()}</div>
                 </div>
               </div>
             )}
