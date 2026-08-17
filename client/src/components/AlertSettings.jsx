@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import Switch from 'react-switch';
 import { getAlertConfig, updateAlertConfig, getAlertHistory, sendTestAlert } from '../api/alerts';
 import { PaperAirplaneIcon, BellAlertIcon, EnvelopeIcon, MinusIcon, PlusIcon } from '@heroicons/react/24/outline';
 
@@ -145,7 +144,7 @@ export default function AlertSettings() {
                   Master switch for all storm notifications
                 </p>
               </div>
-              <ToggleSwitch checked={config?.enabled} onChange={() => handleToggle('enabled')} />
+              <ToggleSwitch checked={config?.enabled} onChange={() => handleToggle('enabled')} label="Alerts Enabled" />
             </div>
           </div>
 
@@ -156,7 +155,7 @@ export default function AlertSettings() {
                 <EnvelopeIcon width={20} height={20} />
                 <h3 style={{ fontSize: '15px', fontWeight: 600 }}>Email Recipients</h3>
               </div>
-              <ToggleSwitch checked={config?.email_enabled} onChange={() => handleToggle('email_enabled')} />
+              <ToggleSwitch checked={config?.email_enabled} onChange={() => handleToggle('email_enabled')} label="Email Recipients enabled" />
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -327,22 +326,39 @@ function StepperInput({ value, step, min, max, onChange }) {
   );
 }
 
-function ToggleSwitch({ checked, onChange }) {
+function ToggleSwitch({ checked, onChange, label }) {
   return (
-    <Switch
-      checked={!!checked}
-      onChange={onChange}
-      onColor="oklch(0.55 0.19 250)"
-      offColor="oklch(0.22 0.03 260)"
-      onHandleColor="oklch(1 0 0)"
-      offHandleColor="oklch(1 0 0)"
-      handleDiameter={18}
-      uncheckedIcon={false}
-      checkedIcon={false}
-      height={24}
-      width={44}
-      borderRadius={12}
-      activeBoxShadow="0 0 2px 3px oklch(0.60 0.18 260 / 0.3)"
-    />
+    <button
+      type="button"
+      role="switch"
+      aria-checked={!!checked}
+      aria-label={label}
+      onClick={() => onChange(!checked)}
+      style={{
+        width: 44,
+        height: 24,
+        borderRadius: 12,
+        padding: 2,
+        flexShrink: 0,
+        background: checked ? 'var(--accent-green)' : 'oklch(0.30 0.02 260 / 0.6)',
+        border: '1px solid var(--glass-border)',
+        transition: 'all 0.2s var(--ease-out)',
+        position: 'relative',
+        cursor: 'pointer',
+      }}
+    >
+      <span
+        aria-hidden="true"
+        style={{
+          display: 'block',
+          width: 18,
+          height: 18,
+          borderRadius: 9,
+          background: 'var(--text-primary)',
+          transition: 'transform 0.2s var(--ease-spring)',
+          transform: checked ? 'translateX(20px)' : 'translateX(0)',
+        }}
+      />
+    </button>
   );
 }
