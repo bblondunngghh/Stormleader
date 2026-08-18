@@ -216,8 +216,8 @@ export default function ContractsView() {
                     {c.id?.substring(0, 8) || '—'}
                   </td>
                   <td>
-                    <div style={{ fontWeight: 600 }}>{c.customer_name || '—'}</div>
-                    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{c.customer_email || ''}</div>
+                    <div style={{ fontWeight: 600 }}>{c.contact_name || c.signer_name || '—'}</div>
+                    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{c.address || ''}</div>
                   </td>
                   <td style={{ fontSize: 12, textTransform: 'capitalize' }}>{c.template_type || c.template_name || '—'}</td>
                   <td>
