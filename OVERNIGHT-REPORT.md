@@ -9,13 +9,24 @@
 Stages run tonight: `s1` api-test (Run 79), `s2` frontend-test (Run 79), `s3` ui-audit
 (Run 80), `s4` verify (Run 81), `s5` report (this document).
 
-> **Source-artifact note.** The three files named in the reporting brief —
-> `/tmp/api-test-results.txt`, `/tmp/frontend-test-results.txt`, `/tmp/ui-audit-results.txt` —
-> all exist but are **stale**: they are dated 2026-08-14 (Run 75), 2026-08-11 (Run 75) and
-> 2026-08-17 (Run 78) respectively. **s1 never wrote its results file** (see Coverage Gaps).
-> This report is therefore built from tonight's real artifacts: the four stage-result JSONs,
-> the two committed archive reports under `tests/audit-reports/`, the raw sweep output in
-> `C:/tmp/qa-r79-*.json`, and the stage session transcripts.
+> **Source-artifact note — there are TWO tmp locations and they hold different things.**
+> Under Git Bash `/tmp` resolves to `C:\Users\brand\AppData\Local\Temp`, which is *not* the
+> `C:/tmp/` directory this pipeline has historically written to. Checked at report time:
+>
+> | Path | State |
+> |---|---|
+> | `/tmp/ui-audit-results.txt` | **FRESH — tonight's Run 80 audit** (2026-08-18 05:40), byte-identical to the committed archive. s3 did write its results file. |
+> | `/tmp/api-test-results.txt` | **Does not exist.** s1 never wrote one (see Coverage Gaps). |
+> | `/tmp/frontend-test-results.txt` | **Does not exist.** s2 archived to `tests/audit-reports/` instead. |
+> | `C:/tmp/api-test-results.txt` | Stale — 2026-08-14 (Run 75). |
+> | `C:/tmp/frontend-test-results.txt` | Stale — 2026-08-11. |
+> | `C:/tmp/ui-audit-results.txt` | Stale — 2026-08-17 (Run 78); superseded by the `/tmp` copy above. |
+>
+> **Only the backend results file is genuinely missing.** All API figures below were therefore
+> reconstructed from s1's raw sweep output — `C:/tmp/route-inventory.json` and
+> `C:/tmp/qa-r79-{get,write1,p2a,p2b}.json`, all written tonight between 05:01 and 05:10 —
+> together with the four stage-result JSONs, the two committed archive reports under
+> `tests/audit-reports/`, and the stage session transcripts.
 
 ---
 

@@ -4140,7 +4140,9 @@ occurred on 08-12 or 08-13 (no checkpoint commits on those dates).
 Baseline `1671095` (tag `overnight-checkpoint-20260818`) → head `5329a7e`. Branch `feat/financing`.
 Full report: `OVERNIGHT-REPORT.md`. Artifacts:
 `tests/audit-reports/frontend-test-2026-08-18-run79-s2.txt`,
-`tests/audit-reports/ui-audit-2026-08-18-run80-s3.txt`, `C:/tmp/ui-audit-results.txt`,
+`tests/audit-reports/ui-audit-2026-08-18-run80-s3.txt`, `/tmp/ui-audit-results.txt` (fresh,
+byte-identical to that archive — note `/tmp` is `%LOCALAPPDATA%\Temp`, NOT `C:/tmp/`, whose
+copies of all three brief-named results files are stale),
 `C:/tmp/qa-r79-{get,write1,p2a,p2b}.json`, `C:/tmp/route-inventory.json`.
 
 Stages: `s1` api-test (Run 79), `s2` frontend-test (Run 79), `s3` ui-audit (Run 80),
