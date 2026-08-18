@@ -1,0 +1,232 @@
+UI CONSISTENCY AUDIT — 2026-08-18 (Run 80, stage s3)
+Baseline: b650ceb   Commit produced: 7d90e86
+Scope: 16 routes swept in-browser + full client/src code audit
+NET ZERO DB rows (one due_date set and reverted on an existing task)
+
+================================================================================
+FINDINGS TABLE
+================================================================================
+| Page      | Issue Type      | Element                              | Expected                          | Actual                              | Fixed? |
+|-----------|-----------------|--------------------------------------|-----------------------------------|-------------------------------------|--------|
+| /calendar | CSS/data drift  | .calendar-event-content__priority    | modifier styles the badge         | transparent bg, inherited colour    | YES    |
+|           |                 |   --${priority}                      | for hot/warm/cold                 | for ALL 3 reachable values          | 7d90e86|
+
+Everything else measured this run PASSED. Details below.
+
+================================================================================
+THE DEFECT — calendar priority badge could never show a colour
+================================================================================
+CalendarView.jsx:140 renders:
+
+    className={`calendar-event-content__priority
+                calendar-event-content__priority--${priority}`}
+
+`priority` originates at crm.js:1056 (`SELECT t.priority FROM tasks t`).
+`tasks.priority` is column type `lead_priority` — an ENUM whose only members are
+`hot | warm | cold` (006_leads.sql:2). Confirmed against the LIVE DB:
+
+    tasks.priority udt_name -> lead_priority
+    pg_enum labels          -> hot, warm, cold
+    live distribution       -> warm x2, NULL x2
+
+index.css defined modifiers for a completely different vocabulary:
+
+    .calendar-event-content__priority--urgent   (defined, UNREACHABLE)
+    .calendar-event-content__priority--high     (defined, UNREACHABLE)
+    .calendar-event-content__priority--medium   (defined, UNREACHABLE)
+    .calendar-event-content__priority--low      (defined, UNREACHABLE)
+    --hot / --warm / --cold                      (REACHABLE, NOT DEFINED)
+
+The set difference is total: zero of the three values that can ever flow in had
+a rule, and zero of the four defined rules could ever match. The base class
+supplies font-size/weight/padding/radius but NO background and NO color, so the
+badge rendered transparent with inherited text colour on every calendar event —
+a colour-coded priority indicator structurally incapable of showing a colour.
+
+PROOF (before) — DOM-injection probe, zero DB writes:
+    hot     -> background rgba(0, 0, 0, 0)   color oklch(0.95 0.005 260)  [inherited]
+    warm    -> background rgba(0, 0, 0, 0)   color oklch(0.95 0.005 260)  [inherited]
+    cold    -> background rgba(0, 0, 0, 0)   color oklch(0.95 0.005 260)  [inherited]
+    urgent  -> background oklch(0.55 0.2 25 / 0.3)    color oklch(0.8 0.18 25)
+    high    -> background oklch(0.55 0.15 70 / 0.3)   color oklch(0.8 0.15 70)
+    medium  -> background oklch(0.55 0.12 220 / 0.3)  color oklch(0.8 0.12 220)
+    low     -> background oklch(0.4 0.05 260 / 0.3)   color oklch(0.7 0.03 260)
+
+FIX: renamed the modifiers to the real enum values on the same red/amber/blue
+hues the app already uses for priority at .lead-table__priority-dot--hot/warm/
+cold (index.css:1916-1918), preserving the badge's existing translucent-
+background + solid-text formula. CSS only — no JSX, server or schema change.
+
+PROOF (after) — a REAL rendered calendar event, not an injected probe. One
+existing task's due_date was temporarily set, the badge measured, then the
+due_date reverted to NULL (tasks with_due back to 0 of 4, net zero rows):
+
+    <span class="calendar-event-content__priority
+                 calendar-event-content__priority--warm">warm</span>
+    background: oklch(0.55 0.17 85 / 0.3)   color: oklch(0.8 0.15 85)
+
+Verified in the BUILT css (dist/assets/index-BPmNuH4i.css), not just src —
+built output now contains only --hot/--warm/--cold.
+
+WHY IT SURVIVED 5 PRIOR UI AUDITS
+  1. It is INVISIBLE to a screenshot or computed-style sweep, because the badge
+     never renders today: all 4 tasks have due_date NULL, so /api/crm/calendar
+     returns no task events, and activity events hard-code `priority: null`
+     (crm.js:1100). It appears the moment any task gets a due date — i.e. normal
+     app use.
+  2. It is INVISIBLE to the Run 75/77 static className-vs-CSS set difference,
+     which can only see literal class strings. An interpolated modifier is
+     built at runtime, so neither side of that diff ever contained it.
+
+ROOT CAUSE WORTH KEEPING: the low/medium/high/urgent vocabulary is real in this
+app, but it belongs to AUTOMATION RULES (AutomationSettings.jsx:41-46), not to
+tasks. The badge CSS was written against the automation priority list while the
+data comes from the lead_priority enum. Same shape as Run 79's defect: a correct
+idiom from one entity copied onto a different entity.
+
+================================================================================
+HOW IT WAS FOUND — new set difference, and it is EXHAUSTIVE
+================================================================================
+6th consecutive run where the finding came from a set difference over code.
+
+    INTERPOLATED CSS MODIFIER CLASSES  vs  THE ENUM VALUES THAT CAN FLOW IN
+
+Method: grep `[a-z][a-z0-9_-]*--\$\{[^}]+\}` across client/src, resolve each
+interpolation to its data source (client constant -> API field -> DB column
+type), then diff the reachable value set against the defined `.x--y` selectors.
+
+The app contains EXACTLY FOUR such families, so this audit is closed, not
+sampled — 1 of 4 was broken:
+
+  1. calendar-event-content__priority--${priority}   BROKEN (above)          FIXED
+  2. lead-table__priority-dot--${lead.priority}      hot/warm/cold: 3/3 defined  OK
+  3. lead-table__stage--${lead.stage}                all 10 lead_stage enum
+                                                     members defined           OK
+  4. public-estimate-status--${estimate.status}      guarded by `isResolved`
+                                                     to accepted|declined|
+                                                     expired; 3/3 defined      OK
+
+Note on #4: the estimates CHECK constraint allows 6 values (draft, sent, viewed,
+accepted, declined, expired) and only 3 have CSS — but PublicEstimate.jsx:402
+renders the badge only when `isResolved`, so the other 3 are unreachable. This
+is correct; do not file it.
+
+There are ZERO other dynamic class-construction mechanisms in the client: no
+clsx, no classnames, no `className={map[key]}` lookups. Verified by grep.
+
+================================================================================
+AUDIT 1 — ICON CONSISTENCY: PASS
+================================================================================
+Code:
+  - Imports from '@heroicons/react/24/solid' or any non-outline path:  0
+  - Imports from lucide / react-icons / fontawesome / mui / feather:   0
+  - Inline <svg> in components: 2, both documented legitimate non-icons —
+    CanvassingMode.jsx:336 (map-pin legend swatch, same path as the markers)
+    and StormMap.jsx:1764 (star glyphs inside a Google InfoWindow HTML string,
+    where a React component is impossible). Both off-limits map code.
+Browser: 16/16 routes returned ZERO foreign icons. Every sidebar icon is
+viewBox "0 0 24 24" (18/18). Excluded by design: .recharts-* surfaces
+(data-viz, documented), FullCalendar chrome, map canvases.
+
+================================================================================
+AUDIT 2 — BUTTON CONSISTENCY: PASS (no new outliers)
+================================================================================
+Dominant radius is 12px on every route. The entire observed spread reduces to
+already-documented, already-investigated cases:
+  "14px / 12px" and "10px / 8px"  -> CSS clamp() serialisation artifacts of the
+                                     same 12px family, not distinct values
+  "3.35544e+07px"                 -> clamp() artifact
+  "0px"                           -> FullCalendar .fc-button-group inner
+                                     buttons; the GROUP carries the radius +
+                                     overflow:hidden (index.css:3785). Verified
+                                     non-bug, segmented control by design.
+  "999px"                         -> status pills
+  "8px 0 0 8px" / "0 8px 8px 0"   -> /alerts numeric stepper +/- buttons
+                                     (AlertSettings.jsx:308-316). Verified
+                                     non-bug.
+No button deviating from its group beyond these. Nothing changed.
+
+================================================================================
+AUDIT 3 — TOOLBAR / HEADER CONSISTENCY: PASS
+================================================================================
+Header height measured 56px on ALL 16 routes — zero variance.
+An <h1> is present on all 16 and matches the route (TopBar.jsx:45 viewTitles).
+
+================================================================================
+AUDIT 4 — SIDEBAR & NAVIGATION: PASS
+================================================================================
+  nav links per route      18 (identical on /, /leads, /settings)
+  links carrying an icon   18 / 18
+  icon viewBoxes           ["0 0 24 24"] only
+  link heights             42px x 18 — zero variance
+  inter-item gaps          0px x12, 8px x1, 30px x3 (the three 30s are the
+                           nav-group separators; structural, not drift)
+  .is-active per route     exactly 1
+Active state is clearly and consistently differentiated:
+  active  color oklch(0.95 0.005 260), weight 600, ::before 3px oklch(0.72 0.19 250)
+  idle    color oklch(0.72 0.01 260),  weight 500, ::before transparent
+(Reminder: the active class is `is-active`, NOT `active`.)
+
+================================================================================
+AUDIT 5 — FORM ELEMENT CONSISTENCY: PASS
+================================================================================
+  native <select>            0  across 16/16 routes  -- 9th consecutive run
+  native date/time inputs    0  across 16/16 routes  -- 9th consecutive run
+  .form-input height         36px everywhere except /materials 32px, which is
+                             the documented deliberate compact search embedded
+                             in the 41px category tab bar (MaterialsView.jsx:309)
+Non-.form-input visible fields: exactly 1 per route (the global TopBar Cmd-K
+search, documented) plus 2 on /alerts (the numeric stepper, documented).
+CustomSelect and DatePicker rules remain fully respected.
+
+================================================================================
+AUDIT 6 — SPACING & ALIGNMENT: PASS
+================================================================================
+Dashboard's 18 .glass cards all compute padding 17.5px — zero variance across
+the largest panel population in the app. Remaining per-page .glass panels are
+1-2 per route with context-appropriate padding (page shells vs cards).
+
+================================================================================
+AUDIT 7 — MODAL CONSISTENCY: PASS (pre-documented variances left alone)
+================================================================================
+  components using .modal-backdrop   13
+  components using .slide-over        5   (documented legitimate 2nd pattern)
+  overlays using NEITHER              0
+The 5 files with position:fixed and no overlay class are all correctly not
+modals: BottomTabBar (mobile tab bar), CustomSelect (portal dropdown — required
+by project rule), Toast (notifications), RoofDrawingTool + TerritoryManager
+(map tool panels).
+`@keyframes modal-scale-in` (index.css:4279) and `.modal-scale-in` (:4479) are
+both defined — Run 75's defect stays fixed.
+Deliberately NOT changed, per prior developer decisions: modal z-index spread
+(functional nested stacking order), backdrop blur variance (per-context), 3
+modal-title sizes, 2 close-button placements.
+
+================================================================================
+NOTED FOR ANOTHER STAGE — NOT A UI ISSUE, NOT FIXED HERE
+================================================================================
+automationEngine.js:75-77 inserts into tasks:
+
+    INSERT INTO tasks (tenant_id, lead_id, title, priority, due_date)
+    VALUES (..., cfg.priority || 'medium', dueDate)
+
+`tasks.priority` is the `lead_priority` enum (hot|warm|cold), so BOTH the
+'medium' default and every value AutomationSettings.jsx offers (low/medium/
+high/urgent) are invalid enum labels. Any automation rule that creates a task
+should fail with 22P02 invalid input value for enum lead_priority.
+This is a SERVER defect and outside the UI-audit charter — it is written up here
+so the next api-test stage can reproduce it. It is also the origin of the CSS
+vocabulary mismatch fixed above.
+
+================================================================================
+HARNESS / TESTER NOTES
+================================================================================
+- `document.styleSheets` rule-walking returned [] in the Vite DEV server (rules
+  are injected via JS and the traversal throws a swallowed SecurityError), even
+  though the very same selectors demonstrably applied. Do not treat an empty
+  styleSheets walk as evidence a selector is undefined — INJECT the element and
+  read computed style, and grep the BUILT css. Both were used here.
+- Temporarily mutating one existing row (due_date set, measured, reverted) is a
+  clean way to make a latent render path observable without creating QA rows.
+  Confirmed before/after: tasks with due_date 0 -> 1 -> 0, total 4 throughout.
+- No stray PNGs: no screenshots were written this run.
