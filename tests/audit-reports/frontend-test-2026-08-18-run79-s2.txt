@@ -1,0 +1,72 @@
+FRONTEND TEST — Run 79, stage s2 (2026-08-18)
+Baseline 1671095 · Fix commit da4ca1d · NET ZERO DB writes
+
+RESULT: 1 defect found, 1 fixed. All 19 routes tested. Build passes.
+
+== THE DEFECT — /contracts CUSTOMER column empty on every row ==
+ContractsView.jsx:219-220 rendered `c.customer_name` / `c.customer_email`.
+Neither is ever a top-level field on a contract row:
+  listContracts (contractService.js:27) -> SELECT c.*, l.contact_name, l.address
+  getContract   (contractService.js:46) -> + l.contact_phone, l.contact_email
+  `customer_name` exists ONLY as a key inside the generated content JSONB (:88)
+The `|| '—'` fallback made the empty column look deliberate. Measured: 0 of 7
+rows populated, including one contract where the API DID return
+contact_name="Test QALead".
+FIX: read what the list query returns — `contact_name || signer_name || '—'`
+plus `address` — matching InvoicesView.jsx:266 / WorkOrdersView.jsx:543.
+VERIFIED in browser: 0/7 -> 3/7 populated; remaining 4 have no name and no
+address in the data. No server or DB change.
+ROOT-CAUSE NARRATIVE: estimates DO expose customer_name/customer_email/
+customer_address; contracts do not. The estimate idiom was copied onto a
+contract row.
+
+== CANDIDATES RAISED AND KILLED (discipline: 1 real of 6) ==
+1. InvoicesView.jsx:373-374 `est.customer_name || est.lead_name`  — KILLED,
+   estimates payload really has customer_name (+ lead_name as a column).
+2. WorkOrdersView.jsx:805-806 `est.estimate_number` / `est.lead_address` — KILLED, both present.
+3. WorkOrders/team `first_name`/`last_name` — KILLED, team-member objects.
+4. LeadList.jsx:86 `lead.stage_changed_at` absent from API — REAL but ALREADY
+   a documented developer ticket (Days-in-Stage); has a created_at fallback.
+5. 40 console 401s + no logout on load — KILLED: stale token, refresh
+   interceptor recovered (POST /api/auth/refresh 200, stored token then 200).
+6. Calendar shows 0 events — KILLED: API correctly returns []; every task has
+   due_date NULL. "No events in this range" is accurate.
+
+== COVERAGE ==
+19/19 routes render: 0 page errors, 0 failed API requests
+  (only /admin 403 — documented platform-admin-only).
+Settings: all 15 tabs switch and render distinct content, 0 errors.
+Reports: all 5 date presets produce correct date math + correct API params
+  (This Week/Month/Quarter/Year -> exact ranges; All Time -> start=&end=);
+  9 recharts surfaces re-render.
+Calendar: Month/Week/Day/List all swap the view class + active button.
+Leads: in-page search -> search=Smith (1 row, URL synced); sort fires real
+  sort_by=stage / sort_by=lead_score (read the OUTGOING param, not row identity).
+Create flows open correctly: Estimate builder (in-place, 14 inputs, sections),
+  Invoice (line items + Add Line Item), Work Order (modal + Job Type Template +
+  7-step CHECKLIST PREVIEW), Task, Expense, Subcontractor, Canvassing "Drop Pin"
+  -> "Tap the map to place pin".
+Invoices filter tabs: All 22 / Draft 12 / Sent 6 / Paid 1 — real status params.
+ZERO native <select>, ZERO native date inputs anywhere — 8th consecutive run.
+
+== NIGHTLY SUITE: 5 FAILURES ARE STALE SELECTORS, NOT APP BUGS ==
+Same 5 failing tests as 2026-08-17 (identical .last-run.json). Measured:
+  '.sidebar a, .sidebar [role=button], nav a' -> 0   (app uses 22 <button>)
+  '[class*=kanban|pipeline|stage]'            -> 0   (app uses Tailwind utils)
+  '.stat-card, [class*=stat]'                 -> 0
+Calendar view switcher + dashboard actions both work when driven manually.
+Test-suite debt — developer call, not fixed here (out of charter).
+
+== TESTER ERROR — COST A DB WRITE, THEN REVERTED ==
+A bare label regex for filter tabs matched a destructive ROW ACTION: "Void" on
+/contracts fired POST /api/crm/contracts/bb979c43.../void. Restored to draft
+via SQL (contracts back to 3 draft / 4 voided). NET ZERO.
+ALWAYS scope tab selectors to a container and exclude void/delete/remove.
+
+== DEVELOPER TICKETS (not fixed — out of charter) ==
+- Voiding a contract is irreversible from the UI and has NO confirmation.
+  There is no window.confirm anywhere in the app, so this is uniform, not an
+  inconsistency — but void has no un-void route.
+- The 5 stale nightly tests above.
+- DB fuzz residue is STILL growing: estimates now at EST-105 ("QA79 Two" from
+  s1 today). 7th stage carrying this. s4 must run the scoped cleanup.
