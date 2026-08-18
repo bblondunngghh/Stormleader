@@ -1,333 +1,421 @@
-# StormLeads Overnight QA Report — 2026-08-16 (Run 77)
+# StormLeads — Overnight QA Report
 
-**Baseline:** `f63e32c` (checkpoint: pre-overnight-run 2026-08-16)
-**HEAD at report time:** `ed388d7`
-**Build:** `npx vite build` — PASS (exit 0, 8.04s; only the pre-existing chunk-size warnings)
-**Net DB writes across all stages:** 0 rows created, updated, or deleted
+**Date:** 2026-08-18
+**Branch:** `feat/financing`
+**Baseline:** `1671095` (tag `pre-overnight-20260818`)
+**Head at report time:** `5329a7e`
+**Final `vite build`:** PASS (exit 0, 7.93 s — re-run at report time on head `5329a7e`)
 
-## Report provenance — read this first
+Stages run tonight: `s1` api-test (Run 79), `s2` frontend-test (Run 79), `s3` ui-audit
+(Run 80), `s4` verify (Run 81), `s5` report (this document).
 
-Two of the five stages hit the harness turn cap and produced **no written report**:
-
-| Stage | Outcome | Turns | Commits | Report artifact |
-|---|---|---|---|---|
-| s1 api-test | `error_max_turns` | 51 | none | **none** |
-| s2 frontend-test | success | 70 | `4384bf8` | `tests/audit-reports/frontend-test-2026-08-16-run77-s2.txt` |
-| s3 ui-audit | success | 56 | `9df54f4` | `tests/audit-reports/ui-audit-2026-08-16-run77-s3.txt` |
-| s4 verify | `error_max_turns` | 41 | `ed388d7` | **none** |
-| s5 report | this stage | — | this commit | this file |
-
-The s1 and s4 sections below were **reconstructed in s5 from raw harness output**
-(`C:/tmp/qa-r77-*.json`, `C:/tmp/route-inventory.json`, `server/.qa-r77*.mjs`), not
-from a stage summary. s1 left 8 unresolved candidate findings and s4 left 1; all 9
-were adjudicated in s5 and are reported below with their verification evidence.
-This is the 7th consecutive run with at least one capped stage.
+> **Source-artifact note.** The three files named in the reporting brief —
+> `/tmp/api-test-results.txt`, `/tmp/frontend-test-results.txt`, `/tmp/ui-audit-results.txt` —
+> all exist but are **stale**: they are dated 2026-08-14 (Run 75), 2026-08-11 (Run 75) and
+> 2026-08-17 (Run 78) respectively. **s1 never wrote its results file** (see Coverage Gaps).
+> This report is therefore built from tonight's real artifacts: the four stage-result JSONs,
+> the two committed archive reports under `tests/audit-reports/`, the raw sweep output in
+> `C:/tmp/qa-r79-*.json`, and the stage session transcripts.
 
 ---
 
 ## QA Test Summary
 
-| Metric | Count |
+| Metric | Result |
 |---|---|
-| Frontend routes tested | 19 protected + 3 public `/contract/:token` |
-| Settings tabs tested | 15 (all) |
-| API endpoints inventoried | 272 |
-| API endpoints exercised | 125 (all GET, with real resource ids) |
-| API endpoints **not** exercised | 147 (140 write routes + 7 GET with no resolvable id) |
-| Bugs found | 3 |
-| Bugs fixed | 3 |
-| UI inconsistencies found | 0 |
-| UI inconsistencies fixed | 0 |
-| Candidate findings raised and killed on verification | 23 |
-| 5xx responses observed | 0 |
+| Frontend routes tested | **19 of 19** (plus 15 Settings tabs, 4 Calendar views, 7 create flows) |
+| API endpoints tested | **262 of 272 route patterns (96.3%)** across **337 HTTP calls** |
+| Server errors (5xx) observed | **0** |
+| Bugs found | **3** |
+| Bugs fixed | **3** |
+| UI inconsistencies found | **1** |
+| UI inconsistencies fixed | **1** |
+| Fix commits | `da4ca1d`, `7d90e86`, `5329a7e` |
+| Net DB rows written by stages s2–s4 | **0** |
+| Net DB rows left by stage s1 | 3 leads, 6 estimates (not cleaned up) |
 
-**Signal-to-noise:** 26 candidates were raised across the run; 3 survived
-verification. The ~9:1 over-report rate is consistent with Runs 75–76 and is the
-reason every candidate below carries its kill or confirm evidence.
+All three defects found tonight were **total failures, not edge cases** — each broke on 100%
+of its inputs, and each had survived multiple prior runs because it is invisible to
+screenshot- and output-based testing.
 
 ---
 
 ## Backend API Test Results
 
-Endpoints were tested black-box against `http://localhost:3001` with **real resource
-ids resolved from live list endpoints** — not dead UUIDs. (Runs 70/73 probed with a
-dead uuid, which 404s *before* handler logic and is structurally incapable of finding
-stored-shape crashes.)
+Stage s1 built a complete route inventory (**272 routes across 36 route files**: 132 GET,
+88 POST, 26 PATCH, 8 PUT, 18 DELETE) and exercised it in four passes: a GET sweep against
+**real resolved IDs**, a write/negative sweep, and two real-payload lifecycle passes covering
+resource families that had zero rows and had therefore never executed on stored data.
 
-### Coverage by method
+**Headline: zero 5xx across all 337 calls.** Every 4xx observed was a deliberate negative
+test (missing required field → 400, dead UUID → 404, non-platform-admin → 403), and every one
+degraded gracefully rather than crashing.
 
-| Method | In inventory | Exercised | Result |
-|---|---|---|---|
-| GET | 132 | 125 | 111×200, 9×400, 4×403, 1×404, **0×5xx** |
-| POST | 88 | 0 | not reached — stage capped |
-| PATCH | 26 | 0 | not reached — stage capped |
-| DELETE | 18 | 0 | not reached — stage capped |
-| PUT | 8 | 0 | not reached — stage capped |
+| Category | Routes | Tested | Skipped | 2xx | 4xx | 5xx |
+|---|---:|---:|---:|---:|---:|---:|
+| CRM core (`crm.js`) | 51 | 50 | 1 | 30 | 20 | 0 |
+| Properties / storm data (`properties.js`) | 18 | 15 | 2 | 9 | 6 | 0 |
+| Estimates | 17 | 17 | 0 | 8 | 9 | 0 |
+| Contracts | 13 | 13 | 0 | 4 | 9 | 0 |
+| Financing | 13 | 13 | 0 | 3 | 10 | 0 |
+| Work orders | 12 | 12 | 0 | 9 | 3 | 0 |
+| Skip trace | 10 | 10 | 0 | 5 | 5 | 0 |
+| Materials | 9 | 9 | 0 | 8 | 1 | 0 |
+| Drip sequences | 8 | 8 | 0 | 2 | 6 | 0 |
+| Invoices | 8 | 8 | 0 | 5 | 3 | 0 |
+| Subcontractors | 8 | 8 | 0 | 3 | 5 | 0 |
+| Roof measurement | 8 | 7 | 1 | 5 | 2 | 0 |
+| Onboarding | 7 | 6 | 1 | 3 | 3 | 0 |
+| Payments | 7 | 7 | 0 | 2 | 5 | 0 |
+| Admin | 6 | 6 | 0 | 0 | 6 | 0 |
+| Reports | 6 | 6 | 0 | 6 | 0 | 0 |
+| Territories | 6 | 6 | 0 | 1 | 5 | 0 |
+| Leads | 6 | 6 | 0 | 4 | 2 | 0 |
+| Notifications | 6 | 6 | 0 | 4 | 2 | 0 |
+| Auth | 5 | 3 | 2 | 1 | 2 | 0 |
+| Automations | 5 | 5 | 0 | 1 | 4 | 0 |
+| Canvassing | 5 | 5 | 0 | 2 | 3 | 0 |
+| Expenses | 5 | 5 | 0 | 2 | 3 | 0 |
+| Drift | 5 | 4 | 1 | 2 | 2 | 0 |
+| Alerts | 4 | 4 | 0 | 4 | 0 | 0 |
+| Counties | 4 | 3 | 1 | 2 | 1 | 0 |
+| Dashboard | 3 | 3 | 0 | 3 | 0 | 0 |
+| Data APIs | 3 | 3 | 0 | 2 | 1 | 0 |
+| Documents | 3 | 3 | 0 | 1 | 2 | 0 |
+| Map | 3 | 3 | 0 | 3 | 0 | 0 |
+| Storm history / storms | 4 | 4 | 0 | 4 | 0 | 0 |
+| Disaster declarations | 1 | 1 | 0 | 0 | 1 | 0 |
+| Search | 1 | 1 | 0 | 1 | 0 | 0 |
+| Webhooks (`webhook.js`, `hearthWebhook.js`) | 2 | 2 | 0 | 2 | 0 | 0 |
+| **TOTAL** | **272** | **262** | **10** | **141** | **121** | **0** |
 
-### GET sweep by category
+**The 10 skipped routes were skipped deliberately, per the standing cost/safety charter** —
+paid APIs and bulk operations (`POST /api/properties/trigger-import`,
+`/api/properties/generate-leads`, `/api/counties/:id/import`, `/api/crm/leads/score-all`,
+`/api/drift/correct-all`, `/api/roof-measurement/measure`,
+`GET /api/properties/import-progress`) and irreversible auth/tenant operations
+(`POST /api/auth/register`, `POST /api/onboarding/create-tenant`; `POST /api/auth/login` was
+exercised for token acquisition but excluded from the destructive sweep).
 
-| Category | Tested | Pass | Notes |
-|---|---|---|---|
-| Auth / tenant | all reached | pass | token minted once (login is rate-limited) |
-| CRM (leads, tasks, contacts, dashboard) | all reached | pass | 1×400 on `/api/crm/calendar` (requires a date range) |
-| Estimates / invoices / contracts | all reached | pass | — |
-| Work orders / expenses / subcontractors | all reached | pass | — |
-| Financing / drip / automations | partial | pass | 3 routes unreachable (empty tables) |
-| Storms / map / properties / FEMA | all reached | pass | 7×400, all missing-required-`bbox`/date validation |
-| Admin | 4 | 4×403 | **correct** — non-superadmin token, platform-admin-only |
-| Public share links | 1 | 1×404 | dead token; `/estimate/:token` unreachable, see gaps |
+**First-ever coverage achieved this run:** drip sequences, automations, territories and
+financing applications were each driven through a real create → read → update → delete
+lifecycle. All four families had zero stored rows in every prior run, so their handlers had
+never executed against real data. All four came back clean.
 
-**Every non-200 was verified as correct behaviour**, not a defect: the 400s are
-required-parameter validation (the sweep deliberately sends no params), the 403s are
-tenant-role enforcement, and the 404 is a non-existent public token.
+### What was fixed on the backend
 
-### Structural checks (set differences over the route table)
+**`5329a7e` — every automation and drip "create task" action failed silently.** (Found by
+s3 during the UI audit, handed off, reproduced and fixed by s4.)
 
-1. **Shadowed routes** (`.qa-r77-shadow.mjs`) — routes declared but unreachable
-   because Express matches in declaration order. **0 intra-file shadowings**
-   (e.g. no `/:id` declared ahead of a literal sibling) and **0 clashes across all
-   9 inter-router mount pairs** (`/crm` vs `/crm/invoices`, `/crm/work-orders`,
-   `/crm/reports`, `/crm/automations`, `/crm/canvass-pins`, `/crm/drip-sequences`,
-   `/webhooks` vs `/webhooks/hearth`). Clean.
-2. **Dead query filters** (`.qa-r77-qparams.mjs` + `.qa-r77-qprobe.mjs`) — 37 GET
-   routes declare query params; each was probed with an unmatchable value to see
-   whether the row count moved. **4 candidates, all 4 killed** (see below).
-3. **Dropped update fields** (`.qa-r77-whitelist.mjs`) — fields the client sends on
-   an update vs the server's `allowedFields` whitelist. This is the family of Run
-   74's `8a45209`. **4 candidates, all 4 killed** (see below).
+`tasks.priority` is column type `lead_priority` — a Postgres enum whose only members are
+`hot | warm | cold`. Three code paths wrote a `low/medium/high/urgent` vocabulary into it that
+belongs to no table in this schema:
 
-### s1's 8 candidates — all adjudicated in s5, all false positives
+- `automationEngine.js:77` — `cfg.priority || 'medium'`
+- `dripService.js:344` — `cfg.priority || 'medium'`
+- `seed.js:305-314` — all 10 seeded tasks
 
-| # | Candidate | Verdict and evidence |
-|---|---|---|
-| 1 | `/api/crm/tasks?completed=true` returns the same 4 rows as unfiltered | **Not a bug.** `crmService.js:369-372` applies `t.completed_at IS NOT NULL` / `IS NULL` correctly. The harness assumed `true` was an unmatchable value; all 4 tasks are in fact completed, so 4→4 is the right answer. |
-| 2 | `properties-affected/list?contacted=true` → 50 = 50 | **Not a bug.** `crmService.js:856-858` accepts `'contacted'` / `'uncontacted'`; anything else means "all". The harness sent `true`, which is out of domain. |
-| 3 | `properties-affected/list?housesOnly=true` → 50 = 50 | **Not a bug.** `crm.js:731,736` — `housesOnly` **defaults to `'true'`**, so the probe re-sent the default. The unmatchable value would have been `false`. |
-| 4 | `/api/storms?timeRange=1` → 50 = 50 | **Not a bug.** `stormService.js:76` keys an intervals map on `12h\|24h\|3d\|7d\|14d\|30d`; `1` is not a key, so no filter is applied. Out-of-domain probe value. |
-| 5 | `AdminDashboard.jsx:289` sends `subscriptionTier`/`subscriptionStatus`, whitelist drops them | **Not a bug** — already a documented Run 74 non-bug. `updatePlan` destructures camelCase deliberately; it is the only such service. |
-| 6 | `DripSequences.jsx:90` sends `is_active`, not in any `allowedFields` | **Not a bug.** `dripService.js:93` handles `is_active` in an explicit if-chain rather than an `allowedFields` array. The harness only recognised the array pattern. |
-| 7 | `SettingsView.jsx:2685` sends `unit`/`default_unit_price`/`section`, dropped | **Not a bug.** The call targets `PATCH /estimates/templates/:id`, a **dedicated handler** at `estimates.js:124` that destructures all five fields explicitly. The harness paired the call with `estimateService`'s *estimate* whitelist. |
-| 8 | `api/crm.js:16` sends `roof_type`, not in `updateLead`'s whitelist | **Not a bug.** The call targets `PATCH /crm/leads/:id/roof-type`, a **dedicated handler** at `crm.js:239`. The harness paired it with the generic lead-update whitelist by path prefix. |
+Every such INSERT raised `22P02 invalid input value for enum lead_priority`. The impact was
+**total, not partial**: `AutomationSettings.jsx` offered exactly `low/medium/high/urgent`, so
+no reachable dropdown value could ever be stored, and the `'medium'` default failed too. The
+drip step editor exposes no priority field at all, so its config never had one and the failing
+default always fired. Because `fireTrigger()` catches and logs, the user saw a saved, active,
+apparently-working automation that silently created nothing — no toast, no failed state, no
+row. `seed.js` runs inside a single `BEGIN/COMMIT`, so the first task insert rolled the entire
+seed back.
 
-**Lesson (harness, not app):** 4 of these 8 came from a static diff pairing a client
-call with the *wrong* server handler, and 3 more from probing a filter with a value
-that is either the default or outside the accepted domain. A dead-filter probe is
-only valid if the probe value is provably unmatchable *and* the baseline is non-zero.
+Fixed by normalizing through one shared util (`server/src/utils/taskPriority.js`) so
+already-saved configs holding the old vocabulary keep working instead of erroring
+(`urgent`/`high` → `hot`, `medium` → `warm`, `low` → `cold`, unknown → `warm`), and by pointing
+the `AutomationSettings` dropdown at the real enum. **User-facing labels are unchanged** —
+`TasksView.jsx` already renders `hot/warm/cold` as High/Medium/Low, so the automation dropdown
+now matches the task modal it feeds.
 
-### API fixes committed this run
-
-**None.** s1 committed nothing — it found no confirmed defect before hitting the
-turn cap, and s5's adjudication of its 8 candidates confirms there was nothing to fix.
+Verified end-to-end by invoking the real `fireTrigger()` and `processScheduledSteps()` paths:
+a new-vocabulary config, a legacy `'medium'` config and a config with no priority at all each
+created their task (`hot` / `warm` / `warm`) where all three previously failed. Net zero DB
+rows (tasks 4 → 4, automations 0 → 0, drip sequences and enrollments 0 → 0).
 
 ---
 
 ## Frontend Feature Test Results
 
-All 19 protected routes rendered with **0 page errors, 0 failed application requests,
-and 0 `undefined` / `NaN` / `[object Object]` / `Invalid Date` strings** in rendered
-text. The only non-2xx was `/admin` → 403 on `/api/admin/overview`, which is the
-documented platform-admin-only behaviour.
+Stage s2 drove all 19 in-app routes in a real browser (Playwright), measuring the DOM and
+computed styles rather than relying on screenshots. **0 page errors and 0 failed API requests
+across all 19 routes**; the only non-200 was `/admin` returning 403, which is the documented
+platform-admin-only behaviour.
 
 | Page | Tested | Result |
 |---|---|---|
-| `/dashboard` | stat cards, funnel, activity feed, tasks due, team leaderboard, all 5 date ranges | **1 defect — fixed.** Leaderboard rep click filtered nothing. All 5 date ranges issue correctly-dated API calls. Pipeline value $134K (All Time/YTD) vs $0 (7/30/90d) confirmed correct — every valued lead predates 2026-05-18. |
-| `/leads` | search (match + no-match), 7 sortable columns, filters, filter pills, Clear All, pagination | Pass after fix. Non-sortable columns (Address, Phone, Email, Source, Storm, Rep, Follow-up, Days) have no `onClick` **by design** — only 7 columns call `handleSort`. |
-| `/calendar` | event click-through | **1 defect — fixed.** Event click did not open the lead. View switching **untested — 0 events exist**. |
-| `/estimates` | list, filter tabs | Pass. Builder line items untested. |
-| `/invoices` | list, filter tabs | Pass. Record Payment untested. |
-| `/contracts` | list, filter tabs | Pass. |
-| `/expenses` | list, filter tabs | Pass. **Open ticket:** `?leadId=` is ignored. |
-| `/tasks` | list, filter tabs | Pass. **Cosmetic:** "Pending 0" shows the first-run empty state. |
-| `/work-orders` | list, filter tabs | Pass. Milestones/checklists untested. |
-| `/pipeline`, `/storm-map`, `/canvassing`, `/reports`, `/storm-catalog`, `/alerts`, `/admin`, `/settings` + remaining routes | render, console, network | Pass — 0 errors. `/reports` type switching untested. |
-| `/settings` — all 15 tabs | click, switch, render, form elements | **All 15 switch and render, 0 errors. ZERO native `<select>`, ZERO native date inputs — 5th consecutive run.** |
-| `/contract/:token` (public) | 3 tokens rendered | Pass — 0 errors, correct white-paper card. **All 3 are `status=void`**, so only the voided stub was exercised. |
+| `/` Dashboard | Render, 18 glass cards, leaderboard + calendar widgets | PASS |
+| `/storm-map` | Render, no console errors (FEMA/map internals untouched per standing rule) | PASS |
+| `/storm-archive` | Render, data load | PASS |
+| `/pipeline` | Render, stage columns | PASS |
+| `/leads` | In-page search → `search=Smith` (1 row, URL synced); sort fires real `sort_by=stage` / `sort_by=lead_score` | PASS |
+| `/estimates` | List + New Estimate builder (in-place, 14 inputs, sections) | PASS |
+| `/contracts` | List, 7 rows, filter tabs | **BROKEN → FIXED (`da4ca1d`)** |
+| `/work-orders` | List + create modal, Job Type Template, 7-step checklist preview | PASS |
+| `/materials` | List, category tab bar, compact search | PASS |
+| `/invoices` | Filter tabs All 22 / Draft 12 / Sent 6 / Paid 1 (real status params); create + line items | PASS |
+| `/expenses` | List + create flow | PASS |
+| `/tasks` | List + create flow | PASS |
+| `/calendar` | Month/Week/Day/List all swap view class + active button | PASS (see UI audit) |
+| `/canvassing` | "Drop Pin" → "Tap the map to place pin" | PASS |
+| `/subcontractors` | List + create flow | PASS |
+| `/reports` | All 5 date presets: correct date math **and** correct outgoing API params; 9 recharts surfaces re-render | PASS — first real coverage of this page |
+| `/settings` | All 15 tabs switch and render distinct content | PASS |
+| `/alerts` | Toggles, numeric stepper | PASS |
+| `/admin` | 403 for non-platform-admin | PASS (expected) |
+
+### What was broken and how it was fixed
+
+**`da4ca1d` — `/contracts` CUSTOMER column was empty on every row.**
+
+`ContractsView.jsx:219-220` rendered `c.customer_name` and `c.customer_email`. Neither is ever
+a top-level field on a contract row: `listContracts` (`contractService.js:27`) selects
+`c.*, l.contact_name, l.address`, and `customer_name` exists **only as a key inside the
+generated content JSONB**. The `|| '—'` fallback made a permanently broken column look like a
+deliberate empty state.
+
+Measured **0 of 7 rows populated**, including one contract where the API *did* return
+`contact_name: "Test QALead"`. Fixed to read what the list query actually returns
+(`contact_name || signer_name || '—'`, plus `address`) — the same idiom already used at
+`InvoicesView.jsx:266` and `WorkOrdersView.jsx:543`. Verified in-browser: **0/7 → 3/7
+populated**; the remaining 4 genuinely have no name and no address in the data. Client-only
+change, no server or schema change.
+
+Root cause worth keeping: **estimates do expose `customer_*` fields; contracts do not.** The
+estimate idiom was copied onto a contract row, which is why identical-looking code is correct
+in `InvoicesView` and wrong here.
+
+### Candidates raised and killed (6 raised, 1 real)
+
+Testing discipline held — five plausible-looking findings were investigated and correctly
+rejected rather than filed:
+
+1. `InvoicesView.jsx:373-374` `est.customer_name || est.lead_name` — **killed**, the estimates
+   payload really does carry both.
+2. `WorkOrdersView.jsx:805-806` `est.estimate_number` / `est.lead_address` — **killed**, both
+   present.
+3. Work-order team `first_name`/`last_name` — **killed**, those are team-member objects.
+4. 40 console 401s on load with no logout — **killed**, stale token; the refresh interceptor
+   recovered correctly (`POST /api/auth/refresh` 200, then 200 on retry).
+5. Calendar shows 0 events — **killed**, the API correctly returns `[]` because every task has
+   `due_date NULL`. "No events in this range" is accurate.
+6. `LeadList.jsx:86` `lead.stage_changed_at` absent from the API — **real, but already an
+   open developer ticket** (Days-in-Stage); it has a `created_at` fallback.
+
+### What still needs attention
+
+- **`/contracts` void is irreversible from the UI with no confirmation.** There is no
+  `window.confirm` anywhere in the app, so this is uniform rather than an inconsistency — but
+  there is no un-void route either. Design decision, not filed as a bug.
+- **`LeadList` Days-in-Stage** still averages `updated_at` because `stage_changed_at` is not
+  recorded. Needs a column + backfill migration (carried from Run 74).
 
 ---
 
 ## UI Consistency Audit Results
 
-All 7 charter audits ran under **real measurement** (computed styles read in the live
-document) across all 19 routes. **0 defects found. 0 code changes.**
+Stage s3 ran all 7 charter audits across 16 routes, combining an in-browser measured sweep
+with a full `client/src` code audit. **6 of 7 categories passed outright; 1 defect found and
+fixed.**
 
-| Audit | Finding | Fixed? |
+| Audit category | Result | Detail |
 |---|---|---|
-| **1. Icons** | **No non-Heroicon icons.** 43/43 imports are `@heroicons/react/24/outline`; 0 solid variants, 0 other libraries, 0 `fa-*` or Material classes, **0 non-conforming `<svg>` on any of 19 routes**. The only 2 inline `<svg>` are the documented map-legend swatch and Google InfoWindow stars. 4th clean run. | n/a — nothing found |
-| **2. Buttons** | **No sizing/styling inconsistencies.** `.auth-btn` measured **identical** (36px height / 0–24px padding / 13px font / 700 weight) on 7 pages. Nav and toolbar buttons uniform. | n/a — nothing found |
-| **3. Toolbars / Headers** | **Consistent.** `topbar glass` measures **56px on all 19 routes**. Every route has exactly one `<h1>`. | n/a — nothing found |
-| **4. Sidebar / Nav** | **No issues.** 18 `.nav-link`, heights `[42]`, radius `[12px]`, icons `[18]`, identical gaps on every route; exactly one `.is-active` except the documented `/alerts` orphan. | n/a — nothing found |
-| **5. Forms** | **No non-standard elements.** **ZERO native `<select>` and ZERO native `<input type="date">` — 6th consecutive run.** `CustomSelect` and `DatePicker` are used everywhere. | n/a — nothing found |
-| **6. Spacing** | No new issues. All fractional pixel values trace to the **already-documented** two-coexisting-spacing-systems root cause (Tailwind rem on a 14px root vs px vars). Not re-filed. | pre-existing backlog |
-| **7. Modals** | **All consistent.** 4 modals opened; **all 4 compute `animation-name: modal-scale-in` at 20px radius** — Run 75's fix is holding. | n/a — nothing found |
+| **Icons** | **PASS** | 0 non-outline Heroicon imports; 0 imports from lucide / react-icons / fontawesome / mui / feather; 16/16 routes returned **zero** foreign SVGs. Sidebar icons 18/18 at viewBox `0 0 24 24`. The only 2 inline `<svg>` are the documented legitimate non-icons (`CanvassingMode.jsx:336` map-pin legend swatch, `StormMap.jsx:1764` star glyphs inside a Google InfoWindow HTML string where a React component is impossible) — both in off-limits map code. **Nothing to fix.** |
+| **Buttons** | **PASS** | Dominant radius 12px on every route. The entire observed spread reduces to already-documented cases: `clamp()` serialisation artifacts (`14px/12px`, `10px/8px`, `3.35544e+07px`), FullCalendar `.fc-button-group` inners at 0px (the *group* carries radius + `overflow:hidden`), 999px status pills, and the `/alerts` numeric stepper's `8px 0 0 8px` / `0 8px 8px 0`. **No new outliers; nothing changed.** |
+| **Toolbars / headers** | **PASS** | Header height measured **56px on all 16 routes — zero variance**. An `<h1>` present on all 16 and matching the route. |
+| **Sidebar / nav** | **PASS** | 18 links, 18/18 carrying an icon, link heights 42px × 18 with zero variance, exactly 1 `.is-active` per route. Active state clearly differentiated: colour `oklch(0.95 0.005 260)` vs `oklch(0.72 0.01 260)`, weight 600 vs 500, plus a 3px blue `::before` bar. The three 30px inter-item gaps are the nav-group separators (structural, not drift). |
+| **Forms** | **PASS** | **0 native `<select>` and 0 native date/time inputs across 16/16 routes — 9th consecutive run.** `.form-input` height 36px everywhere except the documented deliberate 32px compact search on `/materials`. Non-`.form-input` visible fields: exactly 1 per route (the TopBar Cmd-K search) plus 2 on `/alerts` (numeric stepper). CustomSelect and DatePicker rules fully respected. |
+| **Spacing / alignment** | **PASS** | Dashboard's 18 `.glass` cards all compute 17.5px padding — zero variance across the largest panel population in the app. Remaining per-route `.glass` panels are 1–2 each with context-appropriate padding. |
+| **Modals** | **PASS** | 13 components use `.modal-backdrop`, 5 use `.slide-over` (documented legitimate second pattern), and **0 overlays use neither**. The 5 `position:fixed` files with no overlay class are correctly not modals (BottomTabBar, CustomSelect portal, Toast, RoofDrawingTool, TerritoryManager). `@keyframes modal-scale-in` and `.modal-scale-in` are both defined — Run 75's fix holds. |
 
-### Two prior tickets closed by measurement
+### The UI defect — `/calendar` priority badge could never show a colour (`7d90e86`)
 
-- **Run 75's "there is no `<h1>` anywhere in the app" is RESOLVED.** `TopBar.jsx:45`
-  renders one per route. The `viewRoutes` → `routeToView` → `viewTitles` chain matches
-  **19/19**, and the title text was read at runtime on 8 routes. Sidebar and
-  BottomTabBar nav ids all resolve, so nothing falls through `handleNavigate`'s `|| '/'`.
-- **Seven set differences over UI name kinds all came back clean** — including the
-  className/CSS-var/keyframes kinds that produced the Run 75 and Run 76 headline bugs.
-  Four kinds were new: props passed vs destructured, `htmlFor` vs `id`, localStorage
-  written vs read, `CustomEvent` dispatched vs listened.
+`CalendarView.jsx:140` renders `` `calendar-event-content__priority--${priority}` ``. That
+`priority` comes from `crm.js:1056` (`SELECT t.priority FROM tasks t`), and `tasks.priority` is
+column type `lead_priority` — an enum of exactly `hot | warm | cold` (verified against the live
+DB, not just the migration). `index.css` defined modifiers for a completely different
+vocabulary: `--urgent / --high / --medium / --low`.
 
-### The most instructive kill (harness false positive)
+**The set difference was total: 0 of the 3 reachable values had a rule, and 0 of the 4 defined
+rules could ever match.** The base class supplies font-size, weight, padding and radius but no
+background and no colour, so the badge rendered transparent with inherited text colour on every
+calendar event — a colour-coded priority indicator structurally incapable of showing a colour.
 
-`@keyframes spin` looked airtight-missing for `.address-search__spinner`: app CSS
-defines only `icon-spin`/`appleSpinStep`, there is **no `tailwind.config`**, and there
-are **zero `animate-spin` usages**. It is **not** a defect — the keyframe ships in
-**Tailwind's theme** (`tailwindcss/theme.css` v4.2.2, imported via
-`@import "tailwindcss/theme" layer(theme)`). Killed by (1) injecting the element and
-reading computed `transform` 250 ms apart, and (2) grepping the **built**
-`dist/assets/*.css`, which proves it is not a dev-only accident.
+Fixed in **CSS only**, renaming the modifiers to the real enum values on the same red/amber/blue
+hues the app already uses at `.lead-table__priority-dot--hot/warm/cold`, preserving the badge's
+existing translucent-background + solid-text formula.
 
-**Generalised:** any set difference whose "defined" side reads only application source
-will over-report whenever a **vendor stylesheet** supplies the name. Enumerate
-`document.styleSheets` (recursing into `@layer`) or grep the built bundle instead.
+Verified twice: a DOM-injection probe measured `background: rgba(0,0,0,0)` for all three
+reachable values beforehand; afterwards a **real rendered calendar event** measured
+`oklch(0.55 0.17 85 / 0.3)`. Confirmed in the built CSS, not just `src`.
+
+**Why five prior UI audits missed it** — both reasons are reusable:
+
+1. **It never renders today.** All 4 tasks have `due_date NULL`, so `/api/crm/calendar` returns
+   no task events, and activity events hard-code `priority: null`. It is invisible to any
+   screenshot or computed-style sweep — and it will appear the moment any task gets a due date,
+   i.e. under normal app use.
+2. **An interpolated modifier is invisible to a static className-vs-CSS diff**, which can only
+   see literal class strings. Neither side of that set difference ever contains the runtime
+   name.
+
+**This check is now closed, not sampled.** The app contains exactly four interpolated CSS
+modifier families; all four are resolved: the calendar badge (broken → fixed),
+`lead-table__priority-dot--${lead.priority}` (3/3 defined), `lead-table__stage--${lead.stage}`
+(all 10 `lead_stage` members defined), and `public-estimate-status--${estimate.status}` (guarded
+by `isResolved` to 3 reachable values, all 3 defined). There are zero other dynamic
+class-construction mechanisms in the client — no clsx, no classnames, no `className={map[key]}`
+lookups.
 
 ---
 
 ## Bugs Fixed
 
-1. **`/dashboard` team leaderboard — clicking a rep filtered nothing.**
-   `Dashboard.jsx:1836` navigated to `/leads?assigned_rep=<id>`, but `LeadList.jsx:119-128`
-   never read that param — and its URL-sync effect at `:190-201` rebuilt the query string
-   from its own state, **stripping the param from the address bar on arrival**. The user
-   got all 24 leads with no trace a filter was intended. The server had always supported
-   the filter, under the different name `assigned_rep_id` (`crm.js:23`).
-   *Fixed* in `4384bf8`: `LeadList` reads `assigned_rep`, sends `assigned_rep_id`, keeps it
-   in the URL, and surfaces it through the existing filter-pill / Clear All pattern.
-   Verified: 1 row, rep column "Miles M", pill "Rep: Miles Martin", pill-remove restores 24.
+1. **`/contracts` (frontend) — CUSTOMER column was empty on every row.** `ContractsView.jsx`
+   read `customer_name` / `customer_email`, which are not top-level fields on a contract row
+   (they exist only inside the content JSONB); the `|| '—'` fallback disguised it as an empty
+   state. **Fixed** by reading `contact_name || signer_name` and `address` — what the list
+   query actually returns — matching the existing `InvoicesView` idiom. 0/7 → 3/7 rows
+   populated. → `da4ca1d`
 
-2. **`/calendar` — clicking an event did not open the lead.**
-   `CalendarView.jsx:96` navigated to `/leads?leadId=<id>`, but a lead opens via
-   `useParams` on the `/leads/:id` route, never from a `leadId` query param. The click
-   landed on the bare lead list.
-   *Fixed* in `4384bf8`: repointed to `/leads/<id>`. Verified the target route opens the
-   slide-over. Could not be driven through the UI — the calendar has 0 events.
+2. **`/calendar` (frontend/CSS) — priority badge was unstyled for every possible value.** The
+   interpolated modifier `calendar-event-content__priority--${priority}` receives `hot|warm|cold`
+   from the `lead_priority` enum, but `index.css` only defined `--urgent/--high/--medium/--low`.
+   Zero of three reachable values matched a rule, so the badge rendered transparent.
+   **Fixed** by renaming the modifiers to the real enum values on the app's existing
+   priority hues. CSS only. → `7d90e86`
 
-3. **`/leads` — the rep filter pill read "Assigned rep" for a rep with no leads.**
-   A regression in fix #1. The new pill derived its label from the returned rows
-   (`leads.find(l => l.assigned_rep_id === repFilter)`), so the name only resolved when
-   the filter matched at least one lead. Clicking a zero-lead rep on the leaderboard —
-   precisely the case where the pill is the *only* thing on screen naming the filter,
-   because the table shows the generic "No leads found" state — rendered "Rep: Assigned rep".
-   *Fixed* in `ed388d7`: the label now resolves from the `teamMembers` list `LeadList`
-   already fetches on mount, independently of the result set, falling back to the
-   row-derived name and then to "Assigned rep". Verified: rep with 4 leads → "Rep: Brandon
-   Admin" (unchanged), rep with 0 leads → "Rep: QA User", non-uuid rep id → no crash.
-
-**Both s2 defects share one shape:** *a view navigates with a query param the destination
-view never reads, so the click silently does nothing*. Both were found by a set difference
-over `navigate()` / `<Link to>` targets and client query-param names versus the
-`<Route path>`s and `req.query` names that actually read them — the 4th consecutive run
-where the finding came from a set difference over code rather than from inspecting output.
+3. **Automations + drip sequences (backend) — every "create task" action failed silently.**
+   `automationEngine.js:77`, `dripService.js:344` and `seed.js:305-314` inserted a
+   `low/medium/high/urgent` vocabulary into `tasks.priority`, which is the `lead_priority` enum
+   (`hot|warm|cold`), raising `22P02` on every insert. `fireTrigger()` swallowed the error, so
+   automations appeared saved, active and working while creating nothing. **Fixed** with a
+   shared normalizer (`utils/taskPriority.js`) that maps the legacy vocabulary forward so
+   already-saved configs keep working, plus repointing the `AutomationSettings` dropdown at the
+   real enum. User-facing labels unchanged. → `5329a7e`
 
 ---
 
 ## Known Issues (Not Fixed)
 
-### Needs a design decision
+**Requires a DB migration**
 
-1. **Roof-type price map does not cover the value the database actually stores.**
-   `LeadDetail.jsx:728` prices the estimate preview from an inline map keyed
-   `composition | asphalt | metal | slate | tile | wood | built-up`. The only
-   `roof_type` value present in `properties` is **`asphalt_shingle`**, which matches
-   no key, so it falls through to the `|| 6` default ($6.00/sqft instead of asphalt's
-   $5.50). Line `:729` then renders `(asphalt_shingle)` — **the label claims the roof
-   type was recognised while the price silently used the default.** Currently 1 of 1
-   priced rows. Needs a decision on the canonical value set before it can be fixed
-   safely. *(Found by s4 via `server/.qa-r77s4-rooftypes.mjs`; s4 was capped before
-   reporting it. Re-verified in s5.)*
-2. **`/expenses?leadId=` is ignored.** `LeadDetail.jsx:1538` "Add Expense" sets
-   `window.location.href = /expenses?leadId=...`, but `ExpensesView.jsx` has **no
-   `useSearchParams` at all** — no modal opens and nothing filters. It degrades rather
-   than dies. A correct fix needs a `defaultLeadId` prop on `ExpenseModal`; passing a
-   synthetic `expense` object would take the UPDATE branch at `ExpensesView.jsx:78`
-   with no id. Also note it forces a full SPA reload. *Contrast: `ContractsView` does
-   read `leadId`/`fromEstimate` and `StormMap` does read `stormId` — this is a single
-   gap, not a family.*
+- **`stage_changed_at` does not exist on `leads`.** `/dashboard` Days-in-Stage and
+  `LeadList.jsx:86` both fall back to `updated_at`/`created_at`, so the metric is wrong. Needs
+  a new column plus a backfill. Carried from Run 74.
+- **Estimate/invoice number uniqueness.** Pre-existing duplicates `EST-021/022/082` remain, and
+  concurrent creates can still race. `7c373fc` (Run 75) moved generation from `COUNT(*)+1` to
+  `MAX(suffix)+1`, but a unique index + backfill is still needed to make it airtight.
 
-### Needs a DB migration
+**Requires a design decision**
 
-3. **`/dashboard` Days-in-Stage is measured from `updated_at`**, a generic
-   trigger-maintained timestamp, so any unrelated lead edit zeroes it. **The data
-   needed is not recorded** — this requires a `stage_changed_at` column plus a backfill.
-   Carried forward from Run 74.
+- **Voiding a contract is irreversible from the UI and has no confirmation dialog.** There is
+  no un-void route. The app has no `window.confirm` anywhere, so this is consistent behaviour
+  rather than a UI inconsistency — but it is a genuine data-loss path. **This bit us tonight:**
+  s2 accidentally voided a live draft contract with an over-broad selector and had to restore
+  it with scoped SQL.
+- **`react-switch` is an unused dependency** in `client/package.json` (its last consumer was
+  removed by `6740bb9` on 2026-08-17, because it cannot parse `oklch()`). Safe to drop, but
+  that is a dependency decision, not a QA fix.
 
-### Latent risks (working today, will bite on reuse)
+**Test-suite debt (not app bugs — do not chase again)**
 
-4. **Dead CSS that is a loaded gun.** `.lg-storm-row*` (`index.css:1294-1354`) and
-   `.tab-content` (`:4369`) have **zero JSX consumers**, and `.lg-storm-row__badge`
-   references the undefined `--tc` inside a border shorthand. Anyone reusing that block
-   inherits Run 76's border-deleting failure for free. Recommend deleting both blocks.
-5. **`.address-search__spinner` depends on a vendor keyframe.** `index.css:3014`
-   animates `spin`, which app CSS never defines (the other 27 keyframes are local); it
-   resolves only because Tailwind's theme supplies it. Works in dev and in the
-   production bundle today. Recommend adding a local 4-line `@keyframes spin`.
+- **The nightly Playwright suite's 5 failures are stale selectors.** `.last-run.json` is
+  byte-identical to yesterday's. Measured: `.sidebar a, .sidebar [role=button], nav a` → 0 (the
+  app renders 22 `<button>` elements), `[class*="kanban|pipeline|stage"]` → 0, `.stat-card` → 0
+  (the app uses Tailwind utilities). The calendar view switcher and dashboard actions both work
+  when driven manually. `tests/nightly-audit.spec.js` needs updating; left alone as test debt
+  outside the QA charter.
 
-### Cosmetic / backlog (re-confirmed, deliberately not re-filed)
+**Housekeeping**
 
-6. `/tasks` "Pending 0" shows the first-run empty state ("Create your first task") on a
-   filtered view even though 4 completed tasks exist.
-7. Two coexisting spacing systems (Tailwind rem on a 14px root vs px vars) — the root
-   cause of every fractional pixel measurement.
-8. `.quick-action-btn` renders at 8 different heights; form labels use 7 treatments;
-   Esc-to-close is implemented on 0 of 4 modals.
-9. `/alerts` is an orphan route — no sidebar item takes `.is-active` for it.
-
-### Operational
-
-10. **QA fuzz residue is still not cleaned — 5th consecutive stage carrying it.**
-    ~99 estimates, ~85 `123 Test St` drafts, `QA72`/`QA76` tasks, a `QA Options Probe`
-    custom field, and leads carrying literal `true` / `12345` values. s3 was read-only
-    by charter and s4 was capped before reaching it. **This is user-visible in
-    `/leads`, `/pipeline` and `/estimates` and should be the first task of the next run.**
+- **QA fuzz residue in the production DB is still growing and was never cleaned up.** Estimates
+  have reached **EST-105**; 16 leads and 89 estimates trace back to QA probe data across all
+  runs, and **tonight added 3 leads and 6 estimates** that were not removed. The scoped cleanup
+  on the `qa2026` / `QA Territory` / `123 Test St` / `QA79` / `QA76` patterns has now been
+  deferred **nine stages running**. On a Neon free-tier database this should be run soon.
+- **s1 left 16 untracked `server/.qa-r79-*.mjs` harness scripts** in the working tree, and s4
+  left 6 `server/.qa-r81-*.mjs`. Plus 5 untracked `claude-overnight-20260818-*.json` stage
+  files. None are committed; all are safe to delete.
 
 ---
 
 ## Test Coverage Gaps
 
-1. **All 140 write endpoints are untested.** POST (88), PATCH (26), DELETE (18) and
-   PUT (8) were never exercised — s1 built its id-resolution and GET harnesses and hit
-   the turn cap before running the write harness. **This is the single largest gap in
-   the run**, and it covers exactly the family that produced Run 74's `8a45209`
-   ("create coerces, update does not"). API breadth this run was **125 of 272 (46%)**,
-   down from Run 74's 244 of 272 (89.7%).
-2. **7 GET routes had no resolvable id** and were declared as holes rather than probed
-   with a dead uuid: `/api/admin/tenants/:id`, `/api/crm/drip-sequences/:id` (+
-   `/enrollments`), `/api/crm/financing/applications/:id`, `/api/crm/territories/:id`
-   (+ `/pins`), `/api/skip-trace/job/:jobId`. All are empty tables, not defects.
-3. **The signed/active public contract layout has never been rendered.** All 3
-   contracts carrying a token are `status=void`, so only the "This contract has been
-   voided." stub was exercised.
-4. **`/estimate/:token` is unreachable from the API surface** — the estimates list
-   response carries no token-ish field. Needs a share token from the DB or the
-   per-estimate detail route.
-5. **Never exercised this run:** `/leads/:id` tab-by-tab, estimate builder line items,
-   invoice Record Payment, work-order milestones and checklists, `/reports` type
-   switching, and `/calendar` view switching (0 events exist to drive it).
-6. **Wrong values that are well-formed are invisible to every sweep run tonight.**
-   A 200 carrying a wrong number is indistinguishable from a 200 carrying a right one;
-   nothing this run validated response *values* against expected business results.
-7. **Two of five stages produced no report** (s1, s4 — both `error_max_turns`). Their
-   findings were recoverable only because they wrote raw JSON artifacts to disk.
-   7th consecutive run with capped stages.
+**1. Stage s1 (API test) terminated on `max_turns` and committed nothing.**
+It reached turn 51 of 50 mid-way through its third lifecycle pass. Consequences:
+
+- **Its STEP 3 deliverable, `/tmp/api-test-results.txt`, was never written.** The file at that
+  path is Run 75's, dated 2026-08-14. All API figures in this report were reconstructed from
+  s1's raw JSON output in `C:/tmp/qa-r79-{get,write1,p2a,p2b}.json`.
+- **Pass 2c never ran.** It would have covered the remaining resource lifecycles plus the
+  contract public-sign flow driven correctly (the token is minted by `/send`, not by create).
+  The public-token routes therefore remain **partially** covered: s1 reached them in pass 2b but
+  did not complete the correct sign sequence.
+- s1's fuzz writes were only partly reverted (see Housekeeping above).
+
+**2. Stage s4 (verify) terminated on `max_turns` after 41 of 40 turns.**
+It spent its whole budget reproducing and fixing the handed-off automation bug — which was the
+right call, and produced tonight's most significant fix — but that left its own charter mostly
+unexecuted:
+
+- **Neither `da4ca1d` nor `7d90e86` was independently re-verified in a browser.** s4 got as far
+  as loading `/contracts` (confirmed `h1: "Contracts"`, 7 rows rendered, only the documented
+  stale-token 401s in console) before hitting the cap; it never read the CUSTOMER column values
+  back. Both fixes *were* verified in-browser by their authoring stage, so this is a missing
+  second opinion rather than an unverified fix.
+- **The entire edge-case pass never ran**: empty states (no leads / no estimates / no tasks),
+  form validation with empty required fields, browser back/forward navigation, and the 375px
+  mobile responsive check.
+- The DB cleanup s2 and s3 both flagged for s4 never ran.
+
+**3. Structural limits of the API sweep** (acknowledged by s1 in its own harness comments).
+A GET sweep against today's rows cannot find: crashes that require a specific stored shape
+absent from this tenant; write-path bugs on resources it does not write; or bugs that only
+appear on empty tables. Pass 2a specifically targeted the third category (drip sequences,
+automations, territories, financing applications — all previously 0 rows) and found them clean.
+
+**4. Deliberately out of scope, unchanged.**
+FEMA map property loading, filtering, IndexedDB caching and storm-swath intersection logic were
+not touched or tested — standing rule, actively under development. Paid APIs, bulk geocoding and
+bulk imports were not exercised (10 routes). Mobile-specific UI is paused per project focus.
+
+**5. Screenshots.** s2 and s3 both deliberately used DOM and computed-style measurement instead
+of saving screenshots, on the documented grounds that a declared-but-undefined CSS class renders
+identically to a working one and passes any visual diff. Tonight's calendar-badge defect is
+direct evidence for that choice — but it does mean **there is no visual artifact set from this
+run**.
 
 ---
 
-## Notes for the next run
+## Stage Discipline
 
-- **Start with the write-endpoint sweep.** It is the largest gap and the highest-yield
-  bug family historically. The id-resolution harness (`server/.qa-r77-ids.mjs`,
-  `.qa-r77-ids2.mjs`) already resolved 36 real ids and can be reused directly.
-- **Then run the fuzz-residue cleanup.** Fifth stage carrying it.
-- **Set differences over UI name kinds are exhausted** — seven kinds ran clean this
-  run. Untried kinds: DB column names selected in SQL vs field names read in JSX;
-  toast/notification message keys; icon component name vs the action it labels;
-  `data-*` attributes set vs queried.
-- **Traps confirmed this run:** login is rate-limited (~10 tries → 15-min lockout), so
-  mint once per stage and cache the token; the API is on **port 3001**, not 3000;
-  PowerShell 5.1 mangles `git commit -m @'...'@` here-strings — write the message to a
-  file and use `git commit -F`; and if the Playwright input pipeline appears to die,
-  the tell is that `mouse.move` produces no `:hover` — `browser_close` and re-navigate.
+| Stage | Turns | Termination | Commits | Cost |
+|---|---:|---|---|---:|
+| s1 api-test | 51/50 | `error_max_turns` | none | $5.57 |
+| s2 frontend-test | 86 | `end_turn` (clean) | `da4ca1d`, `b650ceb` | $8.61 |
+| s3 ui-audit | 54 | `end_turn` (clean) | `7d90e86`, `a75ce63` | $4.10 |
+| s4 verify | 41/40 | `error_max_turns` | `5329a7e` | $3.32 |
+
+Two of four working stages completed cleanly — an improvement on Run 75, where three of four
+hit their cap. **The two stages that hit their cap are the same two that left work undone**
+(s1's results file and cleanup, s4's re-verification and edge-case pass). The recurring pattern
+is worth acting on: stages that begin with an open-ended sweep exhaust their turn budget before
+reaching their own deliverable steps.
+
+**Cross-stage handoff worked well this run.** s3 found a server bug outside its own charter,
+declined to fix it, wrote it up precisely enough to reproduce, and s4 picked it up and shipped
+the fix — the single highest-impact defect of the night.
+
+---
+
+## Artifacts
+
+- `tests/audit-reports/frontend-test-2026-08-18-run79-s2.txt` (committed `b650ceb`)
+- `tests/audit-reports/ui-audit-2026-08-18-run80-s3.txt` (committed `a75ce63`)
+- `C:/tmp/route-inventory.json` — 272-route inventory
+- `C:/tmp/qa-r79-get.json`, `qa-r79-write1.json`, `qa-r79-p2a.json`, `qa-r79-p2b.json` — raw sweep output
+- `claude-overnight-20260818-s{1..5}-*.json` — stage result envelopes (untracked)
