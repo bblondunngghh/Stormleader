@@ -302,17 +302,17 @@ async function seed() {
     // TASKS (indices match new leadData order)
     // ============================================================
     const tasks = [
-      { leadIdx: 0,    userId: 0, title: 'Call Marcus Johnson — new hot lead',            priority: 'urgent', dueAgo: 0,  desc: 'Storm damage confirmed by neighbor. Call ASAP.' },
-      { leadIdx: 6,    userId: 0, title: 'Inspection at 9204 Shady Oaks Dr',              priority: 'high',   dueAgo: -1, desc: 'Appointment set for tomorrow morning.' },
-      { leadIdx: 11,   userId: 0, title: 'Follow up on estimate — Robert Taylor',         priority: 'high',   dueAgo: 0,  desc: '$28.5K estimate sent, no response yet.' },
-      { leadIdx: 4,    userId: 0, title: 'Send slate repair photos to Amanda Davis',      priority: 'medium', dueAgo: -1, desc: 'She requested examples of our slate work.' },
-      { leadIdx: 1,    userId: 1, title: 'Second call attempt — James Wilson',            priority: 'medium', dueAgo: 0,  desc: 'First call went to voicemail yesterday.' },
-      { leadIdx: 10,   userId: 0, title: 'Prepare upgrade pricing for Jessica Harris',    priority: 'high',   dueAgo: -1, desc: 'She wants premium shingle upgrade option.' },
-      { leadIdx: 12,   userId: 2, title: 'Follow up on tile estimate — Rachel Jackson',   priority: 'medium', dueAgo: 1,  desc: 'Estimate sent, awaiting response.' },
-      { leadIdx: null,  userId: 1, title: 'Order marketing materials for door knocking',  priority: 'low',    dueAgo: -3, desc: 'Need new door hangers with updated branding.' },
-      { leadIdx: 7,    userId: 2, title: 'Check warranty status — Emily Moore',           priority: 'low',    dueAgo: -2, desc: 'Recent install, may be covered under manufacturer warranty.' },
+      { leadIdx: 0,    userId: 0, title: 'Call Marcus Johnson — new hot lead',            priority: 'hot',    dueAgo: 0,  desc: 'Storm damage confirmed by neighbor. Call ASAP.' },
+      { leadIdx: 6,    userId: 0, title: 'Inspection at 9204 Shady Oaks Dr',              priority: 'hot',    dueAgo: -1, desc: 'Appointment set for tomorrow morning.' },
+      { leadIdx: 11,   userId: 0, title: 'Follow up on estimate — Robert Taylor',         priority: 'hot',    dueAgo: 0,  desc: '$28.5K estimate sent, no response yet.' },
+      { leadIdx: 4,    userId: 0, title: 'Send slate repair photos to Amanda Davis',      priority: 'warm',   dueAgo: -1, desc: 'She requested examples of our slate work.' },
+      { leadIdx: 1,    userId: 1, title: 'Second call attempt — James Wilson',            priority: 'warm',   dueAgo: 0,  desc: 'First call went to voicemail yesterday.' },
+      { leadIdx: 10,   userId: 0, title: 'Prepare upgrade pricing for Jessica Harris',    priority: 'hot',    dueAgo: -1, desc: 'She wants premium shingle upgrade option.' },
+      { leadIdx: 12,   userId: 2, title: 'Follow up on tile estimate — Rachel Jackson',   priority: 'warm',   dueAgo: 1,  desc: 'Estimate sent, awaiting response.' },
+      { leadIdx: null,  userId: 1, title: 'Order marketing materials for door knocking',  priority: 'cold',   dueAgo: -3, desc: 'Need new door hangers with updated branding.' },
+      { leadIdx: 7,    userId: 2, title: 'Check warranty status — Emily Moore',           priority: 'cold',   dueAgo: -2, desc: 'Recent install, may be covered under manufacturer warranty.' },
       // One completed task
-      { leadIdx: 13, userId: 1, title: 'Send contract to Lisa Anderson', priority: 'high', dueAgo: 7, desc: 'Contract signed', completed: true },
+      { leadIdx: 13, userId: 1, title: 'Send contract to Lisa Anderson', priority: 'hot',    dueAgo: 7, desc: 'Contract signed', completed: true },
     ];
 
     for (const t of tasks) {

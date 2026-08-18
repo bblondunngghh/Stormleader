@@ -2,6 +2,7 @@ import pool from '../db/pool.js';
 import logger from '../utils/logger.js';
 import { sendAutomationEmail } from './emailService.js';
 import { checkDripEnrollments } from './dripService.js';
+import { normalizeTaskPriority } from '../utils/taskPriority.js';
 
 /**
  * Fire all active automations matching a given trigger for a tenant.
@@ -74,7 +75,7 @@ async function executeAction(tenantId, automation, context) {
       await pool.query(
         `INSERT INTO tasks (tenant_id, lead_id, title, priority, due_date)
          VALUES ($1, $2, $3, $4, $5)`,
-        [tenantId, leadId || null, cfg.title || 'Automated task', cfg.priority || 'medium', dueDate]
+        [tenantId, leadId || null, cfg.title || 'Automated task', normalizeTaskPriority(cfg.priority), dueDate]
       );
       break;
     }

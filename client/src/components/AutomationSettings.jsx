@@ -38,11 +38,12 @@ const SOURCES = [
   { value: 'csv_import', label: 'CSV Import' },
 ];
 
+// Values are the lead_priority enum that tasks.priority holds; labels match the
+// create/edit task modals in TasksView.jsx.
 const PRIORITIES = [
-  { value: 'low', label: 'Low' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'high', label: 'High' },
-  { value: 'urgent', label: 'Urgent' },
+  { value: 'hot', label: 'High' },
+  { value: 'warm', label: 'Medium' },
+  { value: 'cold', label: 'Low' },
 ];
 
 function triggerLabel(type) {
@@ -339,7 +340,7 @@ function ActionConfigFields({ actionType, config, onChange, teamMembers }) {
           <input className="form-input" placeholder="Task title" value={config.title || ''}
             onChange={e => onChange('title', e.target.value)} />
           <div style={{ display: 'flex', gap: 8 }}>
-            <CustomSelect style={{ flex: 1 }} value={config.priority || 'medium'}
+            <CustomSelect style={{ flex: 1 }} value={config.priority || 'warm'}
               onChange={v => onChange('priority', v)}
               options={PRIORITIES} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 1 }}>

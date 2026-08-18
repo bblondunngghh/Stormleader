@@ -1,6 +1,7 @@
 import pool from '../db/pool.js';
 import logger from '../utils/logger.js';
 import { sendAutomationEmail } from './emailService.js';
+import { normalizeTaskPriority } from '../utils/taskPriority.js';
 
 /**
  * List all drip sequences for a tenant, with step counts.
@@ -341,7 +342,7 @@ async function executeStepAction(tenantId, leadId, step) {
       await pool.query(
         `INSERT INTO tasks (tenant_id, lead_id, title, priority, due_date)
          VALUES ($1, $2, $3, $4, $5)`,
-        [tenantId, leadId, cfg.title || 'Drip follow-up task', cfg.priority || 'medium', dueDate]
+        [tenantId, leadId, cfg.title || 'Drip follow-up task', normalizeTaskPriority(cfg.priority), dueDate]
       );
       break;
     }
