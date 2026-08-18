@@ -4096,24 +4096,21 @@ input[type="checkbox"]:checked::after {
   flex-shrink: 0;
 }
 
-.calendar-event-content__priority--urgent {
+/* Modifiers match the lead_priority enum (hot|warm|cold) that tasks.priority
+   actually holds, on the same red/amber/blue hues as .lead-table__priority-dot--*. */
+.calendar-event-content__priority--hot {
   background: oklch(0.55 0.2 25 / 0.3);
   color: oklch(0.8 0.18 25);
 }
 
-.calendar-event-content__priority--high {
-  background: oklch(0.55 0.15 70 / 0.3);
-  color: oklch(0.8 0.15 70);
+.calendar-event-content__priority--warm {
+  background: oklch(0.55 0.17 85 / 0.3);
+  color: oklch(0.8 0.15 85);
 }
 
-.calendar-event-content__priority--medium {
-  background: oklch(0.55 0.12 220 / 0.3);
-  color: oklch(0.8 0.12 220);
-}
-
-.calendar-event-content__priority--low {
-  background: oklch(0.4 0.05 260 / 0.3);
-  color: oklch(0.7 0.03 260);
+.calendar-event-content__priority--cold {
+  background: oklch(0.55 0.15 250 / 0.3);
+  color: oklch(0.8 0.14 250);
 }
 
 /* ============================================================
