@@ -115,7 +115,15 @@ router.get('/:id', validateId(), async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
   try {
-    const { leadId, estimateId, templateType, content } = req.body;
+    // The body is snake_case everywhere else on this router (the GET reads `lead_id`,
+    // updateContract's whitelist is snake_case) and so is ContractsView's payload —
+    // its only caller. Reading camelCase here made every "Save Draft" in the contract
+    // builder 400 with this exact "lead_id is required" message while a valid lead_id
+    // sat in the body. camelCase stays accepted so any existing caller keeps working.
+    const leadId = req.body.lead_id ?? req.body.leadId;
+    const estimateId = req.body.estimate_id ?? req.body.estimateId;
+    const templateType = req.body.template_type ?? req.body.templateType;
+    const { content } = req.body;
     if (!leadId) {
       return res.status(400).json({ error: 'lead_id is required' });
     }

@@ -317,9 +317,14 @@ function ContractBuilder({ contract, fromEstimateId, leadId: initialLeadId, onSa
     client.get(`/crm/leads/${initialLeadId}`)
       .then(res => {
         const lead = res.data;
-        setCustomerName(lead.owner_name || lead.first_name || '');
-        setCustomerEmail(lead.email || '');
-        setCustomerPhone(lead.phone || '');
+        // A lead carries contact_name/contact_email/contact_phone. `owner_name`,
+        // `first_name`, `email` and `phone` are absent from the lead payload, so all
+        // four fields prefilled blank on every lead. owner_* is the separate
+        // property-owner record and is the right fallback when there is no contact.
+        setCustomerName(lead.contact_name
+          || [lead.owner_first_name, lead.owner_last_name].filter(Boolean).join(' '));
+        setCustomerEmail(lead.contact_email || lead.owner_email || '');
+        setCustomerPhone(lead.contact_phone || lead.owner_phone || '');
         setCustomerAddress(lead.address || '');
       })
       .catch(() => {});
@@ -328,16 +333,27 @@ function ContractBuilder({ contract, fromEstimateId, leadId: initialLeadId, onSa
   // If editing existing contract, populate fields
   useEffect(() => {
     if (!contract) return;
-    setCustomerName(contract.customer_name || '');
-    setCustomerEmail(contract.customer_email || '');
-    setCustomerPhone(contract.customer_phone || '');
-    setCustomerAddress(contract.customer_address || '');
+    // Customer data is stored inside `content` (see handleSave) — a contract row has
+    // no customer_* columns, so the old top-level reads were always undefined.
+    // The top-level names stay as a fallback for the contact_name/address that
+    // listContracts joins in off the lead.
+    const c = (contract.content && typeof contract.content === 'object') ? contract.content : {};
+    setCustomerName(c.customer_name || contract.contact_name || '');
+    setCustomerEmail(c.customer_email || contract.contact_email || '');
+    setCustomerPhone(c.customer_phone || contract.contact_phone || '');
+    setCustomerAddress(c.customer_address || contract.address || '');
     if (contract.lead_id) setLeadId(contract.lead_id);
-    if (contract.template_id) setSelectedTemplateId(contract.template_id);
+    // A contract records template_type, not the template's uuid — the old
+    // `contract.template_id` read was always undefined, so the picker showed
+    // whichever template happened to be first rather than the one in use.
+    if (contract.template_type) {
+      const tpl = templates.find(t => t.type === contract.template_type);
+      if (tpl) setSelectedTemplateId(tpl.id);
+    }
     if (contract.content) {
       setSections(parseSections(contract.content));
     }
-  }, [contract]);
+  }, [contract, templates]);
 
   // When template changes, load its sections
   useEffect(() => {
@@ -408,15 +424,26 @@ function ContractBuilder({ contract, fromEstimateId, leadId: initialLeadId, onSa
   const handleSave = async (andSend = false) => {
     setSaving(true);
     try {
+      // A contract row has no customer_* columns, and updateContract's whitelist is
+      // lead_id/estimate_id/template_type/content — so sending these at the top level
+      // discarded all four and the hydration below always read back ''. They live
+      // inside `content` instead, which is where createContract already puts the
+      // customer data it derives from an estimate. parseSections only reads
+      // `content.sections`, so these ride alongside it untouched.
       const payload = {
-        template_id: selectedTemplateId || undefined,
         lead_id: leadId || undefined,
         estimate_id: fromEstimateId || undefined,
-        customer_name: customerName,
-        customer_email: customerEmail,
-        customer_phone: customerPhone,
-        customer_address: customerAddress,
-        content: { sections },
+        // The server records the KIND of contract (standard/insurance/financing/
+        // supplement), not the template's uuid; without this every contract was
+        // filed as 'standard' whichever template the user picked.
+        template_type: templates.find(t => t.id === selectedTemplateId)?.type || undefined,
+        content: {
+          sections,
+          customer_name: customerName,
+          customer_email: customerEmail,
+          customer_phone: customerPhone,
+          customer_address: customerAddress,
+        },
       };
 
       let contractId;
