@@ -57,6 +57,10 @@ export async function createEstimate(tenantId, userId, data) {
     line_items = [], tax_rate = 0, discount_type = 'flat', discount_value = 0,
     scope_of_work, terms, warranty_info, notes, valid_until,
     financing_enabled = false, financing_plan_ids = [],
+    // Migration 050. The builder sends these on the create path too, so a brand-new
+    // estimate lost them the moment it was first saved.
+    estimate_name, estimate_date, introduction, inspection_notes, footer_notes,
+    profit_margin, discounts = [], signers = [], deposit = null,
   } = data;
 
   const { subtotal, tax_amount, total } = calculateTotals(line_items, tax_rate, discount_type, discount_value);
@@ -67,8 +71,11 @@ export async function createEstimate(tenantId, userId, data) {
       customer_name, customer_address, customer_phone, customer_email,
       line_items, subtotal, tax_rate, tax_amount, discount_type, discount_value, total,
       scope_of_work, terms, warranty_info, notes, valid_until,
-      financing_enabled, financing_plan_ids
-    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
+      financing_enabled, financing_plan_ids,
+      estimate_name, estimate_date, introduction, inspection_notes, footer_notes,
+      profit_margin, discounts, signers, deposit
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,
+              $24,$25,$26,$27,$28,$29,$30,$31,$32)
     RETURNING *`,
     [
       tenantId, userId, lead_id || null, estimate_number, public_token,
@@ -76,6 +83,12 @@ export async function createEstimate(tenantId, userId, data) {
       JSON.stringify(line_items), subtotal, tax_rate, tax_amount, discount_type, discount_value, total,
       scope_of_work || null, terms || null, warranty_info || null, notes || null, valid_until || null,
       financing_enabled, JSON.stringify(financing_plan_ids),
+      // '' is not valid input for a date or numeric column; the builder holds '' for
+      // "unset" on both, exactly as it does for valid_until above.
+      estimate_name || null, estimate_date || null, introduction || null,
+      inspection_notes || null, footer_notes || null,
+      profit_margin === '' || profit_margin === undefined ? null : profit_margin,
+      JSON.stringify(discounts), JSON.stringify(signers), JSON.stringify(deposit),
     ]
   );
 
@@ -168,23 +181,35 @@ export async function updateEstimate(tenantId, estimateId, updates) {
     'scope_of_work', 'terms', 'warranty_info', 'notes', 'valid_until', 'status',
     'financing_enabled', 'financing_plan_ids',
     'insurance_details', 'upgrades',
+    // Added by migration 050. The builder always sent these and hydrated them back
+    // off the estimate, but without columns they fell out of this whitelist, so
+    // every save returned 200 and wrote nothing.
+    'estimate_name', 'estimate_date', 'introduction', 'inspection_notes',
+    'footer_notes', 'profit_margin', 'discounts', 'signers', 'deposit',
   ];
 
   const setClauses = [];
   const params = [tenantId, estimateId];
 
-  const jsonFields = ['line_items', 'financing_plan_ids', 'insurance_details', 'upgrades'];
+  const jsonFields = [
+    'line_items', 'financing_plan_ids', 'insurance_details', 'upgrades',
+    'discounts', 'signers', 'deposit',
+  ];
   // Nullable date columns. The builder holds '' for "no date" and autosaves the whole
   // form, but Postgres rejects '' for a date column ("invalid input syntax for type
   // date"), which 400s the PATCH. createEstimate already coerces this at :72
   // (`valid_until || null`) — update was the odd one out.
-  const dateFields = ['valid_until'];
+  const dateFields = ['valid_until', 'estimate_date'];
+  // profit_margin is NUMERIC. The builder's numeric input yields '' when cleared
+  // (EstimatesView.jsx:2273), and '' is not valid numeric input either.
+  const numericFields = ['profit_margin'];
 
   for (const field of allowedFields) {
     if (updates[field] !== undefined) {
       let val = updates[field];
       if (jsonFields.includes(field)) val = JSON.stringify(val);
       else if (dateFields.includes(field) && val === '') val = null;
+      else if (numericFields.includes(field) && val === '') val = null;
       params.push(val);
       setClauses.push(`${field} = $${params.length}`);
     }
