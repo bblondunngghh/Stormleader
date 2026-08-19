@@ -1,0 +1,17 @@
+import 'dotenv/config';
+import pool from './src/db/pool.js';
+const T='791bb51d-3293-4839-92e9-bd4d4f873af2';
+const q=async(s,p=[])=>{try{return (await pool.query(s,p)).rows}catch(e){return[{ERR:e.message}]}};
+const out={};
+out.newEstimates = await q("SELECT id, estimate_number, status, created_at FROM estimates WHERE tenant_id=$1 AND created_at > now() - interval '30 minutes' ORDER BY created_at",[T]);
+out.newInvoices  = await q("SELECT id, invoice_number, status, created_at FROM invoices WHERE tenant_id=$1 AND created_at > now() - interval '30 minutes'",[T]);
+out.newWO        = await q("SELECT id, title, status, created_at FROM work_orders WHERE tenant_id=$1 AND created_at > now() - interval '30 minutes'",[T]);
+out.newOrders    = await q("SELECT id, status, created_at FROM material_orders WHERE tenant_id=$1 AND created_at > now() - interval '30 minutes'",[T]);
+out.newTokens    = await q("SELECT id, created_at FROM client_status_tokens WHERE created_at > now() - interval '30 minutes'");
+out.touchedEst   = await q("SELECT id, estimate_number, status, sent_at, updated_at FROM estimates WHERE id='60b4bb7b-e196-4fdb-b12b-b07c5552fd1b'");
+out.touchedInv   = await q("SELECT id, invoice_number, status, sent_at, updated_at FROM invoices WHERE id='c22d43b6-16cd-44ea-92fb-12225ad20b09'");
+out.touchedWO    = await q("SELECT id, status, completed_at, updated_at FROM work_orders WHERE id='2973162f-4550-42f4-bd17-dab63eb10e72'");
+out.touchedMS    = await q("SELECT id, name, completed_at, status FROM work_order_milestones WHERE id='514bfa6f-d890-4446-bdf8-bf4170514cc9'");
+out.msCols       = (await q("SELECT column_name FROM information_schema.columns WHERE table_name='work_order_milestones'")).map(r=>r.column_name);
+console.log(JSON.stringify(out,null,1));
+process.exit(0);

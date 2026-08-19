@@ -1,0 +1,17 @@
+import 'dotenv/config';
+import pool from './src/db/pool.js';
+const T='791bb51d-3293-4839-92e9-bd4d4f873af2';
+const q=async(s,p=[])=>{try{const r=await pool.query(s,p);return r.rowCount}catch(e){return 'ERR '+e.message}};
+const log=[];
+log.push(['ms-before', JSON.stringify((await pool.query("SELECT completed, completed_at FROM work_order_milestones WHERE id='514bfa6f-d890-4446-bdf8-bf4170514cc9'")).rows)]);
+log.push(['del material_order', await q("DELETE FROM material_orders WHERE id='259b8bea-85b6-4468-a9bc-d75c6abb1896' AND tenant_id=$1",[T])]);
+log.push(['del invoice INV-0024', await q("DELETE FROM invoices WHERE id='e6e48c57-718c-49b8-8894-38dfc98bdeee' AND tenant_id=$1",[T])]);
+log.push(['del work_order', await q("DELETE FROM work_orders WHERE id='3923155e-4180-4312-a754-75e0db1e132e' AND tenant_id=$1",[T])]);
+log.push(['del estimates 100-103', await q("DELETE FROM estimates WHERE tenant_id=$1 AND estimate_number IN ('EST-100','EST-101','EST-102','EST-103')",[T])]);
+log.push(['restore EST-099', await q("UPDATE estimates SET status='draft', sent_at=NULL WHERE id='60b4bb7b-e196-4fdb-b12b-b07c5552fd1b' AND tenant_id=$1",[T])]);
+log.push(['restore INV-0023', await q("UPDATE invoices SET status='draft', sent_at=NULL WHERE id='c22d43b6-16cd-44ea-92fb-12225ad20b09' AND tenant_id=$1",[T])]);
+log.push(['restore WO', await q("UPDATE work_orders SET status='pending', completed_at=NULL WHERE id='2973162f-4550-42f4-bd17-dab63eb10e72' AND tenant_id=$1",[T])]);
+for(const l of log) console.log(l[0],'->',l[1]);
+const chk = await pool.query("SELECT (SELECT count(*) FROM estimates WHERE tenant_id=$1) est,(SELECT count(*) FROM invoices WHERE tenant_id=$1) inv,(SELECT count(*) FROM work_orders WHERE tenant_id=$1) wo,(SELECT count(*) FROM material_orders WHERE tenant_id=$1) mo",[T]);
+console.log('COUNTS AFTER', JSON.stringify(chk.rows[0]));
+process.exit(0);
