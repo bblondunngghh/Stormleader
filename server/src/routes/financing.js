@@ -131,7 +131,17 @@ router.post('/applications', async (req, res, next) => {
     if (!req.body.planId) {
       return res.status(400).json({ error: 'planId is required' });
     }
-    const app = await svc.createApplication(req.tenantId, req.body);
+    // estimate_id and amount are NOT NULL on financing_applications (030_financing.sql),
+    // and amount is an INTEGER. Without these checks an omitted estimateId/amount reached
+    // the INSERT and surfaced as a generic 500 instead of a validation error.
+    if (!req.body.estimateId) {
+      return res.status(400).json({ error: 'estimateId is required' });
+    }
+    const amount = Number(req.body.amount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return res.status(400).json({ error: 'amount must be a positive number' });
+    }
+    const app = await svc.createApplication(req.tenantId, { ...req.body, amount });
     res.status(201).json(app);
   } catch (err) { next(err); }
 });
