@@ -1,0 +1,17 @@
+import pool from './src/db/pool.js';
+import fs from 'fs';
+const T = '791bb51d-3293-4839-92e9-bd4d4f873af2';
+const out = JSON.parse(fs.readFileSync('C:/tmp/qa-r82-ids.json','utf8'));
+const g = async (k, sql, p=[]) => { try { const r = await pool.query(sql,p); if(r.rows[0]) out[k]=r.rows[0].id; else out['_empty_'+k]=1; delete out['_err_'+k]; } catch(e){ out['_err_'+k]=e.code; } };
+await g('property', `SELECT id FROM properties LIMIT 1`);
+await g('stormEvent', `SELECT id FROM storm_events LIMIT 1`);
+await g('document', `SELECT id FROM documents WHERE tenant_id=$1 LIMIT 1`, [T]);
+await g('dripSequence', `SELECT id FROM drip_sequences WHERE tenant_id=$1 LIMIT 1`, [T]);
+await g('notification', `SELECT id FROM notifications WHERE tenant_id=$1 LIMIT 1`, [T]);
+await g('financingApp', `SELECT id FROM financing_applications WHERE tenant_id=$1 LIMIT 1`, [T]);
+await g('automationRule', `SELECT id FROM automations WHERE tenant_id=$1 LIMIT 1`, [T]);
+console.log('TABLES:', out._tables.join(' '));
+delete out._tables;
+fs.writeFileSync('C:/tmp/qa-r82-ids.json', JSON.stringify(out,null,1));
+console.log(JSON.stringify(out,null,1));
+await pool.end();
