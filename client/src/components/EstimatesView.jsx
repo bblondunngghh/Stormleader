@@ -19,6 +19,25 @@ function formatPhone(value) {
   return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
 }
 
+// Module scope so both EstimatesView and EstimateBuilder can call it — the review-mode
+// PDF button lives inside EstimateBuilder, which cannot see EstimatesView's locals.
+async function downloadEstimatePdf(est) {
+  try {
+    const response = await client.get(`/estimates/${est.id}/pdf`, { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${est.estimate_number || 'estimate'}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+    showToast('PDF downloaded', 'success');
+  } catch {
+    showToast('Failed to generate PDF', 'error');
+  }
+}
+
 const statusColors = {
   draft: 'var(--text-muted)',
   sent: 'var(--accent-blue)',
@@ -106,22 +125,7 @@ export default function EstimatesView() {
     } catch { /* silent */ }
   };
 
-  const handleDownloadPdf = async (est) => {
-    try {
-      const response = await client.get(`/api/estimates/${est.id}/pdf`, { responseType: 'blob' });
-      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${est.estimate_number || 'estimate'}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-      showToast('PDF downloaded', 'success');
-    } catch {
-      showToast('Failed to generate PDF', 'error');
-    }
-  };
+  const handleDownloadPdf = downloadEstimatePdf;
 
   const handleGenerateTiers = async (est) => {
     try {
@@ -1634,7 +1638,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
             <button className="quick-action-btn" onClick={() => window.print()} style={{ padding: '6px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }} title="Print">
               <PrinterIcon width={14} height={14} />
             </button>
-            <button className="quick-action-btn" onClick={() => editingEstimate?.id && handleDownloadPdf(editingEstimate)} style={{ padding: '6px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }} title="Download PDF">
+            <button className="quick-action-btn" onClick={() => estimate?.id && downloadEstimatePdf(estimate)} style={{ padding: '6px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }} title="Download PDF">
               <DocumentArrowDownIcon width={14} height={14} />
               PDF
             </button>
