@@ -68,6 +68,13 @@ router.patch('/lenders/:id', validateId(), async (req, res, next) => {
     if (req.body.apiKey !== undefined && typeof req.body.apiKey !== 'string') {
       return res.status(400).json({ error: 'apiKey must be a string' });
     }
+    // updateLender returns null both for 'row not found' and 'body carried no
+    // updatable field', so the 404 below cannot tell them apart. Mirror the
+    // service's own predicates here to answer 400 like every sibling PATCH.
+    const { isActive, config, apiKey, merchantId } = req.body;
+    if (isActive === undefined && config === undefined && !apiKey && !merchantId) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
     const lender = await svc.updateLender(req.tenantId, req.params.id, req.body);
     if (!lender) return res.status(404).json({ error: 'Lender not found' });
     res.json(lender);
@@ -101,6 +108,12 @@ router.post('/plans/sync', async (req, res, next) => {
 
 router.patch('/plans/:id', validateId(), async (req, res, next) => {
   try {
+    // Same null-conflation as PATCH /lenders/:id — updatePlan accepts only
+    // isActive/isDefault and returns null for anything else.
+    const { isActive, isDefault } = req.body;
+    if (isActive === undefined && isDefault === undefined) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
     const plan = await svc.updatePlan(req.tenantId, req.params.id, req.body);
     if (!plan) return res.status(404).json({ error: 'Plan not found' });
     res.json(plan);
