@@ -4301,3 +4301,131 @@ full record:
 - Drift baseline for next run: the `docs: QA report 2026-08-18` commit (head after this entry).
 
 ---
+
+---
+## QA Run: 2026-08-20
+
+Run 83. Baseline `3169797` → head `8e9f287`. Branch `feat/financing`. Build **PASS**.
+Stages: s1 api-test (51/50, `error_max_turns`), s2 frontend-test (81/80, `error_max_turns`),
+s3 ui-audit (53, **`end_turn` clean**), s4 verify (41/40, `error_max_turns`), s5 report.
+
+### Test Results
+- Pages tested: **18** routes audited (s3) / **16** render + interaction tested (s2), + 15 Settings sub-tabs
+- API endpoints tested: **206 of 272 route patterns (76%)** across **290 calls** — 177 2xx, 96 expected 4xx, **1 5xx**, 16 unresolvable
+- Bugs found: **2**
+- Bugs fixed: **2**
+- UI inconsistencies found: **0 new** (6th consecutive converged run)
+- UI inconsistencies fixed: **0** (none warranted)
+
+### Fixes Made
+- `a187498` — `POST /api/crm/financing/applications` returned a generic **500** instead of 400 when
+  `estimateId` or `amount` was missing or `amount` was non-numeric. Both columns are `NOT NULL` on
+  `financing_applications` (`030_financing.sql:53,59`) but the route validated only `leadId`/`planId`,
+  so the payload reached the `INSERT` and died on a not-null constraint. Validate both up front and
+  coerce `amount` to `Number`. Found by s1; recovered from the working tree and committed by s2.
+- `eb6331b` — the `/estimates` **Download PDF** button was **dead on both of its code paths**.
+  (1) Hardcoded `/api/estimates/:id/pdf` against an axios `baseURL` that is already `/api`, resolving
+  to `/api/api/...` → 404; the only hardcoded `/api` in any `client.*` call in the whole client.
+  (2) The reachable control at `EstimatesView.jsx:1637` sits inside `EstimateBuilder` (`:1248`) but its
+  `onClick` referenced `editingEstimate`/`handleDownloadPdf` from the parent `EstimatesView`, so it
+  threw `ReferenceError` before reaching the download. Hoisted the download to module scope and pointed
+  the button at the `estimate` prop. Verified end-to-end: `200 application/pdf`, `EST-082.pdf` downloads.
+- Non-code: **the DB cleanup backlog deferred across twelve stages was finally cleared** (s2).
+  Final counts 12 leads / 9 estimates / 0 tasks / 10 invoices / 6 work orders / 64 subcontractors.
+  `/tasks` and `/calendar` now legitimately render empty — that is correct, not a regression.
+
+### UI Consistency Fixes
+- **None — and none were warranted.** All 7 prescribed audits PASS on 18 routes. Measured:
+  0 foreign icons across 41 files; `.topbar.glass` 56px + `<h1>` on all 18; primary `.auth-btn`
+  identical on all 7 routes (`oklch(0.72 0.19 250)`/36px/13px/700); **0 native selects and 0 native
+  date inputs**; 0 orphan `htmlFor` / 0 duplicate `id`; sidebar collapse 240⇄68px verified working;
+  22 modal backdrops all animating `modal-scale-in 0.2s` at radius 20px.
+- **Sixth consecutive run with zero new visual defects — the prescribed audits have CONVERGED.**
+  Do not spend another full run on them; run them as ONE capped Playwright sweep to check for
+  regression, then spend the run on behavioural checks.
+
+### Known Issues Remaining
+- `/alerts` is an orphan route — 0 `.is-active` sidebar links (design decision). *Pre-existing.*
+- `/expenses` modal title is `h3`@16px where every other modal uses `h2`@18px. *Pre-existing.*
+- Modal dismissal inconsistent — only 11 of 22 backdrops close on outside click; Esc likewise partial.
+- Two spacing systems coexist. **Refactor, not a QA fix.**
+- `ContractsView` `isMobile` set but never read (`:74`) — mobile paused.
+- 7 frozen `useState` pairs across 3 files — dead code, no user-visible effect.
+- 336 QA screenshots are **tracked** in the repo root and not gitignored — which is why `git status`
+  never shows them. Bulk deletion is a developer call.
+- **NEW:** `PATCH /crm/financing/plans/:id` and `/lenders/:id` return `404 "Plan/Lender not found"`
+  when the body carries no updatable field. `updatePlan` accepts only `isActive`/`isDefault` and
+  returns `null` otherwise, which the route maps to 404 — so a valid ID for a row that demonstrably
+  exists reads as "not found". Should be `400 "No fields to update"`, which `PATCH /crm/canvass-pins/:id`
+  already returns correctly. Low severity (no client caller sends this shape). Surfaced in s5 while
+  compiling the report from s1's untriaged artifacts, and verified in source.
+- **7 QA probe rows from s1 remain in the DB** (drip sequence, contract template, prospect list,
+  financing lender, custom field, canvass pin, material order) — s1 capped before its cleanup step.
+  Next run's first action. The large historical backlog is cleared; do not re-run the big scoped deletes.
+- `tests/nightly-audit.spec.js` has 5 stale selectors (`.sidebar a`, `[class*="kanban"]`, `.stat-card`).
+  Test debt, not app bugs. Carried forward.
+
+### Stage Discipline
+- **Three of five stages hit their turn cap** (s1, s2, s4); only s3 exited `end_turn`. Recurring
+  pattern: **a stage that opens with an open-ended sweep exhausts its budget before reaching its own
+  deliverable steps.** s1 never wrote `/tmp/api-test-results.txt` and never ran its cleanup; s4
+  re-verified both fixes but never reached its edge-case pass.
+- **Fourth consecutive night `git status` recovered real work.** s1 capped again (51/50) leaving a
+  complete, correct financing fix uncommitted; s2 recovered it in 3 turns. **Keep opening every stage
+  with `git status`.**
+- **TRAP — the files at `/tmp/api-test-results.txt` and `C:/tmp/frontend-test-results.txt` are STALE**
+  (2026-08-19 and 2026-08-11). A report stage that reads them uncritically publishes another run's
+  numbers as tonight's. **Always `stat` a results file before quoting it.** Only
+  `/tmp/ui-audit-results.txt` (05:43) was genuinely this run's.
+
+### Lessons
+- **LESSON — the behavioural-defect thesis is now confirmed twice over.** Both of tonight's bugs render
+  perfectly, are styled correctly, sit in the right place, and do nothing. Five runs of visual audits had
+  already converged to zero. **Weight future runs toward source set differences and round-trip probes
+  over computed-style measurement.**
+- **LESSON — a defect can be dead TWICE.** Fixing the PDF URL alone would have passed review and still
+  shipped a dead button, because the `ReferenceError` fires first. **When you fix a control, drive it
+  end-to-end in the browser** — the network 200 was necessary but not sufficient; only the actual
+  `EST-082.pdf` landing on disk proved it.
+- **LESSON — 8th and 9th consecutive findings from a SET DIFFERENCE OVER SOURCE.** Tonight's two were
+  new: *client `client.<verb>('<path>')` literals vs the server route table* (275 vs 272 → exactly 1
+  miss, which was the bug), and *identifiers inside JSX `on*={...}` handlers vs that component's actual
+  scope*. **This repo has NO ESLint at all** — no config, no lint script — so `no-undef` never runs and
+  nothing else guards the second class. Both diffs now report 0.
+- **LESSON — a 100% failure rate in a set difference means YOUR normalizer is wrong, not that the app is
+  broken.** 275/275 misses on the first pass was a missing-`/api`-prefix bug in the harness. Sanity-check
+  the hit rate before reading results.
+- **LESSON — generalize the bug you just found into a check.** Each defect became a whole-codebase sweep
+  that is now clean, so the *class* is closed, not just the instance.
+- **THE AUDIT-6 HEADLINE — the app's root `font-size` is 14px, not 16px** (live `p-5` probe → 17.5px).
+  Every fractional padding and card gap in the app is a Tailwind rem utility resolving against a 14px
+  root, coexisting with the px `--space-*` tokens. **One sentence that retires a whole category of future
+  false positives** — stop filing individual fractional paddings.
+- **TRAP — a naive comment/string stripper treats the JSX-text apostrophe in `Don't` as a string delimiter
+  and eats the rest of the file.** 9 of the first 16 frozen-state hits were this artifact. Fixed in the
+  kept harnesses: a quote opens a string only in **expression position**, a `'`/`"` string **never spans a
+  newline**, and stripped text is blanked with **spaces preserving newlines** (assert
+  `code.length === raw.length`). **Corollary: eating code can only INVENT "never called" hits, never hide
+  one — so this diff shape is a superset of the truth. `grep` every hit against raw source before filing.**
+- **Fourth consecutive run where the false positive came from a broken or too-narrow "defined" side.**
+- **TRAP — `document.querySelector('main')` DOES NOT EXIST in this app**; the content container is
+  `.main-content`. Falling back to `body` silently includes the whole sidebar, so a "click every button"
+  sweep navigates away on the first click and every later result is garbage.
+- **TRAP — a coordinate click below the fold silently does nothing.** Six `/reports` CSV buttons looked
+  dead; 4 were fine and 2 were purely viewport position. Always `scrollIntoView({block:'center'})` and
+  assert `rect.y > 0 && rect.y < innerHeight` before filing "dead button".
+- **TRAP — `.find()` instead of index-then-`nth(i)` clicks the SAME button N times.** Six CSV buttons
+  produced six identical `revenue_report` downloads and looked like a real "every export is wired to the
+  same data" bug.
+- **TRAP — the first input on any page is the TopBar Cmd-K global search, not the page's own.** Select by
+  placeholder (`input[placeholder="Search leads..."]`).
+- **VERIFIED NON-BUGS — do not re-file:** `/leads` ADDRESS column not sorting (only 7 `<th>`s call
+  `handleSort`, by design); the task modal's "Medium" priority (`CustomSelect` maps label Medium → value
+  `warm`, which is what `POST /crm/tasks` requires — this looks exactly like the Run 80 automation-priority
+  bug and is NOT it); `/invoices` "New Invoice" swapping in an inline builder rather than an overlay; the
+  2 console 403s from the platform-admin-only `/admin` route; `/tasks` and `/calendar` rendering empty
+  after the cleanup; and the 73 `Failed to import county by bbox` errors in the s4 log
+  (`ENOTFOUND feature.tnris.org` — no network access to the TNRIS host in this environment).
+- Drift baseline for next run: the `docs: QA report 2026-08-20` commit (head after this entry).
+
+---
