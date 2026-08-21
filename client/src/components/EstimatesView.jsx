@@ -4,7 +4,7 @@ import * as estimatesApi from '../api/estimates';
 import client from '../api/client';
 import { calcMonthlyPayment, formatMoney } from '../utils/financing';
 import { formatCurrency } from '../utils/currency';
-import { IconX, IconFileText, IconDollar, IconSend, IconClipboard, IconTrash, IconPlusCircle, IconArrowLeft, IconEye, IconEyeOff, IconChevronDown, IconRefresh } from './Icons';
+import { IconX, IconFileText, IconDollar, IconSend, IconClipboard, IconTrash, IconPlusCircle, IconArrowLeft, IconEye, IconEyeOff, IconChevronDown, IconRefresh, IconCheck } from './Icons';
 import CustomSelect from './CustomSelect';
 import DatePicker from './DatePicker';
 import { showToast } from './Toast';
@@ -1616,6 +1616,22 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   };
 
   // ====================== REVIEW & SHARE MODE ======================
+  // Rendered by BOTH return branches. The only control that opens this modal ("Sign Now")
+  // lives in the review-mode toolbar, so a copy rendered solely in the editor return is
+  // unreachable from the one button that sets showSignModal.
+  const signModal = showSignModal && estimate && (
+    <InPersonSignModal
+      estimateId={estimate.id}
+      customerName={form.customer_name}
+      onClose={() => setShowSignModal(false)}
+      onSigned={() => {
+        setShowSignModal(false);
+        showToast('Estimate signed in person', 'success');
+        onSave();
+      }}
+    />
+  );
+
   if (reviewMode) {
     const companyName = estimate?.company_name || JSON.parse(localStorage.getItem('tenant') || '{}').tenantName || 'Your Company';
     const enabledSections = sections.filter(s => s.enabled);
@@ -1821,6 +1837,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
             )}
           </div>
         </div>
+        {signModal}
       </div>
     );
   }
@@ -2783,18 +2800,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
         />
       )}
 
-      {showSignModal && estimate && (
-        <InPersonSignModal
-          estimateId={estimate.id}
-          customerName={form.customer_name}
-          onClose={() => setShowSignModal(false)}
-          onSigned={() => {
-            setShowSignModal(false);
-            showToast('Estimate signed in person', 'success');
-            onSave();
-          }}
-        />
-      )}
+      {signModal}
     </div>
   );
 }
