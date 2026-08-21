@@ -10,6 +10,7 @@ const PG_BAD_INPUT_CODES = new Set([
   '22003', // numeric_value_out_of_range
   '22007', // invalid_datetime_format
   '23503', // foreign_key_violation
+  '23514', // check_violation (e.g. a status outside the column's allowed set)
   '2201W', // invalid_row_count_in_limit_clause (e.g. ?limit=-1)
   '2201X', // invalid_row_count_in_result_offset_clause (e.g. ?offset=-5)
   '22021', // character_not_in_repertoire (e.g. a NUL byte in a query-string filter)
@@ -30,6 +31,10 @@ export default function errorHandler(err, req, res, _next) {
       // Examples we don't want to leak: "invalid input value for enum storm_source: ..."
       //                                "invalid input syntax for type uuid: ..."
       message = 'Invalid value provided for one or more fields';
+    } else if (err.code === '23514') {
+      // 23514 names the relation and the constraint in its message
+      // (violates check constraint "estimates_status_check") — sanitize.
+      message = 'One or more values are not permitted for this record';
     } else if (err.code === '22001') {
       // 22001 surfaces the column's declared width ("character varying(20)").
       message = 'One or more values exceed the maximum allowed length';
