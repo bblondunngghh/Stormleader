@@ -84,6 +84,17 @@ router.post('/upload', handleUpload, async (req, res, next) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
+    // tags arrives as a multipart string, so it is client-supplied text: an
+    // unguarded JSON.parse threw a SyntaxError straight into next(err) -> 500.
+    let tags = null;
+    if (req.body.tags) {
+      try {
+        tags = JSON.parse(req.body.tags);
+      } catch {
+        return res.status(400).json({ error: 'tags must be valid JSON' });
+      }
+    }
+
     const doc = await documentService.createDocument(req.tenantId, req.user.id, {
       lead_id: req.body.lead_id,
       type: req.body.type || 'other',
@@ -92,7 +103,7 @@ router.post('/upload', handleUpload, async (req, res, next) => {
       file_size: req.file.size,
       mime_type: req.file.mimetype,
       description: req.body.description,
-      tags: req.body.tags ? JSON.parse(req.body.tags) : null,
+      tags,
     });
 
     res.status(201).json(doc);

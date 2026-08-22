@@ -57,7 +57,10 @@ export async function createDocument(tenantId, userId, data) {
     `INSERT INTO documents (id, tenant_id, lead_id, uploaded_by, type, filename, file_url, file_size, mime_type, description, tags, created_at)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW())
      RETURNING *`,
-    [id, tenantId, lead_id || null, userId, type || 'other', filename, file_url, file_size || 0, mime_type || 'application/octet-stream', description || null, tags || null]
+    // documents.tags is jsonb: node-postgres serializes a JS array as the Postgres
+    // array literal {a,b}, which is not valid JSON, so every tagged upload failed
+    // with 22P02. Serialize it the way every other jsonb write in this codebase does.
+    [id, tenantId, lead_id || null, userId, type || 'other', filename, file_url, file_size || 0, mime_type || 'application/octet-stream', description || null, tags == null ? null : JSON.stringify(tags)]
   );
   return rows[0];
 }
