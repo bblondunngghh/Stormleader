@@ -1285,6 +1285,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   const [autoSaveStatus, setAutoSaveStatus] = useState(''); // '', 'saving', 'saved'
   const [showSendModal, setShowSendModal] = useState(false);
   const [showSignModal, setShowSignModal] = useState(false);
+  const [createdEstimate, setCreatedEstimate] = useState(null);
   const [financingEnabled, setFinancingEnabled] = useState(estimate?.financing_enabled || false);
   // `|| []` only covers a FALSY value; financing_plan_ids is unvalidated JSONB, so a
   // truthy non-array (object/number) survives it and then throws at the
@@ -1619,9 +1620,13 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   // Rendered by BOTH return branches. The only control that opens this modal ("Sign Now")
   // lives in the review-mode toolbar, so a copy rendered solely in the editor return is
   // unreachable from the one button that sets showSignModal.
-  const signModal = showSignModal && estimate && (
+  // `estimate` is a PROP and never changes, so on a brand-new estimate "Sign Now" saved a
+  // row and then gated the modal on a value that was still null. Fall back to the row the
+  // handler just created.
+  const signTarget = estimate || createdEstimate;
+  const signModal = showSignModal && signTarget && (
     <InPersonSignModal
-      estimateId={estimate.id}
+      estimateId={signTarget.id}
       customerName={form.customer_name}
       onClose={() => setShowSignModal(false)}
       onSigned={() => {
@@ -1659,12 +1664,15 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
               PDF
             </button>
             <button className="quick-action-btn" onClick={async () => {
-              if (!estimate) {
+              // `createdEstimate` is part of the "have I saved yet" answer — without it a
+              // second click created a second row.
+              if (!estimate && !createdEstimate) {
                 // Save first, then open signing
                 setSaving(true);
                 try {
                   const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null };
-                  await estimatesApi.createEstimate(payload);
+                  const res = await estimatesApi.createEstimate(payload);
+                  setCreatedEstimate(res.data);
                   showToast('Estimate saved', 'success');
                 } catch { showToast('Failed to save estimate', 'error'); setSaving(false); return; }
                 setSaving(false);
