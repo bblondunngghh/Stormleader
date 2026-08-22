@@ -1659,7 +1659,25 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
             <button className="quick-action-btn" onClick={() => window.print()} style={{ padding: '6px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }} title="Print">
               <PrinterIcon width={14} height={14} />
             </button>
-            <button className="quick-action-btn" onClick={() => estimate?.id && downloadEstimatePdf(estimate)} style={{ padding: '6px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }} title="Download PDF">
+            <button className="quick-action-btn" onClick={async () => {
+              // `estimate` is a PROP and stays null for a brand-new estimate, so this
+              // button did nothing at all on that path — and stayed dead even after
+              // "Sign Now" had already saved the row. The PDF is rendered server-side
+              // from a persisted id, so save first, exactly like the two controls to the
+              // right of this one ("Sign Now" and "Send for Signing") already do.
+              let target = estimate || createdEstimate;
+              if (!target) {
+                setSaving(true);
+                try {
+                  const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null };
+                  const res = await estimatesApi.createEstimate(payload);
+                  target = res.data;
+                  setCreatedEstimate(target);
+                } catch { showToast('Failed to save estimate', 'error'); setSaving(false); return; }
+                setSaving(false);
+              }
+              downloadEstimatePdf(target);
+            }} disabled={saving} style={{ padding: '6px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }} title="Download PDF">
               <DocumentArrowDownIcon width={14} height={14} />
               PDF
             </button>
