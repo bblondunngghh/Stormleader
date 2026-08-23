@@ -4473,3 +4473,51 @@ s3 ui-audit (53, **`end_turn` clean**), s4 verify (41/40, `error_max_turns`), s5
 - Drift baseline for next run: the `docs: QA report 2026-08-22` commit (head after this entry).
 
 ---
+
+---
+## QA Run: 2026-08-23
+
+### Test Results
+- Pages tested: **19** routes
+- API endpoints tested: **272** route patterns across 36 route files (132 GET, 88 POST, 26 PATCH, 18 DELETE, 8 PUT)
+- Bugs found: **0** new this run
+- Bugs fixed: **1** (carried open from 2026-08-22)
+- UI inconsistencies found: **0** (9th consecutive converged run)
+- UI inconsistencies fixed: **0** — nothing was found to fix
+- Net DB rows written: **0**
+- Build: **PASS** (vite, 8.29s)
+- Page errors: **0** on 19/19 routes
+
+### Fixes Made
+- `eb6737a` — `DELETE /api/crm/leads/:leadId/contacts/:contactId` ignored `:leadId`. `crm.js:325` called `crmService.deleteContact(tenantId, contactId)`; the `:leadId` param was declared but never read, so deleting a contact through a lead that did **not** own it returned **200 and removed the row**. `req.tenantId` was enforced throughout, so this was a **within-tenant scoping defect, not a cross-tenant leak**. `deleteContact` now takes `leadId` and scopes the `DELETE` by `lead_id` → non-owning lead yields `rowCount 0` → 404. Verified by `.qa-r88-contactscope.mjs`: **9/9 on the fixed tree, 6/9 on the stale pre-fix instance**, the 3 failures being exactly the scoping assertions (self-tested against a known positive). Net DB writes 0.
+  - *This was found by s1 on 2026-08-22, which hit its cap before fixing it. Tonight's s1 made it the first item — the carried-item handoff worked.*
+
+### UI Consistency Fixes
+- **None — zero defects found.** 7/7 prescribed audits pass on 19/19 routes for the **9th consecutive run**: `.topbar glass` 56px and `<h1>` on 19/19; sidebar 18 links / 18 icons / identical gaps on 19/19; 0 native `<select>`, 0 `input[type=date]`, 0 overflow, 0 foreign icons, 0 page errors.
+- **Audits 1 and 5 upgraded from browser sweep to source grep** — a runtime sweep only sees what rendered, so a violation inside an unopened modal is structurally invisible to it. Greps over all of `client/src`: 0 native selects, 0 date inputs, 0 solid-variant imports, 0 foreign icon libs, 0 inline `<svg>` outside the two map files, all 33 `Icons.jsx` aliases semantically correct. **Prefer the grep; the browser sweep is confirmation, not evidence.**
+- Run went to detection instead. Three new self-tested check dimensions, all clean: **icon semantics** (0 conflicts / 69 action names / 41 icons), **CSS duplicate-selector conflicts** (`1692ad2` — 636 blocks → 2 conflicts, both verified benign at runtime), **disabled-state consistency** (global rule covers all buttons; 2 inline overrides, both dim — check CLOSED).
+- `ae63532` adds the **orphan path-param set difference**, generalizing tonight's contact-DELETE defect: for every route with 2+ path params, diff params *declared* against params *read*. Self-tested (reports exactly the known finding on `eb6737a~1`, 0 on the fixed tree). 272 routes scanned, 5 multi-param; the other 4 verified correct at the SQL level, since "reads the param" does not prove "the SQL scopes by it". Also `.qa-r88-enum500.mjs` (0 5xx over 6 probes).
+
+### Known Issues Remaining
+- **`/admin` 403 root cause UNCONFIRMED — probe written but never run.** The browser runs `VITE_DEV_BYPASS_AUTH=true` so the SPA renders `DEV_USER` (`super_admin`) while API calls carry the real `brandon` token (role `admin`). That mismatch is the *hypothesis* for "Failed to load overview data." s4 wrote `server/.qa-r90-adminrole.mjs` (read-only; mints a real `super_admin` token, GETs the 4 admin endpoints) and **hit its turn cap before running it**. Whether `/admin` is a dev artifact or a broken page is **unproven either way**. **Make this the first item of the next verify stage — the probe is already written.**
+- **s1's last three sweeps were written but never run** — `.qa-r88-realids.mjs`, `.qa-r88-realids2.mjs`, `.qa-r88-emptytables.mjs` authored 05:06–05:08, cap hit at 51/50, **no output files left**. Results unknown — a gap, not a pass. They target the largest known hole: a dead-uuid sweep 404s in validation *before* the handler body, so it proves "nothing crashes on validation", not "the handler works" (Run 87 got a real id into only **29 of 119** param GET routes). Scripts are on disk, ready to run.
+- 4 GET handlers have still never executed their bodies (`drip_sequences`, `prospect_lists`, `financing_applications` hold zero rows).
+- `/alerts` = 0 `.is-active` sidebar entries (orphan route); `.glass` padding drift (Tailwind rem vs 14px root); modal title heading drift (`/materials` H3/16px vs `/work-orders` H2/18px, `/expenses` `<h3>`) — all cosmetic, deferred.
+- The 2 duplicate CSS blocks (`.form-input` transition, `.public-estimate-error` colour) — **verified, not assumed**: all custom props defined, both resolve to the intended value (error renders `rgb(220,38,38)`, correct red). **NOT** the Run 76 undefined-`var()` shape. Dead declarations only; merging is a refactor the charter forbids.
+- `ExpensesView.jsx:56` dead `searching` state (no spinner during lead search) — real but cosmetic.
+- Pre-existing QA rows now user-visible (`qa_options_probe` custom field, lead `Qa20260730c`) — not from this run, irreversible to delete, **left for the user's call**.
+- No delete anywhere in the app asks for confirmation (`confirm(` appears **zero** times) — app-wide and apparently deliberate; a design decision, not a bug.
+- Two orphaned QA upload files on disk from a prior cap (23 bytes each); DB rows already removed.
+- Skip-trace 503 without `TRACERFY_API_KEY` (intentional). County import `ENOTFOUND feature.tnris.org` (no network access to that host here).
+
+### Notes for the next run
+- **THE BEST REMAINING GAP: run the audit battery INSIDE modals and builders.** Nine runs have measured the 19 routes **at load**; modal *contents* are still only spot-checked, and the new icon-semantics check shares that blind spot by design.
+- **The estimate Review & Share toolbar — the app's #1 hot spot, 5 dead controls across 4 runs — is now fully healthy.** Both remaining controls verified live: PDF downloads, Sign Now opens its signature canvas. Runs 85 and 87's fixes hold. Shared root cause every prior time: a control gated on the `estimate` **prop**, null for the entire life of a new estimate.
+- **`git status` first.** Clean tonight, but it has recovered real work on 4 of the last 7 nights.
+- **The `page.route` stub closes "untestable" gaps at zero DB cost.** `/tasks` toggle-complete had been untested since Run 85 (0 tasks, no DELETE route → any created row is permanent on the free tier). Stubbing the **read** side with 4 synthetic tasks verified it end-to-end with **zero writes**.
+- **Three traps this run, all bugs in the harness itself, not the app:** (1) a blanket non-GET stub swallowed `/api/auth/refresh`, causing a refresh storm that collapsed `/leads` from 13 rows to 1 — a perfect fake "leads table is broken"; (2) a stub's response *shape* must match the route — `toggleMilestone` substitutes the whole body for the row, so a `{success, milestone}` stub froze the counter and faked a broken optimistic update (the server sends a bare `res.json(milestone)`); (3) **`Clone` is a write action** — Settings→Contracts→Clone created a real template row (deleted, net-zero restored).
+- **NEW TRAP — 22 `.modal-backdrop` vs 6 `.modal-scale-in` is NOT 16 unanimated modals.** `index.css:4468` (`.modal-backdrop > .glass`) supplies the animation to **21 of 22** for free (verified live on 2 modals). The 22nd (`LeadDetail.jsx:2470`, sibling-backdrop) **must not** get the class — the keyframe ends at `transform: none` and would clobber its `translate(-50%,-50%)` centering. "Fixing" the count would have broken a working modal. Same too-narrow-"defined"-side family as Runs 77/78/87.
+- Two of five stages hit their turn cap again (s1 51/50, s4 41/40) — the fifth consecutive night. s1 committed before its cap so no fix was lost, but **s4 capped mid-investigation and therefore concluded nothing**.
+- Drift baseline for next run: the `docs: QA report 2026-08-23` commit (head after this entry).
+
+---

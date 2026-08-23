@@ -1,10 +1,10 @@
-# Overnight QA Report — 2026-08-22
+# Overnight QA Report — 2026-08-23
 
 **Project:** StormLeads / StormPipe
 **Branch:** `feat/financing`
-**Baseline:** `ad90289` (checkpoint: pre-overnight-run 2026-08-22)
-**Head at report time:** `2371b24`
-**Stages run:** s1 api-test, s2 frontend-test, s3 ui-audit, s4 verify, s5 report
+**Baseline:** `dc8556d` (checkpoint: pre-overnight-run 2026-08-23, tag `pre-overnight-20260823`)
+**Head at report time:** `1692ad2`
+**Stages run:** s1 api-test (Run 88), s2 frontend-test (Run 88), s3 ui-audit (Run 89), s4 verify (Run 90), s5 report
 
 ---
 
@@ -14,349 +14,276 @@
 |---|---|
 | Pages (routes) tested | **19** |
 | API route patterns inventoried | **272** (36 route files) |
-| API route patterns exercised | **272** — 119 GET, 140 write (182 probes), 18 DELETE (35 probes) |
-| Bugs found | **5** |
-| Bugs fixed | **4** |
-| Bugs open | **1** |
-| UI inconsistencies found | **0** |
-| UI inconsistencies fixed | **0** |
+| API route patterns exercised | **272** — 132 GET, 88 POST, 26 PATCH, 18 DELETE, 8 PUT |
+| Bugs found (new, this run) | **0** |
+| Bugs fixed | **1** (carried open from 2026-08-22) |
+| Bugs open | **0** carried defects; 1 unresolved *question* (see Known Issues) |
+| UI inconsistencies found | **0** — 9th consecutive converged run |
+| UI inconsistencies fixed | **0** — nothing was found to fix |
 | Net DB rows written | **0** (every created row deleted and verified gone) |
-| Build | **PASS** (vite, 8.07s) |
+| Build | **PASS** (vite, 8.29s) |
+| Page errors | **0** on 19/19 routes |
 
-Fix commits: `ba35464`, `23e106d`, `2371b24`. Harness commit: `f6cd28b`.
+Fix commit: `eb6737a`. Harness commits: `ae63532`, `1692ad2`.
 
-Two of the five stages (s1 api-test, s4 verify) hit their turn cap. Neither lost
-work — s1's fix was recovered and committed by s2 as `ba35464`, and s4's fix was
-recovered, re-verified and committed by this stage as `2371b24`. See
-**Test Coverage Gaps** for what the caps did cost.
+**This was a convergence run.** No new defect was found in either the API sweep, the
+frontend sweep, or the UI audit. The single fix landed tonight closes the one item
+that last night's run left open. Three new detection dimensions were built instead,
+each self-tested against a planted positive before a zero result was trusted.
+
+Two of the five stages hit their turn cap: **s1 api-test** (51/50) and **s4 verify**
+(41/40). s1's fix work was committed before the cap and was not lost, but its final
+three sweeps were never run — see *Test Coverage Gaps*. s4 reached its cap during an
+investigation, so it concluded nothing; nothing was lost, but nothing was settled.
 
 ---
 
 ## Backend API Test Results
 
-Inventory built from source: **272 route patterns across 36 files** — GET 132,
-POST 88, PATCH 26, DELETE 18, PUT 8. 109 of the 272 take a path parameter.
+Inventory: **272 route patterns across 36 route files**, re-derived from source this
+run (`C:/tmp/route-inventory.json`, regenerated 05:05).
 
-| Sweep | Patterns / probes | Result | 5xx |
+| Category | Route file(s) | Patterns | Result |
 |---|---|---|---|
-| GET sweep | 119 patterns | 97× 200, 9× 400, 8× 404, 5× 403, 13 skipped | **0** |
-| Write sweep (POST/PATCH/PUT) | 182 probes over 140 patterns | 34× 200, 9× 201, 121× 400, 16× 404, 2× 403, 31 skipped | **0** |
-| DELETE probe | 35 probes over 18 routes | 17× 400, 17× 404, 1 skipped | **0** |
-| CRUD lifecycle | 8 entity families, create→read→update→delete→verify-gone | 2 FAIL, rest pass | 1 |
+| CRM (leads, contacts, tasks, pipeline) | `crm.js` | 51 | 1 fixed, rest pass |
+| Properties | `properties.js` | 18 | Pass |
+| Estimates | `estimates.js` | 17 | Pass |
+| Contracts | `contracts.js` | 13 | Pass |
+| Financing | `financing.js` | 13 | Pass |
+| Work orders | `workOrders.js` | 12 | Pass |
+| Skip trace | `skipTrace.js` | 10 | Pass (503 without `TRACERFY_API_KEY`, intentional) |
+| Materials | `materials.js` | 9 | Pass |
+| Drip / invoices / subcontractors / roof measurement | 4 files | 32 | Pass |
+| Onboarding / payments | 2 files | 14 | Pass |
+| Admin | `admin.js` | 6 | 403 under the browser's token — unresolved, see below |
+| Reports / territories / leads / notifications | 4 files | 24 | Pass |
+| Auth | `auth.js` | 5 | Pass |
+| Automations / canvassing / expenses / drift | 4 files | 20 | Pass |
+| Alerts / counties / dashboard / dataApis / documents / map | 6 files | 23 | Pass |
+| Storm history / storms / disaster declarations / search / webhooks | 6 files | 8 | Pass |
 
-Every non-2xx in the GET and write sweeps was checked individually and is correct
-behaviour: the five `/api/admin/*` 403s are platform-admin-only, the 400s are
-required-parameter validation, and the 404s are dead-id lookups on the seven
-entity families that currently hold zero rows.
+### What was fixed
 
-### By category
+**`eb6737a` — `DELETE /api/crm/leads/:leadId/contacts/:contactId` ignored `:leadId`.**
 
-**auth / admin — 6 patterns, 6 pass, 0 fail.** `/api/auth/me` 200; all five
-`/api/admin/*` routes correctly 403 for a non-platform-admin token.
+`crm.js:325` called `crmService.deleteContact(tenantId, contactId)`; the `:leadId`
+path param was declared but never read. A request naming a lead that did **not** own
+the contact returned **200 and deleted the row anyway**. `req.tenantId` was still
+enforced throughout, so this was a **within-tenant scoping defect, not a cross-tenant
+leak**. `deleteContact` now takes `leadId` and scopes the `DELETE` by `lead_id`, so a
+non-owning lead yields `rowCount 0` → **404**.
 
-**CRM (leads, contacts, tasks, activities, automations, drip, canvass,
-prospect-lists, custom-fields, territories, subcontractors) — ~150 patterns,
-149 pass, 1 fail.**
-One real defect, still open:
-`DELETE /api/crm/leads/:leadId/contacts/:contactId` (`server/src/routes/crm.js:325`)
-passes only `contactId` to `crmService.deleteContact` and ignores `:leadId`
-entirely. Deleting a contact through a `leadId` that does not own it returns
-**200 and deletes the row**. Tenant isolation still holds (`req.tenantId` is
-enforced), so this is a within-tenant scoping defect, not a cross-tenant leak.
-**Not fixed** — see Known Issues.
+Verified by `server/.qa-r88-contactscope.mjs` (9 assertions): **9/9 on the fixed
+tree**, and **6/9 against the stale pre-fix instance** still running on `:3001` — the
+3 failures are exactly the scoping assertions, so the probe is self-tested against a
+known positive rather than assumed correct. Malformed-UUID 400s, repeat-delete 404,
+and the legitimate delete path all still hold. Net DB writes: **0**.
 
-**documents — 4 patterns, 2 pass, 2 fail → both fixed in `ba35464`.**
-1. `POST /api/documents/upload` ran an unguarded `JSON.parse(req.body.tags)` on
-   an unvalidated multipart string (`documents.js:96`). Malformed input threw into
-   `next(err)` and answered **500**. Now returns **400 `tags must be valid JSON`**.
-2. `documents.tags` is **jsonb** (`017_notifications.sql:106`), but the service
-   bound a raw JS array, which node-postgres serialises as the Postgres array
-   literal `{a,b}` — not valid JSON. **Every tagged upload died with 22P02.** Now
-   `JSON.stringify`-d, matching every other jsonb write in the codebase.
+This defect was **found by s1 on 2026-08-22**, which hit its turn cap before fixing
+it, and was carried on the open list overnight. Tonight's s1 made it the first item.
 
-**estimates / contracts / invoices / financing / expenses / work-orders —
-~80 patterns, all pass.** Estimate templates, contract templates and
-subcontractor work-order assignments were each driven through a full
-create → read → update → delete → double-delete lifecycle; double-delete
-correctly 404s rather than 5xx-ing on all of them.
+### Detection built (no defects found by any of it)
 
-**First-ever DELETE sweep.** All 18 DELETE routes had never been exercised by any
-prior run. The dead-uuid probe found **0 5xx**, **0 cases of 2xx on a nonexistent
-id**, and **0 `validateId` gaps** (every malformed id was rejected with 400).
-
-### Verification of the API fixes (s4)
-
-`ba35464` was re-verified end-to-end against an isolated server instance on :3099:
-**6 of 8 checks passed; the 2 failures were both control-group assertions, not
-defects.** The control group was supposed to be the stale :3001 instance
-reproducing the pre-fix behaviour — but :3001 had already been restarted with the
-fix, so it returned the fixed responses and the "must still be broken" assertions
-failed. Both fix assertions passed on both instances:
-
-- malformed tags → **400** (was 500) ✓
-- valid tags array → **201**, and reads back as a real JSON array `["qa2026","roof"]`, not `{a,b}` ✓
-- no-tags upload still 201s and stores NULL ✓
-- valid-JSON non-array tags does not 500 ✓
-- `GET /api/documents` reads the new rows without throwing ✓
-
-All 4 created rows deleted, `leftover qa-r87 rows: 0`.
+- **`ae63532` — orphan path-param set difference** (`server/.qa-r88-orphanparam.mjs`).
+  Generalizes the contact-DELETE defect into a reusable check: for every route with
+  2+ path params, diff the params *declared* against the params the handler actually
+  *reads*. Self-tested — pointed at `git archive eb6737a~1` it reports exactly the one
+  known finding; on the fixed tree, **0**. Coverage reconciled independently: 272
+  routes scanned, 5 multi-param. A raw grep finds 6; the 6th is `subcontractors.js.bak`,
+  a dead file, correctly excluded. No sub-router uses `mergeParams`, so no parent
+  params are hidden.
+  Because "reads the param" does not prove "the SQL scopes by it", the other 4 were
+  also read at the query level and all are correct.
+- **`ae63532` — enum 500 check** (`.qa-r88-enum500.mjs`): CHECK-constrained write routes
+  return 400, never 500 — **0 5xx over 6 probes**.
+- Confirmed the Run 80 automation-priority handoff was already fixed by `5329a7e`:
+  both `automationEngine` and `dripService` call `normalizeTaskPriority`.
 
 ---
 
 ## Frontend Feature Test Results
 
-All 19 routes render with **0 page errors, 0 white screens, 0 horizontal
-overflow**. Tested live via Playwright against `http://localhost:5173`, with the
-page title asserted as `StormPipe — Roofing CRM` first (two vite servers contend
-for :5173 in this environment).
+**19/19 routes tested. Zero defects found.** No client source change was made, because
+nothing was broken. Build passes, working tree clean, **net-zero DB writes**.
 
-| Page | Tested | Result |
+| Page | What was tested | Result |
 |---|---|---|
-| `/dashboard` | Stat-card navigation, incl. `?stage=sold` | Pass — `/leads` genuinely consumes the `stage` param |
-| `/leads` | Search, sort, CSV export, pagination | Pass |
-| `/estimates` | New Estimate → Review & Share toolbar: Print, PDF, Sign Now, Send for Signing | **2 defects found, both fixed** (below) |
-| `/invoices` | Status/date filters | Pass |
-| `/contracts` | List render, customer column | Pass |
-| `/pipeline` | Drag-and-drop between stages, with revert | Pass — net-zero DB change |
-| `/reports` | All 5 presets | Pass |
-| `/calendar` | Month / week / day views | Pass |
-| `/storm-map` | 6 layer toggles | Pass — FEMA code untouched |
-| `/settings` | All 13 tabs | Pass |
-| `/tasks` | Empty state | Renders correctly; toggle-complete **not tested** (see gaps) |
-| `/expenses`, `/work-orders`, `/subcontractors`, `/materials`, `/documents`, `/territories`, `/alerts`, `/canvass` | Render, primary controls | Pass |
+| `/estimates` — builder | Line-item math: 3×$1200 + 2×$500 = **$4,600**; 30% margin → $3,220 cost / $1,380 profit | Pass |
+| `/estimates` — review toolbar | **Download PDF** and **Sign Now** on the new-estimate path | **Pass — the app's #1 hot spot is now fully healthy** |
+| `/invoices` | Record Payment: prefills balance, rejects overpay with no request, valid payment POSTs and toasts | Pass |
+| `/work-orders` | Milestones 0/7 → 1/7 (14%); photo-required guard blocks with no PATCH | Pass |
+| `/tasks` | **Toggle-complete — closed a standing gap** (untested since Run 85) | Pass |
+| `/settings` | All **15 tabs** | Pass |
+| `/leads` | Lead detail slide-over, score breakdown | Pass |
+| `/calendar` | Render + event modal | Pass |
+| Remaining 10 routes | Load, render, console | Pass — 0 page errors |
 
-### Defects found and fixed
+### Standing gap closed
 
-**1. "Sign Now" saved a row then opened nothing — `23e106d`**
-`/estimates` → New Estimate → Review & Share → Sign Now. `EstimateBuilder`
-receives `estimate` as a **prop**, so it never changes during the component's
-life. The handler created the row but **discarded the response**, then set
-`showSignModal(true)` — while the modal was gated on the still-null prop. The
-user got a success toast, a real database row, and no modal. Fixed by gating on
-`estimate || createdEstimate`; that same value feeds the "have I saved yet"
-guard, so a second click no longer creates a second row.
-Verified live: modal opens, signature canvas mounts, "Accept & Sign" correctly
-disabled until signed; second click created **no second row** and reopened the
-modal.
+`/tasks` **toggle-complete** had been untested since Run 85: the dataset holds 0 tasks
+and there is no DELETE route for tasks, so creating one leaves a permanent row on the
+free tier. s2 stubbed the **read** side with 4 synthetic tasks and verified the
+behaviour end-to-end with **zero writes** — counters moved `Pending 3 / Completed 1` →
+`2 / 2`, the correct `PATCH /crm/tasks/:id {"completed_at":…}` fired, and the row left
+the Pending list.
 
-**2. "Download PDF" was dead on a new estimate, and stayed dead after saving — `2371b24`**
-Same toolbar, same root cause, different control:
-`onClick={() => estimate?.id && downloadEstimatePdf(estimate)}` — on a brand-new
-estimate the prop is null, so the button fired **no request, no toast, no error**.
-It also remained dead after "Sign Now" had persisted the row, because that path
-writes `createdEstimate`, not the prop. Fixed to save-first and reuse
-`createdEstimate`, matching the idiom "Send for Signing" already used.
-Verified live: 2 clicks → **1 POST, 2 PDF GETs**, toast `PDF downloaded`,
-0 page errors, and Sign Now still opens its modal with the canvas mounted.
+### The estimate toolbar — four runs of regressions, now clean
 
-> **This is the fifth dead control on this one toolbar in four runs**
-> (Run 83 Download PDF on the two list paths, Run 84 Sign Now + a missing
-> `IconCheck`, Run 85 Sign Now on the new-estimate path, Run 87 PDF on that
-> path). The estimate review-and-share toolbar is the application's top defect
-> hot spot and should be the first place a future run looks. The shared root
-> cause each time: **a control gated on the `estimate` prop, which is null for
-> the entire life of a new estimate.** "Print" is the only remaining control on
-> the toolbar, and it calls `window.print()` with no dependency on the prop.
+The Review & Share toolbar has produced five dead controls across four runs (R83, R84,
+R85, R87), every time with the same root cause: a control gated on the `estimate`
+**prop**, which is null for the entire life of a new estimate. This run exercised it
+directly and **both remaining controls work**: PDF downloads, Sign Now opens with its
+signature canvas. Runs 85 and 87's fixes both hold.
 
-### Method worth reusing
+### Needs attention (deliberately not changed)
 
-Both estimate defects were proved with **zero database writes** by stubbing the
-POST with `page.route` → fake 201. That works even on tables with no DELETE
-route. Note the endpoint is `/api/estimates`, **not** `/api/crm/estimates` — an
-incorrectly-scoped stub silently lets the real request through.
+- **Pre-existing QA rows are now user-visible**: a `qa_options_probe` custom field and
+  a lead named `Qa20260730c`. Left by an earlier run, not this one. Deletion is
+  irreversible, so this is flagged for your call rather than actioned.
+- **No delete anywhere in the app asks for confirmation** — `confirm(` appears **zero**
+  times across all components. This is app-wide and appears deliberate; adding
+  confirmation is an enhancement, outside the QA charter.
 
 ---
 
 ## UI Consistency Audit Results
 
-**All 7 prescribed audits pass on all 19 routes. Zero defects found, zero client
-source changes.** This is the **8th consecutive converged run**. Measured live in
-a single capped Playwright sweep.
+**7/7 prescribed audits pass on 19/19 routes. Zero visual defects — the 9th
+consecutive converged run.** Zero client source changes. Full table at
+`C:/tmp/ui-audit-results.txt`.
 
-| # | Audit | Result |
+| Audit | Checked | Result |
 |---|---|---|
-| 1 | **Icons** | **2,182 `<svg>` across 19 routes, 0 foreign.** Every one is `viewBox "0 0 24 24"` once recharts / mapbox-gl / gm- surfaces are excluded (data-viz and map, not icons). 0 `fa-*`, 0 `material-icons`, 0 `mdi-`, 0 `bi-`. Nothing to fix. |
-| 2 | **Buttons** | Style groups stable and shared identically across all 19 routes — sidebar nav `42px\|12,16,12,28\|13px\|r12\|500`, sidebar section `42px\|12,16\|14px\|r12\|500`, section label `22px\|4,16\|11px\|r0\|700`. Page-local groups are row actions (`31\|8,14\|11\|r14\|600`, shared identically by `/estimates`, `/invoices`, `/contracts`). **No cross-page outliers.** Nothing to fix. |
-| 3 | **Toolbars / Headers** | `.topbar glass` at **exactly 56px on 19/19**; `<h1>` present on **19/19**; title left, actions right. Consistent. Nothing to fix. |
-| 4 | **Sidebar / Nav** | **18 links / 18 icons / identical `{0,30,8}px` gaps on 19/19.** Exactly 1 `.is-active` on 18 of 19; `/alerts` has 0, and is the documented orphan route with no sidebar entry — a known non-bug. Nothing to fix. |
-| 5 | **Forms** | **0 native `<select>`, 0 `input[type=date]`** anywhere. Every field not using `.form-input` is a previously-verified deliberate exception: the global TopBar Cmd-K search, `.address-search__input` (the wrapper carries the radius and border), the `/alerts` numeric stepper, and the `/storm-map` `input[type=range]` slider. Nothing to fix. |
-| 6 | **Spacing / Alignment** | `scrollWidth − clientWidth = 0` on **all 19** routes — no overflow anywhere. `.glass` padding clusters cleanly per page-kind (18 / 16 / 24 / 20). **0 page errors.** Nothing to fix. |
-| 7 | **Modals** | 4 opened and measured live (`/tasks` and `/subcontractors` slide-overs, `/expenses` and `/work-orders` modals). **4/4** `modal-scale-in`, **4/4** radius 20px, **4/4** exactly one close button. Backdrop variance (slide-over blur4 vs modal blur8) is per-kind and deliberate. One deferred cosmetic item — see Known Issues. |
+| **1. Icons** | Non-Heroicon icons, solid variants, foreign libs, inline `<svg>` | **0 found, nothing to fix.** Now closed at *source* level |
+| **2. Buttons** | Border-radius sets, style-signature groups, disabled state | **0 outliers.** All groups map to documented families |
+| **3. Toolbars / Headers** | `.topbar glass` height, `<h1>` presence | **56px on 19/19**, `<h1>` on 19/19, titles correct |
+| **4. Sidebar / Nav** | Link count, icon count, inter-item gaps, active state | **18 links / 18 icons**, identical gaps on 19/19. `/alerts` = 0 `.is-active` (documented orphan route, deferred) |
+| **5. Forms** | Native `<select>`, `input[type=date]`, non-`.form-input` | **0 native selects, 0 date inputs** — source-level, covers unrendered modals |
+| **6. Spacing** | Horizontal overflow, `.glass` padding | `scrollWidth − clientWidth = 0` on 19/19. Padding drift is one systemic Tailwind-rem-vs-14px-root thing (deferred) |
+| **7. Modals** | Scale-in animation, radius, close button | **21/22 animated via CSS inheritance; the 22nd must not be.** See below |
 
-Because the visual audits have been converged for eight runs, the remainder of
-the s3 stage went to behaviour. Three new static set-difference checks were
-built, each self-tested against a known positive before any finding was filed,
-and committed as `f6cd28b`:
+### Audits 1 and 5 upgraded from browser sweep to source grep
 
-- **`.qa-r86-nsapi.mjs`** — namespace API method typos (`import * as fooApi` then
-  `fooApi.typo()`). This class is caught by **nothing else**: unlike a named
-  import it raises no ESM link error and no build failure, so it dies at click
-  time. **0 findings / 106 calls / 22 namespace imports.** Self-test 2/2.
-- **`.qa-r86-props.mjs`** — callback props a component invokes vs. props each
-  parent actually passes. **0 findings / 191 call sites / 147 components.**
-  Self-test 2/2 caught (including a renamed binding), 2/2 correctly cleared.
-- **`.qa-r86-deadstate.mjs`** — `useState` written by a handler but never read
-  ("a button sets a flag nobody renders"). **5 hits, all triaged to non-bugs.**
+For nine runs these were run as runtime sweeps. **A runtime sweep only sees what
+rendered** — a native `<select>` inside a modal that never opened is structurally
+invisible to it. Greps over all of `client/src` now close them definitively: **0**
+native `<select>`, **0** `input[type=date]`, **0** solid-variant imports, **0** foreign
+icon libraries, **0** inline `<svg>` outside the two documented map files. Every icon
+import is `24/outline` (37) or `./Icons` (17), whose sole import is `24/outline`. All
+**33** `Icons.jsx` aliases verified semantically correct.
 
-All three were re-run by the s4 stage and reproduce Run 86 exactly, with the new
-`createdEstimate` state correctly *not* flagged as dead.
+### A near-miss that would have broken a working modal
+
+A className count shows **22 `.modal-backdrop` but only 6 `.modal-scale-in`**, which
+reads as 16 unanimated modals. **It is not a defect.** `index.css:4468` gives the
+animation to any direct `.glass` / `form.glass` child of a backdrop, covering **21 of
+22** for free (confirmed at runtime on two modals, both computing `modal-scale-in
+0.2s`). The 22nd — `LeadDetail.jsx:2470`, the sibling-backdrop pattern — **must not**
+get the class: the keyframe ends at `transform: none`, which would clobber its
+`translate(-50%,-50%)` centering and throw the panel off-screen. "Fixing" the count
+would have broken a working modal.
+
+### Three new check dimensions, each self-tested, all clean
+
+- **Icon semantics** — maps accessible name → svg path signature and flags one action
+  rendered with two different Heroicons, a real defect no computed-style sweep can
+  see. Self-test passed against a planted positive. **0 conflicts across 69 action
+  names / 41 distinct icons.**
+- **CSS duplicate-selector conflicts** (`1692ad2`, `server/.qa-r89-cssdupe.mjs`) —
+  636 blocks / 667 selectors / 6 duplicated / **2 conflicts, both verified benign at
+  runtime.**
+- **Disabled-state consistency** — the global `button:disabled` rule covers every
+  button; only 2 inline overrides exist and both dim correctly. **Check closed.**
 
 ---
 
-## Bugs Fixed (numbered list)
+## Bugs Fixed
 
-1. **`POST /api/documents/upload`** — an unguarded `JSON.parse` on the multipart
-   `tags` string answered **500** on malformed input instead of 400 —
-   *fixed* by validating and returning `400 tags must be valid JSON`
-   (`ba35464`, `server/src/routes/documents.js`).
+1. **`DELETE /api/crm/leads/:leadId/contacts/:contactId`** — the `:leadId` path param
+   was declared but never read, so deleting a contact through a lead that did not own
+   it returned **200 and removed the row** (within-tenant scoping defect; tenant
+   isolation intact). — **Fixed in `eb6737a`**: `deleteContact` now takes `leadId` and
+   scopes the `DELETE` by `lead_id`, so a non-owning lead yields 404. Verified 9/9 on
+   the fixed tree and 6/9 against the pre-fix instance, with the 3 failures being
+   exactly the scoping assertions.
 
-2. **`POST /api/documents/upload`** — `documents.tags` is jsonb but the service
-   bound a raw JS array, which node-postgres serialises as `{a,b}`, so **every
-   tagged upload failed with 22P02** — *fixed* by `JSON.stringify`-ing the value,
-   matching every other jsonb write in the codebase
-   (`ba35464`, `server/src/services/documentService.js`). Verified round-tripping
-   as a real JSON array.
-
-3. **`/estimates` → New Estimate → Review & Share → Sign Now** — the handler
-   created the estimate but discarded the response, then opened a modal gated on
-   the never-changing `estimate` prop: a success toast, a real DB row, and no
-   modal — *fixed* by gating on `estimate || createdEstimate`, which also stops a
-   second click creating a second row
-   (`23e106d`, `client/src/components/EstimatesView.jsx`).
-
-4. **`/estimates` → New Estimate → Review & Share → Download PDF** — gated on the
-   same null-for-life `estimate` prop, so it fired no request at all on a new
-   estimate and stayed dead even after Sign Now had saved the row — *fixed* by
-   save-first + reuse of `createdEstimate`, matching the neighbouring
-   "Send for Signing" idiom
-   (`2371b24`, `client/src/components/EstimatesView.jsx`).
+No other defect was found this run.
 
 ---
 
 ## Known Issues (Not Fixed)
 
-1. **`DELETE /api/crm/leads/:leadId/contacts/:contactId` ignores `:leadId`** —
-   `server/src/routes/crm.js:325`. The handler calls
-   `crmService.deleteContact(req.tenantId, req.params.contactId)`, so a request
-   naming a lead that does not own the contact still returns **200 and deletes
-   the contact**. Tenant isolation is intact; this is a within-tenant scoping
-   defect. **Reason not fixed:** found by s1, which hit its turn cap before
-   reaching it, and no later stage picked it up. It is a small, well-understood
-   fix (scope the service query by `lead_id`, 404 otherwise) plus a regression
-   probe — **it should be the first item of the next api-test stage.**
-   *Not previously filed; this is a new finding, not a re-file.*
-
-2. **`/expenses` modal title uses `<h3>` where every other modal uses `<h2>`** —
-   cosmetic, documented and deferred since Run 84. Not re-filed.
-
-3. **`ExpensesView.jsx:56` has a genuinely dead `searching` state** — no spinner
-   renders during lead search. Real but cosmetic; adding a spinner is an
-   enhancement, which the overnight charter forbids. Flagged for a product
-   decision rather than fixed.
-
-4. **`ba35464` was committed while the API server was running without a watcher.**
-   The server has since been restarted and is serving the fix (confirmed by the
-   s4 control-group result), but restarting the API server is not an automated
-   step in this pipeline and should not be assumed.
-
-5. **Two orphaned QA upload files remain on disk** —
-   `server/uploads/4531031f-….txt` and `514257bc-….txt` (23 bytes each,
-   `qa20260822 qa text file`), left by the s1 stage when it hit its turn cap.
-   Their database rows were removed; only the disk files remain. Harmless, but
-   worth a sweep.
-
-### Do not "fix" this — verified non-bug
-
-`PublicEstimate.jsx:33` stores a connected `stripeAccountId` and never uses it,
-and line 611 mounts `<Elements stripe={stripePromise}>` with the **platform**
-instance. That is **correct**. `server/src/routes/payments.js:207-208` and
-`:349-350` build `application_fee_amount` + `transfer_data.destination` and call
-`stripe.paymentIntents.create(params)` with **no** `{stripeAccount}` argument —
-i.e. destination charges on the platform account, which must be confirmed
-client-side with the platform instance. Passing the connected account to
-`loadStripe` **would break customer payments.** The unused state is leftover,
-nothing more.
+1. **`/admin` returns 403 under the browser's token — root cause unconfirmed.** The
+   browser session runs `VITE_DEV_BYPASS_AUTH=true`, so the SPA renders `DEV_USER`
+   (role `super_admin`) while every API call carries the real `brandon` token, whose
+   role is `admin`. That mismatch is the *hypothesis* for "Failed to load overview
+   data." s4 wrote a read-only probe to settle it (`server/.qa-r90-adminrole.mjs`,
+   mints a token for the real `super_admin` user and GETs the four admin endpoints)
+   but **hit its turn cap before running it.** Until it runs, whether `/admin` is a
+   dev-environment artifact or a genuinely broken page is **unproven either way**.
+   The two console 403s have been on the documented-intentional list for several runs,
+   which is exactly why this deserves a definitive answer. *Make this the first item
+   of the next verify stage — the probe is already written.*
+2. **`/alerts` has 0 `.is-active` sidebar entries** — orphan route, no matching nav
+   link. Cosmetic; deferred since an earlier run.
+3. **`.glass` padding drift** — Tailwind rem units against a 14px root produce
+   8.75/10.5/17.5/21px. One systemic cause; a fix is a design decision, not a bug fix.
+4. **Modal title heading drift** — `/materials` cart uses `H3/16px`, `/work-orders`
+   uses `H2/18px`; `/expenses` uses `<h3>` where others use `<h2>`. Per-file inline
+   style objects. On the known-and-deferred list since Run 84.
+5. **Two duplicate CSS blocks** (`.form-input` transition, `.public-estimate-error`
+   colour). Both were checked rather than assumed — every custom property is defined
+   and both resolve to the **intended** value (the error text renders `rgb(220,38,38)`,
+   the correct red), so this is **not** the Run 76 undefined-`var()` shape it
+   resembles. They are dead declarations with zero user-visible effect; merging them
+   is a pure refactor, which the charter forbids.
+6. **`ExpensesView.jsx:56`** — genuinely dead `searching` state, so no spinner renders
+   during lead search. Real but cosmetic; adding one is an enhancement.
+7. **Pre-existing QA rows are user-visible** — `qa_options_probe` custom field, lead
+   `Qa20260730c`. Left by an earlier run. Irreversible to delete, so left for your call.
+8. **No delete confirmation anywhere in the app** — `confirm(` appears zero times.
+   App-wide and apparently deliberate; changing it is a design decision.
+9. **Two orphaned QA upload files on disk** (`server/uploads/4531031f-….txt`,
+   `514257bc-….txt`, 23 bytes each) from a prior run's turn cap. DB rows were removed;
+   only the disk files remain.
+10. **Skip-trace returns 503** without `TRACERFY_API_KEY`. Intentional, needs a key.
 
 ---
 
 ## Test Coverage Gaps
 
-1. **Two stages hit their turn cap** — s1 api-test at 51/50 turns and s4 verify at
-   41/40. No work was lost (s2 recovered and committed s1's fix as `ba35464`;
-   this stage recovered, re-verified and committed s4's as `2371b24`), but the
-   caps did cost coverage: s1 never fixed the contact-scope defect it found, and
-   s4 never wrote its own stage summary. **The `git status` handoff check has now
-   paid out on 5 of the last 6 nights and should stay the first action of every
-   stage.**
-
-2. **Seven entity families hold zero rows**, so their `:id` routes 404 before
-   handler logic ever runs. A dead-uuid sweep cannot find stored-shape crashes in
-   those families. 29 routes were given at least one real id; **8 GET param
-   routes could only be run with a dead id** — `/api/crm/drip-sequences/:id`
-   (and `/enrollments`), `/api/properties/in-swath/:stormEventId` (and `/count`),
-   `/api/counties/:id/status`, `/api/crm/financing/applications/:id`,
-   `/api/crm/prospect-lists/:id/items`, `/api/drift/:stormEventId`.
-
-3. **`/tasks` toggle-complete is untested, deliberately.** There are zero tasks
-   and no DELETE route for tasks, so creating one would leave a permanent row in
-   a free-tier database. The empty state renders correctly. **A future run should
-   use the `page.route` stub technique instead** — it needs no DELETE route.
-
-4. **31 write probes and 13 GET patterns were skipped** — routes needing a real id
-   in a zero-row family, or an external vendor call. Skips are counted, not
-   silently dropped.
-
-5. **FEMA / storm-map property code was not modified**, per the standing rule that
-   it is off limits. Its layer toggles were exercised read-only.
-
-6. **No network access to `feature.tnris.org`** in this environment, so county
-   bbox import remains untestable here.
-
-7. **This repository has no ESLint** — no config, no lint script — so `no-undef`
-   and similar never run. The behavioural set-difference harnesses in
-   `server/.qa-r8*.mjs` exist specifically to cover that hole, and now number six
-   distinct checks, all reporting zero.
+1. **s1's last three sweeps were written but never run.** `.qa-r88-realids.mjs`,
+   `.qa-r88-realids2.mjs` and `.qa-r88-emptytables.mjs` were authored at 05:06–05:08
+   and the stage hit its turn cap at 51/50. They left **no output files**, so their
+   results are unknown — this is a gap, not a pass. They target the single largest
+   known hole: a dead-UUID sweep 404s in validation *before* the handler body runs, so
+   it proves "nothing crashes on validation", not "the handler works". Run 87 got a
+   real id into only **29 of 119** param GET routes. The scripts are on disk and ready
+   to run.
+2. **`/admin` verification incomplete** — see Known Issues #1. Probe written, not run.
+3. **Modal and builder *contents* are still only spot-checked.** Nine runs have
+   measured the 19 routes **at load**. The new icon-semantics check shares this blind
+   spot by design (it only sees what rendered). **This is the single best remaining
+   gap** — the next run should take the audit battery *inside* modals and builders.
+4. **Four GET handlers have still never executed their bodies** — `drip_sequences`,
+   `prospect_lists` and `financing_applications` hold zero rows, so every sweep 404s
+   before the handler runs. `.qa-r88-emptytables.mjs` was written to close this (create
+   one row, GET with a real id, delete it — net zero writes) but fell inside gap #1.
+5. **`/calendar` event creation cannot be driven synthetically** — its modal opens via
+   FullCalendar `dateClick`, which needs a real pointer event. A trigger-hunting sweep
+   reports `NO_TRIGGER_BUTTON`; that is a harness limitation, not a missing feature.
+6. **No ESLint in this repo** — no config, no lint script, so `no-undef` never runs.
+   The committed `.qa-r8*.mjs` set differences exist to cover that hole; all currently
+   report zero.
+7. **County import errors are environmental** — `ENOTFOUND feature.tnris.org`; no
+   network access to the TNRIS host from this environment.
 
 ---
 
-## Method Note — the run's most valuable output
+## Verification
 
-The s3 stage's headline is not a defect; it is that **four of the six traps it hit
-were bugs in its own checks, and 32 of 45 raw findings were fictional.** Each one
-produced confident, plausible-looking output:
-
-- **An apostrophe in JSX *text* destroys a naive string-stripper.**
-  `Dashboard.jsx:1168` renders `you're all clear` — JSX text, not a string
-  literal. A stripper that treats `'` as a delimiter blanked lines ~1168–1347,
-  exactly where the three "never read" variables are in fact read (1300 / 1316 /
-  1345). **11 confident false positives out of 16**, one decorated with a
-  matching comment directly above the setter. Fix: strip **comments only**, never
-  quotes.
-- **A regex `<Name ...>` scan truncates at the `>` inside `() =>`.**
-  `onClose={() => setX(false)}` ends the tag early and cuts the passed-props set
-  short — 24 findings, **21 false**.
-- **A non-greedy `{...}` props destructure breaks on arrow-function defaults**,
-  and the obvious guard against it (`if (/=>/.test(body)) continue`) then
-  **silently drops those components from coverage** — a hole that reads as
-  "clean".
-- **A Python heredoc mangles regex escapes in JS source**, exactly as Run 84's
-  *shell* heredoc did. The rule is now general and language-independent:
-  **author harness source with the Write/Edit tool only, never any heredoc.**
-
-The operating rule this yields: **a set difference that cannot find a defect you
-have already proven is not evidence of anything.** Every check committed tonight
-was self-tested against a known positive first.
-
----
-
-## Source Artifacts
-
-- `C:/tmp/ui-audit-results.txt` — full UI audit deliverable table (Run 86).
-  Note the other `/tmp/*-results.txt` files are **stale** (Aug 19 and Aug 21);
-  stat them before trusting them.
-- `claude-overnight-20260822-s{1..5}-*.json` — per-stage envelopes (repo root).
-  `s1` and `s4` carry `subtype: error_max_turns` and no result text.
-- `server/.qa-r86-*.mjs` — the three committed behavioural harnesses; each takes a
-  walk root as `argv[2]` so it can be pointed at a pre-fix tree.
-- `server/.qa-r87-docverify.mjs` — the `ba35464` end-to-end verification harness
-  (untracked).
+- **Build:** `npx vite build` — **PASS** (8.29s).
+- **Net DB rows written:** **0**. Every row created during testing was deleted and a
+  hygiene probe confirmed zero leftovers.
+- **Working tree:** clean apart from stage-result JSONs and the three unrun s1 scripts
+  plus two s4 probes, all untracked and deliberately retained for the next run.
