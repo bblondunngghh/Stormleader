@@ -4429,3 +4429,47 @@ s3 ui-audit (53, **`end_turn` clean**), s4 verify (41/40, `error_max_turns`), s5
 - Drift baseline for next run: the `docs: QA report 2026-08-20` commit (head after this entry).
 
 ---
+
+---
+## QA Run: 2026-08-22
+
+### Test Results
+- Pages tested: **19** routes
+- API endpoints tested: **272** route patterns inventoried and exercised (36 files) — 119 GET patterns swept, 140 write patterns via 182 probes, 18 DELETE routes via 35 probes (first-ever DELETE sweep), 8 entity families driven through a full create/read/update/delete lifecycle
+- Bugs found: **5**
+- Bugs fixed: **4**
+- UI inconsistencies found: **0** (8th consecutive converged run)
+- UI inconsistencies fixed: **0** — nothing was found to fix
+- Net DB rows written: **0**
+- Build: **PASS** (vite, 8.07s)
+
+### Fixes Made
+- `ba35464` — `POST /api/documents/upload`: an unguarded `JSON.parse(req.body.tags)` on the multipart string (`documents.js:96`) threw into `next(err)` and answered **500** on malformed input. Now **400 `tags must be valid JSON`**.
+- `ba35464` — `POST /api/documents/upload`: `documents.tags` is **jsonb** (`017_notifications.sql:106`) but the service bound a raw JS array, which node-postgres serialises as the Postgres array literal `{a,b}` — not valid JSON. **Every tagged upload died with 22P02.** Now `JSON.stringify`-d, matching every other jsonb write. Verified round-tripping as a real array `["qa2026","roof"]`.
+- `23e106d` — `/estimates` → New Estimate → Review & Share → **Sign Now**: `EstimateBuilder` takes `estimate` as a **prop**, so it never changes. The handler created the row but **discarded the response**, then set `showSignModal(true)` while the modal was gated on the still-null prop — success toast, real DB row, no modal. Fixed by gating on `estimate || createdEstimate`; that value also feeds the "have I saved yet" guard, so a second click no longer creates a second row.
+- `2371b24` — `/estimates` → New Estimate → Review & Share → **Download PDF**: same null-for-life prop, `onClick={() => estimate?.id && downloadEstimatePdf(estimate)}` fired **no request, no toast, no error** on a new estimate, and stayed dead even after Sign Now had persisted the row (that path writes `createdEstimate`, not the prop). Fixed to save-first and reuse `createdEstimate`, matching the "Send for Signing" idiom. Verified live: 2 clicks → **1 POST, 2 PDF GETs**, 0 page errors, Sign Now unregressed.
+
+### UI Consistency Fixes
+- **None — zero defects found.** All 7 prescribed audits pass on all 19 routes for the **8th consecutive run**: 2,182 `<svg>` / **0 foreign icons**; button style groups shared identically across all 19 routes with no cross-page outliers; `.topbar glass` at **56px on 19/19** with `<h1>` on 19/19; sidebar **18 links / 18 icons / identical `{0,30,8}px` gaps** on 19/19; **0 native `<select>`, 0 `input[type=date]`**; `scrollWidth − clientWidth = 0` on all 19 with **0 page errors**; 4 modals opened live, all `modal-scale-in` / radius 20px / exactly 1 close button.
+- Run went to behaviour instead. `f6cd28b` adds three new self-tested set differences: namespace API method typos (**0/106 calls** — a class caught by *no* build step, since unlike a named import it raises no ESM link error), invoked-but-unpassed callback props (**0/191 call sites / 147 components**), and dead `useState` (**5 hits, all triaged to non-bugs**). All three re-run clean by s4.
+
+### Known Issues Remaining
+- **`DELETE /api/crm/leads/:leadId/contacts/:contactId` ignores `:leadId`** (`crm.js:325`) — `crmService.deleteContact(req.tenantId, req.params.contactId)` never scopes by lead, so a request naming a lead that does **not** own the contact returns **200 and deletes the row**. Tenant isolation is intact (within-tenant scoping defect, not a cross-tenant leak). Found by s1, which hit its turn cap before fixing it. **NEW finding — make this the first item of the next api-test stage.**
+- `/expenses` modal title is `<h3>` where every other modal uses `<h2>` — cosmetic, deferred since Run 84, not re-filed.
+- `ExpensesView.jsx:56` — genuinely dead `searching` state, so no spinner renders during lead search. Real but cosmetic; adding one is an enhancement the charter forbids.
+- Two orphaned QA upload files left on disk by s1's cap (`server/uploads/4531031f-….txt`, `514257bc-….txt`, 23 bytes each). DB rows were removed; only the disk files remain.
+- `/tasks` toggle-complete still untested — 0 tasks and no DELETE route for tasks, so creating one leaves a permanent free-tier row. Use the `page.route` stub technique next time.
+- 7 entity families hold zero rows, so 8 GET param routes could only be run with a dead id and 404 before handler logic.
+
+### Notes for the next run
+- **THE ESTIMATE REVIEW-AND-SHARE TOOLBAR IS THE APP'S TOP HOT SPOT — five dead controls in four runs** (R83 Download PDF on the two list paths, R84 Sign Now + missing `IconCheck`, R85 Sign Now on the new-estimate path, R87 PDF on that path). Shared root cause every time: **a control gated on the `estimate` PROP, which is null for the entire life of a new estimate.** Only "Print" remains, and it calls `window.print()` with no prop dependency.
+- **`git status` first — it has paid out on 5 of the last 6 nights.** s1 hit its cap at 51/50 mid-commit and s4 at 41/40 after verifying but before committing; both fixes were recovered by a later stage (`ba35464`, `2371b24`).
+- **Prove a client defect with `page.route` → fake 201: zero DB writes**, and it works on tables with no DELETE route. The estimates POST goes to **`/api/estimates`, not `/api/crm/estimates`** — a wrongly-scoped stub silently lets the real request through.
+- **A control-group assertion failing is not a defect.** s4's doc-verify reported 6/8; both "failures" were the stale-:3001 control group, which had already been restarted with the fix and so could not reproduce the pre-fix behaviour. Both fix assertions passed on both instances.
+- **LESSON — 4 of 6 traps were bugs in the harness itself; 32 of 45 raw findings were fictional.** An **apostrophe in JSX *text*** (`you're all clear`, `Dashboard.jsx:1168`) opens a phantom string in a naive stripper and blanks lines ~1168-1347 — 11 confident false positives, one decorated with a matching comment above the setter. A regex `<Name ...>` scan **truncates at the `>` inside `() =>`** (24 findings, 21 false). A non-greedy props destructure **breaks on arrow-function defaults**, and the obvious `/=>/` guard then **silently drops those components from coverage** — a hole that reads as "clean". A **Python heredoc mangles regex escapes in JS source** exactly as Run 84's *shell* heredoc did: **the rule is now general and language-independent — author harness source with the Write/Edit tool ONLY, never any heredoc.**
+- **BOOBY TRAP — do NOT "fix" `PublicEstimate.jsx`'s unused `paymentStripeAccount`.** The server builds **destination charges** (`application_fee_amount` + `transfer_data.destination`, and `paymentIntents.create(params)` takes no `stripeAccount` argument), so the client **must** confirm with the **platform** `stripePromise`. Passing the connected account to `loadStripe` **would break customer payments**.
+- `/invoices` "New Invoice", `/contracts` "New Contract" and `/materials` "Add" are **NOT modals** — full-page builders and a client-side cart. A `.modal-backdrop` probe there reports a false "dead button".
+- This repo has **no ESLint at all** — no config, no lint script — so `no-undef` never runs. The six committed `.qa-r8*.mjs` set differences exist to cover that hole; all currently report zero.
+- Drift baseline for next run: the `docs: QA report 2026-08-22` commit (head after this entry).
+
+---
