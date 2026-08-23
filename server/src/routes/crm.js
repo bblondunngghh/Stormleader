@@ -324,7 +324,7 @@ router.post('/leads/:id/contacts', validateId(), async (req, res, next) => {
 // DELETE /api/crm/leads/:leadId/contacts/:contactId
 router.delete('/leads/:leadId/contacts/:contactId', validateId('leadId', 'contactId'), async (req, res, next) => {
   try {
-    const deleted = await crmService.deleteContact(req.tenantId, req.params.contactId);
+    const deleted = await crmService.deleteContact(req.tenantId, req.params.leadId, req.params.contactId);
     if (!deleted) return res.status(404).json({ error: 'Contact not found' });
     res.json({ success: true });
   } catch (err) {

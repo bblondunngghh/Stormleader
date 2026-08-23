@@ -296,10 +296,10 @@ export async function addContact(tenantId, leadId, data) {
   return rows[0];
 }
 
-export async function deleteContact(tenantId, contactId) {
+export async function deleteContact(tenantId, leadId, contactId) {
   const { rowCount } = await pool.query(
-    `DELETE FROM contacts WHERE id = $1 AND tenant_id = $2`,
-    [contactId, tenantId]
+    `DELETE FROM contacts WHERE id = $1 AND tenant_id = $2 AND lead_id = $3`,
+    [contactId, tenantId, leadId]
   );
   return rowCount > 0;
 }
