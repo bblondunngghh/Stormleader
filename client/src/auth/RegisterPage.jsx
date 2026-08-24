@@ -38,7 +38,7 @@ export default function RegisterPage() {
           <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em' }}>StormPipe</div>
         </div>
 
-        <div className="auth-card__title">Create your account</div>
+        <h1 className="auth-card__title">Create your account</h1>
         <div className="auth-card__subtitle">Start tracking storm leads today</div>
 
         {error && <div className="auth-error" role="alert">{error}</div>}

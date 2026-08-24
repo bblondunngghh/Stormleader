@@ -176,7 +176,7 @@ function StepAccount({ onNext }) {
 
   return (
     <>
-      <div className="auth-card__title">Create your account</div>
+      <h1 className="auth-card__title">Create your account</h1>
       <div className="auth-card__subtitle">Start your 14-day free trial. No credit card required.</div>
 
       {error && <div className="auth-error" role="alert">{error}</div>}
@@ -316,7 +316,7 @@ function StepCompany({ onNext, onSkip }) {
   return (
     <>
 
-      <div className="auth-card__title">Company details</div>
+      <h1 className="auth-card__title">Company details</h1>
       <div className="auth-card__subtitle">Help customers and teammates find you. These can be changed later.</div>
 
       {error && <div className="auth-error" role="alert">{error}</div>}
@@ -550,7 +550,7 @@ function StepPlan({ onNext }) {
   return (
     <>
 
-      <div className="auth-card__title">Choose your plan</div>
+      <h1 className="auth-card__title">Choose your plan</h1>
       <div className="auth-card__subtitle">All plans include a 14-day free trial. Cancel anytime.</div>
 
       {error && <div className="auth-error" role="alert" style={{ marginTop: 'var(--space-md)' }}>{error}</div>}
@@ -645,7 +645,7 @@ function PaymentForm({ onNext, onSkip }) {
   return (
     <>
 
-      <div className="auth-card__title">Payment method</div>
+      <h1 className="auth-card__title">Payment method</h1>
       <div className="auth-card__subtitle">
         Your free trial starts today. You will not be charged until your trial ends.
       </div>
@@ -846,7 +846,7 @@ function StepAddons({ onComplete }) {
   return (
     <>
 
-      <div className="auth-card__title">Supercharge with add-ons</div>
+      <h1 className="auth-card__title">Supercharge with add-ons</h1>
       <div className="auth-card__subtitle">
         Pay only when you use them. Enable or disable anytime in Settings.
       </div>

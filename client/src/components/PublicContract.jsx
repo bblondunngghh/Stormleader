@@ -108,7 +108,7 @@ export default function PublicContract() {
             <div className="public-estimate-company__sub">Service Contract</div>
           </div>
           <div className="public-estimate-meta">
-            <div className="public-estimate-meta__number">CONTRACT</div>
+            <h1 className="public-estimate-meta__number">CONTRACT</h1>
             <div className="public-estimate-meta__date">
               {contract.created_at && new Date(contract.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
             </div>

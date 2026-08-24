@@ -32,7 +32,7 @@ export default function LoginPage() {
           <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em' }}>StormPipe</div>
         </div>
 
-        <div className="auth-card__title">Sign in</div>
+        <h1 className="auth-card__title">Sign in</h1>
         <div className="auth-card__subtitle">Access your roofing CRM dashboard</div>
 
         {error && <div className="auth-error">{error}</div>}

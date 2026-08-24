@@ -232,7 +232,7 @@ export default function PublicEstimate({ token }) {
             <div className="public-estimate-company__sub">Professional Roofing Services</div>
           </div>
           <div className="public-estimate-meta">
-            <div className="public-estimate-meta__number">ESTIMATE {estimate.estimate_number}</div>
+            <h1 className="public-estimate-meta__number">ESTIMATE {estimate.estimate_number}</h1>
             <div className="public-estimate-meta__date">
               {new Date(estimate.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
             </div>
