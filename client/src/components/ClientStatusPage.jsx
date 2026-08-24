@@ -46,9 +46,9 @@ export default function ClientStatusPage() {
         <div style={styles.card}>
           <div style={{ textAlign: 'center', padding: '40px 20px' }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>!</div>
-            <div style={{ fontSize: 18, fontWeight: 600, color: 'oklch(0.9 0 0)', marginBottom: 8 }}>
+            <h1 style={{ fontSize: 18, fontWeight: 600, color: 'oklch(0.9 0 0)', marginBottom: 8 }}>
               Page Not Found
-            </div>
+            </h1>
             <div style={{ fontSize: 14, color: 'oklch(0.65 0 0)' }}>{error}</div>
           </div>
         </div>
@@ -79,7 +79,7 @@ export default function ClientStatusPage() {
       <div style={styles.card}>
         {/* Header */}
         <div style={styles.header}>
-          <div style={styles.companyName}>{companyName}</div>
+          <h1 style={styles.companyName}>{companyName}</h1>
           <div style={styles.subtitle}>Project Status</div>
         </div>
 
