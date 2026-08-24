@@ -181,14 +181,23 @@ export async function updateMilestone(workOrderId, milestoneId, { completed, pho
     }
   }
 
+  // `completed` is optional on a partial PATCH. Binding `undefined` sends NULL, which
+  // used to overwrite the flag (and drop completed_at) on any photo-only update —
+  // WorkOrdersView.jsx:97 sends { photo_url } alone, so uploading a photo marked a
+  // finished milestone incomplete. Treat "absent" as "leave it alone".
+  const completedArg = completed === undefined ? null : completed;
   const { rows } = await pool.query(
     `UPDATE work_order_milestones
-     SET completed = $3,
-         completed_at = CASE WHEN $3 = true THEN NOW() ELSE NULL END,
+     SET completed = COALESCE($3::boolean, completed),
+         completed_at = CASE
+           WHEN $3::boolean IS NULL THEN completed_at
+           WHEN $3::boolean = true THEN NOW()
+           ELSE NULL
+         END,
          photo_url = COALESCE($4, photo_url)
      WHERE id = $2 AND work_order_id = $1
      RETURNING *`,
-    [workOrderId, milestoneId, completed, photoUrl || null]
+    [workOrderId, milestoneId, completedArg, photoUrl || null]
   );
   return rows[0] || null;
 }
