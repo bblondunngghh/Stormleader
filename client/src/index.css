@@ -4373,9 +4373,23 @@ tr {
   to   { opacity: 1; transform: scale(1); }
 }
 
+/* Match dropdown CONTAINERS only. The previous [class*="dropdown"] /
+   [class*="popover"] substring selectors also matched every BEM child and the
+   always-visible trigger, so opening Notifications ran four scale-ins at once
+   (panel + __header + __list + __empty), each child scaling inside its already
+   scaling parent, and each with a different resolved transform-origin. The
+   same match put a permanent transform (animation-fill-mode: both ends at
+   scale(1)) on .map-controls__dropdown, an always-visible wrapper whose child
+   .map-controls__dropdown-trigger is a .glass element with backdrop-filter --
+   an animated ancestor creating a stacking context is exactly what breaks
+   backdrop-filter on a glass child. */
 .dropdown-menu,
-[class*="dropdown"],
-[class*="popover"] {
+.search-dropdown,
+.notification-dropdown,
+.help-dropdown,
+.address-search__dropdown,
+.map-controls__dropdown-menu,
+.fc-popover {
   animation: dropdown-in 150ms var(--ease-apple) both;
   transform-origin: top center;
 }
