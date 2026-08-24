@@ -4381,10 +4381,17 @@ tr {
 }
 
 /* ---- Focus ring ---- */
+/* No border-radius here. A bare :focus-visible has the same specificity as a
+   class, and this block is declared after every component rule, so setting a
+   radius here overrode each element's own shape the moment it took keyboard
+   focus: .nav-link and .form-input snapped 12px -> 8px, .quick-action-btn and
+   .auth-btn lost their clamp() radius, and square controls like
+   .nav-group__header rounded to 8px. The outline does not need it — modern
+   browsers already derive the ring's corner radius from the element's own
+   border-radius, so the ring follows the real shape without this line. */
 :focus-visible {
   outline: 1px solid oklch(0.55 0.12 250 / 0.3);
   outline-offset: 1px;
-  border-radius: var(--radius-sm);
 }
 .form-input:focus-visible,
 input:focus-visible,
