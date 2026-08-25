@@ -8,7 +8,6 @@ import logger from '../utils/logger.js';
 export async function getLeads(tenantId, filters = {}) {
   const {
     stage, priority, source, assignedRepId, search, min_score,
-    needsFollowup, unassigned,
     sortBy = 'created_at', sortDir = 'DESC',
     limit = 50, offset = 0,
   } = filters;
@@ -50,22 +49,7 @@ export async function getLeads(tenantId, filters = {}) {
   }
   if (min_score) {
     params.push(parseInt(min_score));
-    conditions.push(`lead_score >= ${params.length}`);
-  }
-  if (needsFollowup) {
-    // Mirrors leadService.getLeads: no outreach ever, or none in the last 3 days,
-    // excluding closed stages. Compared as text for the same 22P02 reason
-    // documented on the stage filter above. Qualified with lsv. because a bare
-    // `id` inside the correlated subqueries would resolve against `activities`
-    // (inner scope wins) and silently match every row.
-    conditions.push(`lsv.stage::text NOT IN ('closed_won', 'closed_lost', 'sold', 'lost')`);
-    conditions.push(`(
-      NOT EXISTS (SELECT 1 FROM activities a WHERE a.lead_id = lsv.id AND a.type IN ('call', 'email', 'text', 'door_knock'))
-      OR (SELECT MAX(a2.created_at) FROM activities a2 WHERE a2.lead_id = lsv.id AND a2.type IN ('call', 'email', 'text', 'door_knock')) < NOW() - INTERVAL '3 days'
-    )`);
-  }
-  if (unassigned) {
-    conditions.push(`lsv.assigned_rep_id IS NULL`);
+    conditions.push(`lead_score >= $${params.length}`);
   }
 
   const where = conditions.join(' AND ');
@@ -105,7 +89,7 @@ export async function getLeads(tenantId, filters = {}) {
   );
 
   const { rows: countRows } = await pool.query(
-    `SELECT COUNT(*) AS total FROM lead_summary_view lsv WHERE ${where}`,
+    `SELECT COUNT(*) AS total FROM lead_summary_view WHERE ${where}`,
     params.slice(0, params.length - 2)
   );
 
