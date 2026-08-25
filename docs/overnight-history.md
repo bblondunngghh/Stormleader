@@ -4576,3 +4576,62 @@ s3 ui-audit (53, **`end_turn` clean**), s4 verify (41/40, `error_max_turns`), s5
 - Drift baseline for next run: the `docs: QA report 2026-08-24` commit (head after this entry).
 
 ---
+
+---
+
+## QA Run: 2026-08-25
+
+**Baseline `80c54c6` (tag `pre-overnight-20260825`) → head `9339aa4`. Build PASS (vite 7.93s). Net DB writes 0.**
+**Stages: s1 api-test (Run 95) CAPPED · s2 frontend-test (Run 95) CAPPED · s3 ui-audit (Run 94) COMPLETED · s4 verify (Run 96) CAPPED · s5 report.**
+
+### Test Results
+- Pages tested: **18 authenticated routes swept** (UI audit). **0 pages have a frontend-stage coverage artifact** — s2 capped without writing one.
+- API endpoints tested: **258 of 272 route patterns executed live** (94.9%); **PATCH/PUT 34 of 34 against real rows — a pipeline first**; 14 excluded by design (bulk import, outbound email, paid geocoding, webhooks). 0 5xx anywhere.
+- Bugs found: **6** (1 backend, 5 frontend/UI)
+- Bugs fixed: **6**
+- UI inconsistencies found: **1**
+- UI inconsistencies fixed: **1**
+- Also: **1 harness bug found & fixed** (jsonb-corrupting restore, which had silently corrupted one real row — repaired), and **1 change made then reverted** (`323bf72` → `db6c7d5`).
+
+### Fixes Made
+- `d49813c` — **`/api/leads?needs_followup=true` returned 400 for EVERY tenant on EVERY request.** `leadService.getLeads` compared the `lead_stage` enum column directly against `'closed_won'` and `'closed_lost'` — **neither label exists in the enum** (`new, contacted, appt_set, inspected, estimate_sent, sold, lost, negotiating, in_production, on_hold`), so Postgres raised `22P02` and the handler turned it into a hard 400. The filter could never return a row. Compared as text instead, matching the idiom already used by the stage filter a few lines above. **400 → 200, total=13**, verified against SQL ground truth. ⚠️ **An empty-query GET sweep is structurally incapable of finding this — the crash lived in a query param no sweep was passing.** This is the argument for parameterised sweeps.
+- `a04aa8e` — **estimate-to-contract conversion dropped the lead's email and phone.** ContractBuilder's `fromEstimate` prefill fell back to `lead_name`/`lead_address` but not `lead_email`/`lead_phone`, though the detail query joins all four in for this purpose (`estimateService.js:164-165`). **Send Contract is gated on `customerEmail`** (`ContractsView.jsx:505`), so the flow's primary action was unusable without retyping data the app had already fetched. Proven with a response-merge intercept, zero DB writes.
+- `716471a` — **work-order estimate picker read two keys the API never sends.** `EstimatePickerModal` rendered `est.title` and `est.contact_name`; the query aliases them `estimate_name` and `lead_name` (`estimateService.js:122`), so both were `undefined` and all 16 rows fell to their fallbacks — a user-named estimate showed as a generic `Estimate #EST-0xx` and the customer name never rendered. The correct idiom was one file away in the invoice picker (`InvoicesView.jsx:372-374`).
+- `be61054` — **contract lead-search dropdown showed a bare dash for EVERY result.** Rendered `lead.owner_name || lead.first_name || '—'`; neither key is on the lead payload, so only the address underneath carried information. `BAISDON` → **BAISDON HANNAH**, `TYNES` → **TYNES RAYMOND L**. The same file already documented this exact trap at `:316-331` — the dropdown had been missed by that earlier fix.
+- `f9b0c8f` — **picking a lead for a contract populated only the address.** `selectLead()` read `owner_name`/`first_name`/`email`/`phone`, all absent, so name/email/phone were set to `''` and **Send Contract stayed disabled**. ⚠️ **THIRD SITE IN THE SAME FILE with the same defect** — two were fixed earlier the same night. When a key-mismatch is found, sweep the whole file, not just the reported call site.
+- `2a6972f` — **harness fix: node-postgres binds a JS ARRAY as a Postgres ARRAY LITERAL, not JSON.** `restoreRow` read `jsonb` back as a JS value and bound it straight, so restoring `line_items = []` wrote `'{}'` — a jsonb **OBJECT**. It **silently corrupted `work_orders` f8a24416 during the run** (caught by the restore verifier, repaired to `[]`; table back to array=10, 0 objects). The same latent defect sat in `.qa-r91-realidwrite.mjs` and only failed to fire because nothing had ever mutated. Both now serialize to text and cast `::jsonb`. Self-tested on the exact row that corrupted.
+- `9d0ca27` — **closed the last 10 write handlers; PATCH/PUT is now 34/34.** Every prior sweep topped out at 24: 7 backing tables held no row for this tenant (so the request 404'd in the ownership lookup **before the handler body ran**) and 3 state transitions were held back. Each is now seeded with one tenant-owned row, PATCHed on a **real** field, asserted changed, then deleted — not exercised with an empty body.
+- `40f04a1`, `9339aa4` — two self-tested QA harnesses (cross-entity key set difference; JS hover-handler symmetry).
+
+### UI Consistency Fixes
+- `25f5472` — **THE NIGHT'S UI DEFECT: `.stat-card`'s explicit `transform` opt-out was dead.** `.stat-card:hover` (`index.css:949`) declares `transform: none` **deliberately** — the card carries `backdrop-filter: blur(40px) saturate(1.5)` *directly*, so a transform makes it a stacking context, the same family as the 2026-03-29 dashboard glass-card regression. The late generic utility `.glass[class*="card"]:hover` (`:4339`) beat it **twice over — declared 3,390 lines later AND more specific (0,3,0 vs 0,2,0)**. Measured with a real mouse: `before hovered: matrix(1,0,0,1,0,-1)` → `after hovered: none`. Fixed with `:not(.stat-card)`; `.glass.report-card` on `/reports` still lifts and still gains its hover shadow.
+- ⚠️ **THIRD CONSECUTIVE RUN WITH THE SAME DEFECT SHAPE: a broad selector declared LATE wins the cascade against a component's own decision.** (Run 92: bare `:focus-visible`, `[class*="dropdown"]`; Run 94: `.glass[class*="card"]`.) **Triage this shape FIRST.**
+- ⚠️ **REUSABLE CHECK THAT FOUND IT: a property set to `none`/`0`/`initial` inside a `:hover`/`:focus`/`:active`/`:disabled` block is a DISTRESS SIGNAL.** Nobody writes `transform: none` in a hover rule to mean "do nothing" — it exists **only** to cancel something, so it is load-bearing and the cascade may be silently ignoring it. Cheap, general, and it paid out immediately.
+- **The static 7 regressed CLEAN on 18 routes in ~3 turns — 12th consecutive converged run. Do not re-spend a run on them.** Topbar 56px + `.glass` 18/18; one `<h1>` 18/18; 18 nav links/icons 18/18; 0 native `<select>`; 0 date/time inputs (source *and* runtime); 0 overflow; 0 overlays open at rest; 575 buttons all mapping to documented per-context families; 0 foreign icon libraries.
+- **Three dimensions now CLOSED (measured, clean):** hover geometry reflow **0 of 47** rules; sticky hover in JS **0 of 33** tags (**negative side verified, not assumed**); the broad `button:not(...):active{transform:scale(.97)}` is **SAFE** — **0 transform-positioned and 0 glass-parent buttons out of 575**.
+
+### Known Issues Remaining
+- **`qa_options_probe` custom field definition is still in the production DB** (tenant `waterloo`, created 2026-08-05, label "QA Options Probe") and is **user-visible in Settings → Custom Fields**. The r95 hygiene sweep matches `'QA-R9%'`, which this label does not match, so it escapes cleanup every night. **NEW EVIDENCE — it is safe to delete: 0 leads carry a value under that key and 0 leads have ANY `custom_fields` data at all.** Needs one `DELETE` plus a developer's go-ahead; the report stage does not write to the production DB.
+- **s4's 7 verification harnesses are UNCOMMITTED** (`server/.qa-r96-s4-*.mjs`), left behind when the stage capped. ⚠️ **`.qa-r96-s4-payloadkeys.mjs` HAS A WRONG-PATH BUG** — it requests `/api/crm/estimates`, which **404s**; the router is mounted at **`/api/estimates`** (`routes/index.js:62`). That 404 produced **2 spurious assertion failures** that read exactly like real UI defects. **Fix the path before committing or trusting it.**
+- **`/tmp/api-test-results.txt` WAS NOT UPDATED — it is still the Run 82 file dated 2026-08-19.** Commit `9d0ca27` claims three tester-error traps are "documented in /tmp/api-test-results.txt"; **that documentation was never written.** The traps survive only in the commit messages and in OVERNIGHT-REPORT.md. **s2 produced no results file at all.** Do not read that file as current.
+- Dead code: `quickFilters`/`applyQuickFilter` (`LeadList.jsx:62`, `:346`) — defined, never rendered, never called. Dead CSS: `.stat-card:hover .stat-card__icon img` (`index.css:959`) — `.stat-card__icon` has 0 JSX consumers. Both developer calls.
+- 14 of 272 routes remain deliberately unexecuted (bulk import, outbound email, paid geocoding, webhooks) — an intentional boundary, not a gap.
+- Stray 0-byte `server/=` in the working tree (shell-redirect accident, pre-existing).
+
+### Verified non-bugs — do not re-file
+- **`/api/leads?stage=sold` → 0 rows is DATA DRIFT, not a regression.** SQL ground truth: this tenant is 9 `new`, 2 `contacted`, 1 `appt_set`, 1 `inspected` = 13, and **zero** in `sold`. The label is valid; no row carries it.
+- **The 2 "assertion failures" from `.qa-r96-s4-payloadkeys.mjs` are tester error, not defects** — see the wrong-path bug above. Re-run against `/api/estimates`, every key is present and both fixes verify.
+- `.glass[class*="card"]` matches **only** `stat-card glass` and `glass report-card` — no BEM children, no glass descendants. Latent per the Run 92 `[class*=]` rule, **not a live defect**.
+- Four API tester-error traps: financing routes take **camelCase** (`isActive`/`isDefault`) while the rest of the API is snake_case (verified correct against the real caller `SettingsView.jsx:1936`); notifications' column is **`is_read`**, not `read`; `markRead` scopes by `req.user.id`, so seeding against an unordered `LIMIT 1` user yields a **CORRECT 404** that reads like a broken endpoint; `custom-fields` is backed by **`custom_field_definitions`**.
+- `/admin`'s 2 console errors are the proven-intentional 403s.
+
+### Notes for the next run
+- **`git status` FIRST.** It paid out again: s4 capped holding 7 uncommitted harnesses, recovered and executed in s5. It has now paid out on 7 of the last 11 nights.
+- **THREE OF FOUR STAGES CAPPED AGAIN — the seventh consecutive night.** Recovery works but is costing roughly a stage of throughput per night. s2 burned 81 turns and left no artifact.
+- **NEXT-BEST UI GAP: MODAL INTERIORS**, plus `:disabled` / `:checked` / `[aria-expanded]`. Default, `:focus-visible` (R92) and `:hover`/`:active` (R94) are now **all measured** on the 18 top-level routes. A violation inside an unopened modal is invisible to every runtime sweep run so far. **Source greps beat browser sweeps for this — a browser cannot see inside an unopened modal.**
+- **NEXT-BEST FRONTEND TARGET: sweep the remaining views for the key-mismatch class.** It produced **4 of tonight's 6 defects**, 3 of them in one file. `.qa-r95-loopkeys.mjs` (loop-variable resolution) and `.qa-r95-varkeys.mjs` (variable-name resolution) are both committed and self-tested — point them at the views s2 never reached.
+- **`.qa-r91-realidwrite.mjs` FINALLY RAN after four blocked nights, and it was worth it** — it exposed the jsonb-corruption bug in its own restore path. **The write sweep is no longer the top unrun item.** `.qa-r91-neverrun.mjs` is still unrun.
+- **Seed fixtures before re-verifying tonight's UI fixes.** No lead in this tenant has a `contact_email` and the sampled lead-linked estimate has null `lead_email`/`lead_phone`, so `f9b0c8f` and `a04aa8e` verify **structurally only** — the correct keys are present on the payload, but the fix cannot be demonstrated end-to-end. Likewise `needs_followup` returns 13/13 (all 13 leads pass the predicate), so **it cannot currently be proven to filter anything**.
+- Drift baseline for the next run: the `docs: QA report 2026-08-25` commit (head after this entry).
+
+---
