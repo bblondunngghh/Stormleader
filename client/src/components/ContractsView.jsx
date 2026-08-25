@@ -302,9 +302,13 @@ function ContractBuilder({ contract, fromEstimateId, leadId: initialLeadId, onSa
       .then(res => {
         const est = res.data;
         setEstimateData(est);
+        // The estimate detail query joins the lead's contact columns in as
+        // lead_email/lead_phone (estimateService.js:164-165) for exactly this
+        // prefill. Without the fallback, converting a lead-linked estimate left
+        // both blank and `Send Contract` disabled (it is gated on customerEmail).
         setCustomerName(est.customer_name || est.lead_name || '');
-        setCustomerEmail(est.customer_email || '');
-        setCustomerPhone(est.customer_phone || '');
+        setCustomerEmail(est.customer_email || est.lead_email || '');
+        setCustomerPhone(est.customer_phone || est.lead_phone || '');
         setCustomerAddress(est.customer_address || est.lead_address || '');
         if (est.lead_id) setLeadId(est.lead_id);
       })
