@@ -188,7 +188,12 @@ export async function getLeads(tenantId, filters = {}) {
   }
   if (needsFollowup) {
     // Leads with last outreach > 3 days ago or no outreach at all, excluding closed stages
-    conditions.push(`l.stage NOT IN ('closed_won', 'closed_lost', 'sold', 'lost')`);
+    // Compared as text, matching the stage filter above. The lead_stage enum holds
+    // 10 labels and contains neither 'closed_won' nor 'closed_lost', so comparing the
+    // enum directly made Postgres raise 22P02 -> this filter returned a hard 400 every
+    // time, for every tenant, regardless of data. As text an unknown label simply
+    // matches nothing.
+    conditions.push(`l.stage::text NOT IN ('closed_won', 'closed_lost', 'sold', 'lost')`);
     conditions.push(`(
       NOT EXISTS (SELECT 1 FROM activities a WHERE a.lead_id = l.id AND a.type IN ('call', 'email', 'text', 'door_knock'))
       OR (SELECT MAX(a2.created_at) FROM activities a2 WHERE a2.lead_id = l.id AND a2.type IN ('call', 'email', 'text', 'door_knock')) < NOW() - INTERVAL '3 days'
