@@ -4334,7 +4334,9 @@ button:not(.mapboxgl-ctrl button):not([class*="fc-"]):not(.nav-link):not(.nav-gr
   transition: transform var(--transition-normal), box-shadow var(--transition-normal);
 }
 
-.glass[class*="card"]:hover,
+/* .stat-card opts out of the lift on purpose (see .stat-card:hover) — it carries
+   backdrop-filter directly, and a transform would make it a stacking context. */
+.glass[class*="card"]:not(.stat-card):hover,
 .pipeline__card:hover,
 .storm-activity-item:hover {
   transform: translateY(-1px);
