@@ -553,7 +553,13 @@ function ContractBuilder({ contract, fromEstimateId, leadId: initialLeadId, onSa
                       onMouseEnter={e => e.currentTarget.style.background = 'oklch(0.22 0.02 260)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
-                      <div style={{ fontWeight: 600 }}>{lead.owner_name || lead.first_name || '—'}</div>
+                      {/* Same trap as the prefill effect above: a lead carries
+                          contact_name (+ owner_first_name/owner_last_name), never
+                          owner_name or first_name, so both reads were undefined and
+                          every result rendered as a bare dash. */}
+                      <div style={{ fontWeight: 600 }}>{lead.contact_name
+                        || [lead.owner_first_name, lead.owner_last_name].filter(Boolean).join(' ')
+                        || '—'}</div>
                       <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{lead.address || ''}</div>
                     </div>
                   ))}
