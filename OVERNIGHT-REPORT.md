@@ -1,289 +1,440 @@
-# Overnight QA Report — 2026-08-23
+# StormLeads — Overnight QA Report
 
-**Project:** StormLeads / StormPipe
+**Run date:** 2026-08-24
 **Branch:** `feat/financing`
-**Baseline:** `dc8556d` (checkpoint: pre-overnight-run 2026-08-23, tag `pre-overnight-20260823`)
-**Head at report time:** `1692ad2`
-**Stages run:** s1 api-test (Run 88), s2 frontend-test (Run 88), s3 ui-audit (Run 89), s4 verify (Run 90), s5 report
+**Baseline:** `bf112c9` (tag `pre-overnight-20260824`)
+**Head at report time:** `5b73c95`
+**Build:** PASS — `vite build`, 7.92s, 0 errors
 
 ---
 
 ## QA Test Summary
 
-| Metric | Count |
+| Metric | Value |
 |---|---|
-| Pages (routes) tested | **19** |
-| API route patterns inventoried | **272** (36 route files) |
-| API route patterns exercised | **272** — 132 GET, 88 POST, 26 PATCH, 18 DELETE, 8 PUT |
-| Bugs found (new, this run) | **0** |
-| Bugs fixed | **1** (carried open from 2026-08-22) |
-| Bugs open | **0** carried defects; 1 unresolved *question* (see Known Issues) |
-| UI inconsistencies found | **0** — 9th consecutive converged run |
-| UI inconsistencies fixed | **0** — nothing was found to fix |
-| Net DB rows written | **0** (every created row deleted and verified gone) |
-| Build | **PASS** (vite, 8.29s) |
-| Page errors | **0** on 19/19 routes |
+| Pages tested | **25 routes** (19 authenticated + 6 public) + 15 Settings tabs + 4 modal interiors + 4 inline builders |
+| API endpoints — inventory | **280 route patterns** across 37 route files (135 GET, 90 POST, 27 PATCH, 20 DELETE, 8 PUT) |
+| API endpoints — executed live tonight | **26 probes** across 18 distinct endpoints (see Backend section for the exact breakdown) |
+| API endpoints — statically analysed tonight | **109** routes with path params (set difference), **280** patterns inventoried |
+| Bugs found | **4** (1 backend, 3 UI) |
+| Bugs fixed | **4** (5 fix commits — the heading defect took two, see below) |
+| UI inconsistencies found | **3** |
+| UI inconsistencies fixed | **3** |
+| Net DB rows written | **0** (verified) |
+| Page errors | **0** across 19/19 authenticated routes and both `/status/:token` branches |
+| New QA harnesses committed | **10** (3 run, 4 self-tested, 3 authored-but-unrun) |
 
-Fix commit: `eb6737a`. Harness commits: `ae63532`, `1692ad2`.
+### Commits this run
 
-**This was a convergence run.** No new defect was found in either the API sweep, the
-frontend sweep, or the UI audit. The single fix landed tonight closes the one item
-that last night's run left open. Three new detection dimensions were built instead,
-each self-tested against a planted positive before a zero result was trusted.
+| Commit | Type | Subject |
+|---|---|---|
+| `5a3978e` | fix (API) | photo-only milestone PATCH wiped the completed flag |
+| `ce8bf6b` | qa | validateId set-difference + bad-id probe (Run 91) |
+| `682e4cc` | fix (UI) | keyboard focus reshaped every control in the app |
+| `b8b462c` | fix (UI) | dropdown animation hit every BEM child and the always-visible trigger |
+| `a97fe00` | qa | self-tested over-broad CSS selector check (Run 92) |
+| `c56f3d4` | fix (UI) | public pages had no heading element of any level (5 of 6 pages) |
+| `5b73c95` | fix (UI) | the 6th public page still had no heading element |
 
-Two of the five stages hit their turn cap: **s1 api-test** (51/50) and **s4 verify**
-(41/40). s1's fix work was committed before the cap and was not lost, but its final
-three sweeps were never run — see *Test Coverage Gaps*. s4 reached its cap during an
-investigation, so it concluded nothing; nothing was lost, but nothing was settled.
+### Stage outcomes
+
+Four of five stages hit their turn cap. This is the sixth consecutive night with
+multiple caps and it is the single biggest process risk in the pipeline.
+
+| Stage | Run | Outcome | Effect on results |
+|---|---|---|---|
+| s1-api-test | 91 | **CAPPED 51/50** | Found the milestone bug but never committed it; authored 3 harnesses and ran **none**. The full API sweep did not happen. |
+| s2-frontend-test | 91 | **Completed** | Recovered and committed s1's fix; closed two carried gaps; 19 routes + 15 tabs + modal interiors clean. |
+| s3-ui-audit | 92 | **CAPPED 61/60** | Committed all 3 fixes and its harness **before** capping, so nothing was lost. |
+| s4-verify | 93 | **CAPPED 41/40** | Left the 6th public-page fix and a token lookup uncommitted; **recovered and committed in this stage** as `5b73c95`. |
+| s5-report | 93 | Completed | This report. |
+
+**`git status` first paid out again — twice.** s1's fix was recovered by s2, and
+s4's fix was recovered by this stage. That habit has now recovered real work on
+6 of the last 9 nights.
 
 ---
 
 ## Backend API Test Results
 
-Inventory: **272 route patterns across 36 route files**, re-derived from source this
-run (`C:/tmp/route-inventory.json`, regenerated 05:05).
+The full 280-pattern sweep **was not run this cycle** — s1-api-test capped before
+executing any of the harnesses it authored. What follows is what actually
+executed, by category. Anything not listed here was not exercised tonight.
 
-| Category | Route file(s) | Patterns | Result |
-|---|---|---|---|
-| CRM (leads, contacts, tasks, pipeline) | `crm.js` | 51 | 1 fixed, rest pass |
-| Properties | `properties.js` | 18 | Pass |
-| Estimates | `estimates.js` | 17 | Pass |
-| Contracts | `contracts.js` | 13 | Pass |
-| Financing | `financing.js` | 13 | Pass |
-| Work orders | `workOrders.js` | 12 | Pass |
-| Skip trace | `skipTrace.js` | 10 | Pass (503 without `TRACERFY_API_KEY`, intentional) |
-| Materials | `materials.js` | 9 | Pass |
-| Drip / invoices / subcontractors / roof measurement | 4 files | 32 | Pass |
-| Onboarding / payments | 2 files | 14 | Pass |
-| Admin | `admin.js` | 6 | 403 under the browser's token — unresolved, see below |
-| Reports / territories / leads / notifications | 4 files | 24 | Pass |
-| Auth | `auth.js` | 5 | Pass |
-| Automations / canvassing / expenses / drift | 4 files | 20 | Pass |
-| Alerts / counties / dashboard / dataApis / documents / map | 6 files | 23 | Pass |
-| Storm history / storms / disaster declarations / search / webhooks | 6 files | 8 | Pass |
+| Category | Endpoints tested | Passed | Failed | Method |
+|---|---|---|---|---|
+| Work orders / milestones | 1 (`PATCH /api/crm/work-orders/:id/milestones/:mid`) | 4/4 after fix | 1 defect pre-fix | End-to-end repro + SQL differential |
+| Admin | 4 (`overview`, `tenants`, `revenue`, `usage`) × 2 roles = 8 probes | 8/8 | 0 | Real minted tokens, both roles |
+| Path-param validation | 13 routes with no `validateId` | 13/13 | 0 | Non-UUID / numeric / injection-shaped ids |
+| Auth / token minting | 1 (`POST /api/auth/login`) | 1/1 | 0 | Real login, `tenantSlug` + `accessToken` |
+| **Live total** | **18 distinct endpoints, 26 probes** | **26/26 after fix** | **1 defect found** | |
+| Path-param scoping (static) | 109 routes with path params | 0 category-A, 0 category-B | 0 | Self-tested set difference |
+| Route inventory (static) | 280 patterns / 37 files | n/a | n/a | Source enumeration |
 
 ### What was fixed
 
-**`eb6737a` — `DELETE /api/crm/leads/:leadId/contacts/:contactId` ignored `:leadId`.**
+**`5a3978e` — `PATCH` milestone: a photo-only update wiped the completed flag.**
 
-`crm.js:325` called `crmService.deleteContact(tenantId, contactId)`; the `:leadId`
-path param was declared but never read. A request naming a lead that did **not** own
-the contact returned **200 and deleted the row anyway**. `req.tenantId` was still
-enforced throughout, so this was a **within-tenant scoping defect, not a cross-tenant
-leak**. `deleteContact` now takes `leadId` and scopes the `DELETE` by `lead_id`, so a
-non-owning lead yields `rowCount 0` → **404**.
+`workOrderService.updateMilestone` bound `req.body.completed` straight into
+`SET completed = $3`. On a partial PATCH that field is `undefined`, which
+node-postgres sends as **NULL**, so the flag was overwritten and `completed_at`
+was dropped by the CASE.
 
-Verified by `server/.qa-r88-contactscope.mjs` (9 assertions): **9/9 on the fixed
-tree**, and **6/9 against the stale pre-fix instance** still running on `:3001` — the
-3 failures are exactly the scoping assertions, so the probe is self-tested against a
-known positive rather than assumed correct. Malformed-UUID 400s, repeat-delete 404,
-and the legitimate delete path all still hold. Net DB writes: **0**.
+This is a live user path, not a synthetic one: `WorkOrdersView.jsx:97` uploads a
+milestone photo with `{ photo_url }` alone — so **attaching a photo to a finished
+milestone marked it incomplete and lost its completion timestamp.**
 
-This defect was **found by s1 on 2026-08-22**, which hit its turn cap before fixing
-it, and was carried on the open list overnight. Tonight's s1 made it the first item.
+Fixed with `COALESCE($3::boolean, completed)` and by holding `completed_at`
+unchanged when the binding is NULL.
 
-### Detection built (no defects found by any of it)
+> ⚠️ **The end-to-end repro passed 4/4 on first run and that was misleading.**
+> s1 had already restarted the server (file mtime 05:10:12, server start
+> 05:10:32), so the "before" measurement was actually the post-fix state. The fix
+> was proven instead by `.qa-r91-milestone-sqldiff.mjs`, which runs the OLD and
+> NEW statements directly against one existing row with the photo-only binding:
+> **OLD wipes (`completed=null`), NEW preserves (`completed=true`, `completed_at`
+> set).** Row restored; restore verified; 0 milestones left with
+> `completed IS NULL`.
 
-- **`ae63532` — orphan path-param set difference** (`server/.qa-r88-orphanparam.mjs`).
-  Generalizes the contact-DELETE defect into a reusable check: for every route with
-  2+ path params, diff the params *declared* against the params the handler actually
-  *reads*. Self-tested — pointed at `git archive eb6737a~1` it reports exactly the one
-  known finding; on the fixed tree, **0**. Coverage reconciled independently: 272
-  routes scanned, 5 multi-param. A raw grep finds 6; the 6th is `subcontractors.js.bak`,
-  a dead file, correctly excluded. No sub-router uses `mergeParams`, so no parent
-  params are hidden.
-  Because "reads the param" does not prove "the SQL scopes by it", the other 4 were
-  also read at the query level and all are correct.
-- **`ae63532` — enum 500 check** (`.qa-r88-enum500.mjs`): CHECK-constrained write routes
-  return 400, never 500 — **0 5xx over 6 probes**.
-- Confirmed the Run 80 automation-priority handoff was already fixed by `5329a7e`:
-  both `automationEngine` and `dripService` call `normalizeTaskPriority`.
+### Carried question closed: `/admin` 403 is correct authorization
+
+This sat on the "documented-intentional" list for **five runs on an unproven
+hypothesis**. s2 ran the probe s4 had written and never got to:
+
+- as `super_admin` → **200** on all four admin endpoints
+- as `admin` (what the browser actually sends) → **403** on all four
+
+The 403 is correct. The page renders at all only because
+`VITE_DEV_BYPASS_AUTH=true` shows a `super_admin` `DEV_USER` in the SPA while the
+real token carries role `admin`. **Moved from "unproven" to verified non-bug — do
+not re-file.**
+
+### Bug class ruled out: `validateId` gaps
+
+s1 hypothesised that `validateId(...names)` defaulting to `['id']` when called
+bare would leave `:leadId`/`:contactId` routes unguarded — the exact shape of last
+night's `eb6737a`. A set difference of each route's real path params against what
+its `validateId()` call guards returned **109 routes → 0 category-A, 0
+category-B. The class does not exist here.**
+
+The zero is credible **because the harness was self-tested first**: two synthetic
+defects were planted (one per category), the harness caught both, then `crm.js`
+was restored and re-verified. A set difference reporting zero is worthless
+without that step.
 
 ---
 
 ## Frontend Feature Test Results
 
-**19/19 routes tested. Zero defects found.** No client source change was made, because
-nothing was broken. Build passes, working tree clean, **net-zero DB writes**.
+19/19 authenticated routes render with **0 page errors and 0 console errors**
+(except `/admin`, whose two console entries are the now-proven-intentional 403s).
+All 15 Settings tabs clean. Re-confirmed in this stage by an independent sweep.
 
-| Page | What was tested | Result |
-|---|---|---|
-| `/estimates` — builder | Line-item math: 3×$1200 + 2×$500 = **$4,600**; 30% margin → $3,220 cost / $1,380 profit | Pass |
-| `/estimates` — review toolbar | **Download PDF** and **Sign Now** on the new-estimate path | **Pass — the app's #1 hot spot is now fully healthy** |
-| `/invoices` | Record Payment: prefills balance, rejects overpay with no request, valid payment POSTs and toasts | Pass |
-| `/work-orders` | Milestones 0/7 → 1/7 (14%); photo-required guard blocks with no PATCH | Pass |
-| `/tasks` | **Toggle-complete — closed a standing gap** (untested since Run 85) | Pass |
-| `/settings` | All **15 tabs** | Pass |
-| `/leads` | Lead detail slide-over, score breakdown | Pass |
-| `/calendar` | Render + event modal | Pass |
-| Remaining 10 routes | Load, render, console | Pass — 0 page errors |
+| Page | Tested | Result | Needs attention |
+|---|---|---|---|
+| `/` Dashboard | Render, stat cards, card→route navigation | PASS — cards navigate correctly | — |
+| `/leads` | Render, search, sort | PASS — verified via outgoing query params | — |
+| `/pipeline` | Render, stage columns | PASS | — |
+| `/estimates` | Builder math live: 3 × $250 = $750, subtotal/total/preview | PASS | — |
+| `/contracts` | Render, "Send Contract" disabled state | PASS — disabled is `!customerEmail` validation, not a defect | — |
+| `/invoices` | Render | PASS | "New Invoice" is a full-page builder, **not** a modal |
+| `/work-orders` | Milestone toggle 0/7 → 1/7 → reverted | PASS | — |
+| `/materials` | Render (183 buttons — largest surface in app) | PASS | "Add" is a client-side cart, **not** a modal |
+| `/expenses` | Render, modal opened | PASS | `ExpensesView.jsx:56` dead `searching` state (cosmetic) |
+| `/subcontractors` | Render | PASS | — |
+| `/tasks` | Render, slide-over opened | PASS | — |
+| `/calendar` | Render | PASS | — |
+| `/reports` | Render | PASS | — |
+| `/storm-map` | All 5 app storm-map layers toggled | PASS | — |
+| `/storm-catalog` | Render | PASS | — |
+| `/canvassing` | Render | PASS | — |
+| `/settings` | **All 15 tabs** | PASS — all clean | — |
+| `/alerts` | Render | PASS | 0 active sidebar entries — known orphan route |
+| `/admin` | Render, 4 endpoints × 2 roles | PASS — 403 proven intentional | — |
+| **6 public routes** | `/login` `/register` `/onboarding` `/estimate/:token` `/contract/:token` `/status/:token` | Render clean — but **zero headings between them** | **FIXED** (`c56f3d4`, `5b73c95`) |
 
-### Standing gap closed
+### Coverage advanced this run
 
-`/tasks` **toggle-complete** had been untested since Run 85: the dataset holds 0 tasks
-and there is no DELETE route for tasks, so creating one leaves a permanent row on the
-free tier. s2 stubbed the **read** side with 4 synthetic tasks and verified the
-behaviour end-to-end with **zero writes** — counters moved `Pending 3 / Completed 1` →
-`2 / 2`, the correct `PATCH /crm/tasks/:id {"completed_at":…}` fired, and the row left
-the Pending list.
+The gap Run 90 named as most valuable — "take the audit battery **inside** modals
+and builders" — was closed for the first time. 4 modals opened and 4 inline
+builders exercised, all clean.
 
-### The estimate toolbar — four runs of regressions, now clean
+**The 6 public routes had never been rendered by any audit in the pipeline's
+history.** The documented "19 routes" sweep is authenticated-only. These are the
+pages prospects and homeowners actually see.
 
-The Review & Share toolbar has produced five dead controls across four runs (R83, R84,
-R85, R87), every time with the same root cause: a control gated on the `estimate`
-**prop**, which is null for the entire life of a new estimate. This run exercised it
-directly and **both remaining controls work**: PDF downloads, Sign Now opens with its
-signature canvas. Runs 85 and 87's fixes both hold.
+### Two candidates died on inspection rather than becoming tickets
 
-### Needs attention (deliberately not changed)
-
-- **Pre-existing QA rows are now user-visible**: a `qa_options_probe` custom field and
-  a lead named `Qa20260730c`. Left by an earlier run, not this one. Deletion is
-  irreversible, so this is flagged for your call rather than actioned.
-- **No delete anywhere in the app asks for confirmation** — `confirm(` appears **zero**
-  times across all components. This is app-wide and appears deliberate; adding
-  confirmation is an enhancement, outside the QA charter.
+- `/contracts` "Send Contract" disabled → plain `!customerEmail` validation.
+- Four "create" buttons are **inline view swaps, not modals** — a modal-only
+  detector reports those as dead buttons. `/invoices` "New Invoice",
+  `/contracts` "New Contract" and `/materials` "Add" are full-page builders or a
+  client-side cart.
 
 ---
 
 ## UI Consistency Audit Results
 
-**7/7 prescribed audits pass on 19/19 routes. Zero visual defects — the 9th
-consecutive converged run.** Zero client source changes. Full table at
-`C:/tmp/ui-audit-results.txt`.
+The 7 prescribed audits have now converged for **11 consecutive runs**. Rather
+than re-spend a run on them, s3 ran the cheap regression (source greps, which are
+definitive — a browser sweep cannot see inside an unopened modal — plus one
+computed-style sweep) and spent the run on **two dimensions no prior run had
+touched**. Both produced real defects.
 
-| Audit | Checked | Result |
-|---|---|---|
-| **1. Icons** | Non-Heroicon icons, solid variants, foreign libs, inline `<svg>` | **0 found, nothing to fix.** Now closed at *source* level |
-| **2. Buttons** | Border-radius sets, style-signature groups, disabled state | **0 outliers.** All groups map to documented families |
-| **3. Toolbars / Headers** | `.topbar glass` height, `<h1>` presence | **56px on 19/19**, `<h1>` on 19/19, titles correct |
-| **4. Sidebar / Nav** | Link count, icon count, inter-item gaps, active state | **18 links / 18 icons**, identical gaps on 19/19. `/alerts` = 0 `.is-active` (documented orphan route, deferred) |
-| **5. Forms** | Native `<select>`, `input[type=date]`, non-`.form-input` | **0 native selects, 0 date inputs** — source-level, covers unrendered modals |
-| **6. Spacing** | Horizontal overflow, `.glass` padding | `scrollWidth − clientWidth = 0` on 19/19. Padding drift is one systemic Tailwind-rem-vs-14px-root thing (deferred) |
-| **7. Modals** | Scale-in animation, radius, close button | **21/22 animated via CSS inheritance; the 22nd must not be.** See below |
+Regression figures below are from an independent re-measurement taken during this
+reporting stage, not copied from an earlier run.
 
-### Audits 1 and 5 upgraded from browser sweep to source grep
+| # | Category | Measured | Result | Fixed |
+|---|---|---|---|---|
+| 1 | **Icons** | Source grep, all of `client/src` | **0** foreign icon libs (lucide / react-icons / fontawesome / mui); **0** non-outline Heroicon imports; inline `<svg>` only in the 2 documented map files | n/a — none found |
+| 2 | **Buttons** | 1,033 visible `<button>` across 19 routes | Consistent; every outlier resolves to a documented deliberate variant | n/a — none found |
+| 3 | **Toolbars / headers** | `.topbar` on 19 routes | **56px + `topbar glass` on 19/19**; exactly **1 `<h1>` on 19/19** | n/a — none found |
+| 4 | **Sidebar / nav** | `.nav-link` on 19 routes | **18 links / 18 icons on 19/19**; gaps identical on 19/19; active=1 on 18/19 | `/alerts` active=0 — known orphan route, deferred |
+| 5 | **Forms** | Source grep + runtime | **0** native `<select>`, **0** `input[type=date\|time\|datetime-local]` in JSX on 19/19 | n/a — none found |
+| 6 | **Spacing** | Document overflow, `.glass` padding | **0 overflow on 19/19**; padding drift is the documented systemic 17.5px Tailwind-rem-at-14px-root | n/a — deferred, systemic |
+| 7 | **Modals** | `.modal-backdrop` / `.slide-over` at rest | **0 open at rest on 19/19**; 4 interiors opened and audited | Title heading drift deferred (see Known Issues) |
+| **8** | **Interaction states — `:focus-visible`** ⭐ | 273 focusable elements / 5 routes | **204 elements in 10 classes changed shape on focus** | **FIXED `682e4cc`** |
+| **9** | **Over-broad selectors** ⭐ | 636 CSS rules | `[class*="dropdown"]` substring match hit every BEM child + an always-visible glass trigger | **FIXED `b8b462c`** |
+| **10** | **Public routes** ⭐ | 6 routes, first time ever rendered | **0 `h1`/`h2`/`h3`/`h4` across all six** | **FIXED `c56f3d4` + `5b73c95`** |
 
-For nine runs these were run as runtime sweeps. **A runtime sweep only sees what
-rendered** — a native `<select>` inside a modal that never opened is structurally
-invisible to it. Greps over all of `client/src` now close them definitively: **0**
-native `<select>`, **0** `input[type=date]`, **0** solid-variant imports, **0** foreign
-icon libraries, **0** inline `<svg>` outside the two documented map files. Every icon
-import is `24/outline` (37) or `./Icons` (17), whose sole import is `24/outline`. All
-**33** `Icons.jsx` aliases verified semantically correct.
+⭐ = dimension measured for the first time in the pipeline's history.
 
-### A near-miss that would have broken a working modal
+### The headline — `:focus-visible` reshaped 204 controls (`682e4cc`)
 
-A className count shows **22 `.modal-backdrop` but only 6 `.modal-scale-in`**, which
-reads as 16 unanimated modals. **It is not a defect.** `index.css:4468` gives the
-animation to any direct `.glass` / `form.glass` child of a backdrop, covering **21 of
-22** for free (confirmed at runtime on two modals, both computing `modal-scale-in
-0.2s`). The 22nd — `LeadDetail.jsx:2470`, the sibling-backdrop pattern — **must not**
-get the class: the keyframe ends at `transform: none`, which would clobber its
-`translate(-50%,-50%)` centering and throw the panel off-screen. "Fixing" the count
-would have broken a working modal.
+Every previous audit measured only the **default** state. One `:focus-visible`
+measurement found the largest-blast-radius UI defect in many runs.
 
-### Three new check dimensions, each self-tested, all clean
+`index.css:4384` set `border-radius: var(--radius-sm)` inside a bare
+`:focus-visible` block. **A bare pseudo-class has class-level specificity (0,1,0)**
+and this block sits after every component rule — so it won the cascade against
+each control's own radius the moment that control took keyboard focus.
 
-- **Icon semantics** — maps accessible name → svg path signature and flags one action
-  rendered with two different Heroicons, a real defect no computed-style sweep can
-  see. Self-test passed against a planted positive. **0 conflicts across 69 action
-  names / 41 distinct icons.**
-- **CSS duplicate-selector conflicts** (`1692ad2`, `server/.qa-r89-cssdupe.mjs`) —
-  636 blocks / 667 selectors / 6 duplicated / **2 conflicts, both verified benign at
-  runtime.**
-- **Disabled-state consistency** — the global `button:disabled` rule covers every
-  button; only 2 inline overrides exist and both dim correctly. **Check closed.**
+```
+.nav-link          12px      -> 8px   (x90, every sidebar item, every page)
+.quick-action-btn  14px/12px -> 8px   (x55)
+.topbar__btn       12px      -> 8px   (x10)
+.auth-btn          14px/12px -> 8px   (primary action button)
+.form-input        12px      -> 8px
+.nav-group__header 0px       -> 8px   (square controls rounded instead)
+```
+
+The declaration was also **unnecessary** — browsers already derive the outline's
+corner radius from the element's own `border-radius`.
+
+**Verified: 10 distinct changes → 0, with the focus ring still rendering on
+270/273.** The lone exception is a third-party Mapbox attribution button,
+unaffected by this change. Asserting the ring survives is mandatory — silently
+deleting the a11y indicator would be a worse bug than the one being fixed.
+
+### Same bug family — `[class*="dropdown"]` (`b8b462c`)
+
+A **substring** match, so it selected far more than dropdown containers.
+
+Opening Notifications ran **four simultaneous scale-in animations** — the panel
+plus `__header`, `__list` and `__empty` — each child scaling **inside its
+already-scaling parent**, each with a different resolved `transform-origin` (180 /
+189 / 190px, because `top center` resolves per element width). Help did the same
+with `__header` + `__body`.
+
+It also matched `.map-controls__dropdown`, an **always-visible wrapper**. Because
+`animation-fill-mode: both` holds the final `scale(1)`, that wrapper carried a
+**permanent transform**, permanently creating a stacking context around a
+`.glass` child with `backdrop-filter` — **exactly the documented glass breakage**
+(`feedback_no_animation_on_glass_parents`).
+
+And it **silently overrode three components' own animations**: `.search-dropdown`
+and `.notification-dropdown` declare `fadeIn`, `.map-controls__dropdown-menu`
+declares `dropdown-fade-in`; all three computed `dropdown-in`. Unifying them is
+the rule's evident intent, so that was kept — now applied once per container.
+
+**Verified:** containers still compute `dropdown-in`; every BEM child now computes
+`animation-name: none` / `transform: none`; the map wrapper and trigger are
+`anim=none tf=none` with the trigger still `backdrop-filter: yes`. No map logic
+touched.
+
+### Public pages had no heading element at all (`c56f3d4`, `5b73c95`)
+
+All 19 app routes carry an `<h1>` via `TopBar` view titles. The **six public,
+customer-facing routes had zero headings of any level between them** — "Sign in",
+"Create your account", "Company details", "ESTIMATE EST-090" and "CONTRACT" were
+all plain `<div>`s. The worst place in the app to have no document outline.
+
+`c56f3d4` promoted the existing title element on five of them. The sixth,
+`/status/:token`, is reachable only with a real share token, so it could not be
+rendered until one was resolved from the database — s4 wrote that lookup and the
+fix, then capped before verifying or committing. **Recovered and verified in this
+stage as `5b73c95`:**
+
+```
+before: 0 headings; DIV 462x33 @ top 73; 22px/700; margin 0; innerText 246
+after:  1 h1;        H1  462x33 @ top 73; 22px/700; margin 0/padding 0; innerText 246
+```
+
+Byte-identical text length, pixel-identical box, 0 page errors, 0 overflow. The
+error branch renders one `h1` "Page Not Found" at 18px/600 with margin `0 0 8px`
+— its own inline `marginBottom`, no UA margin leaked.
+
+The swap is **visually neutral by construction**: the universal reset at
+`index.css:13` zeroes the UA heading margin, and every promoted title already set
+`font-size` and `font-weight` explicitly, so no UA heading default survives. The
+same proof held on the other five pages, where `document.body.innerText.length`
+was byte-identical before and after on all five (113 / 156 / 189 / 234 / 1089).
+
+### New harness — `server/.qa-r92-broadselector.mjs` (`a97fe00`)
+
+Detects the bug class both CSS defects belong to: selectors that are **broad but
+carry class-level specificity** (bare pseudo-class, `[attr*=]`) while setting
+properties components own — radius, animation, transform, geometry.
+
+**`--selftest` runs it against the pre-fix CSS at `682e4cc~1` and requires it to
+rediscover both proven defects. It catches both, out of 636 rules.** On the fixed
+tree 6 findings remain, all benign: bare **element** selectors (`html`, `body`,
+`button` — specificity 0,0,1, so they always lose to a class) and
+`::-webkit-scrollbar*` pseudo-elements. The distinction that matters is
+element-vs-pseudo-class breadth, not "broad" alone.
 
 ---
 
 ## Bugs Fixed
 
-1. **`DELETE /api/crm/leads/:leadId/contacts/:contactId`** — the `:leadId` path param
-   was declared but never read, so deleting a contact through a lead that did not own
-   it returned **200 and removed the row** (within-tenant scoping defect; tenant
-   isolation intact). — **Fixed in `eb6737a`**: `deleteContact` now takes `leadId` and
-   scopes the `DELETE` by `lead_id`, so a non-owning lead yields 404. Verified 9/9 on
-   the fixed tree and 6/9 against the pre-fix instance, with the 3 failures being
-   exactly the scoping assertions.
+1. **`PATCH /api/crm/work-orders/:id/milestones/:mid`** — a partial (photo-only)
+   PATCH bound `undefined` into `SET completed = $3`, which node-postgres sends as
+   NULL, wiping the completed flag and dropping `completed_at`. Attaching a photo
+   to a finished milestone marked it incomplete. — Fixed with
+   `COALESCE($3::boolean, completed)` and by holding `completed_at` unchanged on a
+   NULL binding. Proven by a SQL differential against a real row (OLD wipes, NEW
+   preserves); row restored. **`5a3978e`**
 
-No other defect was found this run.
+2. **App-wide, every keyboard-focusable control** — a bare `:focus-visible` block
+   at `index.css:4384` set `border-radius: var(--radius-sm)`. Bare pseudo-classes
+   carry class-level specificity and the block sits after every component rule, so
+   **204 elements in 10 classes visibly changed shape on keyboard focus** (every
+   sidebar item on every page, x90). — Removed the declaration; browsers already
+   derive the outline radius from the element's own. Verified 10 changes → 0 with
+   the ring still on 270/273. **`682e4cc`**
+
+3. **Notifications / Help / map controls** — `[class*="dropdown"], [class*="popover"]`
+   is a substring match, so it animated every BEM child (Notifications ran 4
+   simultaneous scale-ins, children scaling inside the scaling parent) and put a
+   permanent transform on an always-visible wrapper around a `.glass` child with
+   `backdrop-filter` — the documented glass breakage. It also silently overrode 3
+   components' own animations. — Replaced the substring selectors with an explicit
+   container list. **`b8b462c`**
+
+4. **All 6 public routes** — `/login`, `/register`, `/onboarding`,
+   `/estimate/:token`, `/contract/:token`, `/status/:token` had **zero
+   `h1`/`h2`/`h3`/`h4` between them**, while all 19 app routes have an `<h1>`. —
+   Promoted the existing title element on each; no new markup, no new CSS. Proven
+   visually neutral by byte-identical `innerText.length` and pixel-identical box
+   geometry on every page. **`c56f3d4`** (5 pages) + **`5b73c95`** (the 6th,
+   recovered from s4's capped run).
 
 ---
 
 ## Known Issues (Not Fixed)
 
-1. **`/admin` returns 403 under the browser's token — root cause unconfirmed.** The
-   browser session runs `VITE_DEV_BYPASS_AUTH=true`, so the SPA renders `DEV_USER`
-   (role `super_admin`) while every API call carries the real `brandon` token, whose
-   role is `admin`. That mismatch is the *hypothesis* for "Failed to load overview
-   data." s4 wrote a read-only probe to settle it (`server/.qa-r90-adminrole.mjs`,
-   mints a token for the real `super_admin` user and GETs the four admin endpoints)
-   but **hit its turn cap before running it.** Until it runs, whether `/admin` is a
-   dev-environment artifact or a genuinely broken page is **unproven either way**.
-   The two console 403s have been on the documented-intentional list for several runs,
-   which is exactly why this deserves a definitive answer. *Make this the first item
-   of the next verify stage — the probe is already written.*
-2. **`/alerts` has 0 `.is-active` sidebar entries** — orphan route, no matching nav
-   link. Cosmetic; deferred since an earlier run.
-3. **`.glass` padding drift** — Tailwind rem units against a 14px root produce
-   8.75/10.5/17.5/21px. One systemic cause; a fix is a design decision, not a bug fix.
-4. **Modal title heading drift** — `/materials` cart uses `H3/16px`, `/work-orders`
-   uses `H2/18px`; `/expenses` uses `<h3>` where others use `<h2>`. Per-file inline
-   style objects. On the known-and-deferred list since Run 84.
-5. **Two duplicate CSS blocks** (`.form-input` transition, `.public-estimate-error`
-   colour). Both were checked rather than assumed — every custom property is defined
-   and both resolve to the **intended** value (the error text renders `rgb(220,38,38)`,
-   the correct red), so this is **not** the Run 76 undefined-`var()` shape it
-   resembles. They are dead declarations with zero user-visible effect; merging them
-   is a pure refactor, which the charter forbids.
-6. **`ExpensesView.jsx:56`** — genuinely dead `searching` state, so no spinner renders
-   during lead search. Real but cosmetic; adding one is an enhancement.
-7. **Pre-existing QA rows are user-visible** — `qa_options_probe` custom field, lead
-   `Qa20260730c`. Left by an earlier run. Irreversible to delete, so left for your call.
-8. **No delete confirmation anywhere in the app** — `confirm(` appears zero times.
-   App-wide and apparently deliberate; changing it is a design decision.
-9. **Two orphaned QA upload files on disk** (`server/uploads/4531031f-….txt`,
-   `514257bc-….txt`, 23 bytes each) from a prior run's turn cap. DB rows were removed;
-   only the disk files remain.
-10. **Skip-trace returns 503** without `TRACERFY_API_KEY`. Intentional, needs a key.
+### Deferred by decision — cosmetic or systemic
+
+- **`/alerts` has 0 `.is-active` sidebar entries** — orphan route with no matching
+  nav item. Confirmed again tonight on 19/19 sweep. Cosmetic.
+- **`.glass` padding drift** — 17.5px resolves from a Tailwind rem against a 14px
+  root. Systemic and consistent per family; changing it is a design decision.
+- **Modal title heading drift** — `/materials` uses `h3`/16px, `/work-orders` uses
+  `h2`/18px, `/expenses` uses `h3`. Cosmetic; needs a design ruling on the
+  canonical modal title level.
+- **2 duplicate CSS blocks** (`.form-input` transition, `.public-estimate-error`
+  colour) — **verified, not assumed**: all custom properties are defined and both
+  resolve to the intended value. Dead declarations only. Merging is a refactor the
+  QA charter forbids.
+- **6 remaining `broadselector` findings** — all benign: bare **element** selectors
+  (specificity 0,0,1, always lose to a class) and scrollbar pseudo-elements.
+- **`ExpensesView.jsx:56` dead `searching` state** — no spinner renders during lead
+  search. Real but cosmetic.
+- **No delete anywhere in the app asks for confirmation** — `confirm(` appears
+  **zero** times in the codebase. App-wide and apparently deliberate; a design
+  decision, not a bug.
+- **Dead files on disk** — `client/src/components/Icons.jsx.backup` and
+  `client/src/assets/icons-backup/` (17 duplicated SVGs). Not imported, no runtime
+  effect; noted so a future audit does not re-flag them.
+
+### Blocked — needs a key, a network path, or the user's call
+
+- **Skip-trace returns 503 without `TRACERFY_API_KEY`** — intentional, cannot be
+  tested here.
+- **County import fails `ENOTFOUND feature.tnris.org`** — no network access to that
+  host from this environment.
+- **Pre-existing QA rows are user-visible** — the `qa_options_probe` custom field
+  and lead `Qa20260730c`. Not from this run, irreversible to delete safely. **Left
+  for the user's call.**
+- **Two orphaned QA upload files on disk** (23 bytes each) from a prior stage cap;
+  the DB rows were already removed.
+
+### Process
+
+- **Four of five stages hit their turn cap** (s1 51/50, s3 61/60, s4 41/40) — the
+  sixth consecutive night. s3 committed before capping so lost nothing; s1 and s4
+  each capped holding an uncommitted fix, both recovered by a later stage. The
+  recovery habit works, but it is costing roughly one stage of throughput per
+  night.
 
 ---
 
 ## Test Coverage Gaps
 
-1. **s1's last three sweeps were written but never run.** `.qa-r88-realids.mjs`,
-   `.qa-r88-realids2.mjs` and `.qa-r88-emptytables.mjs` were authored at 05:06–05:08
-   and the stage hit its turn cap at 51/50. They left **no output files**, so their
-   results are unknown — this is a gap, not a pass. They target the single largest
-   known hole: a dead-UUID sweep 404s in validation *before* the handler body runs, so
-   it proves "nothing crashes on validation", not "the handler works". Run 87 got a
-   real id into only **29 of 119** param GET routes. The scripts are on disk and ready
-   to run.
-2. **`/admin` verification incomplete** — see Known Issues #1. Probe written, not run.
-3. **Modal and builder *contents* are still only spot-checked.** Nine runs have
-   measured the 19 routes **at load**. The new icon-semantics check shares this blind
-   spot by design (it only sees what rendered). **This is the single best remaining
-   gap** — the next run should take the audit battery *inside* modals and builders.
-4. **Four GET handlers have still never executed their bodies** — `drip_sequences`,
-   `prospect_lists` and `financing_applications` hold zero rows, so every sweep 404s
-   before the handler runs. `.qa-r88-emptytables.mjs` was written to close this (create
-   one row, GET with a real id, delete it — net zero writes) but fell inside gap #1.
-5. **`/calendar` event creation cannot be driven synthetically** — its modal opens via
-   FullCalendar `dateClick`, which needs a real pointer event. A trigger-hunting sweep
-   reports `NO_TRIGGER_BUTTON`; that is a harness limitation, not a missing feature.
-6. **No ESLint in this repo** — no config, no lint script, so `no-undef` never runs.
-   The committed `.qa-r8*.mjs` set differences exist to cover that hole; all currently
-   report zero.
-7. **County import errors are environmental** — `ENOTFOUND feature.tnris.org`; no
-   network access to the TNRIS host from this environment.
+1. **The full API sweep did not run this cycle.** s1-api-test capped before
+   executing anything. The last full 280-pattern sweep was **Run 82, 2026-08-19**.
+   Tonight's backend coverage was 18 endpoints live plus static analysis — a
+   **gap, not a pass.**
+
+2. **Three authored API harnesses are still unrun** — no output files exist for
+   any of them. Committed so the authoring cost is not lost a second time:
+   - **`.qa-r91-realidwrite.mjs` — the highest-value remaining item in the whole
+     pipeline.** 34 PATCH/PUT handlers have never been executed against a real
+     row. This targets the documented blind spot behind two of the last five real
+     bugs. **It performs writes — read it before running, do not execute blind at
+     the end of a stage.**
+   - `.qa-r91-neverrun.mjs`
+   - `.qa-r91-validateid.mjs` (superseded by `.qa-r91-validategap.mjs`, which ran
+     clean)
+
+3. **A dead-UUID sweep proves validation, not handlers.** It 404s inside
+   validation *before* the handler body executes. Run 87 got a real id into only
+   **29 of 119** param GET routes, so most handler bodies remain unproven.
+
+4. **`:hover` and `:active` are still unmeasured.** Focus went unmeasured for 11
+   runs and paid out immediately on the first look; these are the same shape of
+   gap. Watch specifically for hover rules that change **geometry** —
+   padding/border-width/height cause layout shift, transform does not.
+
+5. **4 GET handlers have never executed their bodies** — `drip_sequences`,
+   `prospect_lists` and `financing_applications` hold zero rows, so the handlers
+   return empty without exercising their logic.
+
+6. **Modal interiors are only partly covered** — 4 of 22 `.modal-backdrop` /
+   `.slide-over` instances have been opened and audited.
+
+7. **This repo has no ESLint at all** — no config, no lint script, so `no-undef`
+   never runs. The committed `.qa-*.mjs` set differences exist specifically to
+   cover that hole; all currently report zero.
+
+8. **The prescribed result files were not written this cycle.**
+   `/tmp/frontend-test-results.txt` does not exist.
+   `/tmp/api-test-results.txt` is from **Run 82 (2026-08-19)** and
+   `/tmp/ui-audit-results.txt` is from **Run 84 (2026-08-21)** — both stale, and
+   **neither reflects tonight's run.** Nothing in this report is drawn from them.
 
 ---
 
 ## Verification
 
-- **Build:** `npx vite build` — **PASS** (8.29s).
-- **Net DB rows written:** **0**. Every row created during testing was deleted and a
-  hygiene probe confirmed zero leftovers.
-- **Working tree:** clean apart from stage-result JSONs and the three unrun s1 scripts
-  plus two s4 probes, all untracked and deliberately retained for the next run.
+- `vite build` — **PASS**, 7.92s, 0 errors (warning is the pre-existing mapbox-gl
+  chunk size).
+- 19/19 authenticated routes re-swept in this stage: 0 page errors, topbar 56px +
+  `topbar glass` on 19/19, 1 `<h1>` on 19/19, 18 nav links / 18 icons on 19/19, 0
+  native selects, 0 date inputs, 0 overflow, 0 modals open at rest.
+- `/status/:token` verified in both branches, before and after the fix, across a
+  stash/restore of the exact diff.
+- **Net DB writes: 0.** Verified — 0 rows created in the last 2 hours, 0 stray
+  records, the milestone row restored and the restore confirmed, and 0 milestones
+  left with `completed IS NULL`. Tonight's only database access from this stage
+  was a read-only token lookup.
