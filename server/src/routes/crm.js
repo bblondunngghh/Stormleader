@@ -20,7 +20,8 @@ router.use(tenantScope);
 // GET /api/crm/leads — Enhanced lead list with filters, search, pagination
 router.get('/leads', async (req, res, next) => {
   try {
-    const { stage, priority, source, assigned_rep_id, search, sort_by, sort_dir, min_score } = req.query;
+    const { stage, priority, source, assigned_rep_id, search, sort_by, sort_dir, min_score,
+      needs_followup, unassigned } = req.query;
     const { limit, offset } = parsePagination(req.query);
     const result = await crmService.getLeads(req.tenantId, {
       stage: stage || undefined,
@@ -29,6 +30,10 @@ router.get('/leads', async (req, res, next) => {
       assignedRepId: assigned_rep_id || undefined,
       search: search || undefined,
       min_score: min_score || undefined,
+      // LeadList's "Needs Follow-up" / "Unassigned" quick filters send these.
+      // Only 'true' counts, so a stray value cannot silently filter the list.
+      needsFollowup: needs_followup === 'true' || undefined,
+      unassigned: unassigned === 'true' || undefined,
       sortBy: sort_by || undefined,
       sortDir: sort_dir || undefined,
       limit,
