@@ -802,8 +802,12 @@ function EstimatePickerModal({ onClose, onPick }) {
               onMouseLeave={e => e.currentTarget.style.background = 'oklch(1 0 0 / 0.04)'}
               >
                 <div>
-                  <div style={{ fontWeight: 600 }}>{est.title || `Estimate #${est.estimate_number || est.id?.slice(0, 8)}`}</div>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{est.contact_name || est.lead_address || ''}</div>
+                  {/* An estimate row carries `estimate_name` and `customer_name`/`lead_name`;
+                      `title` and `contact_name` are not keys on this payload, so both reads
+                      were always undefined and every row fell through to its fallback.
+                      Same idiom as the invoice picker (InvoicesView.jsx:372-374). */}
+                  <div style={{ fontWeight: 600 }}>{est.estimate_name || `Estimate #${est.estimate_number || est.id?.slice(0, 8)}`}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{est.customer_name || est.lead_name || est.lead_address || ''}</div>
                 </div>
                 {est.total && (
                   <span style={{ fontWeight: 700, color: 'oklch(0.75 0.18 145)' }}>${Number(est.total).toLocaleString()}</span>
