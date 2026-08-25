@@ -1,0 +1,12 @@
+import fs from 'fs'; import pool from './src/db/pool.js';
+const TOKEN=fs.readFileSync('C:/tmp/qa-token.txt','utf8').trim();
+const p=JSON.parse(Buffer.from(TOKEN.split('.')[1],'base64url').toString());
+console.log('token payload:', JSON.stringify(p));
+const {rows:[t]}=await pool.query("SELECT id FROM tenants WHERE slug='waterloo'");
+const {rows}=await pool.query("SELECT id,email,role FROM users WHERE tenant_id=$1 ORDER BY created_at LIMIT 5",[t.id]);
+console.log('tenant users (first 5, by created_at):');
+rows.forEach(r=>console.log('   ',r.id,r.email,r.role));
+console.log('FIRST-user (what I seeded, LIMIT 1 no order):');
+const {rows:f}=await pool.query("SELECT id,email FROM users WHERE tenant_id=$1 LIMIT 1",[t.id]);
+console.log('   ',f[0].id,f[0].email);
+await pool.end();

@@ -98,9 +98,15 @@ const snapshotAll = async () => {
 const getRow = async (table, id) => (table && id ? await one(`SELECT * FROM ${table} WHERE id = $1`, [id]) : null);
 
 const restoreRow = async (table, id, snap) => {
-  const cols = Object.keys(snap).filter((c) => c !== 'id');
-  const sets = cols.map((c, i) => `"${c}" = $${i + 1}`).join(', ');
-  await pool.query(`UPDATE ${table} SET ${sets} WHERE id = $${cols.length + 1}`, [...cols.map((c) => snap[c]), id]);
+  // node-postgres binds a JS ARRAY as a Postgres ARRAY LITERAL, not JSON. Restoring a
+  // jsonb column that way turns [] into '{}' -> a jsonb OBJECT, silently corrupting the
+  // row. Serialize objects/arrays to text and cast instead.
+  const cols = Object.keys(snap).filter(c => c !== 'id');
+  const vals = cols.map(c => (snap[c] !== null && typeof snap[c] === 'object' && !(snap[c] instanceof Date))
+    ? JSON.stringify(snap[c]) : snap[c]);
+  const sets = cols.map((c, i) => (vals[i] !== null && typeof snap[c] === 'object' && !(snap[c] instanceof Date))
+    ? `"${c}" = $${i + 1}::jsonb` : `"${c}" = $${i + 1}`).join(', ');
+  await pool.query(`UPDATE ${table} SET ${sets} WHERE id = $${cols.length + 1}`, [...vals, id]);
 };
 
 const before = await snapshotAll();

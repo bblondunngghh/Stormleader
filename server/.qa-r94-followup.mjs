@@ -1,0 +1,15 @@
+import pool from './src/db/pool.js';
+const T='791bb51d-3293-4839-92e9-bd4d4f873af2';
+const p=async(l,s)=>{try{console.log(l,(await pool.query(s,[T])).rows[0].n);}catch(e){console.log(l,'ERR',e.code,e.message.slice(0,80));}};
+await p('leads total (view, not deleted): ',`SELECT count(*)::int n FROM lead_summary_view WHERE tenant_id=$1 AND deleted_at IS NULL`);
+await p('  stage NOT IN closed set:       ',`SELECT count(*)::int n FROM lead_summary_view WHERE tenant_id=$1 AND deleted_at IS NULL AND stage::text NOT IN ('closed_won','closed_lost','sold','lost')`);
+await p('  NO outreach activity ever:     ',`SELECT count(*)::int n FROM lead_summary_view lsv WHERE tenant_id=$1 AND deleted_at IS NULL AND NOT EXISTS (SELECT 1 FROM activities a WHERE a.lead_id=lsv.id AND a.type IN ('call','email','text','door_knock'))`);
+await p('  FULL needs_followup predicate: ',`SELECT count(*)::int n FROM lead_summary_view lsv WHERE tenant_id=$1 AND deleted_at IS NULL AND lsv.stage::text NOT IN ('closed_won','closed_lost','sold','lost') AND (NOT EXISTS (SELECT 1 FROM activities a WHERE a.lead_id=lsv.id AND a.type IN ('call','email','text','door_knock')) OR (SELECT MAX(a2.created_at) FROM activities a2 WHERE a2.lead_id=lsv.id AND a2.type IN ('call','email','text','door_knock')) < NOW() - INTERVAL '3 days')`);
+console.log('--- activity types present ---');
+console.log((await pool.query(`SELECT type::text t, count(*)::int n FROM activities GROUP BY 1 ORDER BY 2 DESC`)).rows.map(r=>r.t+':'+r.n).join(', '));
+console.log('--- leads table vs view (leadService uses leads) ---');
+await p('leads tbl total:                 ',`SELECT count(*)::int n FROM leads WHERE tenant_id=$1`);
+await p('leads tbl stage NOT IN closed:   ',`SELECT count(*)::int n FROM leads WHERE tenant_id=$1 AND stage::text NOT IN ('closed_won','closed_lost','sold','lost')`);
+console.log('--- stage distribution ---');
+console.log((await pool.query(`SELECT stage::text s, count(*)::int n FROM leads WHERE tenant_id=$1 GROUP BY 1 ORDER BY 2 DESC`,[T])).rows.map(r=>r.s+':'+r.n).join(', '));
+await pool.end();
