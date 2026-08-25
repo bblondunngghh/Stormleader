@@ -394,10 +394,16 @@ function ContractBuilder({ contract, fromEstimateId, leadId: initialLeadId, onSa
   }, [leadSearch]);
 
   const selectLead = (lead) => {
+    // Third site in this file to read keys a lead row does not have. `owner_name`,
+    // `first_name`, `email` and `phone` are all absent from the leads payload, so
+    // picking a lead populated ONLY the address and left name/email/phone blank --
+    // which also left `Send Contract` disabled, since it is gated on customerEmail.
+    // Idiom matches the fromEstimate/leadId prefill effects above.
     setLeadId(lead.id);
-    setCustomerName(lead.owner_name || lead.first_name || '');
-    setCustomerEmail(lead.email || '');
-    setCustomerPhone(lead.phone || '');
+    setCustomerName(lead.contact_name
+      || [lead.owner_first_name, lead.owner_last_name].filter(Boolean).join(' '));
+    setCustomerEmail(lead.contact_email || lead.owner_email || '');
+    setCustomerPhone(lead.contact_phone || lead.owner_phone || '');
     setCustomerAddress(lead.address || '');
     setLeadSearch('');
     setShowLeadDropdown(false);
