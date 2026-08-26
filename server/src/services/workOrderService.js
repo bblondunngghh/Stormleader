@@ -147,7 +147,14 @@ export const MILESTONE_TEMPLATES = {
 };
 
 export async function createMilestones(workOrderId, templateKey = 'default') {
-  const template = MILESTONE_TEMPLATES[templateKey] || MILESTONE_TEMPLATES.default;
+  // Own-property check, not a bare lookup: MILESTONE_TEMPLATES is a plain object literal,
+  // so MILESTONE_TEMPLATES['constructor'] / ['__proto__'] / ['toString'] return an
+  // INHERITED truthy value, `||` never fires, and `template.milestones` is undefined ->
+  // defs.map() TypeError -> 500. Worse, createWorkOrder inserts the work_orders row BEFORE
+  // calling this (:320), so the 500 left an orphan work order with zero milestones.
+  // milestone_template is body-controlled. Ordinary unknown keys already fell back fine.
+  const template = (Object.prototype.hasOwnProperty.call(MILESTONE_TEMPLATES, templateKey)
+    && MILESTONE_TEMPLATES[templateKey]) || MILESTONE_TEMPLATES.default;
   const defs = template.milestones; // array of { name, photo_required }
   const placeholders = defs.map((_, i) => `($1, $${i * 3 + 2}, $${i * 3 + 3}, $${i * 3 + 4})`);
   const params = [workOrderId];

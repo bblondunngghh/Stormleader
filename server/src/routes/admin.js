@@ -123,7 +123,13 @@ router.get('/tenants', async (req, res, next) => {
       lead_count:    'lead_count',
       last_activity: 'last_activity',
     };
-    const sortCol  = SORTABLE[sort] ?? 't.created_at';
+    // Own-property check, not a bare lookup: SORTABLE is a plain object literal, so
+    // SORTABLE['constructor'] / ['__proto__'] / ['toString'] return an INHERITED truthy
+    // value, `??` never fires, and the Function/Object gets spliced into `ORDER BY`
+    // below -> SQL syntax error -> 500. Ordinary junk keys already fell back correctly.
+    const sortCol  = Object.prototype.hasOwnProperty.call(SORTABLE, sort)
+      ? SORTABLE[sort]
+      : 't.created_at';
     const sortDir  = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
     const { rows } = await pool.query(`
