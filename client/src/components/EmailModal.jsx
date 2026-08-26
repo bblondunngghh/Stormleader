@@ -105,10 +105,7 @@ export default function EmailModal({ leadId, lead, onSave, onClose }) {
           padding: '16px 20px', borderBottom: '1px solid oklch(0.25 0.02 260)',
         }}>
           <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>Compose Email</span>
-          <button aria-label="Close" onClick={onClose} style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: 'var(--text-muted)', fontSize: 18, lineHeight: 1, padding: '0 4px',
-          }}>
+          <button aria-label="Close" className="modal-close" onClick={onClose}>
             <IconX />
           </button>
         </div>

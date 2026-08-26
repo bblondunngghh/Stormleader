@@ -1633,6 +1633,32 @@ ul, ol { list-style: none; }
   color: var(--text-primary);
 }
 
+/* Close button for .modal-backdrop dialogs — the same 32x32 box as
+   .slide-over__close above, minus the absolute positioning (backdrop modals put
+   their close button in a flex header row, slide-overs pin it to the corner).
+   Before this existed, all 16 backdrop-modal close buttons were hand-rolled
+   inline and collapsed to the bare icon: an 18x18-20x23 non-square hit target
+   with no hover feedback, while the 6 slide-over ones were a consistent 32x32.
+   The global `button` reset (line 91) already supplies border/background/cursor,
+   so those inline declarations were redundant -- and the inline `background:none`
+   was actively suppressing the hover state this class provides. */
+.modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: all 0.15s var(--ease-out);
+}
+
+.modal-close:hover {
+  background: oklch(0.30 0.03 260 / 0.4);
+  color: var(--text-primary);
+}
+
 .slide-over__header {
   display: flex;
   flex-direction: column;

@@ -971,7 +971,7 @@ function InvoiceBuilder({ invoice, onSave, onCancel }) {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Send Invoice</h3>
-              <button onClick={() => setShowSendModal(false)} aria-label="Close" style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconX width={18} height={18} /></button>
+              <button onClick={() => setShowSendModal(false)} aria-label="Close" className="modal-close"><IconX /></button>
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12 }}>
               Send <strong>{invoice.invoice_number}</strong> for <strong>${Number(invoice.total || 0).toLocaleString()}</strong> to the customer.
@@ -1064,8 +1064,8 @@ function PaymentModal({ invoice, onClose, onRecorded }) {
             <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Record Payment</h3>
             <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{invoice.invoice_number || 'Invoice'}</div>
           </div>
-          <button aria-label="Close" onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
-            <IconX style={{ width: 18, height: 18 }} />
+          <button aria-label="Close" className="modal-close" onClick={onClose}>
+            <IconX />
           </button>
         </div>
 

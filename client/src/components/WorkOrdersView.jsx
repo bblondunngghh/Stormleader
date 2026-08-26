@@ -249,8 +249,8 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
               background: `color-mix(in oklch, ${statusColor} 14%, transparent)`,
             }}>{wo.status?.replace('_', ' ').toUpperCase()}</span>
           </div>
-          <button aria-label="Close" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
-            <IconX width={20} height={20} />
+          <button aria-label="Close" className="modal-close" onClick={onClose}>
+            <IconX />
           </button>
         </div>
 
@@ -645,8 +645,8 @@ function CreateWorkOrderModal({ onClose, onCreate, teamMembers }) {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
           <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>New Work Order</h2>
-          <button aria-label="Close" type="button" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
-            <IconX width={20} height={20} />
+          <button aria-label="Close" type="button" className="modal-close" onClick={onClose}>
+            <IconX />
           </button>
         </div>
 
@@ -780,8 +780,8 @@ function EstimatePickerModal({ onClose, onPick }) {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
           <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Select Estimate</h2>
-          <button aria-label="Close" onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
-            <IconX width={20} height={20} />
+          <button aria-label="Close" className="modal-close" onClick={onClose}>
+            <IconX />
           </button>
         </div>
 

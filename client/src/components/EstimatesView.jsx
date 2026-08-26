@@ -1181,7 +1181,7 @@ function SendForSigningModal({ signers, customerEmail, onSend, onClose, sending 
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>Send for Signing</h2>
-          <button onClick={onClose} aria-label="Close" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><IconX width={18} height={18} /></button>
+          <button onClick={onClose} aria-label="Close" className="modal-close"><IconX /></button>
         </div>
 
         <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
@@ -2910,8 +2910,8 @@ function InPersonSignModal({ estimateId, customerName, onClose, onSigned }) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-lg)' }}>
           <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>Sign Estimate In Person</h3>
-          <button aria-label="Close" onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
-            <IconX style={{ width: 18, height: 18 }} />
+          <button aria-label="Close" className="modal-close" onClick={onClose}>
+            <IconX />
           </button>
         </div>
 

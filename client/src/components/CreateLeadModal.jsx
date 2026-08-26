@@ -92,10 +92,7 @@ export default function CreateLeadModal({ onClose, onCreated }) {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>Add Lead</h2>
-          <button onClick={onClose} aria-label="Close" style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}><XMarkIcon width={18} height={18} /></button>
+          <button onClick={onClose} aria-label="Close" className="modal-close"><XMarkIcon width={18} height={18} /></button>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

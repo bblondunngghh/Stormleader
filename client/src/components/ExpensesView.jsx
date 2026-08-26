@@ -97,12 +97,10 @@ function ExpenseModal({ expense, onSave, onClose }) {
         width: '100%', maxWidth: 480, borderRadius: 'var(--radius-xl)',
         padding: 'var(--space-xl)', position: 'relative',
       }}>
-        <button aria-label="Close" onClick={onClose} style={{
-          position: 'absolute', top: 12, right: 12, background: 'none', border: 'none',
-          color: 'var(--text-muted)', cursor: 'pointer',
-        }}><IconX /></button>
+        <button aria-label="Close" className="modal-close" onClick={onClose}
+          style={{ position: 'absolute', top: 'var(--space-xl)', right: 'var(--space-xl)' }}><IconX /></button>
 
-        <h3 style={{ margin: '0 0 var(--space-lg) 0', fontSize: 16, fontWeight: 700 }}>
+        <h3 style={{ margin: '0 0 var(--space-lg) 0', fontSize: 16, fontWeight: 700, paddingRight: 40 }}>
           {isEdit ? 'Edit Expense' : 'Add Expense'}
         </h3>
 

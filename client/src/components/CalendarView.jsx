@@ -267,8 +267,8 @@ function CalendarCreateModal({ initialDate, onClose, onCreated }) {
               <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{formattedDate}</div>
             )}
           </div>
-          <button aria-label="Close" onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
-            <IconX style={{ width: 18, height: 18 }} />
+          <button aria-label="Close" className="modal-close" onClick={onClose}>
+            <IconX />
           </button>
         </div>
 
