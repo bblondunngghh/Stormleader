@@ -4635,3 +4635,76 @@ s3 ui-audit (53, **`end_turn` clean**), s4 verify (41/40, `error_max_turns`), s5
 - Drift baseline for the next run: the `docs: QA report 2026-08-25` commit (head after this entry).
 
 ---
+
+---
+
+## QA Run: 2026-08-26
+
+**Baseline `6320fbe` (`checkpoint: pre-overnight-run 2026-08-26`) → head `18837f7`. Build PASS (vite 7.86s, exit 0). Net DB writes 0.**
+**Stages: s1 api-test CAPPED (max_turns 50) · s2 frontend-test COMPLETED · s3 ui-audit COMPLETED · s4 verify CAPPED (max_turns 40) · s5 report.**
+**Two capped stages — the eighth consecutive night.**
+
+### Test Results
+- Pages tested: **13 of 13 charter routes driven end-to-end** (not just rendered) + **all 15 Settings tabs** + 4 sub-surfaces (lead detail slide-over, estimate builder, invoice editor, WO detail); **18 authenticated routes** regression-swept by the UI audit; **8 modals** opened and measured.
+- API endpoints tested: **133 of 272 route patterns (48.9%)** — **GET 132 of 132 with 0 5xx** (105×200, 12×400, 5×403, 10×404) plus 1 targeted `POST /api/crm/work-orders`. **139 not executed: every POST/DELETE/PATCH/PUT bulk sweep, because s1 capped.** (Last night: 258 of 272, PATCH/PUT 34/34. Not a regression — the sweeps never ran.)
+- Bugs found: **3** (1 backend, 2 UI)
+- Bugs fixed: **3** (100%)
+- UI inconsistencies found: **6 audit findings**
+- UI inconsistencies fixed: **4** (the other 2 are the deferred label-drift rows)
+- Commits: **3** — `842cda3`, `aff13c2`, `18837f7`
+
+### Fixes Made
+- `842cda3` — **prototype-key lookups bypassed two whitelist fallbacks and 500'd.** `MAP[userInput] ?? fallback` on a **plain object literal** is unsafe: the object inherits `Object.prototype`, so `constructor` / `__proto__` / `toString` / `valueOf` / `hasOwnProperty` return an **inherited truthy value** and the fallback **never fires**. ⚠️ **Ordinary unknown keys fell back correctly — which is exactly why every prior sweep passed.** The whitelist only leaked on inherited names. Two request-reachable sites, both 500 before / clean after: **(1)** `routes/admin.js:126` — `SORTABLE[sort]` spliced into an `ORDER BY` interpolation, so an inherited `Function` stringified into the SQL text → syntax error; `GET /api/admin/tenants?sort=constructor` → 500 on **5 of 5** prototype keys (`super_admin`-only; the 403 guard for plain `admin` unchanged). **(2)** `services/workOrderService.js:150` — `MILESTONE_TEMPLATES[templateKey]` returned a `Function`, `template.milestones` was `undefined`, `defs.map()` threw. `milestone_template` is **body-controlled**, and `createWorkOrder` INSERTs the `work_orders` row **before** calling this (`:320`), so **each 500 also left an ORPHAN work order with zero milestones** (4 of 4 probes). Both fixed with `Object.prototype.hasOwnProperty.call` before the lookup. Verified after a server restart (mtime-vs-process-start checked, per the Run 91 stale-server trap): admin **5/5 → 200**, work orders **4/4 → 201** with the correct 7 default milestones and **0 orphans**. Net DB writes 0. Deliberately not changed: `stormHistoryService.js:49` has the same pattern but is called only with hardcoded `'hail'`/`'tornado'` — not request-reachable, out of charter.
+- **s2 (frontend) found and fixed nothing — because nothing was broken.** 13/13 routes driven end-to-end: **0 page errors, 0 responses ≥400, 0 net DB writes.** Six write paths were proven end-to-end via `page.route` stubbing (lead stage save, pipeline drag New→Contacted with counts 9→8 / 2→3, estimate Save Draft, task create, WO milestone toggle, record payment on INV-0007 → toast "Payment of $4,397.00 recorded via check"). Filters/sorts/date ranges verified against **outgoing query params** rather than row identity.
+
+### UI Consistency Fixes
+- `aff13c2` — **16 of 22 modal close buttons had no box at all.** The 6 slide-over closes use `.slide-over__close` (32×32, flex-centred, with a `:hover` background). Every `.modal-backdrop` dialog **hand-rolled its close inline and set no size**, so each collapsed to its bare icon: an **18×18–20×23 NON-SQUARE** hit target, at **three different offsets** (top13/right13, top27/right25, top28/right25), with **no hover feedback anywhere**. Added **`.modal-close`** (`index.css:1645`) — the same box as `.slide-over__close` minus the absolute positioning, because backdrop modals put their close in a flex header row. 11 files touched; all measured instances now **32×32 @ dTop 25 / dRight 25** with a working, reverting hover. Also fixed in the same pass: the **ExpensesView `<h3>` overlapped its close button**. ⚠️ **The inline chrome those 16 carried was ALREADY REDUNDANT** — the global `button { border:none; background:none; cursor:pointer }` reset at `index.css:91` supplies all of it — and the inline `background:'none'` is precisely *why* a hover state could never have been added.
+- `18837f7` — **an inline style killed one close button's hover.** `SubcontractorsView.jsx:261` carried `className="slide-over__close"` **AND** an inline style re-declaring `background:'none'`. **Inline beats a stylesheet rule regardless of specificity**, so `.slide-over__close:hover` could never apply. It was the only one of the 6 slide-over closes with no hover feedback.
+- ⚠️ **FOURTH CONSECUTIVE RUN whose defect is "a declaration silently loses the cascade to something that outranks it."** (R92 `:focus-visible`; R94 `.glass[class*="card"]`; R95 `.stat-card` transform opt-out; tonight, twice.) **Triage this shape FIRST.**
+- ⚠️ **THE CHECK THAT FOUND IT — and the highest-value unrun check for the next run:** static analysis **passes** this (the class *is* applied, the CSS *is* defined). The only tell is **runtime**: `matches(':hover') === true` while the property stays unchanged. **Generalisable: for every element carrying BOTH a class and an inline `style`, diff the inline props against the class's `:hover`/`:focus`/`:active` block — any overlap is a dead state. NOT yet run app-wide. Cheap.**
+- **The static 7 regression-swept CLEAN on 18 routes — converged, do not re-spend.** 0 foreign SVGs (43/43 heroicon imports are `24/outline`), topbar 56px + `.glass` 18/18, one `<h1>` 18/18, 18 nav links/icons with identical gaps 18/18, **0 native `<select>`**, **0 native date/time inputs** (source *and* runtime), 0 horizontal overflow, 0 overlays open at rest. Every button-radius outlier maps to an already-documented family.
+- **Scope note:** Runs 92/93/94 named **MODAL INTERIORS** as the one open gap — "a violation inside an unopened modal is invisible to every runtime sweep run so far." This run took that gap and it produced **BOTH** defects. The named-gap strategy paid out.
+
+### Known Issues Remaining
+- **Form label drift — DEFERRED, developer decision.** Canonical is `.form-group label` (`index.css:2249`) = 12px/600/uppercase/0.08em. `/tasks` and `/subcontractors` match; **`/work-orders` is 12px/600/none/normal and `/expenses` is 12px/400/none/normal.** Scope: 4 `labelStyle` objects (`AutomationSettings.jsx:57`, `CreateLeadModal.jsx:177`, `DripSequences.jsx:48`, `WorkOrdersView.jsx:1164`) + **~100 inline `<label>` across 19 files**; only 6 files use `.form-group` at all. **Not half-converted on purpose** — a subset adds a NEW inconsistency axis, and all ~100 is a refactor, which the charter excludes. Must be chosen, not slipped in.
+- **`qa_options_probe` custom field is STILL live in the production DB** (tenant `waterloo`, created 2026-08-05, label "QA Options Probe") and **user-visible in Settings → Custom Fields**. The hygiene sweep matches `'QA-R9%'`, which this label does not match, so it escapes cleanup every night. Confirmed safe to delete (0 leads carry a value; 0 leads have any `custom_fields` data). Needs one `DELETE` + developer go-ahead.
+- **`automationEngine.js:75-77` enum bug** — still open, **server-only**; s2 confirmed the Tasks UI side is clean, so it cannot be reproduced from the frontend.
+- **`.qa-r91-neverrun.mjs` still unrun.**
+- **Three uncommitted s1 harnesses** — `server/.qa-r97-allowedcols.mjs`, `.qa-r97-protolookup.mjs`, `.qa-r97-wotemplate.mjs`, left behind when the stage capped. **`allowedcols` is a genuinely NEW check** (PATCH `allowedFields` whitelists vs. REAL DB columns — a name in the list that is not a column makes that PATCH 500, but **only** when a client sends that exact field, so a sweep that PATCHes one known-good field never sees it) and it ships with a self-test. Worth committing and running.
+- Dead code, carried over: `quickFilters`/`applyQuickFilter` (`LeadList.jsx:62`, `:346`); dead CSS `.stat-card:hover .stat-card__icon img` (`index.css:959`). Both developer calls.
+- Stray 0-byte `server/=` in the working tree (pre-existing).
+
+### Coverage gaps this run
+- **139 of 272 API route patterns not executed** — every bulk write sweep. Stage-capacity gap, not a regression.
+- **s1 wrote NO results file — second consecutive night.** ⚠️ `C:/tmp/api-test-results.txt` is still the **Run 95 file (2026-08-25)**, and `/tmp/api-test-results.txt` — **a DIFFERENT directory**, since `/tmp` resolves to `C:/Users/brand/AppData/Local/Temp` — is the **Run 82 file (2026-08-19)**. **Neither reflects tonight. Do not read either as current.**
+- **s4 produced NO verdict.** It authenticated, screenshotted the Expenses close-button hover (06:06) and wrote a `super_admin` probe for the admin fix (06:07), then capped. **Tonight's 3 fixes have no independent verification pass** — they rest on each fixing stage's own before/after evidence, a source-level confirmation in s5 that all three changes are present in the tree, and a clean build.
+- `/canvassing` pin drop not completed (would cost a DB write + a paid geocode). 14 of 272 routes remain excluded by design. s2 took no screenshots by choice (structured DOM/network assertions instead, and it avoids adding to the ~300 stray PNGs in the repo root).
+
+### Verified non-bugs — do not re-file
+- **401s on `/api/properties/import-progress`, `/api/notifications/unread-count`, `/api/crm/tenant-settings` are the token-refresh interceptor working** (`api/client.js:31-77`). The app stayed authenticated across all 18 routes. **The only console errors of the entire night.**
+- **Tasks priority displays "Medium" but submits `warm`** — `TasksView.jsx:16` maps hot→High, warm→Medium, cold→Low; those are the valid `lead_priority` enum values.
+- `/invoices` "All 14" vs. tabs summing to 11 — the other 3 are `status=void`, which has no tab by design.
+- `/alerts` 26px inputs with no `.form-input` are the documented numeric stepper (`AlertSettings.jsx:308-316`); `/alerts` `.nav-link.is-active` = 0 is the documented orphan route.
+- Button radii 10px/8px, 14px/12px, 3.35544e+07px are CSS `clamp()` serialisation artifacts.
+- `/reports` non-24×24 SVGs are recharts surfaces. `/content-studio` does not exist (`path="*"` → `/`). `/work-orders` Pending 7 (memory said 0) is **data drift**, not a regression.
+
+### ⚠️ EIGHT TESTER-ERROR "DEAD CONTROLS" — all app-correct, all now documented recipes
+s2 chased **eight** apparent dead controls that were **selector errors, not bugs**. The four costliest:
+1. **`CustomSelect` options are class-less PORTAL `div`s firing on `onMouseDown`** — `[role=option]`, `[class*=option]`, `[class*=dropdown]` **all return 0**. Locate the portal via `[...document.body.children].filter(e=>getComputedStyle(e).zIndex==='9999').pop()`, tag the child, click that.
+2. **`.stat-card` matches NOTHING on the dashboard** — the real selector is `.glass.cursor-pointer.group` (`Dashboard.jsx:1351`).
+3. **The Pipeline drop target is `min-w-[280px]`** (`Pipeline.jsx:1196`); `[class*="column"]` / `[class*="stage"]` match **ZERO**, making a working Kanban look undraggable. (Confirms the R85 rule: raw `mouse.down/move/up` does NOT drive HTML5 DnD — `dragTo()` does.)
+4. **Inputs with no `type` attribute are invisible to `input[type="text"]`.** Also: `input[placeholder*="earch"]`.first() hits the TOPBAR Cmd-K search, not the leads search — use `input[placeholder="Search leads..."]` (`LeadList.jsx:398`).
+Plus: **the Score Breakdown modal renders a z9998 BACKDROP** — after opening it, every subsequent click in the lead panel is intercepted and reads as a dead control (produced 2 false hits). Re-open the panel fresh between probes.
+- **RULE REFINED:** the Run 77 dead-input-pipeline tell (`:hover` count 0) fired **twice** — once genuinely (all 15 Settings tabs frozen at an identical `len=466`; `browser_close` + re-navigate fixed it, hoverCount 0→8) and **once as a false alarm**. It now **requires a confirming click** before you trust it.
+
+### ⚠️ NEW TRAP — mixed line endings (cost 2 turns)
+`client/src/components/*.jsx` have **MIXED LINE ENDINGS** — MaterialsView, WorkOrdersView, CreateLeadModal, ExpensesView and SubcontractorsView differ. A multi-line exact-string patch written with `\n` matches **ONLY the LF files** and reports 0 occurrences on the CRLF ones, **which looks exactly like "the code has changed since I read it."** Detect each file's own EOL and re-encode the pattern — that also preserves the file's endings so the diff stays scoped. The migration script was written to **ABORT WITHOUT WRITING** if any single pattern failed to match exactly once; that is what made the CRLF problem visible as a clean 5-way MISS report instead of a silent partial edit.
+
+### Notes for the next run
+- **`git status` FIRST** — it paid out again (s1 capped holding 3 uncommitted harnesses; s4 capped holding none).
+- **HIGHEST-VALUE UNRUN CHECK: the inline-style-vs-`:hover` diff, app-wide.** Named above; found tonight's second defect; cheap; static analysis cannot see it.
+- **Re-run the API write sweeps first** — proven at 34/34 two nights ago, simply skipped tonight.
+- **Commit and run `server/.qa-r97-allowedcols.mjs`.**
+- Drift baseline for the next run: the `docs: QA report 2026-08-26` commit (head after this entry).
+
+---
