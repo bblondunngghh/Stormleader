@@ -188,6 +188,16 @@ router.patch('/leads/:id', validateId(), async (req, res, next) => {
     if (req.body.stage && !validStages.includes(req.body.stage)) {
       return res.status(400).json({ error: `stage must be one of: ${validStages.join(', ')}` });
     }
+    // custom_fields is merged with `||` on jsonb. Postgres does NOT error on
+    // object || scalar — it returns an ARRAY ([{}, "str"]), silently converting the
+    // column away from an object. Every later merge then appends instead of merging,
+    // and the UI reads custom_fields?.[key] as undefined, so values vanish for good.
+    if (req.body.custom_fields !== undefined &&
+        (req.body.custom_fields === null ||
+         typeof req.body.custom_fields !== 'object' ||
+         Array.isArray(req.body.custom_fields))) {
+      return res.status(400).json({ error: 'custom_fields must be an object' });
+    }
     // Fetch old stage before update for automation triggers
     let oldStage = null;
     if (req.body.stage) {
