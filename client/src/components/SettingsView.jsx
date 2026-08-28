@@ -521,7 +521,7 @@ function BillingTab() {
                   background: isCurrent ? 'oklch(0.25 0.02 260 / 0.5)' : 'var(--accent-blue)',
                   color: isCurrent ? 'var(--text-muted)' : 'oklch(0.12 0.02 260)',
                   transition: 'all 0.15s var(--ease-out)',
-                  opacity: isCurrent ? 0.5 : 1,
+                  opacity: isCurrent || switching === plan.key ? 0.5 : 1,
                 }}
               >
                 {switching === plan.key ? 'Switching...' : isCurrent ? 'Current' : 'Switch to ' + plan.name}
@@ -1516,7 +1516,7 @@ function AddCardForm({ email, onSuccess }) {
       </div>
       {error && <div style={{ fontSize: 12, color: 'var(--accent-red)', marginBottom: 'var(--space-md)' }}>{error}</div>}
       <button type="submit" className="auth-btn" disabled={!stripe || processing} style={{
-        padding: '10px 24px', opacity: processing ? 0.6 : 1,
+        padding: '10px 24px', opacity: !stripe || processing ? 0.6 : 1,
       }}>
         {processing ? 'Saving...' : 'Add Payment Method'}
       </button>
