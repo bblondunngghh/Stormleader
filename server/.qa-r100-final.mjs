@@ -1,0 +1,10 @@
+import pool from './src/db/pool.js';
+const T='791bb51d-3293-4839-92e9-bd4d4f873af2';
+const q=async(l,s,p=[])=>{try{console.log(l,JSON.stringify((await pool.query(s,p)).rows).slice(0,300));}catch(e){console.log(l,'ERR',e.code);}};
+await q('cf types      :',`SELECT jsonb_typeof(custom_fields) t,count(*)::int n FROM leads GROUP BY 1`);
+await q('WO statuses   :',`SELECT status,count(*)::int n FROM work_orders GROUP BY 1 ORDER BY 1`);
+await q('WO touched now:',`SELECT count(*)::int n FROM work_orders WHERE updated_at > '2026-08-28'`);
+await q('QA residue    :',`SELECT count(*)::int n FROM leads WHERE contact_name ILIKE 'QA-R%' OR contact_name ILIKE 'qa2026%'`);
+await q('lead count    :',`SELECT count(*)::int n FROM leads WHERE tenant_id=$1`,[T]);
+await q('tenant brand  :',`SELECT jsonb_typeof(branding) t,count(*)::int n FROM tenants GROUP BY 1`);
+await pool.end();

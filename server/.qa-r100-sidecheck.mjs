@@ -1,0 +1,10 @@
+import pool from './src/db/pool.js';
+const T='791bb51d-3293-4839-92e9-bd4d4f873af2';
+const q=async(l,s,p=[])=>{try{const r=await pool.query(s,p);console.log(l,JSON.stringify(r.rows).slice(0,600));}catch(e){console.log(l,'ERR',e.code,e.message.slice(0,90));}};
+await q('WO recent  :',`SELECT id,status,updated_at,completed_at FROM work_orders WHERE tenant_id=$1 ORDER BY updated_at DESC LIMIT 4`,[T]);
+await q('LEAD recent:',`SELECT id,stage,updated_at FROM leads WHERE tenant_id=$1 ORDER BY updated_at DESC LIMIT 3`,[T]);
+await q('EST recent :',`SELECT id,status,updated_at FROM estimates WHERE tenant_id=$1 ORDER BY updated_at DESC LIMIT 3`,[T]);
+await q('INV recent :',`SELECT id,status,updated_at FROM invoices WHERE tenant_id=$1 ORDER BY updated_at DESC LIMIT 3`,[T]);
+await q('NOTIF read :',`SELECT is_read,count(*)::int n FROM notifications WHERE tenant_id=$1 GROUP BY 1`,[T]);
+await q('now()      :',`SELECT now()`);
+await pool.end();

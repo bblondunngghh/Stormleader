@@ -1,0 +1,10 @@
+import pool from './src/db/pool.js';
+const L='8cd0f0f2-6296-412f-a5a8-96ae2c6f786e';
+const q=async(l,s,p=[])=>{try{const r=await pool.query(s,p);console.log(l,JSON.stringify(r.rows).slice(0,500));}catch(e){console.log(l,'ERR',e.code,'-',e.message.slice(0,110));}};
+await q('the lead cf   :',`SELECT id,custom_fields,jsonb_typeof(custom_fields) t,updated_at FROM leads WHERE id=$1`,[L]);
+await q('any junk cf   :',`SELECT count(*)::int n FROM leads WHERE custom_fields IS NOT NULL AND jsonb_typeof(custom_fields)<>'object'`);
+await q('all cf types  :',`SELECT jsonb_typeof(custom_fields) t,count(*)::int n FROM leads GROUP BY 1`);
+console.log('--- what does PG do with object || scalar? ---');
+await q('obj||string   :',`SELECT '{}'::jsonb || '"a-string"'::jsonb AS r`);
+await q('obj||num      :',`SELECT '{"a":1}'::jsonb || '5'::jsonb AS r`);
+await pool.end();

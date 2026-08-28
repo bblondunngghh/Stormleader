@@ -1,0 +1,10 @@
+import pool from './src/db/pool.js';
+const q=async(l,s)=>{try{console.log(l,JSON.stringify((await pool.query(s)).rows[0]));}catch(e){console.log(l,'ERR',e.code,e.message.slice(0,80));}};
+console.log('--- once an array, does a LEGITIMATE later merge recover? ---');
+await q('array || {"k":"v"} :',`SELECT '[{},"junk"]'::jsonb || '{"k":"v"}'::jsonb AS r`);
+await q('array || {"k2":"2"}:',`SELECT ('[{},"junk"]'::jsonb || '{"k":"v"}'::jsonb) || '{"k2":"2"}'::jsonb AS r`);
+console.log('--- other non-object types the route accepts ---');
+await q('obj || true        :',`SELECT '{}'::jsonb || 'true'::jsonb AS r`);
+await q('obj || [1,2]       :',`SELECT '{"a":1}'::jsonb || '[1,2]'::jsonb AS r`);
+await q('obj || null        :',`SELECT '{"a":1}'::jsonb || 'null'::jsonb AS r`);
+await pool.end();

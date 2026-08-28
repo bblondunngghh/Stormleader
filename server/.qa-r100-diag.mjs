@@ -1,0 +1,11 @@
+import pool from './src/db/pool.js';
+const T='791bb51d-3293-4839-92e9-bd4d4f873af2';
+const WO='5b9b4ed9-2b8e-467c-a4bf-0251550c0f66';
+const q=async(l,s,p=[])=>{try{const r=await pool.query(s,p);console.log(l,JSON.stringify(r.rows).slice(0,700));}catch(e){console.log(l,'ERR',e.code,e.message.slice(0,90));}};
+await q('unread by user  :',`SELECT user_id,count(*)::int n FROM notifications WHERE tenant_id=$1 AND is_read=false GROUP BY 1`,[T]);
+await q('my user id      :',`SELECT id,email FROM users WHERE email='waterlooconstruction1@gmail.com'`);
+await q('WO status domain:',`SELECT status,count(*)::int n FROM work_orders GROUP BY 1`);
+await q('WO col type     :',`SELECT data_type,udt_name FROM information_schema.columns WHERE table_name='work_orders' AND column_name='status'`);
+await q('the WO row      :',`SELECT id,wo_number,status,scheduled_date,started_at,completed_at,created_at FROM work_orders WHERE id=$1`,[WO]);
+await q('its milestones  :',`SELECT name,status FROM work_order_milestones WHERE work_order_id=$1 ORDER BY sort_order`,[WO]);
+await pool.end();
