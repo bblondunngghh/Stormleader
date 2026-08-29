@@ -766,7 +766,7 @@ function EstimatePickerModal({ onClose, onPick }) {
 
   useEffect(() => {
     getEstimates({ limit: 100 })
-      .then(res => setEstimates(res.data?.estimates || res.data || []))
+      .then(res => setEstimates(Array.isArray(res.data?.estimates) ? res.data.estimates : Array.isArray(res.data) ? res.data : []))
       .catch(() => showToast('Failed to load estimates', 'error'))
       .finally(() => setLoading(false));
   }, []);

@@ -1388,7 +1388,7 @@ function NotificationsTab() {
 
   useEffect(() => {
     getPreferences()
-      .then(res => setPrefs(res.data.preferences || res.data || []))
+      .then(res => setPrefs(Array.isArray(res.data.preferences) ? res.data.preferences : Array.isArray(res.data) ? res.data : []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -2283,7 +2283,7 @@ function ContractTemplatesTab() {
   const fetchTemplates = () => {
     setLoading(true);
     contractsApi.getContractTemplates()
-      .then(res => setTemplates(res.data.templates || res.data || []))
+      .then(res => setTemplates(Array.isArray(res.data.templates) ? res.data.templates : Array.isArray(res.data) ? res.data : []))
       .catch(() => {})
       .finally(() => setLoading(false));
   };

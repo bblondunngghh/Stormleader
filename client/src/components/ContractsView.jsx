@@ -52,7 +52,7 @@ export default function ContractsView() {
       const params = { limit: 50 };
       if (statusFilter) params.status = statusFilter;
       const res = await contractsApi.getContracts(params);
-      setContracts(res.data.contracts || res.data || []);
+      setContracts(Array.isArray(res.data.contracts) ? res.data.contracts : Array.isArray(res.data) ? res.data : []);
     } catch {
       // keep existing
     } finally {
@@ -284,7 +284,7 @@ function ContractBuilder({ contract, fromEstimateId, leadId: initialLeadId, onSa
   useEffect(() => {
     contractsApi.getContractTemplates()
       .then(res => {
-        const tpls = res.data.templates || res.data || [];
+        const tpls = Array.isArray(res.data.templates) ? res.data.templates : Array.isArray(res.data) ? res.data : [];
         setTemplates(tpls);
         // Auto-select first template if none selected
         if (tpls.length > 0 && !selectedTemplateId) {
@@ -386,7 +386,7 @@ function ContractBuilder({ contract, fromEstimateId, leadId: initialLeadId, onSa
     const timeout = setTimeout(async () => {
       try {
         const res = await getLeads({ search: leadSearch, limit: 5 });
-        setLeadResults(res.data.leads || res.data || []);
+        setLeadResults(Array.isArray(res.data.leads) ? res.data.leads : Array.isArray(res.data) ? res.data : []);
         setShowLeadDropdown(true);
       } catch {
         setLeadResults([]);

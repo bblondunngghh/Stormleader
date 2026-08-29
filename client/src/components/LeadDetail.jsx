@@ -200,7 +200,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
   useEffect(() => {
     if (!leadId) return;
     client.get('/crm/contracts', { params: { lead_id: leadId } })
-      .then(res => setLeadContracts(res.data.contracts || res.data || []))
+      .then(res => setLeadContracts(Array.isArray(res.data.contracts) ? res.data.contracts : Array.isArray(res.data) ? res.data : []))
       .catch(() => {});
   }, [leadId]);
 
