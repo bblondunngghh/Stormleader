@@ -3719,6 +3719,18 @@ input[type="checkbox"]:checked::after {
   z-index: 10;
 }
 
+} /* end @layer base — the FullCalendar block below is deliberately UNLAYERED */
+
+/* FullCalendar v6 self-injects its stylesheet UNLAYERED, and an unlayered
+   NORMAL declaration beats every layered one regardless of specificity. With
+   this block inside @layer base, 27 of its declarations were silently dead —
+   the toolbar title rendered at FC's 24.5px instead of 18px, the Today button
+   lost its glass background and border, the day-of-week header cushions
+   collapsed to FC's 2px padding, and the grid kept the outer borders this
+   block removes. Keeping the block OUTSIDE the layer restores all of them
+   without !important, which would otherwise have to be repeated on every
+   :hover / .fc-button-active / .fc-button-group override below to stop those
+   from going dead in turn. */
 /* FullCalendar theme overrides — dark mode, oklch only */
 .calendar-view .fc {
   font-family: inherit;
@@ -4075,6 +4087,8 @@ input[type="checkbox"]:checked::after {
 .calendar-view .fc .fc-list-event-title a {
   color: oklch(0.88 0 0);
 }
+
+@layer base {
 
 /* Event content */
 .calendar-event-content {
