@@ -1,0 +1,102 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - img "StormPipe" [ref=e6] [cursor=pointer]
+    - navigation [ref=e7]:
+      - button "Dashboard" [ref=e8] [cursor=pointer]:
+        - img [ref=e9]
+        - text: Dashboard
+      - button "Storm Map" [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+        - text: Storm Map
+      - button "Storm Archive" [ref=e14] [cursor=pointer]:
+        - img [ref=e15]
+        - text: Storm Archive
+      - button "Pipeline" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - text: Pipeline
+      - button "Leads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+        - text: Leads
+      - button "Jobs" [ref=e24] [cursor=pointer]:
+        - text: Jobs
+        - img [ref=e25]
+      - button "Finance" [ref=e28] [cursor=pointer]:
+        - text: Finance
+        - img [ref=e29]
+      - generic [ref=e31]:
+        - button "Operations" [ref=e32] [cursor=pointer]:
+          - text: Operations
+          - img [ref=e33]
+        - generic [ref=e35]:
+          - button "Tasks" [ref=e36] [cursor=pointer]:
+            - img [ref=e37]
+            - text: Tasks
+          - button "Calendar" [ref=e39] [cursor=pointer]:
+            - img [ref=e40]
+            - text: Calendar
+          - button "Canvassing" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - text: Canvassing
+          - button "Subcontractors" [ref=e46] [cursor=pointer]:
+            - img [ref=e47]
+            - text: Subcontractors
+          - button "Reports" [ref=e49] [cursor=pointer]:
+            - img [ref=e50]
+            - text: Reports
+    - button "Settings" [ref=e52] [cursor=pointer]:
+      - img [ref=e53]
+      - text: Settings
+    - button "Admin" [ref=e55] [cursor=pointer]:
+      - img [ref=e56]
+      - text: Admin
+    - generic [ref=e58]:
+      - generic [ref=e59]: BA
+      - generic [ref=e60]:
+        - generic [ref=e61]: Brandon A.
+        - generic [ref=e62]: Super Admin
+      - button "Sign out" [ref=e63] [cursor=pointer]:
+        - img [ref=e64]
+  - generic [ref=e66]:
+    - banner [ref=e67]:
+      - heading "Canvassing" [level=1] [ref=e68]
+      - generic [ref=e69]:
+        - img
+        - textbox "Search leads, contacts... (Ctrl+K)" [ref=e70]
+      - generic [ref=e71]:
+        - button "Help" [ref=e73] [cursor=pointer]:
+          - img [ref=e74]
+        - button "Notifications" [ref=e77] [cursor=pointer]:
+          - img [ref=e78]
+        - button "enterprise" [ref=e80] [cursor=pointer]:
+          - img [ref=e81]
+          - generic [ref=e83]: enterprise
+    - generic [ref=e84]:
+      - generic [ref=e86]:
+        - region "Map" [ref=e87]
+        - iframe [ref=e137]:
+          
+      - generic [ref=e138]:
+        - generic [ref=e139]:
+          - strong [ref=e140]: "0"
+          - text: doors
+        - generic [ref=e142]:
+          - strong [ref=e143]: "0"
+          - text: interested
+        - generic [ref=e145]:
+          - strong [ref=e146]: "0"
+          - text: scheduled
+        - generic [ref=e148]:
+          - strong [ref=e149]: 0%
+          - text: conv
+      - generic [ref=e150]:
+        - button "Pin Legend" [ref=e151] [cursor=pointer]:
+          - img [ref=e152]
+        - button "Manage Territories" [ref=e155] [cursor=pointer]:
+          - img [ref=e156]
+      - button "Drop Pin" [ref=e158] [cursor=pointer]:
+        - img [ref=e159]
+        - generic [ref=e162]: Drop Pin
+```
