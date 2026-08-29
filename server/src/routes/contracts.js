@@ -7,6 +7,26 @@ import { parsePagination } from '../utils/pagination.js';
 
 const router = Router();
 
+// contractService writes `content` with a bare JSON.stringify (createContract:100,
+// updateContract:114, createTemplate:200, updateTemplate:212), and JSONB stores a
+// scalar verbatim — so `content: "oops"` or `content: { sections: "oops" }` is
+// accepted and persisted with a 200. The server PDF path survives because it guards
+// (`Array.isArray(rawContent.sections) ? ... : []`, :206 below), but the CLIENT does
+// not: parseSections returns `content.sections` unchecked and PublicContract.jsx:130,
+// ContractsView.jsx:601 and :656 all call `sections.map()` on it, which throws on a
+// string and white-screens the page — including the public, customer-facing contract.
+// Same defect shape as the estimates/invoices/work-orders line_items guards.
+function contentShapeError(body) {
+  if (!body || body.content === undefined || body.content === null) return null;
+  if (typeof body.content !== 'object' || Array.isArray(body.content)) {
+    return 'content must be an object';
+  }
+  if (body.content.sections !== undefined && !Array.isArray(body.content.sections)) {
+    return 'content.sections must be an array';
+  }
+  return null;
+}
+
 // ============================================================
 // PUBLIC routes (no auth — customer-facing)
 // ============================================================
@@ -58,6 +78,8 @@ router.post('/templates', async (req, res, next) => {
   try {
     const { name, type, content } = req.body;
     if (!name || !type) return res.status(400).json({ error: 'name and type are required' });
+    const shapeErr = contentShapeError(req.body);
+    if (shapeErr) return res.status(400).json({ error: shapeErr });
     const template = await contractService.createTemplate(req.tenantId, { name, type, content });
     res.status(201).json(template);
   } catch (err) {
@@ -67,6 +89,8 @@ router.post('/templates', async (req, res, next) => {
 
 router.patch('/templates/:id', validateId(), async (req, res, next) => {
   try {
+    const shapeErr = contentShapeError(req.body);
+    if (shapeErr) return res.status(400).json({ error: shapeErr });
     const template = await contractService.updateTemplate(req.tenantId, req.params.id, req.body);
     if (!template) return res.status(404).json({ error: 'Template not found or not editable' });
     res.json(template);
@@ -127,6 +151,8 @@ router.post('/', async (req, res, next) => {
     if (!leadId) {
       return res.status(400).json({ error: 'lead_id is required' });
     }
+    const shapeErr = contentShapeError(req.body);
+    if (shapeErr) return res.status(400).json({ error: shapeErr });
     const contract = await contractService.createContract(req.tenantId, { leadId, estimateId, templateType, content });
     res.status(201).json(contract);
   } catch (err) {
@@ -139,6 +165,8 @@ router.patch('/:id', validateId(), async (req, res, next) => {
     if (!req.body || Object.keys(req.body).length === 0) {
       return res.status(400).json({ error: 'No fields to update' });
     }
+    const shapeErr = contentShapeError(req.body);
+    if (shapeErr) return res.status(400).json({ error: shapeErr });
     const contract = await contractService.updateContract(req.tenantId, req.params.id, req.body);
     if (!contract) return res.status(404).json({ error: 'Contract not found or not in draft status' });
     res.json(contract);

@@ -94,7 +94,10 @@ export default function PublicContract() {
   function parseSections(content) {
     if (!content) return [];
     if (Array.isArray(content)) return content;
-    if (typeof content === 'object' && content.sections) return content.sections;
+    // Array.isArray, not truthiness: a row stored before the server-side guard can
+    // hold `sections: "..."`, and returning it makes the sections.map() below throw
+    // and white-screen the customer-facing page.
+    if (typeof content === 'object' && Array.isArray(content.sections)) return content.sections;
     return [{ title: 'Agreement', body: typeof content === 'string' ? content : '' }];
   }
 

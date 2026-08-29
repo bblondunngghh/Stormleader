@@ -371,7 +371,9 @@ function ContractBuilder({ contract, fromEstimateId, leadId: initialLeadId, onSa
   function parseSections(content) {
     if (!content) return [{ title: 'Agreement', body: '' }];
     if (Array.isArray(content)) return content;
-    if (typeof content === 'object' && content.sections) return content.sections;
+    // Array.isArray, not truthiness — see PublicContract.jsx. A pre-guard row holding
+    // `sections: "..."` would otherwise reach sections.map() at :601/:656 and throw.
+    if (typeof content === 'object' && Array.isArray(content.sections)) return content.sections;
     return [{ title: 'Agreement', body: typeof content === 'string' ? content : '' }];
   }
 
