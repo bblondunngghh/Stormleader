@@ -4866,3 +4866,69 @@ Plus: **the Score Breakdown modal renders a z9998 BACKDROP** — after opening i
 - Drift baseline for the next run: the `docs: QA report 2026-08-29` commit (head after this entry).
 
 ---
+
+## QA Run: 2026-08-30
+
+### Run integrity
+⚠️ **THREE OF FOUR WORKING STAGES CAPPED AT `max_turns`.** s1-api-test (51 turns, 0 commits, no artifact — **4th consecutive run**), s3-ui-audit (61 turns, 0 commits, no artifact), s4-verify (41 turns, 0 commits, but **artifact written before the cap**). Only s2-frontend-test completed. Stage cost $25.77 / 47 min API.
+⚠️ **The three result paths named in the s5 prompt are STALE** — `/tmp/api-test-results.txt` is Run 100 (Aug 28), `/tmp/ui-audit-results.txt` is Run 94 (Aug 25), `/tmp/frontend-test-results.txt` does not exist there. Tonight's artifacts are in **`C:/tmp/`**, which is NOT `/tmp/` under the Bash tool. Reading the prompt paths literally would have published 3–5-day-old results as tonight's.
+⚠️ **Run numbering diverged within the night:** s2 self-numbered Run 109, s4 self-numbered Run 110.
+
+### Test Results
+- Pages tested: **19 routes** (s2 19/19 render; s4 18/18 regression + 19/19 at 375px + 4/4 history). `/content-studio`, `/leads/:id` and the 15 Settings tabs were NOT walked.
+- API endpoints tested: **198 distinct paths / 248 path+method pairs** of a 272-route inventory; **483 requests**, **0 5xx**, **0 defects** — all from s1's harness output, which **s1 never analyzed**; read for the first time in the report stage.
+- Bugs found: **1**
+- Bugs fixed: **1**
+- UI inconsistencies found: **NOT MEASURED** — s3 produced no result. All 7 audit categories are unmeasured for this date.
+- UI inconsistencies fixed: **0**
+- New open leads surfaced: **1** (`trigger_config`, found during report triage)
+- Regressions: **0**
+- Commits: **3** — 1 fix (`4a9d847`), 2 harness/probe carries (`57264f3`, `74c5107`)
+- Final build: **PASS** (vite, exit 0)
+
+### Fixes Made
+- `4a9d847` — **a non-array `milestones` value white-screened the ENTIRE SPA.** Extended Run 105's response-shape sweep from the LIST level (closed) to the **DETAIL** level, the gap the prior run named. `WorkOrdersView.jsx:113`/`:843` used `res.data?.milestones || []`; **`|| []` guards FALSY values only**, so a truthy non-array reaches `.filter` at `:162`. Sidebar and header blank too — no error boundary. Fixed with `Array.isArray` at both sites. **This CORRECTS Run 105's recorded claim that `res.data.X || []` "cannot produce a non-array."** Verified by two independent stages across 6 shapes (scalar/number/object/empty/nulled all degrade to an empty list; baseline byte-identical at list 817 / detail 1211). Latent — `routes/workOrders.js:141` sends a table-backed array today; fixed per the standing Run 68 rule.
+- `57264f3` — carried s1's 6 uncommitted Run 108 harnesses after it capped.
+- `74c5107` — the read-only triage probes used to rule out the rest of the family.
+
+### UI Consistency Fixes
+- **NONE — the UI audit stage produced no result.** s3 left a partial Tailwind `utilities`-layer probe (`C:/tmp/qa-r110-twlayer.js`), an `index.css` backup, and a 23 KB defined-class dump, but no conclusion. s4 moved the stray `defined-classes.json` out of the repo root.
+
+### Verification (s4) — RAN, and extended each proof
+- `4a9d847` PASS — 6 shapes, both fix sites live; `number` and `empty` are **new coverage the fix commit did not test**.
+- `f8354cf` PASS — `/contracts` stubbed with `{contracts:'oops'}`, a mode its own commit never tested → len 432, empty state, 0 errors. **Confirms that guard is a real `Array.isArray`, immune to the exact `|| []` failure mode that produced `4a9d847`.**
+- `d41e868` PASS — 5/5 sampled FullCalendar rules render source values live, and the **built bundle** carries the override winning **without `!important`** — only possible outside `@layer base`.
+- 18/18 route regression sweep byte-identical (dashboard 1999 / leads 1596 / work-orders 817 / contracts 626). 19/19 routes clean at 375px. 4/4 back/forward. 4/4 create routes validate server-side (`lead_id is required` x3, `title is required`).
+
+### Known Issues Remaining
+- ⚠️ **NO ERROR BOUNDARY ANYWHERE IN THE SPA.** The amplifier behind **four** defects now (Runs 68, 105, 109 and tonight's). Highest-leverage backlog item; an enhancement, so **developer's call**.
+- 🆕 **`PATCH /crm/drip-sequences/:id` accepts a malformed `trigger_config` with a 200.** From s1's jsonb probe — 4 shapes (string/number/bool/array) persisted unguarded; `dripService.js:53` and `automations.js:53` write with a bare `JSON.stringify` / `|| {}`. Same family as the fixed `f9bb21e`. **Triaged in the report stage: it does NOT crash** — consumers read named properties off the value, which yields `undefined` on a primitive rather than throwing. **The consequence is SILENT OVER-FIRING:** `automationEngine.js:45` `matchesConditions()` returns `true` for a corrupted config, so the automation matches **every** event of its trigger type instead of its configured subset. Latent (UI always sends an object). **Belongs to an api-test stage — NAME IT IN THE s1 PROMPT.**
+- **Generic error toasts discard the server's message — 64 sites** vs 22 that surface it (s4). `InvoicesView.jsx:566` shows "Failed to save invoice" when the server said `lead_id is required`; the correct idiom is 26 lines below at `:592`. `server/src/routes/contracts.js:54-59` documents a past defect this pattern hid. App-wide convention change — developer's call.
+- **Form-label drift — 7th run deferred.** Developer decision.
+- **`EstimatesView.jsx:1318`** — measured, deliberately NOT fixed (uses the correct `|| []` idiom; guarding it means `Array.isArray`-ing every `.map()` in the client).
+- **DB junk rows, all rendering safely:** `qa_options_probe` (re-confirmed harmless — both consumers `Array.isArray`-guarded, live with 0 page errors) and 64 subcontractors including rows named `{"$eq":1}` / `{"foo":"bar"}`. The hygiene sweep matches `'QA-R9%'`, which none of these match. Developer go-ahead needed.
+- **`C:/tmp/qa-token.txt` is STALE** — s1's `.qa-r108-fixtures.mjs` 401s on every request. Harnesses are fine; **the next s1 must mint a fresh token FIRST, once** (login rate-limited ~10 attempts / 15 min).
+- **`.qa-r91-neverrun.mjs` still never run — 11 nights.**
+- Housekeeping: 336 QA screenshots in the repo root; dead `quickFilters`/`applyQuickFilter` (`LeadList.jsx:62`,`:346`); dead CSS `index.css:959`; stray 0-byte `server/=`.
+
+### Coverage gaps this run
+- ⚠️ **NO API REPORT AND NO UI AUDIT REPORT WERE PRODUCED.** The API numbers above were recovered from s1's raw harness JSON after the fact; the UI audit has **no data at all** for this date.
+- `/content-studio` and `/leads/:id` not in either sweep; **15 Settings tabs not individually walked**.
+- Estimate / invoice / contract **builder** detail shapes still unswept — the detail-level sweep reached `/work-orders` only.
+- `/canvassing` pin drop not exercised (costs a DB write + a paid geocode).
+- 18 of 272 routes excluded by design (side-effecting); 4 structurally unexercisable (`counties` + `material_products` tables absent `42P01`; `contracts.public_token` + `leads.status_token` not columns `42703`).
+- No screenshots taken, by choice.
+
+### DB hygiene — the "0 writes" claim, scoped honestly
+Comparing the 52-table snapshots at 05:05 and 05:55: **`storm_events` 7507 → 7513 (+6, background NOAA ingest, not QA)**; `tenants` `max(updated_at)` moved 05:02:47 → 05:05:55 (**s1 window**, identity `PUT` probes returning 200); `users` moved 05:01:35 → 05:40:49 (**s3 window**). **s2 and s4 each measured zero drift across THEIR OWN windows and both are correct — but the night as a whole was not write-free.** No table gained rows from QA activity.
+
+### Notes for the next run
+- ⚠️ **NINTH CONSECUTIVE RUN whose defect is "a value silently loses its expected type or precedence, and the failure is invisible at the call site."** Tonight produced the client-layer variant (`4a9d847`) and a DB-layer lead (`trigger_config`). **Triage this shape FIRST.**
+- **The sub-lesson, now proven twice: `|| []` and `|| {}` ARE NOT TYPE GUARDS.** They rule out `null`/`undefined` only. Every surviving instance of that idiom on a value reaching `.map`/`.filter`/`.reduce`/`Object.keys` is a latent instance of tonight's bug.
+- ⚠️ **STAGE CAPPING IS NOW THE DOMINANT FAILURE MODE, not any individual defect.** s1 has capped 4 runs running; 3 of 4 stages capped tonight, producing 0 commits and 0 artifacts between them. **Raise the turn budgets or narrow the per-stage charters.**
+- **READ EACH STAGE'S JSON `terminal_reason`, NOT ITS SELF-ASSESSMENT.** s4 reads as complete and its findings are sound, but it exited on `error_max_turns`.
+- **A capped stage's raw harness output is still worth reading.** Tonight's entire API section and the one new lead came out of JSON that s1 wrote and never looked at. **Check `C:/tmp/*.json` before declaring a capped stage a total loss.**
+- Open branches: mapbox-gl layer probe (**measure and report only**), the Tailwind `utilities`-layer sweep s3 started, and the builder-level detail shapes.
+- Drift baseline for the next run: the `docs: QA report 2026-08-30` commit (head after this entry).
+
+---
