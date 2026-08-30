@@ -110,7 +110,7 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
 
   useEffect(() => {
     getWorkOrderMilestones(wo.id)
-      .then(res => setMilestones(res.data?.milestones || []))
+      .then(res => setMilestones(Array.isArray(res.data?.milestones) ? res.data.milestones : []))
       .catch(() => {})
       .finally(() => setMilestonesLoading(false));
   }, [wo.id]);
@@ -840,7 +840,7 @@ export default function WorkOrdersView() {
     await Promise.all(wos.map(async (wo) => {
       try {
         const res = await getWorkOrderMilestones(wo.id);
-        const ms = res.data?.milestones || [];
+        const ms = Array.isArray(res.data?.milestones) ? res.data.milestones : [];
         counts[wo.id] = { completed: ms.filter(m => m.completed).length, total: ms.length };
       } catch {
         counts[wo.id] = { completed: 0, total: 0 };
