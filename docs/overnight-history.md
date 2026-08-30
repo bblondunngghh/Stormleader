@@ -4791,3 +4791,78 @@ Plus: **the Score Breakdown modal renders a z9998 BACKDROP** — after opening i
 - Drift baseline for the next run: the `docs: QA report 2026-08-28` commit (head after this entry).
 
 ---
+
+## QA Run: 2026-08-29
+
+**Branch** `feat/financing` · **Baseline** `1e5c194` · **Head** `d41e868` · **Build** PASS (vite 8.17s, exit 0) · **Net DB writes** 0
+
+### Stage completion
+| Stage | Run | Terminal reason | Turns |
+|---|---|---|---|
+| s1 api-test | 105 | **`max_turns` (50)** | 51 |
+| s2 frontend-test | 105 | `end_turn` | 69 |
+| s3 ui-audit | 106 | `end_turn` | (complete) |
+| s4 verify | 107 | **`max_turns` (40)** | 41 |
+| s5 report | 108 | `end_turn` | this entry |
+
+⚠️ **Two of five stages capped. s1 has now capped three runs running; s4 capped for the first time and produced NO verification report at all.** Run numbering collided — s1 and s2 both self-labelled Run 105.
+
+### Test Results
+- Pages tested: **19 routes** (18 by s2, 19 by s3 incl. `/alerts`) + **15 Settings tabs** + **6 modals/slide-overs** opened and probed
+- API endpoints tested: **198 distinct endpoints / 248 endpoint+method pairs** of a 272-route inventory; **~498 requests**, **0 5xx**
+- Bugs found: **3**
+- Bugs fixed: **3**
+- UI inconsistencies found: **1 family — 13 rule groups / 27 dead CSS declarations, one root cause**
+- UI inconsistencies fixed: **1 family (all 27)**
+- Commits: **4** — 3 fixes (`f9bb21e`, `f8354cf`, `d41e868`), 1 harness carry (`e34c27a`)
+
+### Fixes Made
+- `f9bb21e` — **the contracts `content` JSONB column accepted a scalar and white-screened the contract page, including the PUBLIC customer-facing one.** All four write paths (`POST /crm/contracts`, `PATCH /crm/contracts/:id`, `POST` + `PATCH /crm/contracts/templates`) wrote the column with a bare `JSON.stringify` and **no shape guard**, so `content: "oops"` and `content: {sections: "oops"}` were both accepted and persisted with a **200**. ⚠️ **The server PDF path survives only by accident** (`Array.isArray(rawContent.sections) ? … : []`); the client does not — `parseSections` returned `content.sections` on truthiness alone and `PublicContract.jsx:130`, `ContractsView.jsx:601` and `:656` all call `sections.map()` on the result. Fixed by guarding the write path the way invoices/work-orders already guard `line_items`, **and** tightening both `parseSections` copies to `Array.isArray` — the Run 68 lesson is that a write-path guard cannot clean rows that already hold junk. Verified: 6 bad shapes → 400, real payload still 200s, build PASS 11.82s.
+- `f8354cf` — **a list response missing its array key white-screened the ENTIRE SPA.** Found by a response-shape sweep never run here: 11 routes × 3 modes (500 / body `{}` / top-level arrays nulled), stubbing the primary GET with `page.route` + `route.fetch`. **32 of 33 probes degraded gracefully; `/contracts` blanked on 2 of 3** (body length 0, no `<h1>`, `contracts.filter is not a function`). Root cause `ContractsView.jsx:55` — `res.data.contracts || res.data || []`; **the `|| res.data` fallback turns a missing key into the WHOLE response object** — truthy, not an array. ⚠️ **Because the app has no error boundary the sidebar and header go too.** 7 sites shared the idiom; the app's own convention at **6 other** list setters is `res.data.X || []`, which cannot produce a non-array — **that asymmetry is exactly why `/contracts` was the only one of 11 routes to crash.** Fixed by keeping the bare-array fallback but requiring it to BE an array. **Reachability: latent, not live** — all 7 endpoints currently return their key; fixed anyway per the standing Run 68 rule. Verified: repro `len 0 → 432` with the proper empty state; 5 touched views byte-identical (626/817/1596/632/638). Build PASS 7.98s.
+- `e34c27a` — carried s1's two finished-but-uncommitted harnesses (`.qa-r105-jsonb.mjs`, `.qa-r105-typed.mjs`) after it capped.
+
+### UI Consistency Fixes
+- `d41e868` — **27 FullCalendar style rules were dead because of LAYER ORDER — a cascade mechanism no prior run had modelled.** `client/src/index.css` is wrapped in `@layer base` (line 6) while **FullCalendar v6 self-injects its stylesheet UNLAYERED**, and ⚠️ **an unlayered NORMAL declaration beats every layered one REGARDLESS OF SPECIFICITY.** So `.calendar-view .fc …` overrides at specificity up to **402** were losing to FC's specificity-**100** rules. Measured on `/calendar`, each confirmed on EVERY matching element: title 24.5px not 18px (1/1); day-header cushion 2px not 10px (7/7); Today button transparent with no border (1/1); chevrons 19.5px not 18px (1/1); `.fc-button` block not inline-flex (7/7); grid edge borders still painting (43/43, 7/7); `.fc-button-group .fc-button` border (6/6); header border colour (7/7); day-number padding 4px not 0 (42/42). ⚠️ **THE AUTHOR HAD ALREADY HIT THIS ONCE** and patched only `.fc-button-primary` *typography* with `!important`, documenting the mechanism at `index.css:3780`. **Fixed by closing `@layer base` around the FC block, NOT by `!important`** — which would have inverted the cascade against that block's own non-important `:hover` / `.fc-button-group` / `.fc-day-other` overrides and killed those instead, **manufacturing the exact Run 102 defect shape the audit was there to find.** Verified: rendered values match source; intended overrides preserved; `:hover` proven alive with a real pointer; **built bundle grepped** (FC block sits past the layer close, nothing reordered); 19-route sweep 18/19 byte-identical, `/calendar` unchanged. Build PASS 8.01s.
+- **BOTH of Run 102's named gaps CLOSED as EMPTY.** (a) Cross-selector `!important` kill: 1,839 static candidate pairs → **28 real co-matching pairs** via runtime `el.matches`; 3 confirmed kills, **all deliberate Tailwind `!` utilities**. (b) CHECK C/D **inside modal interiors** (never swept — both prior runs measured at rest only): 6 overlays, **1,439 inline declarations probed, 0 hits**. ⚠️ **The CSS cascade family is now swept in every direction — specificity, source order, inline, `!important`, and layer — and has CONVERGED. DO NOT RE-SPEND THERE.**
+- **Audits 1–7 regression-clean across 19 routes in one browser call.** Icons: 0 foreign SVGs, 0 `fa-*`/`material-icons`/`lucide`, every app svg `viewBox="0 0 24 24"`. Buttons: every radius/height signature maps to a documented family. Headers: exactly one `<h1>` on 19/19 with correct titles. Nav: 18 links + 18 icons on 19/19, `.is-active` = 1 on 18/19 (`/alerts` = documented orphan). Forms: **0 native `<select>`, 0 native `<input type=date>`** source and runtime. Spacing: 0 horizontal overflow 19/19. Modals: 0 overlays at rest 19/19.
+
+### Verification (s4, Run 107) — NONE
+⚠️ **s4 capped at turn 41 of 40 and produced no report and no artifact.** Tonight's three fixes rest on **each stage's own self-verification** — documented and evidence-backed in every case, but **no independent second pass ran.** s4's harness `server/src/routes/.qa-r107-s4-verify-contracts.mjs` (re-verifies `f9bb21e` across all four contract write paths, using identity writes for the happy path) is **carried into the tree unvalidated — it has never been executed to completion.** **TOP ITEM FOR THE NEXT VERIFY STAGE.**
+
+### Known Issues Remaining
+- ⚠️ **`automationEngine.js:75-77` `lead_priority` enum bug — NOW 10 RUNS OLD.** Has a written repro; keeps being skipped because **NO STAGE IS EXPLICITLY ASSIGNED IT.** Not frontend-reproducible, so the frontend stages correctly decline it; the api-test stage has never been told to take it. **NAME IT IN THE api-test PROMPT.**
+- **s1's `.qa-r105-jsonb.mjs` and `.qa-r105-typed.mjs` are committed but their RESULTS have still never been read** (s1 capped before reporting, 2nd run in a row for these two). They are write probes against the production Neon DB, so s2 and s3 both correctly declined to run them out of scope.
+- **`EstimatesView.jsx:1318` — measured, deliberately NOT fixed.** `/estimates` → Edit white-screens with `templates.map is not a function` when the server returns a truthy non-array inside the `templates` key. ⚠️ **This is a MUCH WEAKER claim than `f8354cf`'s and the distinction is the point:** `:1318` uses the app's *correct* `|| []` idiom and only breaks if the server actively lies about the type; `estimates.js:96-99` returns a query rowset, always an array. Guarding it means `Array.isArray`-ing every `.map()` in the client — the refactor the charter forbids. **Recorded so it is not re-chased as a fresh finding.**
+- ⚠️ **THE APP HAS NO ERROR BOUNDARY ANYWHERE.** Any render throw blanks the whole SPA including the sidebar. **It is the amplifier behind BOTH of tonight's frontend-visible bugs and Run 68's.** Adding one is an ENHANCEMENT (out of QA charter) but it is the single highest-leverage robustness item in the backlog — **put it to the developer.**
+- **`qa_options_probe` custom field STILL live in the production DB** (tenant `waterloo`, created 2026-08-05, label "QA Options Probe"). The hygiene sweep matches `'QA-R9%'`, which this label does not match, so it escapes cleanup every night. Confirmed safe to delete (0 leads carry a value). **Needs one `DELETE` + developer go-ahead — not QA's call.**
+- **Form-label drift — DEFERRED, developer decision, 6th run.** Canonical `.form-group label` (`index.css:2249`) = 12px/600/uppercase/0.08em; `/work-orders` = 12px/600/none/normal, `/expenses` = 12px/400/none/normal. Scope: 4 `labelStyle` objects + ~100 inline `<label>` across 19 files; only 6 files use `.form-group`. **Not half-converted on purpose** — a subset adds a NEW inconsistency axis.
+- **`.qa-r91-neverrun.mjs` still unrun — now 10 nights.**
+- Housekeeping, developer call: 336 QA screenshots committed to the repo root; dead code `quickFilters`/`applyQuickFilter` (`LeadList.jsx:62`, `:346`); dead CSS `.stat-card:hover .stat-card__icon img` (`index.css:959`); stray 0-byte `server/=`.
+
+### Coverage gaps this run
+- ⚠️ **NO INDEPENDENT VERIFICATION PASS RAN** (s4 capped). See above.
+- ⚠️ **The detail-level type sweep only PARTLY ran — 1 of 4 cases actually exercised.** `/work-orders` and `/invoices` **issue no detail GET at all** (the panel renders from the row object the list already holds), so there is nothing to stub; and the work-order expander selector `.glass, [class*="card"], tbody tr` filtered to length>20 **matched the OUTERMOST page wrapper first**, so the click hit the page container, not a card. **Recorded as NOT EXERCISED, not as passing.** Next run: identify the real card expander FIRST, then stub. (The documented handle for the milestone toggle is `button[aria-label="Mark <name> complete"]`; the expander is not yet identified.)
+- **18 of 272 route patterns not executed — BY DESIGN.** Excluded as side-effecting: `trigger-import` (real bulk property import), `geocode` (costs money), outbound delivery (`send|email|sms|webhook`), auth state (`login` is rate-limited), plus the action routes `score-all`, `correct-all`, `mark-all-read`, `/complete`, `alerts/test` added to the exclusion list last run.
+- **Four routes remain structurally unexercisable:** the `counties` and `material_products` tables **do not exist** (`42P01`); `contracts.public_token` and `leads.status_token` **are not columns** (`42703`).
+- **`/canvassing` pin drop not completed** — costs a DB write + a paid geocode.
+- **No screenshots taken by any stage this run, by choice** (336 QA PNGs already in the repo root; computed-style + network-param evidence is stronger for every check performed).
+
+### New tester traps recorded this run
+- ⚠️ **TEST EVERY MATCHING ELEMENT, NOT `els[0]`.** `.fc-daygrid-day-number` `color` read as a dead declaration — but the probe tested only `els[0]`, which is a `.fc-day-other` cell that `index.css:3945` **deliberately** dims. Dead on 12/42, alive on the other 30. **A partial hit is a legitimate modifier override; only 100% is a real kill.**
+- ⚠️ **KILL `transition` BEFORE READING COMPUTED VALUES.** The first colour sweep produced `oklab(...)` values that looked like corruption — they were **mid-transition reads** (`.fc-button` carries `transition: all 0.15s`). Re-measured with transitions killed, every value landed exactly on its declared target.
+- **`/src/index.css?direct` gets the REAL compiled cascade into the page** — this sidesteps the `document.styleSheets`-returns-`[]` trap. `import`/`require` do NOT work inside `browser_run_code_unsafe`.
+- **THE METHOD TO REUSE for any future precedence mechanism:** re-assert the top-specificity app declaration inline with `!important` and see whether the computed value moves. Empirical, no cascade theory required, and it generalises — it is what caught a mechanism (layer order) that five prior cascade runs had no model for.
+- **THE ESTIMATE BUILDER AND REVIEW MODE RENDER OUTSIDE `.main-content`** — a probe scoped there returns NO_ROOT. Third instance of the Run 103 trap. Scope by EXCLUDING chrome instead.
+- **A create-button regex matching new/add/create MATCHES FORM SUBMIT BUTTONS, not just openers.** "Add Payment Method" is a submit inside a mounted Stripe form. Before filing "the create button is dead", check whether the control sits inside a `<form>` — an opener never does.
+- **DO NOT INDEX A BUTTON LIST CAPTURED BEFORE THE CLICK.** Re-find by innerText immediately before each click, tag with a `data-*` attr, and re-enter the flow between probes.
+- **STUB-BASED SHAPE TESTING IS THE RIGHT TOOL for the "value loses its type" family on the frontend** — `page.route` + `route.fetch` + mutate + fulfill drives the real component tree end-to-end with ZERO DB writes, and it is the only way to reach a stored shape the database does not currently hold. Always guard the handler with try/catch and fall back to `route.continue()`.
+
+### Notes for the next run
+- ⚠️ **EIGHTH CONSECUTIVE RUN whose defect is "a value silently loses its expected type or precedence, and the failure is invisible at the call site."** Tonight produced all three variants at once: a DB-layer type loss (`f9bb21e`), a client-layer type loss (`f8354cf`), and a CSS-layer precedence loss (`d41e868`). **Triage this shape FIRST.**
+- **The CSS cascade branch is CONVERGED — do not re-spend there.** The one measured extension left is **mapbox-gl**, the OTHER unlayered vendor stylesheet: the same layer inversion must apply to every `.mapboxgl-*` override. ⚠️ **Map code is off-limits to edit — MEASURE AND REPORT ONLY.** After that, component-class-vs-Tailwind-`utilities`-layer.
+- **The open branch is the DB/type one**, and its concrete next step is the detail-level sweep that only partly ran tonight.
+- **Read each stage's JSON `terminal_reason`, not its self-assessment.**
+- ⚠️ **Two stages capping in one night is now a pipeline problem, not a stage problem.** s1 has capped 3 runs running and its analysis has been lost all three times; consider raising its turn budget or narrowing its charter.
+- Drift baseline for the next run: the `docs: QA report 2026-08-29` commit (head after this entry).
+
+---
