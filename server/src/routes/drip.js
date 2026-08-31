@@ -46,13 +46,18 @@ router.post('/', async (req, res, next) => {
     if (!name || !trigger_type) {
       return res.status(400).json({ error: 'name and trigger_type are required' });
     }
-    if (!steps?.length) {
+    // `!steps?.length` is NOT an array check: a string or any {length:n} passes it,
+    // and every consumer then indexes it as an array. See the PATCH note below.
+    if (!Array.isArray(steps) || steps.length === 0) {
       return res.status(400).json({ error: 'At least one step is required' });
     }
     if (trigger_config !== undefined && trigger_config !== null && !isPlainObject(trigger_config)) {
       return res.status(400).json({ error: 'trigger_config must be an object' });
     }
-    if (steps.some((s) => s?.action_config !== undefined && s?.action_config !== null && !isPlainObject(s.action_config))) {
+    if (steps.some((s) => !isPlainObject(s))) {
+      return res.status(400).json({ error: 'each step must be an object' });
+    }
+    if (steps.some((s) => s.action_config !== undefined && s.action_config !== null && !isPlainObject(s.action_config))) {
       return res.status(400).json({ error: 'step action_config must be an object' });
     }
     const sequence = await createSequence(req.tenantId, { name, trigger_type, trigger_config, steps });
@@ -69,8 +74,21 @@ router.patch('/:id', validateId(), async (req, res, next) => {
     if (trigger_config !== undefined && !isPlainObject(trigger_config)) {
       return res.status(400).json({ error: 'trigger_config must be an object' });
     }
-    if (Array.isArray(steps) && steps.some((s) => s?.action_config !== undefined && s?.action_config !== null && !isPlainObject(s.action_config))) {
-      return res.status(400).json({ error: 'step action_config must be an object' });
+    // `Array.isArray(steps) && ...` validates arrays but SKIPS every other type, and
+    // updateSequence() replaces steps on `data.steps !== undefined` — so a non-array
+    // fell straight through to `DELETE FROM drip_sequence_steps` followed by a
+    // `for (i < data.steps.length)` rebuild. `steps:'abcd'` answered 200 while
+    // destroying the real steps and inserting 4 defaulted ones. Reject the type here.
+    if (steps !== undefined) {
+      if (!Array.isArray(steps)) {
+        return res.status(400).json({ error: 'steps must be an array' });
+      }
+      if (steps.some((s) => !isPlainObject(s))) {
+        return res.status(400).json({ error: 'each step must be an object' });
+      }
+      if (steps.some((s) => s.action_config !== undefined && s.action_config !== null && !isPlainObject(s.action_config))) {
+        return res.status(400).json({ error: 'step action_config must be an object' });
+      }
     }
     const sequence = await updateSequence(req.tenantId, req.params.id, req.body);
     if (!sequence) return res.status(404).json({ error: 'Sequence not found' });

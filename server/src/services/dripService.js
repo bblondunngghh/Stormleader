@@ -55,7 +55,8 @@ export async function createSequence(tenantId, data) {
     );
 
     const steps = [];
-    if (data.steps?.length) {
+    // Array.isArray, not `?.length` — a string/{length:n} would be indexed as an array.
+    if (Array.isArray(data.steps)) {
       for (let i = 0; i < data.steps.length; i++) {
         const s = data.steps[i];
         const { rows: [step] } = await client.query(
@@ -103,8 +104,10 @@ export async function updateSequence(tenantId, id, data) {
       return null;
     }
 
-    // Replace steps if provided
-    if (data.steps !== undefined) {
+    // Replace steps if provided. Array.isArray, not `!== undefined`: this branch
+    // DELETEs the existing steps before rebuilding, so a non-array reaching it
+    // destroys real data. The route rejects non-arrays; this is the second half.
+    if (Array.isArray(data.steps)) {
       await client.query(`DELETE FROM drip_sequence_steps WHERE sequence_id = $1`, [id]);
       const steps = [];
       for (let i = 0; i < data.steps.length; i++) {
