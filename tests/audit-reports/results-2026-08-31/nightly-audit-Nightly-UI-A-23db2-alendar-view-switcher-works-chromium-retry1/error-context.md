@@ -1,0 +1,199 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - img "StormPipe" [ref=e6] [cursor=pointer]
+    - navigation [ref=e7]:
+      - button "Dashboard" [ref=e8] [cursor=pointer]:
+        - img [ref=e9]
+        - text: Dashboard
+      - button "Storm Map" [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+        - text: Storm Map
+      - button "Storm Archive" [ref=e14] [cursor=pointer]:
+        - img [ref=e15]
+        - text: Storm Archive
+      - button "Pipeline" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - text: Pipeline
+      - button "Leads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+        - text: Leads
+      - button "Jobs" [ref=e24] [cursor=pointer]:
+        - text: Jobs
+        - img [ref=e25]
+      - button "Finance" [ref=e28] [cursor=pointer]:
+        - text: Finance
+        - img [ref=e29]
+      - generic [ref=e31]:
+        - button "Operations" [ref=e32] [cursor=pointer]:
+          - text: Operations
+          - img [ref=e33]
+        - generic [ref=e35]:
+          - button "Tasks" [ref=e36] [cursor=pointer]:
+            - img [ref=e37]
+            - text: Tasks
+          - button "Calendar" [ref=e39] [cursor=pointer]:
+            - img [ref=e40]
+            - text: Calendar
+          - button "Canvassing" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+            - text: Canvassing
+          - button "Subcontractors" [ref=e46] [cursor=pointer]:
+            - img [ref=e47]
+            - text: Subcontractors
+          - button "Reports" [ref=e49] [cursor=pointer]:
+            - img [ref=e50]
+            - text: Reports
+    - button "Settings" [ref=e52] [cursor=pointer]:
+      - img [ref=e53]
+      - text: Settings
+    - button "Admin" [ref=e55] [cursor=pointer]:
+      - img [ref=e56]
+      - text: Admin
+    - generic [ref=e58]:
+      - generic [ref=e59]: BA
+      - generic [ref=e60]:
+        - generic [ref=e61]: Brandon A.
+        - generic [ref=e62]: Super Admin
+      - button "Sign out" [ref=e63] [cursor=pointer]:
+        - img [ref=e64]
+  - generic [ref=e66]:
+    - banner [ref=e67]:
+      - heading "Calendar" [level=1] [ref=e68]
+      - generic [ref=e69]:
+        - img
+        - textbox "Search leads, contacts... (Ctrl+K)" [ref=e70]
+      - generic [ref=e71]:
+        - button "Help" [ref=e73] [cursor=pointer]:
+          - img [ref=e74]
+        - button "Notifications" [ref=e77] [cursor=pointer]:
+          - img [ref=e78]
+        - button "enterprise" [ref=e80] [cursor=pointer]:
+          - img [ref=e81]
+          - generic [ref=e83]: enterprise
+    - generic [ref=e86]:
+      - generic [ref=e87]:
+        - generic [ref=e88]:
+          - generic [ref=e89]:
+            - button "Previous Month" [ref=e90] [cursor=pointer]
+            - button "Next Month" [ref=e92] [cursor=pointer]
+          - button "Today" [disabled]
+        - heading "August 2026" [level=2] [ref=e95]
+        - generic [ref=e97]:
+          - button "Month" [pressed] [ref=e98] [cursor=pointer]
+          - button "Week" [ref=e99] [cursor=pointer]
+          - button "Day" [ref=e100] [cursor=pointer]
+          - button "List" [ref=e101] [cursor=pointer]
+      - generic "August 2026" [ref=e102]:
+        - grid [ref=e104]:
+          - rowgroup [ref=e105]:
+            - row "Sunday Monday Tuesday Wednesday Thursday Friday Saturday" [ref=e109]:
+              - columnheader "Sunday" [ref=e110]:
+                - generic "Sunday" [ref=e112]: Sun
+              - columnheader "Monday" [ref=e113]:
+                - generic "Monday" [ref=e115]: Mon
+              - columnheader "Tuesday" [ref=e116]:
+                - generic "Tuesday" [ref=e118]: Tue
+              - columnheader "Wednesday" [ref=e119]:
+                - generic "Wednesday" [ref=e121]: Wed
+              - columnheader "Thursday" [ref=e122]:
+                - generic "Thursday" [ref=e124]: Thu
+              - columnheader "Friday" [ref=e125]:
+                - generic "Friday" [ref=e127]: Fri
+              - columnheader "Saturday" [ref=e128]:
+                - generic "Saturday" [ref=e130]: Sat
+          - rowgroup [ref=e131]:
+            - generic [ref=e134]:
+              - row "July 26, 2026 July 27, 2026 July 28, 2026 July 29, 2026 July 30, 2026 July 31, 2026 August 1, 2026" [ref=e136]:
+                - gridcell "July 26, 2026" [ref=e137]:
+                  - generic "July 26, 2026" [ref=e140]: "26"
+                - gridcell "July 27, 2026" [ref=e142]:
+                  - generic "July 27, 2026" [ref=e145]: "27"
+                - gridcell "July 28, 2026" [ref=e147]:
+                  - generic "July 28, 2026" [ref=e150]: "28"
+                - gridcell "July 29, 2026" [ref=e152]:
+                  - generic "July 29, 2026" [ref=e155]: "29"
+                - gridcell "July 30, 2026" [ref=e157]:
+                  - generic "July 30, 2026" [ref=e160]: "30"
+                - gridcell "July 31, 2026" [ref=e162]:
+                  - generic "July 31, 2026" [ref=e165]: "31"
+                - gridcell "August 1, 2026" [ref=e167]:
+                  - generic "August 1, 2026" [ref=e170]: "1"
+              - row "August 2, 2026 August 3, 2026 August 4, 2026 August 5, 2026 August 6, 2026 August 7, 2026 August 8, 2026" [ref=e172]:
+                - gridcell "August 2, 2026" [ref=e173]:
+                  - generic "August 2, 2026" [ref=e176]: "2"
+                - gridcell "August 3, 2026" [ref=e178]:
+                  - generic "August 3, 2026" [ref=e181]: "3"
+                - gridcell "August 4, 2026" [ref=e183]:
+                  - generic "August 4, 2026" [ref=e186]: "4"
+                - gridcell "August 5, 2026" [ref=e188]:
+                  - generic "August 5, 2026" [ref=e191]: "5"
+                - gridcell "August 6, 2026" [ref=e193]:
+                  - generic "August 6, 2026" [ref=e196]: "6"
+                - gridcell "August 7, 2026" [ref=e198]:
+                  - generic "August 7, 2026" [ref=e201]: "7"
+                - gridcell "August 8, 2026" [ref=e203]:
+                  - generic "August 8, 2026" [ref=e206]: "8"
+              - row "August 9, 2026 August 10, 2026 August 11, 2026 August 12, 2026 August 13, 2026 August 14, 2026 August 15, 2026" [ref=e208]:
+                - gridcell "August 9, 2026" [ref=e209]:
+                  - generic "August 9, 2026" [ref=e212]: "9"
+                - gridcell "August 10, 2026" [ref=e214]:
+                  - generic "August 10, 2026" [ref=e217]: "10"
+                - gridcell "August 11, 2026" [ref=e219]:
+                  - generic "August 11, 2026" [ref=e222]: "11"
+                - gridcell "August 12, 2026" [ref=e224]:
+                  - generic "August 12, 2026" [ref=e227]: "12"
+                - gridcell "August 13, 2026" [ref=e229]:
+                  - generic "August 13, 2026" [ref=e232]: "13"
+                - gridcell "August 14, 2026" [ref=e234]:
+                  - generic "August 14, 2026" [ref=e237]: "14"
+                - gridcell "August 15, 2026" [ref=e239]:
+                  - generic "August 15, 2026" [ref=e242]: "15"
+              - row "August 16, 2026 August 17, 2026 August 18, 2026 August 19, 2026 August 20, 2026 August 21, 2026 August 22, 2026" [ref=e244]:
+                - gridcell "August 16, 2026" [ref=e245]:
+                  - generic "August 16, 2026" [ref=e248]: "16"
+                - gridcell "August 17, 2026" [ref=e250]:
+                  - generic "August 17, 2026" [ref=e253]: "17"
+                - gridcell "August 18, 2026" [ref=e255]:
+                  - generic "August 18, 2026" [ref=e258]: "18"
+                - gridcell "August 19, 2026" [ref=e260]:
+                  - generic "August 19, 2026" [ref=e263]: "19"
+                - gridcell "August 20, 2026" [ref=e265]:
+                  - generic "August 20, 2026" [ref=e268]: "20"
+                - gridcell "August 21, 2026" [ref=e270]:
+                  - generic "August 21, 2026" [ref=e273]: "21"
+                - gridcell "August 22, 2026" [ref=e275]:
+                  - generic "August 22, 2026" [ref=e278]: "22"
+              - row "August 23, 2026 August 24, 2026 August 25, 2026 August 26, 2026 August 27, 2026 August 28, 2026 August 29, 2026" [ref=e280]:
+                - gridcell "August 23, 2026" [ref=e281]:
+                  - generic "August 23, 2026" [ref=e284]: "23"
+                - gridcell "August 24, 2026" [ref=e286]:
+                  - generic "August 24, 2026" [ref=e289]: "24"
+                - gridcell "August 25, 2026" [ref=e291]:
+                  - generic "August 25, 2026" [ref=e294]: "25"
+                - gridcell "August 26, 2026" [ref=e296]:
+                  - generic "August 26, 2026" [ref=e299]: "26"
+                - gridcell "August 27, 2026" [ref=e301]:
+                  - generic "August 27, 2026" [ref=e304]: "27"
+                - gridcell "August 28, 2026" [ref=e306]:
+                  - generic "August 28, 2026" [ref=e309]: "28"
+                - gridcell "August 29, 2026" [ref=e311]:
+                  - generic "August 29, 2026" [ref=e314]: "29"
+              - row "August 30, 2026 August 31, 2026 September 1, 2026 September 2, 2026 September 3, 2026 September 4, 2026 September 5, 2026" [ref=e316]:
+                - gridcell "August 30, 2026" [ref=e317]:
+                  - generic "August 30, 2026" [ref=e320]: "30"
+                - gridcell "August 31, 2026" [ref=e322]:
+                  - generic "August 31, 2026" [ref=e325]: "31"
+                - gridcell "September 1, 2026" [ref=e327]:
+                  - generic "September 1, 2026" [ref=e330]: "1"
+                - gridcell "September 2, 2026" [ref=e332]:
+                  - generic "September 2, 2026" [ref=e335]: "2"
+                - gridcell "September 3, 2026" [ref=e337]:
+                  - generic "September 3, 2026" [ref=e340]: "3"
+                - gridcell "September 4, 2026" [ref=e342]:
+                  - generic "September 4, 2026" [ref=e345]: "4"
+                - gridcell "September 5, 2026" [ref=e347]:
+                  - generic "September 5, 2026" [ref=e350]: "5"
+```
