@@ -2,6 +2,7 @@ import { Router } from 'express';
 import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
 import validateId from '../middleware/validateId.js';
+import { isPlainObject } from '../utils/isPlainObject.js';
 import {
   getSequences,
   getSequence,
@@ -48,6 +49,12 @@ router.post('/', async (req, res, next) => {
     if (!steps?.length) {
       return res.status(400).json({ error: 'At least one step is required' });
     }
+    if (trigger_config !== undefined && trigger_config !== null && !isPlainObject(trigger_config)) {
+      return res.status(400).json({ error: 'trigger_config must be an object' });
+    }
+    if (steps.some((s) => s?.action_config !== undefined && s?.action_config !== null && !isPlainObject(s.action_config))) {
+      return res.status(400).json({ error: 'step action_config must be an object' });
+    }
     const sequence = await createSequence(req.tenantId, { name, trigger_type, trigger_config, steps });
     res.status(201).json(sequence);
   } catch (err) {
@@ -58,6 +65,13 @@ router.post('/', async (req, res, next) => {
 // PATCH /api/crm/drip-sequences/:id — update
 router.patch('/:id', validateId(), async (req, res, next) => {
   try {
+    const { trigger_config, steps } = req.body;
+    if (trigger_config !== undefined && !isPlainObject(trigger_config)) {
+      return res.status(400).json({ error: 'trigger_config must be an object' });
+    }
+    if (Array.isArray(steps) && steps.some((s) => s?.action_config !== undefined && s?.action_config !== null && !isPlainObject(s.action_config))) {
+      return res.status(400).json({ error: 'step action_config must be an object' });
+    }
     const sequence = await updateSequence(req.tenantId, req.params.id, req.body);
     if (!sequence) return res.status(404).json({ error: 'Sequence not found' });
     res.json(sequence);

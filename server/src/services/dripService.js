@@ -2,6 +2,7 @@ import pool from '../db/pool.js';
 import logger from '../utils/logger.js';
 import { sendAutomationEmail } from './emailService.js';
 import { normalizeTaskPriority } from '../utils/taskPriority.js';
+import { isPlainObject } from '../utils/isPlainObject.js';
 
 /**
  * List all drip sequences for a tenant, with step counts.
@@ -403,7 +404,15 @@ export async function checkDripEnrollments(tenantId, triggerType, context = {}) 
 }
 
 function matchesDripConditions(config, context, triggerType) {
-  if (!config || Object.keys(config).length === 0) return true;
+  if (!config) return true;
+  // Same failure mode as automationEngine.matchesConditions: a non-object
+  // config makes every named read undefined, so the sequence would auto-enroll
+  // on EVERY event of this trigger type. Fail closed.
+  if (!isPlainObject(config)) {
+    logger.warn({ triggerType, config }, 'Drip trigger_config is not an object — skipping sequence');
+    return false;
+  }
+  if (Object.keys(config).length === 0) return true;
 
   if (triggerType === 'stage_changed') {
     if (config.toStage && config.toStage !== context.toStage) return false;

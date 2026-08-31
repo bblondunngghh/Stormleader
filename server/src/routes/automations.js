@@ -3,6 +3,7 @@ import authenticate from '../middleware/authenticate.js';
 import tenantScope from '../middleware/tenantScope.js';
 import validateId from '../middleware/validateId.js';
 import pool from '../db/pool.js';
+import { isPlainObject } from '../utils/isPlainObject.js';
 
 const router = Router();
 router.use(authenticate);
@@ -28,6 +29,11 @@ router.post('/', async (req, res, next) => {
     if (!name || !trigger_type || !action_type) {
       return res.status(400).json({ error: 'name, trigger_type, and action_type are required' });
     }
+    for (const [field, value] of [['trigger_config', trigger_config], ['action_config', action_config]]) {
+      if (value !== undefined && value !== null && !isPlainObject(value)) {
+        return res.status(400).json({ error: `${field} must be an object` });
+      }
+    }
 
     const { rows } = await pool.query(
       `INSERT INTO automations (tenant_id, name, trigger_type, trigger_config, action_type, action_config)
@@ -45,6 +51,12 @@ router.post('/', async (req, res, next) => {
 router.patch('/:id', validateId(), async (req, res, next) => {
   try {
     const { name, trigger_type, trigger_config, action_type, action_config, is_active } = req.body;
+    for (const [field, value] of [['trigger_config', trigger_config], ['action_config', action_config]]) {
+      if (value !== undefined && !isPlainObject(value)) {
+        return res.status(400).json({ error: `${field} must be an object` });
+      }
+    }
+
     const setClauses = [];
     const params = [req.tenantId, req.params.id];
 

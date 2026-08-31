@@ -3,6 +3,7 @@ import logger from '../utils/logger.js';
 import { sendAutomationEmail } from './emailService.js';
 import { checkDripEnrollments } from './dripService.js';
 import { normalizeTaskPriority } from '../utils/taskPriority.js';
+import { isPlainObject } from '../utils/isPlainObject.js';
 
 /**
  * Fire all active automations matching a given trigger for a tenant.
@@ -43,7 +44,15 @@ export async function fireTrigger(tenantId, triggerType, context = {}) {
  * An empty config {} matches all events of that type.
  */
 function matchesConditions(config, context, triggerType) {
-  if (!config || Object.keys(config).length === 0) return true;
+  if (!config) return true;
+  // A non-object config has lost whatever filter it held: every named read
+  // below yields undefined, so the automation would match EVERY event of this
+  // trigger type. Fail closed — over-firing has real side effects.
+  if (!isPlainObject(config)) {
+    logger.warn({ triggerType, config }, 'Automation trigger_config is not an object — skipping automation');
+    return false;
+  }
+  if (Object.keys(config).length === 0) return true;
 
   if (triggerType === 'stage_changed') {
     if (config.toStage && config.toStage !== context.toStage) return false;
