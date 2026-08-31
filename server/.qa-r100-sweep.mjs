@@ -43,10 +43,18 @@ function resolve(path, dead) {
   return p;
 }
 
+// Run 112: a row-count snapshot CANNOT see an UPDATE (the Run 100 lesson). Also snapshot
+// max(updated_at) per table so a mutation with no row-count change is still visible.
 const snapAll = async () => {
   const r = (await pool.query("SELECT tablename FROM pg_tables WHERE schemaname='public'")).rows;
+  const withUpd = new Set((await pool.query("SELECT table_name FROM information_schema.columns WHERE table_schema='public' AND column_name='updated_at'")).rows.map(x => x.table_name));
   const c = {};
-  for (const { tablename } of r) { try { c[tablename] = (await pool.query(`SELECT count(*)::int n FROM "${tablename}"`)).rows[0].n; } catch {} }
+  for (const { tablename } of r) {
+    try { c[tablename] = (await pool.query(`SELECT count(*)::int n FROM "${tablename}"`)).rows[0].n; } catch {}
+    if (withUpd.has(tablename)) {
+      try { c[tablename + '#upd'] = String((await pool.query(`SELECT max(updated_at) m FROM "${tablename}"`)).rows[0].m); } catch {}
+    }
+  }
   return c;
 };
 
