@@ -4932,3 +4932,68 @@ Comparing the 52-table snapshots at 05:05 and 05:55: **`storm_events` 7507 → 7
 - Drift baseline for the next run: the `docs: QA report 2026-08-30` commit (head after this entry).
 
 ---
+
+## QA Run: 2026-08-31
+
+**Baseline `f85b493` → head `60f83f2`. Build PASS (vite, exit 0, 8.32s).**
+⚠️ **3 of 4 working stages capped on `max_turns`** (s1 51/50, s2 81/80, s4 41/40); only s3 completed.
+⚠️ **Run numbering diverged again:** s1 and s3 BOTH self-numbered Run 112; s4 self-numbered Run 113.
+
+### Test Results
+- Pages tested: **19/19 routes for UI consistency (s3); 0 for functional interaction** — s2 produced no result, so 14 pages + 12 Settings tabs are unmeasured for this date.
+- API endpoints tested: **198 distinct paths / 248 path+method pairs** of a 272-route inventory; **314 sweep requests** (200:125, 400:120, 403:8, 404:61), **0 5xx**, **0 defects from the broad sweep** — plus ~120 targeted jsonb-shape probes, which is where both defects came from.
+- Bugs found: **2** (both backend, both silent — the API answered 200/201 while doing the wrong thing)
+- Bugs fixed: **2**
+- UI inconsistencies found: **0**
+- UI inconsistencies fixed: **0**
+- Regressions: **0**
+- Commits: **3** — 2 fixes (`c30d968`, `60f83f2`), 1 harness carry (`47d2d13`)
+- Net DB rows from QA: **0** (but see DB hygiene — `tenants.updated_at` moved in s1's window)
+
+### Fixes Made
+- `c30d968` — **a non-object `trigger_config` made automations fire on EVERY event.** POST/PATCH on `/crm/automations` and `/crm/drip-sequences` accepted a string/number/bool/array/null for `trigger_config`/`action_config` and answered 200, storing the scalar in the jsonb column. Nothing crashed — a named-property read on a scalar yields `undefined`, not a throw — so `matchesConditions()` / `matchesDripConditions()` saw `undefined` for every guard and fell through to `return true`. An automation filtered to `{toStage:'sold'}` fired on ALL stage changes: creating tasks, changing stages, sending emails, posting notifications it was configured not to send. **`|| {}` did not catch it — it guards FALSY values only.** Fixed at both halves (new `isPlainObject()` util rejects with 400 at all four write sites; both matchers fail closed and log). Proven by firing real triggers and counting rows: pre-fix 5/5 scalar configs over-fired on the same non-matching event; post-fix automations 8/8, drip 7/7 PASS. This was the lead s1 surfaced but did not fix on 2026-08-30 — **naming it in the s1 prompt worked.**
+- `60f83f2` — **a non-array `steps` PATCH destroyed a drip sequence's real steps.** `steps:"abcd"` returned 200, DELETEd the 3 real steps (11d/22d/33d) and inserted 4 defaulted junk ones. **Data loss behind a success response.** Two guards missed it from opposite sides: the route's `Array.isArray(steps) && steps.some(...)` validates arrays but SKIPS every other type, while `updateSequence()` replaces on `data.steps !== undefined` and DELETEs before an index-loop rebuild — and a string has `.length` and indexes like an array. Same shape on POST via `!steps?.length`. Fixed at both halves (route requires a non-empty array + object elements; service keys on `Array.isArray`). Verified with before/after DB reads: destructive PATCH now 400s, the 3 real steps byte-identical afterwards.
+  🔑 **Found inside the new code shipped by `c30d968` itself** — s4 probed that fix's own `Array.isArray(steps) && ...` guard instead of trusting it. Strongest argument yet for keeping s4 adversarial toward the same night's fixes.
+- `47d2d13` — carried s1's correct-but-uncommitted `max(updated_at)` snapshot fix in `.qa-r100-sweep.mjs` (s3 committed it). **The "git status is a first-action" rule has now recovered work on three separate nights.**
+
+### UI Consistency Fixes
+- **NONE — 0 defects found. Nothing needed fixing.** All 7 audits PASS, 0 app files changed.
+- Audits 1-7 converged for the **16th consecutive run**: icons (43 imports all `24/outline`, 2,206 runtime SVGs, 0 foreign), buttons (22 classes, 9 variants all documented deliberate), headers (`.topbar.glass` exactly 56px + correct `<h1>` on 19/19), sidebar (18 links/18 icons/42px/1 active on 19/19), forms (**0 native `<select>`, 0 `input[type=date]` app-wide**), spacing (consistent within pages, deliberate between), modals (0 stray overlays at rest).
+- 🏁 **THE UI CHARTER IS NOW EXHAUSTED.** The two and only two remaining open leads were swept and BOTH came back clean: **Tailwind-utilities layer** (13 routes / 409 elements / 322 probes) — the layer does beat `@layer base` at any specificity but fires in exactly 3 places, all intended; and **mapbox-gl + Google Maps unlayered vendor layer** (2 routes / 212 elements / **1,622 probes**) — all 4 app rules targeting vendor selectors alive, only vendor hits are Google Maps styling its own controls. **0 kills in either.** Every static dimension and interaction state is closed (R92/R94/R98/R101/R102/R106/R112). **No named open lead remains.**
+- **All 3 s3 "findings" were bugs in the harness, not the app:** (a) a probe that sets `transition:none !important` before reading cannot then audit `transition` (5 false hits; exclude `/^transition/`); (b) a flat `/([^{}]+)\{([^{}]*)\}/g` regex hoists `@media` rules out of their query (`index.css` has ONE `@media` block, `max-width:768px` at line 3489, all mobile → 4 false positives made convincing because the app selectors had HIGHER specificity than the utilities they "lost" to); (c) re-asserting a shorthand clobbers a longhand declared after it in the same block (`body` `:83-87`, `.sidebar__user` `:399-403`).
+
+### Known Issues Remaining
+- ⚠️ **NO ERROR BOUNDARY ANYWHERE IN THE SPA** — the amplifier behind four defects (R68, R105, R109, 2026-08-30). Highest-leverage backlog item; an enhancement, so **developer's call**.
+- **Generic error toasts discard the server's message — 64 sites** vs 22 that surface it (`InvoicesView.jsx:566` vs the correct idiom at `:592`). App-wide convention change — developer's call.
+- **Form-label drift — 7 treatments, 8th run deferred.** Refactor, outside QA charter.
+- **`/alerts` orphan route** — nothing links to it; duplicated in Settings → Storm Alerts. Design decision.
+- **`EstimatesView.jsx:1318`** — measured, deliberately NOT fixed (guarding it means `Array.isArray`-ing every `.map()` in the client).
+- **DB junk rows, all rendering safely:** `qa_options_probe` and 64 subcontractors including rows named `{"$eq":1}` / `{"foo":"bar"}`. The hygiene sweep matches `'QA-R9%'`, which none match. Developer go-ahead needed.
+- **`.qa-r91-neverrun.mjs` still never run — 12 nights.**
+- Housekeeping: **361** QA screenshots in the repo root (none added tonight); dead `quickFilters`/`applyQuickFilter` (`LeadList.jsx:62`,`:346`); dead CSS `index.css:959`; stray 0-byte `server/=`.
+- ✅ **RESOLVED:** `C:/tmp/qa-token.txt` was stale for 3 runs and 401'd every harness request. **s4 refreshed it at 05:52** — the next s1 does not need to mint one first.
+
+### Coverage gaps this run
+- ⚠️ **THE ENTIRE FRONTEND FUNCTIONAL CHARTER IS UNMEASURED.** s2 burned 81 turns / $9.92 / ~23 min of API time and produced **no commits, no artifact, nothing recoverable** — only a 1.6 KB Playwright temp file. 14 pages + 12 Settings tabs. Largest gap in the run. (s3's static sweep proves all 19 routes *render*; it proves nothing about interactions, forms or data flow.)
+- ⚠️ **s4's own artifact is INCOMPLETE** — `C:/tmp/s4-verify-results.txt` §3 "Edge cases / regression sweep" is a placeholder reading "see section appended below" and the section was never written. Treated in the report as NOT PERFORMED, since there is no evidence either way.
+- ⚠️ **s1 wrote no API report** — every API number in tonight's report was reconstructed from `C:/tmp/qa-r100-sweep.json`, raw output s1 wrote at 05:08 and never read. **Second consecutive run with this exact pattern.**
+- 24 of 272 routes never exercised: 18 excluded by design (side-effecting), 4 structurally unexercisable (`counties` + `material_products` absent `42P01`; `contracts.public_token` + `leads.status_token` not columns `42703`).
+- Estimate / invoice / contract **builder** detail shapes still unswept — **3rd run named as open.**
+- `/content-studio` and `/leads/:id` in no sweep, static or functional. `/canvassing` pin drop not exercised (DB write + paid geocode). Sidebar collapse/expand not re-driven (last verified R83).
+- No screenshots taken, by choice.
+
+### DB hygiene — the "0 writes" claim, scoped honestly
+**No table gained rows from QA activity** — every probe row deleted and verified (`automations`, `drip_sequences`, `drip_sequence_steps`, `drip_enrollments` all empty afterwards; step-row drift 0; `tasks`/`notifications` drift 0). **But the night was not write-free:** s1's sweep recorded `tenants.max(updated_at)` moving `2026-08-30 05:05:55` → `2026-08-31 05:08:36`, inside s1's window — the identity `PUT` probes that return 200. Same drift as 2026-08-30. Rows updated, not added.
+
+### Notes for the next run
+- ⚠️ **TENTH CONSECUTIVE RUN whose defect is "a value silently loses its expected type, and the failure is invisible at the call site."** Both of tonight's are this shape. **Triage it FIRST.** The sub-lesson, now proven three nights running: **`|| []` and `|| {}` ARE NOT TYPE GUARDS** — they rule out `null`/`undefined` only.
+- ⚠️ **STAGE CAPPING IS THE DOMINANT FAILURE MODE, not any individual defect. s1 has now capped 5 runs running.** Tonight's defect count (2) reflects how much testing actually ran, not how much of the app is sound. **Raise the s1/s2 turn budgets or narrow the charters** — s2's charter (14 pages + 12 Settings tabs + interactions) is not achievable in 80 turns.
+- **REQUIRE EVERY STAGE TO WRITE ITS ARTIFACT BEFORE SPENDING ITS REMAINING BUDGET.** s3 did this and is the only stage with a complete record. s4 wrote early but left §3 open and capped before filling it. The pattern that let s3 finish: cheap definitive **source greps first**, then **ONE aggregating browser call per dimension** (never per-route).
+- **READ EACH STAGE'S JSON `terminal_reason`, NOT ITS SELF-ASSESSMENT.** s4 reads as complete and its findings are sound, but it exited on `error_max_turns`.
+- **A capped stage's raw output is still worth reading** — confirmed again. s1's entire API section came from JSON it never looked at. **Check `C:/tmp/*.json` and `C:/tmp/*.txt` before declaring a capped stage a total loss.**
+- ⚠️ **s5 MUST DATE-CHECK ITS INPUT ARTIFACTS.** Tonight `/tmp/api-test-results.txt` was Run 100 (**3 days stale**), `C:/tmp/api-test-results.txt` Run 105 (**2 days stale**), `C:/tmp/frontend-test-results.txt` Run 109 (**1 day stale**), and `/tmp/frontend-test-results.txt` missing. Only `ui-audit-results.txt` was fresh. **Reading any of those as "tonight" would have fabricated the report.** They remain stale for the next run.
+- **Reassign the s3 slot** — the UI charter is exhausted; Audits 1-7 now cost ONE tool call. Run them as a regression check and spend the budget on a new dimension or another charter.
+- **`/src/index.css?direct` is the reusable key** — it returns the REAL compiled cascade (133,818 bytes; `theme`/`utilities`/`base`/`properties`), the standing answer to `document.styleSheets`-returns-`[]` under Vite.
+- Drift baseline for the next run: the `docs: QA report 2026-08-31` commit (head after this entry).
+
+---
