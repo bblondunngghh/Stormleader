@@ -17,6 +17,11 @@
 }
 
 :root {
+  /* Dark-only app: tell the UA to paint its own surfaces (autofill, scrollbars,
+     native control chrome) dark. Without this the root scheme is `normal`, so a
+     light-mode OS makes Chrome paint autofilled .form-input fields light-on-dark. */
+  color-scheme: dark;
+
   /* ---- Surface ---- */
   --bg-deep:        oklch(0.12 0.02 260);
   --bg-surface:     oklch(0.16 0.02 260);
