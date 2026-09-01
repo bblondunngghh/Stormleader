@@ -8,14 +8,18 @@ import { parsePagination } from '../utils/pagination.js';
 
 const router = Router();
 
-// estimateService writes these four columns with a bare JSON.stringify, and JSONB
+// estimateService writes these columns with a bare JSON.stringify, and JSONB
 // stores whatever shape it is handed. Unlike a text[]/numeric column, there is no
 // cast to fail, so nothing rejects the write — the junk surfaces later as a render
 // crash in the builder (see f608588). Validate the container type on the way in;
 // element sanitizing stays on the client, which must stay defensive anyway because
 // a write guard cannot clean rows that are already stored.
-const JSON_ARRAY_FIELDS = ['line_items', 'financing_plan_ids', 'upgrades'];
-const JSON_OBJECT_FIELDS = ['insurance_details'];
+//
+// These two lists must cover every name in estimateService.js's `jsonFields`
+// (:195-197). `discounts`, `signers` and `deposit` were stringified there but
+// missing here, so a string/number/object landed in those columns behind a 200.
+const JSON_ARRAY_FIELDS = ['line_items', 'financing_plan_ids', 'upgrades', 'discounts', 'signers'];
+const JSON_OBJECT_FIELDS = ['insurance_details', 'deposit'];
 
 function validateJsonShapes(body) {
   for (const f of JSON_ARRAY_FIELDS) {
