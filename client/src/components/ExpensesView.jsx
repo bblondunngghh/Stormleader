@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import * as expensesApi from '../api/expenses';
 import client from '../api/client';
 import { IconX, IconDollar, IconPlusCircle, IconTrash } from './Icons';
@@ -43,9 +44,9 @@ function CategoryBadge({ category }) {
 // EXPENSE MODAL — Add / Edit
 // ============================================================
 
-function ExpenseModal({ expense, onSave, onClose }) {
+function ExpenseModal({ expense, leadId: initialLeadId, onSave, onClose }) {
   const isEdit = !!expense;
-  const [leadId, setLeadId] = useState(expense?.lead_id || '');
+  const [leadId, setLeadId] = useState(expense?.lead_id || initialLeadId || '');
   const [leadSearch, setLeadSearch] = useState(expense?.lead_address || expense?.contact_name || '');
   const [leadResults, setLeadResults] = useState([]);
   const [category, setCategory] = useState(expense?.category || 'materials');
@@ -54,6 +55,18 @@ function ExpenseModal({ expense, onSave, onClose }) {
   const [notes, setNotes] = useState(expense?.notes || '');
   const [saving, setSaving] = useState(false);
   const [searching, setSearching] = useState(false);
+
+  // Resolve a leadId handed in by the URL (?leadId=) into the picker's display text.
+  // Idiom matches ContractBuilder's "Load lead details if leadId provided" effect.
+  useEffect(() => {
+    if (!initialLeadId || isEdit) return;
+    client.get(`/crm/leads/${initialLeadId}`)
+      .then(res => {
+        const lead = res.data;
+        setLeadSearch(lead.address || lead.contact_name || '');
+      })
+      .catch(() => {});
+  }, [initialLeadId, isEdit]);
 
   // Lead search
   useEffect(() => {
@@ -215,6 +228,7 @@ export default function ExpensesView() {
   const [showModal, setShowModal] = useState(false);
   const [editingExpense, setEditingExpense] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
 
   const fetchExpenses = useCallback(async () => {
@@ -238,6 +252,16 @@ export default function ExpensesView() {
 
   const totalAmount = expenses.reduce((s, e) => s + Number(e.amount || 0), 0);
 
+  // Handle the leadId URL param — lead detail's "Add Expense" quick action links
+  // here with the job already chosen. Idiom matches ContractsView's fromEstimate/
+  // leadId effect.
+  useEffect(() => {
+    if (searchParams.get('leadId')) {
+      setEditingExpense(null);
+      setShowModal(true);
+    }
+  }, [searchParams]);
+
   const handleEdit = (exp) => {
     setEditingExpense(exp);
     setShowModal(true);
@@ -251,6 +275,7 @@ export default function ExpensesView() {
   const handleSaved = () => {
     setShowModal(false);
     setEditingExpense(null);
+    if (searchParams.get('leadId')) setSearchParams({});
     fetchExpenses();
   };
 
@@ -375,8 +400,13 @@ export default function ExpensesView() {
       {showModal && (
         <ExpenseModal
           expense={editingExpense}
+          leadId={searchParams.get('leadId')}
           onSave={handleSaved}
-          onClose={() => { setShowModal(false); setEditingExpense(null); }}
+          onClose={() => {
+            setShowModal(false);
+            setEditingExpense(null);
+            if (searchParams.get('leadId')) setSearchParams({});
+          }}
         />
       )}
 

@@ -51,8 +51,14 @@ function keysRead(fp) {
 }
 
 // ---- links GENERATED anywhere in the client ----
+// The "used" side must cover EVERY way this app changes route, not just react-router.
+// Run 118 first shipped this with only navigate()/to=/href= and missed
+// `window.location.href = `/expenses?leadId=${id}`` in LeadDetail — a full-page
+// assignment is still a deep link, and it dropped its param exactly like the
+// navigate() case did. Same "too-narrow side" failure the gotchas keep recording.
 const genRe = new RegExp(
-  '(?:navigate\\(|to=\\{?|href=\\{?)\\s*[\'"' + BT + '](\\/[^\'"' + BT + ']*\\?[^\'"' + BT + ']*)[\'"' + BT + ']',
+  '(?:navigate\\(|to=\\{?|href=\\{?|(?:window\\.)?location\\.href\\s*=|(?:window\\.)?location\\.assign\\(|window\\.open\\()' +
+  '\\s*[\'"' + BT + '](\\/[^\'"' + BT + ']*\\?[^\'"' + BT + ']*)[\'"' + BT + ']',
   'g'
 );
 
