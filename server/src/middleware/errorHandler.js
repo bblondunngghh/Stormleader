@@ -9,6 +9,14 @@ const PG_BAD_INPUT_CODES = new Set([
   '22008', // datetime_field_overflow
   '22003', // numeric_value_out_of_range
   '22007', // invalid_datetime_format
+  // Postgres parses a time literal permissively: a token it cannot read as a
+  // time component it tries to read as a TIME ZONE NAME, so an invalid time
+  // raises 22023 ("time zone \"not-a-time\" not recognized") rather than 22007.
+  // Only work_orders.scheduled_time_start/end are `time` columns, and both are
+  // written straight from the request body (workOrderService.js:303-306, :386).
+  // No server-authored SQL here can raise 22023 — every generate_series/TO_CHAR
+  // call site uses a constant step.
+  '22023', // invalid_parameter_value (e.g. "not-a-time" cast to time)
   '23503', // foreign_key_violation
   '23514', // check_violation (e.g. a status outside the column's allowed set)
   '2201W', // invalid_row_count_in_limit_clause (e.g. ?limit=-1)
@@ -35,6 +43,11 @@ export default function errorHandler(err, req, res, _next) {
       // 23514 names the relation and the constraint in its message
       // (violates check constraint "estimates_status_check") — sanitize.
       message = 'One or more values are not permitted for this record';
+    } else if (err.code === '22023') {
+      // 22023 echoes the rejected value back as a time zone name
+      // ('time zone "not-a-time" not recognized'), which is confusing rather
+      // than useful — use the same generic message as 22P02.
+      message = 'Invalid value provided for one or more fields';
     } else if (err.code === '22001') {
       // 22001 surfaces the column's declared width ("character varying(20)").
       message = 'One or more values exceed the maximum allowed length';
