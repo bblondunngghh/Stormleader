@@ -1,369 +1,370 @@
 # StormLeads — Overnight QA Report
 
-**Date:** 2026-08-31
+**Date:** 2026-09-01
 **Branch:** `feat/financing`
-**Baseline:** `f85b493` (checkpoint: pre-overnight-run 2026-08-31)
-**Head at report time:** `60f83f2`
-**Final build:** PASS — `npx vite build`, exit 0, 8.32s
+**Baseline:** `24d95bd` (tag `pre-overnight-20260901`) → **HEAD `6479d9e`**
+**Final build:** `npx vite build` — **exit 0, built in 7.97s**
 
 ---
 
 ## QA Test Summary
 
-| Metric | Value |
+| Metric | Count |
 |---|---|
-| API endpoints tested | **198 distinct paths / 248 path+method pairs** of a 272-route inventory (72.8% / 91.2%) |
-| API requests issued | **314** broad sweep + **~120** targeted shape probes |
-| Pages tested — UI consistency | **19 of 19** authenticated routes |
-| Pages tested — functional interaction | **0** — the frontend stage produced no result (see Coverage Gaps) |
-| Bugs found | **2** |
-| Bugs fixed | **2** |
-| UI inconsistencies found | **0** |
-| UI inconsistencies fixed | **0** |
-| Regressions introduced | **0** |
-| 5xx responses across the whole sweep | **0** |
-| Commits | **3** — 2 fixes, 1 harness carry |
-| Net DB rows added by QA | **0** (see DB Hygiene) |
-
-Both defects found tonight were backend data-integrity bugs in the same family, and both
-were **silent** — the API answered `200`/`201` while doing the wrong thing. Neither
-crashed, which is why both survived prior runs.
+| Pages tested (functional, real interactions) | **18 routes + 15 Settings tabs** |
+| Pages audited (UI consistency) | **19 routes** |
+| API endpoints in inventory | **272** across 36 route files |
+| API endpoints exercised | **198 distinct paths / 248 path+method pairs** |
+| Total API requests issued | **≈12,800** (314 sweep + 12,375 query-param + ~65 jsonb + 45 post-fix verify) |
+| **Bugs found** | **2** |
+| **Bugs fixed** | **2** |
+| Regressions found | **0** |
+| UI inconsistencies found | **1** |
+| UI inconsistencies fixed | **1** |
+| 5xx responses / uncaught throws | **0 / 0** |
+| Commits | **3** (2 fixes, 1 test-harness carry) |
+| Net DB rows created by QA | **0** |
 
 ### Stage execution
 
-Three of the four working stages terminated on `max_turns` rather than completing. This
-is read from each stage's JSON `terminal_reason`, not from its self-assessment.
-
-| Stage | Self-numbered | Terminal reason | Turns | Artifact written | Commits |
+| Stage | Outcome | Turns | Duration | Cost | Artifact |
 |---|---|---|---|---|---|
-| s1 api-test | Run 112 | `error_max_turns` | 51 / 50 | **none** (raw harness JSON only) | `c30d968` |
-| s2 frontend-test | — | `error_max_turns` | 81 / 80 | **none** | none |
-| s3 ui-audit | Run 112 | `completed` | 36 | `ui-audit-results.txt` (both paths) | `47d2d13` |
-| s4 verify | Run 113 | `error_max_turns` | 41 / 40 | `s4-verify-results.txt` (§3 unfinished) | `60f83f2` |
+| s1-api-test | `error_max_turns` | 51 | 10.8 min | $5.06 | written early, §5 left unfilled |
+| s2-frontend-test | **success** | 76 | 30.6 min | $10.42 | complete, 20 sections |
+| s3-ui-audit | `error_max_turns` | 61 | 15.8 min | $6.61 | complete (written before cap) |
+| s4-verify | `error_max_turns` | 41 | 10.9 min | $3.82 | **none produced** |
 
-⚠️ **Run numbering diverged again:** s1 and s3 both self-numbered "Run 112"; s4 numbered
-itself 113. Same class of bookkeeping drift as 2026-08-30 (s2→109, s4→110).
-
-### Input artifact freshness (date-checked, per the standing s5 rule)
-
-| File | Content | Verdict |
-|---|---|---|
-| `/tmp/ui-audit-results.txt` | Run 112, 2026-08-31 | ✅ **FRESH — used** |
-| `C:/tmp/ui-audit-results.txt` | Run 112, 2026-08-31 | ✅ **FRESH — used** |
-| `C:/tmp/s4-verify-results.txt` | Run 113, 2026-08-31 | ✅ **FRESH — used** (incomplete) |
-| `/tmp/api-test-results.txt` | Run 100, **2026-08-28** | ❌ **3 days stale — NOT used** |
-| `C:/tmp/api-test-results.txt` | Run 105, **2026-08-29** | ❌ **2 days stale — NOT used** |
-| `C:/tmp/frontend-test-results.txt` | Run 109, **2026-08-30** | ❌ **1 day stale — NOT used** |
-| `/tmp/frontend-test-results.txt` | — | ❌ **missing** |
-
-The API numbers in this report were recovered from `C:/tmp/qa-r100-sweep.json` — raw
-harness output that s1 wrote at 05:08 and never analyzed before capping. This is the
-second consecutive run where a capped stage's unread JSON supplied the entire API
-section.
+Total agent cost through s4: **$25.91**. Three of four stages hit the turn cap — s1 for the
+**seventh** consecutive run. Stage self-numbering diverged again (s1/s2 → "Run 114",
+s3 → "Run 115", s4 → "Run 116"); they are one calendar run.
 
 ---
 
 ## Backend API Test Results
 
-**Inventory:** 272 route patterns across 36 route files (`C:/tmp/route-inventory.txt`).
-**Server:** `http://localhost:3001` (the charter says :3000; :3000 is not listening).
+Inventory: **272 routes / 36 files** — GET 132, POST 88, PATCH 26, DELETE 18, PUT 8
+(140 write routes). 109 of 272 paths carry a `:param` and need a real id.
 
-### Broad sweep — `.qa-r100-sweep.mjs`, 5 phases
+### Full route sweep (`server/.qa-r114-sweep.mjs`)
 
-| | |
-|---|---|
-| Requests | 314 |
-| Distinct paths | 198 |
-| Path+method pairs | 248 |
-| Status spread | `200`: 125 · `400`: 120 · `403`: 8 · `404`: 61 |
-| **5xx** | **0** |
-| Methods | GET 130 · PATCH 75 · POST 67 · PUT 24 · DELETE 18 |
-| Phases | A 130 · B 85 · C 33 · D 33 · E 33 |
-| Defects recorded | **0** |
+| Phase | What | Ran | Excluded | Statuses |
+|---|---|---|---|---|
+| A | GET, real ids | 130 | 2 | 200:103 400:11 403:5 404:11 |
+| B | POST/DELETE, dead id, `{}` | 85 | 21 | 400:56 404:29 |
+| C | PATCH/PUT, dead id, `{}` | 33 | 1 | 200:4 400:18 403:1 404:10 |
+| D | PATCH/PUT, real id, `{}` | 33 | 1 | 200:9 400:18 403:1 404:5 |
+| E | PATCH/PUT, real id, unknown field | 33 | 1 | 200:9 400:17 403:1 404:6 |
 
-The 120 `400`s and 61 `404`s are the expected results of deliberate bad-input and
-unknown-id probes, not failures.
+**314 requests · 200:125 400:120 403:8 404:61 · 0 5xx · 0 threw · 0 defects.**
 
-### Coverage by endpoint category
+### Per-category results
 
-Distinct paths exercised, grouped by mount prefix:
+Categories are route files. "Passed" = responded with a defensible status — no 5xx, no
+throw, no silent accept of bad input.
 
-| Category | Paths | Category | Paths |
+| Category (route file) | Endpoints in file | Requests | Statuses | Passed | Failed |
+|---|---|---|---|---|---|
+| CRM (`crm.js`) | 51 | 61 | 200:30 400:23 404:8 | 61 | 0 |
+| **Estimates (`estimates.js`)** | 17 | 20 | 200:7 400:7 404:6 | 20 | 0 in sweep — **1 defect from the jsonb probe** (below) |
+| Financing (`financing.js`) | 13 | 17 | 200:5 400:10 404:2 | 17 | 0 |
+| Contracts (`contracts.js`) | 13 | 16 | 200:4 400:5 404:7 | 16 | 0 |
+| Work orders (`workOrders.js`) | 12 | 15 | 200:7 400:2 404:6 | 15 | 0 |
+| Properties (`properties.js`) | 18 | 15 | 200:6 400:8 404:1 | 15 | 0 |
+| Skip trace (`skipTrace.js`) | 10 | 12 | 200:5 400:5 404:2 | 12 | 0 |
+| Materials (`materials.js`) | 9 | 11 | 200:7 400:1 404:3 | 11 | 0 |
+| Drip sequences (`drip.js`) | 8 | 10 | 200:2 400:3 404:5 | 10 | 0 |
+| Subcontractors (`subcontractors.js`) | 8 | 10 | 200:3 400:5 404:2 | 10 | 0 |
+| Roof measurement (`roofMeasurement.js`) | 8 | 10 | 200:5 400:5 | 10 | 0 |
+| Automations (`automations.js`) | 5 | 9 | 200:1 400:4 404:4 | 9 | 0 |
+| Notifications (`notifications.js`) | 6 | 9 | 200:3 400:3 404:3 | 9 | 0 |
+| Admin (`admin.js`) | 6 | 8 | 403:8 | 8 | 0 — 403 by design, documented non-bug |
+| Invoices (`invoices.js`) | 8 | 8 | 200:4 400:2 404:2 | 8 | 0 |
+| Territories (`territories.js`) | 6 | 8 | 200:3 400:4 404:1 | 8 | 0 |
+| Leads (`leads.js`) | 6 | 8 | 200:4 400:2 404:2 | 8 | 0 |
+| Onboarding (`onboarding.js`) | 7 | 8 | 200:4 400:4 | 8 | 0 |
+| Canvassing (`canvassing.js`) | 5 | 7 | 200:2 400:4 404:1 | 7 | 0 |
+| Expenses (`expenses.js`) | 5 | 7 | 200:2 400:4 404:1 | 7 | 0 |
+| Reports (`reports.js`) | 6 | 6 | 200:6 | 6 | 0 |
+| Alerts (`alerts.js`) | 4 | 5 | 200:5 | 5 | 0 |
+| Payments (`payments.js`) | 7 | 5 | 200:2 400:3 | 5 | 0 |
+| Auth (`auth.js`) | 5 | 4 | 200:1 400:3 | 4 | 0 |
+| Drift (`drift.js`) | 5 | 4 | 400:2 404:2 | 4 | 0 |
+| Dashboard (`dashboard.js`) | 3 | 3 | 200:3 | 3 | 0 |
+| Documents / counties / dataApis / map | 13 | 12 | 200:2 400:8 404:2 | 12 | 0 |
+| Storms / storm history / disasters / search | 6 | 6 | 200:2 400:3 404:1 | 6 | 0 |
+
+### New dimension — duplicate / bracketed query params (closed)
+
+Express's `qs` turns `?x=a&x=b` into an **array** and `?x[a]=1` into an **object**. Every
+handler that assumes `req.query.X` is a string sees a shape it never planned for. This
+dimension had never been tested.
+
+| Variant | Shape delivered | Requests | Statuses |
 |---|---|---|---|
-| `crm/dashboard` | 15 | `crm/canvass-pins` | 4 |
-| `properties` | 12 | `crm/invoices` | 4 |
-| `estimates` | 11 | `crm/prospect-lists` | 4 |
-| `crm/financing` | 10 | `notifications` | 4 |
-| `crm/leads` | 10 | `crm/automations` | 3 |
-| `skip-trace` | 9 | `crm/expenses` | 3 |
-| `crm/contracts` | 8 | `crm/team` | 3 |
-| `crm/work-orders` | 8 | `crm/territories` | 3 |
-| `materials` | 7 | `dashboard` / `data` / `documents` / `map` | 3 each |
-| `roof-measurement` | 7 | `alerts`, `counties`, `crm/custom-fields`, `crm/pipeline`, `crm/tasks`, `storm-history`, `storms` | 2 each |
-| `crm/reports` | 6 | `auth`, `crm/calendar`, `crm/tenant-settings`, `crm/activities`, `disaster-declarations`, `search` | 1 each |
-| `onboarding` | 6 | | |
-| `admin` | 5 | | |
-| `crm/drip-sequences` | 5 | | |
-| `crm/subcontractors` | 5 | | |
-| `leads` | 5 | | |
-| `payments` | 5 | | |
+| dup-array | `['1','2']` | 4,125 | 200:3153 400:378 403:165 404:429 |
+| bracketed object | `{a:'1'}` | 4,125 | 200:3168 400:363 403:165 404:429 |
+| nested array | `['1','2']` | 4,125 | 200:3168 400:363 403:165 404:429 |
 
-### Targeted probes — jsonb config shapes (automations + drip)
+125 GET routes × 33 real param names × 3 shapes = **12,375 requests · 0 5xx · 0 threw ·
+0 defects.** Query-string type confusion is **clean — dimension closed.**
 
-This is where both defects came from. s1 probed `trigger_config` / `action_config`; s4
-then probed the fix's own new code and found a second, worse bug behind it.
+### jsonb container-type guards (where the defect came from)
 
-| Probe group | Result |
-|---|---|
-| `auth` | login flow exercised; token minted and refreshed |
-| `crm/automations` POST/PATCH — `trigger_config` | 7/7 bad shapes → `400` (was `200`) |
-| `crm/automations` POST/PATCH — `action_config` | 7/7 bad shapes → `400` (was `200`) |
-| `crm/automations` — happy path | `null` → `201` (match-all by design), object → `201`/`200` |
-| `crm/automations` — stored column | `{"toStage":"won"}` intact after all 15 rejected writes |
-| `crm/drip-sequences` — `trigger_config` | 7/7 POST + 7/7 PATCH bad shapes → `400` |
-| `crm/drip-sequences` — step `action_config` | 7/7 → `400` |
-| `crm/drip-sequences` — `steps` container | 6 bad shapes → `400` (were 2×`500`, 2×`201`-with-junk) |
-| `crm/drip-sequences` — `steps` elements | `[null]` / `['a']` / `[7]` → `400` |
-| **Total re-verification** | **50/50 PASS** |
+Method: PATCH a real row with a wrong-typed value, read the column back, revert.
 
-**Engine-level proof (not just status codes).** Automations and drip were fired against
-the live DB and the resulting rows counted:
+| Column | string | number | object | array | null | Verdict |
+|---|---|---|---|---|---|---|
+| `estimates.line_items` | 400 | 400 | 400 | ok | 200 | guarded |
+| `estimates.financing_plan_ids` | 400 | 400 | 400 | ok | 200 | guarded |
+| `estimates.upgrades` | 400 | 400 | 400 | ok | 200 | guarded |
+| `estimates.insurance_details` | 400 | 400 | ok | 400 | 200 | guarded |
+| **`estimates.discounts`** | **200** | **200** | **200** | ok | 200 | **NO GUARD** |
+| **`estimates.signers`** | **200** | **200** | **200** | ok | 200 | **NO GUARD** |
+| **`estimates.deposit`** | **200** | **200** | **200** | ok | 200 | **NO GUARD** |
+| `invoices.line_items` | 400 | 400 | 400 | ok | 200 | guarded |
+| `work_orders.line_items` | 400 | 400 | 400 | ok | 200 | guarded |
+| `contracts.content` | 400 | 400 | ok | 400 | — | guarded |
+| `leads.custom_fields` | 400 | 400 | ok | 400 | 400 | guarded |
+| `leads.tags` (`text[]`) | 400 | 400 | 400 | ok | 200 | guarded |
+| `custom_field_definitions.options` | 400 | 400 | 400 | ok | 200 | guarded |
 
-- **Pre-fix:** an object config + a non-matching event created 0 tasks; all 5 scalar
-  configs given the *same* non-matching event fired **5/5**.
-- **Post-fix:** automations **8/8 PASS**, drip **7/7 PASS** — scalars skip,
-  `{toStage:'sold'}` fires on a matching event and only on a matching event, `{}` still
-  matches all.
+All probed rows verified restored. → **Bug 1**, fixed in `f7bb323`.
 
-### What was fixed
-
-| Commit | Endpoint(s) | Fix |
-|---|---|---|
-| `c30d968` | `POST`/`PATCH /api/crm/automations`, `POST`/`PATCH /api/crm/drip-sequences` | New `isPlainObject()` util rejects non-object `trigger_config`/`action_config` with `400` at all four write sites; `matchesConditions()` and `matchesDripConditions()` now fail closed on a non-object config and log a warning |
-| `60f83f2` | `POST`/`PATCH /api/crm/drip-sequences/:id` | Route requires a non-empty **array** for `steps` and rejects non-object elements; `createSequence`/`updateSequence` key their step branches on `Array.isArray` so a non-array can never reach the `DELETE` + index rebuild |
-| `47d2d13` | — (test harness) | Carried s1's uncommitted `max(updated_at)` snapshot fix in `.qa-r100-sweep.mjs` |
+**Post-fix verification — re-run at 06:10 in this stage against the live server:
+45 probes, 45 pass / 0 fail.** All five array fields (`line_items`, `financing_plan_ids`,
+`upgrades`, `discounts`, `signers`) now reject string / number / bool / object with a 400
+and a named message; both object fields (`insurance_details`, `deposit`) reject
+string / number / bool / array. Legitimate shapes still pass validation and reach the 404.
+The guard applies on **both `PATCH /:id` and `POST /` (create)**.
 
 ---
 
 ## Frontend Feature Test Results
 
-⚠️ **NO FRONTEND FUNCTIONAL TESTING WAS PERFORMED TONIGHT.**
+18/18 authenticated routes rendered with an `<h1>`, exactly one `.nav-link.is-active`, and
+**0 page errors**. Every page below was driven with **real interactions**, not just
+rendered. **0 app defects, 0 regressions, 0 fixes needed.**
 
-The s2 frontend-test stage ran for 81 turns (~23 minutes of API time, $9.92) and
-terminated on `error_max_turns` having produced **no commits, no report artifact, and no
-recoverable findings**. The only trace it left is a 1.6 KB Playwright temp file at
-`/tmp/playwright-artifacts-OpwlGs/`. Unlike s1 — whose raw sweep JSON was recoverable —
-there is nothing to salvage.
+| Page | What was tested | Result | Needs attention |
+|---|---|---|---|
+| `/dashboard` | 6 of 7 clickable stat tiles, 14 funnel tiles, date-range control | **PASS** — all 6 navigate (Storm Map, View Leads, Pipeline Value, New Leads 7D, Close Rate, Avg Days to Close); funnel tile → `/leads?stage=contacted`; 7d/30d/90d vs YTD/All-Time drive real refetches | — |
+| `/leads` | search, all 4 `CustomSelect` filters, sort toggle, page sizes, row click | **PASS** — filters fire correct query params *and* change row counts (Stage→New 13→9, Priority→Hot 13→2, Source→Storm Map 13→5, Score 80+ 13→1); sort toggles `DESC`→`ASC`; 25/50/100 all fire `limit=` | — |
+| Lead detail overlay | Score Breakdown, Log Activity, stage picker, roof-type picker, Storm History, FEMA, Insurance Report | **PASS** — real per-factor scores; 11 stages in the picker; FEMA hits `GET /api/disaster-declarations?state=TX&county=Travis`; Insurance Report renders +1158 chars | — |
+| `/pipeline` | 3 board tabs, **HTML5 drag both directions** | **PASS** — Sales(7)/Production(5)/Billing(4) column sets; drag New→Contacted fired `PATCH /api/crm/leads/… {"stage":"contacted"}` (9/2→8/3), dragged back (net zero) | — |
+| `/estimates` | list + status filter, builder line items, profit-margin slider, save | **PASS** — Draft filter 16→14 rows; 2 blank rows at qty 2 × $150 → row totals $300/$300, **Subtotal $600.00**; 30% margin → cost $420.00 / profit $180.00; Save Draft POSTs a well-formed body (stubbed) | — |
+| Estimate review toolbar | Back to Editor / PDF / Sign Now / Send for Signing | **PASS 4/4** — PDF really downloads `EST-090.pdf`; Back to Editor restores +864 chars / +17 inputs, matching the Run 105 baseline. **4th consecutive clean run**; fixes `eb6331b` + `6462647` hold | — |
+| `/invoices` | New Invoice; **Record Payment full flow** | **PASS** — editor for INV-0007 shows Total $5,000.00 / Paid $603.00 / **Balance Due $4,397.00**; quick-fills, 7 methods; a typed amount posts `{"amount":1,…}` — honoured (stubbed) | — |
+| `/work-orders` | New Work Order modal; card detail overlay | **PASS** — modal has Title\*/Description/Job Type Template + 7-step checklist preview; detail shows Line Items (1) Total $100.00 and **Milestones (0/7)** with all 7 mark-complete buttons | — |
+| `/tasks` | tabs, priority mapping, overdue badge, toggle, create | **PASS** against a stubbed list (the tenant has 0 tasks) — Pending 2 / Completed 1 switch; hot→HIGH, warm→MEDIUM, cold→LOW; "12d overdue"; toggle → `PATCH`, create → `POST` | — |
+| `/calendar` | 4 views, next-period, **real-pointer `dateClick`** | **PASS** — Month(42 cells)/Week(15)/Day(3)/List; Sept→Oct 2026; day-cell click opens Create Task pre-filled `10/7/2026` | — |
+| `/reports` | 5 date presets | **PASS** — This Quarter / This Year / All Time render 9 recharts surfaces; This Week / This Month show the documented empty state | — |
+| `/storm-map` | 5 layer toggles, address input, storm rows, time range | **PASS** — all 5 checkboxes flip; `.gm-style` + 20 tiles + zoom controls + 10 storm rows; time-range toggle changes the panel 482→530 chars | Google Places autocomplete deliberately not typed into (metered API) |
+| `/canvassing` | Pin Legend, Manage Territories, **Drop Pin + real map click** | **PASS** — 7 outcomes in the legend; territory list works; New Pin form opens with a live GPS fix (32.701390, -97.301395), 6 outcomes, Save Pin present (**not clicked — 0 writes**) | — |
+| `/materials` | Add to cart, Order History / Product Catalog tabs | **PASS** — cart badge → "Cart 1"; both tabs switch and render their own tables | — |
+| `/subcontractors` | search, row Edit slide-over | **PASS** — search 25→0→25; Edit opens the full slide-over | 30 of 64 rows carry junk names (DB hygiene, below) |
+| `/storm-catalog` | type filters, time ranges | **PASS** — Hail 38 / Wind 136 / Tornado 0 / All 200; 24h 3 / 7d 200 / 30d 200 (200 = server page cap) | — |
+| `/expenses` | Add Expense modal, category filter | **PASS** — filtering to `Permit` gives "0 expenses" + empty state, so the filter is live | — |
+| `/contracts` | New Contract, row actions, editor | **PASS** — rows expose View / PDF / Send / Void; View opens the full contract editor | Rows have **no Edit** button (by design) |
+| `/settings` (15 tabs) | all 15 tabs + 8 interactions | **PASS 15/15** — profile, company, billing, payments, team, alerts, notifications, email, financing, automations, drip-sequences, custom-fields, pricing, contracts, reviews. **0 page errors, 0 4xx across all 15.** Storm Alerts master toggle fires `PUT /api/alerts/config` (stubbed, restored); SMTP "Show" flips password→text | The charter's "Integrations" tab does not exist — unbuilt feature, documented non-bug |
+| `/admin` | render | **PASS** — 403 on `/api/admin/overview` by design (dev-bypass `super_admin` in the SPA vs a real `admin` token) | — |
 
-Its charter covered 14 pages plus 12 Settings tabs:
+### Type-confusion sweep at the builder/detail level — **lead closed**
 
-| Page | What the charter called for | Result |
-|---|---|---|
-| `/dashboard` | stat cards, funnel chart, activity feed, tasks due, leaderboard, card navigation | **NOT TESTED** |
-| `/storm-map` | map render, storm swaths, layer toggles, address search, Honey Holes | **NOT TESTED** |
-| `/pipeline` | kanban render, lead cards, drag between stages, card detail | **NOT TESTED** |
-| `/leads` | table, filters (status/source/date), search, CSV export, pagination, sort | **NOT TESTED** |
-| `/leads/:id` | every tab, field edit + save, activity modal, score breakdown | **NOT TESTED** |
-| `/estimates` | list, create, builder, line items, live preview, save | **NOT TESTED** |
-| `/invoices` | list, create, record payment | **NOT TESTED** |
-| `/work-orders` | kanban, create, milestones, checklists | **NOT TESTED** |
-| `/tasks` | list, create, filter tabs, toggle complete | **NOT TESTED** |
-| `/calendar` | render, events, date/event click | **NOT TESTED** |
-| `/reports` | charts, date range picker, report type switching | **NOT TESTED** |
-| `/canvassing` | map, pin dropping, territories | **NOT TESTED** |
-| `/content-studio` | load, content type selection, generation | **NOT TESTED** |
-| `/settings` (12 tabs) | Profile, Company, Team, Storm Alerts, Notifications, Email/SMTP, Financing, Integrations, Drip Sequences, Custom Fields, Contracts, Reviews | **NOT TESTED** |
+A lead open for three runs. Method: intercept every `/api/` response and recursively rewrite
+**17 jsonb-ish keys** (`line_items, upgrades, signers, discounts, sections,
+financing_plan_ids, insurance_details, content, milestones, checklist, photos, attachments,
+options, custom_fields, tiers, payments, activities`) to a **truthy non-array** (`"oops"`,
+`42`), then open each builder/detail.
 
-**The one thing that is known about the frontend tonight** comes from s3's static sweep,
-not from functional testing: all 19 authenticated routes render, mount their topbar and
-sidebar correctly, and leave no stray modal overlay at rest. That establishes the pages
-load — it does not establish that any interaction, form, or data flow works.
+**Result: 0 white screens, 0 page errors, 8/8 flows.** The `Array.isArray` guards added by
+earlier runs (`EstimatesView.jsx:1337/1350/1353/1368`, `InvoicesView.jsx:488`,
+`SettingsView.jsx:2074/2228`, `LeadDetail.jsx:1319`, `WorkOrdersView.jsx:113/:843`) hold at
+the detail level as well as the list level. **Lead closed.**
 
-`C:/tmp/frontend-test-results.txt` on disk is **Run 109 from 2026-08-30** and describes
-last night's work. It must not be read as tonight's.
+### Frontend items that looked broken but were not
+
+Eight apparent dead controls all resolved to **test-harness selector errors**, not app
+defects. Recorded so future runs do not re-file them: the lead-detail stage and roof-type
+pickers are **inline, not portaled**; `Record Payment` lives in the invoice **editor**, not
+the row; modal input lookups must be scoped to the modal node (the first
+`input[type=number]` in document order sits *behind* it); `/contracts` rows say **View**,
+never Edit; **all 6 Settings create controls are inline forms**, so an overlay-count
+detector reports every one as dead; the cart badge sits on the next line; canvassing icon
+buttons have empty `innerText`; and the 0×0 "Keyboard shortcuts" button on map routes is
+**Google's**, not the app's.
 
 ---
 
 ## UI Consistency Audit Results
 
-s3 was the only stage to complete cleanly. **0 defects found, 0 fixes required, 0
-regressions, 0 app files changed.** Scope: 19 authenticated routes plus a compiled-cascade
-analysis of `index.css` (133,818 bytes).
+19 routes swept. **Audits 1–7 converged for the 17th consecutive run** and cost 2 tool
+calls, so the remaining budget went to a new dimension.
 
-| Audit | Result | Evidence |
+| Category | Findings | Fixed? |
 |---|---|---|
-| **1. Icons** | ✅ PASS — **0 non-Heroicon icons** | 43 imports, all `@heroicons/react/24/outline`; 0 solid, 0 lucide, 0 react-icons, 0 MUI, 0 font-awesome. Runtime: 2,206 `<svg>` across 19 routes, every non-chart/non-map one carrying the `0 0 24 24` Heroicons viewBox. The only 2 inline `<svg>` are the documented map non-bugs (`CanvassingMode.jsx:336` pin-legend swatch, `StormMap.jsx:1764` star glyphs in a Google InfoWindow) |
-| **2. Buttons** | ✅ PASS — no unintended inconsistency | 22 page-level button classes measured for height/padding/font-size/radius/weight/background. 9 showed >1 geometry variant; **all 9** resolve to documented deliberate patterns (segmented-control active pills, active-vs-inactive background only, `.row-actions` icon buttons, a `clamp()` radius artifact, Google Maps' own controls) |
-| **3. Toolbars / Headers** | ✅ PASS — consistent across all pages | 19/19 routes: `.topbar.glass` present at **exactly 56px** with the correct per-route `<h1>`. Matches Runs 80 and 103 exactly — zero drift |
-| **4. Sidebar / Nav** | ✅ PASS, 1 known exception | 19/19: 18 `.nav-link`, 18/18 with icons, every link 42px, gaps `[0,30,8]`, exactly 1 `.is-active`. **Exception:** `/alerts` has 0 `.is-active` — the documented orphan route (nothing links to it; duplicated under Settings → Storm Alerts). Left unfixed: retiring vs. linking it is a developer decision |
-| **5. Forms** | ✅ PASS — **0 non-standard elements** | Source grep over all of `client/src`: **0 native `<select>`, 0 `input[type=date]`, 0 `input[type=datetime-local]`**. The CustomSelect / DatePicker rules are fully respected app-wide. All 3 `.form-input` geometry variants are documented deliberate contextual sizes |
-| **6. Spacing** | ✅ PASS — no alignment issues | `.glass` padding is consistent *within* each page and varies *between* pages by design (16px list pages, 20px `/reports`, 24px estimates/invoices/contracts/expenses, 14px `/pipeline`). The fractional Dashboard values are the documented Tailwind-rem-against-a-14px-root systemic item |
-| **7. Modals** | ✅ PASS — all consistent | 0 stray `.modal-backdrop` / `[role=dialog]` / `.slide-over` on all 19 routes at rest. Standing verified state: 21 of 22 backdrops inherit `modal-scale-in`; the 22nd (`LeadDetail.jsx:2470`) must not (sibling-backdrop pattern). All 22 close buttons at 32×32 |
+| **Icons** | **None.** 43 icon imports, **all 43** from `@heroicons/react/24/outline` — 0 solid, 0 `/20` or `/16`, 0 lucide / react-icons / fontawesome / material. 2,206 runtime `<svg>` across 19 routes: 2,197 on the Heroicon `0 0 24 24` viewBox; the 9 others are all `class="recharts-surface"` chart and legend SVGs on `/reports` — the documented non-bug. 0 foreign icon classes on any route. | N/A — clean |
+| **Buttons** | **No inconsistency.** Per-route distinct signatures 8–16 and distinct radii 3–7 — the established deliberate spread (primary / secondary / icon-only / pill filter / segmented group). Radii use an intentional **elliptical squircle scale** (10/8, 14/12, 20/18 px across 81 JSX + 8 CSS sites) approximating iOS 26 Liquid Glass. Investigated and cleared. | N/A — clean |
+| **Toolbars / headers** | **Consistent across pages.** `.topbar.glass` measures exactly **56px on 19/19** routes; a correct `<h1>` is present on 19/19. | N/A — clean |
+| **Sidebar / nav** | **Consistent.** 22 buttons / 22 icons / 0 anchors on 19/19 (19 nav items + 3 collapsible group headers: JOBS, FINANCE, OPERATIONS). Item heights 42px for nav items, 21–22px for group headers. Exactly one `.is-active` on **18/19**. | N/A — clean. The 19th is `/alerts`, the known orphan route (below) |
+| **Forms** | **No non-standard elements.** **0 native `<select>` and 0 native `input[type=date\|time\|datetime-local]`** on all 19 routes *and* 0 in source — `CustomSelect` / `DatePicker` used throughout. 22 inputs lack `.form-input`; all 22 are accounted for: the TopBar ⌘K search (own `.topbar__search` styling including its own `::placeholder` rule), `.address-search__input` on `/storm-map`, and 2 × 26px inputs on `/alerts` that are the inner field of a segmented numeric stepper (`AlertSettings.jsx:311`) whose wrapper carries the radius — the same deliberate wrapper-carries-the-radius pattern already documented twice. | N/A — clean |
+| **Spacing / alignment** | **No issues.** Distinct `.glass` padding values per route 2–6; glass element counts stable (2 on `/admin` → 202 on `/storm-catalog`). **0 horizontal overflow** (`scrollWidth - clientWidth === 0`) on 19/19. | N/A — clean |
+| **Modals** | **All consistent.** Overlays at rest (`.modal-backdrop`, `[role=dialog]`, `.slide-over`) = **0 on 19/19** — no stray or leaked overlay on any route. Modal *interiors* were swept in a prior run (2 defects fixed then) and were not re-opened. | N/A — clean |
+| **NEW — UA-rendered surfaces** | **1 defect.** `color-scheme` was declared on only three scoped selectors (`index.css:2329`, `:2346`, `:4208`), so the computed value at `:root` and on `body` was `normal`. On a light-mode OS Chrome painted every UA-owned surface light — visibly, autofilled `.form-input` fields on `/login`, `/register` and `/onboarding` rendered as a light box inside the dark glass card. There is no `:-webkit-autofill` treatment anywhere in the codebase (0 rules). | **YES — `15bd0e5`** |
 
-### Two open UI leads swept and closed
-
-Both remaining named leads in the UI charter were closed this run:
-
-- **Tailwind-utilities layer** — 13 routes / 409 candidate elements / **322 probes**.
-  The `utilities` layer genuinely beats `@layer base` at any specificity, but it fires in
-  exactly three places and **all three are intended**: arbitrary-value utilities over the
-  global button reset (`index.css:91`, a reset that exists to be overridden), the
-  documented `!gap-0`/`pb-0` sites, and `sticky` over `.glass`. **0 kills.**
-- **mapbox-gl / Google Maps unlayered vendor layer** — 2 map routes / 212 candidates /
-  **1,622 probes** / 277 vendor elements. Report-only by charter (map code is off-limits).
-  All 4 app rules targeting vendor selectors are alive; the only vendor-side hits are
-  Google Maps styling its own controls. **0 kills. Nothing was changed.**
-
-### 🏁 The UI charter is now exhausted
-
-Audits 1–7 have converged for **16 consecutive runs**. Every static dimension and every
-interaction state is now measured and closed: `:focus-visible` (R92), `:hover`/`:active`
-(R94), inline-vs-state (R98/R101), `!important` (R102), layer order (R106), and Tailwind +
-unlayered vendor (R112). **There is no remaining named open lead.** The whole of Audits
-1–7 now costs a single tool call. Recommendation: run it as a cheap regression check and
-reassign the rest of the s3 budget.
-
-### All three "findings" were bugs in the harness, not the app
-
-Consistent with the standing lesson on this codebase — a finding is more often a bad check
-than a broken app. Recorded so the next run does not repeat them:
-
-1. A probe that sets `transition: none !important` before reading **cannot then audit
-   `transition`** — the "before" value is the probe's own `none`, so every transition
-   declaration scores dead. 5 false hits. Fix: exclude `/^transition/`.
-2. A flat `/([^{}]+)\{([^{}]*)\}/g` rule regex **hoists `@media` rules out of their query**.
-   `index.css` has exactly one `@media` block (`max-width:768px`, line 3489), all mobile,
-   so every rule in it "fails" at desktop width — 4 false positives made convincing by the
-   app selectors having *higher* specificity than the utilities they "lost" to.
-3. **Re-asserting a shorthand clobbers a longhand declared after it in the same block**
-   (`body` `:83-87`, `.sidebar__user` `:399-403`), so correct authored code scores dead.
+The 14-surface UA sweep (autofill, native control chrome, select popups, date pickers,
+checkbox, radio, range, file button, search cancel, progress/meter, scrollbars,
+`::placeholder`, caret, `::selection`) found autofill to be **the only uncovered surface**.
+Everything else is either custom-styled or absent from the app. **Dimension exhausted and
+closed.**
 
 ---
 
 ## Bugs Fixed
 
-1. **`PATCH`/`POST /api/crm/automations` + `/api/crm/drip-sequences`** — *A non-object
-   `trigger_config` made automations fire on **every** event.* The routes accepted a
-   string, number, boolean, array or null for `trigger_config`/`action_config` and
-   answered `200`, storing the scalar in the jsonb column. Nothing crashed — a
-   named-property read on a scalar yields `undefined` rather than throwing — so
-   `matchesConditions()` and `matchesDripConditions()` saw `undefined` for every guard and
-   fell through to `return true`. An automation filtered to `{toStage:'sold'}` fired on
-   **all** stage changes, creating tasks, changing stages, sending emails and posting
-   notifications it was configured not to send. `|| {}` did not catch it: that guards
-   *falsy* values only.
-   **Fixed** at both halves — write path rejects non-objects with `400` via a new
-   `isPlainObject()` util at all four write sites; read path fails closed and logs a
-   warning. `null`/`undefined` and `{}` keep their documented match-all meaning.
-   Verified by firing real triggers and counting rows: pre-fix 5/5 scalar configs
-   over-fired, post-fix automations 8/8 and drip 7/7 PASS. — **`c30d968`**
+1. **[API — `PATCH /api/estimates/:id` and `POST /api/estimates`]** — *`discounts`,
+   `signers` and `deposit` accepted a string, number or object behind a 200.*
+   `estimateService.js` stringifies all three into `jsonb` columns, and `jsonb` stores
+   whatever shape it is handed — unlike a `text[]` or `numeric` column there is no cast to
+   fail, so nothing rejected the write. The junk surfaces later as a render crash in the
+   estimate builder. Root cause: the route's `JSON_ARRAY_FIELDS` / `JSON_OBJECT_FIELDS`
+   lists did not cover every name in `estimateService.js`'s `jsonFields` (`:195-197`).
+   **Fixed** by adding `discounts` and `signers` to `JSON_ARRAY_FIELDS` and `deposit` to
+   `JSON_OBJECT_FIELDS`, with a comment binding the two lists to the service's list so they
+   cannot drift apart again. → **`f7bb323`** · verified in this stage: **45/45 probes pass**,
+   on create as well as update.
 
-2. **`PATCH /api/crm/drip-sequences/:id`** — *A non-array `steps` value silently destroyed
-   the sequence's real steps.* `steps: "abcd"` returned `200`, `DELETE`d the sequence's
-   three real steps (11d send_email / 22d create_task / 33d send_sms) and replaced them
-   with four defaulted junk steps. **Data loss behind a success response.** Two guards
-   missed it from opposite sides: the route's `Array.isArray(steps) && steps.some(...)`
-   validates arrays but *skips* every other type, while `updateSequence()` replaces steps
-   on `data.steps !== undefined` and `DELETE`s before rebuilding with an index loop — and
-   a string has a `.length` and indexes like an array. Same root shape on `POST` via
-   `!steps?.length`, which is not an array check: `steps:"abcd"` and `steps:{length:2}`
-   `500`'d, while `steps:['a']`/`[7]` silently created a defaulted row.
-   **Fixed** at both halves — the route requires a non-empty array and rejects non-object
-   elements; the service keys its step branches on `Array.isArray`. Verified live with
-   before/after DB reads: the destructive `PATCH` now `400`s and the 3 real steps are
-   byte-identical afterwards; `steps: []` still clears and an omitted `steps` still leaves
-   rows untouched. — **`60f83f2`**
+2. **[UI — app-wide; visible on `/login`, `/register`, `/onboarding`]** — *the root
+   `color-scheme` was never declared, so the browser painted its own surfaces light.*
+   Autofilled credential fields rendered light-on-dark inside the dark glass card — on the
+   first screen a returning user sees. **Fixed** with `:root { color-scheme: dark; }` in
+   `@layer base`, the same layer as the three pre-existing scoped declarations. Measured
+   before and after in one browser session: root/body computed `colorScheme` `normal` →
+   `dark`; a bare native input flipped `rgb(255,255,255)`/`rgb(0,0,0)` →
+   `rgb(59,59,59)`/`rgb(255,255,255)`; app `.form-input` background, colour, height and
+   `backdrop-filter` **unchanged** (glass preserved); the 19-route sweep identical to the
+   pre-fix baseline. `color-scheme` affects painting only, never geometry — no layout risk.
+   → **`15bd0e5`**
 
-**Note on how bug 2 was found:** it was in the *new code shipped by bug 1's own fix*.
-`c30d968` added an `Array.isArray(steps) && ...` guard to the PATCH route; s4 probed that
-guard rather than trusting it, and found it skipped every non-array type. This is the
-strongest argument for keeping the verify stage adversarial toward the same night's fixes.
+The third commit, **`6479d9e`**, is not a fix: it carries five API test harnesses
+(`server/.qa-r114-*.mjs`) that s1 left untracked when it hit the turn cap.
 
 ---
 
 ## Known Issues (Not Fixed)
 
-| # | Issue | Why not fixed |
-|---|---|---|
-| 1 | ⚠️ **No error boundary anywhere in the SPA.** A single bad value white-screens the entire app — sidebar and header included. The amplifier behind four defects (Runs 68, 105, 109 and 2026-08-30's). | Highest-leverage backlog item, but it is an **enhancement**, not a fix — developer's call |
-| 2 | **Generic error toasts discard the server's message — 64 sites** vs 22 that surface it. `InvoicesView.jsx:566` shows "Failed to save invoice" when the server said `lead_id is required`; the correct idiom is 26 lines below at `:592`. | App-wide convention change — developer's call |
-| 3 | **Form-label drift — 7 distinct treatments.** Real and measured; 8th run deferred. | Converting ~100 inline labels is a refactor, outside the QA charter |
-| 4 | **`/alerts` is an orphan route** — nothing links to it; duplicated under Settings → Storm Alerts. Shows 0 active nav links. | Retiring vs. linking it is a design decision |
-| 5 | **`EstimatesView.jsx:1318`** uses the `|| []` idiom on a mapped value. | Measured and deliberately not fixed — guarding it means `Array.isArray`-ing every `.map()` in the client |
-| 6 | **DB junk rows, all rendering safely:** `qa_options_probe` (both consumers `Array.isArray`-guarded) and 64 subcontractors including rows named `{"$eq":1}` / `{"foo":"bar"}`. | The hygiene sweep matches `'QA-R9%'`, which none of these match. Needs developer go-ahead to delete |
-| 7 | **Housekeeping:** 361 QA screenshots committed in the repo root (none added tonight); dead `quickFilters`/`applyQuickFilter` (`LeadList.jsx:62`,`:346`); dead CSS `index.css:959`; stray 0-byte `server/=`. | Cosmetic; no functional impact |
-| 8 | **`.qa-r91-neverrun.mjs` has still never been run — 12 nights.** | Carried forward each run |
+**Developer decisions — outside the QA charter to change unilaterally:**
 
-**Resolved this run:** `C:/tmp/qa-token.txt` had been stale for 3 runs and was 401'ing
-every harness request. s4 refreshed it at 05:52. The next s1 no longer needs to mint a
-token first.
+- **No error boundary anywhere in the SPA.** The amplifier behind four past defects: any
+  single component throw takes the whole app to a white screen instead of one broken panel.
+  Highest-leverage backlog item, but an enhancement rather than a bug fix.
+- **64 generic error toasts discard the server's actionable message** — against 22 sites
+  that surface it. Compare `InvoicesView.jsx:566` with the correct idiom at `:592`. An
+  app-wide convention change.
+- **Form-label drift — 7 treatments, ~100 inline labels.** Carried for the 10th run. A
+  refactor, not a defect.
+- **`/alerts` is an orphan route** — nothing in the nav links to it (0 `.is-active`) and it
+  is duplicated under Settings → Storm Alerts. Add a nav entry or retire it.
+- **`EstimatesView.jsx:1318`** — measured and deliberately not fixed; guarding it means
+  `Array.isArray`-ing every `.map()` in the client.
+
+**DB hygiene — verified directly against the database in this stage (06:11). All
+pre-existing; none created tonight.**
+
+- **30 of 64 subcontractors carry JSON-literal names**, user-visible on `/subcontractors`:
+  `{"1","2","3"}` ×15, `{"$eq":1}` ×14, `{"deep":[1,null]}` ×1. Created between 2026-04-09
+  and 2026-07-27 by earlier fuzz probes. The standing hygiene sweep matches `'QA-R9%'`,
+  which none of them match. Needs a go-ahead to delete.
+- **`canvass_territories` holds one row named `12345`** (created 2026-08-20), visible in
+  Manage Territories.
+- **Estimate EST-082 carries a stray QA signer** — `s4signer@example.com` /
+  "S4First S4Last", last touched **2026-08-21**. **Newly identified this run**, not
+  previously tracked. It is a well-formed array element, so nothing breaks; it is data junk.
+- **✅ Resolved this run:** the `qa_options_probe` custom field that held a **string** in a
+  `jsonb options` column — left by a 2026-08-05 probe, before the guard at `crm.js:1160`
+  existed — has been removed; `custom_field_definitions` is now empty (0 rows). *Caveat: no
+  pre-cleanup row count was recorded, so I can confirm the junk row is gone but cannot prove
+  nothing else was removed with it.*
+- **Shape audit is clean:** 0 non-container `jsonb` values remain in `estimates`,
+  `invoices`, `work_orders`, `contracts`, `leads` or `custom_field_definitions`. Every row
+  the type-confusion probes touched was verified restored.
+
+**Housekeeping:**
+
+- **361 QA screenshots committed to the repo root.** Zero added tonight — both s2 and s3
+  wrote theirs to `C:/tmp` instead.
+- **`server/.qa-r91-neverrun.mjs` has still never been run — 14 nights.**
+- `tenants.updated_at` moved 2026-08-31 → 2026-09-01 inside s1's window: a tenant-singleton
+  `PATCH` bumps `updated_at` even when the body sets no column. Cosmetic, **not** filed as a
+  defect — but it means "0 writes" above means "0 rows added", not "no row touched".
 
 ---
 
 ## Test Coverage Gaps
 
-1. ⚠️ **The entire frontend functional charter is unmeasured for this date.** 14 pages and
-   12 Settings tabs. s2 capped at `max_turns` with no artifact and no commits. This is the
-   single largest gap in the run.
-2. ⚠️ **s4's own report is incomplete.** `C:/tmp/s4-verify-results.txt` §3 "Edge cases /
-   regression sweep" is a placeholder reading *"see section appended below"* — the section
-   was never written, because s4 capped. The regression sweep may or may not have run;
-   there is no evidence either way, so it is treated here as **not performed**.
-3. ⚠️ **s1 wrote no API report.** All API numbers above were reconstructed from raw
-   harness JSON that s1 never read. Second consecutive run with this pattern.
-4. **24 of 272 routes were never exercised** (198 of 272 paths reached). 18 are excluded
-   by design as side-effecting; 4 are structurally unexercisable (`counties` and
-   `material_products` tables absent — `42P01`; `contracts.public_token` and
-   `leads.status_token` are not columns — `42703`).
-5. **Estimate / invoice / contract *builder* detail response shapes are still unswept.**
-   The detail-level shape sweep has reached `/work-orders` only. Named as open for the
-   third run.
-6. **`/canvassing` pin drop not exercised** — costs a DB write plus a paid geocode.
-7. **`/content-studio` and `/leads/:id` are in no sweep**, static or functional.
-8. **Sidebar collapse/expand not re-driven** this run (last verified Run 83).
-9. **No screenshots taken**, by choice.
+- **s4-verify produced no artifact.** It capped at 41 turns having written three harnesses
+  (`s4-guard-probe.sh`, `s4-positive.mjs`, `s4-jsonb-semantics.mjs`) but no results file.
+  **I ran its guard probe myself in this stage — 45/45 pass** — so Bug 1 is independently
+  verified. What remains unverified is s4's **positive-path** test: that a *legitimate*
+  `discounts` / `signers` / `deposit` payload is stored verbatim after the guard. The guard
+  probe proves valid shapes pass validation (they reach the 404), and `f7bb323` touches only
+  the validator, not the write path — but end-to-end storage was not re-measured. Not run
+  here because it writes to a real row, against the standing minimize-writes rule.
+- **s4's jsonb-merge semantics probe never ran** (`server/.qa-r116-s4-jsonbsem.mjs`,
+  untracked). It asks whether an unguarded `COALESCE(col,'{}') || $n::jsonb` column can be
+  *corrupted* or merely errors — the generalisation of tonight's defect to every other
+  jsonb-merge write site. Open lead.
+- **s1 never filled in §5 of its own artifact.** The API section above was reconstructed
+  from raw JSON that s1 wrote and never read (`C:/tmp/qa-r114-*.json`). **Third consecutive
+  run with this pattern.**
+- **24 of 272 routes were never exercised:** 18 excluded by design (side-effecting — real
+  sends, payments, geocodes), 4 structurally unexercisable (`counties` and
+  `material_products` tables absent, `42P01`; `contracts.public_token` and
+  `leads.status_token` are not columns, `42703`), 2 excluded per phase.
+- **The 3 public `:token` routes** (contract signing, estimate signing, lead status) were
+  not driven under interaction — they need a valid token the schema cannot currently issue.
+- **Settings write paths were stubbed, not committed.** All 15 tabs render and all 8 probed
+  controls open, but every create form was measured *open*, not *submitted*, and the one
+  toggle that fires a `PUT` was intercepted. Whether those writes persist correctly is
+  unmeasured.
+- **`/admin`'s four tabs** are unmeasured beyond the shell — the SPA's dev-bypass
+  `super_admin` does not match a real `admin` token, so the page 403s by design.
+- **`/content-studio` and `/leads/:id`** appear in no sweep, static or functional.
+- **Paid APIs deliberately untouched:** Google Places autocomplete on `/storm-map`, single
+  property geocoding, and canvassing pin saves (which write a row *and* geocode).
+- **No screenshots taken or committed**, by choice — see the 361 already in the repo root.
 
 ---
 
-## DB Hygiene — the "0 writes" claim, scoped honestly
+## Notes for the Next Run
 
-**No table gained rows from QA activity.** Every probe row was deleted and verified:
-`automations`, `drip_sequences`, `drip_sequence_steps` and `drip_enrollments` all
-confirmed empty afterwards; step-row drift 0; `tasks` and `notifications` drift 0.
-
-**But the night was not write-free.** s1's own sweep recorded one drift entry:
-`tenants.max(updated_at)` moved `2026-08-30 05:05:55` → `2026-08-31 05:08:36`, inside s1's
-window — the identity `PUT` probes that return `200`. This is the same drift recorded on
-2026-08-30. Rows were updated, not added.
-
----
-
-## Assessment
-
-The backend is in good shape on the evidence available: 314 sweep requests across 198
-paths with **zero 5xx**, and both defects found were latent — the UI only ever sends
-well-formed values, so neither was reachable through the app today. They matter because
-they are reachable through the API, and one of them destroys data behind a `200`.
-
-The **process**, not the product, is the concern. Three of four stages capped on
-`max_turns`, s1 for the fifth consecutive run, and s2's entire charter produced nothing
-recoverable. Tonight's defect count (2) reflects how much testing actually ran, not how
-much of the app is sound.
-
-**Recurring defect shape — tenth consecutive run:** *a value silently loses its expected
-type, and the failure is invisible at the call site.* The sub-lesson holds and was proven
-twice more tonight: **`|| []` and `|| {}` are not type guards.** They rule out
-`null`/`undefined` only. Triage this shape first.
-
-**Recommendations, in priority order:**
-
-1. **Raise the s1/s2 turn budgets or narrow their charters.** Stage capping is now the
-   dominant failure mode. s2's charter — 14 pages plus 12 Settings tabs plus interactions
-   — is not achievable in 80 turns.
-2. **Require every stage to write its artifact *before* spending its remaining budget.**
-   s3 did this and is the only stage with a complete record; s4 wrote its artifact early
-   but left §3 open and capped before filling it.
-3. **Reassign the s3 slot.** The UI charter is exhausted; Audits 1–7 now cost one tool
-   call.
-4. **Add an error boundary.** Four defects have been amplified from a broken value into a
-   whole-app white screen by its absence.
+1. **Stage capping is still the dominant failure mode, not any individual defect.** Three of
+   four stages capped; s1 has now capped seven runs running. Tonight's defect count reflects
+   how much testing ran, not how much of the app is sound. Either raise the s1/s4 turn
+   budgets or narrow their charters.
+2. **s2's success is the template.** It was the only stage to finish, and it did so on the
+   widest charter, by writing its artifact incrementally and using **one aggregating browser
+   call per dimension** rather than one call per route.
+3. **The silent-type-loss streak is broken on the frontend but not the backend.** Tonight's
+   backend defect is that same shape for the eleventh consecutive run: a value silently
+   loses its expected type and the failure is invisible at the call site. Triage this shape
+   first. `|| []` and `|| {}` are **not** type guards — they rule out `null` and `undefined`
+   only.
+4. **Reassign the s3 slot.** The UI charter is exhausted: Audits 1–7 now cost 2 tool calls
+   and have converged 17 runs in a row. Run them as a regression check and spend the rest of
+   that budget on a new dimension.
+5. **Access tokens live 15 minutes.** A session inherited from a previous stage will still
+   render the dashboard shell from cached `localStorage.user` while every request 401s.
+   Check an actual API status before trusting a session. Mint per stage and inject both
+   token and refresh token (keys: `token`, `refreshToken`, `user` — *not* `accessToken`).
+6. **Playwright MCP cannot write outside the repo** — a `C:\tmp` target fails *and the
+   evaluate result is lost*. Return results inline and compact.
+7. **Estimates are mounted at `/api/estimates`, not `/api/crm/estimates`**
+   (`routes/index.js:62` versus `:57`/`:60`). A probe on the `/api/crm/` path 404s on every
+   case and reads as "fully guarded" — this trap hid tonight's defect from earlier runs.
+8. **`leads.tags` is `text[]`, not `jsonb`.** A `JSON.stringify`-based restore hands pg the
+   string `"[]"` and throws `22P02`, aborting the harness *after* it has mutated the row.
+   Read `pg_typeof` first. Cost a manual DB restore this run.
+9. **Give map routes ≥4s before measuring** — at 2.2s Google's own "Sorry, we have no
+   imagery here." sits in `main.innerText` and reads as an app failure.
+10. **Drift baseline for the next run:** the `docs: QA report 2026-09-01` commit — HEAD after
+    this entry.
