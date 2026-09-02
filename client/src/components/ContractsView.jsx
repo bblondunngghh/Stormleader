@@ -208,7 +208,9 @@ export default function ContractsView() {
                 <tr><td colSpan={6} style={{ textAlign: 'center', padding: 'var(--space-3xl)', color: 'var(--text-muted)' }}>Loading...</td></tr>
               ) : contracts.length === 0 ? (
                 <tr><td colSpan={6} style={{ textAlign: 'center', padding: 'var(--space-3xl)', color: 'var(--text-muted)' }}>
-                  No contracts yet — create your first one
+                  {statusFilter
+                    ? 'No contracts match this filter'
+                    : 'No contracts yet — create your first one'}
                 </td></tr>
               ) : contracts.map(c => (
                 <tr key={c.id}>

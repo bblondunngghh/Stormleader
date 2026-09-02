@@ -356,7 +356,9 @@ export default function ExpensesView() {
                 <tr><td colSpan={6} style={{ textAlign: 'center', padding: 'var(--space-3xl)', color: 'var(--text-muted)' }}>Loading...</td></tr>
               ) : expenses.length === 0 ? (
                 <tr><td colSpan={6} style={{ textAlign: 'center', padding: 'var(--space-3xl)', color: 'var(--text-muted)' }}>
-                  No expenses yet — add your first one
+                  {(categoryFilter || startDate || endDate)
+                    ? 'No expenses match these filters'
+                    : 'No expenses yet — add your first one'}
                 </td></tr>
               ) : expenses.map(exp => (
                 <tr key={exp.id}>
