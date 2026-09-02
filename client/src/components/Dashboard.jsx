@@ -1722,7 +1722,7 @@ export default function Dashboard() {
       {staleLeads.length > 0 && (
         <Panel
           title={<><ExclamationTriangleIcon style={{ width: 16, height: 16, color: 'var(--accent-amber)' }} /> Stale Leads</>}
-          action={() => navigate('/leads?sort=updated_at')}
+          action={() => navigate('/leads?sort_by=updated_at&sort_dir=ASC')}
           actionLabel="View All"
         >
           <div className="flex flex-col gap-1">
