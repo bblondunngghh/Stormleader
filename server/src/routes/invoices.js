@@ -15,8 +15,13 @@ router.use(tenantScope);
 // fail, so nothing rejects the write — a string or a number silently REPLACES the
 // invoice's line items while total/subtotal keep their old values. Same guard as
 // estimates.js:20, which already rejected these shapes; invoices did not.
+// `null` was exempted here, but JSON.stringify(null) is the string "null", which
+// JSONB stores as a *jsonb null* — not a SQL NULL. That satisfies the column's
+// NOT NULL constraint, so `{"line_items": null}` answered 200 and silently wiped
+// the invoice's line items while subtotal/total kept their old values. Rejecting
+// null is what the NOT NULL column already meant; the client never sends it.
 function validateJsonShapes(body) {
-  if (body.line_items !== undefined && body.line_items !== null && !Array.isArray(body.line_items)) {
+  if (body.line_items !== undefined && !Array.isArray(body.line_items)) {
     return 'line_items must be an array';
   }
   return null;

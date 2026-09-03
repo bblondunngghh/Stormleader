@@ -21,15 +21,27 @@ const router = Router();
 const JSON_ARRAY_FIELDS = ['line_items', 'financing_plan_ids', 'upgrades', 'discounts', 'signers'];
 const JSON_OBJECT_FIELDS = ['insurance_details', 'deposit'];
 
+// `deposit` is the ONE nullable column of the seven, and EstimatesView.jsx:1582
+// deliberately sends `deposit: depositEnabled ? deposit : null` to clear it — so
+// null stays legal there. The other six columns are NOT NULL, and null was slipping
+// past this guard: JSON.stringify(null) is the string "null", which JSONB stores as
+// a *jsonb null* rather than a SQL NULL, satisfying the constraint while silently
+// wiping the column behind a 200. Note the object branch needs an explicit null
+// test — `typeof null` is 'object', so null passes `typeof v !== 'object'` alone.
+const JSON_NULLABLE_FIELDS = new Set(['deposit']);
+
 function validateJsonShapes(body) {
   for (const f of JSON_ARRAY_FIELDS) {
-    if (body[f] !== undefined && body[f] !== null && !Array.isArray(body[f])) {
-      return `${f} must be an array`;
-    }
+    const v = body[f];
+    if (v === undefined) continue;
+    if (v === null && JSON_NULLABLE_FIELDS.has(f)) continue;
+    if (!Array.isArray(v)) return `${f} must be an array`;
   }
   for (const f of JSON_OBJECT_FIELDS) {
     const v = body[f];
-    if (v !== undefined && v !== null && (typeof v !== 'object' || Array.isArray(v))) {
+    if (v === undefined) continue;
+    if (v === null && JSON_NULLABLE_FIELDS.has(f)) continue;
+    if (v === null || typeof v !== 'object' || Array.isArray(v)) {
       return `${f} must be an object`;
     }
   }

@@ -15,8 +15,12 @@ router.use(tenantScope);
 // fail, so nothing rejects the write — a string or a number silently REPLACES the
 // work order's line items and the PDF then renders none. Same guard as
 // estimates.js:20, which already rejected these shapes; work orders did not.
+// `null` was exempted here, but JSON.stringify(null) is the string "null", which
+// JSONB stores as a *jsonb null* rather than a SQL NULL — so it slipped past the
+// guard and silently replaced the work order's line items behind a 200, exactly the
+// shape this guard was added to stop. Same fix as invoices.js:19.
 function validateJsonShapes(body) {
-  if (body.line_items !== undefined && body.line_items !== null && !Array.isArray(body.line_items)) {
+  if (body.line_items !== undefined && !Array.isArray(body.line_items)) {
     return 'line_items must be an array';
   }
   return null;
