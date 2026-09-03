@@ -22,6 +22,7 @@ const priorityLabels = {
 export default function TasksView() {
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 768); useEffect(() => { const mq = window.matchMedia('(max-width: 768px)'); const h = (e) => setIsMobile(e.matches); mq.addEventListener('change', h); return () => mq.removeEventListener('change', h); }, []);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [filter, setFilter] = useState('pending'); // pending | completed | all
   const [showCreate, setShowCreate] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
@@ -34,8 +35,10 @@ export default function TasksView() {
     try {
       const res = await getTasks({ limit: 200 });
       setAllTasks(res.data.tasks || []);
+      setLoadError(false);
     } catch {
-      // keep existing
+      // keep existing rows, but do not claim the list is empty
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -368,8 +371,8 @@ export default function TasksView() {
         ) : tasks.length === 0 ? (
           <div className="empty-state">
             <ClipboardDocumentListIcon className="empty-state__icon" />
-            <div className="empty-state__title">{filter === 'completed' ? 'No completed tasks' : 'No tasks yet'}</div>
-            <div className="empty-state__desc">{filter === 'completed' ? 'Complete a task and it will appear here' : 'Create your first task to start tracking your work'}</div>
+            <div className="empty-state__title">{loadError ? "Couldn't load tasks" : filter === 'completed' ? 'No completed tasks' : 'No tasks yet'}</div>
+            <div className="empty-state__desc">{loadError ? 'Something went wrong. Check your connection and try again.' : filter === 'completed' ? 'Complete a task and it will appear here' : 'Create your first task to start tracking your work'}</div>
           </div>
         ) : (
           <div className="task-list">

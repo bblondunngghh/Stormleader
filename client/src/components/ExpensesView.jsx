@@ -222,6 +222,7 @@ export default function ExpensesView() {
   const [expenses, setExpenses] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -241,8 +242,10 @@ export default function ExpensesView() {
       const res = await expensesApi.getExpenses(params);
       setExpenses(res.data.expenses || []);
       setTotal(res.data.total || 0);
+      setLoadError(false);
     } catch {
-      // keep existing
+      // keep existing rows, but do not claim the list is empty
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -356,9 +359,11 @@ export default function ExpensesView() {
                 <tr><td colSpan={6} style={{ textAlign: 'center', padding: 'var(--space-3xl)', color: 'var(--text-muted)' }}>Loading...</td></tr>
               ) : expenses.length === 0 ? (
                 <tr><td colSpan={6} style={{ textAlign: 'center', padding: 'var(--space-3xl)', color: 'var(--text-muted)' }}>
-                  {(categoryFilter || startDate || endDate)
-                    ? 'No expenses match these filters'
-                    : 'No expenses yet — add your first one'}
+                  {loadError
+                    ? "Couldn't load expenses — check your connection and try again"
+                    : (categoryFilter || startDate || endDate)
+                      ? 'No expenses match these filters'
+                      : 'No expenses yet — add your first one'}
                 </td></tr>
               ) : expenses.map(exp => (
                 <tr key={exp.id}>

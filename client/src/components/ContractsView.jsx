@@ -41,6 +41,7 @@ function resolveMergeFields(text, data) {
 export default function ContractsView() {
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [statusFilter, setStatusFilter] = useState('');
   const [showBuilder, setShowBuilder] = useState(false);
   const [editingContract, setEditingContract] = useState(null);
@@ -53,8 +54,10 @@ export default function ContractsView() {
       if (statusFilter) params.status = statusFilter;
       const res = await contractsApi.getContracts(params);
       setContracts(Array.isArray(res.data.contracts) ? res.data.contracts : Array.isArray(res.data) ? res.data : []);
+      setLoadError(false);
     } catch {
-      // keep existing
+      // keep existing rows, but do not claim the list is empty
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -208,9 +211,11 @@ export default function ContractsView() {
                 <tr><td colSpan={6} style={{ textAlign: 'center', padding: 'var(--space-3xl)', color: 'var(--text-muted)' }}>Loading...</td></tr>
               ) : contracts.length === 0 ? (
                 <tr><td colSpan={6} style={{ textAlign: 'center', padding: 'var(--space-3xl)', color: 'var(--text-muted)' }}>
-                  {statusFilter
-                    ? 'No contracts match this filter'
-                    : 'No contracts yet — create your first one'}
+                  {loadError
+                    ? "Couldn't load contracts — check your connection and try again"
+                    : statusFilter
+                      ? 'No contracts match this filter'
+                      : 'No contracts yet — create your first one'}
                 </td></tr>
               ) : contracts.map(c => (
                 <tr key={c.id}>

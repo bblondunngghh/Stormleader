@@ -36,6 +36,7 @@ export default function InvoicesView() {
   const [invoices, setInvoices] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [statusFilter, setStatusFilter] = useState('');
   const [editingInvoice, setEditingInvoice] = useState(null);
   const [showBuilder, setShowBuilder] = useState(false);
@@ -49,8 +50,10 @@ export default function InvoicesView() {
       const res = await invoicesApi.getInvoices(params);
       setInvoices(res.data.invoices || []);
       setTotal(res.data.total || 0);
+      setLoadError(false);
     } catch {
-      // keep existing
+      // keep existing rows, but do not claim the list is empty
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -249,12 +252,14 @@ export default function InvoicesView() {
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
                     <IconFileText width={40} height={40} style={{ color: 'var(--text-muted)', opacity: 0.5 }} />
                     <div style={{ color: 'var(--text-primary)', fontSize: 16, fontWeight: 600 }}>
-                      {statusFilter ? 'No invoices match this filter' : 'No invoices yet'}
+                      {loadError ? "Couldn't load invoices" : statusFilter ? 'No invoices match this filter' : 'No invoices yet'}
                     </div>
                     <div style={{ color: 'var(--text-muted)', fontSize: 13, maxWidth: 320 }}>
-                      {statusFilter
-                        ? 'Try a different status, or clear the filter to see all invoices.'
-                        : 'Create your first invoice to start tracking payments.'}
+                      {loadError
+                        ? 'Something went wrong. Check your connection and try again.'
+                        : statusFilter
+                          ? 'Try a different status, or clear the filter to see all invoices.'
+                          : 'Create your first invoice to start tracking payments.'}
                     </div>
                     <button className="auth-btn" onClick={handleNew} style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                       <IconPlusCircle style={{ width: 14, height: 14 }} /> New Invoice

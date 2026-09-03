@@ -108,6 +108,7 @@ export default function LeadList() {
   const [leads, setLeads] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [selectedLead, setSelectedLead] = useState(routeLeadId ? { id: routeLeadId } : null);
 
   useEffect(() => {
@@ -221,8 +222,10 @@ export default function LeadList() {
       const res = await getLeads(params);
       setLeads(res.data.leads || []);
       setTotal(res.data.total || 0);
+      setLoadError(false);
     } catch {
-      // Keep existing data on error
+      // Keep existing data on error, but do not claim the list is empty
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -630,11 +633,15 @@ export default function LeadList() {
                 <tr><td colSpan={16} style={{ textAlign: 'center', padding: '64px 24px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
                     <IconSearch width={40} height={40} style={{ color: 'var(--text-muted)', opacity: 0.5 }} />
-                    <div style={{ color: 'var(--text-primary)', fontSize: 16, fontWeight: 600 }}>No leads found</div>
+                    <div style={{ color: 'var(--text-primary)', fontSize: 16, fontWeight: 600 }}>
+                      {loadError ? "Couldn't load leads" : 'No leads found'}
+                    </div>
                     <div style={{ color: 'var(--text-muted)', fontSize: 13, maxWidth: 320 }}>
-                      {search || stageFilter || sourceFilter || priorityFilter || scoreFilter || repFilter
-                        ? 'Try adjusting your filters or search terms.'
-                        : 'Generate leads from the Storm Map or add them manually from the Pipeline view.'}
+                      {loadError
+                        ? 'Something went wrong. Check your connection and try again.'
+                        : search || stageFilter || sourceFilter || priorityFilter || scoreFilter || repFilter
+                          ? 'Try adjusting your filters or search terms.'
+                          : 'Generate leads from the Storm Map or add them manually from the Pipeline view.'}
                     </div>
                   </div>
                 </td></tr>

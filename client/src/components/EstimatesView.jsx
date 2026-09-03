@@ -52,6 +52,7 @@ export default function EstimatesView() {
   const [total, setTotal] = useState(0);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [statusFilter, setStatusFilter] = useState('');
   const [editingEstimate, setEditingEstimate] = useState(null);
   const [showBuilder, setShowBuilder] = useState(false);
@@ -66,8 +67,10 @@ export default function EstimatesView() {
       setEstimates(res.data.estimates || []);
       setTotal(res.data.total || 0);
       setStats(res.data.stats || null);
+      setLoadError(false);
     } catch {
-      // keep existing
+      // keep existing rows, but do not claim the list is empty
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -361,9 +364,11 @@ export default function EstimatesView() {
               <div style={{
                 background: 'oklch(0.10 0.02 260)', borderRadius: 12, padding: 40,
                 textAlign: 'center', color: 'var(--text-secondary)', fontSize: 14,
-              }}>{statusFilter
-                ? 'No estimates match this filter'
-                : 'No estimates yet — create your first one'}</div>
+              }}>{loadError
+                ? "Couldn't load estimates — check your connection and try again"
+                : statusFilter
+                  ? 'No estimates match this filter'
+                  : 'No estimates yet — create your first one'}</div>
             ) : estimates.map(est => {
               const sColor = mobileStatusColor(est.status);
               return (
@@ -624,9 +629,11 @@ export default function EstimatesView() {
                 <tr><td colSpan={7} style={{ textAlign: 'center', padding: 'var(--space-3xl)', color: 'var(--text-muted)' }}>Loading...</td></tr>
               ) : estimates.length === 0 ? (
                 <tr><td colSpan={7} style={{ textAlign: 'center', padding: 'var(--space-3xl)', color: 'var(--text-muted)' }}>
-                  {statusFilter
-                    ? 'No estimates match this filter'
-                    : 'No estimates yet — create your first one'}
+                  {loadError
+                    ? "Couldn't load estimates — check your connection and try again"
+                    : statusFilter
+                      ? 'No estimates match this filter'
+                      : 'No estimates yet — create your first one'}
                 </td></tr>
               ) : estimates.map(est => (
                 <tr key={est.id}>
