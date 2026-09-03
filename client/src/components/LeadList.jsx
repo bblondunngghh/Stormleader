@@ -632,7 +632,7 @@ export default function LeadList() {
                     <IconSearch width={40} height={40} style={{ color: 'var(--text-muted)', opacity: 0.5 }} />
                     <div style={{ color: 'var(--text-primary)', fontSize: 16, fontWeight: 600 }}>No leads found</div>
                     <div style={{ color: 'var(--text-muted)', fontSize: 13, maxWidth: 320 }}>
-                      {search || stageFilter || sourceFilter || priorityFilter
+                      {search || stageFilter || sourceFilter || priorityFilter || scoreFilter || repFilter
                         ? 'Try adjusting your filters or search terms.'
                         : 'Generate leads from the Storm Map or add them manually from the Pipeline view.'}
                     </div>
