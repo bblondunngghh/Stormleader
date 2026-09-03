@@ -1,0 +1,524 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - img "StormPipe" [ref=e6] [cursor=pointer]
+    - navigation [ref=e7]:
+      - button "Dashboard" [ref=e8] [cursor=pointer]:
+        - img [ref=e9]
+        - text: Dashboard
+      - button "Storm Map" [ref=e11] [cursor=pointer]:
+        - img [ref=e12]
+        - text: Storm Map
+      - button "Storm Archive" [ref=e14] [cursor=pointer]:
+        - img [ref=e15]
+        - text: Storm Archive
+      - button "Pipeline" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - text: Pipeline
+      - button "Leads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+        - text: Leads
+      - button "Jobs" [ref=e24] [cursor=pointer]:
+        - text: Jobs
+        - img [ref=e25]
+      - button "Finance" [ref=e28] [cursor=pointer]:
+        - text: Finance
+        - img [ref=e29]
+      - button "Operations" [ref=e32] [cursor=pointer]:
+        - text: Operations
+        - img [ref=e33]
+    - button "Settings" [ref=e35] [cursor=pointer]:
+      - img [ref=e36]
+      - text: Settings
+    - button "Admin" [ref=e38] [cursor=pointer]:
+      - img [ref=e39]
+      - text: Admin
+    - generic [ref=e41]:
+      - generic [ref=e42]: BA
+      - generic [ref=e43]:
+        - generic [ref=e44]: Brandon A.
+        - generic [ref=e45]: Super Admin
+      - button "Sign out" [ref=e46] [cursor=pointer]:
+        - img [ref=e47]
+  - generic [ref=e49]:
+    - banner [ref=e50]:
+      - heading "Dashboard" [level=1] [ref=e51]
+      - generic [ref=e52]:
+        - img
+        - textbox "Search leads, contacts... (Ctrl+K)" [ref=e53]
+      - generic [ref=e54]:
+        - button "Help" [ref=e56] [cursor=pointer]:
+          - img [ref=e57]
+        - button "Notifications" [ref=e60] [cursor=pointer]:
+          - img [ref=e61]
+        - button "enterprise" [ref=e63] [cursor=pointer]:
+          - img [ref=e64]
+          - generic [ref=e66]: enterprise
+    - generic [ref=e67]:
+      - banner [ref=e68]:
+        - generic [ref=e69]:
+          - heading "Good morning, Brandon" [level=2] [ref=e70]
+          - paragraph [ref=e71]: Thursday, September 3
+        - generic [ref=e72]:
+          - generic [ref=e73] [cursor=pointer]:
+            - img [ref=e74]
+            - text: Storm Map
+          - generic [ref=e76] [cursor=pointer]:
+            - img [ref=e77]
+            - text: View Leads
+      - generic [ref=e79]:
+        - button "All Time" [ref=e80] [cursor=pointer]
+        - button "7 Days" [ref=e81] [cursor=pointer]
+        - button "30 Days" [ref=e82] [cursor=pointer]
+        - button "90 Days" [ref=e83] [cursor=pointer]
+        - button "YTD" [ref=e84] [cursor=pointer]
+        - button "All Reps" [ref=e86] [cursor=pointer]:
+          - generic [ref=e87]: All Reps
+          - img [ref=e88]
+        - button "All Sources" [ref=e91] [cursor=pointer]:
+          - generic [ref=e92]: All Sources
+          - img [ref=e93]
+      - generic [ref=e95]:
+        - generic [ref=e96] [cursor=pointer]:
+          - generic "vs previous week" [ref=e97]:
+            - img [ref=e98]
+            - text: +0%
+          - img [ref=e100]
+          - generic [ref=e102]: $15K
+          - generic [ref=e103]: Pipeline Value
+        - generic [ref=e104] [cursor=pointer]:
+          - generic "vs previous week" [ref=e105]:
+            - img [ref=e106]
+            - text: "-1"
+          - img [ref=e108]
+          - generic [ref=e110]: "0"
+          - generic [ref=e111]: New Leads (7d)
+        - generic [ref=e112] [cursor=pointer]:
+          - generic "vs previous week" [ref=e113]: —
+          - img [ref=e114]
+          - generic [ref=e116]: 0%
+          - generic [ref=e117]: Close Rate
+        - generic [ref=e118] [cursor=pointer]:
+          - generic "vs previous week" [ref=e119]: —
+          - img [ref=e120]
+          - generic [ref=e122]: —
+          - generic [ref=e123]: Avg Days to Close
+        - generic [ref=e124] [cursor=pointer]:
+          - generic "Avg response time (30d)" [ref=e125]: —
+          - img [ref=e126]
+          - generic [ref=e128]: —
+          - generic [ref=e129]: Speed to Lead
+      - generic [ref=e130]:
+        - generic [ref=e131]: Set a monthly revenue goal to track progress
+        - button "Set Goal" [ref=e132] [cursor=pointer]
+      - generic [ref=e133]:
+        - generic [ref=e134]:
+          - generic [ref=e135]:
+            - heading "Pipeline" [level=2] [ref=e136]
+            - button "View All" [ref=e137] [cursor=pointer]
+          - generic [ref=e138]:
+            - generic [ref=e139] [cursor=pointer]:
+              - generic [ref=e140]: New
+              - generic [ref=e143]: "9"
+            - generic [ref=e144] [cursor=pointer]:
+              - generic [ref=e145]: Contacted
+              - generic [ref=e148]: "2"
+            - generic [ref=e149] [cursor=pointer]:
+              - generic [ref=e150]: Appt Set
+              - generic [ref=e153]: "1"
+            - generic [ref=e154] [cursor=pointer]:
+              - generic [ref=e155]: Inspected
+              - generic [ref=e158]: "1"
+            - generic [ref=e159] [cursor=pointer]:
+              - generic [ref=e160]: Estimate Sent
+              - generic [ref=e162]: "0"
+            - generic [ref=e163] [cursor=pointer]:
+              - generic [ref=e164]: Negotiating
+              - generic [ref=e166]: "0"
+            - generic [ref=e167] [cursor=pointer]:
+              - generic [ref=e168]: Sold
+              - generic [ref=e170]: "0"
+            - generic [ref=e171] [cursor=pointer]:
+              - generic [ref=e172]: In Production
+              - generic [ref=e174]: "0"
+            - generic [ref=e175] [cursor=pointer]:
+              - generic [ref=e176]: Material Ordered
+              - generic [ref=e178]: "0"
+            - generic [ref=e179] [cursor=pointer]:
+              - generic [ref=e180]: Scheduled
+              - generic [ref=e182]: "0"
+            - generic [ref=e183] [cursor=pointer]:
+              - generic [ref=e184]: Completed
+              - generic [ref=e186]: "0"
+            - generic [ref=e187] [cursor=pointer]:
+              - generic [ref=e188]: Invoiced
+              - generic [ref=e190]: "0"
+            - generic [ref=e191] [cursor=pointer]:
+              - generic [ref=e192]: Paid
+              - generic [ref=e194]: "0"
+            - generic [ref=e195] [cursor=pointer]:
+              - generic [ref=e196]: Collections
+              - generic [ref=e198]: "0"
+        - generic [ref=e199]:
+          - generic [ref=e200]:
+            - heading "Storm Map" [level=2] [ref=e201]
+            - button "Full Map" [ref=e202] [cursor=pointer]
+          - generic [ref=e203]:
+            - region "Map" [ref=e204]
+            - generic:
+              - button "Toggle attribution" [ref=e206] [cursor=pointer]
+              - link "Mapbox homepage" [ref=e209] [cursor=pointer]:
+                - /url: https://www.mapbox.com/
+        - generic [ref=e210]:
+          - heading "Storm Activity 24h 7d 30d" [level=2] [ref=e212]:
+            - generic [ref=e213]:
+              - text: Storm Activity
+              - generic [ref=e214]:
+                - button "24h" [ref=e215] [cursor=pointer]
+                - button "7d" [ref=e216] [cursor=pointer]
+                - button "30d" [ref=e217] [cursor=pointer]
+          - generic [ref=e218]:
+            - generic [ref=e219] [cursor=pointer]:
+              - generic [ref=e220]: Tornado
+              - generic [ref=e221]:
+                - generic [ref=e222]:
+                  - generic [ref=e223]: Montgomery, TX
+                  - generic "2/5 severity" [ref=e224]:
+                    - img [ref=e225]
+                    - img [ref=e227]
+                    - img [ref=e229]
+                    - img [ref=e231]
+                    - img [ref=e233]
+                - generic [ref=e235]: NWS · Extreme
+              - generic [ref=e236]:
+                - generic [ref=e237]: Sep 2
+                - generic [ref=e238]: 7:05 PM
+            - generic [ref=e239] [cursor=pointer]:
+              - generic [ref=e240]: Tornado
+              - generic [ref=e241]:
+                - generic [ref=e242]:
+                  - generic [ref=e243]: Montgomery, TX
+                  - generic "2/5 severity" [ref=e244]:
+                    - img [ref=e245]
+                    - img [ref=e247]
+                    - img [ref=e249]
+                    - img [ref=e251]
+                    - img [ref=e253]
+                - generic [ref=e255]: NWS · Extreme
+              - generic [ref=e256]:
+                - generic [ref=e257]: Sep 2
+                - generic [ref=e258]: 6:56 PM
+            - generic [ref=e259] [cursor=pointer]:
+              - generic [ref=e260]: Tornado
+              - generic [ref=e261]:
+                - generic [ref=e262]:
+                  - generic [ref=e263]: Montgomery, TX
+                  - generic "2/5 severity" [ref=e264]:
+                    - img [ref=e265]
+                    - img [ref=e267]
+                    - img [ref=e269]
+                    - img [ref=e271]
+                    - img [ref=e273]
+                - generic [ref=e275]: NWS · Extreme
+              - generic [ref=e276]:
+                - generic [ref=e277]: Sep 2
+                - generic [ref=e278]: 6:47 PM
+            - generic [ref=e279] [cursor=pointer]:
+              - generic [ref=e280]: Wind
+              - generic [ref=e281]:
+                - generic [ref=e282]:
+                  - generic [ref=e283]: Liberty, TX; Polk, TX; San Jacinto, TX
+                  - generic "1/5 severity" [ref=e284]:
+                    - img [ref=e285]
+                    - img [ref=e287]
+                    - img [ref=e289]
+                    - img [ref=e291]
+                    - img [ref=e293]
+                - generic [ref=e295]: NWS · Severe
+              - generic [ref=e296]:
+                - generic [ref=e297]: Sep 2
+                - generic [ref=e298]: 5:59 PM
+            - generic [ref=e299] [cursor=pointer]:
+              - generic [ref=e300]: Wind
+              - generic [ref=e301]:
+                - generic [ref=e302]:
+                  - generic [ref=e303]: Paisano Pass, TX
+                  - generic "1/5 severity" [ref=e304]:
+                    - img [ref=e305]
+                    - img [ref=e307]
+                    - img [ref=e309]
+                    - img [ref=e311]
+                    - img [ref=e313]
+                - generic [ref=e315]: 63.0 mph · SPC
+              - generic [ref=e316]:
+                - generic [ref=e317]: Sep 2
+                - generic [ref=e318]: 5:57 PM
+            - generic [ref=e319] [cursor=pointer]:
+              - generic [ref=e320]: Wind
+              - generic [ref=e321]:
+                - generic [ref=e322]:
+                  - generic [ref=e323]: Nacogdoches, TX; Sabine, TX; San Augustine, TX
+                  - generic "1/5 severity" [ref=e324]:
+                    - img [ref=e325]
+                    - img [ref=e327]
+                    - img [ref=e329]
+                    - img [ref=e331]
+                    - img [ref=e333]
+                - generic [ref=e335]: NWS · Minor
+              - generic [ref=e336]:
+                - generic [ref=e337]: Sep 2
+                - generic [ref=e338]: 5:53 PM
+            - button "+44 more events" [ref=e339] [cursor=pointer]
+      - generic [ref=e340]:
+        - generic [ref=e341]:
+          - generic [ref=e342]:
+            - heading "Today" [level=2] [ref=e343]:
+              - generic [ref=e344]: Today
+            - button "All Tasks" [ref=e345] [cursor=pointer]
+          - generic [ref=e347]: Nothing scheduled — you're all clear
+        - generic [ref=e348]:
+          - heading "Activity Feed" [level=2] [ref=e350]
+          - region "Activity feed" [ref=e351]:
+            - generic [ref=e352] [cursor=pointer]:
+              - generic [ref=e354]: 10706 LOCH NESS CV AUSTIN 78750 — note logged
+              - generic [ref=e355]: 5/26/2026
+            - generic [ref=e356] [cursor=pointer]:
+              - generic [ref=e358]: 4360 Thomas Court — call logged
+              - generic [ref=e359]: 4/9/2026
+      - generic [ref=e360]:
+        - generic [ref=e361]:
+          - heading "Storm Conversion" [level=2] [ref=e363]
+          - generic [ref=e364]: No conversion data yet
+        - generic [ref=e365]:
+          - generic [ref=e366]:
+            - heading "Estimates" [level=2] [ref=e367]
+            - button "View All" [ref=e368] [cursor=pointer]
+          - generic [ref=e369]:
+            - generic [ref=e370]:
+              - generic [ref=e371]:
+                - generic [ref=e373]: "14"
+                - text: Draft
+              - generic [ref=e374]:
+                - generic [ref=e376]: "0"
+                - text: Sent
+              - generic [ref=e377]:
+                - generic [ref=e379]: "1"
+                - text: Viewed
+              - generic [ref=e380]:
+                - generic [ref=e382]: "0"
+                - text: Accepted
+            - generic [ref=e383]:
+              - generic [ref=e384]:
+                - generic [ref=e385]:
+                  - generic [ref=e386]: Accepted Value
+                  - text: $0
+                - generic [ref=e387]:
+                  - generic [ref=e388]: Pending Value
+                  - text: $0
+              - generic [ref=e389]:
+                - generic [ref=e390]:
+                  - generic [ref=e391]: Declined
+                  - generic [ref=e392]: "1"
+                - generic [ref=e393]:
+                  - generic [ref=e394]: Expired
+                  - generic [ref=e395]: "0"
+      - generic [ref=e396]:
+        - generic [ref=e397]:
+          - heading "Revenue by Lead Source" [level=2] [ref=e398]
+          - button "View Leads" [ref=e399] [cursor=pointer]
+        - generic [ref=e400]:
+          - generic [ref=e401]:
+            - generic [ref=e402]:
+              - generic [ref=e405]: Canvassing
+              - generic [ref=e406]: $0
+            - generic [ref=e409]: 0/2 sold · 0%
+          - generic [ref=e410]:
+            - generic [ref=e411]:
+              - generic [ref=e414]: FEMA NSI
+              - generic [ref=e415]: $0
+            - generic [ref=e418]: 0/6 sold · 0%
+          - generic [ref=e419]:
+            - generic [ref=e420]:
+              - generic [ref=e423]: Storm Map
+              - generic [ref=e424]: $0
+            - generic [ref=e427]: 0/5 sold · 0%
+      - generic [ref=e428]:
+        - generic [ref=e429]:
+          - generic [ref=e430]:
+            - heading "Accounts Receivable" [level=2] [ref=e431]
+            - button "View Invoices" [ref=e432] [cursor=pointer]
+          - generic [ref=e433]:
+            - generic [ref=e434]:
+              - generic [ref=e435]:
+                - generic [ref=e436]: Outstanding
+                - text: $4.4K
+                - generic [ref=e437]: 3 invoices
+              - generic [ref=e438]:
+                - generic [ref=e439]: Overdue
+                - text: $0
+                - generic [ref=e440]: 0 invoices
+            - generic [ref=e441]:
+              - generic [ref=e442]:
+                - generic [ref=e443]: $0
+                - text: 0–30 days
+              - generic [ref=e444]:
+                - generic [ref=e445]: $0
+                - text: 30–60 days
+              - generic [ref=e446]:
+                - generic [ref=e447]: $0
+                - text: 60+ days
+        - generic [ref=e448]:
+          - generic [ref=e449]:
+            - heading "Estimating Conversion" [level=2] [ref=e450]
+            - button "View Estimates" [ref=e451] [cursor=pointer]
+          - generic [ref=e452]:
+            - generic [ref=e453]:
+              - generic [ref=e454]: 0.0%
+              - generic [ref=e455]: Acceptance Rate
+            - generic [ref=e458]:
+              - generic [ref=e459]:
+                - generic [ref=e460]: "2"
+                - text: Sent
+              - generic [ref=e461]:
+                - generic [ref=e462]: "0"
+                - text: Accepted
+              - generic [ref=e463]:
+                - generic [ref=e464]: "1"
+                - text: Declined
+      - generic [ref=e465]:
+        - generic [ref=e466]:
+          - heading "Stale Leads" [level=2] [ref=e467]:
+            - img [ref=e468]
+            - text: Stale Leads
+          - button "View All" [ref=e470] [cursor=pointer]
+        - generic [ref=e471]:
+          - generic [ref=e472] [cursor=pointer]:
+            - generic [ref=e473]: 5d
+            - generic [ref=e474]: TYNES RAYMOND L
+            - generic [ref=e475]: New
+            - button "Contact" [ref=e476]
+          - generic [ref=e477] [cursor=pointer]:
+            - generic [ref=e478]: 5d
+            - generic [ref=e479]: Unknown
+            - generic [ref=e480]: New
+            - button "Contact" [ref=e481]
+          - generic [ref=e482] [cursor=pointer]:
+            - generic [ref=e483]: 5d
+            - generic [ref=e484]: Unknown
+            - generic [ref=e485]: Appt Set
+            - button "Contact" [ref=e486]
+          - generic [ref=e487] [cursor=pointer]:
+            - generic [ref=e488]: 5d
+            - generic [ref=e489]: Unknown
+            - generic [ref=e490]: Inspected
+            - button "Contact" [ref=e491]
+          - generic [ref=e492] [cursor=pointer]:
+            - generic [ref=e493]: 5d
+            - generic [ref=e494]: Unknown
+            - generic [ref=e495]: New
+            - generic [ref=e496]: Miles Martin
+            - button "Contact" [ref=e497]
+          - generic [ref=e498] [cursor=pointer]:
+            - generic [ref=e499]: 5d
+            - generic [ref=e500]: BAISDON HANNAH
+            - generic [ref=e501]: New
+            - button "Contact" [ref=e502]
+          - generic [ref=e503] [cursor=pointer]:
+            - generic [ref=e504]: 5d
+            - generic [ref=e505]: Unknown
+            - generic [ref=e506]: New
+            - button "Contact" [ref=e507]
+          - generic [ref=e508] [cursor=pointer]:
+            - generic [ref=e509]: 5d
+            - generic [ref=e510]: LAWRENCE CHRISTOPHER & AMBER
+            - generic [ref=e511]: New
+            - button "Contact" [ref=e512]
+          - generic [ref=e513] [cursor=pointer]:
+            - generic [ref=e514]: 5d
+            - generic [ref=e515]: Unknown
+            - generic [ref=e516]: Contacted
+            - button "Contact" [ref=e517]
+          - generic [ref=e518] [cursor=pointer]:
+            - generic [ref=e519]: 5d
+            - generic [ref=e520]: Unknown
+            - generic [ref=e521]: New
+            - button "Contact" [ref=e522]
+      - generic [ref=e523]:
+        - generic [ref=e524]:
+          - heading "Days in Stage" [level=2] [ref=e525]
+          - button "View Pipeline" [ref=e526] [cursor=pointer]
+        - generic [ref=e527]:
+          - generic [ref=e528] [cursor=pointer]:
+            - generic [ref=e529]: "6.0"
+            - generic [ref=e530]: Appt Set
+            - generic [ref=e534]: 1 lead
+          - generic [ref=e535] [cursor=pointer]:
+            - generic [ref=e536]: "6.0"
+            - generic [ref=e537]: Inspected
+            - generic [ref=e541]: 1 lead
+          - generic [ref=e542] [cursor=pointer]:
+            - generic [ref=e543]: "5.0"
+            - generic [ref=e544]: New
+            - generic [ref=e548]: 9 leads
+          - generic [ref=e549] [cursor=pointer]:
+            - generic [ref=e550]: "3.9"
+            - generic [ref=e551]: Contacted
+            - generic [ref=e555]: 2 leads
+      - generic [ref=e556]:
+        - heading "Team Leaderboard" [level=2] [ref=e558]
+        - table [ref=e560]:
+          - rowgroup [ref=e561]:
+            - row "Rep Leads Contacted Appts Inspections Estimates Sold Revenue Close %" [ref=e562]:
+              - columnheader "Rep" [ref=e563]
+              - columnheader "Leads" [ref=e564]
+              - columnheader "Contacted" [ref=e565]
+              - columnheader "Appts" [ref=e566]
+              - columnheader "Inspections" [ref=e567]
+              - columnheader "Estimates" [ref=e568]
+              - columnheader "Sold" [ref=e569]
+              - columnheader "Revenue" [ref=e570]
+              - columnheader "Close %" [ref=e571]
+          - rowgroup [ref=e572]:
+            - row "Miles Martin 2 0 0 0 0 0 $0 0%" [ref=e573] [cursor=pointer]:
+              - cell "Miles Martin" [ref=e574]
+              - cell "2" [ref=e575]
+              - cell "0" [ref=e576]
+              - cell "0" [ref=e577]
+              - cell "0" [ref=e578]
+              - cell "0" [ref=e579]
+              - cell "0" [ref=e580]
+              - cell "$0" [ref=e581]
+              - cell "0%" [ref=e582]
+            - row "Brandon Admin 0 0 0 0 0 0 $0 0%" [ref=e583] [cursor=pointer]:
+              - cell "Brandon Admin" [ref=e584]
+              - cell "0" [ref=e585]
+              - cell "0" [ref=e586]
+              - cell "0" [ref=e587]
+              - cell "0" [ref=e588]
+              - cell "0" [ref=e589]
+              - cell "0" [ref=e590]
+              - cell "$0" [ref=e591]
+              - cell "0%" [ref=e592]
+            - row "Brandon Admin 0 0 0 0 0 0 $0 0%" [ref=e593] [cursor=pointer]:
+              - cell "Brandon Admin" [ref=e594]
+              - cell "0" [ref=e595]
+              - cell "0" [ref=e596]
+              - cell "0" [ref=e597]
+              - cell "0" [ref=e598]
+              - cell "0" [ref=e599]
+              - cell "0" [ref=e600]
+              - cell "$0" [ref=e601]
+              - cell "0%" [ref=e602]
+            - row "QA User 0 0 0 0 0 0 $0 0%" [ref=e603] [cursor=pointer]:
+              - cell "QA User" [ref=e604]
+              - cell "0" [ref=e605]
+              - cell "0" [ref=e606]
+              - cell "0" [ref=e607]
+              - cell "0" [ref=e608]
+              - cell "0" [ref=e609]
+              - cell "0" [ref=e610]
+              - cell "$0" [ref=e611]
+              - cell "0%" [ref=e612]
+```
