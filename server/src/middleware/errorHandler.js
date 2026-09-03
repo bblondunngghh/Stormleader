@@ -23,6 +23,14 @@ const PG_BAD_INPUT_CODES = new Set([
   '2201X', // invalid_row_count_in_result_offset_clause (e.g. ?offset=-5)
   '22021', // character_not_in_repertoire (e.g. a NUL byte in a query-string filter)
   '22001', // string_data_right_truncation (input longer than the column allows)
+  // An explicit `null` for a whitelisted field whose column is NOT NULL. `null` is
+  // valid JSON and passes every `typeof`/Array.isArray guard, so it reaches the SET
+  // clause unchanged — 13 such columns are reachable across tasks, expenses,
+  // invoices, subcontractors, work_orders and contract_templates. Same family as
+  // 23514/22001: the client supplied a value the column will not accept, which is a
+  // 400. A server-authored INSERT that omits a NOT NULL column would also be masked
+  // as a 400 here, but that tradeoff is already accepted for 23503 and 23514.
+  '23502', // not_null_violation (e.g. PATCH {"title": null} on a NOT NULL column)
 ]);
 
 export default function errorHandler(err, req, res, _next) {
@@ -51,6 +59,13 @@ export default function errorHandler(err, req, res, _next) {
     } else if (err.code === '22001') {
       // 22001 surfaces the column's declared width ("character varying(20)").
       message = 'One or more values exceed the maximum allowed length';
+    } else if (err.code === '23502') {
+      // 23502's own message names the relation ("...of relation \"tasks\"").
+      // pg exposes the column separately, and that name is already part of the
+      // request the caller sent, so naming it leaks nothing and is far more useful.
+      message = err.column
+        ? `${err.column} is required and cannot be null`
+        : 'A required field was null';
     } else {
       message = err.message || 'Invalid input';
     }
