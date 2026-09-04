@@ -54,6 +54,10 @@ export default function SubcontractorsView() {
 
   useEffect(() => { fetchSubs(); }, [filter, page, pageSize]);
 
+  // Every input that can narrow the list to zero. `status` defaults to 'active',
+  // so only a CHANGE from that default counts as the user filtering.
+  const hasActiveFilters = !!(filter.search || filter.specialty || filter.status !== 'active');
+
   const handleDelete = async (id) => {
     try {
       await subApi.deleteSubcontractor(id);
@@ -107,10 +111,16 @@ export default function SubcontractorsView() {
           <div style={{ textAlign: 'center', padding: 'var(--space-2xl)', color: 'var(--text-muted)' }}>Loading...</div>
         ) : subs.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 'var(--space-2xl)' }}>
-            <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 'var(--space-md)' }}>No subcontractors found</div>
-            <button className="auth-btn" style={{ fontSize: 13, padding: '8px 20px' }} onClick={() => setSlideOver('add')}>
-              Add Your First Subcontractor
-            </button>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 'var(--space-md)' }}>
+              {hasActiveFilters
+                ? 'No subcontractors match your filters'
+                : 'No subcontractors found'}
+            </div>
+            {!hasActiveFilters && (
+              <button className="auth-btn" style={{ fontSize: 13, padding: '8px 20px' }} onClick={() => setSlideOver('add')}>
+                Add Your First Subcontractor
+              </button>
+            )}
           </div>
         ) : (
           <table className="lead-table">
