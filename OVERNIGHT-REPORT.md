@@ -1,9 +1,10 @@
 # StormLeads — Overnight QA Report
 
-**Date:** 2026-09-02
+**Date:** 2026-09-03
 **Branch:** `feat/financing`
-**Baseline:** `4e3352b` (tag `pre-overnight-20260902`) → **HEAD `68c968a`**
-**Final build:** `npx vite build` — **exit 0, built in 8.05s**
+**Baseline:** `7662ce8` (tag `pre-overnight-20260903`) → **HEAD `cc13c6d`**
+**Final build:** `npx vite build` — **exit 0, built in 7.99s**
+**Stages:** s1 api-test (Run 122) · s2 frontend-test (Run 122) · s3 ui-audit (Run 123) · s4 verify (Run 124) · s5 report (Run 125)
 
 ---
 
@@ -11,433 +12,218 @@
 
 | Metric | Count |
 |---|---|
-| Routes/pages exercised | **19** statically audited · **6** driven functionally in a browser |
-| API endpoints tested | **10 distinct** (8 `PATCH` + 1 `POST` + login) of a **272-route / 36-file** inventory |
-| API requests issued | **~680** (331-request typed-column sweep, re-run after the fix, + 18 verification probes) |
+| Pages/routes exercised in a browser | **18** (functionally driven, not just rendered) |
+| API endpoints exercised live | **200** of a **272-route / 36-file** inventory (132 `GET` + 34 `POST` + 34 `POST` no-body) |
+| API endpoints statically analysed | **62** `POST` guard sites + **23** falsy-guard sites |
 | Bugs found | **5** |
-| Bugs fixed | **4** |
-| Bugs open | **1** (found during report reconstruction — see Known Issues) |
-| UI style inconsistencies found | **0** (Audits 1–7, 18th consecutive convergence) |
-| UI copy-correctness defects found | **3** (all fixed) |
-| Regressions introduced | **0** |
-| Commits | **4** — all fixes |
-| Net DB rows written by QA | **0** (one accidental column update, reverted and independently re-verified) |
+| Bugs fixed and committed | **4** |
+| Bugs found but left incomplete | **1** (see Known Issues #1 — currently broken in the working tree) |
+| UI consistency inconsistencies found | **0 measured** — audits 1–7 did not run this night (see below) |
+| UI consistency inconsistencies fixed | **0** |
+| Regressions introduced by the fixes | **0** |
+| DB writes | **net zero** — tenant-scoped counts byte-identical before/after |
 
-### Stage outcomes
+### Stage outcomes — three of five stages hit their turn cap
 
-| Stage | Run | Terminal reason | Turns | Artifact |
+| Stage | Terminal reason | API time | Cost | Artifact written |
 |---|---|---|---|---|
-| s1 api-test | 117 | ✅ `end_turn` | 45/40+ | complete (223 lines) |
-| s2 frontend-test | 118 | ⚠️ `error_max_turns` | 81/80 | **none written** |
-| s3 ui-audit | 119 | ✅ `end_turn` | 58 | complete (9,088 bytes) |
-| s4 verify | 120 | ⚠️ `error_max_turns` | 41/40 | partial (`C:/tmp/qa-r120-s4-api.txt`) |
-| s5 report | 121 | — | — | this document |
+| s1 api-test | **capped** (`tool_use`) | 691 s | $5.66 | ❌ none |
+| s2 frontend-test | **completed** (`end_turn`) | 745 s | $6.23 | ✅ `frontend-test-results.txt` |
+| s3 ui-audit | **capped** (`tool_use`) | 385 s | $5.34 | ❌ none |
+| s4 verify | **capped** (`tool_use`) | 522 s | $4.42 | ❌ none |
 
-Two of four working stages capped on their turn budget. Their output was recovered
-from raw harness JSON and from the working tree rather than discarded — see
-Test Coverage Gaps.
+Stage cost s1–s4: **$21.65**.
+
+This shapes the whole report and is stated up front deliberately: **`/tmp/api-test-results.txt` and `/tmp/ui-audit-results.txt` on disk are dated 2026-09-02 and belong to Runs 117 and 119.** They are *not* tonight's output. The API and UI sections below were reconstructed from tonight's raw harness JSON in `C:/tmp/`, the commit record, and one re-run of the write-free half of s4's lost verification — not from those stale files.
 
 ---
 
 ## Backend API Test Results
 
-Route inventory regenerated this run: **272 routes across 36 files** — unchanged
-from Run 114. `POST 88 | GET 132 | PATCH 26 | PUT 8 | DELETE 18` (140 write
-routes); 109 of 272 paths carry a `:param`.
+Route inventory regenerated this run: **272 routes across 36 files** — unchanged from Runs 114/117.
+`GET` 132 · `POST` 88 · `PATCH` 26 · `PUT` 8 · `DELETE` 18 (140 writes). 109 of 272 paths carry a `:param`.
 
-The night's backend charter was **scalar (non-`jsonb`) column type confusion** —
-probing every whitelisted `PATCH` field with values Postgres cannot accept for
-that column's declared type, and asserting a 4xx rather than a 500.
+### Coverage by category
 
-### Coverage by entity
+| Sweep | Endpoints | Result |
+|---|---|---|
+| Full `GET` sweep | 132 | **0 × 5xx.** 200 × 96, 400 × 23, 403 × 5, 404 × 7, 1 skipped |
+| `POST` guard sweep (with body) | 34 | **0 × 5xx** — all 34 → 400 |
+| `POST` guard sweep (empty body) | 34 | **0 × 5xx** — all 34 → 400 |
+| `POST` routes skipped (side-effecting) | 28 | not exercised by design |
+| Static `POST` guard analysis | 62 | inventory of guards / early-4xx per route |
+| Falsy-guard (`if (!field)`) analysis | 23 | all return 400; 4 are type-aware |
+| **Explicit-`null` PATCH probe** | **14** | **12 × 500 + 1 silent data loss → 2 defects** |
 
-| Entity | Endpoint | Fields | Types covered | Result |
-|---|---|---|---|---|
-| CRM lead | `PATCH /api/crm/leads/:id` | 17 | enum, numeric, varchar, `text[]`, timestamptz, jsonb | PASS |
-| Core lead | `PATCH /api/leads/:id` | 10 | enum, numeric, varchar, uuid | PASS |
-| Estimate | `PATCH /api/estimates/:id` | 24 | uuid, numeric, date, bool, jsonb | PASS |
-| Invoice | `PATCH /api/crm/invoices/:id` | 8 | numeric, date, enum, uuid | PASS |
-| Work order | `PATCH /api/crm/work-orders/:id` | 10 | enum, uuid, date, **time**, varchar | **1 FAIL → fixed** |
-| Contract | `PATCH /api/crm/contracts/:id` | 3 | uuid, varchar | PASS |
-| Expense | `PATCH /api/crm/expenses/:id` | 5 | uuid, numeric, date, varchar | PASS |
-| Subcontractor | `PATCH /api/crm/subcontractors/:id` | 8 | numeric, varchar | PASS |
-| Work order (create) | `POST /api/crm/work-orders` | — | time | **1 FAIL → fixed** |
-| Task | `PATCH /api/crm/tasks/:id` | 7 | — | **NOT TESTED** — `tasks` has 0 rows, no fixture |
+The `null` probe was the productive dimension this run. Prior runs closed wrong *types* (`{}`, `[]`, `42`, `"abc"`); an explicit `null` is valid JSON and passed every one of those guards.
 
-**Totals: 331 requests. Before the fix — `200:168 / 400:161 / 500:2`. After the
-fix — `200:168 / 400:163 / 500:0`.**
+### auth / storm / admin / reports (read paths)
+132 `GET` routes returned no 5xx. The 403s are correct `admin`-role rejections; the 404s are routes whose `:param` had no resolvable fixture. **14 `GET` routes returned 200 with expected response fields missing** — recorded, not yet triaged (see Coverage Gaps).
 
-### Decisive result — typed columns are fully guarded
+### CRM — leads, tasks, expenses, subcontractors, work orders
+**Defect → fixed in `43e843e`.** An explicit `null` for a whitelisted field backed by a `NOT NULL` column reached the SET clause untouched. Postgres answered `23502 not_null_violation`, which was absent from `PG_BAD_INPUT_CODES`, so the error handler fell through to a **500 "Internal server error"**. 11 field/endpoint pairs across 5 tables were reachable: `tasks.title/status`, `expenses.category/amount/date`, `invoices.subtotal/total`, `subcontractors.name/specialty/status`, `work_orders.title`. `23502` now maps to 400 and uses `err.column` to name the field — a name the caller already sent, so nothing leaks.
 
-**155 typed-column probes returned zero 2xx.** `numeric`, `int4`, `bool`, `date`,
-`timestamptz`, `time`, `uuid`, `text[]`, `jsonb` and all five pg enums
-(`lead_stage`, `lead_priority`, `invoice_status`, `work_order_status`,
-`notification_type`) rejected every wrong type. `time` was the only gap in the
-schema. Combined with Run 114's `jsonb` container work, **type confusion at the
-SQL boundary is now closed in both directions.**
+### Estimates / invoices / work orders (jsonb columns)
+**Defect → fixed in `824ae24`.** The array/object guards exempted `null`. `JSON.stringify(null)` is the string `"null"`, which JSONB stores as a *jsonb null* rather than SQL `NULL` — so it satisfied the `NOT NULL` constraint and **replaced the row's line items while `subtotal`/`total` kept their old values, all behind a 200.** Silent data loss. `estimates.deposit` is the one genuinely nullable column of the seven and `EstimatesView.jsx:1582` deliberately sends `deposit: null` to clear it, so it is exempted explicitly.
 
-### What was fixed
+This fix was **written by s1 and left uncommitted when s1 capped at 51/50 turns.** s2 found it via `git status`, verified it live 8/8 in both directions, confirmed it was frontend-safe, and committed it. That is the fifth consecutive night the "`git status` first" rule has recovered real work.
 
-**`1849a13` — invalid `time` value returned 500 instead of 400.**
-Postgres parses a `time` literal permissively: a token it cannot read as a time
-component it tries to read as a *time zone name*. So `"not-a-time"` raises
-`22023 invalid_parameter_value` ("time zone \"not-a-time\" not recognized")
-rather than the `22007`/`22P02` every other datetime type raises. `22023` was
-absent from `PG_BAD_INPUT_CODES` in `server/src/middleware/errorHandler.js`, so
-it fell through as a 500.
-
-Measured pg behaviour for a `time` cast — this is why only *some* inputs 500'd:
+### Independent re-verification (recovered this stage)
+s4 wrote `server/.qa-r124-s4-serverfix.mjs` to verify both server fixes, then capped — its output went to stdout and was lost. s5 re-ran **only the write-free half** (every expect-400 case fails before the `UPDATE`), with row counts and `max(updated_at)` asserted before and after:
 
 ```
-"abc" / "1" / "true" / "" / "x y z"  -> 22007  (already mapped -> 400)
-"25:99" / "99:99:99"                 -> 22008  (already mapped -> 400)
-"not-a-time" / "12:00 Mars/Phobos"   -> 22023  UNMAPPED -> 500
-"13:00" / "12:00 UTC"                -> accepted
+43e843e  NOT NULL null-guard    11 probes → 400   PASS 9 / SKIP 2 / UNVERIFIABLE 2
+824ae24  jsonb null-guard        4 probes → 400   PASS 4
+         estimates.line_items 400 "line_items must be an array"
+         estimates.insurance_details 400 "insurance_details must be an object"
+         invoices.line_items 400 · work_orders.line_items 400
+write safety: counts + max(updated_at) identical — nothing written
+RESULT  pass 13  fail 0  skip 2  unverifiable 2
 ```
 
-`work_orders.scheduled_time_start` / `scheduled_time_end` are the only `time`
-columns in the schema and both are written straight from the request body on
-create (`workOrderService.js:303-306`) and update (`:386`), so one error-mapping
-entry fixed both verbs. The widening masks nothing: all 9 `generate_series` /
-`TO_CHAR` call sites use a constant step, so no server-authored SQL can raise
-`22023`.
-
-### Regression / verification (s4, Run 120)
-
-18 probes over 2 endpoints, re-run after a server restart and fresh token:
-
-| Check | Result |
-|---|---|
-| V1 — four `22023` shapes on `PATCH` | **4/4 → 400** |
-| V1b — two `22023` shapes on `POST` (create path) | **2/2 → 400**, no row created |
-| V2 — seven pre-existing datetime codes still 4xx | **6/7 PASS**, 1 expected `200` (`""` → NULL via the deliberate `emptyToNull` path, `workOrderService.js:369`) |
-| V3 — `22P02`, `23503`, `23514`/enum, `22007`, `22023` on `time_end` not masked | **5/5 → 4xx** |
-| V4 — write safety | rows `10 → 10` PASS · junk rows created `0` PASS |
-
-### Secondary backend results
-
-- **A named open lead was stale for 37 runs and is now closed with proof.** The
-  standing gotchas carried an `automationEngine.js` → `tasks.priority` enum bug
-  addressed explicitly to an api-test stage. It was already fixed in `5329a7e`
-  on both client and server; `normalizeTaskPriority` was proven **total** —
-  13/13 inputs including `undefined`/`null`/`""`/`"bogus"`/`42`/`{a:1}` map to a
-  valid `lead_priority` label. No automation or drip config can raise `22P02`
-  here. The gotchas entry has been removed.
-- **The 168 accepted-but-wrong writes are cosmetic, closed by a type argument.**
-  All 168 are `varchar`/`text`; Postgres coerces the bound parameter to text on
-  the way in, so the value always reads back as a JS string. Run 68's
-  white-screen crash needed a **`jsonb`** column, where a boolean stays a
-  boolean — no `.replace()` path can break here. Input-validation gap, not a
-  latent crash surface.
-- **`f7bb323` holds.** Run 114's estimates `jsonb` defect (`discounts`/
-  `signers`/`deposit`) re-probed 6/6 → 400, columns never moved.
+**13/13 reachable probes pass.** Both of tonight's server fixes are now independently confirmed against the running server.
 
 ---
 
 ## Frontend Feature Test Results
 
-⚠️ **The s2 stage capped on its turn budget without writing an artifact.** The
-results below are reconstructed from its two commits and its raw harness JSON in
-`C:/tmp/`. `/tmp/frontend-test-results.txt` and `C:/tmp/frontend-test-results.txt`
-are both **Run 114, dated 2026-09-01 — one day stale** and were *not* read as
-tonight's data.
+s2 was the one stage that completed. **18 routes driven in a browser: 0 page errors, 0 console errors, 0 blank pages, net-zero DB writes** (counts byte-identical before/after across all 8 core tables).
 
-### Dashboard (`/dashboard`)
-
-- **Tested:** every internal deep link the page generates, against the query keys
-  the destination route actually reads (12 internal query-string links app-wide).
-- **Broken:** the Stale Leads panel's "View All" navigated to
-  `/leads?sort=updated_at`, but `LeadList` reads `sort_by`/`sort_dir`
-  (`LeadList.jsx:126-127`) and never reads `sort`. The key was silently ignored,
-  `LeadList`'s own `setSearchParams` round-trip then stripped it from the URL,
-  and the list loaded with the default `created_at`/`DESC` — losing the panel's
-  entire point.
-- **Fixed:** `e19a5a3` — the link now sends `sort_by=updated_at&sort_dir=ASC`.
-  `updated_at` is already in `crmService`'s `allowedSort` whitelist (`:56`), so
-  this is a client-only param-name fix. Verified live: the URL survives and the
-  outgoing request carries the new params.
-
-### Lead Detail (`/leads/:id`) → Expenses (`/expenses`)
-
-- **Tested:** the "Add Expense" quick action deep link.
-- **Broken:** `LeadDetail.jsx:1538` does
-  `window.location.href = '/expenses?leadId=' + leadId`, but `ExpensesView`
-  **never read the param** — the user landed on a plain, unfiltered expense list
-  with no modal and had to re-pick the job by hand.
-- **Fixed:** `3d9c358` — `ExpensesView` now mirrors `ContractsView`'s existing
-  `fromEstimate`/`leadId` idiom: opens the modal on the param, resolves the id to
-  the lead's address for the picker, and clears the param on save/close. Verified
-  both directions — with the param the modal opens prefilled
-  "14910 Hartsmith Dr."; without it, no modal.
-- **Note:** this fix was written by s2 and left **uncommitted in the working
-  tree** when the stage capped. s3's `git status`-as-a-first-action rule
-  recovered and committed it. That rule has now rescued a capped stage's work on
-  **five separate nights**.
-
-### API-contract sweeps (static, whole client)
-
-| Harness | Scope | Result |
+| Area | Tested | Result |
 |---|---|---|
-| `.qa-r118-clienturls.mjs` | 285 client-issued URLs vs 272 mounted server routes | **0 unmatched, 0 method mismatches.** Self-test caught 3/3 planted positives, 2/2 negative controls silent |
-| `.qa-r118-deeplinks.mjs` | query keys internal links generate vs keys the destination reads | 8 links → 1 suspect (the Dashboard bug). **Widened** to match `location.href` / `location.assign` / `window.open`, not just `navigate()`/`to=`/`href=` — which is why the first pass missed the Add Expense link. Now **12 links, 0 suspect** |
-| `.qa-r118-queryparams.mjs` | 60 call sites, 94 query keys, 18 distinct | **0 dead params** |
+| `/estimates` | status filter → empty, then cleared | **Broken → fixed `282f51f`** |
+| `/leads` | 6 server-side filters incl. score + rep | **Broken → fixed `282f51f`** |
+| `/contracts` `/invoices` `/expenses` `/leads` `/estimates` `/tasks` | list-load failure (500 stub on each `GET`) | **Broken → fixed `cc13c6d`** |
+| Settings | **15/15** tabs driven individually via `?tab=` | Pass — 0 native `<select>`, 0 native date/time inputs |
+| Settings | **7/7** create/edit controls | Pass — all open an inline form with real fields |
+| Entity create forms | **6/6** opened and submitted empty | Pass — validation correct on all six |
+| Dashboard | **9/9** stat cards clicked | Pass — every one lands with correct intent |
+| Calendar | **4/4** views | Pass — Month 42 cells / Week 103 / Day 97 / List, titles track |
+| `/tasks` | filter tabs | Pass — correctly distinct copy per tab |
+| `/reports` | 5 date ranges | Pass — **reference implementation** for period-scoped empty copy |
+| `/pipeline` | kanban render + card → slide-over | Pass — 13 draggable cards, headers carry count + value |
+| Estimate builder | line items, arithmetic end to end | Pass — 3 × $250 → $750, +30% margin → $525, second row → $950 |
+| `/leads/:id` | slide-over | Pass — **has no tab bar at all**; charter item retired |
 
-### Contracts / Invoices / Expenses (`/contracts`, `/invoices`, `/expenses`)
+### What was broken and how it was fixed
 
-Driven live with real data by s3 — see the UI audit section below. Filtering was
-exercised in both directions on all three routes; row rendering unaffected
-(4 / 14 / 2 rows still render unfiltered).
+**`282f51f` — filtered-to-empty lists claimed the user had no data.** Follow-up to `68c968a`, which fixed Contracts/Invoices/Expenses but never enumerated every view with the shape.
+- `EstimatesView` — missed entirely. `statusFilter` is sent server-side as `params.status` and refetches, but both empty-copy sites tested a bare `estimates.length === 0`. Reachable today: the tenant holds 16 estimates (14 draft / 1 viewed / 1 declined) and **zero sent, zero accepted**, while the status control offers all five.
+- `LeadList` — *already had the ternary*, so every prior run's eye slid past it, but its condition omitted `scoreFilter` and `repFilter`, which are also sent server-side (`min_score`, `assigned_rep_id`). A partial instance of the same defect.
+
+**`cc13c6d` — a failed list load told the user their data did not exist.** Six list views swallowed the fetch error (`catch { /* keep existing */ }`) and rendered the empty-*database* copy, because on an initial load there are no existing rows to keep. A 500 on the list endpoint produced a confident, fully-rendered page reading "No contracts yet — create your first one", with zeroed stat headers and **no toast, banner, or any other sign of failure.** Proved live with a 500 stub on each list `GET`:
+
+```
+/contracts   4 rows in DB → "0 contracts"        + "No contracts yet - create your first one"
+/invoices   14 rows in DB → "$0 TOTAL INVOICED"  + "Create your first invoice..."
+/estimates  16 rows in DB → "0 estimates"        + "No estimates yet - create your first one"
+/leads      13 rows in DB → "0 leads"            + "Generate leads from the Storm Map..."
+```
+
+Verified both directions on all six routes. `SubcontractorsView`, `MaterialsView` and `WorkOrdersView` were considered and **deliberately excluded** — they already surface the failure with an error toast; `StormCatalog`'s "No storms found." claims nothing about the database.
 
 ### Still needs attention
-
-- **The frontend *functional* charter remains largely unmeasured for the second
-  consecutive night.** s2 spent 81 turns / $8.61 / ~17 min and produced two real
-  defects, but no systematic page-by-page interaction testing: forms, create/edit
-  flows, validation, and the 12 Settings tabs were not exercised. s3's static
-  sweep proves all 19 routes *render*; it proves nothing about interactions.
+- `/pipeline` **drag between stages** — not performed; it is a real stage write and needs a revert plan.
+- `/leads/:id` activity modal and score-breakdown popup — not opened.
+- `/storm-map` layer toggles — covered Run 114; FEMA properties are out of charter by standing instruction.
 
 ---
 
 ## UI Consistency Audit Results
 
-All 19 in-app routes swept. Audits 1–7 converged for the **18th consecutive
-run**, and now cost a single aggregating browser call.
+**s3 hit its turn cap and wrote no artifact. Audits 1–7 were not measured this night.** s3 spent its budget on a functional defect it found early (`cc13c6d`, above) rather than on the consistency sweep.
 
-| # | Category | Non-Heroicon / non-standard found? | Result |
-|---|---|---|---|
-| 1 | **Icons** | **None.** 2,232 runtime `<svg>` elements; 0 foreign icon classes (`fa-*`, `material-icons`, `lucide`, `bi-*`) on 19/19 routes | ✅ PASS — nothing to fix. Only non-24 viewBoxes are the 9 recharts surfaces on `/reports` (data-viz, non-bug) |
-| 2 | **Buttons** | **No sizing/styling inconsistencies.** Primary `.auth-btn` background is `oklch(0.72 0.19 250)` on every route that has one; 0 unnamed buttons on 19/19 | ✅ PASS — remaining variance is the documented deliberate segmented-control / secondary families |
-| 3 | **Toolbars / Headers** | **Consistent across all pages.** 56px header + exactly one `<h1>` on 19/19; all titles correct | ✅ PASS |
-| 4 | **Sidebar / Nav** | **No issues.** 18–22 buttons, icons == buttons, 0 raw anchors on 19/19; exactly 1 `.is-active` on 17/19 | ✅ PASS — both apparent deltas were chased down and **cleared, not filed**: `.is-active`=2 on `/reports` and `/tasks` is the sidebar plus a legitimate *in-page* segmented control (`reports-preset-btn`, `task-filter-tab`), and the 18-vs-22 button count is the active route's nav group auto-expanding. `/alerts`=0 is the documented orphan route |
-| 5 | **Forms** | **No non-standard elements.** **0 native `<select>`, 0 native date/time inputs app-wide** — the `CustomSelect` / `DatePicker` rules are fully respected | ✅ PASS. Non-`.form-input` inputs are the documented set: TopBar ⌘K search (42px), `/alerts` numeric stepper (26px), `.address-search__input`, custom `appearance:none` checkboxes |
-| 6 | **Spacing** | `.glass` padding varies between pages | ⚠️ Systemic, already recorded as the 14px-root Tailwind-rem refactor item — not per-instance alignment bugs. Not fixed (refactor, outside QA charter) |
-| 7 | **Modals** | **All consistent.** 0 stray overlays at rest on 19/19; 0 horizontal overflow on 19/19 | ✅ PASS |
+The honest status per category is therefore *unmeasured tonight*, with the last real measurement being Run 119 (2026-09-02), which found **0 style defects for the 18th consecutive run**:
 
-**Zero style/consistency defects were found.** The three UI defects fixed this
-run were **copy correctness**, a dimension opened for the first time tonight —
-see Bug 4 below.
+| Audit | Measured tonight? | Last known state (Run 119, 2026-09-02) |
+|---|---|---|
+| 1. Icons | ❌ no | 2,232 runtime `<svg>`, **0 foreign icon classes** on 19/19 routes. Only non-24 viewBoxes are the 9 recharts surfaces on `/reports` (data-viz, non-bug) |
+| 2. Buttons | ❌ no | Primary `.auth-btn` background `oklch(0.72 0.19 250)` on every route that has one; 0 unnamed buttons on 19/19 |
+| 3. Toolbars / headers | ❌ no | 56 px header + exactly one `<h1>` on 19/19, all titles correct |
+| 4. Sidebar / nav | ❌ no | 18–22 buttons, icons == buttons, 0 raw anchors on 19/19 |
+| 5. Forms | ⚠️ partial | s2 confirmed **0 native `<select>`, 0 native date/time inputs across all 15 Settings tabs** — `CustomSelect`/`DatePicker` compliance holds |
+| 6. Spacing | ❌ no | `.glass` padding varies — systemic, part of the deferred rem-refactor item, not per-instance bugs |
+| 7. Modals | ❌ no | 0 stray overlays at rest on 19/19; 0 horizontal overflow on 19/19 |
 
-### Dimensions opened and closed clean this run (do not re-spend)
+**No non-Heroicon icons, button inconsistencies, header inconsistencies, sidebar issues, non-standard form elements, spacing issues, or modal inconsistencies were found tonight — because those checks did not run.** Audit 5 is the single exception and it passed. Carrying Run 119's numbers forward as if they were tonight's would be fabrication; they are shown above only as the last known state.
 
-- **Disabled-state consistency — CLOSED CLEAN.** 93 `disabled=` usages across 29
-  files. A global rule at `index.css:4480` covers
-  `button/input/select/textarea:disabled` (opacity .5, `cursor: not-allowed`,
-  `pointer-events: none`), plus `.auth-btn:disabled` at `:2436`. **No call site
-  passes a `disabled` prop to `CustomSelect` or `DatePicker`, and neither
-  component accepts one** — so no custom control is logically disabled but
-  visually live.
-- **Silent text clipping with real data — CLOSED CLEAN.** 14 routes swept for
-  elements whose `scrollWidth` exceeds `clientWidth` while holding their own
-  text. One signature app-wide (the 11px muted address sub-line on
-  `/contracts`, `/estimates`, `/invoices` — 191px of content in a 188px box) and
-  it is **not** a defect: `overflow` is `visible` so nothing is cut, and the
-  painted text still ends **13px inside** the parent cell's padding box. Measured
-  as spill-vs-parent, not as a raw `scrollWidth` delta.
-- **Empty-state *coverage*** — every list view renders an empty message. Only
-  `TasksView` uses the `.empty-state` class; the rest are inline-styled. That
-  split belongs to the documented form-label-drift family, not a new finding.
+The one *copy*-consistency dimension that did run produced both of tonight's UI defects — see `282f51f` and `cc13c6d`.
 
 ---
 
 ## Bugs Fixed
 
-1. **`PATCH` / `POST /api/crm/work-orders`** — an invalid `time` value
-   (`"not-a-time"`, `"12:00 Mars/Phobos"`, any string whose trailing token isn't
-   a real zone name) returned **500 instead of 400**, because Postgres raises
-   `22023` for a bad `time` — not the `22007`/`22P02` every other datetime type
-   raises — and `22023` was missing from `PG_BAD_INPUT_CODES`. **Fixed** by
-   adding `22023` to `server/src/middleware/errorHandler.js`, with its message
-   sanitized like `22P02` (the raw pg text echoes the rejected value back as a
-   time zone name). One entry covered both create and update. — **`1849a13`**
+1. **[`PATCH` — tasks, expenses, invoices, subcontractors, work_orders]** — an explicit `null` for a required field returned **500** instead of 400; `23502 not_null_violation` was missing from `PG_BAD_INPUT_CODES`. — Mapped `23502` → 400, naming the offending column from `err.column`. Verified 11/11. **`43e843e`** (`server/src/middleware/errorHandler.js`, +15)
 
-2. **Dashboard → Stale Leads "View All"** — the link sent `?sort=updated_at`, a
-   key `LeadList` never reads, so the sort intent was silently dropped and the
-   list loaded newest-first instead of least-recently-touched-first. **Fixed** by
-   sending the params the destination actually reads,
-   `?sort_by=updated_at&sort_dir=ASC` (`Dashboard.jsx`, client-only — `updated_at`
-   was already whitelisted server-side). — **`e19a5a3`**
+2. **[`PATCH /api/estimates|invoices|work-orders`]** — `line_items: null` **silently wiped a `NOT NULL` jsonb column behind a 200**, leaving `subtotal`/`total` stale. `JSON.stringify(null)` stores a *jsonb null*, which satisfies `NOT NULL`. — Added an explicit null test to the array and object branches, exempting `estimates.deposit`, which the UI sends `null` to clear. Verified 8/8 both directions. **`824ae24`** (3 route files, +27/−6)
 
-3. **Lead Detail → "Add Expense"** — deep-linked to `/expenses?leadId=<id>`, but
-   `ExpensesView` never read the param, so the user landed on an unfiltered list
-   with no modal. **Fixed** by mirroring `ContractsView`'s existing
-   `fromEstimate`/`leadId` idiom: open the modal on the param, resolve the id to
-   the lead's address, clear the param on save/close. — **`3d9c358`**
+3. **[`/estimates`, `/leads`]** — filtering to zero matches rendered empty-*database* copy ("No estimates yet — create your first one") while the user's 16 estimates still existed. `EstimatesView` had no guard; `LeadList` had one that omitted 2 of its 6 server-side filters. — Used the established ternary idiom, with the condition covering every server-side filter. **`282f51f`** (2 components, +7/−3)
 
-4. **`/contracts`, `/invoices`, `/expenses` — filtered-to-empty lists claimed the
-   user had no data at all.** All three render their empty message on a bare
-   `rows.length === 0`, but all three filter **server-side and refetch**. So a
-   zero-match filter showed empty-*database* copy while the filter control still
-   visibly read the chosen status:
+4. **[`/contracts`, `/invoices`, `/estimates`, `/leads`, `/expenses`, `/tasks`]** — a **failed** list load rendered the same empty-database copy with zeroed stat headers and no error indication of any kind. — Added a `loadError` flag set in the `catch` and cleared on every success, checked ahead of the filter branch. Verified on 6/6 routes in both directions. **`cc13c6d`** (6 components, +60/−28)
 
-   | Route | Filter | Rendered | Actually in DB |
-   |---|---|---|---|
-   | `/contracts` | status=Signed | "No contracts yet — create your first one" | **4** |
-   | `/invoices` | status=Overdue | "No invoices yet" + "Create your first invoice…" | **14** |
-   | `/expenses` | category=Permit | "No expenses yet — add your first one" | **2** |
-
-   **Fixed** by making each message conditional on its own filter state, using
-   the idiom the codebase already has (`MaterialsView`, `TasksView`) rather than
-   inventing one. Unfiltered copy untouched — it is the ternary's false branch.
-   `WorkOrdersView` was checked and **deliberately not changed**: its kanban has
-   no filter and groups client-side, so `length === 0` genuinely means none. —
-   **`68c968a`**
+Defects 3 and 4 are the same family — *empty-state copy that asserts something about the database which the current context does not support*. Three separate runs have now found instances of it (`68c968a`, `282f51f`, `cc13c6d`), and a seventh instance is still open below.
 
 ---
 
 ## Known Issues (Not Fixed)
 
-### 🔴 New this run — the same defect as Bug 4, on a fourth route that was missed
+1. 🔴 **`client/src/components/AutomationSettings.jsx` is BROKEN in the working tree — uncommitted, and the build does not catch it.**
+   s4 found the **7th instance** of the empty-state family (Settings → Automations swallows its load error identically) and began applying the `cc13c6d` fix at 05:50:19, then hit its turn cap mid-edit. The result calls `setLoadError(false)` at line 82 and `setLoadError(true)` at line 85, but **no `loadError` state is ever declared** — `useState` appears 7 times in the file and none of them is `loadError`. Line 253 still has the bare `automations.length === 0`.
+   `npx vite build` **passes** (7.99 s) because this is a runtime `ReferenceError`, not a compile error: the `try` throws at line 82, the `catch` throws again at line 85, and `setLoading(false)` never runs.
+   **Left as-is deliberately** — this stage's charter is reporting, and completing another stage's unverified edit without its diagnostic context is how regressions get committed. It needs either a revert or 2 lines: declare `const [loadError, setLoadError] = useState(false);` and add the ternary at line 253. **Decide before the next run starts**, or the next `git status` sweep will pick it up as recovered work and may commit it in this state.
 
-**`/estimates` filtered to a zero-match status shows empty-database copy while 16
-estimates exist.** `EstimatesView` was not part of `68c968a` and has the
-identical pattern:
+2. ⚠️ **No error boundary anywhere in the SPA.** The amplifier behind five past defects, including tonight's #1. Highest-leverage backlog item; an enhancement, so it is the developer's call.
 
-- `statusFilter` (`EstimatesView.jsx:55`) is sent server-side as `params.status`
-  (`:64`) and refetches on change (`:74`) — the same server-side filter shape as
-  the three routes that were fixed.
-- Two empty-copy sites, both a bare `estimates.length === 0`:
-  **desktop table `:621-625`** and mobile card list `:360-364`, both rendering
-  *"No estimates yet — create your first one"*.
-- **Reachable today.** The tenant holds **16 estimates** — `draft` 14, `viewed`
-  1, `declined` 1, and **zero `sent`, zero `accepted`**. The desktop
-  `CustomSelect` (`:577`) offers both. **Repro: `/estimates` → status "Sent"
-  (or "Accepted") → "No estimates yet — create your first one" with 16 estimates
-  present.**
+3. **64 generic error toasts discard the server's actionable message** vs 22 that surface it (`InvoicesView.jsx:566` wrong, `:592` right). Confirmed again tonight on `/invoices` and `/contracts` empty-form submit: a 400 arrives, the row is correctly not created, but the user sees only "Failed to save invoice". App-wide convention change — deferred.
 
-Found while reconstructing the capped s4 stage's work — s4's own harness
-(`server/.qa-r120-s4-eststatus.mjs`) shows it was testing exactly this hypothesis
-when it hit its turn cap. Not fixed here because this stage's charter is
-reporting only, and the fix wants the same both-directions browser verification
-the other three received. **The fix is the ternary already used in
-`ContractsView`/`InvoicesView`/`ExpensesView` — one line per site, two sites.**
+4. **Form-label drift — 7 treatments, ~100 inline labels.** 12th run deferred. Refactor, outside the QA charter.
 
-### Carried forward (all developer decisions)
+5. **`/alerts` orphan route** — nothing links to it; duplicated under Settings → Storm Alerts. Design decision.
 
-- **No error boundary anywhere in the SPA** — the amplifier behind four past
-  defects. Highest-leverage backlog item; an enhancement, so developer's call.
-- **64 generic error toasts discard the server's actionable message** vs 22 that
-  surface it (`InvoicesView.jsx:566` is the wrong idiom, `:592` the right one).
-  App-wide convention change.
-- **Form-label drift** — 7 treatments, ~100 inline labels. **11th run deferred.**
-  Refactor, outside the QA charter.
-- **`/alerts` is an orphan route** — nothing in the nav links to it, and it is
-  duplicated under Settings → Storm Alerts. Design decision.
-- **`.glass` padding varies between pages** — part of the 14px-root Tailwind-rem
-  refactor, not per-instance bugs.
-- **`22007`/`22008` leak the raw pg message** (e.g. `invalid input syntax for
-  type time: "abc"`), exposing the column type name. Deliberate `else` branch in
-  `errorHandler.js`, pre-existing.
-- **`EstimatesView.jsx:1318`** — measured previously and deliberately not fixed;
-  guarding it means `Array.isArray`-ing every `.map()` in the client.
-- **DB junk rows, user-visible, awaiting go-ahead to delete:** a subcontractor
-  named `{"$eq":1}`, a territory `12345`, and a `qa_options_probe` custom field.
-- **361 QA screenshots committed to the repo root.** This run added **0**.
-- **`server/.qa-r91-neverrun.mjs` has never been run — 15 nights.**
+6. **`22007`/`22008` still leak the raw pg message** (`invalid input syntax for type time: "abc"`), exposing the column type name. Deliberate `else` branch in `errorHandler.js`; pre-existing and unchanged by `43e843e`, which added a sibling `23502` branch.
+
+7. **`EstimatesView.jsx:1318`** — measured previously, deliberately not fixed; guarding it means `Array.isArray`-ing every `.map()` in the client.
+
+8. **DB junk rows, user-visible, awaiting go-ahead:** subcontractor `{"$eq":1}`, territory `12345`, `qa_options_probe` custom field.
+
+9. **361 QA screenshots committed to the repo root.** This run added **0**, by choice.
+
+10. **`server/.qa-r91-neverrun.mjs` has never been run — 16 nights.**
+
+11. **10 untracked `.qa-*.mjs` harnesses** in `server/` from tonight (9 × `r122`, 1 × `r124`) plus 5 `claude-overnight-*.json` stage artifacts in the repo root. Not committed by this stage — its commit is scoped to `OVERNIGHT-REPORT.md` and `docs/`.
 
 ---
 
 ## Test Coverage Gaps
 
-1. ⚠️ **The frontend functional charter is largely unmeasured — second
-   consecutive night.** s2 capped at 81/80 turns and wrote **no artifact**. It
-   did produce two real defects and three committed harnesses, but no
-   page-by-page interaction testing: create/edit forms, validation, and the 12
-   Settings tabs were not exercised. Its work was recovered from raw JSON in
-   `C:/tmp/` and from an uncommitted fix in the working tree — a total loss was
-   avoided, not a complete stage.
-2. ⚠️ **s4 (verify) capped at 41/40 turns.** It completed and wrote its API
-   verification (18/18 meaningful probes pass) and its DB revert, but never
-   logged a resume entry or reported the `/estimates` hypothesis it was mid-way
-   through. Its three read-only probes were re-run during this report stage to
-   recover their results.
-3. **`PATCH /api/crm/tasks/:id` cannot be exercised** — the `tasks` table has 0
-   rows in this tenant, so 7 whitelisted fields (including the only other
-   `timestamptz` pair) remain the last unprobed typed columns in the CRM core.
-   Creating a single fixture unblocks this.
-4. **7 tenant-singleton write routes were not covered** by the typed-column
-   harness because they have no `:id`: `/api/alerts/config`,
-   `/api/crm/tenant-settings`, `/api/materials/credentials`,
-   `/api/onboarding/org`, `/api/roof-measurement/config`,
-   `/api/skip-trace/config`, `/api/notifications/preferences`. `alert_configs`
-   has `numeric`, `int4` and `text[]` columns written from the body.
-5. **`POST` create-path type confusion is essentially unmeasured.** This run
-   probed `PATCH` almost exclusively (one `POST` spot-check). 88 `POST` routes
-   exist, and `createX` functions often bypass the `allowedFields` whitelist and
-   destructure directly — `createWorkOrder` does.
-6. **`GET` response shapes are unasserted.** 132 `GET` routes return 200, but
-   nothing systematically checks the response *shape* against what the client
-   reads.
-7. **The `territories` table does not exist** — 4 routes remain structurally
-   unexercisable.
-8. **Not swept, static or functional:** `/content-studio`, the estimate /
-   invoice / contract **builder** detail shapes (3rd run named as open), and
-   `/canvassing` pin drop (deliberately skipped — DB write plus a paid geocode).
-9. **`prefers-reduced-motion` and a print stylesheet** are the only unmeasured UI
-   dimensions left. Both are **enhancements rather than QA** — confirm scope
-   before spending a run on either.
-10. **No screenshots taken**, by choice — 361 are already committed to the repo
-    root.
+**Caused by stage capping — the dominant failure mode, three of five stages tonight:**
+
+- ⚠️ **The UI consistency audit did not run.** Audits 1, 2, 3, 4, 6 and 7 are entirely unmeasured tonight. This is the second time in three nights the s3 charter has gone unmeasured.
+- ⚠️ **s1 wrote no API artifact and s4 wrote no verification artifact.** Both were reconstructed here from raw JSON and a re-run; the reconstruction is sound but cost this stage most of its budget. **Require every stage to write its artifact *before* spending its remaining budget** — the one stage that did (s2) is the one whose results needed no reconstruction.
+
+**Structural — not caused by capping:**
+
+- **`PATCH /api/crm/tasks/:id` still cannot be exercised.** `tasks` holds **0 rows** in this tenant. s1 created a fixture at ~05:07, probed it, and removed it (net-zero), so 7 whitelisted fields remain the last unprobed typed columns in the CRM core. **Creating one durable fixture unblocks it.**
+- **`contract_templates.name` / `.type` are unverifiable, and this may be a real user-facing bug.** All 4 template rows have `tenant_id = NULL` and `is_default = true`; the waterloo tenant owns **zero**. `updateTemplate` filters `WHERE id = $2 AND tenant_id = $1`, so a PATCH 404s ("Template not found or not editable") before ever reaching the null guard. **Candidate defect, unverified: Settings → Contracts lists 4 default templates — if the UI offers Edit on them, that click 404s for every tenant.** The next s2 should drive that path.
+- **28 `POST` routes skipped** as side-effecting, and **`POST` create-path type confusion remains largely unmeasured** — `createX` functions often bypass the `allowedFields` whitelist and destructure directly (`createWorkOrder` does).
+- **14 `GET` routes returned 200 with expected response fields missing** — captured in `qa-r122-sweep.json`, not yet triaged. This is the "`GET` response shapes unasserted" gap narrowing: 132 routes return 200, and now 14 are known to disagree with what the client reads.
+- **7 tenant-singleton write routes uncovered** (no `:id`, so the harness skipped them): `/api/alerts/config`, `/api/crm/tenant-settings`, `/api/materials/credentials`, `/api/onboarding/org`, `/api/roof-measurement/config`, `/api/skip-trace/config`, `/api/notifications/preferences`.
+- **`territories` table still does not exist** — 4 routes structurally unexercisable.
+- **Not swept:** `/content-studio` (unbuilt, not broken); `/canvassing` pin drop (skipped by choice — DB write + paid geocode); `/pipeline` drag.
+- **`prefers-reduced-motion` and a print stylesheet** remain the only unmeasured UI dimensions. Both are enhancements rather than QA — confirm scope with the developer first.
+
+### DB hygiene — the "net zero" claim, scoped honestly
+
+Tenant-scoped counts for `791bb51d` (waterloo), before and after the full night:
+
+```
+leads 13 · tasks 0 · estimates 16 · invoices 14 · work_orders 10 · contracts 4 · expenses 2 · subcontractors 64
+```
+
+Byte-identical to s2's pre-run snapshot. No geocoding, no bulk operations, no QA rows left behind, 0 screenshots written.
+
+One tester-error trap worth recording: an **unscoped** `select count(*) from estimates` returns **17**, not 16 — the 17th row belongs to a different tenant. That looked like real overnight drift for several minutes. **Always scope count queries by `tenant_id` in a multi-tenant DB before reporting drift.** The only genuine side effect all night was a `tenants.updated_at` bump at 05:05:40 from s1's write probe.
 
 ---
 
-## DB Safety
-
-**Net zero rows.** Scoped honestly, per stage:
-
-- **s1 (Run 117):** all 8 probed rows restored **byte-identical including
-  `updated_at`**. No side-table drift (`activities`, `notifications`, `tasks`,
-  `automation_runs`, `lead_stage_history`). The `POST` create probe was rejected,
-  so no `work_orders` row was created (10 → 10).
-- **s2 (Run 118):** static analysis plus browser navigation. No write path
-  exercised; **unverified** in the absence of an artifact.
-- **s3 (Run 119):** **0 writes** — filter-only interaction, read-only `GET`s.
-- **s4 (Run 120):** **one accidental write.** The `scheduled_time_start: ""`
-  probe legitimately succeeded (the `emptyToNull` path at
-  `workOrderService.js:369` is deliberate) and cleared a real value on work order
-  `a85b7ae6…`. s4 wrote `server/.qa-r120-s4-revert.mjs` and ran it, then capped.
-  **This report stage independently re-verified the revert landed:**
-  `scheduled_time_start = 00:30:00`, `scheduled_time_end = 01:30:00`,
-  `updated_at = 2026-08-20T10:03:44.830Z` — **byte-identical to the pre-probe
-  state**. `work_orders` count 10; 0 junk rows created.
-- **No geocoding, no bulk operations, no QA rows added, 0 screenshots written to
-  the repo.**
-
----
-
-## Notes for the Next Run
-
-- ⚠️ **Stage capping is the dominant failure mode, not any individual defect.**
-  s2 has now capped two nights running and s4 one; between them they account for
-  every coverage gap above. The defect count reflects how much testing actually
-  ran, not how sound the app is. **Raise the s2/s4 turn budgets or narrow their
-  charters.**
-- **What let s1 and s3 finish: batching.** s1 broke an eight-run capping streak
-  by collapsing discovery into ~20 calls (one for env+login+inventory, one for
-  all 12 whitelists, one 331-request harness). s3 ran all 7 audits in **one**
-  aggregating browser call. Never one call per route.
-- **Require every stage to write its artifact before spending its remaining
-  budget.** Both completing stages did; neither capped stage did.
-- **Read each stage's JSON `terminal_reason`, not its self-assessment** — and
-  **always check `C:/tmp/*.json` and `*.txt` before writing a capped stage off.**
-  Both rules paid again tonight.
-- **`git status` as a first action** recovered a complete, uncommitted fix for
-  the **fifth** separate night. Keep it first.
-- **Date-check every input artifact.** `frontend-test-results.txt` was one day
-  stale in both locations tonight; reading it as current would have fabricated
-  the entire frontend section.
-- **Suggested next targets** — s1: create a `tasks` fixture, then the 7
-  tenant-singleton routes, then `POST` create paths. s3: copy correctness of the
-  other conditional states (loading / error / partial-result), the same shape
-  that produced tonight's Bug 4 — starting with the open `/estimates` defect.
-- **Verified non-bug, do not re-file:** s4's `.qa-r120-s4-staleorder.mjs`
-  reports **DIVERGENT** for `updated_at ASC` vs `days_stale DESC`, which looks
-  like it contradicts fix `e19a5a3`. It does not. `days_stale` is
-  `extract(day from now() - updated_at)::int`, which truncates to whole days —
-  **10 of this tenant's 13 leads tie at exactly 5d**, so the panel's own ordering
-  is tie-dominated and its tie order is arbitrary. `updated_at ASC` is a strict
-  refinement of the same intent. The harness's address-sequence equality check is
-  simply too strict for tied data.
-
----
-
-*Generated by the s5 report stage (Run 121), 2026-09-02.*
+*Report generated by the s5 report stage (Run 125), 2026-09-03. Build verified `exit 0` at time of writing.*

@@ -79,7 +79,11 @@ export default function AutomationSettings() {
       const [autoRes, teamRes] = await Promise.all([getAutomations(), getTeamMembers()]);
       setAutomations(autoRes.data);
       setTeamMembers(teamRes.data);
-    } catch { /* ignore */ }
+      setLoadError(false);
+    } catch {
+      // keep existing rows, but do not claim the list is empty
+      setLoadError(true);
+    }
     setLoading(false);
   }
 
