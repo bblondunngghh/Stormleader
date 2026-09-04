@@ -59,6 +59,7 @@ const labelStyle = { fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', 
 export default function AutomationSettings() {
   const [automations, setAutomations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
   const [teamMembers, setTeamMembers] = useState([]);
@@ -255,7 +256,9 @@ export default function AutomationSettings() {
           borderRadius: 'var(--radius-lg)', padding: 'var(--space-2xl)',
           textAlign: 'center', color: 'var(--text-muted)', fontSize: 14,
         }}>
-          No automation rules yet. Create one to get started.
+          {loadError
+            ? "Couldn't load automations — check your connection and try again"
+            : 'No automation rules yet. Create one to get started.'}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>

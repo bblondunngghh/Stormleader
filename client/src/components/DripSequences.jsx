@@ -67,6 +67,7 @@ function getEmptyForm() {
 export default function DripSequences() {
   const [sequences, setSequences] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState(getEmptyForm());
@@ -81,7 +82,11 @@ export default function DripSequences() {
     try {
       const { data } = await getDripSequences();
       setSequences(data);
-    } catch { /* ignore */ }
+      setLoadError(false);
+    } catch {
+      // keep existing rows, but do not claim the list is empty
+      setLoadError(true);
+    }
     setLoading(false);
   }
 
@@ -437,7 +442,9 @@ export default function DripSequences() {
           borderRadius: 'var(--radius-lg)', padding: 'var(--space-2xl)',
           textAlign: 'center', color: 'var(--text-muted)', fontSize: 14,
         }}>
-          No drip sequences yet. Create one to automate follow-ups.
+          {loadError
+            ? "Couldn't load drip sequences — check your connection and try again"
+            : 'No drip sequences yet. Create one to automate follow-ups.'}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
