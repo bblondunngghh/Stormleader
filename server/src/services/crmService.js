@@ -386,7 +386,7 @@ export async function getTasks(tenantId, filters = {}) {
   const { rows } = await pool.query(
     `SELECT t.*, u.first_name AS assignee_first_name, u.last_name AS assignee_last_name
      FROM tasks t
-     LEFT JOIN users u ON u.id = t.assigned_to
+     LEFT JOIN users u ON u.id = t.assigned_to AND u.tenant_id = t.tenant_id
      WHERE ${conditions.join(' AND ')}
      ORDER BY t.completed_at NULLS FIRST, t.due_date ASC NULLS LAST, t.id ASC
      LIMIT $${params.length - 1} OFFSET $${params.length}`,
@@ -396,8 +396,30 @@ export async function getTasks(tenantId, filters = {}) {
   return { tasks: rows };
 }
 
+// A task carries two foreign keys supplied by the client, and neither used to be checked
+// against the caller's tenant. Because the read paths join users and leads on those ids,
+// a task pointing at another tenant's row rendered that tenant's data back to the caller
+// (an assignee's name via getTasks, a customer's name and street address via
+// getTasksDueToday). Validate here, at the single write boundary, so both create and
+// update share one rule.
+async function assertOwned(tenantId, table, id, label) {
+  if (id === undefined || id === null || id === '') return;
+  const { rows } = await pool.query(
+    `SELECT 1 FROM ${table} WHERE id = $1 AND tenant_id = $2`,
+    [id, tenantId]
+  );
+  if (rows.length === 0) {
+    const err = new Error(`${label} not found`);
+    err.status = 400;
+    throw err;
+  }
+}
+
 export async function createTask(tenantId, data) {
   const { lead_id, assigned_to, title, description, due_date, priority = 'warm' } = data;
+
+  await assertOwned(tenantId, 'leads', lead_id, 'lead_id');
+  await assertOwned(tenantId, 'users', assigned_to, 'assigned_to');
 
   const { rows } = await pool.query(
     `INSERT INTO tasks (tenant_id, lead_id, assigned_to, title, description, due_date, priority)
@@ -424,6 +446,8 @@ export async function updateTask(tenantId, taskId, updates) {
   if (updates.completed_at !== undefined && updates.status === undefined) {
     updates.status = updates.completed_at ? 'completed' : 'pending';
   }
+
+  await assertOwned(tenantId, 'users', updates.assigned_to, 'assigned_to');
 
   const allowedFields = ['title', 'description', 'due_date', 'assigned_to', 'priority', 'completed_at', 'status'];
   const setClauses = [];
@@ -1033,7 +1057,7 @@ export async function getTasksDueToday(tenantId) {
   const { rows } = await pool.query(
     `SELECT t.*, l.address AS lead_address, l.contact_name AS lead_name
      FROM tasks t
-     LEFT JOIN leads l ON l.id = t.lead_id
+     LEFT JOIN leads l ON l.id = t.lead_id AND l.tenant_id = t.tenant_id
      WHERE t.tenant_id = $1
        AND t.status NOT IN ('completed', 'cancelled')
        AND t.completed_at IS NULL
