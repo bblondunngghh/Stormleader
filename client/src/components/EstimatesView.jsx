@@ -2391,13 +2391,13 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
               </div>
               <button onClick={() => setInsuranceEnabled(!insuranceEnabled)}
                 style={{
-                  width: 42, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', position: 'relative',
-                  background: insuranceEnabled ? 'oklch(0.55 0.18 250)' : 'oklch(0.3 0.02 260)',
+                  width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', position: 'relative',
+                  background: insuranceEnabled ? 'var(--accent-green)' : 'oklch(0.30 0.02 260 / 0.6)',
                   transition: 'background 0.15s',
                 }}>
                 <span style={{
-                  position: 'absolute', top: 3, left: insuranceEnabled ? 21 : 3,
-                  width: 18, height: 18, borderRadius: '50%', background: 'oklch(1 0 0)',
+                  position: 'absolute', top: 3, left: insuranceEnabled ? 23 : 3,
+                  width: 18, height: 18, borderRadius: '50%', background: 'var(--text-primary)',
                   transition: 'left 0.15s',
                 }} />
               </button>
@@ -2584,13 +2584,13 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                 <div style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>Financing Options</div>
                 <button onClick={() => setFinancingEnabled(!financingEnabled)}
                   style={{
-                    width: 42, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', position: 'relative',
-                    background: financingEnabled ? 'oklch(0.55 0.18 145)' : 'oklch(0.3 0.02 260)',
+                    width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', position: 'relative',
+                    background: financingEnabled ? 'var(--accent-green)' : 'oklch(0.30 0.02 260 / 0.6)',
                     transition: 'background 0.15s',
                   }}>
                   <span style={{
-                    position: 'absolute', top: 3, left: financingEnabled ? 21 : 3,
-                    width: 18, height: 18, borderRadius: '50%', background: 'oklch(1 0 0)',
+                    position: 'absolute', top: 3, left: financingEnabled ? 23 : 3,
+                    width: 18, height: 18, borderRadius: '50%', background: 'var(--text-primary)',
                     transition: 'left 0.15s',
                   }} />
                 </button>
@@ -2683,15 +2683,15 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                     type="button"
                     onClick={() => setDepositEnabled(!depositEnabled)}
                     style={{
-                      width: 36, height: 20, borderRadius: 10, border: 'none', cursor: 'pointer',
-                      background: depositEnabled ? 'oklch(0.72 0.19 250)' : 'oklch(0.30 0.02 260)',
+                      width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
+                      background: depositEnabled ? 'var(--accent-green)' : 'oklch(0.30 0.02 260 / 0.6)',
                       position: 'relative', transition: 'background 0.2s',
                     }}
                   >
                     <span style={{
-                      position: 'absolute', top: 2, left: depositEnabled ? 18 : 2,
-                      width: 16, height: 16, borderRadius: '50%', background: 'white',
-                      transition: 'left 0.2s', boxShadow: '0 1px 3px oklch(0 0 0 / 0.3)',
+                      position: 'absolute', top: 3, left: depositEnabled ? 23 : 3,
+                      width: 18, height: 18, borderRadius: '50%', background: 'var(--text-primary)',
+                      transition: 'left 0.2s',
                     }} />
                   </button>
                   <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>Require deposit upon signing</span>
