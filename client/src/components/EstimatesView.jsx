@@ -2820,7 +2820,10 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
           onSend={async (emailBody) => {
             setSending(true);
             try {
-              const payload = { ...form, discounts, signers, profit_margin: profitMargin, footer_notes: footerNotes };
+              // Same payload as the other four save paths. This one calls createEstimate
+              // for an estimate that was never saved as a draft, so the five fields it
+              // used to omit were not merely left unchanged — they were never written.
+              const payload = { ...form, discounts, signers, profit_margin: profitMargin, footer_notes: footerNotes, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null };
               let est;
               if (estimate) {
                 await estimatesApi.updateEstimate(estimate.id, payload);
