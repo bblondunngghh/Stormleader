@@ -5161,3 +5161,112 @@ s4 wrote `server/.qa-r124-s4-serverfix.mjs` to verify both server fixes, then ca
 - Drift baseline for the next run: the `docs: QA report 2026-09-03` commit (head after this entry).
 
 ---
+
+## QA Run: 2026-09-04
+
+**Branch `feat/financing` · baseline `a996c76` (`pre-overnight-20260904`) → HEAD `1733a1c`**
+Stages: s1 api-test · s2 frontend-test · s3 ui-audit · s4 verify · s5 report.
+**s1, s3 and s4 all hit `error_max_turns`** (51/50, 61/60, 41/40). Only s2 completed.
+s3 capped *after* writing its artifact and committing its fix; **s1 and s4 wrote no
+artifact at all** — s1's results were reconstructed by s5 from the JSON its harnesses
+left in `C:/tmp`, and **s4 left no verdict of any kind.**
+Stage cost: **$23.63** (s1 $5.27 · s2 $8.68 · s3 $5.69 · s4 $3.99).
+
+> Run-number note: s2 called tonight *Run 123*, s3 called it *Run 124*. Harness filenames
+> inherit the split (`.qa-r123-*`, `.qa-r124-*`). Resynchronise before the next run.
+
+### Test Results
+- Pages tested: **19/19 top-level routes** + **15/15 `/settings?tab=` sub-panels** (a surface never swept before) + `/leads/:id` slide-over (8 controls) + **13 create controls** across 8 routes and 3 Settings panels
+- API endpoints tested: **170 probes** — **132 GET** (every GET in the inventory: 113×200, 5×403 expected-admin, 4×400 expected-missing-param, 10 skipped for absent tables, **0×5xx**) + **38 collection-level POST/PUT** empty-body probes (35×400 correct, 3×200 unclassified PUT singletons)
+- Route inventory: **272 routes / 36 files** — GET 132 · POST 88 · PATCH 26 · PUT 8 · DELETE 18 (unchanged since Run 114)
+- Client source files statically swept: **76** (new undeclared-setter check)
+- Bugs found: **4**
+- Bugs fixed: **4** (2 commits)
+- UI inconsistencies found: **0** — audits 1–7 all converged
+- UI inconsistencies fixed: **0** (none to fix)
+- Regressions: **0** · Build: **PASS** (s2 12.20s · s3 8.01s · s5 8.12s) · DB: **net zero**, tenant-scoped counts byte-identical
+- Screenshots added to repo: **0**
+
+### Fixes Made
+- **`71d06dc`** `fix(ui)` — **`/subcontractors` told a tenant holding 63 subcontractors to "Add Your First Subcontractor"** whenever a filter matched zero rows. All three filters (search, specialty, status) go server-side and refetch. Reachable two ways, both proved live pre-fix. Fixed with the ternary idiom from five sibling views; `status` defaults to `'active'`, so only a *change* from that default counts as filtering — otherwise a genuinely empty tenant loses its onboarding CTA. Verified both directions + an empty-list stub, zero DB writes. (`SubcontractorsView.jsx`, +14/−4)
+- **`092d37a`** `fix(ui)` — **Settings → Automations was a DEAD PANEL.** The whole Workflow Automations feature was unreachable; the panel sat on "Loading automations..." forever with `PAGEERROR: setLoadError is not defined` ×2 per load. `setLoadError()` was called at :82 and :85 with **no `useState` behind it** — the `try` threw, the `catch` threw again with nothing to catch it, and `setLoading(false)` at :87 never ran. Same commit fixed two wrong-copy siblings: a *failed* automations load claimed "No automation rules yet. Create one to get started.", and `DripSequences.jsx` had the identical `catch { /* ignore */ }` + bare `length === 0` shape. Fixed by **completing** the abandoned edit, not reverting it, using the `cc13c6d` idiom. Verified both directions on both panels with a stubbed 500. (`AutomationSettings.jsx`, `DripSequences.jsx`, +13/−3)
+- Non-fix commits: **`130eff6`** (2 read-only s2 harnesses), **`1733a1c`** (`server/.qa-r124-undeclared.mjs`).
+
+🔑 **ROOT CAUSE OF THE DEAD PANEL — last night's warning came true within 24 hours.**
+`a996c76`, **tonight's own 05:00 checkpoint**, swept in the half-applied edit that
+2026-09-03's s4 abandoned when it capped mid-edit. Last night's s5 deliberately left it
+uncommitted and broken and wrote: *"the next `git status` sweep will otherwise treat it as
+recovered work and may commit it broken."* That is exactly what happened. **The "diff the
+tree for a capped stage's uncommitted FIXES" rule cuts both ways — a capped stage can also
+leave a broken edit, so classify what you find before committing it.**
+
+Three blind spots then lined up, all now standing facts:
+1. **`vite build` cannot catch it** — an undeclared identifier is a runtime `ReferenceError`, not a bundling error. **Three stages passed a green build tonight over a dead panel.**
+2. **There is NO ESLINT in this project** — no config, no script, no dependency. `no-undef` is exactly the rule for this. Reported, not added (tooling is outside the QA charter).
+3. **The 19-route sweep loads `/settings` on its DEFAULT tab only.** All 15 panels are `?tab=` sub-surfaces and no audit had ever entered them looking for **render health** — only for tab-chrome consistency. R122 measured 15/15 tabs *navigate*, and they do; the panel behind one was dead.
+
+### UI Consistency Fixes
+- **NONE NEEDED — audits 1–7 all measured CLEAN, and unlike 2026-09-03 this is a real measurement, not a gap.** Icons: 0 foreign classes on 19 routes + 15 panels (the only odd viewBoxes are recharts surfaces on `/reports`). Buttons: 0 unnamed, uniform `oklch(0.72 0.19 250)` primaries, house radius set. Headers: **exactly 56px on 19/19 — 20th consecutive convergence.** Sidebar: 22/22 nav buttons, one `.is-active` on 17/19 with both exceptions documented. Forms: **0 native `<select>`, 0 native date inputs** across routes *and* Settings panels. Spacing: 0 overflow, 0 stray overlays. Modals: 13/13 opens clean, dimensions and animations consistent.
+- New documented non-defect: `__PrivateStripeElement-input` on `?tab=billing` lacks `.form-input` because **Stripe's own iframe injects it** — vendor-owned, not an app control.
+- Two cosmetic readings deliberately NOT "fixed": `/materials`' 136 identical per-product Add buttons (one group, not 136 outliers) and `/`'s `border-radius: 3.35544e+07px` (Chrome's clamp of a huge radius; paints identically to the 999px pills). **Do not "fix" either.**
+
+### New reusable guard
+**`server/.qa-r124-undeclared.mjs`** (`1733a1c`, read-only) generalises tonight's defect:
+every `setXxx()` **call** checked against a declaration in the same file, across all 76
+client source files. **Before fix: 1 hit. After: 0 app-wide.** Only remaining match is
+`map.setMapTypeId()` in `StormMap.jsx` — a Google Maps method, false positive, map code
+off-limits. **Re-run it whenever a stage caps mid-edit.**
+
+### Non-bugs recorded so they never cost another run
+- **Dashboard "No pipeline data yet"** is a pixel-perfect replica of tonight's `/subcontractors` defect shape, and `getFunnel()` genuinely **is** filter-scoped — but the endpoint returns all stages with zero counts, so `funnel.length === 0` is **UNREACHABLE**. Measured empty in **0 of 4** filter states. **DO NOT FILE.**
+- **TopBar global search** reads as a dead control to any probe scanning `position:fixed` panels — `.search-dropdown` is `position:absolute`. It works fully, Ctrl+K included. **Sixth instance of "check the structure before filing".**
+- **A real Playwright pointer click DOES fire FullCalendar `dateClick`** — the documented trap applies only to synthetic `element.click()`. Gap closed.
+- **`/leads/:id` has NO tab rail** — the charter's "test every tab" describes a UI that does not exist. It is one slide-over, 8 sections, 21 buttons, all measured clean.
+- **`/leads`, `/calendar`, `/materials` have no "New X" button BY DESIGN** — leads come from Import/Export and the storm map, events from clicking a date, orders from the catalog/cart.
+
+### Known Issues Remaining
+- 🔴 **NO ESLINT IN THE PROJECT.** New this run and **the highest-leverage item on this list** — tonight's worst defect in ~20 runs is precisely what `no-undef` catches and the build provably cannot.
+- 🔴 **62 candidate tenant-scope SQL sites, UNTRIAGED.** s1's new static audit flagged every statement keying on a row id without a `tenant_id` constraint: 24 writes / 38 reads across 24 files (`routes/properties.js` 11 · `services/dripService.js` 9 · `services/crmService.js` 5 · `routes/onboarding.js` 4 · `routes/payments.js` 4 · `services/windDriftService.js` 4). **Raw scan hits, NOT confirmed defects** — several are obviously fine on sight (Stripe webhooks keyed on a Stripe id, ingestion, `seed-dev.js`). s1 capped immediately after writing the file. **This is a multi-tenant isolation question and the highest-value unfinished work of the night.**
+- ⚠️ **No error boundary anywhere in the SPA** — the amplifier behind five past defects. Tonight's crash was in an effect, so it "only" froze one panel.
+- **64 generic error toasts discard the server's message** (`InvoicesView.jsx:570`).
+- **Form-label drift — 7 treatments, ~100 inline labels. 12th run deferred.**
+- **Empty-state STYLING is split** — only `TasksView` uses `.empty-state`; 9 other list views inline-style theirs. Refactor candidate, not a defect.
+- **`ActivityModal` has no Esc handler** — closes via backdrop + `aria-label="Close"`, so not a trapped modal. Known-and-deferred.
+- **`/alerts` orphan route** · **`22007`/`22008` still leak the raw pg message** (deliberate `else` in `errorHandler.js`).
+- **`territories` table still does not exist** — 4 routes structurally unexercisable.
+- **`contract_templates` candidate defect, still unverified** (carried from 09-03): all 4 rows are `tenant_id = NULL` / `is_default = true`, waterloo owns zero, and `updateTemplate` filters `WHERE id=$2 AND tenant_id=$1` — so **if Settings → Contracts offers Edit on those 4 defaults, that click 404s for every tenant.** s4 was reaching for this when it capped.
+- **DB junk rows awaiting go-ahead:** subcontractor `{"$eq":1}`, territory `12345`, `qa_options_probe`.
+- **361 QA screenshots at the repo root** (337 tracked) — **this run added 0.** **`server/.qa-r91-neverrun.mjs` — never run, 17 nights.** **8 untracked `.qa-*.mjs`** + 5 `claude-overnight-*.json` in the tree; this commit is scoped to `OVERNIGHT-REPORT.md` and `docs/`.
+- **`server/.qa-r124-s4-serverfix.mjs`** was committed by `a996c76` *before this run began* — a stage-4 harness predating its own run.
+
+### Coverage gaps this run
+- 🔴 **s4 (verify) produced NO verdict whatsoever.** Capped at 41/40 having written three read-only harnesses and nothing else. Its entire charter — re-verify every fix, edge cases, 375px responsive, browser back/forward — is **unmeasured tonight**. Both fixes *were* verified by the stages that made them (both directions, with stubs), but received no **independent** re-verification.
+- 🆕 **s4 was reaching for a genuine blind spot worth inheriting: the three PUBLIC, customer-facing routes `/estimate/:token`, `/contract/:token`, `/status/:token`.** They live **outside the authenticated app shell and have therefore NEVER appeared in any 19-route sweep.** `.qa-r124-s4-tokens.mjs` already pulls real tokens for all three; `.qa-r124-s4-mergefields.mjs` asks whether the `{{merge field}}` vocabulary the contract UI advertises is ever actually substituted **before a customer sees the public contract page**. Neither was run to a recorded result.
+- 🔴 **`tasks` fixture — SECOND consecutive night written and not run.** `tasks` = 0 rows, so `/tasks` is testable only empty and `PATCH /api/crm/tasks/:id`'s 7 fields stay the last unprobed typed columns in the CRM core. `.qa-r123-taskfixture.mjs` exists and needs **one command**.
+- ⚠️ **3 PUT tenant-singleton routes returned 200 to an empty body and were never classified** — `/api/alerts/config`, `/api/crm/tenant-settings`, `/api/materials/credentials`. **Row counts prove no row was CREATED; they cannot prove no column was MUTATED.** `/api/materials/credentials` came back with `preferred_branch_id: "true"`, which looks like residue from an earlier probe. The other 4 singletons (`/api/onboarding/org`, `/api/roof-measurement/config`, `/api/skip-trace/config`, `/api/notifications/preferences`) were not probed at all.
+- **POST create-path type confusion still largely unmeasured** — 88 POST routes; `createX` often bypasses `allowedFields` and destructures directly (`createWorkOrder` does).
+- **GET response SHAPES still unasserted** — 132 routes return 200, nothing checks the payload against what the client reads; R122's 14 known disagreements remain untriaged.
+- **`.qa-r123-filtersem.mjs`** (do list filters actually narrow the result set?) written 05:04, **left no output file — whether it ran is unknown.**
+- **Deliberately excluded, not oversight:** 🚫 **`/storm-map` address search is a STANDING EXCLUSION** — Google Places `AutocompleteSuggestion` + `Geocoder`, **billable per keystroke**; verified rendered and wired, not driven. 🚫 **FEMA map property code off-limits.** Paid/destructive `/leads/:id` controls (Measure Roof, Run Trace, Share Status Page, Remove Lead, Generate Contract). `/work-orders` milestone toggling and `/canvassing` pin drop (writes). **No screenshots taken, by choice.**
+
+### DB hygiene — the "net zero" claim, scoped honestly
+- Tenant-scoped counts for `791bb51d` (waterloo), whole night: `leads 13 · tasks 0 · estimates 16 · invoices 14 · work_orders 10 · contracts 4 · expenses 2 · subcontractors 63` — **byte-identical** to the pre-run snapshot.
+- The API empty-body write sweep's **32-table count snapshot is identical before and after.**
+- Only genuine side effect: the pipeline drag moved a lead `new → contacted → new`; only `updated_at` moved, which is unavoidable.
+- 🚫 **STANDING TESTER-ERROR TRAP:** an **unscoped** `select count(*) from estimates` returns **17**, not 16 — the 17th row belongs to a different tenant. **Always scope count queries by `tenant_id` in a multi-tenant DB before reporting drift.**
+
+### Notes for the next run
+1. 🔑 **Triage the 62 tenant-scope candidates.** The only open item tonight that could be a security-class defect rather than a cosmetic or copy one.
+2. 🔑 **Run `.qa-r123-taskfixture.mjs`.** One command clears a gap that has survived two nights of being written and abandoned.
+3. 🔑 **Give s4 the public token routes.** Customer-facing, never swept, and the harnesses that fetch real tokens already exist.
+4. ⚠️ **Stage capping is STILL the dominant failure mode, for the second night running** — s1, s3 and s4 all capped, the same three as 09-03. Tonight's defect count reflects how much testing ran, not how sound the app is. **Raise the s1/s3/s4 turn budgets or narrow their charters.**
+5. 🔑 **Batching is what lets a stage finish.** s2 completed by collapsing work into few, wide calls. Never one call per route.
+6. **"Write your artifact BEFORE spending the rest of your budget" was written last night and went unheeded** — s1 and s4 again left nothing, and s5 again spent budget reconstructing s1 from raw JSON. The one stage that wrote first (s2) needed no reconstruction.
+7. **Read each stage's JSON `stop_reason`, never its self-assessment**, and **date-check `C:/tmp/*.txt` before treating an artifact as tonight's.** Both paid again: `/tmp/api-test-results.txt` is **Run 117's file from 2026-09-02**, and reading it as tonight's would have fabricated an entire section.
+8. **Re-run `.qa-r124-undeclared.mjs` whenever a stage caps mid-edit.** Tonight proves a green build is not evidence that the app runs.
+9. **Resynchronise the run number** — s2 and s3 disagreed by one on the same night.
+10. **Decide on ESLint.** It is the structural answer to the whole class of defect that produced tonight's worst finding.
+11. **Suggested targets** — **s1:** triage the 62 tenant-scope hits, then the task fixture, then the 7 singleton write routes. **s2:** the contract-template Edit path (candidate 404). **s3:** audits 1–7 converged again; spend the run on a *new* surface instead. **s4:** the three public token routes.
+- Drift baseline for the next run: the `docs: QA report 2026-09-04` commit (head after this entry).
+
+---
