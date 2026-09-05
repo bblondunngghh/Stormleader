@@ -272,7 +272,7 @@ export async function getWorkOrders(tenantId, { status, assignedTo, limit = 50, 
   const { rows } = await pool.query(
     `SELECT wo.*, l.contact_name, l.address, CONCAT(u.first_name, ' ', u.last_name) AS assigned_name
      FROM work_orders wo
-     LEFT JOIN leads l ON wo.lead_id = l.id
+     LEFT JOIN leads l ON wo.lead_id = l.id AND l.tenant_id = wo.tenant_id
      LEFT JOIN users u ON wo.assigned_to = u.id
      WHERE ${conditions.join(' AND ')}
      ORDER BY wo.created_at DESC
@@ -293,7 +293,7 @@ export async function getWorkOrder(tenantId, id) {
     `SELECT wo.*, l.contact_name, l.address, l.contact_phone, l.contact_email,
             CONCAT(u.first_name, ' ', u.last_name) AS assigned_name
      FROM work_orders wo
-     LEFT JOIN leads l ON wo.lead_id = l.id
+     LEFT JOIN leads l ON wo.lead_id = l.id AND l.tenant_id = wo.tenant_id
      LEFT JOIN users u ON wo.assigned_to = u.id
      WHERE wo.id = $1 AND wo.tenant_id = $2`,
     [id, tenantId]
@@ -332,7 +332,7 @@ export async function createWorkOrder(tenantId, data) {
 export async function createFromEstimate(tenantId, estimateId) {
   const { rows: estRows } = await pool.query(
     `SELECT e.*, l.address FROM estimates e
-     LEFT JOIN leads l ON l.id = e.lead_id
+     LEFT JOIN leads l ON l.id = e.lead_id AND l.tenant_id = e.tenant_id
      WHERE e.id = $1 AND e.tenant_id = $2`,
     [estimateId, tenantId]
   );

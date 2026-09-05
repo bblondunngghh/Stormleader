@@ -18,7 +18,7 @@ export async function getInvoices(tenantId, { status, limit = 50, offset = 0 } =
   const { rows } = await pool.query(
     `SELECT i.*, l.contact_name, l.address AS lead_address
      FROM invoices i
-     LEFT JOIN leads l ON l.id = i.lead_id
+     LEFT JOIN leads l ON l.id = i.lead_id AND l.tenant_id = i.tenant_id
      WHERE ${conditions.join(' AND ')}
      ORDER BY i.created_at DESC
      LIMIT $${params.length - 1} OFFSET $${params.length}`,
@@ -38,7 +38,7 @@ export async function getInvoice(tenantId, id) {
     `SELECT i.*, l.contact_name, l.address AS lead_address,
             l.contact_phone AS lead_phone, l.contact_email AS lead_email
      FROM invoices i
-     LEFT JOIN leads l ON l.id = i.lead_id
+     LEFT JOIN leads l ON l.id = i.lead_id AND l.tenant_id = i.tenant_id
      WHERE i.id = $1 AND i.tenant_id = $2`,
     [id, tenantId]
   );

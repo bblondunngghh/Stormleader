@@ -28,7 +28,7 @@ export async function listExpenses(tenantId, { leadId, category, startDate, endD
   const { rows } = await pool.query(
     `SELECT e.*, l.contact_name, l.address AS lead_address
      FROM expenses e
-     LEFT JOIN leads l ON l.id = e.lead_id
+     LEFT JOIN leads l ON l.id = e.lead_id AND l.tenant_id = e.tenant_id
      WHERE ${where}
      ORDER BY e.date DESC, e.created_at DESC
      LIMIT $${params.length - 1} OFFSET $${params.length}`,

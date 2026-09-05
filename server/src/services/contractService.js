@@ -26,7 +26,7 @@ export async function listContracts(tenantId, filters = {}) {
   const { rows } = await pool.query(
     `SELECT c.*, l.contact_name, l.address
      FROM contracts c
-     LEFT JOIN leads l ON l.id = c.lead_id
+     LEFT JOIN leads l ON l.id = c.lead_id AND l.tenant_id = c.tenant_id
      WHERE ${where}
      ORDER BY c.created_at DESC
      LIMIT $${params.length - 1} OFFSET $${params.length}`,
@@ -47,7 +47,7 @@ export async function getContract(tenantId, id) {
             e.estimate_number, e.total AS estimate_total,
             t.name AS company_name
      FROM contracts c
-     LEFT JOIN leads l ON l.id = c.lead_id
+     LEFT JOIN leads l ON l.id = c.lead_id AND l.tenant_id = c.tenant_id
      LEFT JOIN estimates e ON e.id = c.estimate_id
      JOIN tenants t ON t.id = c.tenant_id
      WHERE c.id = $1 AND c.tenant_id = $2`,
@@ -61,7 +61,7 @@ export async function getContractByToken(token) {
     `SELECT c.*, l.contact_name, l.address, l.contact_phone, l.contact_email,
             t.name AS company_name
      FROM contracts c
-     LEFT JOIN leads l ON l.id = c.lead_id
+     LEFT JOIN leads l ON l.id = c.lead_id AND l.tenant_id = c.tenant_id
      JOIN tenants t ON t.id = c.tenant_id
      WHERE c.token = $1`,
     [token]
@@ -77,7 +77,7 @@ export async function createContract(tenantId, { leadId, estimateId, templateTyp
     const { rows: estRows } = await pool.query(
       `SELECT e.*, l.contact_name, l.address, l.contact_phone, l.contact_email
        FROM estimates e
-       LEFT JOIN leads l ON l.id = e.lead_id
+       LEFT JOIN leads l ON l.id = e.lead_id AND l.tenant_id = e.tenant_id
        WHERE e.id = $1 AND e.tenant_id = $2`,
       [estimateId, tenantId]
     );

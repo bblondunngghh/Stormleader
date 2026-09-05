@@ -122,7 +122,7 @@ export async function getEstimates(tenantId, filters = {}) {
             l.contact_name AS lead_name, l.address AS lead_address
      FROM estimates e
      LEFT JOIN users u ON u.id = e.created_by
-     LEFT JOIN leads l ON l.id = e.lead_id
+     LEFT JOIN leads l ON l.id = e.lead_id AND l.tenant_id = e.tenant_id
      WHERE ${conditions.join(' AND ')}
      ORDER BY e.created_at DESC
      LIMIT $${params.length - 1} OFFSET $${params.length}`,
@@ -166,7 +166,7 @@ export async function getEstimateDetail(tenantId, estimateId) {
             t.name AS company_name
      FROM estimates e
      LEFT JOIN users u ON u.id = e.created_by
-     LEFT JOIN leads l ON l.id = e.lead_id
+     LEFT JOIN leads l ON l.id = e.lead_id AND l.tenant_id = e.tenant_id
      LEFT JOIN tenants t ON t.id = e.tenant_id
      WHERE e.id = $1 AND e.tenant_id = $2`,
     [estimateId, tenantId]
