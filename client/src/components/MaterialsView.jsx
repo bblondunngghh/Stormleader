@@ -765,7 +765,7 @@ function OrdersTab({ orders, loading, selectedOrder, setSelectedOrder }) {
                     }}>{order.status}</span>
                   </td>
                   <td style={{ fontSize: 12 }}>{items.length} item{items.length !== 1 ? 's' : ''}</td>
-                  <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{order.branch_name || '--'}</td>
+                  <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{order.branch_name || '—'}</td>
                   <td style={{ fontWeight: 700, color: 'var(--accent-green)' }}>{formatCurrency(order.total_cost)}</td>
                   <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                     {new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
