@@ -1358,6 +1358,11 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
       };
       hydratedFormRef.current = hydrated;
       setForm(hydrated);
+      // footerNotes lives outside `form` (it is edited through its own always-visible
+      // panel), so it needs its own hydration line. Without it the editor opened blank
+      // on an estimate that already had footer notes, and the "Send for Signing" path —
+      // the one payload that did send footer_notes — wrote that blank back over them.
+      setFooterNotes(estimate.footer_notes || '');
       if (estimate.discounts && Array.isArray(estimate.discounts)) {
         setDiscounts(estimate.discounts);
       }
@@ -1590,7 +1595,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null };
+      const payload = { ...form, discounts, signers, profit_margin: profitMargin, footer_notes: footerNotes, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null };
       if (estimate) {
         await estimatesApi.updateEstimate(estimate.id, payload);
       } else {
@@ -1608,7 +1613,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   const handleSaveAndSend = async () => {
     setSending(true);
     try {
-      const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null };
+      const payload = { ...form, discounts, signers, profit_margin: profitMargin, footer_notes: footerNotes, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null };
       let est;
       if (estimate) {
         await estimatesApi.updateEstimate(estimate.id, payload);
@@ -1680,7 +1685,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
               if (!target) {
                 setSaving(true);
                 try {
-                  const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null };
+                  const payload = { ...form, discounts, signers, profit_margin: profitMargin, footer_notes: footerNotes, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null };
                   const res = await estimatesApi.createEstimate(payload);
                   target = res.data;
                   setCreatedEstimate(target);
@@ -1699,7 +1704,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
                 // Save first, then open signing
                 setSaving(true);
                 try {
-                  const payload = { ...form, discounts, signers, profit_margin: profitMargin, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null };
+                  const payload = { ...form, discounts, signers, profit_margin: profitMargin, footer_notes: footerNotes, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null };
                   const res = await estimatesApi.createEstimate(payload);
                   setCreatedEstimate(res.data);
                   showToast('Estimate saved', 'success');
