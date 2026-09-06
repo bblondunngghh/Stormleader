@@ -25,10 +25,16 @@ const typeOptions = [
   { value: 'door_knock', label: 'Door Knock' },
 ];
 
+// `tasks.priority` is the `lead_priority` enum (hot|warm|cold), but every TASK surface in
+// the app labels it High/Medium/Low — TasksView.jsx:16 (row badge + both task modals) and
+// Dashboard.jsx:77 (Tasks Due Today + the task list). Hot/Warm/Cold is the LEAD vocabulary
+// (LeadList.jsx:41, Pipeline.jsx:111, CreateLeadModal.jsx:8). This modal creates a TASK, so
+// it takes the task vocabulary. The stored enum values are unchanged.
+const priorityLabels = { hot: 'High', warm: 'Medium', cold: 'Low' };
 const priorityOptions = [
-  { value: 'hot', label: 'Hot' },
-  { value: 'warm', label: 'Warm' },
-  { value: 'cold', label: 'Cold' },
+  { value: 'hot', label: 'High' },
+  { value: 'warm', label: 'Medium' },
+  { value: 'cold', label: 'Low' },
 ];
 
 export default function CalendarView() {
@@ -138,7 +144,7 @@ export default function CalendarView() {
         )}
         {priority && (
           <span className={`calendar-event-content__priority calendar-event-content__priority--${priority}`}>
-            {priority}
+            {priorityLabels[priority] || priority}
           </span>
         )}
       </div>
