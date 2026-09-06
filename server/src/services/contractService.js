@@ -1,4 +1,5 @@
 import pool from '../db/pool.js';
+import assertOwned from '../utils/assertOwned.js';
 import crypto from 'crypto';
 
 // ============================================================
@@ -70,6 +71,13 @@ export async function getContractByToken(token) {
 }
 
 export async function createContract(tenantId, { leadId, estimateId, templateType, content }) {
+
+  // Reject a client-supplied foreign key owned by another tenant. Same write-boundary
+  // rule as createTask/logActivity: these ids come straight from the request body and the
+  // read paths join on them, so an unchecked id stored another tenant's row as a dangling
+  // reference and rendered its PII back to the caller.
+  await assertOwned(tenantId, 'leads', leadId, 'lead_id');
+  await assertOwned(tenantId, 'estimates', estimateId, 'estimate_id');
   let finalContent = content || {};
 
   // If estimateId provided, fetch estimate + lead data to auto-populate merge fields

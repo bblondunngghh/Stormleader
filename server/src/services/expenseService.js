@@ -1,4 +1,5 @@
 import pool from '../db/pool.js';
+import assertOwned from '../utils/assertOwned.js';
 
 export async function listExpenses(tenantId, { leadId, category, startDate, endDate, limit = 50, offset = 0 } = {}) {
   const params = [tenantId];
@@ -44,6 +45,12 @@ export async function listExpenses(tenantId, { leadId, category, startDate, endD
 }
 
 export async function createExpense(tenantId, { leadId, category, amount, date, notes, createdBy }) {
+
+  // Reject a client-supplied foreign key owned by another tenant. Same write-boundary
+  // rule as createTask/logActivity: these ids come straight from the request body and the
+  // read paths join on them, so an unchecked id stored another tenant's row as a dangling
+  // reference and rendered its PII back to the caller.
+  await assertOwned(tenantId, 'leads', leadId, 'lead_id');
   const { rows } = await pool.query(
     `INSERT INTO expenses (tenant_id, lead_id, category, amount, date, notes, created_by)
      VALUES ($1, $2, $3, $4, $5, $6, $7)

@@ -1,4 +1,5 @@
 import pool from '../db/pool.js';
+import assertOwned from '../utils/assertOwned.js';
 
 // ============================================================
 // MILESTONES
@@ -307,6 +308,14 @@ export async function createWorkOrder(tenantId, data) {
     scheduled_date, scheduled_time_start, scheduled_time_end, line_items = [], notes,
     milestone_template,
   } = data;
+
+  // Reject a client-supplied foreign key owned by another tenant. Same write-boundary
+  // rule as createTask/logActivity: these ids come straight from the request body and the
+  // read paths join on them, so an unchecked id stored another tenant's row as a dangling
+  // reference and rendered its PII back to the caller.
+  await assertOwned(tenantId, 'leads', lead_id, 'lead_id');
+  await assertOwned(tenantId, 'estimates', estimate_id, 'estimate_id');
+  await assertOwned(tenantId, 'users', assigned_to, 'assigned_to');
 
   const { rows } = await pool.query(
     `INSERT INTO work_orders (

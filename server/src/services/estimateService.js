@@ -1,4 +1,5 @@
 import pool from '../db/pool.js';
+import assertOwned from '../utils/assertOwned.js';
 import crypto from 'crypto';
 import { sendEstimateEmail } from './emailService.js';
 import config from '../config/env.js';
@@ -38,6 +39,12 @@ export function replaceTokens(text, estimate) {
 // ============================================================
 
 export async function createEstimate(tenantId, userId, data) {
+
+  // Reject a client-supplied foreign key owned by another tenant. Same write-boundary
+  // rule as createTask/logActivity: lead_id comes straight from the request body and the
+  // read paths join on it, so an unchecked id stored another tenant's lead as a dangling
+  // reference and rendered its PII back to the caller.
+  await assertOwned(tenantId, 'leads', data.lead_id, 'lead_id');
   // Generate next estimate number for tenant.
   // Derive from the highest number already issued, NOT from COUNT(*): deleting any
   // earlier estimate makes COUNT(*)+1 land on a number that is already in use, and
