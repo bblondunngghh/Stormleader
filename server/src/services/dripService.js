@@ -208,7 +208,7 @@ export async function getEnrollments(tenantId, sequenceId) {
     `SELECT de.*,
             l.contact_name, l.contact_email, l.address
      FROM drip_enrollments de
-     JOIN leads l ON l.id = de.lead_id
+     JOIN leads l ON l.id = de.lead_id AND l.tenant_id = de.tenant_id
      WHERE de.sequence_id = $1 AND de.tenant_id = $2
      ORDER BY de.enrolled_at DESC`,
     [sequenceId, tenantId]

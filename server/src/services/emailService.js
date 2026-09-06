@@ -157,7 +157,7 @@ export async function sendOverdueInvoiceReminders() {
            l.contact_name, l.contact_email
     FROM invoices i
     JOIN tenants t ON t.id = i.tenant_id
-    LEFT JOIN leads l ON l.id = i.lead_id
+    LEFT JOIN leads l ON l.id = i.lead_id AND l.tenant_id = i.tenant_id
     WHERE i.status = 'sent'
       AND i.due_date < NOW()
       AND (i.last_reminder_at IS NULL OR i.last_reminder_at < NOW() - INTERVAL '7 days')

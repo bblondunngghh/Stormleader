@@ -1,5 +1,6 @@
 import pool from '../db/pool.js';
 import logger from '../utils/logger.js';
+import assertOwned from '../utils/assertOwned.js';
 
 // ============================================================
 // LEADS — Enhanced CRUD via lead_summary_view
@@ -312,6 +313,11 @@ export async function logActivity(tenantId, userId, data) {
   const { lead_id, subject, notes, outcome, duration_seconds, metadata } = data;
   const type = data.type ?? 'note';
 
+  // Same write-boundary rule as createTask: an activity's lead_id comes straight from the
+  // request body, and the read paths join leads on it, so an unchecked id let a caller
+  // attach another tenant's lead and read that lead's name and address back out.
+  await assertOwned(tenantId, 'leads', lead_id, 'lead_id');
+
   const { rows } = await pool.query(
     `INSERT INTO activities (tenant_id, lead_id, user_id, type, subject, notes, outcome, duration_seconds, metadata)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
@@ -402,19 +408,6 @@ export async function getTasks(tenantId, filters = {}) {
 // (an assignee's name via getTasks, a customer's name and street address via
 // getTasksDueToday). Validate here, at the single write boundary, so both create and
 // update share one rule.
-async function assertOwned(tenantId, table, id, label) {
-  if (id === undefined || id === null || id === '') return;
-  const { rows } = await pool.query(
-    `SELECT 1 FROM ${table} WHERE id = $1 AND tenant_id = $2`,
-    [id, tenantId]
-  );
-  if (rows.length === 0) {
-    const err = new Error(`${label} not found`);
-    err.status = 400;
-    throw err;
-  }
-}
-
 export async function createTask(tenantId, data) {
   const { lead_id, assigned_to, title, description, due_date, priority = 'warm' } = data;
 
@@ -727,7 +720,7 @@ export async function getRecentActivity(tenantId, limit = 15, filters = {}) {
     `SELECT a.*, l.address, l.contact_name, l.stage,
             u.first_name AS user_first_name, u.last_name AS user_last_name
      FROM activities a
-     JOIN leads l ON l.id = a.lead_id
+     JOIN leads l ON l.id = a.lead_id AND l.tenant_id = a.tenant_id
      LEFT JOIN users u ON u.id = a.user_id
      WHERE a.tenant_id = $1${fLead.clause}${fDate.clause}
      ORDER BY a.created_at DESC

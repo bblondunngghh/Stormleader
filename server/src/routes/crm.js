@@ -1066,7 +1066,7 @@ router.get('/calendar', async (req, res, next) => {
       `SELECT t.id, t.title, t.due_date, t.priority, t.status, t.lead_id,
               l.contact_name, l.address
        FROM tasks t
-       LEFT JOIN leads l ON t.lead_id = l.id
+       LEFT JOIN leads l ON t.lead_id = l.id AND l.tenant_id = t.tenant_id
        WHERE t.tenant_id = $1
          AND t.due_date BETWEEN $2 AND $3
        ORDER BY t.due_date`,
@@ -1078,7 +1078,7 @@ router.get('/calendar', async (req, res, next) => {
       `SELECT a.id, a.type, a.subject, a.created_at, a.lead_id,
               l.contact_name, l.address
        FROM activities a
-       LEFT JOIN leads l ON a.lead_id = l.id
+       LEFT JOIN leads l ON a.lead_id = l.id AND l.tenant_id = a.tenant_id
        WHERE a.tenant_id = $1
          AND a.created_at BETWEEN $2 AND $3
          AND a.type IN ('call', 'door_knock', 'email')

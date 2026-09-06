@@ -18,7 +18,7 @@ export async function globalSearch(tenantId, query, limit = 20) {
       `SELECT c.id, c.first_name, c.last_name, c.phone, c.email, c.role, c.lead_id,
               l.address AS lead_address
        FROM contacts c
-       LEFT JOIN leads l ON l.id = c.lead_id
+       LEFT JOIN leads l ON l.id = c.lead_id AND l.tenant_id = c.tenant_id
        WHERE c.tenant_id = $1
          AND (c.first_name ILIKE $2 OR c.last_name ILIKE $2 OR c.phone ILIKE $2 OR c.email ILIKE $2)
        ORDER BY c.created_at DESC LIMIT $3`,

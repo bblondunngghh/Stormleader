@@ -108,7 +108,7 @@ export async function getActivity(tenantId, limit = 20, filters = {}) {
     `SELECT o.id, o.type, o.metadata->>'direction' AS direction, o.outcome, o.notes, o.created_at,
             l.contact_name, l.address, l.id AS lead_id
      FROM activities o
-     JOIN leads l ON l.id = o.lead_id
+     JOIN leads l ON l.id = o.lead_id AND l.tenant_id = o.tenant_id
      WHERE ${conditions.join(' AND ')}
      ORDER BY o.created_at DESC
      LIMIT $${params.length}`,
