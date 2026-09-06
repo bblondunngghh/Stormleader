@@ -56,6 +56,13 @@ export default function errorHandler(err, req, res, _next) {
       // ('time zone "not-a-time" not recognized'), which is confusing rather
       // than useful — use the same generic message as 22P02.
       message = 'Invalid value provided for one or more fields';
+    } else if (err.code === '22007' || err.code === '22008') {
+      // The only branch left returning pg's own text. Both echo the internal column
+      // type back to the caller — 'invalid input syntax for type timestamp with time
+      // zone: "notadate"' and 'timestamp out of range: "9999999-01-01"'. That is the
+      // same leak 22P02 and 23514 are sanitized for, and it is reachable from ordinary
+      // input: any bad date on /crm/calendar or a task's due_date returns it verbatim.
+      message = 'Invalid date or time value provided for one or more fields';
     } else if (err.code === '22001') {
       // 22001 surfaces the column's declared width ("character varying(20)").
       message = 'One or more values exceed the maximum allowed length';
