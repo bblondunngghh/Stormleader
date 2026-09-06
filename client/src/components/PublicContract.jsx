@@ -101,6 +101,16 @@ export default function PublicContract() {
     return [{ title: 'Agreement', body: typeof content === 'string' ? content : '' }];
   }
 
+  // Contract rows carry the joined lead's contact_* / address columns; a customer name
+  // may also have been snapshotted into the content JSONB when the contract was drafted.
+  const contentObj = contract.content && typeof contract.content === 'object' && !Array.isArray(contract.content)
+    ? contract.content
+    : {};
+  const customerName = contract.contact_name || contentObj.customer_name || contract.signer_name;
+  const customerAddress = contract.address || contentObj.customer_address;
+  const customerPhone = contract.contact_phone || contentObj.customer_phone;
+  const customerEmail = contract.contact_email || contentObj.customer_email;
+
   return (
     <div className="public-estimate-page">
       <div className="public-estimate-card">
@@ -118,14 +128,19 @@ export default function PublicContract() {
           </div>
         </div>
 
-        {/* Customer */}
-        {contract.customer_name && (
+        {/* Customer. A contract row does NOT carry customer_* columns the way an estimate
+            does - getContractByToken (contractService.js:62) joins the lead and returns
+            contact_name / address / contact_phone / contact_email, and the content JSONB
+            is the only other place a customer name lives. Reading the estimate's idiom
+            here left `customer_name` undefined, so this whole block was gated off and the
+            customer never saw who the contract was prepared for. */}
+        {customerName && (
           <div className="public-estimate-customer">
             <div className="public-estimate-section-title">Prepared For</div>
-            <div className="public-estimate-customer__name">{contract.customer_name}</div>
-            {contract.customer_address && <div>{contract.customer_address}</div>}
-            {contract.customer_phone && <div>{contract.customer_phone}</div>}
-            {contract.customer_email && <div>{contract.customer_email}</div>}
+            <div className="public-estimate-customer__name">{customerName}</div>
+            {customerAddress && <div>{customerAddress}</div>}
+            {customerPhone && <div>{customerPhone}</div>}
+            {customerEmail && <div>{customerEmail}</div>}
           </div>
         )}
 
