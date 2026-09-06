@@ -3,6 +3,10 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { CheckIcon } from '@heroicons/react/24/outline';
 
+// Keys must be `lead_stage` enum values. `completed` is a WORK ORDER status, not a lead
+// stage, so its "Job Complete" milestone could never be reached and every customer's
+// timeline was permanently one step short of the end. `lost` and `on_hold` are real
+// stages but are deliberately not customer-facing milestones - see currentIdx below.
 const STAGE_LABELS = {
   new: 'Lead Received',
   contacted: 'Initial Contact',
@@ -12,7 +16,6 @@ const STAGE_LABELS = {
   negotiating: 'In Review',
   sold: 'Contract Signed',
   in_production: 'In Production',
-  completed: 'Job Complete',
 };
 
 const STAGE_ORDER = Object.keys(STAGE_LABELS);
@@ -58,21 +61,32 @@ export default function ClientStatusPage() {
 
   const { companyName, customer, currentStage, stageHistory, workOrder, milestones } = data;
 
-  // Build a set of stages the lead has passed through (from history descriptions)
+  // Build a set of stages the lead has passed through, from the status_change activities.
+  // The endpoint (routes/leads.js:55) selects `subject, notes, created_at` - it has never
+  // sent a `description`, so reading that field left this map permanently empty and no
+  // milestone ever showed its date. The stored subject reads "Status changed from New to
+  // Contacted" / "Status changed to Lost — went with competitor", so anchor on the last
+  // " to " and take the whole stage name: a `(\w+)` capture stopped at the first word and
+  // turned "Appt Set" into "appt", which matches no stage key.
   const stageHistoryDates = {};
   for (const entry of stageHistory) {
-    // Try to extract stage from description like "Stage changed to sold"
-    const match = entry.description?.match(/(?:changed to|→)\s*(\w+)/i);
+    const text = entry.subject || entry.notes || '';
+    const match = text.match(/\bto\s+([A-Za-z][A-Za-z ]*?)\s*(?:[—–-]|$)/i);
     if (match) {
-      const stage = match[1].toLowerCase();
+      const stage = match[1].trim().toLowerCase().replace(/\s+/g, '_');
       if (!stageHistoryDates[stage]) {
         stageHistoryDates[stage] = entry.created_at;
       }
     }
   }
 
-  // Current stage index
-  const currentIdx = STAGE_ORDER.indexOf(currentStage);
+  // Current stage index. `lost` and `on_hold` are off the customer-facing pipeline, so
+  // indexOf returns -1 for them and `idx <= currentIdx` was false for every step - a lead
+  // that reached Contract Signed and then went on hold showed the customer a timeline
+  // claiming nothing had happened yet. Fall back to the furthest stage actually reached.
+  const reachedIdx = Object.keys(stageHistoryDates)
+    .reduce((max, s) => Math.max(max, STAGE_ORDER.indexOf(s)), -1);
+  const currentIdx = Math.max(STAGE_ORDER.indexOf(currentStage), reachedIdx);
 
   return (
     <div style={styles.page}>
