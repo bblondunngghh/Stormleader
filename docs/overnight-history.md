@@ -5270,3 +5270,195 @@ off-limits. **Re-run it whenever a stage caps mid-edit.**
 - Drift baseline for the next run: the `docs: QA report 2026-09-04` commit (head after this entry).
 
 ---
+
+## QA Run: 2026-09-05
+
+**Branch `feat/financing` · baseline `7120921` (`pre-overnight-20260905`) → HEAD `5798949`**
+Stages: s1 api-test · s2 frontend-test · s3 ui-audit · s4 verify · s5 report.
+🔴 **ALL FOUR working stages hit `error_max_turns`** (51/50, 81/80, 61/60, 41/40) — the first
+night on which none completed, and the third consecutive night capping is the dominant
+failure mode. **Only s1 wrote an artifact.** s2 and s3 wrote none (s3's charter *required*
+one); **s4 again left no verdict of any kind — three nights running.**
+Stage cost: **$24.39** (s1 $5.16 · s2 $7.26 · s3 $6.53 · s4 $5.44).
+
+> Run-number note: s1 called tonight *Run 125* (`.qa-r125-*`), s2 and s4 called it *Run 126*
+> (`.qa-r126-*`). **The identical off-by-one as 2026-09-04, which asked for it to be
+> resynchronised.** It was not. This entry uses **126**.
+
+### Test Results
+- Pages tested: **NOT MEASURABLE.** s2 capped with no artifact; evidenced from commits only:
+  `/estimates` (builder), `/materials`. The 14-page charter cannot be reported as swept.
+- API endpoints tested: **177 probes** — **132 GET** (113×2xx · 5×403 admin · 4×400 missing
+  param · 10 skipped for absent tables · **0×5xx**, identical to Run 123, no drift) + **5
+  public token routes** (a surface no prior run had ever reached) + 7 cross-tenant create
+  probes + 23 `tasks` lifecycle assertions + 12 `contract_templates` assertions
+- Route inventory: **272 routes / 36 files** — GET 132 · POST 88 · PATCH 26 · PUT 8 · DELETE 18
+  (unchanged since Run 114). **Only 49% of routes are swept at all.**
+- Bugs found: **10** · Bugs fixed: **10** (6 commits)
+- UI inconsistencies found: **4** · fixed: **4**
+- Regressions: **0** · Build: **PASS** (s5 final 8.01s, exit 0) · DB: **net zero**, tenant-scoped
+  counts byte-identical, 0 fixture leftovers
+- Screenshots added to repo: **0**
+
+### Fixes Made
+- **`3a3d752`** `fix(api)` — 🔴 **`tasks` leaked another tenant's customer name, street address
+  and user names.** `POST /api/crm/tasks` accepted `lead_id` and `assigned_to` belonging to any
+  tenant, and both read paths joined with no tenant predicate. Proved live: a foreign lead came
+  back as `ZZ-VICTIM-CUSTOMER` / `999 SECRET STREET` from `/dashboard/tasks-today`, and a
+  foreign user's real name from `/tasks`. Fixed on both sides — `assertOwned()` at the shared
+  write boundary (400) + both joins scoped to `t.tenant_id`. 23-assertion lifecycle harness
+  still 0 failures.
+- **`1e94206`** `fix(api)` — 🔴 **Five more list endpoints leaked customer PII** (`contracts`,
+  `invoices`, `expenses`, `estimates`, `work-orders`) — the same family. **13 `leads` joins
+  across 5 services** scoped with `AND l.tenant_id = <x>.tenant_id`, closing it *structurally*
+  (reaching rows already stored, which input validation alone would not). Re-probe 0 leaks;
+  regression harness confirms every same-tenant row still resolves (contracts 1/1, invoices
+  4/4, expenses 0/0, estimates 9/9, work-orders 4/4).
+- **`25edc26`** `fix(ui)` — **estimate builder silently discarded Footer Notes.** `footer_notes`
+  was in **none** of the four save payloads (`footerNotes` lives outside `form`, so `...form`
+  never picked it up; the server whitelist skips `undefined`, so every save returned **200 and
+  wrote nothing**). Hydration had the mirror-image gap — the editor opened **blank** on an
+  estimate that had notes, and Send for Signing then wrote that blank back over the stored
+  value. Both halves fixed. Proved with **zero DB writes** via an aborting Playwright route.
+- **`a380a7a`** `fix(ui)` — **"Send for Signing" dropped `financing_enabled`,
+  `financing_plan_ids`, `insurance_details`, `upgrades`, `deposit`.** Invisible on an existing
+  estimate, but the same line calls **`createEstimate`** for an unsaved one and the button is
+  ungated — so a rep who builds a new estimate and sends it without clicking Save Draft first
+  loses all five silently. 19-key POST → 24, byte-identical to the other four payloads.
+- **`29fadca`** `fix(ui)` — materials Order History used a double hyphen where the app uses an
+  em-dash; the **only** double-hyphen placeholder against **71 em-dash sites in 12 components**.
+  Visible now, not latent — all 6 SRS orders have a NULL `branch_name`.
+- **`5798949`** `fix(ui)` — three estimate-builder toggles were off-standard and disagreed with
+  each other (42×24 blue / 42×24 green / 36×20 blue). See below.
+
+### UI Consistency Fixes
+- **Run 78-s3 said the app has FOUR ToggleSwitch implementations. It has NINE.** The
+  enumeration never entered the estimate builder, which holds three of them. All three
+  hardcoded colours instead of using a token, and both "on" colours were **near-misses of real
+  tokens at a materially darker lightness** — `--accent-blue` is `oklch(0.72 0.19 250)` but
+  insurance used L=0.55; `--accent-green` is `oklch(0.75 0.18 155)` but financing used
+  `oklch(0.55 0.18 145)`. On a dark-mode-first UI that reads visibly dimmer than the identical
+  control in Settings. `36×20` was a population of **exactly one**. Aligned all three to
+  44×24 including knob travel. **Deliberately not touched:** the 10 compact section toggles
+  (34×18, documented deliberate, verified unchanged) and `AutomationSettings`/`DripSequences`
+  (40×22, byte-identical, token-driven, dense rows).
+- Em-dash placeholder normalised in `MaterialsView`; a grep for the double-hyphen fallback
+  across `client/src` now returns **zero**.
+
+🔑 **LESSON — a prior run's own enumeration is not a closed set.** Both UI fixes tonight are
+places an earlier audit *counted* and got wrong (4 toggles vs 9) or never looked at. When a
+past run says "there are N of these", **re-derive N before trusting it.**
+
+🔑 **LESSON — the divergent-payload shape is the frontend's most productive defect class.**
+Both s2 defects are one root cause: a save path that builds its own payload instead of the
+shared one. Five copies existed; two had drifted. **Diff sibling payload literals against each
+other, not against the server whitelist** — the whitelist skipping `undefined` is exactly what
+makes the drop silent and the save return 200.
+
+### Known Issues Remaining
+- 🔴 **THE CROSS-TENANT FAMILY IS ONLY PARTIALLY CLOSED — 8 identical joins remain.** s1 fixed
+  the six it proved; s5 found **eight more unscoped `leads` joins selecting lead PII**:
+  `routes/crm.js:1069` + `:1081` (calendar), `crmService.js:730` (`getRecentActivity`),
+  `dashboardService.js:111`, `documentService.js:26`, `dripService.js:211`,
+  `searchService.js:21`, `emailService.js:160`. **The `activities` path is a complete
+  end-to-end instance still open on BOTH sides** — `logActivity()` (`crmService.js:311`) takes
+  `lead_id` from the request body with **no ownership check**, and three read paths join
+  `leads` unscoped and select `contact_name`/`address`. That is exactly the `tasks` defect
+  fixed tonight, still live. **`emailService.js:160` is the worst-consequence variant: a
+  cross-tenant `lead_id` sends an overdue-payment reminder to the WRONG tenant's customer.**
+  Found by source inspection, verified present in the tree; **not empirically attacked** (s5 is
+  report-only). **Highest-priority item in the repository.**
+- 🔴 **Cross-tenant FKs are still ACCEPTED at the write boundary.** Only `tasks` validates.
+  `contracts`, `invoices`, `expenses`, `estimates`, `work_orders`, `activities` do not.
+- ⚠️ **`server/src/utils/assertOwned.js` is an UNWIRED ORPHAN — left untracked deliberately.**
+  s4 wrote it at 05:49, one minute before capping, and **nothing imports it**;
+  `crmService.js:405` has its own local copy, which is what `3a3d752` actually ships. **The
+  build is not broken and the fix is self-contained.** Committing it would add dead code —
+  and last night proved the opposite failure, where a checkpoint swept in a capped stage's
+  half-applied edit and shipped a dead panel. **Either wire it up and delete the local copy,
+  or delete the file.**
+- ⚠️ **A sixth estimate payload at `EstimatesView.jsx:1408`** (the 2s debounced autosave) still
+  sends only `{...form, financing_enabled, financing_plan_ids}`. **Not a live defect** — it only
+  runs against an existing `estimate.id` via `updateEstimate`. Flagged as the last un-unified
+  copy of the shape that caused both of tonight's frontend defects.
+- 🔴 **NO ESLINT.** Carried, unaddressed, still the highest-leverage structural fix.
+- ⚠️ **No error boundary anywhere in the SPA.** · **64 generic error toasts discard the
+  server's message.** · **Form-label drift** (7 treatments, ~100 inline labels, 13th deferral).
+- **Empty-state STYLING split** — only `TasksView` uses `.empty-state`. · **`ActivityModal` has
+  no Esc handler.** · **`/alerts` orphan route.** · **`22007`/`22008` leak the raw pg message.**
+- **`territories` table still does not exist** — 4 routes structurally unexercisable.
+- **DB junk rows awaiting go-ahead:** subcontractor `{"$eq":1}`, territory `12345`,
+  `qa_options_probe`.
+- **361 QA screenshots at the repo root** (337 tracked) — **this run added 0.**
+  **`server/.qa-r91-neverrun.mjs` — never run, 18 nights.** **10 untracked `.qa-*.mjs`** + 5
+  `claude-overnight-*.json` in the tree; this commit is scoped to `OVERNIGHT-REPORT.md`/`docs/`.
+
+### Closed this run
+- ✅ **The 3 public customer-facing token routes** — carried as a 🔑 priority from 2026-09-04
+  and now swept for the first time ever. All 5 public endpoints work unauthenticated and all 5
+  reject a bogus token with a clean 404, no 500, no stack.
+- ✅ **The `tasks` fixture** — written and abandoned on two prior nights, finally run. 23
+  assertions, 0 failures, count restored 0 → 0.
+- ✅ **`contract_templates` — RESOLVED AS A NON-BUG, DO NOT RE-FILE.** The predicted "Edit 404s
+  for every tenant" is correct at every layer, 12/12 assertions. `SettingsView` renders
+  Edit/Delete behind an `isBuiltin` guard so the 404 path is **unreachable from the UI**, and
+  the server refuses PATCH/DELETE on a built-in anyway. Clone → Edit → Delete all work.
+- ✅ **The 62 static tenant-scope candidates** — triaged empirically rather than by scan. 11
+  attacks correctly refused, 6 genuine disclosures found and fixed. **Static hits are not
+  evidence; attacking real foreign rows is.**
+
+### Coverage gaps this run
+- 🔴 **s4 produced no verdict, third consecutive night.** Its whole charter — independent
+  re-verification, empty states, form validation, back/forward, 375px — is unmeasured. All six
+  fixes were verified by the stages that made them, none independently.
+  **`.qa-r126-s4-crosstenant-verify.mjs` is a well-formed plant→repoint→read→revert harness that
+  left NO OUTPUT — whether it ran is unknown.** It reads `C:/tmp/qa-token.txt`, last written
+  **2026-07-27**; a stale token would make it fail at line 1.
+- 🔴 **s2 and s3 wrote no artifact**, so frontend page coverage and UI audits 1, 3, 4, 5 and 7
+  are **unknown for tonight** — recorded as unmeasured, NOT as passing.
+- ⚠️ **Only 132 of 272 routes (49%) swept.** 88 POST / 26 PATCH / 8 PUT / 18 DELETE largely
+  unprobed; `createX` often bypasses `allowedFields` and destructures directly.
+- ⚠️ **GET response SHAPES still unasserted** — R122's 14 known disagreements untriaged.
+- ⚠️ **3 PUT singletons still unclassified** (`/api/alerts/config`, `/api/crm/tenant-settings`,
+  `/api/materials/credentials`); the other 4 never probed.
+- **The financing toggle was fixed but NOT live-measured** — behind `hasLender`, and this
+  tenant has no lender configured.
+- **Deliberately excluded:** 🚫 `/storm-map` address search (**standing exclusion** — Google
+  Places + Geocoder, billable per keystroke) · 🚫 FEMA map property code (off-limits) · paid or
+  destructive `/leads/:id` controls · `/work-orders` milestone toggling · `/canvassing` pin drop.
+
+### DB hygiene
+- Tenant-scoped counts for `791bb51d` (waterloo), whole night: `leads 13 · tasks 0 ·
+  estimates 16 · invoices 14 · work_orders 10 · contracts 4 · expenses 2 · subcontractors 63`
+  — **byte-identical** to the pre-run snapshot. `contract_templates` 4 → 4.
+- Every planted foreign lead and every repointed row was reverted; **0 fixture leftovers**.
+- Both frontend defects were proved with **ZERO writes**, by capturing the outgoing request
+  with a Playwright route that aborts it. **This technique is now the house standard for
+  payload defects — adopt it rather than round-tripping the DB.**
+- 🚫 **STANDING TESTER-ERROR TRAP:** an **unscoped** `select count(*) from estimates` returns
+  **17**, not 16 — the 17th row belongs to another tenant. **Always scope count queries by
+  `tenant_id` before reporting drift.**
+
+### Notes for the next run
+1. 🔑 **Close the remaining 8 unscoped `leads` joins, `activities` first.** Open on both sides,
+   same shape proved exploitable six times tonight. The only security-class item outstanding.
+2. 🔑 **Extend `assertOwned()` to the other five create paths**, then wire up or delete
+   `server/src/utils/assertOwned.js`. Do not let a checkpoint sweep it in unexamined.
+3. 🔴 **Raise the turn budgets or narrow the charters.** Four of four capped; two lost their
+   entire evidence trail. Three-night trend, now costing more coverage than any defect found.
+4. 🔑 **"Write your artifact BEFORE spending the rest of your budget" — written three times,
+   ignored three times.** Make it turn 1, not the last turn. s1 wrote first and was fully
+   reportable; s2, s3 and s4 did not and are not.
+5. 🔑 **Date-check `C:/tmp/*.txt` before treating any artifact as tonight's.** Paid off again:
+   `frontend-test-results.txt` and `ui-audit-results.txt` are **2026-09-04 files**, and reading
+   them as tonight's would have fabricated two entire report sections.
+6. **Read each stage's JSON `stop_reason`, never its self-assessment.**
+7. **Refresh `C:/tmp/qa-token.txt` (2026-07-27) as a stage-0 step** — s4's harnesses depend on it.
+8. **Decide on ESLint.** · **Resynchronise the run number** (split two nights running).
+9. **Suggested targets — s1:** the 8 unscoped joins + the write-boundary guards. **s2:** unify
+   the `:1408` autosave payload, then a page NOT in the estimate builder. **s3:** re-derive the
+   toggle/button/icon populations rather than trusting a prior count; audits 1,3,4,5,7 have gone
+   two nights unmeasured. **s4:** run the harness it already wrote.
+- Drift baseline for the next run: the `docs: QA report 2026-09-05` commit (head after this entry).
+
+---
