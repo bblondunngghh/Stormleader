@@ -102,6 +102,22 @@ function FinancingStatusBadge({ status }) {
   );
 }
 
+// `activities.type` is an enum whose domain includes underscored values — call, email,
+// text, door_knock, note, status_change, task_completed, system (crm.js:356). The timeline
+// falls back to the type when an activity has no subject, and `subject` is genuinely
+// nullable (crmService.js:325 stores `subject || null`), so the raw column value was
+// reaching the user. Same vocabulary as CalendarView.jsx:14 for the values it shares.
+const activityTypeLabels = {
+  call: 'Call',
+  email: 'Email',
+  text: 'Text',
+  door_knock: 'Door Knock',
+  note: 'Note',
+  status_change: 'Status Change',
+  task_completed: 'Task Completed',
+  system: 'System',
+};
+
 const stageLabels = {
   new: 'New',
   contacted: 'Contacted',
@@ -1354,7 +1370,7 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
             ) : activities.slice(0, 20).map((item) => (
               <div key={item.id} className="timeline-item">
                 <span className="timeline-item__text">
-                  {item.subject || `${item.type} logged`}
+                  {item.subject || `${activityTypeLabels[item.type] || item.type} logged`}
                   {item.notes && <span style={{ color: 'var(--text-muted)' }}> — {item.notes}</span>}
                 </span>
                 <span className="timeline-item__time">
