@@ -5462,3 +5462,133 @@ makes the drop silent and the save return 200.
 - Drift baseline for the next run: the `docs: QA report 2026-09-05` commit (head after this entry).
 
 ---
+
+---
+## QA Run: 2026-09-06  (Run 127)
+
+**Baseline `4851b86` → HEAD `0b3838a` · branch `feat/financing` · 7 commits · build PASS 7.89s**
+
+### Test Results
+- Pages tested: **not measurable** (s2 wrote no artifact); 4 of 30 routed pages evidenced by commits
+- API endpoints tested: **13 of 272** (4.8%)
+- Bugs found: **21**
+- Bugs fixed: **21** (14 security / tenant-isolation, 1 API correctness, 6 frontend)
+- UI inconsistencies found: **0** — the 7 audit categories were **not measured** (s3 wrote no artifact)
+- UI inconsistencies fixed: **0**
+
+### Stage outcomes (from JSON `stop_reason`, not self-assessment)
+| Stage | Turns | Terminal | Artifact | Commits |
+|---|---|---|---|---|
+| s1 api-test | 51/50 | `max_turns` | header stub only | 2 (+1 edit left uncommitted) |
+| s2 frontend-test | 81/80 | `max_turns` | none | 3 (1 recovered from s1) |
+| s3 ui-audit | 61/60 | `max_turns` | none | 2 |
+| s4 verify | 41/40 | `max_turns` | none — no verdict | 0 |
+
+**All four working stages capped, second consecutive night.** s4 left no verdict for the **fourth**
+night running.
+
+### Fixes Made
+- `83ba6b4` — **eight unscoped `leads` joins + one unguarded activity write.** Run 126 predicted
+  these eight; all eight were still live. Proved with a planted lead (tenant `dbeb300e` attacked as
+  `791bb51d`): **6 of 6 attacks succeeded before, 0 of 7 after.** Leaked customer name / street
+  address / email via `crm.js:1069`, `crm.js:1081`, `crmService:730`, `dashboardService:111`,
+  `documentService:26`, `searchService:21`, `dripService:211`, `emailService:160`. `logActivity()`
+  took `lead_id` with no ownership check. `emailService:160` is the 9am cron — a foreign `lead_id`
+  **emails the wrong tenant's customer**. `utils/assertOwned.js`, orphaned by Run 126, wired up as
+  the shared guard and the duplicate private copy in `crmService` removed.
+- `96f7ad2` — **five create endpoints stored another tenant's `lead_id` / `estimate_id` /
+  `assigned_to`**: `POST /crm/contracts`, `/crm/invoices`, `/crm/expenses`, `/crm/work-orders`,
+  `/estimates`. 5/5 returned 201 before, 5/5 return 400 after. Guarded in the **service**, not the
+  route, so the check sits on the same side of the boundary as the INSERT. Regression tested — all
+  5 still 201 on an owned lead; nullable absent values still pass.
+- `9ddc61b` — **SQLSTATE 22007/22008 echoed the internal column type** ("timestamp with time zone")
+  to the caller from every date-taking endpoint. Recovered from s1, which capped with the edit
+  uncommitted.
+- `c7257b7` — `/calendar` showed task priority in the **lead** vocabulary: badge read `HOT` while
+  the same task read `HIGH` on `/tasks` and the dashboard; the Create Task modal offered
+  Hot/Warm/Cold on a form that calls `createTask()`.
+- `39dee53` — `/leads/:id` timeline printed **raw enum values** ("door_knock logged",
+  "status_change logged", "task_completed logged"); reachable because `crmService:325` stores
+  `subject || null` and the Log Activity modal leaves subject optional.
+- `09fa4b5` — `/status/:token` (customer-facing), **three defects**: "Job Complete" keyed on
+  `completed`, a **work-order** status absent from `lead_stage`, so every customer timeline stopped
+  one step short; `lost`/`on_hold` gave `indexOf === -1`, showing customers a timeline claiming
+  **nothing had happened**; stage-history dates read a `description` field the endpoint never sends,
+  and the one-word capture turned "Appt Set" into "appt". After: 7 milestones where 0 rendered,
+  5 dates where 0 rendered, 10/10 real subject forms map.
+- `0b3838a` — `/contract/:token` gated "Prepared For" on `contract.customer_name`; **contracts have
+  no `customer_*` columns** (that is the estimate idiom), so the customer opened their own contract
+  with no indication who it was for.
+
+### UI Consistency Fixes
+- **None. The audit did not run** — s3 capped and wrote no artifact. Icons, buttons, toolbars,
+  sidebar, forms, spacing and modals are **UNMEASURED for the second consecutive night**, not passing.
+
+### Known Issues Remaining
+- 🔴 **Five UPDATE paths still take unguarded client-supplied FKs** (found in s5, static):
+  `updateContract` / `updateInvoice` / `updateExpense` / `updateWorkOrder` / `updateEstimate` all
+  list `lead_id` (+ `estimate_id`, `assigned_to`) in `allowedFields` with no `assertOwned()`.
+  Tonight's fix covered **create only**.
+- 🔴 **All 3 `estimates` joins unscoped**, which makes the above reachable — `getContract`
+  (`contractService.js:52`) selects `e.estimate_number, e.total`, so a PUT-attached foreign
+  `estimate_id` discloses another tenant's **estimate number and dollar total**. Not attacked live.
+- 🔴 **THREE CREATE paths were missed by tonight's own write-boundary fix** (found in s5, static;
+  corrects an earlier draft of this entry that called create paths closed). `96f7ad2` took Run 126's
+  list of five as the whole set — it is not. All three take a **client-supplied** `lead_id` to an
+  INSERT with no `assertOwned()`: `POST /api/documents` (`documents.js:98` → `documentService.js:57`,
+  `lead_id: req.body.lead_id`), `POST /api/crm/drip-sequences/:id/enroll` (`drip.js:117` →
+  `dripService.js:177`), `POST /api/financing/applications` (`financing.js:157` →
+  `financing/index.js:216`, `lead_id` **and** `estimate_id` via `{...req.body}`). The financing one
+  is worst: it writes `customer_name`/`customer_email` next to the foreign `lead_id`, then
+  `financing/index.js:291` writes an `activities` row against it — while the adjacent `plan_id`
+  **is** properly tenant-scoped, so the guard was understood there and simply not applied.
+  **First item for Run 128; the fix is mechanical.**
+- 🟡 19 of 23 `users` joins unscoped (employee name/email). Static candidates; triage empirically.
+- 🟡 **s4 rotated a live customer status token and could not revert it** — its setup planted
+  fixtures and referenced a teardown script it never wrote. s5 removed the 3 inserted rows and
+  restored DB net zero, but the `client_status_tokens` `ON CONFLICT DO UPDATE` overwrote a
+  **pre-existing** row's token (created 2026-07-30, count unchanged at 4). Row deliberately kept —
+  deleting it would destroy live data. **The status link previously sent for lead `dc8135aa` is
+  dead and must be re-issued.**
+- No ESLint · no React error boundary · 64 generic error toasts · 361 QA screenshots ·
+  `C:/tmp/qa-token.txt` stale since 2026-07-27.
+
+### Verification done in s5 (because no stage reached a verdict)
+- ✅ **All 30 `leads` joins carry a tenant predicate — 0 unscoped. The READ side of the family
+  Run 126 called the "highest-priority item in the repo" is CLOSED.**
+- ❌ **The WRITE side is NOT closed** — sweeping every service referencing `lead_id` against its
+  `assertOwned` count found 3 more unguarded create paths (above). **Third consecutive run in which
+  a prior run's enumeration was treated as closed and was not:** Run 126 predicted 8 joins (real,
+  but the set was bigger), Run 126-s3 counted 4 ToggleSwitches where there were 9, tonight
+  `96f7ad2` counted 5 create paths where there are 8. **Re-derive N; never inherit it.**
+- ✅ No QA harness is imported by application code — the 12 untracked `.qa-*.mjs` are standalone.
+- ✅ `assertOwned.js` genuinely wired in — **6 importers, 13 call sites**, no duplicate copy.
+  The Run 126 orphaned-helper trap is closed.
+- ✅ Working tree clean — no half-applied edits from the four capped stages (unlike 2026-09-03).
+- ✅ Build PASS **7.82s**, exit 0 (re-run in s5) · DB net zero restored, 0 `QA-R127` leftovers, lead count 13.
+
+### Notes for the next run
+1. 🔑 **Close the 3 remaining CREATE paths and the 5 UPDATE paths together** — 8 unguarded FK
+   writes, one mechanical fix (`assertOwned` is already live in 6 services), and the `estimates`
+   joins make the update half disclosive. Highest-value security item now outstanding.
+2. 🔑 **Scope the 3 `estimates` joins**, then triage the 19 `users` joins empirically.
+3. 🔴 **Raise the turn budgets or narrow the charters. Four of four capped, two nights running;
+   three stages lost their entire evidence trail.** This now costs more coverage than any defect
+   found. It has been the #1 note for three runs.
+4. 🔑 **Write the results artifact on turn 1.** Instructed three runs, ignored three runs. s1 wrote
+   its header first and was partially reportable; s2/s3/s4 wrote nothing and are not.
+5. 🔑 **Date-check every artifact — the stale-`/tmp` trap has now paid off 3 runs for 3.**
+   `frontend-test-results.txt` and `ui-audit-results.txt` are **2026-09-04 files**; reading them as
+   tonight's would have fabricated two whole sections. `stat` first, always.
+6. 🔑 **A capped stage can leave DB fixtures with no teardown.** s4's setup ran, its teardown was
+   never written. **Check `C:\tmp\qa-*-state.json` and reconcile counts before reporting net zero.**
+   And beware `ON CONFLICT DO UPDATE` in fixtures — it mutates **live** rows that a delete-based
+   teardown would destroy.
+7. **Read each stage's JSON `stop_reason`, never its self-assessment.**
+8. **Run-number resync held** — all stages said 127. Keep it.
+9. **Suggested targets — s1:** the 3 create + 5 update paths + `estimates` joins. **s2:** a page outside the
+   4 touched tonight; 26 of 30 are unmeasured. **s3:** actually run audits 1–7; unmeasured two
+   nights running. **s4:** write the teardown before the setup, and leave a verdict.
+- Drift baseline for the next run: the `docs: QA report 2026-09-06` commit (head after this entry).
+
+---
