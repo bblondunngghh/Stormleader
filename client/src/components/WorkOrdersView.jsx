@@ -233,7 +233,7 @@ function WorkOrderDetail({ wo, onClose, onSave, onComplete, teamMembers }) {
   const statusColor = STATUS_COLORS[wo.status] || STATUS_COLORS.pending;
 
   return createPortal(
-    <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="glass no-scrollbar" onClick={e => e.stopPropagation()} style={{
         width: '100%', maxWidth: 580, maxHeight: '90vh', overflow: 'auto',
         borderRadius: 'var(--radius-xl)', padding: 'var(--space-xl)',
@@ -637,7 +637,7 @@ function CreateWorkOrderModal({ onClose, onCreate, teamMembers }) {
   };
 
   return createPortal(
-    <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <form className="glass no-scrollbar" onClick={e => e.stopPropagation()} onSubmit={handleSubmit} style={{
         width: '100%', maxWidth: 520, maxHeight: '90vh', overflow: 'auto',
         borderRadius: 'var(--radius-xl)', padding: 'var(--space-xl)',
@@ -772,7 +772,7 @@ function EstimatePickerModal({ onClose, onPick }) {
   }, []);
 
   return createPortal(
-    <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="modal-backdrop" onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="glass" onClick={e => e.stopPropagation()} style={{
         width: '100%', maxWidth: 480, maxHeight: '70vh', overflow: 'auto',
         borderRadius: 'var(--radius-xl)', padding: 'var(--space-xl)',

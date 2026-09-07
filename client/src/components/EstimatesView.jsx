@@ -743,7 +743,7 @@ export default function EstimatesView() {
 
         return (
           <div className="modal-backdrop" onClick={() => setShowCompare(false)} style={{
-            position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.6)', zIndex: 1000,
+            position: 'fixed', inset: 0, background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(8px)', zIndex: 1000,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             <div className="glass no-scrollbar" onClick={e => e.stopPropagation()} style={{

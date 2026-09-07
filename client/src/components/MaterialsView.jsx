@@ -584,7 +584,7 @@ function CartSidebar({ cart, cartTotal, branches, selectedBranch, setSelectedBra
   return (
     <div className="modal-backdrop" style={{
       position: 'fixed', inset: 0, zIndex: 1000,
-      background: 'oklch(0 0 0 / 0.6)',
+      background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(8px)',
       display: 'flex', justifyContent: 'flex-end',
     }} onClick={onClose}>
       <div className="glass" onClick={e => e.stopPropagation()} style={{
