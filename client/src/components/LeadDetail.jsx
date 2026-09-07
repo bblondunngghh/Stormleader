@@ -2712,12 +2712,9 @@ export default function LeadDetail({ leadId, lead: legacyLead, onClose, onUpdate
                       color: mapMode === 'satellite' ? 'oklch(1 0 0)' : 'var(--text-muted)',
                     }}>Satellite</button>
                   </div>
-                  <button onClick={() => {
+                  <button aria-label="Close" className="modal-close" onClick={() => {
                     if (adjustMapRef.current) { adjustMapRef.current.remove(); adjustMapRef.current = null; }
                     setShowStreetView(false); setMapMode('street');
-                  }} style={{
-                    background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)',
-                    lineHeight: 1, padding: '0 4px', display: 'inline-flex', alignItems: 'center',
                   }} title="Close map">
                     <IconX width={16} height={16} />
                   </button>

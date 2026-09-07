@@ -758,7 +758,7 @@ export default function EstimatesView() {
                     {sorted[0]?.customer_name || sorted[0]?.lead_name || 'Side-by-side tier comparison'}
                   </p>
                 </div>
-                <button onClick={() => setShowCompare(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                <button aria-label="Close" className="modal-close" onClick={() => setShowCompare(false)}>
                   <IconX style={{ width: 20, height: 20 }} />
                 </button>
               </div>
