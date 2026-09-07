@@ -6,6 +6,7 @@ import validateId from '../middleware/validateId.js';
 import * as crmService from '../services/crmService.js';
 import pool from '../db/pool.js';
 import { fireTrigger } from '../services/automationEngine.js';
+import assertOwned from '../utils/assertOwned.js';
 import logger from '../utils/logger.js';
 import { parsePagination } from '../utils/pagination.js';
 
@@ -76,6 +77,11 @@ router.post('/leads', async (req, res, next) => {
       estimatedValue = Math.round(parseFloat(prop.assessed_value) * 0.01 / 100) * 100;
     }
 
+    // assigned_rep_id comes straight from the request body and the read paths join users
+    // on it, so an unchecked id let a caller attach another tenant's user and read that
+    // user's name and email back out. Same write-boundary rule as createTask.
+    await assertOwned(req.tenantId, 'users', req.body.assignedRepId, 'assigned_rep_id');
+
     const { rows } = await pool.query(
       `INSERT INTO leads (
         tenant_id, property_id, assigned_rep_id,
@@ -132,6 +138,8 @@ router.post('/leads/quick', async (req, res, next) => {
 
     const ev = estimated_value != null ? parseFloat(estimated_value) : null;
     if (estimated_value != null && isNaN(ev)) return res.status(400).json({ error: 'estimated_value must be a number' });
+
+    await assertOwned(req.tenantId, 'users', req.body.assigned_rep_id, 'assigned_rep_id');
 
     const { rows } = await pool.query(
       `INSERT INTO leads (
@@ -895,7 +903,7 @@ router.get('/dashboard/stale-leads', async (req, res, next) => {
          EXTRACT(DAY FROM NOW() - l.updated_at)::int AS days_stale,
          l.updated_at AS last_activity
        FROM leads l
-       LEFT JOIN users u ON u.id = l.assigned_rep_id
+       LEFT JOIN users u ON u.id = l.assigned_rep_id AND u.tenant_id = l.tenant_id
        WHERE l.tenant_id = $1
          AND l.updated_at < NOW() - INTERVAL '3 days'
          AND l.stage NOT IN ('sold', 'lost')

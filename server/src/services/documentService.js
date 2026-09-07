@@ -22,7 +22,7 @@ export async function getDocuments(tenantId, filters = {}) {
     pool.query(
       `SELECT d.*, u.first_name AS uploaded_by_name, l.address AS lead_address
        FROM documents d
-       LEFT JOIN users u ON u.id = d.uploaded_by
+       LEFT JOIN users u ON u.id = d.uploaded_by AND u.tenant_id = d.tenant_id
        LEFT JOIN leads l ON l.id = d.lead_id AND l.tenant_id = d.tenant_id
        WHERE ${where}
        ORDER BY d.created_at DESC

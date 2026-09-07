@@ -20,7 +20,7 @@ router.get('/', async (req, res, next) => {
                  AND t.polygon IS NOT NULL
                  AND ST_Within(cp.location, t.polygon)) as pin_count
        FROM canvass_territories t
-       LEFT JOIN users u ON t.assigned_user_id = u.id
+       LEFT JOIN users u ON t.assigned_user_id = u.id AND u.tenant_id = t.tenant_id
        WHERE t.tenant_id = $1
        ORDER BY t.created_at DESC`,
       [req.tenantId]
@@ -39,7 +39,7 @@ router.get('/:id', validateId(), async (req, res, next) => {
               CONCAT(u.first_name, ' ', u.last_name) as assigned_user_name,
               ST_AsGeoJSON(t.polygon)::json as geojson
        FROM canvass_territories t
-       LEFT JOIN users u ON t.assigned_user_id = u.id
+       LEFT JOIN users u ON t.assigned_user_id = u.id AND u.tenant_id = t.tenant_id
        WHERE t.id = $1 AND t.tenant_id = $2`,
       [req.params.id, req.tenantId]
     );
@@ -165,7 +165,7 @@ router.get('/:id/pins', validateId(), async (req, res, next) => {
       `SELECT cp.*, CONCAT(u.first_name, ' ', u.last_name) as user_name,
               ST_Y(cp.location::geometry) as lat, ST_X(cp.location::geometry) as lng
        FROM canvass_pins cp
-       JOIN users u ON cp.user_id = u.id
+       JOIN users u ON cp.user_id = u.id AND u.tenant_id = cp.tenant_id
        WHERE cp.tenant_id = $1
          AND ST_Within(cp.location, (SELECT polygon FROM canvass_territories WHERE id = $2))
        ORDER BY cp.created_at DESC`,

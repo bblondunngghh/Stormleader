@@ -1,4 +1,5 @@
 import pool from '../db/pool.js';
+import assertOwned from '../utils/assertOwned.js';
 import logger from '../utils/logger.js';
 
 /**
@@ -285,6 +286,8 @@ export async function getLead(tenantId, leadId) {
  * Update a lead (tenant-scoped). Supports partial updates.
  */
 export async function updateLead(tenantId, leadId, updates) {
+  await assertOwned(tenantId, 'users', updates.assigned_rep_id, 'assigned_rep_id');
+
   const allowedFields = [
     'stage', 'priority', 'estimated_value', 'insurance_company',
     'insurance_claim_number', 'contact_name', 'contact_phone',

@@ -127,7 +127,7 @@ export async function getLeadDetail(tenantId, leadId) {
      FROM leads l
      LEFT JOIN properties p ON p.id = l.property_id
      LEFT JOIN storm_events se ON se.id = l.storm_event_id
-     LEFT JOIN users u ON u.id = l.assigned_rep_id
+     LEFT JOIN users u ON u.id = l.assigned_rep_id AND u.tenant_id = l.tenant_id
      WHERE l.id = $1 AND l.tenant_id = $2 AND l.deleted_at IS NULL`,
     [leadId, tenantId]
   );
@@ -145,7 +145,7 @@ export async function getLeadDetail(tenantId, leadId) {
     pool.query(
       `SELECT a.*, u.first_name AS user_first_name, u.last_name AS user_last_name
        FROM activities a
-       LEFT JOIN users u ON u.id = a.user_id
+       LEFT JOIN users u ON u.id = a.user_id AND u.tenant_id = a.tenant_id
        WHERE a.lead_id = $1 AND a.tenant_id = $2
        ORDER BY a.created_at DESC LIMIT 50`,
       [leadId, tenantId]
@@ -153,7 +153,7 @@ export async function getLeadDetail(tenantId, leadId) {
     pool.query(
       `SELECT t.*, u.first_name AS assignee_first_name, u.last_name AS assignee_last_name
        FROM tasks t
-       LEFT JOIN users u ON u.id = t.assigned_to
+       LEFT JOIN users u ON u.id = t.assigned_to AND u.tenant_id = t.tenant_id
        WHERE t.lead_id = $1 AND t.tenant_id = $2
        ORDER BY t.completed_at NULLS FIRST, t.due_date ASC NULLS LAST`,
       [leadId, tenantId]
@@ -177,6 +177,11 @@ export async function deleteLead(tenantId, leadId) {
 }
 
 export async function updateLead(tenantId, leadId, updates) {
+  // A lead's assigned_rep_id is client-supplied and getLeadDetail joins users on it to
+  // return rep_first_name/rep_last_name/rep_email, so an unchecked id disclosed another
+  // tenant's user. Same write-boundary rule as createTask/logActivity.
+  await assertOwned(tenantId, 'users', updates.assigned_rep_id, 'assigned_rep_id');
+
   const allowedFields = [
     'stage', 'priority', 'estimated_value', 'actual_value',
     'insurance_company', 'insurance_claim_number',
@@ -349,7 +354,7 @@ export async function getActivities(tenantId, leadId, { limit = 30, offset = 0 }
   const { rows } = await pool.query(
     `SELECT a.*, u.first_name AS user_first_name, u.last_name AS user_last_name
      FROM activities a
-     LEFT JOIN users u ON u.id = a.user_id
+     LEFT JOIN users u ON u.id = a.user_id AND u.tenant_id = a.tenant_id
      WHERE a.lead_id = $1 AND a.tenant_id = $2
      ORDER BY a.created_at DESC
      LIMIT $3 OFFSET $4`,
@@ -721,7 +726,7 @@ export async function getRecentActivity(tenantId, limit = 15, filters = {}) {
             u.first_name AS user_first_name, u.last_name AS user_last_name
      FROM activities a
      JOIN leads l ON l.id = a.lead_id AND l.tenant_id = a.tenant_id
-     LEFT JOIN users u ON u.id = a.user_id
+     LEFT JOIN users u ON u.id = a.user_id AND u.tenant_id = a.tenant_id
      WHERE a.tenant_id = $1${fLead.clause}${fDate.clause}
      ORDER BY a.created_at DESC
      LIMIT $${limitIndex}`,
@@ -773,6 +778,8 @@ function formatRelativeTime(date) {
 // ============================================================
 
 export async function bulkAssign(tenantId, leadIds, assignedRepId) {
+  await assertOwned(tenantId, 'users', assignedRepId, 'assigned_rep_id');
+
   const { rowCount } = await pool.query(
     `UPDATE leads SET assigned_rep_id = $3
      WHERE id = ANY($2::uuid[]) AND tenant_id = $1 AND deleted_at IS NULL`,
@@ -966,7 +973,7 @@ export async function getUpcomingFollowups(tenantId) {
     `SELECT l.id, l.contact_name, l.address, l.city, l.next_follow_up, l.stage, l.priority,
             u.first_name || ' ' || u.last_name as assigned_to
      FROM leads l
-     LEFT JOIN users u ON u.id = l.assigned_rep_id
+     LEFT JOIN users u ON u.id = l.assigned_rep_id AND u.tenant_id = l.tenant_id
      WHERE l.tenant_id = $1
        AND l.next_follow_up BETWEEN now() AND now() + interval '48 hours'
        AND l.deleted_at IS NULL
@@ -1117,7 +1124,7 @@ export async function getProspectLists(tenantId) {
             se.hail_size_max_in, se.wind_speed_max_mph,
             se.event_start as storm_date
      FROM prospect_lists pl
-     LEFT JOIN users u ON u.id = pl.created_by
+     LEFT JOIN users u ON u.id = pl.created_by AND u.tenant_id = pl.tenant_id
      LEFT JOIN storm_events se ON se.id = pl.storm_event_id
      WHERE pl.tenant_id = $1
      ORDER BY pl.created_at DESC`,

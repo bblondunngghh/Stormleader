@@ -274,7 +274,7 @@ export async function getWorkOrders(tenantId, { status, assignedTo, limit = 50, 
     `SELECT wo.*, l.contact_name, l.address, CONCAT(u.first_name, ' ', u.last_name) AS assigned_name
      FROM work_orders wo
      LEFT JOIN leads l ON wo.lead_id = l.id AND l.tenant_id = wo.tenant_id
-     LEFT JOIN users u ON wo.assigned_to = u.id
+     LEFT JOIN users u ON wo.assigned_to = u.id AND u.tenant_id = wo.tenant_id
      WHERE ${conditions.join(' AND ')}
      ORDER BY wo.created_at DESC
      LIMIT $${params.length - 1} OFFSET $${params.length}`,
@@ -295,7 +295,7 @@ export async function getWorkOrder(tenantId, id) {
             CONCAT(u.first_name, ' ', u.last_name) AS assigned_name
      FROM work_orders wo
      LEFT JOIN leads l ON wo.lead_id = l.id AND l.tenant_id = wo.tenant_id
-     LEFT JOIN users u ON wo.assigned_to = u.id
+     LEFT JOIN users u ON wo.assigned_to = u.id AND u.tenant_id = wo.tenant_id
      WHERE wo.id = $1 AND wo.tenant_id = $2`,
     [id, tenantId]
   );
@@ -360,6 +360,11 @@ export async function createFromEstimate(tenantId, estimateId) {
 }
 
 export async function updateWorkOrder(tenantId, id, data) {
+  // createWorkOrder validates these two client-supplied ids; update was the odd one out,
+  // so a PATCH could still point a work order at another tenant's lead or user.
+  await assertOwned(tenantId, 'leads', data.lead_id, 'lead_id');
+  await assertOwned(tenantId, 'users', data.assigned_to, 'assigned_to');
+
   const allowedFields = [
     'title', 'description', 'status', 'lead_id', 'assigned_to', 'crew_name',
     'scheduled_date', 'scheduled_time_start', 'scheduled_time_end',
