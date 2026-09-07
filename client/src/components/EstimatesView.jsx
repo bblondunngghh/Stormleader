@@ -1405,7 +1405,13 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
     const timer = setTimeout(async () => {
       setAutoSaveStatus('saving');
       try {
-        await estimatesApi.updateEstimate(estimate.id, { ...form, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds });
+        // The same payload the other five save paths send. This one used to stop at
+        // `form` + financing, but seven of the builder's fields live in their own state
+        // outside `form` (discounts, signers, profit margin, footer notes, insurance
+        // details, upgrades, deposit) and none of them is in this effect's deps — so
+        // editing one of them saves nothing, and the next edit to a `form` field fires
+        // this autosave, which reports "Saved!" while leaving all seven behind.
+        await estimatesApi.updateEstimate(estimate.id, { ...form, discounts, signers, profit_margin: profitMargin, footer_notes: footerNotes, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null });
         setAutoSaveStatus('saved');
         setTimeout(() => setAutoSaveStatus(''), 2000);
       } catch {
