@@ -4322,6 +4322,18 @@ input[type="checkbox"]:checked::after {
   to   { opacity: 1; transform: none; }
 }
 
+/* Centred variant of modal-scale-in, for panels positioned with
+   top:50%/left:50% + translate(-50%,-50%) instead of by a flex parent.
+   modal-scale-in ends at `transform: none`, which CLOBBERS that centring
+   translate — the panel's top-LEFT CORNER lands on the viewport centre, so it
+   sits half a panel down and to the right and its bottom runs off-screen.
+   This variant carries the centring translate through both keyframes, the same
+   way mapLoadFadeIn does. Use it whenever the panel centres itself. */
+@keyframes modal-scale-in-centered {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
 @keyframes modal-scale-out {
   from { opacity: 1; transform: none; }
   to   { opacity: 0; transform: scale(0.95) translateY(8px); }
