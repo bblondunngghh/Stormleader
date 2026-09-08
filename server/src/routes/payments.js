@@ -260,7 +260,7 @@ router.get('/history', authenticate, tenantScope, async (req, res, next) => {
              p.status, p.payment_method, p.customer_email, p.created_at, p.updated_at,
              e.estimate_number, e.customer_name
       FROM payments p
-      LEFT JOIN estimates e ON e.id = p.estimate_id
+      LEFT JOIN estimates e ON e.id = p.estimate_id AND e.tenant_id = p.tenant_id
       WHERE p.tenant_id = $1
     `;
     const params = [req.tenantId];

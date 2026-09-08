@@ -112,6 +112,10 @@ export async function createFromEstimate(tenantId, estimateId) {
 }
 
 export async function updateInvoice(tenantId, id, data) {
+
+  // createInvoice guards lead_id (96f7ad2); update whitelists it too and did not.
+  await assertOwned(tenantId, 'leads', data.lead_id, 'lead_id');
+
   const allowedFields = [
     'line_items', 'subtotal', 'tax_rate', 'tax_amount', 'total',
     'due_date', 'notes', 'status', 'lead_id',

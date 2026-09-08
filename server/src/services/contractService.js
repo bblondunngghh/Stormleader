@@ -49,7 +49,7 @@ export async function getContract(tenantId, id) {
             t.name AS company_name
      FROM contracts c
      LEFT JOIN leads l ON l.id = c.lead_id AND l.tenant_id = c.tenant_id
-     LEFT JOIN estimates e ON e.id = c.estimate_id
+     LEFT JOIN estimates e ON e.id = c.estimate_id AND e.tenant_id = c.tenant_id
      JOIN tenants t ON t.id = c.tenant_id
      WHERE c.id = $1 AND c.tenant_id = $2`,
     [id, tenantId]
@@ -113,6 +113,13 @@ export async function createContract(tenantId, { leadId, estimateId, templateTyp
 }
 
 export async function updateContract(tenantId, id, data) {
+
+  // Same write-boundary rule as createContract. 96f7ad2 guarded the create paths but not
+  // the matching update paths, and `lead_id`/`estimate_id` are both in this whitelist, so
+  // PATCH was still an unguarded door onto the identical defect.
+  await assertOwned(tenantId, 'leads', data.lead_id, 'lead_id');
+  await assertOwned(tenantId, 'estimates', data.estimate_id, 'estimate_id');
+
   const allowedFields = ['lead_id', 'estimate_id', 'template_type', 'content'];
   const setClauses = [];
   const params = [tenantId, id];

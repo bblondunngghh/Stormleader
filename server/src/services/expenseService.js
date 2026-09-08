@@ -61,6 +61,10 @@ export async function createExpense(tenantId, { leadId, category, amount, date, 
 }
 
 export async function updateExpense(tenantId, id, data) {
+
+  // createExpense guards lead_id (96f7ad2); update whitelists it too and did not.
+  await assertOwned(tenantId, 'leads', data.lead_id, 'lead_id');
+
   const allowedFields = ['lead_id', 'category', 'amount', 'date', 'notes'];
   const setClauses = ['updated_at = now()'];
   const params = [tenantId, id];
