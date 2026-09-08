@@ -5592,3 +5592,98 @@ night running.
 - Drift baseline for the next run: the `docs: QA report 2026-09-06` commit (head after this entry).
 
 ---
+
+---
+## QA Run: 2026-09-07  (Run 128)
+
+**Baseline `d147796` -> HEAD `f25f660` (4 commits).  ALL FOUR working stages capped on
+`error_max_turns`** (s1 51, s2 81, s3 61, s4 41).  Only `ui-audit-results.txt` (05:46) is
+tonight's artifact; `api-test-results.txt` is 09-06 and `frontend-test-results.txt` is 09-04,
+stale in BOTH temp roots (`/tmp`->AppData and `C:\tmp`).  s1 and s2 wrote no artifact, so their
+coverage is unmeasured, not passing.  Run-number drift recurred: s1-s3 said 128, s4 said 129.
+
+### Test Results
+- Pages tested: **22 routes + 15 Settings tabs (37 surfaces)** - all by s3; s2 measured 1 route
+- API endpoints tested: **unmeasured** (s1 capped before any functional sweep, wrote no artifact)
+- Bugs found: **31 sites in 6 families**
+- Bugs fixed: **31 (100%)**
+- UI inconsistencies found: **7 (2 families)**
+- UI inconsistencies fixed: **7**
+- Regressions: **0** · Build: **PASS 7.90s exit 0** (re-run in s5)
+- DB: **row-level net zero** (0 rows created 2026-09-07 in any table); **one schema write** - s4
+  ran DROP/CREATE VIEW on `lead_summary_view` with no committed migration until s5
+
+### Fixes Made
+- `31ed5f0` **fix(api): cross-tenant user disclosure** - 17 `LEFT JOIN users` sites across 9 files
+  resolved on `id` alone, returning another tenant's first/last name for any foreign
+  `assigned_rep_id`/`user_id`/`created_by`/`uploaded_by`.  Plus 7 `assertOwned()` guards on the
+  write side (`createLead`, quick-create, `updateLead` x2, `bulkAssign`, `updateWorkOrder`), which
+  is how the dangling foreign reference was created in the first place.
+- `dc5dab9` **fix(ui): estimate builder said "Saved!" while discarding seven fields** - the
+  debounced autosave sent 17 keys where its five sibling save paths send 24; discounts, signers,
+  profit margin, footer notes, insurance details, upgrades and deposit were dropped, and none was
+  in the effect's dependency array.  `updateEstimate`'s whitelist skips `undefined`, so the PATCH
+  was a clean 200 and the banner read "Saved!".  Proved live with ZERO DB writes via a Playwright
+  route fulfill.
+- **Migration `051_lead_summary_view_tenant_scope.sql`** (committed in s5) - see below.
+
+### UI Consistency Fixes
+- `3e9fe18` **five modal backdrops had no blur** - `.modal-backdrop` declares ONLY its animation,
+  so all 22 usages hand-write background/backdropFilter/zIndex inline.  Diffing the 22 sibling
+  literals against EACH OTHER: 17 declared a blur, 5 did not (`WorkOrdersView.jsx:236/:640/:775`,
+  `EstimatesView.jsx:746`, `MaterialsView.jsx:587`).
+- `f25f660` **two modal close buttons were 20x23, not the shared 32x32 box** - re-deriving N over
+  every X-icon `<button>` finds 44: 25 carry `.modal-close`, 19 hand-rolled, but 17 of those 19
+  are a DIFFERENT control and correctly excluded.  Two were real modal-header closes the original
+  sweep missed (`EstimatesView.jsx:761`, `LeadDetail.jsx:2715`).  Their inline `background:'none'`
+  outranks `.modal-close:hover`, so the class alone would not have restored hover.
+- Audits 1-6 (icons, buttons, headers, sidebar, forms, spacing) all **PASS**; 5 confident
+  false positives killed before filing (see OVERNIGHT-REPORT.md).
+
+### Verification recovered in s5 (s4 capped without leaving a verdict)
+s4 left a pure-SELECT harness, `.qa-r129-s4-joinproof.mjs`.  s5 ran it: **PASS**.  The pre-fix
+join shape leaks a real foreign user ("Brandon Blond", tenant 5a358592); the shipped shape returns
+no row; static sweep finds **0** `JOIN users` without a tenant predicate anywhere in `server/src`.
+Also verified: **0 unscoped `JOIN leads`**, `assertOwned` live in 8 files / 30 references.
+**The cross-tenant `leads`-join family is CLOSED on both sides.**  Correcting the standing note:
+`emailService.js` and the `logActivity()` write boundary were closed **2026-09-06 by `83ba6b4`**,
+not tonight - the "untouched for four runs" entry was already stale when written.
+
+### Known Issues Remaining
+- 🔴 **`server/src/scripts/updateView.js` is obsolete and DESTRUCTIVE if run.** Referenced by no
+  package script and imported nowhere; its `CREATE VIEW` no longer matches the live view.  Running
+  it would DROP `custom_fields`, `lead_score`, `lead_score_factors`, `lead_score_updated_at` (the
+  042 columns), and `getLeads()` allows `lead_score` in `allowedSort`, so `/leads` sorted by score
+  would start throwing.  Its tenant-scoping edit was committed so the tree is clean, but the
+  script should be **deleted or regenerated from migration 051**.  Left for a human decision.
+- Pre-existing QA junk: ~34 of 64 `subcontractors` rows are old fixtures (`{"$eq":1}`, `12345`,
+  `QA Sub`...) plus one `qa20260730c` lead.  **None created tonight.**  Deletion is a write
+  against a Neon free-tier DB; deferred as in prior runs.
+- `/alerts` orphan route; 64 generic error toasts; `contacts`/`tasks`/`documents`/
+  `financing_applications` all 0 rows so those surfaces are empty-state-only.
+
+### Notes for the next run
+1. 🔴 **Raise the turn budgets or narrow the charters.**  Four of four capped, three runs running.
+   #1 note for four runs; now the single largest source of lost coverage.
+2. 🔑 **Write the results artifact on turn 1.**  Instructed four runs, ignored four runs.  s3 did
+   it and is fully reportable; s1 and s2 did not and are not.
+3. 🔑 **`stat` every artifact - the stale-temp trap is now 4 runs for 4,** and this run proved the
+   artifacts live in TWO temp roots, both stale.
+4. 🔑 **Search one layer deeper than the code.**  Tonight's best find: the `users`-join fix landed
+   in every JS query string while a copy of the same join lived INSIDE THE DATABASE as
+   `lead_summary_view`.  When a fix is a join-shape change, ask what else stores that join -
+   views, matviews, triggers, cached SQL.  s5 proved migration 051 reproduces the live view
+   byte-identically (40/40 columns, identical body) inside a ROLLED-BACK transaction before
+   committing it.
+5. 🔑 **The Run 128 inline-literal technique is still unexploited on `.glass`, `.slide-over`,
+   `.quick-action-btn`** - when a shared class supplies only PART of a component, the standard
+   lives as N sibling inline-style literals; diff them against each other.
+6. ⚠️ **Run-number drift recurred** (s1-s3 = 128, s4 = 129).  Resync.
+7. **A capped stage can still leave a WORKING harness** - running s4's leftover recovered the
+   whole backend verification section.  Always check.
+8. **Suggested targets - s1:** the functional endpoint sweep, now skipped twice.  **s2:** any of
+   the 26 unmeasured routes.  **s3:** the `.glass` / `.slide-over` literal diff.  **s4:** decide
+   `updateView.js`.
+- Drift baseline for the next run: the `docs: QA report 2026-09-07` commit (head after this entry).
+
+---

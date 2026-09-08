@@ -21,14 +21,14 @@ SELECT
 FROM leads l
 LEFT JOIN LATERAL (
   SELECT first_name, last_name, phone, email FROM contacts
-  WHERE contacts.lead_id = l.id AND contacts.is_primary = true LIMIT 1
+  WHERE contacts.lead_id = l.id AND contacts.tenant_id = l.tenant_id AND contacts.is_primary = true LIMIT 1
 ) pc ON true
-LEFT JOIN users u ON u.id = l.assigned_rep_id
+LEFT JOIN users u ON u.id = l.assigned_rep_id AND u.tenant_id = l.tenant_id
 LEFT JOIN properties p ON p.id = l.property_id
 LEFT JOIN storm_events se ON se.id = l.storm_event_id
 LEFT JOIN LATERAL (
   SELECT created_at AS latest_activity_at, type AS latest_activity_type FROM activities
-  WHERE activities.lead_id = l.id ORDER BY created_at DESC LIMIT 1
+  WHERE activities.lead_id = l.id AND activities.tenant_id = l.tenant_id ORDER BY created_at DESC LIMIT 1
 ) la ON true`);
 
 console.log('View updated successfully');

@@ -1,12 +1,23 @@
 # StormLeads — Overnight QA Report
 
-**Date:** 2026-09-06 · **Run 127** · **Branch:** `feat/financing`
-**Baseline:** `4851b86` (`overnight-checkpoint-20260906`) → **HEAD:** `0b3838a`
+**Date:** 2026-09-07 · **Run 128** · **Branch:** `feat/financing`
+**Baseline:** `d147796` (`pre-overnight-20260907`) → **HEAD at report time:** `f25f660`
 **Stages:** s1 api-test · s2 frontend-test · s3 ui-audit · s4 verify · s5 report
 
-> **Run-number note:** the off-by-one that split the last two runs did **not** recur.
-> All stages labelled tonight *Run 127* and named harnesses `.qa-r127-*` consistently.
-> Resynchronisation held.
+> **Stage integrity — read this before trusting any count below.**
+> **All four working stages terminated on `error_max_turns`,** not on completion:
+> s1 51 turns, s2 81, s3 61, s4 41. Every number in this report was re-derived in s5
+> from the repository, the artifacts and the live database — not copied from any stage's
+> self-assessment.
+>
+> **Only one of the three expected artifacts is tonight's.** `stat` results:
+> `ui-audit-results.txt` = 2026-09-07 05:46 (**tonight**);
+> `api-test-results.txt` = 2026-09-06 (Run 127); `frontend-test-results.txt` = 2026-09-04 (Run 123).
+> Both stale files exist in **two** temp roots (`/tmp` → AppData and `C:\tmp`) and are stale in
+> both. s1 and s2 wrote **no** artifact tonight, so their coverage is **unmeasured, not passing.**
+>
+> **Run-number drift recurred.** s1–s3 labelled themselves Run 128 (`.qa-r128-*`); s4 labelled
+> itself Run 129 (`.qa-r129-s4-joinproof.mjs`). Filed as Run 128.
 
 ---
 
@@ -14,375 +25,249 @@
 
 | Metric | Count |
 |---|---|
-| Commits landed | **7** (all fixes; 0 reverts) |
-| Distinct defects found | **21** |
-| Distinct defects fixed | **21** (100% of found) |
-| — of which security / tenant-isolation | **14** |
-| Security defects **still open** after tonight | **3 create + 5 update paths** (Known Issues #1, #3) |
-| API endpoints exercised | **13 of 272** (4.8%) — the tenant-isolation sweep + 2 date probes |
-| Route inventory (denominator) | **272 endpoints / 37 route files** |
-| Pages tested | **Not measurable — see Coverage Gaps.** 4 surfaces evidenced from commits |
-| Routed-page inventory (denominator) | **30 `<Route>` entries / 44 components** |
-| UI inconsistencies found / fixed | **0 / 0 — the 7 audit categories were not measured** |
-| Client build | **PASS — 7.82s** (re-run in s5, exit 0) |
-| DB net change | **Zero** (after s5 cleanup — see Known Issues #5) |
+| Commits landed | **4** (all fixes; 0 reverts) |
+| Defect families found | **6** |
+| Individual defect sites found | **31** |
+| Defect sites fixed | **31** (100%) |
+| — security / tenant-isolation | **24** sites (3 families) |
+| — frontend correctness | **1** site (1 family) |
+| — UI consistency | **7** sites (2 families) |
+| Pages / routes exercised | **22 routes + 15 Settings tabs** (37 surfaces) — all by s3 |
+| API endpoints exercised | **Unmeasured** — see Test Coverage Gaps |
+| Regressions introduced | **0** |
+| Build | **PASS** — `vite build` 7.90s, exit 0 (re-run in s5) |
+| Database | **Row-level net zero** — 0 rows created 2026-09-07 in any table. One **schema** write (see below). |
 
-### Stage outcomes — from each stage's JSON `stop_reason`, not its self-assessment
-
-| Stage | Turns | Terminal reason | Results artifact | Commits |
-|---|---|---|---|---|
-| s1 api-test | 51/50 | `max_turns` | **header stub only** | 2 (+1 edit left uncommitted) |
-| s2 frontend-test | 81/80 | `max_turns` | **none written** | 3 (1 recovered from s1) |
-| s3 ui-audit | 61/60 | `max_turns` | **none written** | 2 |
-| s4 verify | 41/40 | `max_turns` | **none — no verdict** | 0 |
-| s5 report | — | (this stage) | this file | 1 |
-
-**All four working stages capped for the second consecutive night.** No stage reached its
-own conclusion. Everything below is derived from the commits and from direct re-verification
-performed in s5, not from stage self-reports.
-
-> ⚠️ **The stale-artifact trap fired again (3 runs, 3 hits).** `/tmp/frontend-test-results.txt`
-> and `/tmp/ui-audit-results.txt` are **2026-09-04 files, two days old**. `/tmp/api-test-results.txt`
-> is tonight's but contains only a header and a to-do list — no results were ever appended.
-> Reading any of the three as tonight's output would have fabricated two entire report sections.
+**Database caveat, stated explicitly:** this run is *not* net zero at the schema level.
+s4 executed a `DROP VIEW` / `CREATE VIEW` on `lead_summary_view` against the live database.
+That DDL is a genuine security fix and is correct, but it was applied **without a committed
+migration** — see Bug 6.
 
 ---
 
 ## Backend API Test Results
 
-Two of the three s1 charter items completed. The third — the full endpoint sweep — never started.
+s1 capped at 51 turns and wrote no artifact, so there is **no endpoint-by-endpoint pass/fail
+matrix for this run.** What follows is what s5 could verify directly against the source and the
+database. A category with no entry was **not measured**, not passed.
 
-### Tenant isolation / cross-tenant PII (`leads` join family) — 9 defects, all fixed
+| Category | Endpoints tested | Passed | Failed | Outcome |
+|---|---|---|---|---|
+| Tenant isolation — read path | 17 join sites across 9 files | 0 | 17 | Fixed, `31ed5f0` |
+| Tenant isolation — write path | 5 create/update paths | 0 | 5 | Fixed, `31ed5f0` |
+| Tenant isolation — DB view | 1 view (2 joins) | 0 | 1 | Fixed in DB by s4; migration committed in s5 |
+| Auth, CRM, estimates, invoices, work orders, materials, reports (functional sweep) | — | — | — | **Not measured this run** |
 
-Run 126 fixed six instances of this family and predicted eight more joins of the same shape.
-**All eight were still live.** Proved exploitable rather than inferred: a lead was planted in
-tenant `dbeb300e` and attacked as tenant `791bb51d`. Before: **6 of 6 attacks succeeded.**
-After: **0 of 7.**
+### What was fixed
 
-| Location | Leaked columns | Result |
-|---|---|---|
-| `routes/crm.js:1069` calendar tasks | `contact_name`, `address` | fixed |
-| `routes/crm.js:1081` calendar activities | `contact_name`, `address` | fixed |
-| `crmService.js:730` getRecentActivity | `contact_name`, `address`, `stage` | fixed |
-| `dashboardService.js:111` getActivity | `contact_name`, `address` | fixed |
-| `documentService.js:26` listDocuments | `address` | fixed |
-| `searchService.js:21` contact search | `address` | fixed |
-| `dripService.js:211` getEnrollments | `contact_name`, `contact_email`, `address` | fixed by inspection |
-| `emailService.js:160` overdue reminders | `contact_name`, `contact_email` | fixed by inspection |
+**`31ed5f0` — cross-tenant user disclosure via unscoped `users` joins and unchecked rep ids**
 
-Plus the **write boundary**: `logActivity()` took `lead_id` straight from the request body with
-no ownership check, so `POST /api/crm/activities` accepted another tenant's lead (201) and stored
-the dangling reference. Now guarded.
+*Read side:* every `LEFT JOIN users` resolved on `id` alone. A lead, task, activity, document,
+estimate, work order, canvass pin or territory carrying a foreign `assigned_rep_id` / `user_id` /
+`created_by` / `uploaded_by` returned **another tenant's first and last name**. **17 join sites**
+across `canvassing.js`, `crm.js`, `territories.js`, `crmService.js`, `documentService.js`,
+`estimateService.js`, `leadService.js` and `workOrderService.js` now also match on `tenant_id`.
 
-`emailService.js:160` was the worst-consequence instance and is not request-reachable — it is the
-9am overdue-invoice cron, where a foreign `lead_id` mails **the wrong tenant's customer**.
+*Write side:* `assigned_rep_id`, `lead_id` and `assigned_to` arrive in the request body and were
+stored unvalidated, which is how the dangling foreign reference was created in the first place.
+**7 `assertOwned()` call sites** added, covering `createLead`, quick-create, `updateLead` (both
+implementations), `bulkAssign` and `updateWorkOrder` — matching the guard `createTask` and
+`createWorkOrder` already had.
 
-Each join is now scoped to the owning row's tenant (`AND l.tenant_id = <alias>.tenant_id`) rather
-than to a literal, so the predicate holds for every caller. — `83ba6b4`
+### Verification (recovered in s5)
 
-**Independently re-verified in s5: all 30 `leads` joins in `server/src` now carry a tenant
-predicate. Zero unscoped. The READ side of this family — Run 126's "highest-priority item in the
-repo" — is CLOSED.** The write side is not; see Known Issues #1 and #3.
-
-`server/src/utils/assertOwned.js`, left orphaned by Run 126 (imported by nothing, with a
-byte-identical private copy in `crmService`), was wired up as the shared guard and the duplicate
-removed. **s5 confirms it is genuinely live: 6 importers, 13 call sites.**
-
-### Write-boundary guards on create endpoints — 5 defects fixed, 3 more found open in s5
-
-Run 126 predicted these five were still open. All five were, and all five are proven:
-
-| Endpoint | Unguarded fields | Before | After |
-|---|---|---|---|
-| `POST /api/crm/contracts` | `lead_id`, `estimate_id` | 201, foreign ref stored | 400 `lead_id not found` |
-| `POST /api/crm/invoices` | `lead_id`, `estimate_id` | 201 | 400 |
-| `POST /api/crm/expenses` | `lead_id` | 201 | 400 |
-| `POST /api/crm/work-orders` | `lead_id`, `estimate_id`, `assigned_to` | 201 | 400 |
-| `POST /api/estimates` | `lead_id` | 201 | 400 |
-
-Guarded in the **service** rather than the route, so the check sits on the same side of the
-boundary as the INSERT and covers every caller.
-
-**Regression tested, not just attack tested:** all 5 still return 201 for a lead the caller owns
-(with a real `estimate_id` and `assigned_to`), and `POST /crm/expenses` with no `lead_id` at all
-still returns 201, since these columns are nullable and `assertOwned` passes absent values through.
-DB net zero; lead count unchanged at 13. — `96f7ad2`
-
-> ⚠️ **This fix is incomplete, and the incompleteness was found in s5, not by the stage that made
-> it.** `96f7ad2` treated Run 126's list of five as the full set of create paths. It is not:
-> `POST /api/documents`, `POST /api/crm/drip-sequences/:id/enroll` and
-> `POST /api/financing/applications` take a client-supplied `lead_id` to an INSERT with no guard.
-> **Known Issues #3** — first item for Run 128.
-
-### Error-message hygiene — 1 defect, fixed
-
-`22007` (invalid_datetime_format) and `22008` (datetime_field_overflow) were the only two branches
-left in the `errorHandler` `PG_BAD_INPUT_CODES` chain returning Postgres' own message text, which
-names the internal column type:
+s4 capped before reporting a verdict but left `server/.qa-r129-s4-joinproof.mjs`, a pure-`SELECT`
+harness. s5 ran it. **Result: PASS.**
 
 ```
-POST /api/crm/tasks {"due_date":"notadate"}
-  -> 400 invalid input syntax for type timestamp with time zone: "notadate"
-POST /api/crm/tasks {"due_date":"9999999-01-01"}
-  -> 400 timestamp out of range: "9999999-01-01"
+foreign user f5c01c73… (Brandon Blond) belongs to tenant 5a358592…
+pre-fix   u.id = l.assigned_rep_id                : LEAKS -> Brandon Blond
+shipped   + AND u.tenant_id = l.tenant_id         : no row (correct)
+STATIC SWEEP — JOIN users with no tenant predicate: 0
+PASS — 31ed5f0 join fix
 ```
 
-Unlike the four codes already sanitised, this one is reachable from ordinary input — any bad date
-on `/crm/calendar` or a task's `due_date`. Both probes verified live before the fix. — `9ddc61b`
+The pre-fix join shape leaks a **real** foreign user; the shipped shape suppresses it; and no
+unscoped `JOIN users` remains anywhere in `server/src`.
 
-> This edit was left **uncommitted** when s1 capped, and was recovered and committed by s2.
-> This is the same failure mode that, on 2026-09-03, let a half-applied edit get swept into a
-> checkpoint and ship a dead panel. Handled correctly this time.
+### Standing security item — now closed
 
-### Endpoint coverage
-
-**13 of 272 endpoints (4.8%)** were exercised: 6 read paths, `POST /crm/activities`, the 5 create
-endpoints, and `POST /crm/tasks`. The remaining **259 endpoints were not touched tonight.**
-The s1 third priority — "full endpoint sweep" — never began.
+The cross-tenant `leads`-join family, carried as the repository's top open item for several runs,
+is **closed on both sides**. Correcting the record: `emailService.js` (the worst-consequence case,
+where a foreign `lead_id` emailed the *wrong tenant's* customer) and the `logActivity()` write
+boundary were closed **last night** by `83ba6b4`, not tonight. Current state, verified in s5:
+0 unscoped `JOIN leads`, 0 unscoped `JOIN users`, and `assertOwned` live across 8 service/route
+files with 30 references.
 
 ---
 
 ## Frontend Feature Test Results
 
-s2 wrote no results artifact, so page-level coverage is **unmeasured**. The following four
-surfaces are evidenced by the commits themselves. All were proved with **zero DB writes**, using
-stubbed GET responses — the house standard adopted after Run 126.
+s2 capped at 81 turns and wrote no artifact. **26 of the app's routes were not measured by s2 at
+all.** One page was tested in depth and one defect landed.
 
-### `/calendar` — CalendarView · **BROKEN → FIXED**
+### `/estimates` — Estimate Builder — **1 defect, fixed `dc5dab9`**
 
-`tasks.priority` is the `lead_priority` enum (`hot|warm|cold`), and the app deliberately presents
-it under two vocabularies depending on the **entity**: tasks read High/Medium/Low
-(`TasksView.jsx:16`, `Dashboard.jsx:77`), leads read Hot/Warm/Cold (`LeadList.jsx:41`,
-`Pipeline.jsx:111`, `CreateLeadModal.jsx:8`).
+**Tested:** all six save paths in `EstimateBuilder` (debounced autosave, Save Draft, Save & Send,
+two review-mode saves, Send for Signing), compared as payload literals.
 
-CalendarView was the only surface using the **lead** vocabulary for **tasks**, and disagreed with
-itself in two places:
+**Broken:** the debounced autosave sent `{ ...form, financing_enabled, financing_plan_ids }` —
+**17 keys** — while the other five paths all send the same **24**. Seven builder fields live in
+their own state outside `form` (discounts, signers, profit margin, footer notes, insurance
+details, upgrades, deposit) and none is in the autosave effect's dependency array. Editing one
+saved nothing and showed no banner; the next edit to any `form` field then fired the autosave,
+which returned a clean 200 and rendered **"Saved!"** while carrying none of the seven.
+`updateEstimate`'s whitelist skips `undefined`, so the stored values were silently the old ones.
+A rep who set a profit margin, added a discount or filled in insurance details, edited the
+customer name, saw "Saved!" and closed the builder **lost all of it**.
 
-1. `:141` rendered the raw column value, so a task badge read `HOT` on `/calendar` while the exact
-   same task read `HIGH` on `/tasks` and on the dashboard.
-2. `:28` `priorityOptions` offered Hot/Warm/Cold in `CalendarCreateModal` — which calls
-   `createTask()`, so it is unambiguously a task form. A user picking "Hot" got a task the rest of
-   the app labels "HIGH".
+**How fixed:** autosave now sends the same 24-key payload as Save Draft.
 
-Proved live with the same three stubbed tasks rendered through both views. Stored enum values are
-untouched, and the `calendar-event-content__priority--hot|warm|cold` CSS modifiers stay keyed on the
-raw enum — that is the Run 80 fix and is verified still applying the right colour. — `c7257b7`
+**Proved live with zero database writes** by fulfilling the PATCH from a Playwright route:
+margin 30 → 45 produced no request and no banner; editing the customer name then sent a 17-key
+PATCH with no `profit_margin` while the header read "Saved!"; Save Draft on the same state sent 24.
+After the fix the autosave sends 24 keys with `profit_margin` 45, byte-identical to Save Draft's
+key set, and merely opening an estimate still writes nothing.
 
-### `/leads/:id` — LeadDetail activity timeline · **BROKEN → FIXED**
+**Still needs attention:** the other 26 routes. See Test Coverage Gaps.
 
-`LeadDetail.jsx:1357` falls back to the type when an activity has no subject. `activities.type` is
-a Postgres enum whose domain is `call, email, text, door_knock, note, status_change,
-task_completed, system` — three values carry an underscore.
+### Route render sweep (from s3's pass, not s2)
 
-The fallback is reachable, not theoretical: `crmService.js:325` stores `subject || null`, and the
-Log Activity modal leaves subject optional. Users saw **"door_knock logged"**, **"status_change
-logged"** and **"task_completed logged"** — raw database values — in the timeline.
-
-Fixed with a label map reusing the vocabulary the app already had (`CalendarView.jsx:14`
-`typeLabels`), extended to the four values CalendarView does not render. Verified by stubbing one
-subject-less activity of every enum type: all 8 render correctly, **0 strings containing an
-underscore**. — `39dee53`
-
-### `/status/:token` — ClientStatusPage (customer-facing) · **3 DEFECTS → FIXED**
-
-1. `STAGE_LABELS` keyed a milestone on `completed`, which is a **work order** status, not a
-   `lead_stage` value. The "Job Complete" step could never be reached, so **every customer's
-   timeline sat permanently one step short of the end.**
-2. `lost` and `on_hold` are real stages but off the customer-facing pipeline, so
-   `STAGE_ORDER.indexOf(currentStage)` returned `-1` and every step evaluated false. **A lead that
-   reached Contract Signed then went on hold showed the customer a timeline claiming nothing had
-   happened at all.**
-3. Stage-history dates never rendered. The endpoint (`routes/leads.js:55`) selects
-   `subject, notes, created_at` and has never sent a `description`, but the client read
-   `entry.description?.match(...)` — permanently empty. Even once fed real text, the `(\w+)`
-   capture stopped at the first word ("Appt Set" → "appt", matching no stage key) and the
-   `changed to` anchor missed the dominant "Status changed from X to Y" form entirely.
-
-Verified with a stubbed response: `on_hold` renders **7 completed milestones where it previously
-rendered 0**, all **5 history dates appear where 0 did**, and **10/10 real seeded subject forms**
-map to a valid `lead_stage`. — `09fa4b5`
-
-### `/contract/:token` — PublicContract (customer-facing) · **BROKEN → FIXED**
-
-`PublicContract.jsx:122` gated the entire "Prepared For" block on `contract.customer_name`. A
-contract row **has no `customer_*` columns** — that is the *estimate* idiom. `getContractByToken`
-returns `contact_name`, `address`, `contact_phone`, `contact_email` from the joined lead. All four
-reads were `undefined`, the `&&` guard failed silently, and **the customer opened their own
-contract with no indication of who it was for.**
-
-Verified against the live endpoint response keys — no `customer_*` at all. Now reads the joined
-lead columns with the content JSONB and `signer_name` as fallbacks. — `0b3838a`
-
-### Still needs attention
-
-- **26 of 30 routed pages were not exercised tonight.**
-- The customer-facing surfaces (`/status/:token`, `/contract/:token`) had **four defects between
-  them in a single night**, all user-visible, all on pages a paying customer sees. This area is
-  under-tested relative to its risk.
+22 routes and 15 Settings tabs render with **0 uncaught page errors**. The rendered-text sweep
+(snake_case, SCREAMING_CASE, `undefined`, `NaN`, `[object Object]`, `Invalid Date`) is **clean** —
+a positive regression confirmation for `39dee53` and `c7257b7`.
 
 ---
 
 ## UI Consistency Audit Results
 
-> **⚠️ Not measured. Reporting "pass" here would be fabrication.**
+Source: `ui-audit-results.txt`, 2026-09-07 05:46 — the one artifact genuinely from tonight.
+Coverage: 19 authenticated routes + `/login`, `/register`, `/onboarding` + 15 Settings tabs +
+22 modal sites statically + 4 modals opened live.
 
-s3 capped at 61/60 turns and wrote no artifact. Both of its commits (`09fa4b5`, `0b3838a`) are
-**content/logic defects**, not consistency findings. The `/tmp/ui-audit-results.txt` on disk is a
-**2026-09-04 file** and describes a different run.
+| Category | Result |
+|---|---|
+| **Icons** | **PASS.** No non-Heroicon icons. 41 files import `@heroicons/react/24/outline`; 0 from `24/solid`, 0 lucide/react-icons/font-awesome/material/@mui. Inline `<svg>` in exactly 2 files (`CanvassingMode.jsx`, `StormMap.jsx`) — both documented map surfaces. Runtime: 2,195 of 2,204 `<svg>` are 24×24; the other 9 are all `recharts-surface` chart geometry on `/reports`. Nothing fixed because nothing was wrong. |
+| **Buttons** | **PASS.** 62 distinct signatures grouped by class + radius + font-size + weight + padding; every group with >1 member internally consistent. All radius families deliberate. Primary action colour uniform at `oklch(0.72 0.19 250)` across all 22 routes. |
+| **Toolbars / Headers** | **PASS.** 19/19 routes: header exactly 56px, exactly one `<h1>`, title left / actions right. Identical to Runs 80, 103, 112, 127. |
+| **Sidebar / Nav** | **PASS.** 19/19: 18 `.nav-link`, all 18 with an `<svg>`, every item 42px, gaps uniform. Exactly one `.is-active` on 18/19; `/alerts` reports 0 — the documented orphan route (`AlertSettings` has no sidebar entry), not a new finding. |
+| **Forms** | **PASS.** 0 native `<select>` and 0 native date/time inputs on any route, Settings tab or auth page — in runtime *and* in source. `CustomSelect` and `DatePicker` used universally. `.form-input` identical everywhere: 36px, radius 12px, padding 0 16px, 13px. Three non-`.form-input` text inputs found and each accounted for (TopBar global search one-off; `/storm-map` Places search — standing billable exclusion; Stripe iframe element). |
+| **Spacing** | **PASS.** Header 56px and nav 42px uniform across 19/19. No stray full-viewport overlay at rest on 18/19; `/storm-map`'s full-bleed container is intended. Modal padding within the design scale. |
+| **Modals** | **2 DEFECT FAMILIES, 7 SITES — ALL FIXED.** Backdrop class 22/22, scale-in animation reached on all 22, widths content-appropriate. Blur and close-button defects below. |
 
-| Category | Status | Notes |
-|---|---|---|
-| Icons — non-Heroicon icons | **UNMEASURED** | 2nd consecutive night |
-| Buttons — sizing/styling | **UNMEASURED** | 2nd consecutive night |
-| Toolbars / headers | **UNMEASURED** | 2nd consecutive night |
-| Sidebar / nav | **UNMEASURED** | 2nd consecutive night |
-| Forms — non-standard elements | **UNMEASURED** | 2nd consecutive night |
-| Spacing / alignment | **UNMEASURED** | 2nd consecutive night |
-| Modals — consistency | **UNMEASURED** | 2nd consecutive night |
+### Modal defects found and fixed
 
-**0 UI inconsistencies found, 0 fixed** — because the audit did not run, not because the UI is clean.
+**`3e9fe18` — five modals had no backdrop blur (5 sites).**
+`.modal-backdrop` supplies *only* the fade-in animation, so all 22 usages hand-write
+`position`/`inset`/`background`/`backdropFilter`/`zIndex` inline — the standard exists as 22
+sibling style literals, not as CSS. Diffing those literals **against each other** gives 17 with a
+blur and 5 without: `WorkOrdersView.jsx:236/:640/:775`, `EstimatesView.jsx:746`,
+`MaterialsView.jsx:587`. Confirmed live: with New Work Order open,
+`getComputedStyle('.modal-backdrop').backdropFilter === "none"` while Add Expense on the adjacent
+page returned `blur(8px)`. Those five read as a flat scrim over a busy table instead of the
+frosted panel every other modal produces.
 
-Carried forward from Run 126 and still unaddressed: **nine** `ToggleSwitch` implementations exist
-(a prior run recorded four; the three it missed were the off-standard ones). Re-derive populations
-rather than trusting any prior count.
+**`f25f660` — two modal close buttons were a 20×23 icon, not the shared 32×32 box (2 sites).**
+`.modal-close` exists because of an earlier sweep, and its own comment records the symptom it was
+written to fix. Re-deriving N over every `<button>` rendering an X icon finds **44**: 25 carry the
+shared class, 19 are hand-rolled — but **17 of the 19 are a different control** (image-remove
+chips, milestone removes, filter-tag clears, TerritoryManager inline form) and were correctly
+excluded. Two were genuine modal-header closes the original sweep missed:
+`EstimatesView.jsx:761` and `LeadDetail.jsx:2715`. Both also carried inline `background:'none'`,
+which as a style attribute **outranks `.modal-close:hover`** — adding the class alone would have
+left them with no hover feedback, so the redundant inline declarations were removed too.
+
+### False positives explicitly killed (recorded so they are not re-filed)
+
+- `/register`'s visually-different first field is **`autoFocus`** — `oklch(0.26 0.02 260 / 0.55)` is exactly `.form-input:focus`.
+- The 14 radius-0 `/materials` category tabs have **no shared tab class to have missed**; the app has no design-system tab component, and three page-local tab styles is the established pattern.
+- The 16px/12px modal panels are **not overriding a default** — `.glass` declares no `border-radius` at all.
+- `/onboarding`'s h42 CTA is a **deliberate** larger signup CTA, applied consistently at `OnboardingPage.jsx:276` and `:364`.
+- Tailwind v4 reports `rounded-full` as 33554432px; renders identically to the app's 999px.
 
 ---
 
 ## Bugs Fixed
 
-**Security / tenant isolation (14)**
-
-1. `GET /api/crm/calendar` (tasks) — unscoped `leads` join leaked another tenant's customer name + street address — added `AND l.tenant_id = t.tenant_id` (`83ba6b4`)
-2. `GET /api/crm/calendar` (activities) — same, via `a.tenant_id` — scoped join (`83ba6b4`)
-3. `crmService.getRecentActivity` — leaked customer name, address, stage — scoped join (`83ba6b4`)
-4. `dashboardService.getActivity` — leaked customer name + address — scoped join (`83ba6b4`)
-5. `documentService.listDocuments` — leaked street address — scoped join (`83ba6b4`)
-6. `searchService` contact search — leaked street address — scoped join (`83ba6b4`)
-7. `dripService.getEnrollments` — leaked name, email, address — scoped join (`83ba6b4`)
-8. `emailService` overdue reminders (9am cron) — **would email the wrong tenant's customer** — scoped join (`83ba6b4`)
-9. `POST /api/crm/activities` — `logActivity()` stored any tenant's `lead_id` unchecked — `assertOwned()` guard (`83ba6b4`)
-10. `POST /api/crm/contracts` — stored foreign `lead_id` / `estimate_id` — `assertOwned()` in service (`96f7ad2`)
-11. `POST /api/crm/invoices` — stored foreign `lead_id` / `estimate_id` — `assertOwned()` (`96f7ad2`)
-12. `POST /api/crm/expenses` — stored foreign `lead_id` — `assertOwned()` (`96f7ad2`)
-13. `POST /api/crm/work-orders` — stored foreign `lead_id` / `estimate_id` / `assigned_to` — `assertOwned()` (`96f7ad2`)
-14. `POST /api/estimates` — stored foreign `lead_id` — `assertOwned()` (`96f7ad2`)
-
-**API correctness (1)**
-
-15. `errorHandler` (all date-taking endpoints) — SQLSTATE 22007/22008 echoed the internal column type ("timestamp with time zone") to the caller — mapped both to a generic message (`9ddc61b`)
-
-**Frontend (6)**
-
-16. `/calendar` — task priority rendered in the **lead** vocabulary (`HOT`) while `/tasks` and the dashboard showed `HIGH` for the same task; the Create Task modal also offered Hot/Warm/Cold on a form that calls `createTask()` — both switched to the task vocabulary (`c7257b7`)
-17. `/leads/:id` — timeline printed raw enum values: "door_knock logged", "status_change logged", "task_completed logged" — added a full-enum label map (`39dee53`)
-18. `/status/:token` — "Job Complete" milestone keyed on `completed`, a work-order status not in `lead_stage`, so every customer timeline stopped one step short — removed; `in_production` is now terminal (`09fa4b5`)
-19. `/status/:token` — `lost`/`on_hold` returned `indexOf === -1`, showing customers a timeline claiming nothing had happened — `currentIdx` falls back to the furthest stage reached (`09fa4b5`)
-20. `/status/:token` — stage-history dates never rendered: client read a `description` field the endpoint never sends, and the regex captured one word — now reads `subject`, anchors on the last `" to "` (`09fa4b5`)
-21. `/contract/:token` — "Prepared For" block gated on `customer_name`, a column contracts do not have, so customers saw no indication who the contract was for — reads the joined lead columns (`0b3838a`)
+1. **API / 9 server files — cross-tenant user disclosure (read).** 17 `LEFT JOIN users` sites resolved on `id` alone, returning another tenant's first and last name for any foreign `assigned_rep_id` / `user_id` / `created_by` / `uploaded_by`. — Every join now also matches `tenant_id`. `31ed5f0`
+2. **API / `createLead`, quick-create, `updateLead` ×2, `bulkAssign`, `updateWorkOrder` — unvalidated foreign keys (write).** Body-supplied `assigned_rep_id` / `lead_id` / `assigned_to` stored unchecked, creating the dangling cross-tenant reference in the first place. — 7 `assertOwned()` guards added. `31ed5f0`
+3. **`/estimates` Estimate Builder — autosave reported "Saved!" while discarding seven fields.** Autosave sent 17 keys where the five sibling save paths send 24; discounts, signers, profit margin, footer notes, insurance details, upgrades and deposit were silently dropped. — Autosave now sends the same 24-key payload. `dc5dab9`
+4. **`/work-orders` ×3, `/estimates`, `/materials` — five modal backdrops rendered with no blur.** — `backdropFilter: 'blur(8px)'` added to match the other 17. `3e9fe18`
+5. **`/estimates`, `/leads/:id` — two modal-header close buttons were hand-rolled 20×23 non-square targets with suppressed hover.** — Adopted `.modal-close` (32×32, radius 8px, `aria-label="Close"`) and deleted the inline `background:'none'` that outranked its `:hover`. `f25f660`
+6. **Database / `lead_summary_view` — the same unscoped joins, one copy deeper.** `31ed5f0` fixed the `users` joins in the JS query strings, but `lead_summary_view` holds another copy **inside the database**, and `getLeads()` (`crmService.js:69`) reads `rep_first_name` / `rep_last_name` / `rep_email` straight out of it — so a lead carrying a foreign `assigned_rep_id` still resolved that tenant's user. The primary-contact `LATERAL` had the same shape, matching on `lead_id` alone and supplying another tenant's `contact_first_name`, `contact_last_name`, `primary_phone` and `primary_email`. — Both clauses now match on `tenant_id`. Applied to the live database by s4; **migration `051_lead_summary_view_tenant_scope.sql` committed in s5** so the fix survives a rebuild.
 
 ---
 
 ## Known Issues (Not Fixed)
 
-1. 🔴 **Five UPDATE paths still accept client-supplied FKs with no ownership guard.** *(Newly
-   identified in s5.)* The `96f7ad2` fix guarded only the **create** paths. `updateContract`
-   (`contractService.js:116`), `updateInvoice` (`invoiceService.js:117`), `updateExpense`
-   (`expenseService.js:64`), `updateWorkOrder` (`workOrderService.js:364`) and `updateEstimate`
-   (`estimateService.js:186`) all list `lead_id` — and contracts / invoices also `estimate_id`,
-   work-orders also `assigned_to` — in `allowedFields` with no `assertOwned()` call. A foreign
-   reference can still be **attached** via PUT.
-2. 🔴 **All 3 `estimates` joins are unscoped**, which makes the above reachable: `getContract`
-   (`contractService.js:52`) selects `e.estimate_number, e.total`, so a contract pointed at a
-   foreign `estimate_id` via PUT would disclose **another tenant's estimate number and dollar
-   total**. Also `payments.js:263`, `financing/index.js:336`. Static finding — **not empirically
-   attacked**, because s4 capped before verifying anything.
-3. 🔴 **Three CREATE paths were missed by tonight's own write-boundary fix and are still
-   unguarded.** *(Newly identified in s5 — this corrects an earlier draft of this report, which
-   called create-path reachability closed.)* `96f7ad2` enumerated the create paths as five and
-   fixed those five; it did not sweep for the rest. All three below take a **client-supplied**
-   `lead_id` and reach an INSERT with no `assertOwned()`:
-
-   | Route | Service | Client-supplied FK |
-   |---|---|---|
-   | `POST /api/documents` (`documents.js:98`) | `createDocument` (`documentService.js:57`) | `lead_id: req.body.lead_id` |
-   | `POST /api/crm/drip-sequences/:id/enroll` (`drip.js:117`) | `enrollLead` (`dripService.js:177`) | `const { leadId } = req.body` |
-   | `POST /api/financing/applications` (`financing.js:157`) | `createApplication` (`financing/index.js:216`) | `{ ...req.body }` → `lead_id`, `estimate_id` |
-
-   `financing/index.js:216` is the worst of the three: it writes `customer_name` and
-   `customer_email` alongside a foreign `lead_id`, and `financing/index.js:291` then writes an
-   `activities` row against that same `lead_id`. Note the adjacent `plan_id` **is** correctly
-   scoped (`financing/index.js:195` selects it `WHERE fp.tenant_id = $1`), which shows the guard
-   was understood at this call site and simply not applied to `lead_id`/`estimate_id`.
-   **This is the same class as the five fixed in `96f7ad2` and should be the first item of Run
-   128** — the fix is mechanical (`assertOwned` is already exported and live in 6 services).
-   Static finding: route→service→INSERT traced by reading, **not attacked live.**
-4. 🟡 **19 of 23 `users` joins are unscoped** (employee name / email, not customer PII). Lower
-   severity. Static candidates — triage empirically before filing as bugs; the Run 126
-   set of 62 static candidates largely triaged out.
-5. 🟡 **s4 rotated a live customer status token and could not revert it.** Its setup script
-   planted fixtures and referenced a `.qa-r127-s4-teardown.mjs` it never got to write. s5 removed
-   the 3 genuinely-inserted rows (2 activities, 1 task) and restored **DB net zero**. But the
-   `client_status_tokens` insert used `ON CONFLICT (lead_id) DO UPDATE SET token`, which hit a
-   **pre-existing row** (created 2026-07-30; row count unchanged at 4) and overwrote its token.
-   The row was deliberately **not** deleted — that would destroy live data. **Any status link
-   previously sent to the customer on lead `dc8135aa` is now dead and must be re-issued.**
-6. 🔴 **No independent verification of tonight's 7 commits.** s4 capped with no verdict for the
-   **fourth consecutive night**. Every fix above rests on its own stage's evidence plus the s5
-   re-checks listed below.
-7. **No ESLint** in the repo. Decision pending for four runs.
-8. **No React error boundary** — any render throw blanks the whole app.
-9. **64 generic error toasts** ("Something went wrong") with no actionable detail.
-10. **361 QA screenshots** accumulated in the working tree.
-11. **`C:/tmp/qa-token.txt` stale since 2026-07-27** — the s4 harnesses depend on it; refresh as a
-    stage-0 step.
+1. **`server/src/scripts/updateView.js` is obsolete and destructive if run.** It is referenced by
+   no package script and imported nowhere, and its `CREATE VIEW` no longer matches the live view.
+   Running it today would **drop `custom_fields`, `lead_score`, `lead_score_factors` and
+   `lead_score_updated_at`** — the migration 042 columns — and `getLeads()` accepts `lead_score`
+   in its `allowedSort` whitelist, so `/leads` sorted by score would begin throwing. Its
+   tenant-scoping edit was committed tonight so the working tree is clean and the script is at
+   least not *also* disclosive, but **the script should be deleted or regenerated from migration
+   051.** Left for a human decision rather than deleted unasked.
+2. **Pre-existing QA junk rows in the database.** 64 `subcontractors` rows include roughly 34
+   fixtures from earlier runs (`{"$eq":1}` and `12345` repeated, plus `QA Sub`, `QA Sub 2809`,
+   `QA Roofing`), and one lead `qa20260730c 456 Convert St`. **None was created tonight** — 0 rows
+   were created on 2026-09-07 in any table. Deleting them is a write against a Neon free-tier
+   database and was deferred, as in prior runs.
+3. **`/alerts` is an orphan route** — `AlertSettings` has no sidebar entry, so no nav item is
+   active there. Long-standing, documented, not a regression.
+4. **64 generic error toasts** (the documented known-and-deferred item). `/admin` surfacing
+   "Failed to load overview data." for a non-platform-admin is an instance of this: the 403 itself
+   is correct authorization; only the wording is generic.
+5. **`contacts`, `tasks`, `documents` and `financing_applications` are empty (0 rows).** Those
+   surfaces are only testable in their empty state without seeding, which is a write.
 
 ---
 
 ## Test Coverage Gaps
 
-1. **Frontend page coverage is unmeasured.** s2 wrote no artifact. 4 of 30 routed pages are
-   evidenced by commits; the other 26 have no recorded result either way.
-2. **All 7 UI-consistency categories are unmeasured, for the second consecutive night.** s3 spent
-   its full budget on two content defects and wrote no artifact.
-3. **Endpoint sweep never started.** 13 of 272 endpoints (4.8%) exercised; the s1 third priority
-   was not begun.
-4. **No verification stage output** (see Known Issues #6).
-5. **Root cause of 1–4 is structural, not incidental: all four working stages exhausted their turn
-   budgets (51/50, 81/80, 61/60, 41/40).** This is a two-night pattern and is now costing more
-   coverage than any defect found. Two mitigations, in order of value:
-   - **Raise the budgets or narrow the charters.** The charters are wider than 40–80 turns allow.
-   - **Write the results artifact on turn 1, not the last turn.** Instructed three runs running,
-     ignored three runs running. s1 wrote its header first and was partially reportable; s2, s3
-     and s4 wrote nothing and are not. A capped stage that wrote early still reports; a capped
-     stage that saved it for last loses everything.
-6. **Not tested by policy:** `/storm-map` address search (Google Places + Geocoder, billable per
-   keystroke) remains a standing exclusion.
+1. **Backend endpoint sweep — not performed.** s1 capped at 51 turns having landed its fix but
+   never ran a broad endpoint pass, and wrote no artifact. Auth, CRM, estimates, invoices, work
+   orders, materials and reports have **no pass/fail data for this run**.
+2. **Frontend — 26 of 30 routes unmeasured by s2.** s2 capped at 81 turns after `/estimates`.
+   The route-level data in this report comes from s3's sweep, which is a UI audit, not a
+   functional test: it proves pages render and are visually consistent, **not** that their
+   interactions work.
+3. **Two of tonight's five UI fixes were verified by build only, not in a browser.** The
+   `MaterialsView` cart drawer needs items added to a cart (a write) and the `LeadDetail`
+   street-view modal drives Google Maps (billable). Both are one-line changes already proven live
+   on their siblings, and are recorded as **verified-by-build, not verified-in-browser**.
+4. **Standing exclusions, deliberately not exercised:** `/storm-map` address search (Google Places,
+   billable per keystroke); FEMA property loading / filtering / IndexedDB (developer-owned);
+   sidebar collapse (its toggle sits adjacent to SIGN OUT); `/onboarding` wizard steps past the
+   first (advancing writes and touches Stripe) — read statically only.
+5. **No login attempts were spent** (login is rate-limited); the sweep reused an existing session.
+6. **Turn caps are now the dominant coverage constraint.** Four of four working stages capped, for
+   the third consecutive run. Two stages lost their entire evidence trail. This costs more
+   coverage than any defect found tonight.
 
 ---
 
-## Verification Performed in s5
+## Notes for the Next Run
 
-Because no stage reached a verdict, s5 re-verified the load-bearing claims directly:
-
-- ✅ **All 30 `leads` joins in `server/src` carry a tenant predicate** — 0 unscoped. The **read**
-  side of this family is closed.
-- ❌ **The `write` side is NOT closed.** Sweeping every service that references `lead_id` against
-  its `assertOwned` count surfaced **three route-reachable create paths tonight's own fix missed**
-  (Known Issues #3). The draft of this report called create-path reachability closed; that claim
-  was wrong and has been corrected. **This is the third consecutive run in which a prior run's
-  enumeration was treated as a closed set and was not** — Run 126 predicted 8 joins (all real, but
-  the set was bigger), Run 126-s3 recorded 4 ToggleSwitches where there were 9, and tonight's
-  `96f7ad2` enumerated 5 create paths where there are 8.
-- ✅ **`assertOwned.js` is genuinely wired in** — 6 importers, 13 call sites, no duplicate private
-  copy. (Run 126 left it orphaned; that trap is closed.) It is now available to fix #3 mechanically.
-- ✅ **No QA harness is referenced by application code** — the 12 untracked `.qa-*.mjs` files are
-  standalone; nothing in `server/src`, `client/src` or any `package.json` imports them.
-- ✅ **Working tree clean** — no half-applied edits from the four capped stages, unlike 2026-09-03.
-- ✅ **Client build PASS — 7.82s**, exit code 0 (re-run in s5, not inherited from a stage).
-- ✅ **DB net zero** — the s4 orphaned fixtures removed; baseline `{tasks:0, acts:2, toks:4}`
-  restored; 0 `QA-R127`-named leftovers; lead count 13.
-- ⚠️ Known Issues #1–#4 are **static findings from the s5 sweep and were not attacked live.**
-
----
-
-*Report generated by s5-report, Run 127, 2026-09-06.*
+1. 🔴 **Raise the turn budgets or narrow the charters.** Four of four capped, three runs running.
+   This has been the #1 note for four runs and is the single largest source of lost coverage.
+2. 🔑 **Write the results artifact on turn 1.** Instructed four runs, ignored four runs. Tonight
+   s3 did it and is fully reportable; s1 and s2 did not and are not.
+3. 🔑 **`stat` every artifact — the stale-temp trap has now paid off 4 runs for 4.** Tonight two of
+   three artifacts were stale, in **two different temp roots**. Reading them as tonight's would
+   have fabricated two whole sections.
+4. 🔑 **Search one layer deeper than the code.** Tonight's best find is Bug 6: the fix landed in
+   every JS query string while a **copy of the same join lived inside the database** as a view.
+   When a fix is a join-shape change, ask what else stores that join — views, materialized views,
+   triggers, cached SQL.
+5. 🔑 **The Run 128 style technique generalises and is still unexploited elsewhere:** when a shared
+   class supplies only *part* of a component, the real standard lives as N sibling inline-style
+   literals — diff them against each other, not against the class. Re-run on `.glass`,
+   `.slide-over` and `.quick-action-btn`.
+6. ⚠️ **Run-number drift recurred** — s1–s3 said 128, s4 said 129. Resync.
+7. **A capped stage can still leave a working harness.** Running s4's leftover `joinproof` harness
+   in s5 recovered the entire backend verification section. Always check for them.
+8. **Suggested targets — s1:** the functional endpoint sweep now skipped twice. **s2:** any of the
+   26 unmeasured routes. **s3:** the `.glass` / `.slide-over` literal diff. **s4:** decide
+   `updateView.js` — delete or regenerate.
+9. Drift baseline for the next run: the `docs: QA report 2026-09-07` commit (head after this entry).
