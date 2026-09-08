@@ -1297,6 +1297,11 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   const [showSendModal, setShowSendModal] = useState(false);
   const [showSignModal, setShowSignModal] = useState(false);
   const [createdEstimate, setCreatedEstimate] = useState(null);
+  // ONE "have I saved yet" answer for every save path in this builder. `estimate` is a
+  // prop and never changes, so a brand-new estimate that the review toolbar has already
+  // persisted is visible only through `createdEstimate`. Three of the six paths read the
+  // prop alone and created a SECOND row for the same job.
+  const savedEstimate = estimate || createdEstimate;
   const [financingEnabled, setFinancingEnabled] = useState(estimate?.financing_enabled || false);
   // `|| []` only covers a FALSY value; financing_plan_ids is unvalidated JSONB, so a
   // truthy non-array (object/number) survives it and then throws at the
@@ -1602,10 +1607,16 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
     setSaving(true);
     try {
       const payload = { ...form, discounts, signers, profit_margin: profitMargin, footer_notes: footerNotes, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null };
-      if (estimate) {
-        await estimatesApi.updateEstimate(estimate.id, payload);
+      // `estimate` is a PROP and stays null for a brand-new estimate even after the
+      // review-mode PDF or "Sign Now" button has already saved the row. Gating on it
+      // alone made this path create a SECOND estimate for the same job. `savedEstimate`
+      // is the same "have I saved yet" answer the sign modal and those two buttons use.
+      const target = savedEstimate;
+      if (target) {
+        await estimatesApi.updateEstimate(target.id, payload);
       } else {
-        await estimatesApi.createEstimate(payload);
+        const res = await estimatesApi.createEstimate(payload);
+        setCreatedEstimate(res.data);
       }
       showToast('Estimate saved', 'success');
       onSave();
@@ -1620,13 +1631,15 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
     setSending(true);
     try {
       const payload = { ...form, discounts, signers, profit_margin: profitMargin, footer_notes: footerNotes, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null };
-      let est;
-      if (estimate) {
-        await estimatesApi.updateEstimate(estimate.id, payload);
-        est = estimate;
+      // Same "have I saved yet" answer as handleSave — without it, sending after the
+      // review-mode PDF or "Sign Now" had already saved the row created a duplicate.
+      let est = savedEstimate;
+      if (est) {
+        await estimatesApi.updateEstimate(est.id, payload);
       } else {
         const res = await estimatesApi.createEstimate(payload);
         est = res.data;
+        setCreatedEstimate(est);
       }
       await estimatesApi.sendEstimate(est.id);
       showToast('Estimate sent', 'success');
@@ -1645,7 +1658,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
   // `estimate` is a PROP and never changes, so on a brand-new estimate "Sign Now" saved a
   // row and then gated the modal on a value that was still null. Fall back to the row the
   // handler just created.
-  const signTarget = estimate || createdEstimate;
+  const signTarget = savedEstimate;
   const signModal = showSignModal && signTarget && (
     <InPersonSignModal
       estimateId={signTarget.id}
@@ -1687,7 +1700,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
               // "Sign Now" had already saved the row. The PDF is rendered server-side
               // from a persisted id, so save first, exactly like the two controls to the
               // right of this one ("Sign Now" and "Send for Signing") already do.
-              let target = estimate || createdEstimate;
+              let target = savedEstimate;
               if (!target) {
                 setSaving(true);
                 try {
@@ -1706,7 +1719,7 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
             <button className="quick-action-btn" onClick={async () => {
               // `createdEstimate` is part of the "have I saved yet" answer — without it a
               // second click created a second row.
-              if (!estimate && !createdEstimate) {
+              if (!savedEstimate) {
                 // Save first, then open signing
                 setSaving(true);
                 try {
@@ -2830,13 +2843,16 @@ function EstimateBuilder({ estimate, onSave, onCancel }) {
               // for an estimate that was never saved as a draft, so the five fields it
               // used to omit were not merely left unchanged — they were never written.
               const payload = { ...form, discounts, signers, profit_margin: profitMargin, footer_notes: footerNotes, financing_enabled: financingEnabled, financing_plan_ids: selectedPlanIds, insurance_details: insuranceEnabled ? insuranceDetails : {}, upgrades, deposit: depositEnabled ? deposit : null };
-              let est;
-              if (estimate) {
-                await estimatesApi.updateEstimate(estimate.id, payload);
-                est = estimate;
+              // Same "have I saved yet" answer as the other save paths — this modal is
+              // one click from the review toolbar, so reaching it after PDF or "Sign Now"
+              // has already saved the row is the normal flow, not an edge case.
+              let est = savedEstimate;
+              if (est) {
+                await estimatesApi.updateEstimate(est.id, payload);
               } else {
                 const res = await estimatesApi.createEstimate(payload);
                 est = res.data;
+                setCreatedEstimate(est);
               }
               await estimatesApi.sendEstimate(est.id);
               showToast('Estimate sent for signing', 'success');
