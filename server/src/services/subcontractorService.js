@@ -1,4 +1,5 @@
 import pool from '../db/pool.js';
+import assertOwned from '../utils/assertOwned.js';
 
 export async function listSubcontractors(tenantId, { specialty, status, search, limit = 50, offset = 0 } = {}) {
   const params = [tenantId];
@@ -100,6 +101,10 @@ export async function assignToWorkOrder(tenantId, workOrderId, subcontractorId, 
   );
   if (!woRows.length) return null;
 
+  // subcontractor_id arrives in the request body too — without this a caller can attach
+  // another tenant's subcontractor to their own work order.
+  await assertOwned(tenantId, 'subcontractors', subcontractorId, 'subcontractor_id');
+
   const { rows } = await pool.query(
     `INSERT INTO work_order_subcontractors (work_order_id, subcontractor_id, role, agreed_rate, notes)
      VALUES ($1, $2, $3, $4, $5)
@@ -114,7 +119,7 @@ export async function getWorkOrderSubcontractors(tenantId, workOrderId) {
   const { rows } = await pool.query(
     `SELECT wos.*, s.name, s.company, s.phone, s.email, s.specialty
      FROM work_order_subcontractors wos
-     JOIN subcontractors s ON s.id = wos.subcontractor_id
+     JOIN subcontractors s ON s.id = wos.subcontractor_id AND s.tenant_id = $2
      JOIN work_orders wo ON wo.id = wos.work_order_id
      WHERE wos.work_order_id = $1 AND wo.tenant_id = $2
      ORDER BY s.name`,
