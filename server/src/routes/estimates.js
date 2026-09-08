@@ -189,11 +189,19 @@ router.get('/:id', validateId(), async (req, res, next) => {
 // Create estimate
 router.post('/', async (req, res, next) => {
   try {
-    if (!req.body.lead_id) {
-      return res.status(400).json({ error: 'lead_id is required' });
-    }
+    // `estimates.lead_id` is NULLABLE and 8 of the 17 rows in the live tenant hold NULL,
+    // so requiring it here contradicted the schema, the data and createEstimate's own
+    // `lead_id || null`. EstimateBuilder is the ONLY client caller of this route and it
+    // has no lead field at all, so every one of its five save paths — Save Draft,
+    // Save & Send, review-mode PDF, Sign Now and Send for Signing — 400'd here and
+    // "New Estimate" could not be saved by any route through the UI.
+    // 3577c4a added this to "prevent 500 errors"; the UUID-format check is what does
+    // that, so keep it and apply it only when an id was actually supplied — exactly the
+    // shape the sibling estimate_id checks already use.
     const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!UUID_RE.test(req.body.lead_id)) return res.status(400).json({ error: 'Invalid lead_id format' });
+    if (req.body.lead_id && !UUID_RE.test(req.body.lead_id)) {
+      return res.status(400).json({ error: 'Invalid lead_id format' });
+    }
     const shapeErr = validateJsonShapes(req.body);
     if (shapeErr) return res.status(400).json({ error: shapeErr });
     const estimate = await estimateService.createEstimate(req.tenantId, req.user.id, req.body);

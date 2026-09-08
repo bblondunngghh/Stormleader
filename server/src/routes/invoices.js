@@ -58,11 +58,14 @@ router.get('/:id', validateId(), async (req, res, next) => {
 router.post('/', async (req, res, next) => {
   try {
     const { lead_id, estimate_id } = req.body;
-    if (!lead_id) {
-      return res.status(400).json({ error: 'lead_id is required' });
-    }
+    // `invoices.lead_id` is NULLABLE and 10 of the 14 rows in the live tenant hold NULL.
+    // The invoice editor's lead picker is optional and sends `lead_id: leadId || null`,
+    // so "Create Invoice" without picking a lead 400'd here and showed only the generic
+    // "Failed to save invoice" toast. Same change as estimates.js: keep the format check
+    // that actually prevents the 500 and apply it only when an id was supplied, matching
+    // the estimate_id line directly below.
     const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!UUID_RE.test(lead_id)) return res.status(400).json({ error: 'Invalid lead_id format' });
+    if (lead_id && !UUID_RE.test(lead_id)) return res.status(400).json({ error: 'Invalid lead_id format' });
     if (estimate_id && !UUID_RE.test(estimate_id)) return res.status(400).json({ error: 'Invalid estimate_id format' });
     const shapeErr = validateJsonShapes(req.body);
     if (shapeErr) return res.status(400).json({ error: shapeErr });

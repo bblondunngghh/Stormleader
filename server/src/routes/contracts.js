@@ -148,8 +148,14 @@ router.post('/', async (req, res, next) => {
     const estimateId = req.body.estimate_id ?? req.body.estimateId;
     const templateType = req.body.template_type ?? req.body.templateType;
     const { content } = req.body;
-    if (!leadId) {
-      return res.status(400).json({ error: 'lead_id is required' });
+    // `contracts.lead_id` is NULLABLE and 3 of the 4 rows in the live tenant hold NULL,
+    // and createContract inserts `leadId || null`. ContractsView's lead picker is
+    // optional (`lead_id: leadId || undefined`), so "Save Draft" on a contract with no
+    // lead 400'd here. 8a5fd0d fixed the camelCase half of this route's create path;
+    // this is the presence check on the same line of reasoning.
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (leadId && !UUID_RE.test(leadId)) {
+      return res.status(400).json({ error: 'Invalid lead_id format' });
     }
     const shapeErr = contentShapeError(req.body);
     if (shapeErr) return res.status(400).json({ error: shapeErr });
