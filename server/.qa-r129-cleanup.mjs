@@ -1,0 +1,13 @@
+import pool from './src/db/pool.js';
+const before = {};
+for (const t of ['estimates','invoices','contracts']) before[t] = (await pool.query(`SELECT count(*) n FROM ${t}`)).rows[0].n;
+console.log('before', JSON.stringify(before));
+const r1 = await pool.query(`DELETE FROM estimates WHERE id = '0f1b9b8d-7361-4fce-8f85-8ac9dfdbcecb'`);
+const r2 = await pool.query(`DELETE FROM invoices  WHERE id = '2d0436eb-84f2-4e2c-960a-01b1db039f29'`);
+const r3 = await pool.query(`DELETE FROM contracts WHERE id = '6e0a4aca-57bc-4e0e-958c-b79f9393a083'`);
+console.log('deleted', r1.rowCount, r2.rowCount, r3.rowCount);
+const after = {};
+for (const t of ['estimates','invoices','contracts']) after[t] = (await pool.query(`SELECT count(*) n FROM ${t}`)).rows[0].n;
+console.log('after ', JSON.stringify(after));
+console.log('QA-R129 leftovers:', (await pool.query(`SELECT count(*) n FROM estimates WHERE customer_name LIKE 'QA-R129%'`)).rows[0].n);
+await pool.end();

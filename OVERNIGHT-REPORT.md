@@ -1,273 +1,206 @@
 # StormLeads — Overnight QA Report
 
-**Date:** 2026-09-07 · **Run 128** · **Branch:** `feat/financing`
-**Baseline:** `d147796` (`pre-overnight-20260907`) → **HEAD at report time:** `f25f660`
-**Stages:** s1 api-test · s2 frontend-test · s3 ui-audit · s4 verify · s5 report
-
-> **Stage integrity — read this before trusting any count below.**
-> **All four working stages terminated on `error_max_turns`,** not on completion:
-> s1 51 turns, s2 81, s3 61, s4 41. Every number in this report was re-derived in s5
-> from the repository, the artifacts and the live database — not copied from any stage's
-> self-assessment.
->
-> **Only one of the three expected artifacts is tonight's.** `stat` results:
-> `ui-audit-results.txt` = 2026-09-07 05:46 (**tonight**);
-> `api-test-results.txt` = 2026-09-06 (Run 127); `frontend-test-results.txt` = 2026-09-04 (Run 123).
-> Both stale files exist in **two** temp roots (`/tmp` → AppData and `C:\tmp`) and are stale in
-> both. s1 and s2 wrote **no** artifact tonight, so their coverage is **unmeasured, not passing.**
->
-> **Run-number drift recurred.** s1–s3 labelled themselves Run 128 (`.qa-r128-*`); s4 labelled
-> itself Run 129 (`.qa-r129-s4-joinproof.mjs`). Filed as Run 128.
+**Run 130 · 2026-09-08 · branch `feat/financing` · baseline `004e3b4` (checkpoint: pre-overnight-run 2026-09-08)**
 
 ---
 
 ## QA Test Summary
 
-| Metric | Count |
+| Metric | Value |
 |---|---|
-| Commits landed | **4** (all fixes; 0 reverts) |
-| Defect families found | **6** |
-| Individual defect sites found | **31** |
-| Defect sites fixed | **31** (100%) |
-| — security / tenant-isolation | **24** sites (3 families) |
-| — frontend correctness | **1** site (1 family) |
-| — UI consistency | **7** sites (2 families) |
-| Pages / routes exercised | **22 routes + 15 Settings tabs** (37 surfaces) — all by s3 |
-| API endpoints exercised | **Unmeasured** — see Test Coverage Gaps |
-| Regressions introduced | **0** |
-| Build | **PASS** — `vite build` 7.90s, exit 0 (re-run in s5) |
-| Database | **Row-level net zero** — 0 rows created 2026-09-07 in any table. One **schema** write (see below). |
+| API endpoints inventoried | **272** across 36 route files (GET 132, POST 88, PATCH 26, PUT 8, DELETE 18) |
+| API endpoints exercised | **140** — 132 in the full GET sweep + 8 write endpoints under targeted probe |
+| Frontend pages tested | **unmeasured** — see *Test Coverage Gaps*. 5 surfaces are provable from commits |
+| UI audit categories run | **1 of 7** (modals). Audits 1–6 not re-run this session |
+| Defect families found | **5** |
+| Defect families fixed | **5** |
+| Individual defect sites fixed | **16** |
+| Commits | **5** (`151428c`, `e75f7dd`, `fb9f9ba`, `2f1b469`, `ce00ee2`) |
+| Regressions introduced | **0** (17-assertion re-verification, below) |
+| Build | **PASS** — `vite build` 7.87s, exit 0 |
+| Database | **net zero** — 0 rows created 2026-09-08 in any table |
 
-**Database caveat, stated explicitly:** this run is *not* net zero at the schema level.
-s4 executed a `DROP VIEW` / `CREATE VIEW` on `lead_summary_view` against the live database.
-That DDL is a genuine security fix and is correct, but it was applied **without a committed
-migration** — see Bug 6.
+**Stage completion: 4 of 4 upstream stages terminated on `max_turns`, none completed.**
+
+| Stage | Turns | Terminal | API time | Cost | Artifact |
+|---|---|---|---|---|---|
+| s1 api-test | 51/50 | `error_max_turns` | 353s | $4.86 | **written** (`C:/tmp/api-test-results.txt`, 05:07) |
+| s2 frontend-test | 81/80 | `error_max_turns` | 722s | $8.24 | **not written** |
+| s3 ui-audit | 61/60 | `error_max_turns` | 625s | $5.42 | **not written** |
+| s4 verify | 41/40 | `error_max_turns` | 368s | $3.38 | **not written** (left a working harness — recovered in s5) |
+
+Upstream cost $21.89. Every stage figure above is read from the stage's own JSON `stop_reason`/`subtype`, not from its self-assessment.
 
 ---
 
 ## Backend API Test Results
 
-s1 capped at 51 turns and wrote no artifact, so there is **no endpoint-by-endpoint pass/fail
-matrix for this run.** What follows is what s5 could verify directly against the source and the
-database. A category with no entry was **not measured**, not passed.
+### Full GET sweep — 132 routes, real ids substituted
 
-| Category | Endpoints tested | Passed | Failed | Outcome |
+Harness `server/.qa-r123-getsweep.mjs` → `C:/tmp/qa-r123-getsweep.json`.
+
+| Bucket | Count | Verdict |
+|---|---|---|
+| 200 | 113 | OK |
+| 403 | 5 | **correct** — non-admin token, `/api/admin/*` is gated |
+| 400 | 4 | **correct** — required query param absent, returns `{error}`, no crash |
+| 5xx | **0** | zero server errors |
+| SKIP | 10 | no fixture row / table or column absent |
+
+403: `/api/admin/overview`, `/revenue`, `/tenants`, `/tenants/:id`, `/usage`.
+400: `/api/crm/calendar`, `/api/data/directions`, `/api/disaster-declarations`, `/api/properties`.
+
+Matches Run 125's baseline exactly — no regression from the four cross-tenant commits landed on 09-06/09-07 or from tonight's five.
+
+### By category
+
+| Category | Endpoints exercised | Pass | Fail | Fixed tonight |
 |---|---|---|---|---|
-| Tenant isolation — read path | 17 join sites across 9 files | 0 | 17 | Fixed, `31ed5f0` |
-| Tenant isolation — write path | 5 create/update paths | 0 | 5 | Fixed, `31ed5f0` |
-| Tenant isolation — DB view | 1 view (2 joins) | 0 | 1 | Fixed in DB by s4; migration committed in s5 |
-| Auth, CRM, estimates, invoices, work orders, materials, reports (functional sweep) | — | — | — | **Not measured this run** |
+| auth | 3 (`login`, `me`, token refresh path) | 3 | 0 | — |
+| admin | 5 | 5 (403 as designed) | 0 | — |
+| CRM core (leads, dashboard, calendar, activities, custom-fields) | ~46 | 46 | 0 | — |
+| estimates | 4 (GET list/:id, POST, PUT) | 3 | **1** | `fb9f9ba`, `e75f7dd` |
+| invoices | 4 (GET list/:id, POST, PUT) | 3 | **1** | `fb9f9ba`, `e75f7dd` |
+| contracts | 5 (GET list/:id/templates, POST, PUT) | 4 | **1** | `fb9f9ba`, `e75f7dd` |
+| expenses | 2 (GET, PUT) | 1 | **1** | `e75f7dd` |
+| subcontractors | 3 (GET list, POST assign, GET work-order/:id) | 1 | **2** | `151428c` |
+| work orders | 4 | 4 | 0 | — |
+| payments | 2 | 2 | 0 | `e75f7dd` (read join scoped) |
+| materials / storm / counties / properties / alerts / skip-trace | ~60 | 60 | 0 | — |
 
 ### What was fixed
 
-**`31ed5f0` — cross-tenant user disclosure via unscoped `users` joins and unchecked rep ids**
+**`151428c` — cross-tenant subcontractor PII disclosure.** Two layers, both open:
 
-*Read side:* every `LEFT JOIN users` resolved on `id` alone. A lead, task, activity, document,
-estimate, work order, canvass pin or territory carrying a foreign `assigned_rep_id` / `user_id` /
-`created_by` / `uploaded_by` returned **another tenant's first and last name**. **17 join sites**
-across `canvassing.js`, `crm.js`, `territories.js`, `crmService.js`, `documentService.js`,
-`estimateService.js`, `leadService.js` and `workOrderService.js` now also match on `tenant_id`.
+- `POST /api/crm/subcontractors/assign` validated `work_order_id` against the tenant but took `subcontractor_id` straight from the body, unvalidated.
+- `getWorkOrderSubcontractors()` joined `subcontractors` on id alone and selected `s.name, s.company, s.phone, s.email, s.specialty`.
 
-*Write side:* `assigned_rep_id`, `lead_id` and `assigned_to` arrive in the request body and were
-stored unvalidated, which is how the dangling foreign reference was created in the first place.
-**7 `assertOwned()` call sites** added, covering `createLead`, quick-create, `updateLead` (both
-implementations), `bulkAssign` and `updateWorkOrder` — matching the guard `createTask` and
-`createWorkOrder` already had.
+Any caller could attach any subcontractor uuid in the database to their own work order and read back a rival contractor's crew name, company, phone and email. **Proven with a planted row**, not inferred: `ZZ-VICTIM-SUB` / `Rival Roofing LLC` / `victim@rival.example` planted in tenant `dbeb300e`, posted as tenant `791bb51d`. Before: `201` and all five foreign fields returned. After: `400 subcontractor_id not found` and `[]`. Fixed with `assertOwned()` at the write boundary plus `AND s.tenant_id = $2` on the read join.
 
-### Verification (recovered in s5)
+**`e75f7dd` — UPDATE paths stored another tenant's `lead_id` / `estimate_id`.** `96f7ad2` (09-06) closed the write boundary on the five CREATE paths but left the matching UPDATE paths open, and `lead_id`/`estimate_id` are in every one of those whitelists — so PATCH/PUT was still an unguarded door onto the identical defect. Added `assertOwned()` to `updateContract`, `updateEstimate`, `updateExpense`, `updateInvoice`, and scoped two read joins that could surface the foreign row (`payments.js:263`, `contractService.js:52`).
 
-s4 capped before reporting a verdict but left `server/.qa-r129-s4-joinproof.mjs`, a pure-`SELECT`
-harness. s5 ran it. **Result: PASS.**
+**`fb9f9ba` — three create endpoints were completely unusable.** `3577c4a` added a blanket "required field" check for `lead_id` to the create routes of estimates, invoices and contracts. On all three tables that column is **nullable**, and most existing rows hold NULL (estimates 8/17, invoices 10/14, contracts 3/4). Measured live:
 
 ```
-foreign user f5c01c73… (Brandon Blond) belongs to tenant 5a358592…
-pre-fix   u.id = l.assigned_rep_id                : LEAKS -> Brandon Blond
-shipped   + AND u.tenant_id = l.tenant_id         : no row (correct)
-STATIC SWEEP — JOIN users with no tenant predicate: 0
-PASS — 31ed5f0 join fix
+before   POST /api/estimates      -> 400 {"error":"lead_id is required"}
+         POST /api/crm/invoices   -> 400 {"error":"lead_id is required"}
+         POST /api/crm/contracts  -> 400 {"error":"lead_id is required"}
+after    POST /api/estimates      -> 201  EST-091   lead_id null
+         POST /api/crm/invoices   -> 201  INV-0015  lead_id null
+         POST /api/crm/contracts  -> 201            lead_id null
 ```
 
-The pre-fix join shape leaks a **real** foreign user; the shipped shape suppresses it; and no
-unscoped `JOIN users` remains anywhere in `server/src`.
+`3577c4a`'s stated intent was preventing 500s; the UUID-format check is what does that, so it was kept and now applies only when an id was actually supplied. Re-verified that half still holds — a malformed `lead_id` on all three routes still returns `400 Invalid lead_id format`.
 
-### Standing security item — now closed
+### Re-verification (recovered from the capped s4)
 
-The cross-tenant `leads`-join family, carried as the repository's top open item for several runs,
-is **closed on both sides**. Correcting the record: `emailService.js` (the worst-consequence case,
-where a foreign `lead_id` emailed the *wrong tenant's* customer) and the `logActivity()` write
-boundary were closed **last night** by `83ba6b4`, not tonight. Current state, verified in s5:
-0 unscoped `JOIN leads`, 0 unscoped `JOIN users`, and `assertOwned` live across 8 service/route
-files with 30 references.
+s4 hit its turn cap without publishing a verdict but left `server/.qa-r131-s4-reverify.mjs`. s5 re-minted a token and ran it against the live server: **16/17 assertions PASS**.
+
+The single non-passing assertion — *"update invoice with foreign `estimate_id` rejected"* returning `200` instead of `400` — was **run down and is a harness expectation error, not a defect.** `updateInvoice`'s `allowedFields` does not include `estimate_id`, so the field is silently ignored: the probed invoice retained its own `estimate_id` (`b4603e30`, own tenant), and the cross-tenant FK audit returns `0` for all six relations. Product behaviour is therefore **17/17**.
+
+Also confirmed by that run: no cross-tenant FK is stored anywhere (`estimates`, `invoices`, `contracts`, `expenses`, `invoices→estimates`, `contracts→estimates` all `0`), own-tenant `lead_id` still accepted on update, own subcontractor still assignable (`201`), and final row counts unchanged (estimates 17, invoices 14, contracts 4, leads 13, subcontractors 64, wo_subs 1).
 
 ---
 
 ## Frontend Feature Test Results
 
-s2 capped at 81 turns and wrote no artifact. **26 of the app's routes were not measured by s2 at
-all.** One page was tested in depth and one defect landed.
+s2 capped at 81/80 turns and **wrote no artifact**, so page-level coverage for this run is **unmeasured, not passing**. What follows is only what the commits prove.
 
-### `/estimates` — Estimate Builder — **1 defect, fixed `dc5dab9`**
+### `/estimates` — Estimate Builder
 
-**Tested:** all six save paths in `EstimateBuilder` (debounced autosave, Save Draft, Save & Send,
-two review-mode saves, Send for Signing), compared as payload literals.
+- **Tested:** all six save paths (Save Draft, Save & Send, review-mode PDF, Sign Now, Send for Signing, debounced autosave); create round-trip against the live API.
+- **Broken → fixed (`fb9f9ba`):** the builder is the *only* client caller of `POST /api/estimates` and has no lead field anywhere — `lead_id` appears in `EstimatesView.jsx` only in list-grouping code. The blanket `lead_id` requirement meant **all five of its save paths returned 400 and the button could not produce an estimate by any route through the UI.** Total loss of the page's primary function.
+- **Broken → fixed (`2f1b469`):** the builder had six save paths, each answering "have I saved yet?" differently. `estimate` is a **prop** that stays null for a brand-new estimate even after the review toolbar's PDF or "Sign Now" button has already persisted the row, so the three paths gated on the prop alone (`handleSave`, `handleSend`, the send-for-signing modal) took the create branch a second time and wrote a **duplicate estimate row**. Collapsed all six onto one `savedEstimate = estimate || createdEstimate`, with every create branch recording its result via `setCreatedEstimate`.
+- **Still needs attention:** the builder now has one save-state source of truth, but six independent save paths remain. Worth a dedicated s2 regression pass.
 
-**Broken:** the debounced autosave sent `{ ...form, financing_enabled, financing_plan_ids }` —
-**17 keys** — while the other five paths all send the same **24**. Seven builder fields live in
-their own state outside `form` (discounts, signers, profit margin, footer notes, insurance
-details, upgrades, deposit) and none is in the autosave effect's dependency array. Editing one
-saved nothing and showed no banner; the next edit to any `form` field then fired the autosave,
-which returned a clean 200 and rendered **"Saved!"** while carrying none of the seven.
-`updateEstimate`'s whitelist skips `undefined`, so the stored values were silently the old ones.
-A rep who set a profit margin, added a discount or filled in insurance details, edited the
-customer name, saw "Saved!" and closed the builder **lost all of it**.
+### `/invoices` and `/contracts`
 
-**How fixed:** autosave now sends the same 24-key payload as Save Draft.
+- **Tested:** create with and without a lead selected; malformed-uuid rejection.
+- **Broken → fixed (`fb9f9ba`):** both pages have a lead picker but treat it as optional (`leadId || null` / `leadId || undefined`), so New Invoice and New Contract failed with `400` whenever the user did not pick a lead.
+- **Corrects a standing QA note:** Run 122 recorded the `/invoices` and `/contracts` empty-form 400 as *correct validation*. It was this bug. That note has been wrong in the record for eight runs.
 
-**Proved live with zero database writes** by fulfilling the PATCH from a Playwright route:
-margin 30 → 45 produced no request and no banner; editing the customer name then sent a 17-key
-PATCH with no `profit_margin` while the header read "Saved!"; Save Draft on the same state sent 24.
-After the fix the autosave sends 24 keys with `profit_margin` 45, byte-identical to Save Draft's
-key set, and merely opening an estimate still writes nothing.
+### `/leads/:id` — Lead Detail
 
-**Still needs attention:** the other 26 routes. See Test Coverage Gaps.
+- **Tested:** Storm History and Billing Notice modal geometry at a 929×861 viewport.
+- **Broken → fixed (`ce00ee2`):** covered under *UI Consistency Audit Results*.
 
-### Route render sweep (from s3's pass, not s2)
+### Not tested this run
 
-22 routes and 15 Settings tabs render with **0 uncaught page errors**. The rendered-text sweep
-(snake_case, SCREAMING_CASE, `undefined`, `NaN`, `[object Object]`, `Invalid Date`) is **clean** —
-a positive regression confirmation for `39dee53` and `c7257b7`.
+`/`, `/pipeline`, `/tasks`, `/calendar`, `/work-orders`, `/materials`, `/subcontractors`, `/expenses`, `/reports`, `/settings`, `/canvassing`, `/storm-map`, `/storm-catalog`, `/admin`, `/alerts`, `/login`, `/register`, `/onboarding`, and the three public token pages. 28 client routes exist; **5 surfaces were touched.**
 
 ---
 
 ## UI Consistency Audit Results
 
-Source: `ui-audit-results.txt`, 2026-09-07 05:46 — the one artifact genuinely from tonight.
-Coverage: 19 authenticated routes + `/login`, `/register`, `/onboarding` + 15 Settings tabs +
-22 modal sites statically + 4 modals opened live.
+s3 capped at 61/60 turns and **wrote no artifact**. Only the modal-geometry audit is provable from commits. Audits 1–6 were **not re-run this session** — the statuses below are carried from Run 128 (2026-09-07) and are marked as such.
 
-| Category | Result |
-|---|---|
-| **Icons** | **PASS.** No non-Heroicon icons. 41 files import `@heroicons/react/24/outline`; 0 from `24/solid`, 0 lucide/react-icons/font-awesome/material/@mui. Inline `<svg>` in exactly 2 files (`CanvassingMode.jsx`, `StormMap.jsx`) — both documented map surfaces. Runtime: 2,195 of 2,204 `<svg>` are 24×24; the other 9 are all `recharts-surface` chart geometry on `/reports`. Nothing fixed because nothing was wrong. |
-| **Buttons** | **PASS.** 62 distinct signatures grouped by class + radius + font-size + weight + padding; every group with >1 member internally consistent. All radius families deliberate. Primary action colour uniform at `oklch(0.72 0.19 250)` across all 22 routes. |
-| **Toolbars / Headers** | **PASS.** 19/19 routes: header exactly 56px, exactly one `<h1>`, title left / actions right. Identical to Runs 80, 103, 112, 127. |
-| **Sidebar / Nav** | **PASS.** 19/19: 18 `.nav-link`, all 18 with an `<svg>`, every item 42px, gaps uniform. Exactly one `.is-active` on 18/19; `/alerts` reports 0 — the documented orphan route (`AlertSettings` has no sidebar entry), not a new finding. |
-| **Forms** | **PASS.** 0 native `<select>` and 0 native date/time inputs on any route, Settings tab or auth page — in runtime *and* in source. `CustomSelect` and `DatePicker` used universally. `.form-input` identical everywhere: 36px, radius 12px, padding 0 16px, 13px. Three non-`.form-input` text inputs found and each accounted for (TopBar global search one-off; `/storm-map` Places search — standing billable exclusion; Stripe iframe element). |
-| **Spacing** | **PASS.** Header 56px and nav 42px uniform across 19/19. No stray full-viewport overlay at rest on 18/19; `/storm-map`'s full-bleed container is intended. Modal padding within the design scale. |
-| **Modals** | **2 DEFECT FAMILIES, 7 SITES — ALL FIXED.** Backdrop class 22/22, scale-in animation reached on all 22, widths content-appropriate. Blur and close-button defects below. |
+| Category | This run | Result |
+|---|---|---|
+| **Icons** | not re-run | Run 128: 2,195/2,204 runtime SVGs are Heroicon `0 0 24 24`; the other 9 are `recharts-surface` on `/reports`. 41 files import `24/outline`, 0 solid, 0 foreign libraries, 0 `fa-*`. **No non-Heroicon icons outstanding.** |
+| **Buttons** | not re-run | Run 128: 62 signatures, every multi-member group internally consistent. No sizing/styling inconsistencies outstanding. |
+| **Toolbars / Headers** | not re-run | Run 128: header 56px + exactly one `<h1>` on 19/19 routes. Consistent. |
+| **Sidebar / Nav** | not re-run | Run 128: 18 links / 18 icons / 42px on 19/19, exactly one `.is-active` except `/alerts` (documented orphan route). |
+| **Forms** | not re-run | Run 128: **0 native `<select>`, 0 native date inputs** across 19 routes + 15 Settings tabs + 3 auth routes. `DatePicker.jsx` / `CustomSelect.jsx` standards hold. |
+| **Spacing** | not re-run | Run 128: no alignment issues outstanding. |
+| **Modals** | **run — 2 defects found, 2 fixed** | See below. |
 
-### Modal defects found and fixed
+### Modals — `ce00ee2` (2 defects)
 
-**`3e9fe18` — five modals had no backdrop blur (5 sites).**
-`.modal-backdrop` supplies *only* the fade-in animation, so all 22 usages hand-write
-`position`/`inset`/`background`/`backdropFilter`/`zIndex` inline — the standard exists as 22
-sibling style literals, not as CSS. Diffing those literals **against each other** gives 17 with a
-blur and 5 without: `WorkOrdersView.jsx:236/:640/:775`, `EstimatesView.jsx:746`,
-`MaterialsView.jsx:587`. Confirmed live: with New Work Order open,
-`getComputedStyle('.modal-backdrop').backdropFilter === "none"` while Add Expense on the adjacent
-page returned `blur(8px)`. Those five read as a flat scrim over a busy table instead of the
-frosted panel every other modal produces.
+The Storm History and Billing Notice panels in `LeadDetail.jsx` set `position:fixed; top:50%; left:50%` but never applied the compensating `translate(-50%,-50%)`, so their **top-left corner** landed on the viewport centre instead of their middle. At a 929×861 viewport the 560px-wide panel ran **96px off the right edge**, and a full-height one (`maxHeight:80vh`) also runs off the bottom — where it is unreachable, because the panel is fixed and its overflow is hidden.
 
-**`f25f660` — two modal close buttons were a 20×23 icon, not the shared 32×32 box (2 sites).**
-`.modal-close` exists because of an earlier sweep, and its own comment records the symptom it was
-written to fix. Re-deriving N over every `<button>` rendering an X icon finds **44**: 25 carry the
-shared class, 19 are hand-rolled — but **17 of the 19 are a different control** (image-remove
-chips, milestone removes, filter-tag clears, TerritoryManager inline form) and were correctly
-excluded. Two were genuine modal-header closes the original sweep missed:
-`EstimatesView.jsx:761` and `LeadDetail.jsx:2715`. Both also carried inline `background:'none'`,
-which as a style attribute **outranks `.modal-close:hover`** — adding the class alone would have
-left them with no hover feedback, so the redundant inline declarations were removed too.
+Adding the translate alone is not sufficient: the shared `modal-scale-in` keyframe ends at `transform: none`, which clobbers the centring translate the moment the animation lands. The fix adds a `modal-scale-in-centered` variant carrying the translate through **both** keyframes (the same way `mapLoadFadeIn` does) and points the two self-centring panels at it. The other four `modal-scale-in` consumers (CalendarView, DripSequences, EstimatesView, InvoicesView) are centred by a flex parent and carry no transform of their own, so they correctly keep the original keyframe.
 
-### False positives explicitly killed (recorded so they are not re-filed)
-
-- `/register`'s visually-different first field is **`autoFocus`** — `oklch(0.26 0.02 260 / 0.55)` is exactly `.form-input:focus`.
-- The 14 radius-0 `/materials` category tabs have **no shared tab class to have missed**; the app has no design-system tab component, and three page-local tab styles is the established pattern.
-- The 16px/12px modal panels are **not overriding a default** — `.glass` declares no `border-radius` at all.
-- `/onboarding`'s h42 CTA is a **deliberate** larger signup CTA, applied consistently at `OnboardingPage.jsx:276` and `:364`.
-- Tailwind v4 reports `rounded-full` as 33554432px; renders identically to the app's 999px.
+Verified at runtime: injecting the pre-fix style measures the panel centre 280px right / 200px below the viewport centre; the fixed Storm History modal measures a centring error of **0,0** with nothing off-screen. Re-confirmed in s5 against the built bundle — `@keyframes modal-scale-in-centered{0%{opacity:0;transform:translate(-50%,-50%)scale(.95)}to{...}}` is present in `dist/assets/index-DJwUQBaw.css`, and both consumers are wired in (`LeadDetail.jsx:1839`, `:1969`).
 
 ---
 
 ## Bugs Fixed
 
-1. **API / 9 server files — cross-tenant user disclosure (read).** 17 `LEFT JOIN users` sites resolved on `id` alone, returning another tenant's first and last name for any foreign `assigned_rep_id` / `user_id` / `created_by` / `uploaded_by`. — Every join now also matches `tenant_id`. `31ed5f0`
-2. **API / `createLead`, quick-create, `updateLead` ×2, `bulkAssign`, `updateWorkOrder` — unvalidated foreign keys (write).** Body-supplied `assigned_rep_id` / `lead_id` / `assigned_to` stored unchecked, creating the dangling cross-tenant reference in the first place. — 7 `assertOwned()` guards added. `31ed5f0`
-3. **`/estimates` Estimate Builder — autosave reported "Saved!" while discarding seven fields.** Autosave sent 17 keys where the five sibling save paths send 24; discounts, signers, profit margin, footer notes, insurance details, upgrades and deposit were silently dropped. — Autosave now sends the same 24-key payload. `dc5dab9`
-4. **`/work-orders` ×3, `/estimates`, `/materials` — five modal backdrops rendered with no blur.** — `backdropFilter: 'blur(8px)'` added to match the other 17. `3e9fe18`
-5. **`/estimates`, `/leads/:id` — two modal-header close buttons were hand-rolled 20×23 non-square targets with suppressed hover.** — Adopted `.modal-close` (32×32, radius 8px, `aria-label="Close"`) and deleted the inline `background:'none'` that outranked its `:hover`. `f25f660`
-6. **Database / `lead_summary_view` — the same unscoped joins, one copy deeper.** `31ed5f0` fixed the `users` joins in the JS query strings, but `lead_summary_view` holds another copy **inside the database**, and `getLeads()` (`crmService.js:69`) reads `rep_first_name` / `rep_last_name` / `rep_email` straight out of it — so a lead carrying a foreign `assigned_rep_id` still resolved that tenant's user. The primary-contact `LATERAL` had the same shape, matching on `lead_id` alone and supplying another tenant's `contact_first_name`, `contact_last_name`, `primary_phone` and `primary_email`. — Both clauses now match on `tenant_id`. Applied to the live database by s4; **migration `051_lead_summary_view_tenant_scope.sql` committed in s5** so the fix survives a rebuild.
+1. **`POST /api/crm/subcontractors/assign` + `GET /api/crm/subcontractors/work-order/:id`** — any tenant could attach any subcontractor uuid in the database to their own work order and read back that rival contractor's crew name, company, phone, email and specialty — `assertOwned()` at the write boundary plus `AND s.tenant_id = $2` on the read join (`151428c`).
+2. **`PUT /api/estimates/:id`, `/api/crm/invoices/:id`, `/api/crm/contracts/:id`, `/api/crm/expenses/:id`** — all four update paths stored another tenant's `lead_id`/`estimate_id`; the CREATE-side guard added on 09-06 left PATCH/PUT as an unguarded door onto the identical defect — added the same `assertOwned()` guard to all four (`e75f7dd`).
+3. **`payments.js:263` and `contractService.js:52`** — read joins onto `estimates` could surface a foreign row even after input validation, because validation cannot reach a row that is already stored — added the tenant equality to the `ON` clause (`e75f7dd`).
+4. **`POST /api/estimates`** — a blanket required-`lead_id` check made the Estimate Builder, the endpoint's only client caller, unable to save by any of its five paths; the column is nullable and the builder has no lead field — restricted the check to the UUID-format half that actually prevents the 500 (`fb9f9ba`).
+5. **`POST /api/crm/invoices`** — same root cause; New Invoice failed whenever no lead was picked, which the UI treats as optional (`fb9f9ba`).
+6. **`POST /api/crm/contracts`** — same root cause; New Contract failed whenever no lead was picked (`fb9f9ba`).
+7. **`/estimates` Estimate Builder** — `handleSave`, `handleSend` and the send-for-signing modal gated on the `estimate` **prop**, which stays null after the review toolbar has already persisted the row, so each wrote a **duplicate estimate** for the same job — collapsed all six save paths onto one `savedEstimate = estimate || createdEstimate` (`2f1b469`).
+8. **`/leads/:id` Storm History modal** — `top:50%; left:50%` with no compensating translate put the panel's top-left corner at the viewport centre, running it 96px off the right edge — added `modal-scale-in-centered`, which carries the translate through both keyframes (`ce00ee2`).
+9. **`/leads/:id` Billing Notice modal** — same defect; at full height it also ran off the bottom, where it is unreachable (`ce00ee2`).
 
 ---
 
 ## Known Issues (Not Fixed)
 
-1. **`server/src/scripts/updateView.js` is obsolete and destructive if run.** It is referenced by
-   no package script and imported nowhere, and its `CREATE VIEW` no longer matches the live view.
-   Running it today would **drop `custom_fields`, `lead_score`, `lead_score_factors` and
-   `lead_score_updated_at`** — the migration 042 columns — and `getLeads()` accepts `lead_score`
-   in its `allowedSort` whitelist, so `/leads` sorted by score would begin throwing. Its
-   tenant-scoping edit was committed tonight so the working tree is clean and the script is at
-   least not *also* disclosive, but **the script should be deleted or regenerated from migration
-   051.** Left for a human decision rather than deleted unasked.
-2. **Pre-existing QA junk rows in the database.** 64 `subcontractors` rows include roughly 34
-   fixtures from earlier runs (`{"$eq":1}` and `12345` repeated, plus `QA Sub`, `QA Sub 2809`,
-   `QA Roofing`), and one lead `qa20260730c 456 Convert St`. **None was created tonight** — 0 rows
-   were created on 2026-09-07 in any table. Deleting them is a write against a Neon free-tier
-   database and was deferred, as in prior runs.
-3. **`/alerts` is an orphan route** — `AlertSettings` has no sidebar entry, so no nav item is
-   active there. Long-standing, documented, not a regression.
-4. **64 generic error toasts** (the documented known-and-deferred item). `/admin` surfacing
-   "Failed to load overview data." for a non-platform-admin is an instance of this: the 403 itself
-   is correct authorization; only the wording is generic.
-5. **`contacts`, `tasks`, `documents` and `financing_applications` are empty (0 rows).** Those
-   surfaces are only testable in their empty state without seeding, which is a write.
+- 🔴 **10 unscoped joins remain in `server/src/services/financing/index.js`.** s1's rebuilt join scanner found 13 unscoped joins onto tenant-owned tables (down from Run 125's 31 after the `leads` and `users` families closed); tonight's `e75f7dd` closed 2 of the 3 outside financing, leaving **10 in the financing service** — `financing_plans`, `financing_lenders` and `estimates` joined with no `tenant_id` predicate anywhere in the query. **s1's triage section was left empty when it capped.** Currently **latent, not exploitable**: `financing_applications` holds 0 rows and all 5 `financing_plans` / 1 `financing_lender` belong to a single tenant, so there is no second tenant's data to leak yet. It becomes a live cross-tenant disclosure the moment a second tenant configures financing. **This is the top item for the next s1.**
+- 🔴 **`server/src/scripts/updateView.js` is obsolete and destructive if run.** Carried unresolved from Run 128. Referenced by no package script and imported nowhere; its `CREATE VIEW` no longer matches the live view. Running it would drop `custom_fields`, `lead_score`, `lead_score_factors`, `lead_score_updated_at`, and `getLeads()` allows `lead_score` in `allowedSort`, so `/leads` sorted by score would start throwing. Should be deleted or regenerated from migration 051. **Needs a human decision.**
+- ⚠️ **`updateInvoice` silently ignores `estimate_id`.** It is absent from `allowedFields`, so a PUT carrying it returns `200` having written nothing, while the sibling `updateContract` returns `400` for the same input. Not a security defect (confirmed: no foreign id is stored) and consistent with the codebase's whitelist idiom, but the two endpoints disagree. Design decision, not filed as a bug.
+- **Pre-existing QA junk in the database.** ~34 of 64 `subcontractors` rows are old fixtures (`{"$eq":1}`, `12345`, `QA Sub`…) plus one `qa20260730c` lead. **None created tonight.** Deletion is a write against a Neon free-tier database; deferred, as in prior runs.
+- **Empty-state-only surfaces.** `tasks`, `contacts`, `documents`, `payments` and `financing_applications` all hold 0 rows, so those pages cannot be tested beyond their empty state without planting fixtures.
+- **`/alerts` orphan route** and **64 generic error toasts** — both long-standing, both carried.
 
 ---
 
 ## Test Coverage Gaps
 
-1. **Backend endpoint sweep — not performed.** s1 capped at 51 turns having landed its fix but
-   never ran a broad endpoint pass, and wrote no artifact. Auth, CRM, estimates, invoices, work
-   orders, materials and reports have **no pass/fail data for this run**.
-2. **Frontend — 26 of 30 routes unmeasured by s2.** s2 capped at 81 turns after `/estimates`.
-   The route-level data in this report comes from s3's sweep, which is a UI audit, not a
-   functional test: it proves pages render and are visually consistent, **not** that their
-   interactions work.
-3. **Two of tonight's five UI fixes were verified by build only, not in a browser.** The
-   `MaterialsView` cart drawer needs items added to a cart (a write) and the `LeadDetail`
-   street-view modal drives Google Maps (billable). Both are one-line changes already proven live
-   on their siblings, and are recorded as **verified-by-build, not verified-in-browser**.
-4. **Standing exclusions, deliberately not exercised:** `/storm-map` address search (Google Places,
-   billable per keystroke); FEMA property loading / filtering / IndexedDB (developer-owned);
-   sidebar collapse (its toggle sits adjacent to SIGN OUT); `/onboarding` wizard steps past the
-   first (advancing writes and touches Stripe) — read statically only.
-5. **No login attempts were spent** (login is rate-limited); the sweep reused an existing session.
-6. **Turn caps are now the dominant coverage constraint.** Four of four working stages capped, for
-   the third consecutive run. Two stages lost their entire evidence trail. This costs more
-   coverage than any defect found tonight.
+1. **All four upstream stages capped on `max_turns`** (51/50, 81/80, 61/60, 41/40). This is the single largest source of lost coverage and is now the **#1 note for five consecutive runs**. The charters are wider than the turn budgets allow; either raise the budgets or narrow the charters.
+2. **s2 and s3 wrote no results artifact**, so frontend and UI-audit coverage is **unmeasured, not passing** — only what their commits prove is reportable. The "write your artifact on turn 1" instruction has now been given and ignored for five runs.
+3. **The stale-temp trap paid off again — 5 runs for 5.** Artifacts live in **two** temp roots. `/tmp/api-test-results.txt` (09-06), `/tmp/frontend-test-results.txt` (09-04) and `/tmp/ui-audit-results.txt` (09-07) are all stale; tonight's real s1 artifact is `C:/tmp/api-test-results.txt` (05:07 today). **`stat` every artifact before reading it.**
+4. **Write-endpoint coverage is thin.** Of 140 endpoints exercised, 132 were GETs. Only **8 of the 140 write routes** (88 POST / 26 PATCH / 8 PUT / 18 DELETE) were probed, and those only along the cross-tenant axis. **The functional write-endpoint sweep has now been skipped three runs running.**
+5. **UI audits 1–6 were not re-run**, so their PASS status is carried from 2026-09-07 rather than re-confirmed. The Run 128 inline-literal technique (diffing N sibling inline-style literals against each other where a shared class supplies only part of a component) is **still unexploited on `.glass`, `.slide-over` and `.quick-action-btn`**.
+6. **23 of 28 client routes were not opened this run.**
+7. **The `/onboarding` wizard's later steps (PLAN / PAYMENT / ADD-ONS) remain unswept** — advancing through them may write rows or touch Stripe, so they need a static read rather than a live walk.
+8. **A tester-error trap cost s1 a full sweep.** The first GET sweep returned 23×200 and **93× "fetch failed"** — a hard cutoff partway through the alphabetical route list that looks exactly like a crashed server. The server was alive; the sweep had started ~45s after a restart while the startup SPC/MRMS ingestion was stalling the event loop. **Wait for "startup backfill complete" in the server log before sweeping.**
+9. **Run-number drift recurred for the second run running.** s1 correctly identified tonight as Run 130 (last night's s4/s5 had already claimed 129), but s4 then named its harnesses `.qa-r131-*`. Tonight is **Run 130**.
 
 ---
 
-## Notes for the Next Run
+## Verification
 
-1. 🔴 **Raise the turn budgets or narrow the charters.** Four of four capped, three runs running.
-   This has been the #1 note for four runs and is the single largest source of lost coverage.
-2. 🔑 **Write the results artifact on turn 1.** Instructed four runs, ignored four runs. Tonight
-   s3 did it and is fully reportable; s1 and s2 did not and are not.
-3. 🔑 **`stat` every artifact — the stale-temp trap has now paid off 4 runs for 4.** Tonight two of
-   three artifacts were stale, in **two different temp roots**. Reading them as tonight's would
-   have fabricated two whole sections.
-4. 🔑 **Search one layer deeper than the code.** Tonight's best find is Bug 6: the fix landed in
-   every JS query string while a **copy of the same join lived inside the database** as a view.
-   When a fix is a join-shape change, ask what else stores that join — views, materialized views,
-   triggers, cached SQL.
-5. 🔑 **The Run 128 style technique generalises and is still unexploited elsewhere:** when a shared
-   class supplies only *part* of a component, the real standard lives as N sibling inline-style
-   literals — diff them against each other, not against the class. Re-run on `.glass`,
-   `.slide-over` and `.quick-action-btn`.
-6. ⚠️ **Run-number drift recurred** — s1–s3 said 128, s4 said 129. Resync.
-7. **A capped stage can still leave a working harness.** Running s4's leftover `joinproof` harness
-   in s5 recovered the entire backend verification section. Always check for them.
-8. **Suggested targets — s1:** the functional endpoint sweep now skipped twice. **s2:** any of the
-   26 unmeasured routes. **s3:** the `.glass` / `.slide-over` literal diff. **s4:** decide
-   `updateView.js` — delete or regenerate.
-9. Drift baseline for the next run: the `docs: QA report 2026-09-07` commit (head after this entry).
+```
+vite build            PASS   7.87s, exit 0
+s4 re-verification    16/17 assertions PASS  (1 harness expectation error, run down — not a defect)
+cross-tenant FK audit 0 across all 6 relations
+DB rows created today 0  (estimates, invoices, contracts, leads, subcontractors)
+final row counts      estimates 17 · invoices 14 · contracts 4 · leads 13 · subcontractors 64 · wo_subs 1
+geocoding calls       0        paid API calls  0
+working tree          clean of source changes; all 5 fixes committed
+```

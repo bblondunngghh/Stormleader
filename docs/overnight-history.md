@@ -5687,3 +5687,108 @@ not tonight - the "untouched for four runs" entry was already stale when written
 - Drift baseline for the next run: the `docs: QA report 2026-09-07` commit (head after this entry).
 
 ---
+
+## QA Run: 2026-09-08
+
+**Run 130** · branch `feat/financing` · baseline `004e3b4` · **all four upstream stages capped on `max_turns`**
+(s1 51/50, s2 81/80, s3 61/60, s4 41/40 — none completed; upstream cost $21.89)
+
+### Test Results
+- Pages tested: **unmeasured** — s2 and s3 wrote no artifact. 5 surfaces provable from commits
+  (`/estimates` builder, `/invoices`, `/contracts`, `/leads/:id` x2 modals) out of 28 client routes.
+- API endpoints tested: **140** of 272 inventoried (132 GET sweep + 8 write endpoints targeted-probed).
+  GET sweep: 113x200, 5x403 correct, 4x400 correct, **0x5xx**, 10 skipped for want of a fixture.
+- Bugs found: **9** (5 families / 16 individual sites)
+- Bugs fixed: **9** (5 families / 16 sites)
+- UI inconsistencies found: **2** (modal centring; 1 of 7 audit categories run)
+- UI inconsistencies fixed: **2**
+- Regressions: **0** · Build: **PASS 7.87s exit 0** (re-run in s5)
+- DB: **net zero** — 0 rows created 2026-09-08 in any table; final counts estimates 17 / invoices 14 /
+  contracts 4 / leads 13 / subcontractors 64 / wo_subs 1. 0 geocoding, 0 paid API calls.
+
+### Fixes Made
+- `151428c` **fix(api): cross-tenant subcontractor PII disclosure** — `POST /api/crm/subcontractors/assign`
+  validated `work_order_id` against the tenant but took `subcontractor_id` from the body unvalidated, and
+  `getWorkOrderSubcontractors()` joined `subcontractors` on id alone selecting name/company/phone/email/
+  specialty. Any tenant could attach any subcontractor uuid to their own work order and read back a rival
+  contractor's crew details. Proven with a planted row (`ZZ-VICTIM-SUB` / `Rival Roofing LLC`), not inferred.
+  Fixed both layers: `assertOwned()` at the write boundary + `AND s.tenant_id = $2` on the read join.
+- `e75f7dd` **fix(api): UPDATE paths stored another tenant's `lead_id` / `estimate_id`** — `96f7ad2` closed
+  the five CREATE paths but left the matching UPDATE paths open, and both ids are in every one of those
+  whitelists, so PATCH/PUT was an unguarded door onto the identical defect. `assertOwned()` added to
+  `updateContract`, `updateEstimate`, `updateExpense`, `updateInvoice`; read joins at `payments.js:263` and
+  `contractService.js:52` scoped. **Recovered from s1, which capped with this work complete but uncommitted.**
+- `fb9f9ba` **fix(api): New Estimate, New Invoice and New Contract could not be saved at all** — `3577c4a`
+  added a blanket required-`lead_id` check to three create routes whose column is NULLABLE and mostly NULL
+  (estimates 8/17, invoices 10/14, contracts 3/4). EstimatesView is the ONLY caller of `POST /api/estimates`
+  and has no lead field, so **all five of its save paths 400'd and the page could not produce an estimate by
+  any route through the UI.** Kept the UUID-format half (which is what actually prevents the 500) and applied
+  it only when an id was supplied. **Corrects a standing QA note: Run 122 recorded the `/invoices` and
+  `/contracts` empty-form 400 as correct validation — it was this bug, wrong in the record for eight runs.**
+- `2f1b469` **fix(estimates): review-toolbar saves created a second estimate row for the same job** — the
+  builder had SIX save paths each answering "have I saved yet?" differently. `estimate` is a PROP that stays
+  null for a new estimate even after the review toolbar's PDF or "Sign Now" has already persisted the row,
+  so the three paths gated on the prop alone took the create branch again and wrote a DUPLICATE. Collapsed
+  all six onto `savedEstimate = estimate || createdEstimate`.
+
+### UI Consistency Fixes
+- `ce00ee2` **two lead-detail modals rendered off-centre and clipped by the viewport** — Storm History and
+  Billing Notice set `position:fixed; top:50%; left:50%` with no compensating `translate(-50%,-50%)`, so the
+  panel's TOP-LEFT CORNER landed on the viewport centre. At 929x861 the 560px panel ran 96px off the right
+  edge; a full-height one also runs off the bottom, unreachable because the panel is fixed with overflow
+  hidden. The translate alone is not enough — the shared `modal-scale-in` keyframe ends at `transform:none`,
+  which clobbers the centring the moment the animation lands. Added a `modal-scale-in-centered` variant
+  carrying the translate through BOTH keyframes (as `mapLoadFadeIn` does). The other four `modal-scale-in`
+  consumers are centred by a flex parent and correctly keep the original keyframe. Re-confirmed in s5 against
+  the built bundle: keyframe present in `dist/assets/index-DJwUQBaw.css`, both consumers wired in.
+- Audits 1-6 (icons, buttons, headers, sidebar, forms, spacing) **were not re-run** — s3 capped. Their PASS
+  status is carried from Run 128, not re-confirmed tonight.
+
+### Verification recovered in s5 (s4 capped without leaving a verdict)
+s4 left `server/.qa-r131-s4-reverify.mjs`. s5 re-minted an expired token and ran it: **16/17 PASS**. The one
+non-passing assertion ("update invoice with foreign `estimate_id` rejected" -> 200 not 400) was run down and
+is a **harness expectation error, not a defect**: `updateInvoice`'s `allowedFields` omits `estimate_id`, so
+the field is silently ignored — the probed invoice kept its own `estimate_id` and the cross-tenant FK audit
+returns 0 for all six relations. Product behaviour is **17/17**. Own-tenant `lead_id` still accepted on
+update; own subcontractor still assignable (201); all planted and created rows removed.
+
+### Known Issues Remaining
+- 🔴 **10 unscoped joins remain in `server/src/services/financing/index.js`** — the rebuilt scanner found 13
+  unscoped joins onto tenant-owned tables (Run 125 reported 31 with a single-line-only matcher); `e75f7dd`
+  closed 2 of the 3 outside financing. **s1's triage section was left empty when it capped.** Currently
+  LATENT: `financing_applications` has 0 rows and all 5 `financing_plans` / 1 `financing_lender` belong to
+  ONE tenant, so there is no second tenant's data to leak — it goes live the moment a second tenant
+  configures financing. **Top item for the next s1.**
+- 🔴 **`server/src/scripts/updateView.js` is obsolete and DESTRUCTIVE if run** — carried unresolved from
+  Run 128. Still needs a human decision: delete it or regenerate it from migration 051.
+- ⚠️ **`updateInvoice` silently ignores `estimate_id`** (200, no write) while the sibling `updateContract`
+  400s on the same input. Not a security defect; the two endpoints simply disagree. Design decision.
+- Pre-existing QA junk: ~34 of 64 `subcontractors` rows are old fixtures plus one `qa20260730c` lead.
+  **None created tonight.** Deletion is a write against a Neon free-tier DB; deferred as in prior runs.
+- `/alerts` orphan route; 64 generic error toasts; `tasks`/`contacts`/`documents`/`payments`/
+  `financing_applications` all 0 rows, so those surfaces are empty-state-only.
+
+### Notes for the next run
+1. 🔴 **Raise the turn budgets or narrow the charters.** Four of four capped, FOUR runs running. #1 note for
+   five runs; still the single largest source of lost coverage.
+2. 🔑 **Write the results artifact on turn 1.** Instructed five runs, ignored five runs. Only s1 did it, and
+   s1 is the only stage whose coverage is reportable. s2 and s3 are unmeasured, NOT passing.
+3. 🔑 **`stat` every artifact — the stale-temp trap is now 5 runs for 5.** Both temp roots were stale for the
+   frontend and UI-audit files; tonight's only live artifact was `C:/tmp/api-test-results.txt`.
+4. 🔑 **A capped stage's leftover harness is worth running — 2 runs for 2.** s4's `.qa-r131-s4-reverify.mjs`
+   recovered the entire backend verification section. But **check the harness's EXPECTATIONS too**: one of
+   its 17 assertions encoded a wrong assumption and would have been filed as a live security defect if the
+   200 had been taken at face value. Run the failure down to the stored row before believing it.
+5. 🔑 **When a guard is added to CREATE, check UPDATE the same night.** `e75f7dd` exists only because
+   `96f7ad2` closed one half of a whitelist pair. Ask which OTHER verb shares the field whitelist.
+6. 🔑 **A "required field" validator is a total-outage risk when the column is nullable.** `fb9f9ba` took a
+   page's primary function offline for the entire time it was in. Before adding a required check, count the
+   existing NULLs and find the endpoint's real callers.
+7. ⚠️ **Run-number drift recurred again** (s1 correctly said Run 130; s4 named its harnesses `.qa-r131-*`).
+   Tonight is **Run 130**. Resync.
+8. **Suggested targets — s1:** finish the financing join triage (10 open), then the functional write-endpoint
+   sweep, now skipped THREE runs. **s2:** any of the 23 unopened routes. **s3:** the `.glass` /
+   `.slide-over` / `.quick-action-btn` inline-literal diff, still unexploited. **s4:** decide `updateView.js`.
+- Drift baseline for the next run: the `docs: QA report 2026-09-08` commit (head after this entry).
+
+---
